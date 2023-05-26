@@ -1,0 +1,117 @@
+-- Меню расширенных настроек графики для OGSR Engine
+-- Глобальная переделка xrSimpodin (c) 2023
+
+local mm = ui_mm_opt_main
+
+local hint_colors = {
+	["green"]  = { 255, 0, 128, 0 },
+	["yellow"] = { 255, 186, 149, 0 },
+	["red"]    = { 255, 255, 0, 0 },
+}
+
+local adv_vid_opt_params = {
+	{ "fov",                   "track", 0, hint_colors.green , "video_settings_name_fov", "video_settings_desc_fov" },
+	{ "hud_fov",               "track", 0, hint_colors.green , "video_settings_name_hud_fov", "video_settings_desc_hud_fov" },
+	--
+	{ "aa",                    "list",  0, hint_colors.green , "video_settings_name_aa", "video_settings_desc_aa" },
+	{ "msaa",                  "list",  1, hint_colors.red   , "video_settings_name_msaa" , "video_settings_desc_msaa"  },
+	--
+	{ "r2_sun",                "check", 0, hint_colors.red   , "video_settings_name_r2_sun", "video_settings_desc_r2_sun" },
+	{ "r__smap_size",          "list",  1, hint_colors.red   , "video_settings_name_r__smap_size", "video_settings_desc_r__smap_size" },
+	{ "r2_sun_quality",        "list",  0, hint_colors.red   , "", ""                                             },
+	{ "sun_shafts",            "list",  0, hint_colors.yellow, "video_settings_name_sun_shafts", "video_settings_desc_sun_shafts" },
+	{ "r2_actor_shadow",       "check", 0, hint_colors.green , "video_settings_name_r2_actor_shadow", ""                       },
+	--
+	{ "ssao",                  "list",  0, hint_colors.yellow, "video_settings_name_ssao", "video_settings_desc_ssao" },
+	--
+	{ "r3_dynamic_wet_surfaces","check",0, hint_colors.yellow, "video_settings_name_r3_dynamic_wet_surfaces", "video_settings_desc_r3_dynamic_wet_surfaces" },
+	{ "r_sslr_enable",         "check", 0, hint_colors.yellow, "video_settings_name_r_sslr_enable", "video_settings_desc_r_sslr_enable" },
+	--
+	{ "tessellation",          "check", 0, hint_colors.green , "video_settings_name_tessellation", "video_settings_desc_tessellation" },
+	{ "vsync",                 "check", 0, hint_colors.green , "video_settings_name_vsync", "video_settings_desc_vsync" },
+	{ "3d_scopes_fps_factor",  "track", 0, hint_colors.red   , "video_settings_name_3d_scopes_fps_factor", "video_settings_desc_3d_scopes_fps_factor" },
+	{ "mt_texload",            "check", 0, hint_colors.green , "video_settings_name_mt_texload", "video_settings_desc_mt_texload"                       },
+	--
+	{ "detail_density",        "track", 0, hint_colors.red   , "video_settings_name_detail_density" , "video_settings_desc_detail_density"  },
+	{ "detail_distance",       "track", 0, hint_colors.red   , "video_settings_name_detail_distance" , "video_settings_desc_detail_distance"  },
+	{ "detail_scale",          "track", 0, hint_colors.yellow, "video_settings_name_detail_scale" , "video_settings_desc_detail_scale"  },
+	--
+	{ "r2_steep_parallax",     "check", 0, hint_colors.yellow, "video_settings_name_r2_steep_parallax", "video_settings_desc_r2_steep_parallax" },
+	{ "terrain_parallax",      "check", 1, hint_colors.yellow, "video_settings_name_terrain_parallax", "video_settings_desc_terrain_parallax" },
+	--
+	{ "npc_torch",             "check", 0, hint_colors.yellow, "video_settings_name_npc_torch", "video_settings_desc_npc_torch" },
+	--
+	{ "dof_ui_wnd",            "check", 0, hint_colors.green , "video_settings_name_dof_ui_wnd", "video_settings_desc_dof_ui_wnd" },
+	{ "dof_reload",            "check", 0, hint_colors.green , "video_settings_name_dof_reload", "video_settings_desc_dof_reload" },
+	{ "dof_zoom",              "check", 0, hint_colors.green , "video_settings_name_dof_zoom", "video_settings_desc_dof_zoom" },
+	{ "dof_zoom_param",        "track", 0, hint_colors.green , "", ""                                             },
+	--	
+	{ "r2_rain_drops",         "check", 0, hint_colors.green , "video_settings_name_r2_rain_drops", "video_settings_desc_r2_rain_drops" },
+	{ "r2_visor_refl",         "check", 0, hint_colors.green , "video_settings_name_r2_visor_refl", "video_settings_desc_r2_visor_refl",                      },
+	--
+--	{ "volumetric_light",      "check", 0, hint_colors.green , "video_settings_name_50", "video_settings_desc_50" }, --нету у нас таких ламп
+--	{ "r3_volumetric_smoke",   "check", 0, hint_colors.green , "video_settings_name_55", "video_settings_desc_55" }, --Вообще выключен в движке, до лучших времен.
+
+	{ "bloodmarks_on_dynamics", "check", 0, hint_colors.yellow, "video_settings_name_bloodmarks_on_dynamics", "video_settings_desc_bloodmarks_on_dynamics"},
+	{ "cam_inert",             "track", 0, hint_colors.green , "video_settings_name_cam_inert" , "video_settings_desc_cam_inert"  },
+	{ "cam_lookout_speed",     "track", 0, hint_colors.green , "video_settings_name_cam_lookout_speed" , "video_settings_desc_cam_lookout_speed"  },
+	{ "cam_height_speed",      "track", 0, hint_colors.green , "video_settings_name_cam_height_speed" , "video_settings_desc_cam_height_speed"  },
+}
+
+class "opt_video_adv" (CUIWindow)
+function opt_video_adv:__init() super()
+end
+
+function opt_video_adv:__finalize()
+	--log1("--opt_video_adv:__finalize() called!")
+end
+
+function opt_video_adv:InitControls(x, y, xml, handler)
+	self:Init(x, y, 738, 416)
+	self:SetAutoDelete(true)
+
+	xml:InitFrame("frame", self)
+	self.scroll_v = xml:InitScrollView("video_adv:scroll_v", self)
+
+	-- перебираем с конца, поскольку в настройках scroll view в xml стоит параметр flip_vert="1",
+	-- который инвертирует порядок элементов, что в свою очередь сделано для того, чтобы визуально первые элементы
+	-- добавлялись последними, что в свою очередь позволяет раскрывающимся спискам перекрывать элементы, расположенные ниже по списку
+	for i = #adv_vid_opt_params, 1, -1 do
+		local opt, ctr_type, need_restart, color, hint_caption, hint_string, cond = unpack(adv_vid_opt_params[i])
+
+		local enabled = not cond or cond()
+
+		local _st = xml:InitStatic("video_adv:templ_item", self.scroll_v)
+		local _st2 = xml:InitStatic("video_adv:cap_"..opt, _st)
+		local ctl = xml[mm.get_control(ctr_type)](xml, "video_adv:"..ctr_type.."_"..opt, _st)
+
+		if color and enabled then
+			_st2:SetTextColor(unpack(color))
+		end
+
+		handler:Register(_st, "video_adv_cap_"..opt)
+		handler:AddCallback(
+			"video_adv_cap_"..opt,
+			ui_events.STATIC_FOCUS_RECEIVED,
+			function()
+				handler.hint_name:SetText(hint_caption and game.translate_string(hint_caption) or "")
+				handler.hint_caption:SetText(hint_string and game.translate_string(hint_string) or "")
+			end
+		)
+
+		if need_restart == 1 then
+			handler:Register(ctl, "video_adv:"..ctr_type.."_"..opt)
+			handler:AddCallback(
+				"video_adv:"..ctr_type.."_"..opt,
+				ctr_type == "list" and ui_events.LIST_ITEM_SELECT or ui_events.BUTTON_CLICKED,
+				handler.show_need_restart_wnd, handler
+			)
+		end
+
+		_st:Enable(enabled)
+		_st2:Enable(enabled)
+	end
+
+	local btn = xml:Init3tButton("video_adv:btn_to_simply",	self)
+	handler:Register(btn, "btn_simply_graphic")
+end
