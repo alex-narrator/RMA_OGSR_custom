@@ -1,5 +1,6 @@
-local actor = db.actor
-local ini = system_ini()
+function attach(sm)
+	sm:subscribe({signal = "on_death",   fun = this.send_tip})
+end
 
 local zone_sect_alias = {
 	["zone_ameba"] = "zone_ameba",
@@ -83,6 +84,8 @@ local species_alias = {
 	["pseudogiant"] = "Pseudogiant",
 }
 
+local ini = system_ini()
+
 function send_tip(victim, killer)
 	local tip_header = game.translate_string("st_stalker_death") 						--/заголовок загальний
 	local victim_header = game.translate_string("st_victim_header") 					--/заголовок загальний
@@ -91,20 +94,23 @@ function send_tip(victim, killer)
 	local killer_header = game.translate_string("st_killer_header") 					--/заголовок причини смерті
 	local killer_type = game.translate_string("st_death_reason_undefined") 				--/дефолтна причина смерті
 	local killer_info = "" 																--/додаткова інфо про вбивцію
+	local actor = db.actor
 	
 	if killer then
 		if killer:id() == victim:id() then
 			killer_type = game.translate_string("st_suicide")
-			if killer:id() == actor:id() and not has_alife_info("eliminate_gunslinger_done") then
+			if killer:is_actor() and not has_alife_info("eliminate_gunslinger_done") then
 				actor:give_info_portion("eliminate_gunslinger_done")
 			end
-		elseif IsStalker(killer) then
+		elseif killer:is_stalker() or killer:is_actor() then
 			killer_type = game.translate_string(killer:character_name())
 			killer_info = "["..game.translate_string(killer:character_community()).."]"
-		elseif IsMonster(killer) then
+		elseif killer:is_monster() then
 			killer_type = game.translate_string(species_alias[ini:r_string(killer:section(),"species")])
-		elseif IsZone(killer) then
+		elseif killer:is_anomaly() then
 			killer_type = game.translate_string(killer:section())
+		elseif killer:is_helicopter() then
+			killer_type = game.translate_string("st_helicopter")			
 		end
 	end
 	

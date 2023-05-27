@@ -15,6 +15,7 @@ lastime = nil
 class "motivator_binder" (object_binder)
 
 function motivator_binder:__init (obj) super(obj)
+	self.sm = ogse_signals.get_mgr()
 	self.loaded = false
 	self.last_update = 0
 	----memusage.collect_info(self.object, "__init")
@@ -189,9 +190,7 @@ function motivator_binder:death_callback(victim, who)
 	h.impulse = 5
 	self.object:hit(h)
 	
-	if death_news then
-		death_news.send_tip(victim, who)
-	end
+	self.sm:call("on_death", victim, who)
 
 	if(actor_stats.remove_from_ranking~=nil)then
 		local community = self.object:character_community()

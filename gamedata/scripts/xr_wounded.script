@@ -162,6 +162,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------
 class "Cwound_manager"
 function Cwound_manager:__init(npc, storage)
+	self.sm = ogse_signals.get_mgr()
 	self.npc = npc
 	self.a = storage
 	self.can_use_medkit = false
@@ -215,9 +216,9 @@ function Cwound_manager:eat_medkit()
 	if item_to_eat then
 		npc:eat(item_to_eat)
 		npc.health = 1
-		if item_effects then
-			item_effects.use_item_effects(item_to_eat, npc)
-		end
+		--
+		self.sm:call("on_use", item_to_eat, npc)
+		--
 	end
 	self.can_use_medkit = false
 	self:hit_callback()

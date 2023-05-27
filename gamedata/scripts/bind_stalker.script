@@ -21,6 +21,11 @@ local weapon_hide = false
 class "actor_binder" (object_binder)
 ----------------------------------------------------------------------------------------------------------------------
 function actor_binder:__init (obj) super(obj)
+	--
+	self.sm = ogse_signals.get_mgr()
+	self.sm:call("on_load_before_all")
+	self.sm:call("on_init", obj)
+	--
 	self.bCheckStart = false
 	self.weather_manager = level_weathers.WeatherManager()
 	self.actor_detector = xr_detector.actor_detector()
@@ -55,6 +60,7 @@ function actor_binder:net_spawn(data)
 	--' Загружаем настройки дропа
 	death_manager.init_drop_settings()
 	--weather_init.on_game_load(obj) --здається це більш не потрібно + конфліктує з реалізаціями викидів
+	self.sm:call("on_spawn", data)
 	return true
 end
 ----------------------------------------------------------------------------------------------------------------------
@@ -82,6 +88,8 @@ function actor_binder:net_destroy()
 	self.object:set_callback(callback.on_booster_disable, nil)
 	self.object:set_callback(callback.hit, nil)
 	self.object:set_callback(callback.death, nil)
+	self.object:set_callback(callback.on_ruck, nil)
+	self.object:set_callback(callback.on_slot, nil)
 
 	if sr_psy_antenna.psy_antenna then
 		sr_psy_antenna.psy_antenna:destroy()
@@ -89,7 +97,9 @@ function actor_binder:net_destroy()
 	end
 
 	xr_sound.stop_all_sound_object()
-
+	--
+	self.sm:call("on_destroy")
+	--
 	object_binder.net_destroy(self)
 end
 ----------------------------------------------------------------------------------------------------------------------
@@ -121,7 +131,11 @@ function actor_binder:reinit()
 	self.object:set_callback(callback.on_booster_enable, self.on_booster_enable, self)
 	self.object:set_callback(callback.on_booster_disable, self.on_booster_disable, self)
 	self.object:set_callback(callback.hit, self.on_hit, self)
-	self.object:set_callback(callback.death, self.death_callback, self)
+	self.object:set_callback(callback.death, self.on_death, self)
+	self.object:set_callback(callback.on_ruck, self.on_ruck, self)
+	self.object:set_callback(callback.on_slot, self.on_slot, self)
+	--
+	self.sm:call("on_reinit")
 end
 ----------------------------------------------------------------------------------------------------------------------
 function actor_binder:take_item_from_box(box, item)
@@ -151,6 +165,8 @@ function actor_binder:take_item_from_box(box, item)
 	    xr_gulag.setGulagEnemy(smart_terrain:name() , db.actor)		
     end
 ]]
+	--
+	self.sm:call("on_take_from_box", box, item, sobj)
 end
 ----------------------------------------------------------------------------------------------------------------------
 function actor_binder:level_border_enter(npc, info_id)
@@ -177,7 +193,7 @@ function actor_binder:on_trade (item, sell_bye, money)
     end   
 end
 ----------------------------------------------------------------------------------------------------------------------
-function actor_binder:article_callback(npc, group, name)
+function actor_binder:article_callback(npc, group, name, article_type, text)
 	--printf("article_callback [%s][%s]", group, name)
 	if device().precache_frame >1 then return end
 	
@@ -186,16 +202,20 @@ function actor_binder:article_callback(npc, group, name)
 	else
 		news_manager.send_encyclopedy("encyclopedy", group)
 	end
+	--
+	self.sm:call("on_article", npc, group, name, article_type, text)
 end
 ----------------------------------------------------------------------------------------------------------------------
 function actor_binder:on_item_take (obj)
     level_tasks.proceed(self.object)
     --game_stats.update_take_item (obj, self.object)
+	self.sm:call("on_take", obj)
 end
 ----------------------------------------------------------------------------------------------------------------------
 function actor_binder:on_item_drop (obj, prev_place)
     level_tasks.proceed(self.object)
     --game_stats.update_drop_item (obj, self.object)
+	self.sm:call("on_drop", obj, prev_place)
 end
 ----------------------------------------------------------------------------------------------------------------------
 
@@ -215,6 +235,7 @@ function actor_binder:task_callback(_task, _objective, _state)
 			news_manager.send_task(db.actor, "update", _task, _objective)
 		end
 	end
+	self.sm:call("on_task", _task, _objective, _state)
 end
 
 ----------------------------------------------------------------------------------------------------------------------
@@ -225,7 +246,9 @@ end
 ----------------------------------------------------------------------------------------------------------------------
 function actor_binder:update(delta)
 	object_binder.update(self, delta)
-
+	--
+	self.sm:call("on_update", delta)
+	--
 	-- DEBUG slowdown
 --	slowdown.update()
 
@@ -392,6 +415,7 @@ function actor_binder:save(packet)
 
 	task_manager.save(packet)
 	self.actor_detector:save(packet)	
+	self.sm:call("on_save", packet)
 end
 ----------------------------------------------------------------------------------------------------------------------
 function actor_binder:load(reader)
@@ -432,51 +456,41 @@ function actor_binder:load(reader)
 	
 	task_manager.load(reader)
 	self.actor_detector:load(reader)	
+	self.sm:call("on_load", packet)
 end
 ----------------------------------------------------------------------------------------------------------------------
 function actor_binder:level_changer_action( obj, wnd )
-  local sobj = obj:get_alife_object()
-  local lc   = sobj:get_level_changer()
-  local dest_vertex = lc.dest_game_vertex_id
-  local dest_lname  = alife():level_name(
-    game_graph():vertex( dest_vertex ):level_id()
-  )
-  local msg_text_wnd = wnd:FindChild( "message_box_change_level:message_text" )
-  msg_text_wnd:GetCUIStatic():SetText(
-	game.translate_string( "level_changer_invitation" )..
-	" "..
-	game.translate_string( dest_lname )..
-	"?"
-  )
+	self.sm:call("on_level_changer", obj, wnd)
 end
 
 function actor_binder:use_object(obj)
-	log3("~ use object %s", obj:section())
-	if item_effects then
-		item_effects.use_item_effects(obj, self.object)
-	end
+	self.sm:call("on_use", obj, self.object)
+--	log3("~ use object %s", obj:section())
 end
 
 function actor_binder:on_booster_enable(booster)
-	if item_effects then
-		item_effects.enable_effect(booster)
-	end
+	self.sm:call("on_booster_enable", booster)
 end
 
 function actor_binder:on_booster_disable(booster)
-	if item_effects then
-		item_effects.disable_effect(booster)
-	end
+	self.sm:call("on_booster_disable", booster)
 end
 
 function actor_binder:on_hit(victim, health_lost, direction, draftsman, bone_id)
+	self.sm:call("on_hit", victim, health_lost, direction, draftsman, bone_id)
 	--log3("on hit: victim %s health_lost %s, direction %s, draftsman %s, bone_id %s", victim:name(), health_lost, direction, draftsman:name(), bone_id)
 end
 
-function actor_binder:death_callback(victim, killer)
-	if death_news then
-		death_news.send_tip(victim, killer)
-	end
+function actor_binder:on_death(victim, killer)
+	self.sm:call("on_death", victim, killer)
+end
+
+function actor_binder:on_ruck(obj, prev_place)
+	self.sm:call("on_ruck", obj, prev_place)
+end
+
+function actor_binder:on_slot(obj, prev_place)
+	self.sm:call("on_slot", obj, prev_place)
 end
 
 --старт префетча звуков
