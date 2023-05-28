@@ -1,0 +1,34 @@
+local step_time = 1500
+local ini = system_ini()
+local actor = db.actor
+local spot_type = {
+	["neutral_location"] = true,
+	["friend_location"] = true,
+	["enemy_location"] = true,
+	["deadbody_location"] = true,
+}
+local color_by_relation = {
+	[0] = "%c[green]",
+	[1] = "%c[UI_orange]",
+	[2] = "%c[red]",
+}
+
+function update_hints()
+	local hint_text
+	local time = time_global()
+	if time > step_time then
+		step_time = time + 1500
+		for id,val in pairs(db.storage) do
+			for spot, v in pairs(spot_type) do
+				if level.map_has_object_spot(id, spot) then
+					obj = level.object_by_id(id)
+					if obj and not obj:is_actor() and (obj:is_stalker() or obj:section() == "m_trader") then
+						hint_text = game.translate_string(obj:character_name()).."\\n"..
+						color_by_relation[obj:relation(actor)]..game.translate_string(obj:character_community())
+						level.map_change_spot_hint(id, spot, hint_text)
+					end
+				end
+			end
+		end
+	end
+end

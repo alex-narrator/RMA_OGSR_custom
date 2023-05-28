@@ -90,6 +90,9 @@ function actor_binder:net_destroy()
 	self.object:set_callback(callback.death, nil)
 	self.object:set_callback(callback.on_ruck, nil)
 	self.object:set_callback(callback.on_slot, nil)
+	--
+	self.object:set_callback(callback.on_cell_item_focus, nil)
+	self.object:set_callback(callback.on_cell_item_focus_lost, nil)
 
 	if sr_psy_antenna.psy_antenna then
 		sr_psy_antenna.psy_antenna:destroy()
@@ -135,6 +138,9 @@ function actor_binder:reinit()
 	self.object:set_callback(callback.on_ruck, self.on_ruck, self)
 	self.object:set_callback(callback.on_slot, self.on_slot, self)
 	--
+	self.object:set_callback(callback.on_cell_item_focus, self.on_item_focus, self)
+	self.object:set_callback(callback.on_cell_item_focus_lost, self.on_item_focus_lost, self)
+	--
 	self.sm:call("on_reinit")
 end
 ----------------------------------------------------------------------------------------------------------------------
@@ -178,11 +184,12 @@ function actor_binder:level_border_exit(npc, info_id)
 end
 ----------------------------------------------------------------------------------------------------------------------
 function actor_binder:info_callback(npc, info_id)
-	printf("*INFO*: npc='%s' id='%s'", npc:name(), info_id)
+	--log3("*INFO*: npc='%s' id='%s'", npc:name(), info_id)
 	--' Сюжет
 	level_tasks.proceed(self.object)
 	-- Отметки на карте
 	level_tasks.process_info_portion(info_id)
+	self.sm:call("on_info_portion", npc, info_id)
 end
 ----------------------------------------------------------------------------------------------------------------------
 function actor_binder:on_trade (item, sell_bye, money)
@@ -491,6 +498,13 @@ end
 
 function actor_binder:on_slot(obj, prev_place)
 	self.sm:call("on_slot", obj, prev_place)
+end
+
+function actor_binder:on_item_focus(obj)
+	self.sm:call("on_item_focus", obj)
+end
+function actor_binder:on_item_focus_lost(obj)
+	self.sm:call("on_item_focus_lost", obj)
 end
 
 --старт префетча звуков

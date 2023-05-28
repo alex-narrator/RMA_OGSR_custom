@@ -1503,6 +1503,14 @@ eItemPlaceBelt = 2
 eItemPlaceRuck = 3
 eItemPlaceVest = 4
 
+function read_if_exists(ltx, section, value, default)
+	if ltx:line_exist(section,value) then
+		return ltx:r_float(section,value)
+	else
+		return default
+	end
+end
+
 ammo_section = {}
 ammo_section["ammo_9x18_fmj"]		= true
 ammo_section["ammo_9x18_pbp"]		= true

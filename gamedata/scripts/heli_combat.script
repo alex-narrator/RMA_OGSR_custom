@@ -501,7 +501,7 @@ end
 
 function heli_combat:round_update_flight( see_enemy )
 	-- менять время от времени направление облёта
---[[	if self.change_dir_time < time_global() then
+	if self.change_dir_time < time_global() then
 		local t
 
 		if see_enemy then
@@ -519,7 +519,7 @@ function heli_combat:round_update_flight( see_enemy )
 
 		return
 	end
-]]
+
 	-- периодически проверть, не переместился ли враг и достаточно ли у вертолёта здоровья
 	if self.change_pos_time < time_global() then
 		self.change_pos_time = time_global() + 2000
