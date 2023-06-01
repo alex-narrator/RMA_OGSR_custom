@@ -1,11 +1,7 @@
 function attach(sm)
 	sm:subscribe({signal = "on_level_changer",   fun = this.add_level_name})
-	sm:subscribe({signal = "on_item_focus",   fun = this.item_focus})
-	sm:subscribe({signal = "on_item_focus_lost",   fun = this.item_focus_lost})
-	sm:subscribe({signal = "on_info_portion",   fun = this.npc_map_spots})
+	sm:subscribe({signal = "on_info_portion",   fun = this.process_ui_infoportions})
 end
-
-local sm = ogse_signals.get_mgr()
 
 function add_level_name( obj, wnd )
   local sobj = obj:get_alife_object()
@@ -23,22 +19,16 @@ function add_level_name( obj, wnd )
   )
 end
 
-function npc_map_spots(npc, info_id)
-	if not npc:is_actor() then
-	return end
-	
-	local slot_desc = {signal = "on_update", fun = map_spots_npc.update_hints}
-	if info_id == "ui_pda" then
-		sm:subscribe(slot_desc)
-	elseif info_id == "ui_pda_hide" then
-		sm:unsubscribe(slot_desc)
+local ui_infop_signals = {
+	["ui_pda"] = "on_pda_show",
+	["ui_pda_hide"] = "on_pda_hide",
+	["ui_inventory"] = "on_inventory_show",
+	["ui_inventory_hide"] = "on_inventory_hide",
+}
+
+function process_ui_infoportions(npc, info_id)
+	local infop_signal = ui_infop_signals[info_id]
+	if infop_signal then
+		ogse_signals.get_mgr():call(infop_signal, npc, info_id)
 	end
-end
-
-function item_focus(obj)
-	log3("item %s focus", obj:section())
-end
-
-function item_focus_lost(obj)
-	log3("item %s focus lost", obj:section())
 end

@@ -93,6 +93,7 @@ function actor_binder:net_destroy()
 	--
 	self.object:set_callback(callback.on_cell_item_focus, nil)
 	self.object:set_callback(callback.on_cell_item_focus_lost, nil)
+	self.object:set_callback(callback.on_cell_item_mouse, nil)
 
 	if sr_psy_antenna.psy_antenna then
 		sr_psy_antenna.psy_antenna:destroy()
@@ -138,8 +139,9 @@ function actor_binder:reinit()
 	self.object:set_callback(callback.on_ruck, self.on_ruck, self)
 	self.object:set_callback(callback.on_slot, self.on_slot, self)
 	--
-	self.object:set_callback(callback.on_cell_item_focus, self.on_item_focus, self)
-	self.object:set_callback(callback.on_cell_item_focus_lost, self.on_item_focus_lost, self)
+	self.object:set_callback(callback.on_cell_item_focus, self.on_cell_item_focus, self)
+	self.object:set_callback(callback.on_cell_item_focus_lost, self.on_cell_item_focus_lost, self)
+	self.object:set_callback(callback.on_cell_item_mouse, self.on_cell_item_mouse, self)
 	--
 	self.sm:call("on_reinit")
 end
@@ -500,11 +502,14 @@ function actor_binder:on_slot(obj, prev_place)
 	self.sm:call("on_slot", obj, prev_place)
 end
 
-function actor_binder:on_item_focus(obj)
-	self.sm:call("on_item_focus", obj)
+function actor_binder:on_cell_item_focus(obj)
+	self.sm:call("on_cell_item_focus", obj)
 end
-function actor_binder:on_item_focus_lost(obj)
-	self.sm:call("on_item_focus_lost", obj)
+function actor_binder:on_cell_item_focus_lost(obj)
+	self.sm:call("on_cell_item_focus_lost", obj)
+end
+function actor_binder:on_cell_item_mouse(obj, x, y, action)
+	self.sm:call("on_cell_item_mouse", obj, x, y, action)
 end
 
 --старт префетча звуков

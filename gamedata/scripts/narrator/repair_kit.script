@@ -1,0 +1,54 @@
+function attach(sm)
+	sm:subscribe({signal = "inv_drag_drop",   fun = this.try_repair})
+end
+
+function try_repair(obj, drop_on_obj)
+	log3("item %s droped on item %s", obj:section(), drop_on_obj:section())
+	local can_repair = 
+		(obj:section() == "sharpener" and drop_on_obj:is_knife()) or
+		(obj:section() == "service_kit_weapon" and drop_on_obj:is_weapon_magazined()) or
+		(obj:section() == "service_kit_armor" and drop_on_obj:is_outfit())
+	if can_repair and check_condition(obj, drop_on_obj) then
+		repair(obj, drop_on_obj)
+	end
+end
+
+local ini = system_ini()
+local repair_effector_id = 66614 --спеціальний id для ефектору ремонту, щоб саме його видаляти при використанні іншого предмету
+
+local repair_kit_params = { --/ condition_threshold, repair_condition_gain, repair_count, repair_sound, repair_effect
+	["sharpener"] 			= {0.1, 0.05, 0, "interface\\inv_attach_addon", "effector_drug_use"},
+	["service_kit_weapon"] 	= {0.75, 0.1, 10, "interface\\inv_attach_addon"},
+	["service_kit_armor"] 	= {0.75, 0.1, 5, "interface\\inv_attach_addon"},
+}
+
+function check_condition(obj, drop_on_obj)
+	local victim_cond = drop_on_obj:condition()
+	local min_cond = repair_kit_params[obj:section()][1]
+	return victim_cond > 0 and victim_cond < 1 and min_cond and victim_cond > min_cond
+end
+
+function repair(obj, drop_on_obj)
+	if not check_condition(obj, drop_on_obj) then return end
+	if not db.actor:is_in_slot(drop_on_obj) then return end
+	local rep_kit_sect = obj:section()
+	local param = repair_kit_params[rep_kit_sect]
+	drop_on_obj:change_condition(param[2])
+	local repair_count = param[3]
+	if repair_count > 0 then
+		obj:change_condition(-1/repair_count)
+		if obj:condition() == 0 then
+			alife():release(alife():object(obj:id()), true)
+		end
+	end
+	local repair_sound = param[4]
+	if repair_sound then
+		local actor = db.actor
+		xr_sound.get_safe_sound_object(repair_sound,sound_object.s2d):play_at_pos(actor,actor:position())
+	end
+	local repair_effector = param[5]
+	if repair_effector then
+		level.remove_complex_effector(repair_effector_id)
+		level.add_complex_effector(repair_effector, use_effector_id)
+	end
+end
