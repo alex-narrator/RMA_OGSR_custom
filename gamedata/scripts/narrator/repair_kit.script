@@ -17,9 +17,9 @@ local ini = system_ini()
 local repair_effector_id = 66614 --спеціальний id для ефектору ремонту, щоб саме його видаляти при використанні іншого предмету
 
 local repair_kit_params = { --/ condition_threshold, repair_condition_gain, repair_count, repair_sound, repair_effect
-	["sharpener"] 			= {0.1, 0.05, 0, "interface\\inv_attach_addon", "effector_drug_use"},
-	["service_kit_weapon"] 	= {0.75, 0.1, 10, "interface\\inv_attach_addon"},
-	["service_kit_armor"] 	= {0.75, 0.1, 5, "interface\\inv_attach_addon"},
+	sharpener 			= {0.1, 0.05, 0, "interface\\inv_attach_addon", "effector_drug_use"},
+	service_kit_weapon 	= {0.75, 0.1, 10, "interface\\inv_attach_addon"},
+	service_kit_armor 	= {0.75, 0.1, 5, "interface\\inv_attach_addon"},
 }
 
 function check_condition(obj, drop_on_obj)

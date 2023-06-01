@@ -185,6 +185,14 @@ function actor_binder:level_border_exit(npc, info_id)
 	self.actor_detector:actor_exit()
 end
 ----------------------------------------------------------------------------------------------------------------------
+local infop_signals = {
+	ui_pda = "on_pda_show",
+	ui_pda_hide = "on_pda_hide",
+	ui_inventory = "on_inventory_show",
+	ui_inventory_hide = "on_inventory_hide",
+	ui_car_body = "on_carbody_show",
+	ui_car_body_hide = "on_carbody_hide",
+}
 function actor_binder:info_callback(npc, info_id)
 	--log3("*INFO*: npc='%s' id='%s'", npc:name(), info_id)
 	--' Сюжет
@@ -192,6 +200,10 @@ function actor_binder:info_callback(npc, info_id)
 	-- Отметки на карте
 	level_tasks.process_info_portion(info_id)
 	self.sm:call("on_info_portion", npc, info_id)
+	local signal = infop_signals[info_id]
+	if signal then
+		self.sm:call(signal, npc, info_id)
+	end
 end
 ----------------------------------------------------------------------------------------------------------------------
 function actor_binder:on_trade (item, sell_bye, money)
