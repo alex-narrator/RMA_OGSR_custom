@@ -1,0 +1,65 @@
+function attach(sm)
+	sm:subscribe({signal = "on_use",   fun = this.use_item_effects})
+	sm:subscribe({signal = "on_booster_enable",   fun = this.enable_effect})
+	sm:subscribe({signal = "on_booster_disable",   fun = this.disable_effect})
+end
+
+--ефекти використання предметів
+local use_effector_id = 66613 --спеціальний id для ефектору використання, щоб саме його видаляти при використанні іншого предмету
+local use_effects = { --/ use_sound, use_effector, boost_effector, boost_effector_id
+	--drugs
+	antirad 		= {"interface\\inv_pills", "effector_drug_use", "effector_nightvision_good", 66650},
+	medkit 			= {"interface\\inv_medkit", "effector_drug_use", "effector_nightvision_bad", 66651},
+	medkit_army 	= {"interface\\inv_medkit", "effector_drug_use"},
+	medkit_scientic = {"interface\\inv_medkit", "effector_drug_use"},
+	bandage 		= {"interface\\inv_bandage", "effector_drug_use"},
+	--foods
+	bread 			= {"interface\\inv_food"},
+	kolbasa 		= {"interface\\inv_food"},
+	conserva 		= {"interface\\inv_food"},
+	vodka 			= {"interface\\inv_vodka"},
+	energy_drink 	= {"interface\\inv_softdrink"},
+}
+
+function use_item_effects(obj, user)
+	local sect = obj:section()
+	local effect = use_effects[sect]
+	if not effect then return end
+	--sounds
+	local snd_name = effect[1]
+	if snd_name then
+		xr_sound.get_safe_sound_object(snd_name,sound_object.s2d):play_at_pos(user,user:position())
+		log3("~ used item %s played sound %s for user %s", sect, snd_name, user:name())
+	end
+	--тільки для актора
+	if user:is_actor() then
+		--active item action
+		local act_item = user:active_item()
+		if act_item then
+			--act_item:play_hud_motion("anm_show")
+			user:activate_slot(NO_ACTIVE_SLOT)
+		end
+		--use effectors
+		local eff_name = effect[2]
+		if eff_name then
+			level.remove_complex_effector(use_effector_id)
+			level.add_complex_effector(eff_name, use_effector_id)
+			log3("~ used item %s played effector %s for user %s", sect, eff_name, user:name())
+		end
+	end
+end
+
+function enable_effect(booster)
+	local effect = use_effects[booster.section]
+	local eff_id = effect[4]
+	if not eff_id then return end
+	level.add_complex_effector(effect[3], eff_id)
+	log3("~ enable booster effect %s, id %s", eff_name, eff_id)
+end
+
+function disable_effect(booster)
+	local eff_id = use_effects[booster.section][4]
+	if not eff_id then return end
+	level.remove_complex_effector(eff_id)
+	log3("~ disabling booster effect %s, id %s", use_effects[booster.section][3], eff_id)
+end

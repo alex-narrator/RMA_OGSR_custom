@@ -1,0 +1,149 @@
+local step_time = 1500
+local overlay = nil
+local actor
+
+local spot_type = {
+	["neutral_location"] = true,
+	["friend_location"] = true,
+	["enemy_location"] = true,
+	["deadbody_location"] = true,
+}
+local color_by_relation = {
+	[0] = "%c[green]",
+	[1] = "%c[UI_orange]",
+	[2] = "%c[red]",
+}
+
+function attach(sm)
+	sm:subscribe({signal = "on_pda_show",   fun = this.process_show})
+end
+
+local subscribed = false
+
+function process_show()
+	if not subscribed then
+		subscribed = {
+			{signal = "on_update", fun = this.process_update},
+			{signal = "on_pda_hide", fun = this.process_hide},
+		}
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs( subscribed ) do
+			sm:subscribe( s )
+		end
+	end
+	
+	actor = db.actor
+	if not overlay then
+		overlay = PDAOverlay(level.main_input_receiver())
+	end
+end
+
+function process_hide()
+	if subscribed then
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs( subscribed ) do
+			sm:unsubscribe( s )
+		end
+		subscribed = false
+	end
+	
+	if overlay then
+		overlay:DetachWnd()
+		overlay = nil
+	end
+end
+
+function process_update()
+	update_hints()
+	update_overlay()
+end
+
+function update_hints()
+	local hint_text
+	local time = time_global()
+	if time > step_time then
+		step_time = time + 1500
+		for id,val in pairs(db.storage) do
+			for spot, v in pairs(spot_type) do
+				if level.map_has_object_spot(id, spot) then
+					obj = level.object_by_id(id)
+					if obj and not obj:is_actor() and (obj:is_stalker() or obj:is_trader()) then
+						hint_text = game.translate_string(obj:character_name()).."\\n"..
+						color_by_relation[obj:relation(actor)]..game.translate_string(obj:character_community())
+						level.map_change_spot_hint(id, spot, hint_text)
+					end
+				end
+			end
+		end
+	end
+end
+
+function update_overlay()
+	local pda = actor:item_in_slot(7)
+	if not pda then return end
+	
+	local power = pda:get_power_level()
+	overlay:Update(pda:get_power_level())
+end
+
+
+class "PDAOverlay" (CUIScriptWnd)
+
+function PDAOverlay:__init(owner) super()
+	self.owner = owner
+	self:Init(0, 0, 1024, 768)
+	self:InitControls()
+end
+
+function PDAOverlay:DetachWnd()
+	if self.main then
+		self:ClearCallbacks()
+		self.owner:DetachChild(self.main)
+	end
+end
+
+function PDAOverlay:InitControls()
+	local xml = CScriptXmlInit()
+	xml:ParseFile("pda.xml")
+
+	self.main = CUIStatic()
+	self.main:Init(0, 0, 1024, 768)
+	self.owner:AttachChild(self.main)
+	
+	self.power_static = xml:InitStatic("power_level", self.main)
+	
+	self.days_text = xml:InitStatic("days_in_zone_text", self.main)
+	self.days_text:SetText(game.translate_string("st_days_in_zone"))
+	self.days_text:Show(false)
+	
+	self.days_count = xml:InitStatic("days_in_zone_count", self.main)
+	self.days_count:Show(false)
+	
+	self.btn_off = xml:Init3tButton("off_button", self.main)
+	self:Register(self.btn_off, "off_btn")
+	self:AddCallback("off_btn", ui_events.BUTTON_CLICKED, self.HidePda, self)
+end
+
+function PDAOverlay:Update(power)
+	if power == 0 then
+		process_hide()
+		return
+	end
+	
+	local text = string.format("%.0f %s", power * 100, "%")	
+	self.power_static:SetText(text)
+	if power <= 0.1 then
+		self.power_static:SetTextColor(255, 255, 0, 0)
+	end
+	
+	text = string.format("%d", level.get_time_days())	
+	self.days_count:SetText(text)
+	
+	local show = has_alife_info("ui_pda_actor_info")
+	self.days_count:Show(show)
+	self.days_text:Show(show)
+end
+
+function PDAOverlay:HidePda()
+	level.start_stop_menu(level.main_input_receiver(), true)
+end

@@ -22,6 +22,21 @@ local repair_kit_params = { --/ condition_threshold, repair_condition_gain, repa
 	service_kit_armor 	= {0.75, 0.1, 5, "interface\\inv_attach_addon"},
 }
 
+function get_rank_k()
+	local actor = db.actor
+	local rank = actor:character_rank()
+	
+	if rank < 300 then 		--novice
+		return 0.8
+	elseif rank < 600 then 	--experienced
+		return 0.9
+	elseif rank < 900 then 	--veteran
+		return 1.1
+	else					--master
+		return 1.2
+	end
+end
+
 function check_condition(obj, drop_on_obj)
 	local victim_cond = drop_on_obj:condition()
 	local min_cond = repair_kit_params[obj:section()][1]
@@ -33,7 +48,7 @@ function repair(obj, drop_on_obj)
 	if not db.actor:is_in_slot(drop_on_obj) then return end
 	local rep_kit_sect = obj:section()
 	local param = repair_kit_params[rep_kit_sect]
-	drop_on_obj:change_condition(param[2])
+	drop_on_obj:change_condition(param[2] * get_rank_k())
 	local repair_count = param[3]
 	if repair_count > 0 then
 		obj:change_condition(-1/repair_count)

@@ -1,0 +1,40 @@
+function attach(sm)
+	sm:subscribe({signal = "on_drop",   fun = this.disable_effects})
+	sm:subscribe({signal = "on_ruck",   fun = this.disable_effects})
+	sm:subscribe({signal = "on_slot",   fun = this.enable_effects})
+end
+
+local console = get_console()
+local ini = system_ini()
+--костюми/протигази з візорами
+local visor_presents = {
+	--drugs
+	gasmask_gp5 = true,
+}
+
+function disable_effects(obj, prev_place)
+	if prev_place ~= eItemPlaceSlot then
+	return end
+	
+	if not obj:is_outfit() and not obj:is_helmet() and not obj:is_gasmask() then
+	return end
+	
+	local helmet_inbuild = read_if_exists(ini, obj:section(), "helmet_built_in", false)
+	if not visor_presents[obj:section()] and not helmet_inbuild then
+	return end
+
+	console:execute("r2_rain_drops_control 0")
+	console:execute("r2_visor_refl_control 0")
+end
+
+function enable_effects(obj)
+	if not obj:is_outfit() and not obj:is_helmet() and not obj:is_gasmask() then
+	return end
+
+	local helmet_inbuild = utils.cfg_get_bool(ini, obj:section(), "helmet_built_in", nil, false, false)
+	if not visor_presents[obj:section()] and not helmet_inbuild then
+	return end
+
+	console:execute("r2_rain_drops_control 1")
+	console:execute("r2_visor_refl_control 1")
+end
