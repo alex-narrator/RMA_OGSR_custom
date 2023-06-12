@@ -276,10 +276,6 @@ function send_treasure(name)
 	db.actor:give_game_news(news_text, task_texture, task_rect, 0, 3000)
 end
 
-function get_inv_name(section)
-	return system_ini():r_string(section,"inv_name")
-end
-
 function relocate_item(actor, type, item)
 	if db.actor == nil then return false end
 	--' Играем дефолтный звук

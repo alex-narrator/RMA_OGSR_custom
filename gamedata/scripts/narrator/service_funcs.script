@@ -5,9 +5,8 @@
 --ammo_type - тип набою у пачці (для магазинів)
 --можна видавати порожні пачки (для магазинів)
 function give_ammo_box_to_actor(victim, section, count, loaded_box, ammo_type)
-	local ini = system_ini()
 	if db.actor and victim then
-		local count_in_box = ini:r_u32(section, "box_size")
+		local count_in_box = sys_ini:r_u32(section, "box_size")
 		if count == nil then
 			count = 1
 		end

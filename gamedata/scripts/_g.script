@@ -1503,12 +1503,24 @@ eItemPlaceBelt = 2
 eItemPlaceRuck = 3
 eItemPlaceVest = 4
 
-function read_if_exists(ltx, section, value, default)
+sys_ini = system_ini()
+
+function read_if_exists(ltx, val_type, section, value, default)
 	if ltx:line_exist(section,value) then
-		return ltx:r_float(section,value)
+		if val_type == "r_string" then
+			return ltx:r_string(section,value)
+		elseif val_type == "r_bool" then
+			return ltx:r_bool(section,value)
+		elseif val_type == "r_float" then
+			return ltx:r_float(section,value)
+		end
 	else
 		return default
 	end
+end
+
+function get_inv_name(section)
+	return sys_ini:r_string(section,"inv_name")
 end
 
 ammo_section = {}

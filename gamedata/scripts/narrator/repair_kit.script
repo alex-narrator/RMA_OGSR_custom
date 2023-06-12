@@ -3,24 +3,17 @@ function attach(sm)
 end
 
 function try_repair(obj, drop_on_obj)
-	log3("item %s droped on item %s", obj:section(), drop_on_obj:section())
+	local repair_type = read_if_exists(sys_ini, "r_float", obj:section(), "repair_type", 0)
+	if not repair_type then return end
+	
 	local can_repair = 
-		(obj:section() == "sharpener" and drop_on_obj:is_knife()) or
-		(obj:section() == "service_kit_weapon" and drop_on_obj:is_weapon_magazined()) or
-		(obj:section() == "service_kit_armor" and drop_on_obj:is_outfit())
+		(repair_type == 1 and drop_on_obj:is_knife()) or
+		(repair_type == 2 and drop_on_obj:is_weapon_magazined()) or
+		(repair_type == 3 and drop_on_obj:is_outfit())
 	if can_repair and check_condition(obj, drop_on_obj) then
-		repair(obj, drop_on_obj)
+		show_repair_wnd(obj, drop_on_obj)
 	end
 end
-
-local ini = system_ini()
-local repair_effector_id = 66614 --спеціальний id для ефектору ремонту, щоб саме його видаляти при використанні іншого предмету
-
-local repair_kit_params = { --/ condition_threshold, repair_condition_gain, repair_count, repair_sound, repair_effect
-	sharpener 			= {0.1, 0.05, 0, "interface\\inv_attach_addon", "effector_drug_use"},
-	service_kit_weapon 	= {0.75, 0.1, 10, "interface\\inv_attach_addon"},
-	service_kit_armor 	= {0.75, 0.1, 5, "interface\\inv_attach_addon"},
-}
 
 function get_rank_k()
 	local actor = db.actor
@@ -39,31 +32,87 @@ end
 
 function check_condition(obj, drop_on_obj)
 	local victim_cond = drop_on_obj:condition()
-	local min_cond = repair_kit_params[obj:section()][1]
+	local min_cond = read_if_exists(sys_ini, "r_float", obj:section(), "condition_threshold", 0)
 	return victim_cond > 0 and victim_cond < 1 and min_cond and victim_cond > min_cond
 end
 
+function show_repair_wnd(obj, drop_on_obj)
+	local repair_wnd = RepairWnd(level.main_input_receiver())
+	repair_wnd:InitRepair(obj, drop_on_obj)
+end
+
 function repair(obj, drop_on_obj)
-	if not check_condition(obj, drop_on_obj) then return end
-	if not db.actor:is_in_slot(drop_on_obj) then return end
 	local rep_kit_sect = obj:section()
-	local param = repair_kit_params[rep_kit_sect]
-	drop_on_obj:change_condition(param[2] * get_rank_k())
-	local repair_count = param[3]
+	local cond_gain = read_if_exists(sys_ini, "r_float", rep_kit_sect, "repair_condition_gain", 0)
+	drop_on_obj:change_condition(cond_gain * get_rank_k())
+	local repair_count = read_if_exists(sys_ini, "r_float", rep_kit_sect, "repair_count", 0)
 	if repair_count > 0 then
 		obj:change_condition(-1/repair_count)
 		if obj:condition() == 0 then
 			alife():release(alife():object(obj:id()), true)
 		end
 	end
-	local repair_sound = param[4]
+	local repair_sound = read_if_exists(sys_ini, "r_string", rep_kit_sect, "use_sound", nil)
 	if repair_sound then
 		local actor = db.actor
 		xr_sound.get_safe_sound_object(repair_sound,sound_object.s2d):play_at_pos(actor,actor:position())
 	end
-	local repair_effector = param[5]
+	local repair_effector = read_if_exists(sys_ini, "r_string", rep_kit_sect, "use_effector", nil)
 	if repair_effector then
 		level.remove_complex_effector(repair_effector_id)
 		level.add_complex_effector(repair_effector, use_effector_id)
 	end
+end
+
+class "RepairWnd" (CUIScriptWnd)
+
+function RepairWnd:__init(owner) super()
+	self.owner = owner
+	self:Init(0, 0, 1024, 768)
+	self:InitWnd()
+end
+
+function RepairWnd:DetachWnd()
+	self:ClearCallbacks()
+	self.owner:DetachChild(self.message_box)
+end
+
+function RepairWnd:InitWnd()	
+	local xml = CScriptXmlInit()
+	xml:ParseFile("message_box.xml")
+
+	self.message_box = CUIMessageBox()
+	self.message_box:Init("message_box_repair_item")
+	self:Register(self.message_box, "message_box")
+	
+	self:AddCallback("message_box", ui_events.MESSAGE_BOX_YES_CLICKED, self.ProcessRepair, self)
+	self:AddCallback("message_box", ui_events.MESSAGE_BOX_NO_CLICKED, self.HideWnd, self)
+	
+	self.owner:AttachChild(self.message_box)
+	self.message_box:Show(true)
+end
+
+function RepairWnd:InitRepair(obj, drop_on_obj)
+	self.item_repair_with = obj
+	self.item_to_repair = drop_on_obj
+	local msg_text = string.format(
+		"%s %s\\n%s %s ?", 
+		game.translate_string("st_repair_item"), 
+		game.translate_string(get_inv_name(drop_on_obj:section())), 
+		game.translate_string("st_repair_with"), 
+		game.translate_string(get_inv_name(obj:section())))
+	
+	self.message_box:SetText(msg_text)
+end
+
+function RepairWnd:ProcessRepair()
+	repair(self.item_repair_with, self.item_to_repair)
+	self:HideWnd()
+end
+
+function RepairWnd:HideWnd()
+	self.owner:GetHolder():start_stop_menu(self.message_box, true)
+	self.item_to_repair = nil
+	self.item_repair_with = nil
+	self:DetachWnd()
 end

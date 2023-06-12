@@ -92,7 +92,7 @@ class "PDAOverlay" (CUIScriptWnd)
 function PDAOverlay:__init(owner) super()
 	self.owner = owner
 	self:Init(0, 0, 1024, 768)
-	self:InitControls()
+	self:InitWnd()
 end
 
 function PDAOverlay:DetachWnd()
@@ -102,7 +102,7 @@ function PDAOverlay:DetachWnd()
 	end
 end
 
-function PDAOverlay:InitControls()
+function PDAOverlay:InitWnd()
 	local xml = CScriptXmlInit()
 	xml:ParseFile("pda.xml")
 
