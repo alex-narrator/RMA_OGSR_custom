@@ -1,7 +1,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;	MEDICAL
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-[antirad]:identity_immunities
+[drugs_base]:identity_immunities
+breakable = true
+
+[antirad]:drugs_base
 GroupControlSection	= spawn_group
 discovery_dependency =
 $spawn 			= "food and drugs\antirad"
@@ -42,7 +45,7 @@ use_sound = interface\inv_pills
 use_effector = effector_drug_use
 
 
-[medkit]:identity_immunities
+[medkit]:drugs_base
 GroupControlSection	= spawn_group
 discovery_dependency =
 $spawn 				= "food and drugs\medkit"
@@ -88,7 +91,7 @@ boost_effector = effector_nightvision_good
 ;hud item
 hud = wpn_vodka_hud
 
-[medkit_army]:identity_immunities
+[medkit_army]:drugs_base
 GroupControlSection	= spawn_group
 discovery_dependency =
 $spawn 				= "food and drugs\medkit_army"
@@ -133,7 +136,7 @@ use_effector = effector_drug_use
 ;hud item
 hud = wpn_vodka_hud
 
-[medkit_scientic]:identity_immunities
+[medkit_scientic]:drugs_base
 GroupControlSection	= spawn_group
 discovery_dependency =
 $spawn 				= "food and drugs\medkit_scientic"
@@ -178,7 +181,7 @@ use_effector = effector_drug_use
 ;hud item
 hud = wpn_vodka_hud
 
-[bandage]:identity_immunities
+[bandage]:drugs_base
 GroupControlSection	= spawn_group
 discovery_dependency =
 $spawn 				= "food and drugs\bandage"

@@ -1,4 +1,7 @@
-[bread]:identity_immunities
+[food_base]:identity_immunities
+breakable = true
+
+[bread]:food_base
 GroupControlSection	= spawn_group
 discovery_dependency =
 $spawn 				= "food and drugs\bread"
@@ -42,6 +45,8 @@ use_sound = interface\inv_food
 radiation_accum_factor = 0.1
 radiation_accum_limit = 1
 
+deterioration_time = 24
+
 ; food item
 animation_slot		= 4
 
@@ -49,7 +54,7 @@ animation_slot		= 4
 hud = wpn_vodka_hud
 
 
-[kolbasa]:identity_immunities
+[kolbasa]:food_base
 GroupControlSection	= spawn_group
 discovery_dependency =
 $spawn 				= "food and drugs\kolbasa"
@@ -90,13 +95,15 @@ eat_portions_num = 1
 menu_use_tip 	= st_eat
 use_sound = interface\inv_food
 
+deterioration_time = 12
+
 ; food item
 animation_slot		= 4
 
 ;hud item
 hud = wpn_vodka_hud
 
-[conserva]:identity_immunities
+[conserva]:food_base
 GroupControlSection	= spawn_group
 discovery_dependency =
 $spawn 				= "food and drugs\conserva"
@@ -143,7 +150,7 @@ bone_name				= bip01_r_hand
 position_offset			 = 0.0,0.0,0.0
 angle_offset			 = 1.570790,1.570790,3.92699
 
-[vodka]:identity_immunities
+[vodka]:food_base
 GroupControlSection	= spawn_group
 discovery_dependency =
 $spawn 				= "food and drugs\vodka"
@@ -193,7 +200,6 @@ animation_slot		= 4
 ;hud item
 hud = wpn_vodka_hud
 
-breakable = true
 break_particles		= explosions\explosion_bottle
 break_sound			= material\bottle\collide\bottle_break_1
 
