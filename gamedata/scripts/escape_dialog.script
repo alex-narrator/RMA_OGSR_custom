@@ -184,58 +184,16 @@ end
 --Проверка наличия оружия у ГГ (Р.М.А.):
 function actor_has_weapon()
     local actor = db.actor
-	local all_wpn = {"wpn_abakan", "wpn_ak74", "wpn_ak74u", "wpn_beretta", "wpn_bm16", "wpn_colt1911",
-						"wpn_desert_eagle", "wpn_fn2000", "wpn_fort", "wpn_g36", "wpn_gauss", "wpn_groza", 
-						"wpn_hpsa", "wpn_l85", "wpn_lr300", "wpn_mp5", "wpn_pb", "wpn_pm", "wpn_rg-6", "wpn_rpg7", 
-						"wpn_sig220", "wpn_sig550", "wpn_spas12", "wpn_svd", "wpn_svu", "wpn_toz34", "wpn_usp", 
-						"wpn_val", "wpn_vintorez", "wpn_walther", "wpn_wincheaster1300", "wpn_ak74_m1", 
-						"wpn_abakan_m1", "wpn_fort_m1", "wpn_ak74u_m1", "wpn_mp5_m1", "wpn_groza_m1", 
-						"wpn_spas12_m1", "wpn_winchester_m1", "wpn_l85_m1", "wpn_lr300_m1", "wpn_svd_m1", 
-						"wpn_sig_m1", "wpn_eagle_m1", "wpn_colt_m1", "wpn_val_m1", "wpn_mp5_m2", "wpn_abakan_m2", 
-						"wpn_l85_m2", "wpn_sig_m2", "wpn_rg6_m1", "wpn_walther_m1", "hunters_toz", "pri_lom_ak74", 
-						"wpn_deserteagle_coll", "wpn_vintorez_coll"}
-						
-	for i = 1, #all_wpn, 1 do
-		if actor ~= nil and actor:object(all_wpn[i]) ~= nil then
-			return true
+	local has_wpn = false
+	
+	function perform_check(dummy, item)
+		if item:is_weapon() and not item:is_knife() then
+			has_wpn = true
 		end
 	end
 	
-	return false
---[[	if actor ~= nil and
-	   (actor:object("wpn_abakan") ~= nil or actor:object("wpn_ak74") ~= nil or
-	   actor:object("wpn_ak74u") ~= nil or actor:object("wpn_beretta") ~= nil or
-	   actor:object("wpn_bm16") ~= nil or actor:object("wpn_colt1911") ~= nil or
-	   actor:object("wpn_desert_eagle") ~= nil or actor:object("wpn_fn2000") ~= nil or
-	   actor:object("wpn_fort") ~= nil or actor:object("wpn_g36") ~= nil or
-	   actor:object("wpn_gauss") ~= nil or actor:object("wpn_groza") ~= nil or
-	   actor:object("wpn_hpsa") ~= nil or actor:object("wpn_l85") ~= nil or
-	   actor:object("wpn_lr300") ~= nil or actor:object("wpn_mp5") ~= nil or
-	   actor:object("wpn_pb") ~= nil or actor:object("wpn_pm") ~= nil or
-	   actor:object("wpn_rg-6") ~= nil or actor:object("wpn_rpg7") ~= nil or
-	   actor:object("wpn_sig220") ~= nil or actor:object("wpn_sig550") ~= nil or
-	   actor:object("wpn_spas12") ~= nil or actor:object("wpn_svd") ~= nil or
-	   actor:object("wpn_svu") ~= nil or actor:object("wpn_toz34") ~= nil or
-	   actor:object("wpn_usp") ~= nil or actor:object("wpn_val") ~= nil or
-	   actor:object("wpn_vintorez") ~= nil or actor:object("wpn_walther") ~= nil or
-	   actor:object("wpn_wincheaster1300") ~= nil or actor:object("wpn_ak74_m1") ~= nil or
-	   actor:object("wpn_abakan_m1") ~= nil or actor:object("wpn_fort_m1") ~= nil or
-	   actor:object("wpn_ak74u_m1") ~= nil or actor:object("wpn_mp5_m1") ~= nil or
-	   actor:object("wpn_groza_m1") ~= nil or actor:object("wpn_spas12_m1") ~= nil or
-	   actor:object("wpn_winchester_m1") ~= nil or actor:object("wpn_l85_m1") ~= nil or
-	   actor:object("wpn_lr300_m1") ~= nil or actor:object("wpn_svd_m1") ~= nil or
-	   actor:object("wpn_sig_m1") ~= nil or actor:object("wpn_eagle_m1") ~= nil or
-	   actor:object("wpn_colt_m1") ~= nil or actor:object("wpn_val_m1") ~= nil or
-	   actor:object("wpn_mp5_m2") ~= nil or actor:object("wpn_abakan_m2") ~= nil or
-	   actor:object("wpn_l85_m2") ~= nil or actor:object("wpn_sig_m2") ~= nil or
-	   actor:object("wpn_rg6_m1") ~= nil or actor:object("wpn_walther_m1") ~= nil or
-	   actor:object("hunters_toz") ~= nil or actor:object("pri_lom_ak74") ~= nil or
-	   actor:object("wpn_deserteagle_coll") ~= nil or actor:object("wpn_vintorez_coll") ~= nil)
-	then
-		return true
-	else
-		return false
-	end ]]
+	actor:iterate_inventory(perform_check, nil)
+	return has_wpn
 end
 
 function actor_dont_has_weapon(npc, actor)
@@ -245,7 +203,8 @@ end
 
 function give_weapon_to_actor(trader, actor)
     dialogs.relocate_item_section(trader, "wpn_pm", "in")
-    dialogs.relocate_item_section(trader, "ammo_9x18_fmj", "in")
+    --dialogs.relocate_item_section(trader, "ammo_9x18_fmj", "in")
+	service_funcs.give_ammo_box_to_actor("clip_8_900x18", 2)
 end
 
 
@@ -333,7 +292,8 @@ function wolf_additional_reward(first_speaker, second_speaker)
     dialogs.relocate_item_section(first_speaker, "bandage", "in")
     dialogs.relocate_item_section(first_speaker, "wpn_fort", "in")
     dialogs.relocate_item_section(first_speaker, "grenade_f1", "in") 
-    dialogs.relocate_item_section(first_speaker, "ammo_9x18_fmj", "in")        
+    --dialogs.relocate_item_section(first_speaker, "ammo_9x18_fmj", "in")
+	service_funcs.give_ammo_box_to_actor(first_speaker, clip_12_900x18, 2)
 end
 
 function have_dynamite(npc, actor)
