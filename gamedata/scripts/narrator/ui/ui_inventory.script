@@ -1,0 +1,105 @@
+local overlay = nil
+local actor
+
+function attach(sm)
+	sm:subscribe({signal = "on_inventory_show",   fun = this.process_show})
+end
+
+local subscribed = false
+
+function process_show()
+	if not subscribed then
+		subscribed = {
+			{signal = "on_update", fun = this.process_update},
+			{signal = "on_inventory_hide", fun = this.process_hide},
+		}
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs( subscribed ) do
+			sm:subscribe( s )
+		end
+	end
+	
+	actor = db.actor
+	if not overlay then
+		overlay = InventoryOverlay(level.main_input_receiver())
+	end
+end
+
+function process_hide()
+	if subscribed then
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs( subscribed ) do
+			sm:unsubscribe( s )
+		end
+		subscribed = false
+	end
+	
+	if overlay then
+		overlay:DetachWnd()
+		overlay = nil
+	end
+end
+
+function process_update()
+	overlay:Update()
+end
+
+
+class "InventoryOverlay" (CUIScriptWnd)
+
+function InventoryOverlay:__init(owner) super()
+	self.owner = owner
+	self:Init(0, 0, 1024, 768)
+	self:InitWnd()
+end
+
+function InventoryOverlay:DetachWnd()
+	if self.main then
+		self:ClearCallbacks()
+		self.owner:DetachChild(self.main)
+	end
+end
+
+function InventoryOverlay:InitWnd()
+	local xml = CScriptXmlInit()
+	xml:ParseFile("inventory_overlay.xml")
+
+	self.main = CUIStatic()
+	self.main:Init(0, 0, 1024, 768)
+	self.owner:AttachChild(self.main)
+	
+	self.background = xml:InitStatic("background", self.main)
+	
+	self.health_st = xml:InitStatic("static_health", self.background)
+	self.health_bar = xml:InitProgressBar("progress_health", self.health_st)
+	
+	self.psy_st = xml:InitStatic("static_psy", self.background)
+	self.psy_bar = xml:InitProgressBar("progress_psy", self.psy_st)
+	
+	self.power_st = xml:InitStatic("static_power", self.background)
+	self.power_bar = xml:InitProgressBar("progress_power", self.power_st)
+	
+	self.satiety_st = xml:InitStatic("static_satiety", self.background)
+	self.satiety_bar = xml:InitProgressBar("progress_satiety", self.satiety_st)
+	
+	self.alcohol_st = xml:InitStatic("static_alcohol", self.background)
+	self.alcohol_bar = xml:InitProgressBar("progress_alcohol", self.alcohol_st)
+	
+	self.radiation_st = xml:InitStatic("static_radiation", self.background)
+	self.radiation_bar = xml:InitProgressBar("progress_radiation", self.radiation_st)
+end
+
+function InventoryOverlay:Update()
+	local pos = actor.health
+	self.health_bar:SetProgressPos(pos * 100)
+	pos = actor.psy_health
+	self.psy_bar:SetProgressPos(pos * 100)
+	pos = actor.power
+	self.power_bar:SetProgressPos(pos * 100)
+	pos = actor.satiety
+	self.satiety_bar:SetProgressPos(pos * 100)
+	pos = actor.alcohol
+	self.alcohol_bar:SetProgressPos(pos * 100)
+	pos = actor.radiation
+	self.radiation_bar:SetProgressPos(pos * 100)
+end
