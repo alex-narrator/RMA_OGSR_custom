@@ -55,7 +55,13 @@ end
 
 function process_update()
 	update_hints()
-	update_overlay()
+	overlay:Update()
+end
+
+function skip_time(h, m)
+	level.add_pp_effector("blink.ppe", 999, false)
+	level.change_game_time(0, h, m)
+	xr_sound.get_safe_sound_object("device\\pda\\pda_alarm",sound_object.s2d):play_at_pos(actor,actor:position())
 end
 
 function update_hints()
@@ -78,21 +84,13 @@ function update_hints()
 	end
 end
 
-function update_overlay()
-	local pda = actor:item_in_slot(7)
-	if not pda then return end
-	
-	local power = pda:get_power_level()
-	overlay:Update(pda:get_power_level())
-end
-
-
 class "PDAOverlay" (CUIScriptWnd)
 
 function PDAOverlay:__init(owner) super()
 	self.owner = owner
 	self:Init(0, 0, 1024, 768)
 	self:InitWnd()
+	self:UpdateTimer()
 end
 
 function PDAOverlay:DetachWnd()
@@ -112,19 +110,55 @@ function PDAOverlay:InitWnd()
 	
 	self.power_static = xml:InitStatic("power_level", self.main)
 	
-	self.days_text = xml:InitStatic("days_in_zone_text", self.main)
-	self.days_text:SetText(game.translate_string("st_days_in_zone"))
-	self.days_text:Show(false)
-	
-	self.days_count = xml:InitStatic("days_in_zone_count", self.main)
-	self.days_count:Show(false)
-	
 	self.btn_off = xml:Init3tButton("off_button", self.main)
 	self:Register(self.btn_off, "off_btn")
 	self:AddCallback("off_btn", ui_events.BUTTON_CLICKED, self.HidePda, self)
+	
+	--// actor info overlay	
+	self.info = CUIStatic()
+	self.info:Init(0, 0, 1024, 768)
+	self.main:AttachChild(self.info)
+	self.info:Show(false)
+	
+	self.days_text = xml:InitStatic("days_in_zone_text", self.info)
+	self.days_text:SetText(game.translate_string("st_days_in_zone"))
+	self.days_count = xml:InitStatic("days_in_zone_count", self.info)
+	
+	--//skip timer
+	self.wait_background = xml:InitStatic("timer_background", self.info)
+	
+	self.hour_st = xml:InitStatic("hour_static", self.wait_background)
+	self.minute_st = xml:InitStatic("minute_static", self.wait_background)
+	
+	self.minus_h = xml:InitButton("minus_button_h", self.hour_st)
+	self:Register(self.minus_h, "minus_hour")
+	self:AddCallback("minus_hour", ui_events.BUTTON_CLICKED, self.DecHour, self)
+	
+	self.plus_h = xml:InitButton("plus_button_h", self.hour_st)
+	self:Register(self.plus_h, "plus_hour")
+	self:AddCallback("plus_hour", ui_events.BUTTON_CLICKED, self.IncHour, self)
+	
+	self.minus_m = xml:InitButton("minus_button_m", self.minute_st)
+	self:Register(self.minus_m, "minus_minute")
+	self:AddCallback("minus_minute", ui_events.BUTTON_CLICKED, self.DecMinute, self)
+	
+	self.plus_m = xml:InitButton("plus_button_m", self.minute_st)
+	self:Register(self.plus_m, "plus_minute")
+	self:AddCallback("plus_minute", ui_events.BUTTON_CLICKED, self.IncMinute, self)
+	
+	self.skip_time = xml:InitButton("wait_button", self.wait_background)
+	self:Register(self.skip_time, "skip_time")
+	self:AddCallback("skip_time", ui_events.BUTTON_CLICKED, self.SkipTime, self)
 end
 
-function PDAOverlay:Update(power)
+function PDAOverlay:Update()
+	local pda = actor:item_in_slot(7)
+	if not pda then
+		process_hide()
+		return
+	end
+	
+	local power = pda:get_power_level()
 	if power == 0 then
 		process_hide()
 		return
@@ -140,8 +174,61 @@ function PDAOverlay:Update(power)
 	self.days_count:SetText(text)
 	
 	local show = has_alife_info("ui_pda_actor_info")
-	self.days_count:Show(show)
-	self.days_text:Show(show)
+	self.info:Show(show)
+end
+
+function PDAOverlay:UpdateTimer()
+	if not self.wait_h then
+		self.wait_h = 0
+	end
+	if not self.wait_m then
+		self.wait_m = 0
+	end
+	
+	self.hour_st:SetText(self.wait_h)
+	self.minute_st:SetText(self.wait_m)
+end
+
+function PDAOverlay:DecHour()
+	self.wait_h = self.wait_h - 1
+	if self.wait_h < 0 then
+		self.wait_h = 24
+	end
+	self:UpdateTimer()
+end
+
+function PDAOverlay:IncHour()
+	self.wait_h = self.wait_h + 1
+	if self.wait_h > 24 then
+		self.wait_h = 0
+	end
+	self:UpdateTimer()
+end
+
+function PDAOverlay:DecMinute()
+	self.wait_m = self.wait_m - 5
+	if self.wait_m < 0 then
+		self.wait_m = 55
+	end
+	self:UpdateTimer()
+end
+
+function PDAOverlay:IncMinute()
+	self.wait_m = self.wait_m + 5
+	if self.wait_m > 55 then
+		self.wait_m = 0
+	end
+	self:UpdateTimer()
+end
+
+function PDAOverlay:SkipTime()
+	if self.wait_h == 0 and self.wait_m == 0 then
+	return end
+	
+	skip_time(self.wait_h, self.wait_m)
+	self.wait_h = 0
+	self.wait_m = 0
+	self:UpdateTimer()
 end
 
 function PDAOverlay:HidePda()
