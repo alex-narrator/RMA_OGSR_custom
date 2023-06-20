@@ -112,22 +112,40 @@ max_ruck		= 56
 max_belt		= 8 //16
 slots			= 20
 
-slot_persistent_1   = false		;knife
-slot_persistent_2   = false		;first weapon
-slot_persistent_3   = false		;second weapon
-slot_persistent_4   = false		;grenades
-slot_persistent_5   = false		;binocular
-slot_persistent_6   = true		;bolt
-slot_persistent_7   = false		;outfit
-slot_persistent_8   = false		;pda
-slot_persistent_9   = false		;detector
-slot_persistent_10  = false		;torch
-slot_persistent_11  = false		;artefact
-slot_persistent_12  = false		;helmet
-slot_persistent_13  = false		;warbelt
-slot_persistent_14  = false		;backpack
-slot_persistent_15  = false		;vest
-slot_persistent_16  = false		;gasmask
+;слоти
+;0 - knife
+;1 - first weapon
+;2 second weapon
+;3 - grenades
+;4 - binocular
+;5 - bolt
+;6 - outfit
+;7 - pda
+;8 - detector
+;9 - torch
+;10 - artefact
+;11 - helmet
+;12 - warbelt
+;13 - backpack
+;14 - vest
+;15 - gasmask
+
+;чи заблоковано слот (не можна класти/зибирати предмет з нього і не видно у інвентарі) (false by default)
+slot_persistent_5   = true		;bolt
+
+;чи можна активувати слот (true by default)
+slot_visible_6 = false
+slot_visible_7 = false
+slot_visible_8 = false ;KRodin: это очень важно! Слот для зп-стайл детекторов должен быть НЕ активируемым!
+slot_visible_9 = false
+slot_visible_11 = false
+slot_visible_12 = false
+slot_visible_13 = false
+slot_visible_14 = false
+slot_visible_15 = false
+
+;чи потребує слот спорядженого предмету-модуля щоб бути доступним (false by default)
+slot_need_module_10 = true
 
 [custom_keyboard_action]
 use_quick_slot_0 = kQUICK_SLOT_0
