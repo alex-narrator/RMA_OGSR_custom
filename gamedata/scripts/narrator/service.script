@@ -1,0 +1,46 @@
+--спеціально для видачі набоїв враховуючи магазини
+--параметри count, loaded_box, ammo_type необов'язкові (одна повна пачка та перший з переліку тип за замовчуванням)
+--count - кількість пачок
+--loaded_box - повна чи порожня пачка
+--ammo_type - тип набою у пачці (для магазинів)
+--можна видавати порожні пачки (для магазинів)
+function give_ammo_box_to_actor(section, count, loaded_box, ammo_type)
+	local actor = db.actor
+	local count_in_box = sys_ini:r_u32(section, "box_size")
+	if count == nil then
+		count = 1
+	end
+	if loaded_box == nil then
+		loaded_box = true
+	end
+	if ammo_type == nil then
+		ammo_type = 0
+	end
+	if loaded_box == false then
+		count_in_box = 0
+	end
+	while count > 0 do
+		alife():create_ammo(section, 
+		actor:position(), 
+		actor:level_vertex_id(), 
+		actor:game_vertex_id(), 
+		actor:id(), 
+		count_in_box,
+		ammo_type)
+		count = count - 1
+	end
+	news_manager.relocate_item(db.actor, "in", section)
+end
+
+function get_inv_name(section)
+	return sys_ini:r_string(section,"inv_name")
+end
+
+function add_info_message(static_id, text)
+	local hud = get_hud()
+	local static = hud:GetCustomStatic(static_id)
+	if not static then
+		static = hud:AddCustomStatic(static_id, true)
+	end
+	static:wnd():SetTextST(text)
+end

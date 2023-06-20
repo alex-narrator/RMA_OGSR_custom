@@ -1,0 +1,134 @@
+local overlay = nil
+
+function attach(sm)
+	sm:subscribe({signal = "on_first_update",   fun = this.process_show})
+end
+
+local subscribed = false
+
+function process_show()
+	if not subscribed then
+		subscribed = {
+			{signal = "on_destroy", fun = this.process_hide},
+		}
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs( subscribed ) do
+			sm:subscribe( s )
+		end
+	end
+	
+	if not overlay then
+		overlay = MainIngameOverlay(get_main_window())
+	end
+end
+
+function process_hide()
+	if subscribed then
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs( subscribed ) do
+			sm:unsubscribe( s )
+		end
+		subscribed = false
+	end
+	
+	if overlay then
+		overlay:DetachWnd()
+		overlay = nil
+	end
+end
+
+class "MainIngameOverlay" (CUIScriptWnd)
+
+function MainIngameOverlay:__init(owner) super()
+	self.owner = owner
+	self:Init(0, 0, 1024, 768)
+	self:InitControls()
+	self:Subscribe()
+end
+
+function MainIngameOverlay:Subscribe()
+	self.subscribed = false
+	if not self.subscribed then
+		self.subscribed = {
+			{signal = "on_quick_item_set", self = self, fun = self.UpdateSlots},
+			{signal = "on_use", self = self, fun = self.UpdateSlots},
+			{signal = "on_ruck", self = self, fun = self.UpdateSlots},
+			{signal = "on_belt", self = self, fun = self.UpdateSlots},
+			{signal = "on_vest", self = self, fun = self.UpdateSlots},
+			{signal = "on_drop", self = self, fun = self.UpdateSlots},
+		}
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs( self.subscribed ) do
+			sm:subscribe( s )
+		end
+	end
+end
+
+function MainIngameOverlay:Unsubscribe()
+	if self.subscribed then
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs( self.subscribed ) do
+			sm:unsubscribe( s )
+		end
+		self.subscribed = false
+	end
+end
+
+function MainIngameOverlay:DetachWnd()
+	self:Unsubscribe()
+	if self.main then
+		self:ClearCallbacks()
+		self.owner:DetachChild(self.main)
+	end
+end
+
+function MainIngameOverlay:InitControls()
+	local xml = CScriptXmlInit()
+	xml:ParseFile("mainingame_overlay.xml")
+
+	self.main = CUIStatic()
+	self.main:Init(0, 0, 1024, 768)
+	
+	self.owner:AttachChild(self.main)
+		
+	--// quick slots
+	self.quick_slots_back = xml:InitStatic("quick_slots_back", self.main)
+
+	self.slots = {}
+	for i=0,3 do
+		local s = xml:InitStatic("quick_slot_"..i, self.quick_slots_back)
+		self.slots[i] = s
+		s:SetColor(GetARGB(0, 255, 255, 255))
+		
+		s.icon = xml:InitStatic("slot_icon", s)
+		s.icon:InitTexture("ui\\ui_icon_equipment")
+		
+		s.count = xml:InitStatic("slot_count", s)
+		
+		self:DrawSlotIcon(i)
+	end
+end
+
+function MainIngameOverlay:DrawSlotIcon(slot_num)
+	local s = self.slots[slot_num]
+	local sect = quick_slots.get_item_sect(slot_num)
+	local params = GetIconParams(sect)
+	
+	local count = quick_slots.get_item_count(slot_num)
+	local count_text = string.format("x%s", count)
+	s.count:SetText(count_text)
+	s.count:Show(count > 0)
+	
+	s.icon:SetOriginalRect(params.x, params.y, params.w, params.h)
+	if count > 0 then
+		s.icon:SetColor(GetARGB(255, 255, 255, 255))
+	else
+		s.icon:SetColor(GetARGB(120, 255, 255, 255))
+	end
+end
+
+function MainIngameOverlay:UpdateSlots()
+	for i=0,3 do
+		self:DrawSlotIcon(i)
+	end
+end

@@ -90,10 +90,14 @@ function actor_binder:net_destroy()
 	self.object:set_callback(callback.death, nil)
 	self.object:set_callback(callback.on_ruck, nil)
 	self.object:set_callback(callback.on_slot, nil)
+	self.object:set_callback(callback.on_belt, nil)
+	self.object:set_callback(callback.on_vest, nil)
 	--
 	self.object:set_callback(callback.on_cell_item_focus, nil)
 	self.object:set_callback(callback.on_cell_item_focus_lost, nil)
 	self.object:set_callback(callback.on_cell_item_mouse, nil)
+	--
+	self.object:set_callback(callback.on_key_press, nil)
 
 	if sr_psy_antenna.psy_antenna then
 		sr_psy_antenna.psy_antenna:destroy()
@@ -138,10 +142,14 @@ function actor_binder:reinit()
 	self.object:set_callback(callback.death, self.on_death, self)
 	self.object:set_callback(callback.on_ruck, self.on_ruck, self)
 	self.object:set_callback(callback.on_slot, self.on_slot, self)
+	self.object:set_callback(callback.on_belt, self.on_belt, self)
+	self.object:set_callback(callback.on_vest, self.on_vest, self)
 	--
 	self.object:set_callback(callback.on_cell_item_focus, self.on_cell_item_focus, self)
 	self.object:set_callback(callback.on_cell_item_focus_lost, self.on_cell_item_focus_lost, self)
 	self.object:set_callback(callback.on_cell_item_mouse, self.on_cell_item_mouse, self)
+	--
+	self.object:set_callback(callback.on_key_press, self.on_key_press, self)
 	--
 	self.sm:call("on_reinit")
 end
@@ -265,11 +273,16 @@ function actor_binder:map_location_added_callback(spot_type_str, object_id)
 	--'news_manager.send_task(db.actor, "new")
 end
 ----------------------------------------------------------------------------------------------------------------------
+local update_was_never_called = true
+	
 function actor_binder:update(delta)
+	if update_was_never_called then
+		self.sm:call( "on_before_first_update" )
+	end
+	self.sm:call( "on_before_update", delta )
+	
+	
 	object_binder.update(self, delta)
-	--
-	self.sm:call("on_update", delta)
-	--
 	-- DEBUG slowdown
 --	slowdown.update()
 
@@ -400,6 +413,12 @@ function actor_binder:update(delta)
 	-- Лагерь прощает обиды:
 	escape_tasks.esc_lager_forgive()
 
+	if update_was_never_called then
+		self.sm:call( "on_first_update" )
+		update_was_never_called = false
+		self.sm:delay_time_limit( 10000 )
+	end
+	self.sm:call( "on_update", delta )
 end
 ----------------------------------------------------------------------------------------------------------------------
 function actor_binder:save(packet)
@@ -477,7 +496,7 @@ function actor_binder:load(reader)
 	
 	task_manager.load(reader)
 	self.actor_detector:load(reader)	
-	self.sm:call("on_load", packet)
+	self.sm:call("on_load", reader)
 end
 ----------------------------------------------------------------------------------------------------------------------
 function actor_binder:level_changer_action( obj, wnd )
@@ -509,9 +528,14 @@ end
 function actor_binder:on_ruck(obj, prev_place)
 	self.sm:call("on_ruck", obj, prev_place)
 end
-
 function actor_binder:on_slot(obj, prev_place)
 	self.sm:call("on_slot", obj, prev_place)
+end
+function actor_binder:on_belt(obj, prev_place)
+	self.sm:call("on_belt", obj, prev_place)
+end
+function actor_binder:on_vest(obj, prev_place)
+	self.sm:call("on_vest", obj, prev_place)
 end
 
 function actor_binder:on_cell_item_focus(obj)
@@ -524,6 +548,10 @@ function actor_binder:on_cell_item_mouse(obj, x, y, action)
 	self.sm:call("on_cell_item_mouse", obj, x, y, action)
 end
 
+function actor_binder:on_key_press(key, game_action)
+	self.sm:call("on_key_press", key, game_action)
+	--log3("on_key_press key %s, game_action %s", key, game_action)
+end
 --старт префетча звуков
 --if string.find(command_line(), "-noprefetch") == nil then
 --	sound_prefetch.prefetch_sounds()

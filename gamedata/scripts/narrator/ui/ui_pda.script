@@ -55,7 +55,6 @@ end
 
 function process_update()
 	update_hints()
-	overlay:Update()
 end
 
 function skip_time(h, m)
@@ -89,18 +88,43 @@ class "PDAOverlay" (CUIScriptWnd)
 function PDAOverlay:__init(owner) super()
 	self.owner = owner
 	self:Init(0, 0, 1024, 768)
-	self:InitWnd()
+	self:InitControls()
 	self:UpdateTimer()
+	self:Subscribe()
+end
+
+function PDAOverlay:Subscribe()
+	self.subscribed = false
+	if not self.subscribed then
+		self.subscribed = {
+			{signal = "on_update", self = self, fun = self.Update},
+		}
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs( self.subscribed ) do
+			sm:subscribe( s )
+		end
+	end
+end
+
+function PDAOverlay:Unsubscribe()
+	if self.subscribed then
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs( self.subscribed ) do
+			sm:unsubscribe( s )
+		end
+		self.subscribed = false
+	end
 end
 
 function PDAOverlay:DetachWnd()
+	self:Unsubscribe()
 	if self.main then
 		self:ClearCallbacks()
 		self.owner:DetachChild(self.main)
 	end
 end
 
-function PDAOverlay:InitWnd()
+function PDAOverlay:InitControls()
 	local xml = CScriptXmlInit()
 	xml:ParseFile("pda.xml")
 
@@ -170,7 +194,7 @@ function PDAOverlay:Update()
 		self.power_static:SetTextColor(255, 255, 0, 0)
 	end
 	
-	text = string.format("%d", level.get_time_days())	
+	text = string.format("%d", level.get_time_days())
 	self.days_count:SetText(text)
 	
 	local show = has_alife_info("ui_pda_actor_info")

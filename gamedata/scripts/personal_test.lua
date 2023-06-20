@@ -15,4 +15,17 @@
 -- h.impulse = 0.0 
 -- actor:hit(h)
 
-db.actor:set_character_rank(299)
+--db.actor:set_character_rank(299)
+
+--db.actor:give_info_portion("agr_cit_doctor_meet_start")
+
+-- local _hour = 24
+-- local _min = 90
+-- local time_to_advance = (_hour*3600 + _min*60) * 1000
+-- level.advance_game_time(time_to_advance)
+
+--level.add_pp_effector("black.ppe", 2007, false)
+
+--skip_time.start(1, 30)
+
+quick_slots.set_quick_item("energy_drink", 0)

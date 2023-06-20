@@ -17,14 +17,14 @@ function GetDamage(section)
 end
 
 function GetHandling(section)
-	log3("wpn_params_script section %s", section)
+	--log3("wpn_params_script section %s", section)
 	local val	
 	
 	local control_inertion_factor = read_if_exists(sys_ini, "r_float", section, "control_inertion_factor", 1) 	
 	local PDM_disp_base 		= read_if_exists(sys_ini, "r_float", section, "PDM_disp_base", 1) 	
 	local PDM_disp_vel_factor	= read_if_exists(sys_ini, "r_float", section, "PDM_disp_vel_factor", 1) 
 	
-	log3("wpn_params_script section %s | control_inertion_factor %s", section, control_inertion_factor)
+	--log3("wpn_params_script section %s | control_inertion_factor %s", section, control_inertion_factor)
 	
 	if control_inertion_factor < 2 and PDM_disp_base < 1.5 then
 		val = (1 - math.pow(PDM_disp_vel_factor - 0.5, 2) + math.pow(2 - control_inertion_factor,2))*50	

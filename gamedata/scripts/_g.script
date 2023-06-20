@@ -1497,11 +1497,6 @@ end
 
 --рушійно-подібні константи
 NO_ACTIVE_SLOT = 255
-eItemPlaceUndefined = 0
-eItemPlaceSlot = 1
-eItemPlaceBelt = 2
-eItemPlaceRuck = 3
-eItemPlaceVest = 4
 
 sys_ini = system_ini()
 
@@ -1513,18 +1508,25 @@ function read_if_exists(ltx, val_type, section, value, default)
 			return ltx:r_bool(section,value)
 		elseif val_type == "r_float" then
 			return ltx:r_float(section,value)
+		elseif val_type == "r_u32" then
+			return ltx:r_u32(section,value)
 		end
 	else
 		return default
 	end
 end
 
-function get_inv_name(section)
-	return sys_ini:r_string(section,"inv_name")
-end
-
-function translate(str)
-	return game.translate_string(str)
+function GetIconParams(section)
+	if section and
+		sys_ini:section_exist(section) and
+		sys_ini:line_exist(section, "inv_grid_x")
+	then
+		return {x = sys_ini:r_u32(section, "inv_grid_x") *50,
+				y = sys_ini:r_u32(section, "inv_grid_y") *50,
+				w = sys_ini:r_u32(section, "inv_grid_width") *50,
+				h = sys_ini:r_u32(section, "inv_grid_height") *50}
+	end
+	return {x=0, y=0, w=1, h=1}
 end
 
 ammo_section = {}

@@ -1,0 +1,122 @@
+local quick_sect = {
+	[0] = "",
+	[1] = "",
+	[2] = "",
+	[3] = "",
+}
+
+local quick_selected
+
+function attach(sm)
+	sm:subscribe({signal = "on_key_press",   fun = this.process_use})
+	sm:subscribe({signal = "on_save",   fun = this.on_save})
+	sm:subscribe({signal = "on_load",   fun = this.on_load})
+	sm:subscribe({signal = "on_cell_item_mouse",   fun = this.try_set_item})
+end
+
+function process_use(key, game_action)
+	local quick_action = 
+		game_action == key_bindings.kQUICK_SLOT_0 or
+		game_action == key_bindings.kQUICK_SLOT_1 or
+		game_action == key_bindings.kQUICK_SLOT_2 or 
+		game_action == key_bindings.kQUICK_SLOT_3
+		
+	if not quick_action then
+	return end
+	
+	local slot_num = game_action - key_bindings.kQUICK_SLOT_0
+	use_quick_item(slot_num)
+end
+
+function try_set_item(obj, x, y, action)
+	local item_allowed = read_if_exists(sys_ini, "r_bool", obj:section(), "quick_slot", false)
+	if action ~= ui_events.DRAG_DROP_ITEM_DROP or not quick_selected or not item_allowed then 
+	return end
+	
+	set_item(obj:section(), quick_selected)
+	set_selected(nil)
+end
+
+function use_quick_item(slot_num)
+	local item_to_use = get_item(slot_num)
+	if not item_to_use then
+	return end
+	db.actor:eat(item_to_use)
+	local str = string.format("%s: %s", game.translate_string("st_item_used"), game.translate_string(service.get_inv_name(item_to_use:section())))
+	service.add_info_message("item_usage", str)
+end
+
+function get_item(slot_num)
+	local sect = quick_sect[slot_num]
+	local founded_item = nil
+	
+	function perform_check(dummy, item)
+		if item:section() == sect then
+			founded_item = item
+		end
+	end
+	
+	db.actor:iterate_vest(perform_check, nil)
+	
+	if not item then
+		db.actor:iterate_belt(perform_check, nil)
+	end
+	
+	return founded_item
+end
+
+function set_item(item_sect, slot_num)
+	quick_sect[slot_num] = item_sect
+	for num, sect in pairs(quick_sect) do
+		if sect == item_sect and num ~= slot_num then
+			quick_sect[num] = ""
+		end
+	end
+	ogse_signals.get_mgr():call("on_quick_item_set", item_sect, slot_num)
+end
+
+function get_item_sect(slot_num)
+	return quick_sect[slot_num]
+end
+
+function get_item_count(slot_num)
+	local sect = quick_sect[slot_num]
+	local res = 0
+	
+	if not sect then
+		return res
+	end
+	
+	function perform_check(dummy, item)
+		if item:section() == sect then
+			res = res + 1
+		end
+	end
+	
+	db.actor:iterate_vest(perform_check, nil)
+	
+	if not item then
+		db.actor:iterate_belt(perform_check, nil)
+	end
+	
+	return res
+end
+
+function set_selected(val)
+	quick_selected = val
+end
+
+function on_save(packet)
+	for num, sect in pairs(quick_sect) do
+		packet:w_stringZ(sect)
+	end
+end
+
+function on_load(reader)
+	if reader:r_eof() then
+	return end
+	
+	for num, sect in pairs(quick_sect) do
+		quick_sect[num] = reader:r_stringZ()
+	end
+end
