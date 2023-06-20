@@ -38,11 +38,11 @@ function try_set_item(obj, x, y, action)
 end
 
 function use_quick_item(slot_num)
-	local item_to_use = get_item(slot_num)
-	if not item_to_use then
+	local item = get_item(slot_num)
+	if not item then
 	return end
-	db.actor:eat(item_to_use)
-	local str = string.format("%s: %s", game.translate_string("st_item_used"), game.translate_string(service.get_inv_name(item_to_use:section())))
+	db.actor:eat(item)
+	local str = string.format("%s: %s", game.translate_string("st_item_used"), game.translate_string(service.get_inv_name(item:section())))
 	service.add_info_message("item_usage", str)
 end
 
@@ -61,6 +61,9 @@ function get_item(slot_num)
 	if not item then
 		db.actor:iterate_belt(perform_check, nil)
 	end
+	if not item then
+		db.actor:iterate_slots(perform_check, nil)
+	end	
 	
 	return founded_item
 end
@@ -94,9 +97,11 @@ function get_item_count(slot_num)
 	end
 	
 	db.actor:iterate_vest(perform_check, nil)
-	
 	if not item then
 		db.actor:iterate_belt(perform_check, nil)
+	end
+	if not item then
+		db.actor:iterate_slots(perform_check, nil)
 	end
 	
 	return res

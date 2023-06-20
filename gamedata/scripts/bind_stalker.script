@@ -98,6 +98,8 @@ function actor_binder:net_destroy()
 	self.object:set_callback(callback.on_cell_item_mouse, nil)
 	--
 	self.object:set_callback(callback.on_key_press, nil)
+	--
+	self.object:set_callback(callback.map_relation_location_added, nil)
 
 	if sr_psy_antenna.psy_antenna then
 		sr_psy_antenna.psy_antenna:destroy()
@@ -150,6 +152,8 @@ function actor_binder:reinit()
 	self.object:set_callback(callback.on_cell_item_mouse, self.on_cell_item_mouse, self)
 	--
 	self.object:set_callback(callback.on_key_press, self.on_key_press, self)
+	--
+	self.object:set_callback(callback.map_relation_location_added, self.on_map_relation_location_added, self)
 	--
 	self.sm:call("on_reinit")
 end
@@ -551,6 +555,10 @@ end
 function actor_binder:on_key_press(key, game_action)
 	self.sm:call("on_key_press", key, game_action)
 	--log3("on_key_press key %s, game_action %s", key, game_action)
+end
+
+function actor_binder:on_map_relation_location_added(spot, id)
+	self.sm:call("on_map_relation_location_added", spot, id)
 end
 --старт префетча звуков
 --if string.find(command_line(), "-noprefetch") == nil then
