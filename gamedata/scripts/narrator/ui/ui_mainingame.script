@@ -96,10 +96,18 @@ function MainIngameOverlay:InitControls()
 	self.quick_slots_back = xml:InitStatic("quick_slots_back", self.main)
 
 	self.slots = {}
+	local indent = 2 --відступ між елементами
+	local pos_x = 4 --початкова позиція по х
 	for i=0,3 do
-		local s = xml:InitStatic("quick_slot_"..i, self.quick_slots_back)
+		local s = xml:InitStatic("quick_slot", self.quick_slots_back)
 		self.slots[i] = s
 		s:SetColor(GetARGB(0, 255, 255, 255))
+		
+		local key_text = "ui_quick_slot_"..i
+		s:SetText(game.translate_string(key_text))
+		
+		s:SetWndPos(pos_x, s:GetPosTop())
+		pos_x = pos_x + s:GetWidth() + indent
 		
 		s.icon = xml:InitStatic("slot_icon", s)
 		s.icon:InitTexture("ui\\ui_icon_equipment")
