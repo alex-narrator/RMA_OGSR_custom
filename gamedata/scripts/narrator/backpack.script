@@ -1,0 +1,25 @@
+function attach(sm)
+	sm:subscribe({signal = "on_key_press",   fun = this.process_drop})
+end
+
+function process_drop(key, game_action)
+	if level.main_input_receiver() or 
+		game_action ~= key_bindings.kDROP_BACKPACK then
+	return end
+	
+	try_drop()
+end
+
+function try_drop()
+	local backpack = service.get_backpack()
+	if not backpack then 
+	return end
+	
+	local has_quick_drop = read_if_exists(sys_ini, "r_bool", backpack:section(), "quick_drop", false)
+	if not has_quick_drop then
+	return end
+	
+	db.actor:drop_item(backpack)
+	
+	service.add_info_message("item_usage", "st_backpack_dropped")
+end

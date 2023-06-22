@@ -1,0 +1,30 @@
+missfire_react = {
+	xr_sound.get_safe_sound_object([[characters_voice\human_01\stalker\fight\hit\hit_3]],sound_object.s2d),
+	xr_sound.get_safe_sound_object([[characters_voice\human_01\stalker\states\panic_human\panic_human_1]],sound_object.s2d),
+	xr_sound.get_safe_sound_object([[characters_voice\human_02\stalker\states\panic_human\panic_human_2]],sound_object.s2d),
+}
+
+fatigue_react = {
+	xr_sound.get_safe_sound_object([[characters_voice\human_03\stalker\states\fatique\fatique_1]],sound_object.s2d),
+}
+
+local last_time_played = 0
+local delay = 5000
+local actor = db.actor
+local snd
+
+function misfire()
+	snd = missfire_react[math.random(#missfire_react)]
+	if not snd:playing() and device():time_global() > last_time_played + delay then
+		snd:play_at_pos(actor,actor:position())
+		last_time_played = device():time_global()
+	end
+end
+
+function fatigue()
+	snd = fatigue_react[math.random(#fatigue_react)]
+	if not snd:playing() and device():time_global() > last_time_played + delay then
+		snd:play_at_pos(actor,actor:position())
+		last_time_played = device():time_global()
+	end
+end

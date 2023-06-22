@@ -53,7 +53,6 @@ function skip_time(h, m)
 end
 
 function customize_relation_spot(spot, id)
-	log3("id %s spot %s", id, spot)
 	local npc = level.object_by_id(id)
 	local actor = db.actor
 	local hint_text = string.format("%s\\n%s%s", npc:character_name(), color_by_relation[npc:relation(actor)], game.translate_string(npc:character_community()))

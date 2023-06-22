@@ -44,3 +44,21 @@ function add_info_message(static_id, text)
 	end
 	static:wnd():SetTextST(text)
 end
+
+function actor_hands_free()
+	local act_item = db.actor:active_item()
+	return not act_item or act_item:get_hud_item_state() == global_flags.eIdle
+end
+
+function actor_cant_walk()
+	return get_actor_obj().condition.cant_walk
+end
+
+function get_backpack()
+	local backpack = db.actor:item_in_slot(13)
+	if backpack and backpack:get_container() then
+		return backpack
+	else
+		return nil
+	end
+end

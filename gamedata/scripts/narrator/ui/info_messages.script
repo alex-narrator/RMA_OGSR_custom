@@ -1,0 +1,63 @@
+--------------------------------------------
+--видача повідомлень про стани ГГ
+--заклинювання зброї, відстуність сил і т.п.
+--------------------------------------------
+
+local need_hands_action = {
+	[key_bindings.kTORCH] = true,
+	[key_bindings.kNIGHT_VISION] = true,
+}
+
+local need_power_action = {
+	[key_bindings.kFWD] = true,
+	[key_bindings.kBACK] = true,
+	[key_bindings.kL_STRAFE] = true,
+	[key_bindings.kR_STRAFE] = true,
+	[key_bindings.kKICK] = true,
+}
+
+local misfire_action = {
+	[key_bindings.kWPN_FIRE] = true,
+	[key_bindings.kCHECKACTIVEITEM] = true,
+}
+
+function attach(sm)
+	sm:subscribe({signal = "on_key_press",   fun = this.info_messages})
+end
+
+function info_messages(key, game_action)
+	if level.main_input_receiver() then
+	return end
+	
+	local is_free_hands = service.actor_hands_free()
+	
+	local act_item = db.actor:active_item()
+	
+	local act_wpn = act_item and act_item:get_weapon_m() or nil
+	if act_wpn and misfire_action[game_action] and act_wpn:is_misfire() and is_free_hands then
+		service.add_info_message("item_state", "gun_jammed")
+		if game_action == key_bindings.kWPN_FIRE then
+			actor_sounds.misfire()
+		end
+	end
+	
+	-- if act_item and 
+		-- is_free_hands and
+		-- (act_item:is_missile() or act_item:is_knife()) and
+		-- (game_action == key_bindings.kWPN_FIRE or game_action == key_bindings.kWPN_ZOOM) and
+		-- act_item:get_hud_item_state() ~= global_flags.eReady and
+		-- service.actor_cant_walk()
+	-- then
+		-- service.add_info_message("actor_state", "cant_walk")
+		-- actor_sounds.fatigue()
+	-- end
+	
+	if need_power_action[game_action] and service.actor_cant_walk() then
+		service.add_info_message("actor_state", "cant_walk")
+		actor_sounds.fatigue()
+	end
+	
+	if need_hands_action[game_action] and not is_free_hands then
+		service.add_info_message("item_usage", "hands_not_free")
+	end
+end

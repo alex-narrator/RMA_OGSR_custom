@@ -1,3 +1,10 @@
+local quick_action = {
+	[key_bindings.kQUICK_SLOT_0] = true,
+	[key_bindings.kQUICK_SLOT_1] = true,
+	[key_bindings.kQUICK_SLOT_2] = true,
+	[key_bindings.kQUICK_SLOT_3] = true,
+}
+
 local quick_sect = {
 	[0] = "",
 	[1] = "",
@@ -15,13 +22,8 @@ function attach(sm)
 end
 
 function process_use(key, game_action)
-	local quick_action = 
-		game_action == key_bindings.kQUICK_SLOT_0 or
-		game_action == key_bindings.kQUICK_SLOT_1 or
-		game_action == key_bindings.kQUICK_SLOT_2 or 
-		game_action == key_bindings.kQUICK_SLOT_3
-		
-	if not quick_action then
+	if level.main_input_receiver() or 
+		not quick_action[game_action] then
 	return end
 	
 	local slot_num = game_action - key_bindings.kQUICK_SLOT_0
@@ -41,9 +43,18 @@ function use_quick_item(slot_num)
 	local item = get_item(slot_num)
 	if not item then
 	return end
-	db.actor:eat(item)
-	local str = string.format("%s: %s", game.translate_string("st_item_used"), game.translate_string(service.get_inv_name(item:section())))
-	service.add_info_message("item_usage", str)
+	
+	if item:is_eatable_item() then
+		db.actor:eat(item)
+		local str = string.format("%s: %s", game.translate_string("st_item_used"), game.translate_string(service.get_inv_name(item:section())))
+		service.add_info_message("item_usage", str)
+		return
+	end
+	
+	if item:id() == service.get_backpack():id() then
+		backpack.try_drop()
+		return
+	end
 end
 
 function get_item(slot_num)

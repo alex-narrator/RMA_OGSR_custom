@@ -28,4 +28,6 @@
 
 --skip_time.start(1, 30)
 
-quick_slots.set_quick_item("energy_drink", 0)
+--quick_slots.set_quick_item("energy_drink", 0)
+
+db.actor.power = -10
