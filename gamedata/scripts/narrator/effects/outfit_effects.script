@@ -1,10 +1,85 @@
+local main_wnd = get_main_window()
+local mask_texture = [[ui\dinamic_hud\hud_]]
+local breathe_texture = [[ui\dinamic_hud\breathe]]
+
+local hud_obj
+local hud_params
+local mask_static
+local breathe_static
+local last_cond_idx
+local last_power_idx
+local breathe_val
+
+local dec_breathe = false
+
+function get_hud_params(sect)
+	hud_params = {}
+	hud_params.shader = read_if_exists(sys_ini, "r_bool", sect, "hud_shader", false)
+	
+	hud_params.texture = read_if_exists(sys_ini, "r_string", sect, "hud_texture", nil)	
+	if hud_params.texture then
+		hud_params.texture = mask_texture..hud_params.texture
+		hud_params.breakable = read_if_exists(sys_ini, "r_bool", sect, "hud_breakable", false)
+	end
+	
+	hud_params.breathe = read_if_exists(sys_ini, "r_float", sect, "hud_breathe", 0)
+	if hud_params.breathe then
+		hud_params.breathe = hud_params.breathe / 1000
+	end
+	
+	return hud_params.shader or hud_params.texture or hud_params.breakable or hud_params.breathe
+end
+
+function get_cond_idx()
+	local cond = hud_obj:condition()
+	--log3("hud_obj %s | cond %s", hud_obj:name(), cond)
+	if cond <= 0.1 then
+		return 6
+	elseif cond <= 0.3 then
+		return 5
+	elseif cond <= 0.5 then
+		return 4
+	elseif cond <= 0.7 then
+		return 3
+	elseif cond <= 0.9 then
+		return 2
+	else 
+		return 1
+	end
+end
+
+function get_power_idx()
+	local power = db.actor.power
+	--log3("power %s", db.actor.power)
+	if power <= 0.2 then
+		return 5
+	elseif power <= 0.4 then
+		return 4
+	elseif power <= 0.6 then
+		return 3
+	elseif power <= 0.8 then
+		return 2
+	else 
+		return 1
+	end
+end
+
 function attach(sm)
 	sm:subscribe({signal = "on_drop",   fun = this.disable_effects})
 	sm:subscribe({signal = "on_ruck",   fun = this.disable_effects})
 	sm:subscribe({signal = "on_slot",   fun = this.enable_effects})
 end
 
-local console = get_console()
+function enable_effects(obj)
+	if not obj:is_outfit() and not obj:is_helmet() and not obj:is_gasmask() then
+	return end
+	
+	if get_hud_params(obj:section()) then
+		hud_obj = obj
+		try_switch_shader_effects(true) 
+		try_set_hud_mask(true)
+	end
+end
 
 function disable_effects(obj, prev_place)
 	if prev_place ~= item_place.slot then
@@ -13,24 +88,141 @@ function disable_effects(obj, prev_place)
 	if not obj:is_outfit() and not obj:is_helmet() and not obj:is_gasmask() then
 	return end
 	
-	local helmet_inbuild = read_if_exists(sys_ini, "r_bool", obj:section(), "helmet_built_in", false)
-	local has_visor = read_if_exists(sys_ini, "r_bool", obj:section(), "visor", false)
-	if not has_visor and not helmet_inbuild then
-	return end
-
-	console:execute("r2_rain_drops_control 0")
-	console:execute("r2_visor_refl_control 0")
+	try_switch_shader_effects(false)
+	try_set_hud_mask(false)
+	
+	hud_obj = nil
+	hud_params = {}
 end
 
-function enable_effects(obj)
-	if not obj:is_outfit() and not obj:is_helmet() and not obj:is_gasmask() then
+function try_switch_shader_effects(val)
+	if not hud_params.shader then 
 	return end
+	
+	val = val and 1 or 0
+	local console = get_console()
+	console:execute("r2_rain_drops_control "..val)
+	console:execute("r2_visor_refl_control "..val)
+end
 
-	local helmet_inbuild = read_if_exists(sys_ini, "r_bool", obj:section(), "helmet_built_in", false)
-	local has_visor = read_if_exists(sys_ini, "r_bool", obj:section(), "visor", false)
-	if not has_visor and not helmet_inbuild then
+function try_set_hud_mask(val)
+	local sm = ogse_signals.get_mgr()
+	
+	if hud_params.breathe then
+		breathe_val = 0
+		dec_breathe = false
+		if val then
+			sm:subscribe({signal = "on_update", fun = this.on_update})
+			breathe_static = create_breathe_static()
+			main_wnd:AttachChild(breathe_static)
+			main_wnd:BringToBottom(breathe_static)
+		else
+			sm:unsubscribe({signal = "on_update", fun = this.on_update})
+			main_wnd:DetachChild(breathe_static)
+			breathe_static = nil
+		end
+	end
+	
+	if hud_params.texture then
+		if val then
+			sm:subscribe({signal = "on_hit", fun = this.on_hit})
+			mask_static = create_mask_static()
+			main_wnd:AttachChild(mask_static)
+			main_wnd:BringToBottom(mask_static)
+		else
+			sm:unsubscribe({signal = "on_hit", fun = this.on_hit})
+			main_wnd:DetachChild(mask_static)
+			mask_static = nil
+		end
+	end
+end
+
+function create_mask_static()
+	local texture_name = hud_params.texture
+	if hud_params.breakable then
+		last_cond_idx = get_cond_idx()
+		texture_name = texture_name..last_cond_idx
+	end
+	local static = CUIStatic()
+	static:Init(0, 0, 1024, 768)
+	static:InitTexture(texture_name)
+	static:SetStretchTexture(true)
+	return static
+end
+
+function create_breathe_static()
+	last_power_idx = get_power_idx()
+	local static = CUIStatic()
+	static:Init(0, 0, 1024, 768)
+	static:InitTexture(breathe_texture..last_power_idx)
+	static:SetStretchTexture(true)
+	return static
+end
+
+function update_mask_texture()
+	local cond_idx = get_cond_idx()
+	if hud_params.breakable and last_cond_idx ~= cond_idx then
+		mask_static:InitTexture(hud_params.texture..cond_idx)
+		last_cond_idx = cond_idx
+	end
+end
+
+function on_hit(victim, health_lost, direction, draftsman, bone_id)
+	-- if bone_id ~= db.actor:get_bone_id("bip01_head") then
+	-- return end
+	
+	if not hud_obj then
 	return end
+	
+	local actor = db.actor
+	local check_item = actor:item_in_slot(6)
+	local check_id = hud_obj:id()
+	if check_item and check_item:id() == check_id then
+		update_mask_texture()
+		--log3("check_item %s", check_item:name())
+		return
+	end
+	
+	check_item = actor:item_in_slot(11)
+	if check_item and check_item:id() == check_id then
+		update_mask_texture()
+		--log3("check_item %s", check_item:name())
+		return
+	end
+	
+	check_item = actor:item_in_slot(15)
+	if check_item and check_item:id() == check_id then
+		update_mask_texture()
+		--log3("check_item %s", check_item:name())
+		return
+	end
+end
 
-	console:execute("r2_rain_drops_control 1")
-	console:execute("r2_visor_refl_control 1")
+function on_update(delta)
+	local change = delta * hud_params.breathe
+	change = change + (change * (1 - db.actor.power))
+	
+	if dec_breathe then
+		change = -change
+	end	
+	
+	breathe_val = breathe_val + change
+	
+	if breathe_val <= 0 then
+		breathe_val = 0
+		dec_breathe = false
+	elseif breathe_val >= 1 then
+		breathe_val = 1
+		dec_breathe = true
+	end
+	
+	breathe_static:SetColor(GetARGB(breathe_val*255,255,255,255))
+	
+	local power_idx = get_power_idx()
+	if last_power_idx ~= power_idx and breathe_val == 0 then
+		breathe_static:InitTexture(breathe_texture..power_idx)
+		last_power_idx = power_idx
+		--log3("last_power_idx %s", last_power_idx)
+	end
+	--log3("breathe_val %s", breathe_val)
 end
