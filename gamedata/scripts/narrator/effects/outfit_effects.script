@@ -23,9 +23,6 @@ function get_hud_params(sect)
 	end
 	
 	hud_params.breathe = read_if_exists(sys_ini, "r_float", sect, "hud_breathe", 0)
-	if hud_params.breathe then
-		hud_params.breathe = hud_params.breathe / 1000
-	end
 	
 	return hud_params.shader or hud_params.texture or hud_params.breakable or hud_params.breathe
 end
@@ -112,12 +109,12 @@ function try_set_hud_mask(val)
 		breathe_val = 0
 		dec_breathe = false
 		if val then
-			sm:subscribe({signal = "on_update", fun = this.on_update})
+			sm:subscribe({signal = "update_items_effect", fun = this.on_update})
 			breathe_static = create_breathe_static()
 			main_wnd:AttachChild(breathe_static)
 			main_wnd:BringToBottom(breathe_static)
 		else
-			sm:unsubscribe({signal = "on_update", fun = this.on_update})
+			sm:unsubscribe({signal = "update_items_effect", fun = this.on_update})
 			main_wnd:DetachChild(breathe_static)
 			breathe_static = nil
 		end
@@ -199,6 +196,7 @@ function on_hit(victim, health_lost, direction, draftsman, bone_id)
 end
 
 function on_update(delta)
+	--log3("%s | %s", script_name(), delta)
 	local change = delta * hud_params.breathe
 	change = change + (change * (1 - db.actor.power))
 	
@@ -224,5 +222,5 @@ function on_update(delta)
 		last_power_idx = power_idx
 		--log3("last_power_idx %s", last_power_idx)
 	end
-	--log3("breathe_val %s", breathe_val)
+	log3("breathe_val %s", breathe_val)
 end

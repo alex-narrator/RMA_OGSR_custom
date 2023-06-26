@@ -251,20 +251,55 @@ function send_task(actor, type, task, objective)
 	hud:GetCustomStatic("main_task").m_endTime = time_global()/1000 + 5
 
 end
-function send_encyclopedy(type, title)
-	if type == "Diary" then
-		pda_news:play(db.actor, 0, sound_object.s2d)
 
+local icon_by_group = {
+	-- ["Stories"] = "ui_new_pda_info",
+	-- ["journal"] = "ui_new_pda_info",
+	-- ["memuars"] = "ui_new_pda_info",
+	-- ["Found_PDA"] = "ui_new_pda_info",
+	-- ["Diary"] = "ui_new_pda_info",
+	-- ["Vehicles"] = "ui_new_pda_info",
+	["Stories"] = "ui_new_story_info",
+	["Zone-story"] = "ui_new_zone_story_info",
+	["Mutants"] = "ui_new_mutant_info",
+	["Social"] = "ui_new_social_info",
+	["Artifacts"] = "ui_new_artefact_info",
+	["Anomalies"] = "ui_new_anomaly_info",
+	["Locations"] = "ui_new_location_info",
+}
 
-		--' Берем координаты из текстуры таска
-		local task_texture, task_rect = get_texture_info("ui_iconsTotal_locations", "ui_iconsTotal_locations")
-		local news_text = "%c[255,160,160,160]"..game.translate_string("st_found_new_pda").."\\n".."%c[default]"..game.translate_string(title)
-		if db.actor:is_talking() then	
-			db.actor:give_talk_message(news_text, task_texture, task_rect,"iconed_answer_item")
-		else
-			db.actor:give_game_news(news_text, task_texture, task_rect, 0, 3000)
-		end	
+local type2text = {
+	[0] = "encyclopedia",
+	[1] = "journal",
+	[2] = "task",
+	[3] = "info",
+}
+
+function send_encyclopedy(article_type, group, name)
+	if 
+		type2text[article_type] == "task" or 
+		type2text[article_type] == "info" 
+	then
+	return end
+	
+	pda_news:play(db.actor, 0, sound_object.s2d)	
+	local icon = ""
+	if icon_by_group[group] then
+		icon = icon_by_group[group]
+	else
+		log3("~ %s : can`t find icon for article groupe %s", script_name(), group)
 	end
+	
+	local task_texture, task_rect = get_texture_info(icon, "ui_new_pda_info")
+	local header_color = "%c[255,160,160,160]"
+	local text_color = "%c[default]"
+	local header_text = "st_new_"..type2text[article_type].."_info"
+	local news_text = string.format("%s%s\\n%s%s: %s", header_color, game.translate_string(header_text), text_color, game.translate_string(group), game.translate_string(name))
+	if db.actor:is_talking() then	
+		db.actor:give_talk_message(news_text, task_texture, task_rect,"iconed_answer_item")
+	else
+		db.actor:give_game_news(news_text, task_texture, task_rect, 0, 3000)
+	end	
 end
 function send_treasure(name)
 	pda_news:play(db.actor, 0, sound_object.s2d)

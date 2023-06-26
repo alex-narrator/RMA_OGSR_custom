@@ -101,6 +101,8 @@ function actor_binder:net_destroy()
 	--
 	self.object:set_callback(callback.map_relation_location_added, nil)
 	self.object:set_callback(callback.on_hud_state_switch, nil)
+	--
+	self.object:set_callback(callback.update_items_effect, nil)
 
 	if sr_psy_antenna.psy_antenna then
 		sr_psy_antenna.psy_antenna:destroy()
@@ -156,6 +158,8 @@ function actor_binder:reinit()
 	--
 	self.object:set_callback(callback.map_relation_location_added, self.on_map_relation_location_added, self)
 	self.object:set_callback(callback.on_hud_state_switch, self.on_hud_state_switch, self)
+	--
+	self.object:set_callback(callback.update_items_effect, self.update_items_effect, self)
 	--
 	self.sm:call("on_reinit")
 end
@@ -232,11 +236,12 @@ function actor_binder:article_callback(npc, group, name, article_type, text)
 	--printf("article_callback [%s][%s]", group, name)
 	if device().precache_frame >1 then return end
 	
-	if group == "Diary" then
-		news_manager.send_encyclopedy("diary", group)
-	else
-		news_manager.send_encyclopedy("encyclopedy", group)
-	end
+	-- if group == "Diary" then
+		-- news_manager.send_encyclopedy("diary", group)
+	-- else
+		-- news_manager.send_encyclopedy("encyclopedy", group)
+	-- end
+	news_manager.send_encyclopedy(article_type, group, name)
 	--
 	self.sm:call("on_article", npc, group, name, article_type, text)
 end
@@ -565,6 +570,11 @@ end
 
 function actor_binder:on_hud_state_switch(item, state, old_state)
 	self.sm:call("on_hud_state_switch", item, state, old_state)
+end
+
+function actor_binder:update_items_effect(update_time)
+	self.sm:call("update_items_effect", update_time)
+	--log3("%s | %s", script_name(), update_time)
 end
 --старт префетча звуков
 --if string.find(command_line(), "-noprefetch") == nil then
