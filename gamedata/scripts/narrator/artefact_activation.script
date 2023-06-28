@@ -1,0 +1,21 @@
+function attach(sm)
+	sm:subscribe({signal = "on_key_press",   fun = this.before_activate})
+end
+
+function before_activate(key, game_action)
+	if level.main_input_receiver() then
+	return end
+	
+	local actor = db.actor
+	local act_item = actor:active_item()
+	if not act_item then
+	return end
+	
+	local act_art = act_item:get_artefact()
+	if not act_art or not act_art.can_spawn_zone then
+	return end
+	
+	if game_action == key_bindings.kWPN_FIRE then
+		act_art.can_spawn_zone = actor:has_info("activation_"..act_item:section())
+	end
+end

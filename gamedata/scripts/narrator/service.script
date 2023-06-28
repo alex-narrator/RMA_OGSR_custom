@@ -32,10 +32,6 @@ function give_ammo_box_to_actor(section, count, loaded_box, ammo_type)
 	news_manager.relocate_item(db.actor, "in", section)
 end
 
-function get_inv_name(section)
-	return sys_ini:r_string(section,"inv_name")
-end
-
 function add_info_message(static_id, text)
 	local hud = get_hud()
 	local static = hud:GetCustomStatic(static_id)

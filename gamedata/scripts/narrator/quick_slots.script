@@ -46,7 +46,7 @@ function use_quick_item(slot_num)
 	
 	if item:is_eatable_item() then
 		db.actor:eat(item)
-		local str = string.format("%s: %s", game.translate_string("st_item_used"), game.translate_string(service.get_inv_name(item:section())))
+		local str = string.format("%s: %s", game.translate_string("st_item_used"), game.translate_string(get_inv_name(item:section())))
 		service.add_info_message("item_usage", str)
 		return
 	end

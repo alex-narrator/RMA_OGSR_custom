@@ -1516,6 +1516,10 @@ function read_if_exists(ltx, val_type, section, value, default)
 	end
 end
 
+function get_inv_name(section)
+	return sys_ini:r_string(section,"inv_name")
+end
+
 function GetIconParams(section)
 	if section and
 		sys_ini:section_exist(section) and

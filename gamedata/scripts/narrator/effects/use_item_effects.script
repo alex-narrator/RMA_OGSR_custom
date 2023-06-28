@@ -12,8 +12,8 @@ function use_item_effects(obj, user)
 	local sect = obj:section()
 	--sounds
 	local snd_name = read_if_exists(sys_ini, "r_string", sect, "use_sound", nil)
-	log3("~ snd name %s", snd_name)
 	if snd_name then
+		log3("~ snd name %s", snd_name)
 		xr_sound.get_safe_sound_object(snd_name,sound_object.s2d):play_at_pos(user,user:position())
 		log3("~ used item %s played sound %s for user %s", sect, snd_name, user:name())
 	end

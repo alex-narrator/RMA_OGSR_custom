@@ -98,9 +98,9 @@ function RepairWnd:InitRepair(obj, drop_on_obj)
 	local msg_text = string.format(
 		"%s %s\\n%s %s ?", 
 		game.translate_string("st_repair_item"), 
-		game.translate_string(service.get_inv_name(drop_on_obj:section())), 
+		game.translate_string(get_inv_name(drop_on_obj:section())), 
 		game.translate_string("st_repair_with"), 
-		game.translate_string(service.get_inv_name(obj:section())))
+		game.translate_string(get_inv_name(obj:section())))
 	
 	self.message_box:SetText(msg_text)
 end
