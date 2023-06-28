@@ -14,9 +14,11 @@ local dec_breathe = false
 
 function get_hud_params(sect)
 	hud_params = {}
+	
 	hud_params.shader = read_if_exists(sys_ini, "r_bool", sect, "hud_shader", false)
 	
-	hud_params.texture = read_if_exists(sys_ini, "r_string", sect, "hud_texture", nil)	
+	hud_params.texture = read_if_exists(sys_ini, "r_string", sect, "hud_texture", nil)
+	
 	if hud_params.texture then
 		hud_params.texture = mask_texture..hud_params.texture
 		hud_params.breakable = read_if_exists(sys_ini, "r_bool", sect, "hud_breakable", false)
@@ -24,7 +26,7 @@ function get_hud_params(sect)
 	
 	hud_params.breathe = read_if_exists(sys_ini, "r_float", sect, "hud_breathe", 0)
 	
-	return hud_params.shader or hud_params.texture or hud_params.breakable or hud_params.breathe
+	return hud_params.shader or hud_params.texture or hud_params.breakable or hud_params.breathe > 0
 end
 
 function get_cond_idx()
@@ -85,8 +87,10 @@ function disable_effects(obj, prev_place)
 	if not obj:is_outfit() and not obj:is_helmet() and not obj:is_gasmask() then
 	return end
 	
-	try_switch_shader_effects(false)
-	try_set_hud_mask(false)
+	if (get_hud_params(obj:section())) then
+		try_switch_shader_effects(false)
+		try_set_hud_mask(false)
+	end
 	
 	hud_obj = nil
 	hud_params = {}
@@ -105,7 +109,7 @@ end
 function try_set_hud_mask(val)
 	local sm = ogse_signals.get_mgr()
 	
-	if hud_params.breathe then
+	if hud_params.breathe > 0 then
 		breathe_val = 0
 		dec_breathe = false
 		if val then

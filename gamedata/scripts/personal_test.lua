@@ -7,17 +7,18 @@
 
 local actor = db.actor
 
--- local h = hit()
--- h.draftsman = actor 
--- h.type = hit.fire_wound 
--- h.direction = vector():set(0,0,0) 
--- h:bone("bip01_head")
--- h.power = 0.5
--- h.impulse = 0.0 
--- actor:hit(h)
+local h = hit()
+h.draftsman = actor 
+h.type = hit.fire_wound 
+h.direction = vector():set(0,0,0) 
+h:bone("bip01_spine")
+h.power = 1
+h.impulse = 0.0 
+h.ap = 1
+actor:hit(h)
 
 --actor.health = 200
-actor.power = -actor.power
+--actor.power = -actor.power
 
 --db.actor:set_character_rank(299)
 

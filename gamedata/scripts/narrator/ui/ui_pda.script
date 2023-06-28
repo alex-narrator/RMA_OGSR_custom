@@ -154,7 +154,7 @@ end
 function PDAOverlay:Update()
 	local actor = db.actor
 	local pda = actor:item_in_slot(7)
-	if not pda then
+	if not pda or pda:condition() == 0 then
 		process_hide()
 		return
 	end
