@@ -173,7 +173,8 @@ function CKampManager:__init(path)
 	end
 	--print_table(self.position)
 	--“аблица соответствий состо€ни€ лагер€ и допустимых анимаций и звуков.	
-	self.avail_state = {idle				= { directed	= { "wait", "sit", "sit_ass", "sit_knee", "eat_kolbasa", "eat_vodka", "eat_energy", "eat_bread", "eat_sigaret", "trans"}},
+	self.avail_state = {idle				= { directed	= { "wait", "sit", "sit_ass", "sit_knee", "eat_kolbasa", "eat_vodka", "eat_energy", "eat_bread", "eat_sigaret", "trans"},
+												undirected	= { "wait", "sit", "sit_ass", "sit_knee", "eat_kolbasa", "eat_vodka", "eat_energy", "eat_bread", "eat_sigaret", "trans"}},
 						pre_harmonica		= { directed	= { "wait_harmonica"},
 												undirected	= { "wait", "sit", "sit_ass", "sit_knee", "eat_kolbasa", "eat_vodka", "eat_energy", "eat_bread", "eat_sigaret", "trans"}},
 						harmonica			= { directed	= { "play_harmonica"},
@@ -196,7 +197,7 @@ function CKampManager:__init(path)
 												undirected	= { "wait", "sit", "sit_ass", "sit_knee", "eat_kolbasa", "eat_vodka", "eat_energy", "eat_bread", "eat_sigaret", "trans"}},
 						post_joke			= { directed	= { "declarate"},
 												undirected	= { "wait", "sit", "sit_ass", "sit_knee", "eat_kolbasa", "eat_vodka", "eat_energy", "eat_bread", "eat_sigaret", "trans"}}}
-	self.avail_sound = {idle				= { directed = "idle"},
+	self.avail_sound = {idle				= { directed = "idle", undirected="idle"},
 						pre_harmonica		= { directed = "pre_harmonica", undirected = ""},
 						harmonica			= { directed = "play_harmonica", undirected = ""},
 						post_harmonica		= { directed = "", undirected = "reac_harmonica"},
@@ -228,7 +229,7 @@ function CKampManager:__init(path)
 						 story = false, post_story = false,
 						 pre_joke = true, joke = true, post_joke = true}
 	-- “аблица допустимых переходов между состо€ни€ми с веро€тност€ми.
-	self.trans_kamp = { idle			= { idle = 0, pre_harmonica = 20, pre_guitar = 35, story = 0, pre_joke = 45 }, 
+	self.trans_kamp = { idle			= { idle = 0, pre_harmonica = 20, pre_guitar = 30, story = 20, pre_joke = 30 }, 
 						pre_harmonica	= { harmonica = 100 }, 
 						harmonica		= { post_harmonica = 100 }, 
 						post_harmonica	= { idle = 70, harmonica = 30 },
@@ -436,7 +437,7 @@ function CKampManager:updateNpc(npc)
 	-- ѕросим лагерь выбрать текущее состо€ние. ћен€ть состо€ние лагер€
 	-- имеет право только режиссер.
 	local npc_id = npc:id()
-	local director = self.director == nil or self.director == npc_id
+	local director = ( self.director == nil or self.director == npc_id ) and npc_id~=self.forbiddendirector
 	if director	then
 		self:proceedState(npc)
 	end
@@ -479,6 +480,15 @@ function CKampManager:updateNpc(npc)
 			elseif sound == "play_story" then
 				xr_sound.set_sound_play(npc, self.selected_story)
 				self.story_last, self.story_max = xr_sound.get_last_IDS(npc, self.selected_story)
+				if self.story_last==nil then
+					self.story_last=0
+					self.story_max=1
+					xr_sound.set_sound_play(npc, "threat_back", math.random(1000,2000))
+					--- dirty hack
+					self.kamp_state="idle"
+					self.forbiddendirector=self.director
+					self.director=nil
+				end
 			end
 			self.npc[npc_id].new = false
 		end
@@ -634,7 +644,6 @@ function CKampManager:checkNpcAbility(npc)
 	end
 	
 	-- ≈сли чувак знает истории, надо добавить их к лагерю
-
 	if self.population > 1 and db.story_by_id[npc:id()] ~= nil then
 		self.kamp_states["story"] = true
 		self.kamp_states["post_story"] = true
@@ -642,7 +651,6 @@ function CKampManager:checkNpcAbility(npc)
 		self.kamp_states["story"] = false
 		self.kamp_states["post_story"] = false	
 	end
-
 end
 function CKampManager:addNpc(npc)
 	printf("KAMP [%s] add npc", npc:name())
@@ -665,6 +673,10 @@ function CKampManager:addNpc(npc)
 								play_harmonica = false, play_guitar = false, play_joke = false, play_story = false}}
 	end
 	self:selectPosition(npc:id())	
+	if db.story_by_id[npc:id()] == nil then
+		local char_ini1 = ini_file("scripts\\stories.ltx")
+		xr_info.loadInfo(npc, char_ini1)
+    end
 end
 function CKampManager:removeNpc(npc)
 	printf("KAMP [%s] remove npc", npc:name())
