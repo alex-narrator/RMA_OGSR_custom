@@ -1,6 +1,7 @@
 local main_wnd = get_main_window()
 local mask_texture = [[ui\dinamic_hud\hud_]]
 local breathe_texture = [[ui\dinamic_hud\breathe]]
+local brake_sound = xr_sound.get_safe_sound_object([[material\glass\glass_fall01hl]],sound_object.s2d)
 
 local hud_obj
 local hud_params
@@ -165,6 +166,10 @@ function update_mask_texture()
 	if hud_params.breakable and last_cond_idx ~= cond_idx then
 		mask_static:InitTexture(hud_params.texture..cond_idx)
 		last_cond_idx = cond_idx
+		
+		if last_cond_idx == 2 then
+			brake_sound:play_at_pos(db.actor,db.actor:position())
+		end
 	end
 end
 
@@ -226,5 +231,5 @@ function on_update(delta)
 		last_power_idx = power_idx
 		--log3("last_power_idx %s", last_power_idx)
 	end
-	log3("breathe_val %s", breathe_val)
+	--log3("breathe_val %s", breathe_val)
 end
