@@ -103,6 +103,8 @@ function actor_binder:net_destroy()
 	self.object:set_callback(callback.on_hud_state_switch, nil)
 	--
 	self.object:set_callback(callback.update_items_effect, nil)
+	--
+	self.object:set_callback(callback.on_before_use_item, nil)
 
 	if sr_psy_antenna.psy_antenna then
 		sr_psy_antenna.psy_antenna:destroy()
@@ -160,6 +162,8 @@ function actor_binder:reinit()
 	self.object:set_callback(callback.on_hud_state_switch, self.on_hud_state_switch, self)
 	--
 	self.object:set_callback(callback.update_items_effect, self.update_items_effect, self)
+	--
+	self.object:set_callback(callback.on_before_use_item, self.on_before_use_item, self)
 	--
 	self.sm:call("on_reinit")
 end
@@ -515,7 +519,11 @@ function actor_binder:level_changer_action( obj, wnd )
 end
 
 function actor_binder:use_object(obj)
-	self.sm:call("on_use", obj, self.object)
+	if obj:is_eatable_item() then
+		self.sm:call("on_eat", obj, self.object)
+	else
+		self.sm:call("on_use", obj, self.object)
+	end
 --	log3("~ use object %s", obj:section())
 end
 
@@ -574,6 +582,11 @@ end
 
 function actor_binder:update_items_effect(update_time)
 	self.sm:call("update_items_effect", update_time)
+	--log3("%s | %s", script_name(), update_time)
+end
+
+function actor_binder:on_before_use_item(item)
+	self.sm:call("on_before_use_item", item)
 	--log3("%s | %s", script_name(), update_time)
 end
 --старт префетча звуков

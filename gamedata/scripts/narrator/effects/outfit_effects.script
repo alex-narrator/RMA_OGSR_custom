@@ -88,7 +88,7 @@ function disable_effects(obj, prev_place)
 	if not obj:is_outfit() and not obj:is_helmet() and not obj:is_gasmask() then
 	return end
 	
-	if (get_hud_params(obj:section())) then
+	if get_hud_params(obj:section()) then
 		try_switch_shader_effects(false)
 		try_set_hud_mask(false)
 	end

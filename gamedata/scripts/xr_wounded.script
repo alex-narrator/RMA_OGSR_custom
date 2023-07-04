@@ -217,7 +217,7 @@ function Cwound_manager:eat_medkit()
 		npc:eat(item_to_eat)
 		npc.health = 1
 		--
-		self.sm:call("on_use", item_to_eat, npc)
+		self.sm:call("on_eat", item_to_eat, npc)
 		--
 	end
 	self.can_use_medkit = false

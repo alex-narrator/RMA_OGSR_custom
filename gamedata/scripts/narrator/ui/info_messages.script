@@ -22,10 +22,19 @@ local misfire_action = {
 }
 
 function attach(sm)
-	sm:subscribe({signal = "on_key_press",   fun = this.info_messages})
+	sm:subscribe({signal = "on_key_press",   fun = this.info_on_action})
+	sm:subscribe({signal = "on_eat",   fun = this.info_on_eat})
 end
 
-function info_messages(key, game_action)
+function info_on_eat(item, user)
+	if not user:is_actor() or level.main_input_receiver() then
+	return end
+	
+	local str = string.format("%s: %s", game.translate_string("st_item_used"), game.translate_string(get_inv_name(item:section())))
+	service.add_info_message("item_usage", str)
+end
+
+function info_on_action(key, game_action)
 	if level.main_input_receiver() then
 	return end
 	

@@ -7,17 +7,22 @@
 
 local actor = db.actor
 
+-- local gasmask = actor:item_in_slot(15)
+-- if gasmask then
+	-- gasmask:set_condition(0.91)
+-- end
+
 local h = hit()
 h.draftsman = actor 
 h.type = hit.fire_wound 
 h.direction = vector():set(0,0,0) 
-h:bone("bip01_spine")
-h.power = 1
+h:bone("bip01_head")
+h.power = 0.1
 h.impulse = 0.0 
-h.ap = 1
+--h.ap = 1
 actor:hit(h)
 
---actor.health = 200
+actor.health = 1
 --actor.power = -actor.power
 
 --db.actor:set_character_rank(299)
