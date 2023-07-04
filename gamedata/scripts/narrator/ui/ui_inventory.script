@@ -100,23 +100,26 @@ function InventoryOverlay:InitControls()
 	self.background = xml:InitStatic("background", self.main)
 	
 	--// actor condition progressbars
-	self.health_st = xml:InitStatic("static_health", self.background)
-	self.health_bar = xml:InitProgressBar("progress_health", self.health_st)
+	self.conditions = {
+		["health_"] 	= {condition = actor.health},
+		["psy_"] 		= {condition = actor.psy_health},
+		["power_"] 		= {condition = actor.power},
+		["satiety_"] 	= {condition = actor.satiety},
+		["alcohol_"] 	= {condition = actor.alcohol},
+		["radiation_"] 	= {condition = actor.radiation},
+	}
 	
-	self.psy_st = xml:InitStatic("static_psy", self.background)
-	self.psy_bar = xml:InitProgressBar("progress_psy", self.psy_st)
-	
-	self.power_st = xml:InitStatic("static_power", self.background)
-	self.power_bar = xml:InitProgressBar("progress_power", self.power_st)
-	
-	self.satiety_st = xml:InitStatic("static_satiety", self.background)
-	self.satiety_bar = xml:InitProgressBar("progress_satiety", self.satiety_st)
-	
-	self.alcohol_st = xml:InitStatic("static_alcohol", self.background)
-	self.alcohol_bar = xml:InitProgressBar("progress_alcohol", self.alcohol_st)
-	
-	self.radiation_st = xml:InitStatic("static_radiation", self.background)
-	self.radiation_bar = xml:InitProgressBar("progress_radiation", self.radiation_st)
+	for k, v in pairs(self.conditions) do
+		v.static = xml:InitStatic(k.."static", self.background)
+		v.icon = xml:InitStatic(k.."icon", v.static)
+		v.progress = xml:InitProgressBar(k.."progress", v.static)	
+		v.hint = xml:InitStatic("condition_hint", v.static)
+		v.hint:Show(false)
+
+		self:Register(v.static, k)
+		self:AddCallback(k, ui_events.STATIC_FOCUS_RECEIVED, function() self:ConditionOnFocusReceived(k) end)
+		self:AddCallback(k, ui_events.STATIC_FOCUS_LOST, function() self:ConditionOnFocusLost(k) end)
+	end
 	
 	--// quick slots
 	self.quick_slots_back = xml:InitStatic("quick_slots_back", self.main)
@@ -215,17 +218,22 @@ function InventoryOverlay:CheckNeedUpdate(obj, prev_place)
 	self:UpdateSlots()
 end
 
+function InventoryOverlay:ConditionOnFocusReceived(cond_name)
+	self.conditions[cond_name].hint:Show(true)
+end
+
+function InventoryOverlay:ConditionOnFocusLost(cond_name)
+	self.conditions[cond_name].hint:Show(false)
+end
+
 function InventoryOverlay:UpdateOverlay()
-	local pos = actor.health
-	self.health_bar:SetProgressPos(pos * 100)
-	pos = actor.psy_health
-	self.psy_bar:SetProgressPos(pos * 100)
-	pos = actor.power
-	self.power_bar:SetProgressPos(pos * 100)
-	pos = actor.satiety
-	self.satiety_bar:SetProgressPos(pos * 100)
-	pos = actor.alcohol
-	self.alcohol_bar:SetProgressPos(pos * 100)
-	pos = actor.radiation
-	self.radiation_bar:SetProgressPos(pos * 100)
+	local hint_text
+	local cond_descr
+	for k,v in pairs(self.conditions) do
+		local val = v.condition * 100
+		v.progress:SetProgressPos(val)
+		cond_descr = game.translate_string(string.format("%s%s%s","st_", k, "hint"))
+		hint_text = string.format("%s %.0f%s",cond_descr, val, "%")
+		v.hint:SetText(hint_text)
+	end
 end
