@@ -52,7 +52,7 @@ function InventoryOverlay:Subscribe()
 	self.subscribed = false
 	if not self.subscribed then
 		self.subscribed = {
-			{signal = "on_update", self = self, fun = self.UpdateOverlay},
+			{signal = "on_update", self = self, fun = self.Update},
 			{signal = "on_cell_item_focus", self = self, fun = self.OnCellItemFocus},
 			{signal = "on_cell_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
 			{signal = "on_quick_item_set", self = self, fun = self.OnQuickItemSet},
@@ -85,6 +85,9 @@ function InventoryOverlay:DetachWnd()
 	self:Unsubscribe()
 	if self.main then
 		self:ClearCallbacks()
+		for k, v in pairs(self.slot_keys) do
+			v.parent:DetachChild(v.static)
+		end
 		self.owner:DetachChild(self.main)
 	end
 end
@@ -149,6 +152,21 @@ function InventoryOverlay:InitControls()
 		self:AddCallback(name, ui_events.WINDOW_LBUTTON_DB_CLICK, function() self:QuickOnDbClick(i) end, self)
 		
 		self:DrawSlotIcon(i)
+	end
+	
+	self.slot_keys = {
+		[0] = {parent = self.owner:FindChild("dragdrop_knife")},
+		[1] = {parent = self.owner:FindChild("dragdrop_first_weapon")},
+		[2] = {parent = self.owner:FindChild("dragdrop_second_weapon")},
+		[3] = {parent = self.owner:FindChild("dragdrop_grenade")},
+		[4] = {parent = self.owner:FindChild("dragdrop_binocular")},
+		[8] = {parent = self.owner:FindChild("dragdrop_detector")},
+		[10] = {parent = self.owner:FindChild("dragdrop_artefact")},
+	}
+	for k, v in pairs(self.slot_keys) do
+		v.static = xml:InitStatic("slot_key", v.parent)
+		local key_text = "ui_use_slot_"..k
+		v.static:SetText(game.translate_string(key_text))
 	end
 end
 
@@ -226,7 +244,7 @@ function InventoryOverlay:ConditionOnFocusLost(cond_name)
 	self.conditions[cond_name].hint:Show(false)
 end
 
-function InventoryOverlay:UpdateOverlay()
+function InventoryOverlay:Update()
 	local hint_text
 	local cond_descr
 	for k,v in pairs(self.conditions) do
