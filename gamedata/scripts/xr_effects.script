@@ -2491,3 +2491,11 @@ function dbg_logic(actor, npc, p)
 		dbglog("p[" .. i .. "] = " .. p[i])
 	end
 end
+
+--ящики-сховища
+function storebox_unlocked(actor, npc)
+	--news tip
+	news_manager.custom_news("st_storebox", "st_storebox_opened", "ui_store_box")
+	--box sound
+	xr_sound.get_safe_sound_object([[device\door_servomotor]],sound_object.s3d):play_at_pos(npc,npc:position())
+end

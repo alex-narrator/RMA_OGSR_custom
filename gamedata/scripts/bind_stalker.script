@@ -519,11 +519,7 @@ function actor_binder:level_changer_action( obj, wnd )
 end
 
 function actor_binder:use_object(obj)
-	if obj:is_eatable_item() then
-		self.sm:call("on_eat", obj, self.object)
-	else
-		self.sm:call("on_use", obj, self.object)
-	end
+	self.sm:call("on_use", obj, self.object)
 --	log3("~ use object %s", obj:section())
 end
 

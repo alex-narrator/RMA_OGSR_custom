@@ -23,10 +23,10 @@ local misfire_action = {
 
 function attach(sm)
 	sm:subscribe({signal = "on_key_press",   fun = this.info_on_action})
-	sm:subscribe({signal = "on_eat",   fun = this.info_on_eat})
+	sm:subscribe({signal = "on_use",   fun = this.info_on_use})
 end
 
-function info_on_eat(item, user)
+function info_on_use(item, user)
 	if not user:is_actor() or level.main_input_receiver() then
 	return end
 	

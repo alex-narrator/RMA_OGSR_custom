@@ -1,5 +1,5 @@
 function attach(sm)
-	sm:subscribe({signal = "on_eat",   fun = this.use_item_effects})
+	sm:subscribe({signal = "on_use",   fun = this.use_item_effects})
 	sm:subscribe({signal = "on_before_use_item",   fun = this.check_use_enabled})
 	sm:subscribe({signal = "on_booster_enable",   fun = this.enable_effect})
 	sm:subscribe({signal = "on_booster_disable",   fun = this.disable_effect})

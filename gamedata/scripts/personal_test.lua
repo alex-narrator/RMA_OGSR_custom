@@ -5,29 +5,29 @@
 	-- end
 -- end
 
-local actor = db.actor
+-- local actor = db.actor
 
 -- local gasmask = actor:item_in_slot(15)
 -- if gasmask then
 	-- gasmask:set_condition(0.91)
 -- end
 
-local h = hit()
-h.draftsman = actor 
-h.type = hit.fire_wound 
-h.direction = vector():set(0,0,0) 
-h:bone("bip01_head")
-h.power = 0.1
-h.impulse = 0.0 
---h.ap = 1
-actor:hit(h)
+-- local h = hit()
+-- h.draftsman = actor 
+-- h.type = hit.fire_wound 
+-- h.direction = vector():set(0,0,0) 
+-- h:bone("bip01_head")
+-- h.power = 0.1
+-- h.impulse = 0.0 
+-- --h.ap = 1
+-- actor:hit(h)
 
-actor.health = 1
+-- actor.health = 1
 --actor.power = -actor.power
 
 --db.actor:set_character_rank(299)
 
---db.actor:give_info_portion("agr_cit_doctor_meet_start")
+db.actor:give_info_portion("escape_sidor_box_open")
 
 -- local _hour = 24
 -- local _min = 90
@@ -41,3 +41,8 @@ actor.health = 1
 --quick_slots.set_quick_item("energy_drink", 0)
 
 --db.actor.power = -10
+
+local tgt = level.get_target_obj()
+if tgt then
+	log3("~ target section: %s | name: %s", tgt:section(), tgt:name())
+end
