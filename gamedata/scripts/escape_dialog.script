@@ -382,12 +382,39 @@ end
 
 
 --' Soldiers on bridge
-function has_soldiers_bribe(actor, npc)
-	return actor:money() >= 500
-end
 
+local bribe_items = {
+	"bread",
+	"kolbasa",
+	"energy_drink",
+}
+function has_soldiers_bribe(actor, npc)
+	--return actor:money() >= 500
+	for k,section in pairs(bribe_items) do
+		if not actor:object(section) then
+			return false
+		end
+	end
+	return true
+end
 function give_soldiers_bribe(actor, npc)
-	dialogs.relocate_money(npc, 500, "out")	
+	--dialogs.relocate_money(npc, 500, "out")
+	for k,section in pairs(bribe_items) do
+		local item = actor:object(section)
+		if item then
+			dialogs.relocate_item_section(npc, section, "out")
+			alife():release(alife():object(item:id()), true)
+		end
+	end
+end
+function soldiers_bribe_conditions_announcement(actor, npc)
+	local phrase_text = game.translate_string("esc_bridge_soldiers_start_13")
+	local bribe_text = ""
+	local list_prefix = "%c[UI_orange]".."•".." "
+	for k,section in pairs(bribe_items) do
+		bribe_text = bribe_text..list_prefix..game.translate_string(get_inv_name(section)).."\\n"
+	end
+	return string.format("%s%s%s", phrase_text, "\\n", bribe_text)
 end
 
 function fox_pay_money(actor, npc)
