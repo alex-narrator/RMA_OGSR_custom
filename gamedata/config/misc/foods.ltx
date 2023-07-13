@@ -1,4 +1,5 @@
 [food_base]:identity_immunities
+use_condition = true
 breakable = true
 helmet_use = false
 
@@ -46,14 +47,15 @@ use_sound = interface\inv_food
 radiation_accum_factor = 0.1
 radiation_accum_limit = 1
 
-deterioration_time = 24
+corruption_time = 24
+destroy_corrupted = true
+script_binding = bind_corruptible.init
 
 ; food item
 animation_slot		= 4
 
 ;hud item
 hud = wpn_vodka_hud
-
 
 [kolbasa]:food_base
 GroupControlSection	= spawn_group
@@ -96,7 +98,9 @@ eat_portions_num = 1
 menu_use_tip 	= st_eat
 use_sound = interface\inv_food
 
-deterioration_time = 12
+corruption_time = 12
+destroy_corrupted = true
+script_binding = bind_corruptible.init
 
 ; food item
 animation_slot		= 4

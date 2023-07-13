@@ -1,0 +1,87 @@
+function attach(sm)
+	sm:subscribe({signal = "inv_drag_drop", fun = this.try_recharge})
+end
+
+function try_recharge(obj, drop_on_obj)
+	local bind_obj = drop_on_obj:binded_object()
+	if not bind_obj or not bind_obj.work_time then
+	return end
+	
+	if device:can_attach(obj:dection()) then
+		show_recharge_wnd(obj, drop_on_obj)
+	end
+end
+
+function show_recharge_wnd(obj, drop_on_obj)
+	local recharge_wnd = RechargeWnd(level.main_input_receiver())
+	recharge_wnd:InitRecharge(obj, drop_on_obj)
+end
+
+recharge_effector_id = 20001
+
+function recharge(obj, drop_on_obj)
+	drop_on_obj:binded_object():recharge(obj)
+	local battery_sect = obj:section()	
+	local recharge_sound = read_if_exists(sys_ini, "r_string", battery_sect, "use_sound", nil)
+	if recharge_sound then
+		xr_sound.get_safe_sound_object(recharge_sound,sound_object.s2d):play_at_pos(actor,actor:position())
+	end
+	local recharge_effector = read_if_exists(sys_ini, "r_string", battery_sect, "use_effector", nil)
+	if recharge_effector then
+		level.remove_complex_effector(recharge_effector_id)
+		level.add_complex_effector(recharge_effector, recharge_effector_id)
+	end
+end
+
+class "RechargeWnd" (CUIScriptWnd)
+
+function RechargeWnd:__init(owner) super()
+	self.owner = owner
+	self:Init(0, 0, 1024, 768)
+	self:InitWnd()
+end
+
+function RechargeWnd:DetachWnd()
+	self:ClearCallbacks()
+	self.owner:DetachChild(self.message_box)
+end
+
+function RechargeWnd:InitWnd()	
+	local xml = CScriptXmlInit()
+	xml:ParseFile("message_box.xml")
+
+	self.message_box = CUIMessageBox()
+	self.message_box:Init("message_box_accept_decline")
+	self:Register(self.message_box, "message_box")
+	
+	self:AddCallback("message_box", ui_events.MESSAGE_BOX_YES_CLICKED, self.ProcessReсharge, self)
+	self:AddCallback("message_box", ui_events.MESSAGE_BOX_NO_CLICKED, self.HideWnd, self)
+	
+	self.owner:AttachChild(self.message_box)
+	self.message_box:Show(true)
+end
+
+function RechargeWnd:InitRecharge(obj, drop_on_obj)
+	self.battery = obj
+	self.device = drop_on_obj
+	local msg_text = string.format(
+		"%s %s\\n%s %s ?", 
+		game.translate_string("st_recharge_item"), 
+		game.translate_string(get_inv_name(drop_on_obj:section())), 
+		game.translate_string("st_recharge_with"), 
+		game.translate_string(get_inv_name(obj:section())))
+	
+	self.message_box:SetText(msg_text)
+end
+
+function RechargeWnd:ProcessReсharge()
+	recharge(self.battery, self.device)
+	self:HideWnd()
+end
+
+function RechargeWnd:HideWnd()
+	self.owner:GetHolder():start_stop_menu(self.message_box, true)
+	self.device = nil
+	self.battery = nil
+	self:DetachWnd()
+end

@@ -5,7 +5,6 @@
 --ammo_type - тип набою у пачці (для магазинів)
 --можна видавати порожні пачки (для магазинів)
 function give_ammo_box_to_actor(section, count, loaded_box, ammo_type)
-	local actor = db.actor
 	local count_in_box = sys_ini:r_u32(section, "box_size")
 	if count == nil then
 		count = 1
@@ -32,29 +31,14 @@ function give_ammo_box_to_actor(section, count, loaded_box, ammo_type)
 	news_manager.relocate_item(db.actor, "in", section)
 end
 
-function add_info_message(static_id, text)
-	local hud = get_hud()
-	local static = hud:GetCustomStatic(static_id)
-	if not static then
-		static = hud:AddCustomStatic(static_id, true)
-	end
-	static:wnd():SetTextST(text)
+function time_to_table(time_struct)
+	local Y, M, D, h, m, s, ms = time_struct:get(Y, M, D, h, m, s, ms)
+	local time_table = {Y, M, D, h, m, s, ms}
+	return time_table
 end
 
-function actor_hands_free()
-	local act_item = db.actor:active_item()
-	return not act_item or act_item:get_hud_item_state() == global_flags.eIdle
-end
-
-function actor_cant_walk()
-	return get_actor_obj().condition.cant_walk
-end
-
-function get_backpack()
-	local backpack = db.actor:item_in_slot(13)
-	if backpack and backpack:get_container() then
-		return backpack
-	else
-		return nil
-	end
+function table_to_time(time_table)
+	local time_struct = game.CTime()
+	time_struct:set(time_table[1], time_table[2], time_table[3], time_table[4], time_table[5], time_table[5], time_table[7])
+	return time_struct
 end

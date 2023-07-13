@@ -49,8 +49,8 @@ function get_cond_idx()
 end
 
 function get_power_idx()
-	local power = db.actor.power
-	--log3("power %s", db.actor.power)
+	local power = actor.power
+	--log3("power %s", actor.power)
 	if power <= 0.2 then
 		return 5
 	elseif power <= 0.4 then
@@ -168,19 +168,18 @@ function update_mask_texture()
 		last_cond_idx = cond_idx
 		
 		if last_cond_idx == 2 then
-			brake_sound:play_at_pos(db.actor,db.actor:position())
+			brake_sound:play_at_pos(actor, actor:position())
 		end
 	end
 end
 
 function on_hit(victim, health_lost, direction, draftsman, bone_id)
-	-- if bone_id ~= db.actor:get_bone_id("bip01_head") then
+	-- if bone_id ~= actor:get_bone_id("bip01_head") then
 	-- return end
 	
 	if not hud_obj then
 	return end
 	
-	local actor = db.actor
 	local check_item = actor:item_in_slot(6)
 	local check_id = hud_obj:id()
 	if check_item and check_item:id() == check_id then
@@ -207,7 +206,7 @@ end
 function on_update(delta)
 	--log3("%s | %s", script_name(), delta)
 	local change = delta * hud_params.breathe
-	change = change + (change * (1 - db.actor.power))
+	change = change + (change * (1 - actor.power))
 	
 	if dec_breathe then
 		change = -change

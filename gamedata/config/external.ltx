@@ -1,8 +1,5 @@
 [features]
 
-;централізоване вимкнення постефектів аномалій
-no_zone_posteffect = true
-
 ;артефакти діють з усього інвентаря
 artefacts_from_all = true
 
@@ -14,9 +11,6 @@ use_luminocity = true
 
 ;налаштування DOF при відкритому інвентарі/вікні обшуку/PDA (якщо увімкнено відповідну опцію)
 ;dof_ui_params = 0,0,1,0
-
-;присідати при відкритті рюкзака/вінка обшуку
-inventory_crouch = true
 
 ;рушійний прибиральник викинутих предметів
 ;вказуємо час, після якого предмет, що було викинуто з інвентаря/ящика, буде видалено з гри (у ігрових годинах)
@@ -168,16 +162,16 @@ scope_zoom_k = 0.1
 
 
 [engine_callbacks]
-; ui_item_info_callback( UIDesc ) вызывается перед заполнением статика
+; ui_item_info_callback( UIDesc, obj ) вызывается перед заполнением статика
 ; описания предмета в инвентаре. UIDesc - это SCrollView, в который
 ; можно добавлять свои статики.
-;ui_item_info_callback = engine_callbacks.ui_item_info_callback
+ui_item_info_callback = engine_callbacks.ui_item_info_callback
 
 ; ui_actor_info_callback( list, obj ) вызывается при обновлении
 ; outfit_info в инвентаре ГГ. list - CUIScrollView (xml
 ; outfit_info:scroll_view in inventory_new.xml). obj - текущий костюм
 ; ГГ, если нету - nil.
-;ui_actor_info_callback = engine_callbacks.ui_actor_info_callback
+ui_actor_info_callback = engine_callbacks.ui_actor_info_callback
 
 ; trade_purchase_item_process( npc, sobj ) вызывается для каждого
 ; созданного предмета при обновлении ассортимента торговца. npc -

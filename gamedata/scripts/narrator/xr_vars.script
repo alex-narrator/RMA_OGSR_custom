@@ -1,0 +1,20 @@
+function init_storages()
+	--ініціалізація сховищ даних
+	if not get_stored_vars().power_devices then
+		get_stored_vars().power_devices = {}
+		log3("~init storage power_devices")
+	end
+	if not get_stored_vars().corruptible_items then
+		get_stored_vars().corruptible_items = {}
+		log3("~init storage corruptible_items")
+	end
+end
+
+function get_storage(obj_type)
+	if obj_type == "power_device" then
+		return get_stored_vars().power_devices
+	end
+	if obj_type == "corruptible_item" then
+		return get_stored_vars().corruptible_items
+	end
+end

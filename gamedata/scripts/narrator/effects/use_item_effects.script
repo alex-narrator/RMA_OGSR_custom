@@ -11,14 +11,13 @@ local boost_efefctor_id = 666650 --id ефектору бустера за за�
 
 function send_refusal_tip(item)
 	refusal_text = string.format("%s %s", game.translate_string(get_inv_name(item:section())), game.translate_string("st_cant_eat_item"))
-	news_manager.send_tip(db.actor, refusal_text)
+	news_manager.send_tip(actor, refusal_text)
 end
 
 function check_use_enabled(item)
 	local eatable_item = item:get_eatable_item()
 	if not eatable_item then
 	return end
-	local actor = db.actor
 	
 	if not read_if_exists(sys_ini, "r_bool", item:section(), "helmet_use", true) then
 		local refusal_text

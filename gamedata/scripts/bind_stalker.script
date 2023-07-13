@@ -32,7 +32,9 @@ function actor_binder:__init (obj) super(obj)
 end
 ----------------------------------------------------------------------------------------------------------------------
 function actor_binder:net_spawn(data)
-	printf("actor net spawn")		
+	printf("actor net spawn")
+	
+	_G.actor = self.object
 
 	level.show_indicators()
 
@@ -116,6 +118,8 @@ function actor_binder:net_destroy()
 	self.sm:call("on_destroy")
 	--
 	object_binder.net_destroy(self)
+	--
+	_G.actor = false
 end
 ----------------------------------------------------------------------------------------------------------------------
 function actor_binder:reinit()

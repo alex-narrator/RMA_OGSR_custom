@@ -1,5 +1,4 @@
 local overlay = nil
-local actor
 
 function attach(sm)
 	sm:subscribe({signal = "on_inventory_show",   fun = this.process_show})
@@ -18,7 +17,6 @@ function process_show()
 		end
 	end
 	
-	actor = db.actor
 	if not overlay then
 		overlay = InventoryOverlay(level.main_input_receiver())
 	end
@@ -104,12 +102,12 @@ function InventoryOverlay:InitControls()
 	
 	--// actor condition progressbars
 	self.conditions = {
-		["health_"] 	= {condition = actor.health},
-		["psy_"] 		= {condition = actor.psy_health},
-		["power_"] 		= {condition = actor.power},
-		["satiety_"] 	= {condition = actor.satiety},
-		["alcohol_"] 	= {condition = actor.alcohol},
-		["radiation_"] 	= {condition = actor.radiation},
+		["health_"] 	= {},
+		["psy_"] 		= {},
+		["power_"] 		= {},
+		["satiety_"] 	= {},
+		["alcohol_"] 	= {},
+		["radiation_"] 	= {},
 	}
 	
 	for k, v in pairs(self.conditions) do
@@ -244,11 +242,29 @@ function InventoryOverlay:ConditionOnFocusLost(cond_name)
 	self.conditions[cond_name].hint:Show(false)
 end
 
+function InventoryOverlay:GetActorCondition(cond_name)
+	if cond_name == "health_" then
+		return actor.health
+	elseif cond_name == "psy_" then
+		return actor.psy_health
+	elseif cond_name == "power_" then
+		return actor.power
+	elseif cond_name == "satiety_" then
+		return actor.satiety
+	elseif cond_name == "alcohol_" then
+		return actor.alcohol
+	elseif cond_name == "radiation_" then
+		return actor.radiation
+	end
+end
+
 function InventoryOverlay:Update()
+	CUIScriptWnd.Update(self)
+	
 	local hint_text
 	local cond_descr
 	for k,v in pairs(self.conditions) do
-		local val = v.condition * 100
+		local val = self:GetActorCondition(k) * 100
 		v.progress:SetProgressPos(val)
 		cond_descr = game.translate_string(string.format("%s%s%s","st_", k, "hint"))
 		hint_text = string.format("%s %.0f%s",cond_descr, val, "%")

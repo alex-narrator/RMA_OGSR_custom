@@ -1,5 +1,5 @@
 function attach(sm)
-	sm:subscribe({signal = "inv_drag_drop",   fun = this.try_repair})
+	sm:subscribe({signal = "inv_drag_drop", fun = this.try_repair})
 end
 
 function try_repair(obj, drop_on_obj)
@@ -16,7 +16,6 @@ function try_repair(obj, drop_on_obj)
 end
 
 function get_rank_k()
-	local actor = db.actor
 	local rank = actor:character_rank()
 	
 	if rank < 300 then 		--novice
@@ -41,6 +40,8 @@ function show_repair_wnd(obj, drop_on_obj)
 	repair_wnd:InitRepair(obj, drop_on_obj)
 end
 
+repair_effector_id = 20000
+
 function repair(obj, drop_on_obj)
 	local rep_kit_sect = obj:section()
 	local cond_gain = read_if_exists(sys_ini, "r_float", rep_kit_sect, "repair_condition_gain", 0)
@@ -60,7 +61,7 @@ function repair(obj, drop_on_obj)
 	local repair_effector = read_if_exists(sys_ini, "r_string", rep_kit_sect, "use_effector", nil)
 	if repair_effector then
 		level.remove_complex_effector(repair_effector_id)
-		level.add_complex_effector(repair_effector, use_effector_id)
+		level.add_complex_effector(repair_effector, repair_effector_id)
 	end
 end
 
@@ -82,7 +83,7 @@ function RepairWnd:InitWnd()
 	xml:ParseFile("message_box.xml")
 
 	self.message_box = CUIMessageBox()
-	self.message_box:Init("message_box_repair_item")
+	self.message_box:Init("message_box_accept_decline")
 	self:Register(self.message_box, "message_box")
 	
 	self:AddCallback("message_box", ui_events.MESSAGE_BOX_YES_CLICKED, self.ProcessRepair, self)

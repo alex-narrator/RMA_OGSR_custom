@@ -45,11 +45,11 @@ function use_quick_item(slot_num)
 	return end
 	
 	if item:is_eatable_item() then
-		db.actor:eat(item)
+		actor:eat(item)
 		return
 	end
 	
-	if item:id() == service.get_backpack():id() then
+	if item:id() == actor_get_backpack():id() then
 		backpack.try_drop()
 		return
 	end
@@ -65,13 +65,13 @@ function get_item(slot_num)
 		end
 	end
 	
-	db.actor:iterate_vest(perform_check, nil)
+	actor:iterate_vest(perform_check, nil)
 	
 	if not item then
-		db.actor:iterate_belt(perform_check, nil)
+		actor:iterate_belt(perform_check, nil)
 	end
 	if not item then
-		db.actor:iterate_slots(perform_check, nil)
+		actor:iterate_slots(perform_check, nil)
 	end	
 	
 	return founded_item
@@ -105,12 +105,12 @@ function get_item_count(slot_num)
 		end
 	end
 	
-	db.actor:iterate_vest(perform_check, nil)
+	actor:iterate_vest(perform_check, nil)
 	if not item then
-		db.actor:iterate_belt(perform_check, nil)
+		actor:iterate_belt(perform_check, nil)
 	end
 	if not item then
-		db.actor:iterate_slots(perform_check, nil)
+		actor:iterate_slots(perform_check, nil)
 	end
 	
 	return res

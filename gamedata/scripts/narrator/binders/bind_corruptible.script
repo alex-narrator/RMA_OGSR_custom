@@ -1,0 +1,100 @@
+------------------------------------------------------------------------------------------
+--біндер предметів що псуються з часом
+------------------------------------------------------------------------------------------
+
+local storage = xr_vars.get_storage("corruptible_item")
+
+local CONDITION_DECREASE_UPDATE_TIME = 10 --//час оновлення декременту у ігрових секундах
+
+function init(obj)
+    local new_binder = corruptible_binder(obj)
+    obj:bind_object(new_binder)
+end
+
+--послідовність викликів:
+--__init
+--reload
+--load (if save was called before)
+--net_spawn
+
+class "corruptible_binder" (object_binder)
+function corruptible_binder:__init(obj) super(obj)
+	--log3("%s __init for object %s", script_name(), self.object:name())
+	self.last_update_time = false
+	self.corruption_time = 0
+	self.condition_decrease = 0
+	self.destroy_corrupted = false
+	
+	if not storage[self.object:id()] then
+		storage[self.object:id()] = {
+			last_update_time = self.last_update_time,
+		}
+	end
+end
+ 
+function corruptible_binder:reload(section)
+	--log3("%s reload for object %s", script_name(), self.object:name())
+    object_binder.reload(self, section)
+	self.corruption_time = read_if_exists(sys_ini, "r_u32", self.object:section(), "corruption_time", 1)
+	self.condition_decrease = (1 / (self.corruption_time * 3600))
+	self.destroy_corrupted = read_if_exists(sys_ini, "r_bool", self.object:section(), "destroy_corrupted", false)
+end
+ 
+function corruptible_binder:net_spawn(data)
+	--log3("%s net_spawn for object %s", script_name(), self.object:name())
+    local spawned = object_binder.net_spawn(self, data)
+
+	local stored_time = storage[self.object:id()].last_update_time
+	if stored_time then
+		self.last_update_time = service.table_to_time(stored_time)
+	end
+	
+	return spawned
+end
+ 
+function corruptible_binder:update(delta)
+    object_binder.update(self, delta)
+	
+	if self:can_be_corrupted() then
+		--log3("[%s] item %s is corrupting now", script_name(), self.object:name())
+		self:decrease_condition()
+	end
+end
+ 
+function corruptible_binder:can_be_corrupted()
+	return self.object:condition()
+end
+
+function corruptible_binder:decrease_condition()
+	local game_time = game.get_game_time()
+	
+	if not self.last_update_time then
+		self.last_update_time = game_time
+	end
+	
+	-- log3("%s:decrease_condition self.last_update_time %s : %s for item %s", script_name(), self.last_update_time:dateToString(game.CTime.DateToDay), self.last_update_time:timeToString(game.CTime.TimeToMilisecs), self.object:name())
+	-- log3("%s:decrease_condition game_time %s : %s for item %s",script_name(), game_time:dateToString(game.CTime.DateToDay), game_time:timeToString(game.CTime.TimeToMilisecs), self.object:name())
+	
+	local delta_time = game_time:diffSec(self.last_update_time)
+	-- log3("%s delta_time %s for %s", script_name(), delta_time, self.object:name())
+	
+	if delta_time < CONDITION_DECREASE_UPDATE_TIME then
+	return end
+	
+	self:set_last_update_time(game_time)
+	
+	self.object:change_condition(-self.condition_decrease * delta_time)
+	
+	if self.object:condition() == 0 and self.destroy_corrupted then
+		if self.object:parent() then
+			self.object:parent():drop_item(self.object)
+		end
+		alife():release(alife():object(self.object:id()), true)
+		log3("~[%s] item %s destroyed due to total corruption at %s %s", script_name(), self.object:name(), game_time:dateToString(game.CTime.DateToDay), game_time:timeToString(game.CTime.TimeToMilisecs), self.object:name())
+	end
+end
+
+function corruptible_binder:set_last_update_time(_time)
+	self.last_update_time = _time
+	storage[self.object:id()].last_update_time = service.time_to_table(_time)
+end

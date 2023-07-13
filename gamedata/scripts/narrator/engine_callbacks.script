@@ -1,0 +1,9 @@
+local sm = ogse_signals.get_mgr()
+
+function ui_item_info_callback(UIDesc, obj)
+	sm:call("ui_item_info_callback", UIDesc, obj)
+end
+
+function ui_actor_info_callback(list, obj)
+	sm:call("ui_actor_info_callback", list, obj)
+end

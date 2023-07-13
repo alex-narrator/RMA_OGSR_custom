@@ -11,7 +11,7 @@ function process_drop(key, game_action)
 end
 
 function try_drop()
-	local backpack = service.get_backpack()
+	local backpack = actor_get_backpack()
 	if not backpack then 
 	return end
 	
@@ -19,7 +19,7 @@ function try_drop()
 	if not has_quick_drop then
 	return end
 	
-	db.actor:drop_item(backpack)
+	actor:drop_item(backpack)
 	
-	service.add_info_message("item_usage", "st_backpack_dropped")
+	hud_add_info_message("item_usage", "st_backpack_dropped")
 end

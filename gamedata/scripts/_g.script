@@ -1492,7 +1492,9 @@ function start_game_callback()
 	task_manager.clear_task_manager()
 	treasure_manager.clear_treasure_manager()
 	xr_sound.clear_all_sound_object()
-	dialog_manager.fill_phrase_table()	
+	dialog_manager.fill_phrase_table()
+	--
+	xr_vars.init_storages()
 end
 
 --рушійно-подібні константи
@@ -1531,6 +1533,60 @@ function GetIconParams(section)
 				h = sys_ini:r_u32(section, "inv_grid_height") *50}
 	end
 	return {x=0, y=0, w=1, h=1}
+end
+
+function math.clamp(val, _min, _max)
+	if _min > _max then 
+		_min, _max = _max, _min 
+	end
+	
+	if val < _min then
+		val = _min
+	elseif _max < val then
+		val = _max
+	end
+	return val
+end
+
+--//службове акторське
+function actor_hands_free()
+	local act_item = actor:active_item()
+	return not act_item or act_item:get_hud_item_state() == global_flags.eIdle
+end
+function actor_cant_walk()
+	return get_actor_obj().condition.cant_walk
+end
+function actor_get_backpack()
+	return actor:item_in_slot(13)
+end
+function actor_get_pda()
+	return actor:item_in_slot(7)
+end
+function actor_get_detector()
+	return actor:item_in_slot(8)
+end
+function actor_get_torch()
+	return actor:item_in_slot(9)
+end
+--//інфоповідомлення на худі, у рушійному стилі
+function hud_add_info_message(static_id, text)
+	local hud = get_hud()
+	local static = hud:GetCustomStatic(static_id)
+	if not static then
+		static = hud:AddCustomStatic(static_id, true)
+	end
+	static:wnd():SetTextST(text)
+end
+
+function split_string(inputstr, sep)
+   if sep == nil then
+      sep = "%s"
+   end
+   local t={}
+   for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+      table.insert(t, str)
+   end
+   return t
 end
 
 ammo_section = {}
