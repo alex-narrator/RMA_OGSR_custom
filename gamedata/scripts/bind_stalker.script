@@ -21,6 +21,7 @@ local weapon_hide = false
 class "actor_binder" (object_binder)
 ----------------------------------------------------------------------------------------------------------------------
 function actor_binder:__init (obj) super(obj)
+	_G.actor = self.object
 	--
 	self.sm = ogse_signals.get_mgr()
 	self.sm:call("on_load_before_all")
@@ -34,8 +35,6 @@ end
 function actor_binder:net_spawn(data)
 	printf("actor net spawn")
 	
-	_G.actor = self.object
-
 	level.show_indicators()
 
 	self.bCheckStart = true

@@ -1,20 +1,19 @@
-function init_storages()
-	--ініціалізація сховищ даних
-	if not get_stored_vars().power_devices then
-		get_stored_vars().power_devices = {}
-		log3("~init storage power_devices")
-	end
-	if not get_stored_vars().corruptible_items then
-		get_stored_vars().corruptible_items = {}
-		log3("~init storage corruptible_items")
-	end
-end
+local s_vars = get_stored_vars()
 
-function get_storage(obj_type)
-	if obj_type == "power_device" then
-		return get_stored_vars().power_devices
+local storages = {
+	["power_device"] = {
+		get_storage = function() return s_vars.power_devices end, 
+		init_storage = function() s_vars.power_devices = {} end},
+	["corruptible_item"] = {
+		get_storage = function() return s_vars.corruptible_items end, 
+		init_storage = function() s_vars.corruptible_items = {} end},
+}
+
+function get_storage(stor_type)
+	local stor = storages[stor_type]
+	if not stor.get_storage() then
+		stor.init_storage()
+		log3("~[%s]: init storage %s", script_name(), stor_type)
 	end
-	if obj_type == "corruptible_item" then
-		return get_stored_vars().corruptible_items
-	end
+	return stor.get_storage()
 end

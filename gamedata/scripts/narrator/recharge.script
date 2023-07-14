@@ -7,7 +7,7 @@ function try_recharge(obj, drop_on_obj)
 	if not bind_obj or not bind_obj.work_time then
 	return end
 	
-	if device:can_attach(obj:dection()) then
+	if bind_obj:can_attach(obj) then
 		show_recharge_wnd(obj, drop_on_obj)
 	end
 end

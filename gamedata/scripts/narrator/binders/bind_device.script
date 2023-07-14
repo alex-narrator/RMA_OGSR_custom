@@ -133,8 +133,8 @@ end
 
 function device_binder:can_attach(obj)
 	return self:power_source_detachable() and 
-		self.object:condition() and 
-		obj:condition() and 
+		self.object:condition() > 0 and 
+		obj:condition() > 0 and 
 		self:get_power_sect_num(obj:section())
 end
 
@@ -143,8 +143,8 @@ function device_binder:get_power_sect()
 end
 
 function device_binder:set_power_sect(num)
-	if num > #self.power_sect_str then
-		log3("![%s]: wrong self.cur_power_sect [%s/%s] for device [%s] - set default battery section", script_name(), num, #self.power_sect_str, self.object:section())
+	if num > #self.power_sect_tbl then
+		log3("![%s]: wrong self.cur_power_sect [%s/%s] for device [%s] - set default battery section", script_name(), num, #self.power_sect_tbl, self.object:section())
 		num = 1
 	end
 	self.cur_power_sect = num

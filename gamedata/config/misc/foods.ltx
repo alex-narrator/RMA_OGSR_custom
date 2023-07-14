@@ -1,15 +1,25 @@
-[food_base]:identity_immunities
-use_condition = true
-breakable = true
-helmet_use = false
+[corruptible]
+corruption_time 	= 12
+destroy_corrupted 	= true
+script_binding 		= bind_corruptible.init
 
-[bread]:food_base
+[food_base]:identity_immunities
 GroupControlSection	= spawn_group
 discovery_dependency =
-$spawn 				= "food and drugs\bread"
-;$prefetch 			= 32
 class				= II_FOOD
 cform				= skeleton
+; food item
+animation_slot		= 4
+;hud item
+hud = wpn_vodka_hud
+
+menu_use_tip 		= st_eat
+use_sound 			= interface\inv_food
+breakable 			= true
+helmet_use 			= false
+
+[bread]:food_base,corruptible
+$spawn 				= "food and drugs\bread"
 visual				= weapons\bred\bred.ogf
 description			= enc_equipment_food_bread1
 
@@ -34,36 +44,16 @@ position_offset			 = 0.0,0.0,0.0
 angle_offset			 = 1.570790,1.570790,3.92699
 
 ; eatable item
-;eat_health = 0.05
 eat_satiety = 0.2
-eat_power = 0
-eat_radiation = 0
-eat_wounds_heal = 0
 eat_portions_num = 2
-
-menu_use_tip 	= st_eat
-use_sound = interface\inv_food
 
 radiation_accum_factor = 0.1
 radiation_accum_limit = 1
 
-corruption_time = 24
-destroy_corrupted = true
-script_binding = bind_corruptible.init
 
-; food item
-animation_slot		= 4
-
-;hud item
-hud = wpn_vodka_hud
-
-[kolbasa]:food_base
-GroupControlSection	= spawn_group
-discovery_dependency =
+[kolbasa]:food_base,corruptible
 $spawn 				= "food and drugs\kolbasa"
 $prefetch 			= 8
-class				= II_FOOD
-cform				= skeleton
 visual				= weapons\kolbasa\kolbasa.ogf
 description			= enc_equipment_food_kolbasa1
 
@@ -88,33 +78,10 @@ position_offset			 = 0.0,0.0,0.0
 angle_offset			 = 1.570790,1.570790,3.92699
 
 ; eatable item
-;eat_health = 0.1
 eat_satiety = 0.3
-eat_power = 0
-eat_radiation = 0
-eat_wounds_heal = 0
-eat_portions_num = 1
-
-menu_use_tip 	= st_eat
-use_sound = interface\inv_food
-
-corruption_time = 12
-destroy_corrupted = true
-script_binding = bind_corruptible.init
-
-; food item
-animation_slot		= 4
-
-;hud item
-hud = wpn_vodka_hud
 
 [conserva]:food_base
-GroupControlSection	= spawn_group
-discovery_dependency =
 $spawn 				= "food and drugs\conserva"
-;$prefetch 			= 32
-class				= II_FOOD
-cform				= skeleton
 visual				= food\conserv1.ogf
 description			= enc_equipment_food_conserva1
 
@@ -129,21 +96,7 @@ inv_grid_y			= 13
 cost				= 100
 
 ; eatable item
-;eat_health = 0.15
 eat_satiety = 0.4
-eat_power = 0
-eat_radiation = 0
-eat_wounds_heal = 0
-eat_portions_num = 1
-
-menu_use_tip = st_eat
-use_sound = interface\inv_food
-
-; food item
-animation_slot		= 4
-
-;hud item
-hud = wpn_vodka_hud
 
 attach_angle_offset		= 0.440521, 1.378287, -0.644026
 attach_position_offset	= 0.104196, -0.010821, 0.076969
@@ -188,22 +141,12 @@ position_offset			 = 0.0,0.0,0.0
 angle_offset			 = 1.570790,1.570790,3.92699
 
 ; eatable item
-;eat_health		= 0.01
 eat_satiety		= -0.01
-eat_power		= 0
-;eat_radiation	= -0.3
 eat_alcohol		= 0.066
-eat_wounds_heal 	= 0
 eat_portions_num 	= 5
 
 menu_use_tip = st_drink
 use_sound = interface\inv_vodka
-
-; food item
-animation_slot		= 4
-
-;hud item
-hud = wpn_vodka_hud
 
 break_particles		= explosions\explosion_bottle
 break_sound			= material\bottle\collide\bottle_break_1
@@ -222,13 +165,10 @@ inv_grid_x			= 19 ;19 ;11
 inv_grid_y			= 7 ;7  ;0
 inv_weight			= 0.3
 
-eat_health			= 0
-eat_satiety			= 0
-eat_power			= 1.0
+eat_portions_num 	= 1
+
 eat_alcohol			= 0
-eat_radiation		= 0
-eat_wounds_heal	= 0
-eat_portions_num	= 1
+eat_power			= 1.0
 eat_max_power		= 0.2
 
 boost_max_power = 0.2

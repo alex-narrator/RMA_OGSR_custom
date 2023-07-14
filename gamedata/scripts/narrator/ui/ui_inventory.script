@@ -1,36 +1,19 @@
 local overlay = nil
 
 function attach(sm)
-	sm:subscribe({signal = "on_inventory_show",   fun = this.process_show})
+	sm:subscribe({signal = "on_spawn",   fun = this.create_window})
+	sm:subscribe({signal = "on_destroy",   fun = this.destroy_window})
 end
 
 local subscribed = false
 
-function process_show()
-	if not subscribed then
-		subscribed = {
-			{signal = "on_inventory_hide", fun = this.process_hide},
-		}
-		local sm = ogse_signals.get_mgr()
-		for _, s in ipairs( subscribed ) do
-			sm:subscribe( s )
-		end
-	end
-	
+function create_window()
 	if not overlay then
-		overlay = InventoryOverlay(level.main_input_receiver())
+		overlay = InventoryOverlay(level.get_inventory_wnd())
 	end
 end
 
-function process_hide()
-	if subscribed then
-		local sm = ogse_signals.get_mgr()
-		for _, s in ipairs( subscribed ) do
-			sm:unsubscribe( s )
-		end
-		subscribed = false
-	end
-	
+function destroy_window()
 	if overlay then
 		overlay:DetachWnd()
 		overlay = nil
@@ -41,7 +24,6 @@ class "InventoryOverlay" (CUIScriptWnd)
 
 function InventoryOverlay:__init(owner) super()
 	self.owner = owner
-	self:Init(0, 0, 1024, 768)
 	self:InitControls()
 	self:Subscribe()
 end
@@ -50,7 +32,6 @@ function InventoryOverlay:Subscribe()
 	self.subscribed = false
 	if not self.subscribed then
 		self.subscribed = {
-			{signal = "on_update", self = self, fun = self.Update},
 			{signal = "on_cell_item_focus", self = self, fun = self.OnCellItemFocus},
 			{signal = "on_cell_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
 			{signal = "on_quick_item_set", self = self, fun = self.OnQuickItemSet},
@@ -81,33 +62,29 @@ end
 function InventoryOverlay:DetachWnd()
 	quick_slots.set_selected(nil)
 	self:Unsubscribe()
-	if self.main then
-		self:ClearCallbacks()
-		for k, v in pairs(self.slot_keys) do
-			v.parent:DetachChild(v.static)
-		end
-		self.owner:DetachChild(self.main)
-	end
+	self:ClearCallbacks()
+	self.owner:DetachChild(self)
 end
 
 function InventoryOverlay:InitControls()
+	self.owner:AttachChild(self)
+	self:Init(0, 0, 1024, 768)
+	self:Enable(true)
+	self:Show(true)
+	
 	local xml = CScriptXmlInit()
 	xml:ParseFile("script_overlays\\inventory_overlay.xml")
 
-	self.main = CUIStatic()
-	self.main:Init(0, 0, 1024, 768)
-	self.owner:AttachChild(self.main)
-	
-	self.background = xml:InitStatic("background", self.main)
+	self.background = xml:InitStatic("background", self)
 	
 	--// actor condition progressbars
 	self.conditions = {
-		["health_"] 	= {},
-		["psy_"] 		= {},
-		["power_"] 		= {},
-		["satiety_"] 	= {},
-		["alcohol_"] 	= {},
-		["radiation_"] 	= {},
+		["health_"] 	= { condition = function() return actor.health end },
+		["psy_"] 		= { condition = function() return actor.psy_health end },
+		["power_"] 		= { condition = function() return actor.power end },
+		["satiety_"] 	= { condition = function() return actor.satiety end },
+		["alcohol_"] 	= { condition = function() return actor.alcohol end },
+		["radiation_"] 	= { condition = function() return actor.radiation end },
 	}
 	
 	for k, v in pairs(self.conditions) do
@@ -123,20 +100,22 @@ function InventoryOverlay:InitControls()
 	end
 	
 	--// quick slots
-	self.quick_slots_back = xml:InitStatic("quick_slots_back", self.main)
+	self.quick_slots_back = xml:InitStatic("quick_slots_back", self)
+	
+	--//slot colors
+	self.quick_color_default 	= GetARGB(0, 255, 255, 255)
+	self.quick_color_highlight 	= GetARGB(45, 255, 255, 255)
+	self.quick_color_has_item 	= GetARGB(255, 255, 255, 255)
+	self.quick_color_no_item 	= GetARGB(120, 255, 255, 255)
+	
 	self.slots = {}
-	local indent = 2 --відступ між елементами
-	local pos_x = 4 --початкова позиція по х
 	for i=0,3 do
-		local s = xml:InitStatic("quick_slot", self.quick_slots_back)
+		local s = xml:InitStatic("quick_slot_"..i, self.quick_slots_back)
 		self.slots[i] = s
-		s:SetColor(GetARGB(0, 255, 255, 255))
+		s:SetColor(self.quick_color_default)
 		
 		local key_text = "ui_quick_slot_"..i
 		s:SetText(game.translate_string(key_text))
-		
-		s:SetWndPos(pos_x, s:GetPosTop())
-		pos_x = pos_x + s:GetWidth() + indent
 		
 		s.icon = xml:InitStatic("slot_icon", s)
 		s.icon:InitTexture("ui\\ui_icon_equipment")
@@ -170,12 +149,12 @@ end
 
 function InventoryOverlay:QuickOnFocusReceived(slot_num)
 	quick_slots.set_selected(slot_num)
-	self.slots[slot_num]:SetColor(GetARGB(45, 255, 255, 255))
+	self.slots[slot_num]:SetColor(self.quick_color_highlight)
 end
 
 function InventoryOverlay:QuickOnFocusLost(slot_num)
 	quick_slots.set_selected(nil)
-	self.slots[slot_num]:SetColor(GetARGB(0, 255, 255, 255))
+	self.slots[slot_num]:SetColor(self.quick_color_default)
 end
 
 function InventoryOverlay:OnCellItemFocus(obj)
@@ -183,13 +162,13 @@ function InventoryOverlay:OnCellItemFocus(obj)
 	if not highlight_quick_slots then return
 	end
 	for i=0,3 do
-		self.slots[i]:SetColor(GetARGB(45, 255, 255, 255))
+		self.slots[i]:SetColor(self.quick_color_highlight)
 	end
 end
 
 function InventoryOverlay:OnCellItemFocusLost(obj)
 	for i=0,3 do
-		self.slots[i]:SetColor(GetARGB(0, 255, 255, 255))
+		self.slots[i]:SetColor(self.quick_color_default)
 	end
 end
 
@@ -205,9 +184,9 @@ function InventoryOverlay:DrawSlotIcon(slot_num)
 	
 	s.icon:SetOriginalRect(params.x, params.y, params.w, params.h)
 	if count > 0 then
-		s.icon:SetColor(GetARGB(255, 255, 255, 255))
+		s.icon:SetColor(self.quick_color_has_item)
 	else
-		s.icon:SetColor(GetARGB(120, 255, 255, 255))
+		s.icon:SetColor(self.quick_color_no_item)
 	end
 end
 
@@ -242,29 +221,13 @@ function InventoryOverlay:ConditionOnFocusLost(cond_name)
 	self.conditions[cond_name].hint:Show(false)
 end
 
-function InventoryOverlay:GetActorCondition(cond_name)
-	if cond_name == "health_" then
-		return actor.health
-	elseif cond_name == "psy_" then
-		return actor.psy_health
-	elseif cond_name == "power_" then
-		return actor.power
-	elseif cond_name == "satiety_" then
-		return actor.satiety
-	elseif cond_name == "alcohol_" then
-		return actor.alcohol
-	elseif cond_name == "radiation_" then
-		return actor.radiation
-	end
-end
-
 function InventoryOverlay:Update()
 	CUIScriptWnd.Update(self)
 	
 	local hint_text
 	local cond_descr
 	for k,v in pairs(self.conditions) do
-		local val = self:GetActorCondition(k) * 100
+		local val = v.condition() * 100
 		v.progress:SetProgressPos(val)
 		cond_descr = game.translate_string(string.format("%s%s%s","st_", k, "hint"))
 		hint_text = string.format("%s %.0f%s",cond_descr, val, "%")

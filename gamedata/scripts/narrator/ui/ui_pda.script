@@ -7,16 +7,16 @@ local color_by_relation = {
 }
 
 function attach(sm)
-	sm:subscribe({signal = "on_pda_show",   fun = this.process_show})
-	sm:subscribe({signal = "on_map_relation_location_added",   fun = this.customize_relation_spot})
+	sm:subscribe({signal = "on_spawn",   fun = this.create_window})
+	sm:subscribe({signal = "on_destroy",   fun = this.destroy_window})
 end
 
 local subscribed = false
 
-function process_show()
+function create_window()
 	if not subscribed then
 		subscribed = {
-			{signal = "on_pda_hide", fun = this.process_hide},
+			{signal = "on_map_relation_location_added", fun = this.customize_relation_spot},
 		}
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( subscribed ) do
@@ -25,11 +25,11 @@ function process_show()
 	end
 	
 	if not overlay then
-		overlay = PDAOverlay(level.main_input_receiver())
+		overlay = PDAOverlay(level.get_pda_wnd())
 	end
 end
 
-function process_hide()
+function destroy_window()
 	if subscribed then
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( subscribed ) do
@@ -60,61 +60,64 @@ class "PDAOverlay" (CUIScriptWnd)
 
 function PDAOverlay:__init(owner) super()
 	self.owner = owner
-	self:Init(0, 0, 1024, 768)
 	self:InitControls()
+	--self:Subscribe()
+	self.wait_h = 0
+	self.wait_m = 0
 	self:UpdateTimer()
-	self:Subscribe()
 end
 
-function PDAOverlay:Subscribe()
-	self.subscribed = false
-	if not self.subscribed then
-		self.subscribed = {
-			{signal = "on_update", self = self, fun = self.Update},
-		}
-		local sm = ogse_signals.get_mgr()
-		for _, s in ipairs( self.subscribed ) do
-			sm:subscribe( s )
-		end
-	end
-end
+-- function PDAOverlay:Subscribe()
+	-- self.subscribed = false
+	-- if not self.subscribed then
+		-- self.subscribed = {
+			-- {signal = "on_update", self = self, fun = self.Update},
+		-- }
+		-- local sm = ogse_signals.get_mgr()
+		-- for _, s in ipairs( self.subscribed ) do
+			-- sm:subscribe( s )
+		-- end
+	-- end
+-- end
 
-function PDAOverlay:Unsubscribe()
-	if self.subscribed then
-		local sm = ogse_signals.get_mgr()
-		for _, s in ipairs( self.subscribed ) do
-			sm:unsubscribe( s )
-		end
-		self.subscribed = false
-	end
-end
+-- function PDAOverlay:Unsubscribe()
+	-- if self.subscribed then
+		-- local sm = ogse_signals.get_mgr()
+		-- for _, s in ipairs( self.subscribed ) do
+			-- sm:unsubscribe( s )
+		-- end
+		-- self.subscribed = false
+	-- end
+-- end
 
 function PDAOverlay:DetachWnd()
-	self:Unsubscribe()
-	if self.main then
-		self:ClearCallbacks()
-		self.owner:DetachChild(self.main)
-	end
+	--self:Unsubscribe()
+	self:ClearCallbacks()
+	self.owner:DetachChild(self)
 end
 
 function PDAOverlay:InitControls()
+	self.owner:AttachChild(self)
+	self:Init(0, 0, 1024, 768)
+	self:Enable(true)
+	self:Show(true)
+	
 	local xml = CScriptXmlInit()
 	xml:ParseFile("script_overlays\\pda_overlay.xml")
 
-	self.main = CUIStatic()
-	self.main:Init(0, 0, 1024, 768)
-	self.owner:AttachChild(self.main)
+	--//power level
+	self.power_static = xml:InitStatic("power_level", self)
+	self.def_power_color = self.power_static:GetTextColor()
 	
-	self.power_static = xml:InitStatic("power_level", self.main)
-	
-	self.btn_off = xml:Init3tButton("off_button", self.main)
+	--// off button
+	self.btn_off = xml:Init3tButton("off_button", self)
 	self:Register(self.btn_off, "off_btn")
 	self:AddCallback("off_btn", ui_events.BUTTON_CLICKED, self.HidePda, self)
 	
 	--// actor info overlay	
 	self.info = CUIStatic()
 	self.info:Init(0, 0, 1024, 768)
-	self.main:AttachChild(self.info)
+	self:AttachChild(self.info)
 	self.info:Show(false)
 	
 	self.days_text = xml:InitStatic("days_in_zone_text", self.info)
@@ -149,35 +152,29 @@ function PDAOverlay:InitControls()
 end
 
 function PDAOverlay:Update()
+	CUIScriptWnd.Update(self)
 	local pda = actor_get_pda()
-	if not pda or not pda:is_power_on() then
-		process_hide()
-		return
-	end
 	
-	local power = pda:binded_object():get_power_level()
+	local show = pda and pda:is_power_on()
+	self.power_static:Show(show)
+	self.btn_off:Show(show)
+	show = show and has_alife_info("ui_pda_actor_info")
+	self.info:Show(show)
 
+	local power = pda:binded_object():get_power_level()
 	local text = string.format("%.0f %s", power * 100, "%")	
 	self.power_static:SetText(text)
 	if power <= 0.1 then
 		self.power_static:SetTextColor(255, 255, 0, 0)
+	elseif self.power_static:GetTextColor() ~= self.def_power_color then
+		self.power_static:SetTextColor(self.def_power_color)
 	end
 	
 	text = string.format("%d", level.get_time_days())
 	self.days_count:SetText(text)
-	
-	local show = has_alife_info("ui_pda_actor_info")
-	self.info:Show(show)
 end
 
 function PDAOverlay:UpdateTimer()
-	if not self.wait_h then
-		self.wait_h = 0
-	end
-	if not self.wait_m then
-		self.wait_m = 0
-	end
-	
 	self.hour_st:SetText(self.wait_h)
 	self.minute_st:SetText(self.wait_m)
 end
