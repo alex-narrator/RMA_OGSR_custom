@@ -44,5 +44,5 @@ db.actor:give_info_portion("escape_sidor_box_open")
 
 local tgt = level.get_target_obj()
 if tgt then
-	log3("~ target section: %s | name: %s", tgt:section(), tgt:name())
+	log3("~ target section: %s | name: %s | profile: %s", tgt:section(), tgt:name(), tgt:profile_name() and tgt:profile_name() or "NO PROFILE")
 end

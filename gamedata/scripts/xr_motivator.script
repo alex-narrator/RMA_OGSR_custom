@@ -11,6 +11,14 @@ memtsg = {} --' временна€ таблица
 lasthealth = 0
 lastime = nil
 
+--//community які НЕ детектують аномалії
+local anoms_detection_disabled_communities = {
+	["zombied"] = true,
+}
+--//профілі які НЕ детектують аномалії
+local anoms_detection_disabled_profiles = {
+	["esc_novice_fright"] = true,
+}
 ----------------------------------------------------------------------------------------------------------------------
 class "motivator_binder" (object_binder)
 
@@ -97,7 +105,8 @@ function motivator_binder:net_spawn(sobject)
 	end
 
 	--' ƒл€ зомбированных чуваков говорим что аномалий не существует | а також для катсценного зляканого новачка на кордоні
-	if self.object:character_community() == "zombied" or self.object:profile_name() == "esc_novice_fright" then
+	if anoms_detection_disabled_communities[self.object:character_community()] or 
+		anoms_detection_disabled_profiles[self.object:profile_name()] then
 		local manager = self.object:motivation_action_manager()
 		manager:remove_evaluator	(stalker_ids.property_anomaly)
 		manager:add_evaluator		(stalker_ids.property_anomaly, property_evaluator_const(false))
