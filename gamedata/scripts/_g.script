@@ -1566,6 +1566,15 @@ end
 function actor_get_torch()
 	return actor:item_in_slot(9)
 end
+
+function is_power_device(obj)
+	local se_obj = alife():object(obj:id())
+	return se_obj and se_obj.power_level and se_obj.cur_power_sect
+end
+function is_corruptible(obj)
+	local se_obj = alife():object(obj:id())
+	return se_obj and se_obj.last_time_called
+end
 --//інфоповідомлення на худі, у рушійному стилі
 function hud_add_info_message(static_id, text)
 	local hud = get_hud()

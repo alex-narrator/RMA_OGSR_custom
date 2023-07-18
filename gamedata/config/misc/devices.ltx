@@ -61,12 +61,15 @@ GroupControlSection	= spawn_group
 discovery_dependency=
 $spawn 				= "devices\pda"
 $prefetch 			= 16
-class				= D_PDA
+class				= S_PDA
 cform				= skeleton
 visual				= dynamics\devices\dev_pda\dev_pda.ogf;equipments\item_pda.ogf
 description			= enc_equipment_devic_device-pda1
 radius				= 50;0 ;75
 slot				= 7
+
+power_source 		= pda_battery
+script_binding      = bind_device.init
 
 inv_name			= PDA
 inv_name_short		= PDA
@@ -78,14 +81,10 @@ inv_grid_x         = 11
 inv_grid_y         = 24
 cost				= 20
 
-power_source 		= pda_battery
-script_binding      = bind_device.init
-
 attach_angle_offset		= 3.080506,-1.493053,-1.202040   ;устанавливается в радианах Angle*PI/180
 attach_position_offset	= 0.080000,0.021273,0.100000
 attach_bone_name		= bip01_r_hand
 auto_attach				= false
-
 
 [device_torch]:identity_immunities
 GroupControlSection	= spawn_group
@@ -175,7 +174,7 @@ night_vision_discharge_time			= 20	;(c) время разрядки (работ�
 GroupControlSection	= spawn_group
 discovery_dependency =
 $prefetch 			= 32
-class				= D_SIMDET
+class				= S_DET_SHOC
 cform				= skeleton
 ef_detector_type	= 1
 slot 				= 8
@@ -347,12 +346,12 @@ vest = true
 night_vision_particle		= nature\flies_light
 
 power_source 		= battery
-script_binding      = device_binder.init
+script_binding      = bind_device.init
 
 [detector_simple_cop]:detector_cop_base
 
 $spawn 			= "devices\detector_simple"
-class			= DET_SIMP
+class			= S_DET_SIMP
 visual			= dynamics\devices\dev_detector_1\dev_detector_1.ogf
 hud				= detector_simple_hud
 inv_name		= st_detector1
@@ -433,7 +432,7 @@ snd_holster             = weapons\generic_holster
 
 [detector_advanced_cop]:detector_simple_cop
 $spawn 			= "devices\detector_advanced"
-class			= DET_ADVA
+class			= S_DET_ADVA
 visual			= dynamics\devices\dev_detector_2\dev_detector_2.ogf
 
 
@@ -483,7 +482,7 @@ zone_freq_all = 0.05, 2
 
 [detector_elite_cop]:detector_advanced_cop
 $spawn 			= "devices\detector_elite"
-class			= DET_ELIT
+class			= S_DET_ELIT
 visual			= dynamics\devices\dev_detector_3\dev_detector_3.ogf
 inv_name		= st_detector3
 inv_name_short	= st_detector3
@@ -534,7 +533,7 @@ af_freq_26		= 0.05, 2
 ;;;;біодетектор
 [detector_bio_cop]:detector_elite_cop
 $spawn 				= "devices\detector_scientific"
-class				= DET_SCIE
+class				= S_DET_SCIE
 
 visual			= dynamics\devices\dev_detector_4\dev_detector_4.ogf
 

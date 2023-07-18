@@ -2,11 +2,13 @@
 --біндер предметів що псуються з часом
 ------------------------------------------------------------------------------------------
 
-local storage = xr_vars.get_storage("corruptible_item")
-
 local CONDITION_DECREASE_UPDATE_TIME = 10 --//час оновлення декременту у ігрових секундах
+local zero_time = game.CTime()
 
 function init(obj)
+	if not is_corruptible(obj) then
+		log3("![%s]:init failed to bind object name:[%s] section:[%s] - not a corruptible item\nsee se_item.script for corruptible items (must have a self.last_time_called field)", script_name(), obj:name(), obj:section())
+	return end
     local new_binder = corruptible_binder(obj)
     obj:bind_object(new_binder)
 end
@@ -20,16 +22,10 @@ end
 class "corruptible_binder" (object_binder)
 function corruptible_binder:__init(obj) super(obj)
 	--log3("%s __init for object %s", script_name(), self.object:name())
-	self.last_update_time = false
 	self.corruption_time = 0
 	self.condition_decrease = 0
 	self.destroy_corrupted = false
-	
-	if not storage[self.object:id()] then
-		storage[self.object:id()] = {
-			last_update_time = self.last_update_time,
-		}
-	end
+	self.se_obj = alife():object(self.object:id())
 end
  
 function corruptible_binder:reload(section)
@@ -43,12 +39,6 @@ end
 function corruptible_binder:net_spawn(data)
 	--log3("%s net_spawn for object %s", script_name(), self.object:name())
     local spawned = object_binder.net_spawn(self, data)
-
-	local stored_time = storage[self.object:id()].last_update_time
-	if stored_time then
-		self.last_update_time = service.table_to_time(stored_time)
-	end
-	
 	return spawned
 end
  
@@ -68,20 +58,20 @@ end
 function corruptible_binder:decrease_condition()
 	local game_time = game.get_game_time()
 	
-	if not self.last_update_time then
-		self.last_update_time = game_time
+	if self:get_last_time_called() == zero_time then
+		self:set_last_time_called(game_time)
 	end
 	
-	-- log3("%s:decrease_condition self.last_update_time %s : %s for item %s", script_name(), self.last_update_time:dateToString(game.CTime.DateToDay), self.last_update_time:timeToString(game.CTime.TimeToMilisecs), self.object:name())
+	-- log3("%s:decrease_condition last_time_called %s : %s for item %s", script_name(), self:get_last_time_called():dateToString(game.CTime.DateToDay), self:get_last_time_called():timeToString(game.CTime.TimeToMilisecs), self.object:name())
 	-- log3("%s:decrease_condition game_time %s : %s for item %s",script_name(), game_time:dateToString(game.CTime.DateToDay), game_time:timeToString(game.CTime.TimeToMilisecs), self.object:name())
 	
-	local delta_time = game_time:diffSec(self.last_update_time)
+	local delta_time = game_time:diffSec(self:get_last_time_called())
 	-- log3("%s delta_time %s for %s", script_name(), delta_time, self.object:name())
 	
 	if delta_time < CONDITION_DECREASE_UPDATE_TIME then
 	return end
 	
-	self:set_last_update_time(game_time)
+	self:set_last_time_called(game_time)
 	
 	self.object:change_condition(-self.condition_decrease * delta_time)
 	
@@ -94,7 +84,10 @@ function corruptible_binder:decrease_condition()
 	end
 end
 
-function corruptible_binder:set_last_update_time(_time)
-	self.last_update_time = _time
-	storage[self.object:id()].last_update_time = service.time_to_table(_time)
+function corruptible_binder:get_last_time_called()
+	return self.se_obj.last_time_called
+end
+
+function corruptible_binder:set_last_time_called(_time)
+	self.se_obj.last_time_called = _time
 end

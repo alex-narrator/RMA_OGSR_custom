@@ -2,11 +2,12 @@
 --біндер приладів що використовують джерела живлення
 ------------------------------------------------------------------------------------------
 
-local storage = xr_vars.get_storage("power_device")
-
 local POWER_CONSUMING_UPDATE_TIME = 10 --//час оновлення декременту у ігрових секундах
 
 function init(obj)
+	if not is_power_device(obj) then
+		log3("![%s]:init failed to bind object name:[%s] section:[%s] - not a power device\nsee se_item.script for power devices (must have a self.power_level and self.cur_power_sect field)", script_name(), obj:name(), obj:section())
+	return end
     local new_binder = device_binder(obj)
     obj:bind_object(new_binder)
 end
@@ -20,19 +21,12 @@ end
 class "device_binder" (object_binder)
 function device_binder:__init(obj) super(obj)
 	--log3("%s __init for object %s", script_name(), self.object:name())
-	self.power_level = 1
 	self.work_time = false
 	self.power_consumption = false
 	self.last_update_time = false
-	self.cur_power_sect = 1
 	self.power_sect_tbl = {}
+	self.se_obj = alife():object(self.object:id())
 	
-	if not storage[self.object:id()] then
-		storage[self.object:id()] = {
-			power_level = self.power_level, 
-			cur_power_sect = self.cur_power_sect,
-		}
-	end
 end
  
 function device_binder:reload(section)
@@ -47,23 +41,11 @@ function device_binder:net_spawn(data)
 	--log3("%s net_spawn for object %s", script_name(), self.object:name())
     local spawned = object_binder.net_spawn(self, data)
 
-	self.power_level = storage[self.object:id()].power_level
-	self.cur_power_sect = storage[self.object:id()].cur_power_sect
 	self:init_power_source()
 
 	return spawned
 end
 
-function device_binder:net_export(packet)
-	object_binder.net_export(self, packet)
-	log3("%s net_Export for %s", script_name(), self.object:name())
-end
-
-function device_binder:net_import(packet)
-	object_binder.net_import(self, packet)
-	log3("%s net_Import for %s", script_name(), self.object:name())
-end
- 
 function device_binder:update(delta)
     object_binder.update(self, delta)
 	
@@ -76,27 +58,14 @@ end
 function device_binder:init_power_source()
 	self.work_time = read_if_exists(sys_ini, "r_u32", self:get_power_sect(), "work_time", 1)
 	self.power_consumption = 1 / (self.work_time * 3600)
+	self.last_update_time = false
 end
 
 function device_binder:is_working()
-	local device = false
-	
-	local actor_pda = actor_get_pda()
-	if actor_pda and actor_pda:id() == self.object:id() then
-		device = self.object
-	end
-	
-	local actor_torch = actor_get_torch()
-	if actor_torch and actor_torch:id() == self.object:id() then
-		device = self.object
-	end
-	
-	local actor_detector = actor_get_detector()
-	if actor_detector and actor_detector:id() == self.object:id() then
-		device = self.object
-	end
-	
-	return device and device:is_power_on()
+	local parent = self.object:parent()
+	if not parent or parent:id() ~= 0  then
+	return false end
+	return self.object:is_power_on()
 end
 
 function device_binder:decrease_power()
@@ -139,16 +108,15 @@ function device_binder:can_attach(obj)
 end
 
 function device_binder:get_power_sect()
-	return self.power_sect_tbl[self.cur_power_sect]
+	return self.power_sect_tbl[self.se_obj.cur_power_sect]
 end
 
 function device_binder:set_power_sect(num)
 	if num > #self.power_sect_tbl then
-		log3("![%s]: wrong self.cur_power_sect [%s/%s] for device [%s] - set default battery section", script_name(), num, #self.power_sect_tbl, self.object:section())
+		log3("![%s]: wrong cur_power_sect [%s/%s] for device [%s] - set default battery section", script_name(), num, #self.power_sect_tbl, self.object:section())
 		num = 1
 	end
-	self.cur_power_sect = num
-	storage[self.object:id()].cur_power_sect = self.cur_power_sect
+	self.se_obj.cur_power_sect = num
 end
 
 function device_binder:get_power_sect_num(section)
@@ -165,19 +133,20 @@ function device_binder:get_work_time()
 end
 
 function device_binder:get_power_level()
-	return self.power_level
+	local power_level = self.se_obj.power_level or 0
+	return power_level
 end
 
 function device_binder:set_power_level(val)
-	self.power_level = val
-	self.power_level = math.clamp(self.power_level,0,1)
-	storage[self.object:id()].power_level = self.power_level
+	if not self.se_obj.power_level then return end
+	self.se_obj.power_level = val
+	self.se_obj.power_level = math.clamp(self.se_obj.power_level,0,1)
 end
 
 function device_binder:change_power_level(val)
-	self.power_level = self.power_level + val
-	self.power_level = math.clamp(self.power_level,0,1)
-	storage[self.object:id()].power_level = self.power_level
+	if not self.se_obj.power_level then return end
+	self.se_obj.power_level = self.se_obj.power_level + val
+	self.se_obj.power_level = math.clamp(self.se_obj.power_level,0,1)
 end
 
 function device_binder:recharge(obj_battery)

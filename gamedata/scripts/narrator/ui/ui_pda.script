@@ -161,7 +161,7 @@ function PDAOverlay:Update()
 	show = show and has_alife_info("ui_pda_actor_info")
 	self.info:Show(show)
 
-	local power = pda:binded_object():get_power_level()
+	local power = is_power_device(pda) and pda:binded_object():get_power_level() or 1
 	local text = string.format("%.0f %s", power * 100, "%")	
 	self.power_static:SetText(text)
 	if power <= 0.1 then

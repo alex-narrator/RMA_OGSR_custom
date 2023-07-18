@@ -3,9 +3,8 @@ function attach(sm)
 end
 
 function add_custom_info(UIDesc, obj)
-	local bind_obj = obj:binded_object()
-	if bind_obj and bind_obj.work_time then
-		attach_power_params(UIDesc, bind_obj)
+	if is_power_device(obj) then
+		attach_power_params(UIDesc, obj:binded_object())
 	end
 end
 
