@@ -62,16 +62,16 @@ function device_binder:init_power_source()
 end
 
 function device_binder:is_working()
-	local parent = self.object:parent()
-	if not parent or parent:id() ~= 0  then
-	return false end
-	return self.object:is_power_on()
+	return parent_is_actor(self.object) and self.object:is_power_on()
 end
 
 function device_binder:decrease_power()
 	if self.object:condition() == 0 or self:get_power_level() == 0 then
 		if self.object:is_power_on() then
 			self.object:switch_power(false)
+			if not xr_conditions.black_screen() then
+				news_manager.item_tip(self.object, script_name())
+			end
 		end
 	return end
 	

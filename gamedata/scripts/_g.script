@@ -1475,9 +1475,11 @@ function set_actor_rank(rank)
 end
 
 function get_texture_info(id_name, id_default)
-	if id_default == nil then id_default = id_name end
+	if not id_default then 
+		id_default = id_name 
+	end
 
-	local task_info = GetTextureInfo(id_name, id_default)
+	local task_info = GetTextureInfo(id_name or "", id_default)
 	local r = task_info:get_rect()
 
 	r.x2 = r.x2 - r.x1
@@ -1547,6 +1549,12 @@ function math.clamp(val, _min, _max)
 end
 
 --//службове акторське
+
+function parent_is_actor(item)
+	local parent = item:parent()
+	return parent and parent:id() == 0
+end
+
 function actor_hands_free()
 	local act_item = actor:active_item()
 	return not act_item or act_item:get_hud_item_state() == global_flags.eIdle

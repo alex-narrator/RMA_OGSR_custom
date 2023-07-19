@@ -63,6 +63,9 @@ function InventoryOverlay:DetachWnd()
 	quick_slots.set_selected(nil)
 	self:Unsubscribe()
 	self:ClearCallbacks()
+	for k, v in pairs(self.slot_keys) do
+		v.parent:DetachChild(v.static)
+	end
 	self.owner:DetachChild(self)
 end
 

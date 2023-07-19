@@ -9,34 +9,30 @@ end
 local use_effector_id = 66613 --спеціальний id для ефектору використання, щоб саме його видаляти при використанні іншого предмету
 local boost_efefctor_id = 666650 --id ефектору бустера за замовчуванням
 
-function send_refusal_tip(item)
-	refusal_text = string.format("%s %s", game.translate_string(get_inv_name(item:section())), game.translate_string("st_cant_eat_item"))
-	news_manager.send_tip(actor, refusal_text)
-end
-
 function check_use_enabled(item)
 	local eatable_item = item:get_eatable_item()
 	if not eatable_item then
 	return end
 	
 	if not read_if_exists(sys_ini, "r_bool", item:section(), "helmet_use", true) then
-		local refusal_text
+		local sender = script_name()
+		
 		local check_item = actor:item_in_slot(6)
 		if check_item and (read_if_exists(sys_ini, "r_bool", check_item:section(), "helmet_built_in", false) or outfit_effects.get_hud_params(check_item:section())) then
 			eatable_item.can_be_eaten = false
-			send_refusal_tip(check_item)
+			news_manager.item_tip(check_item, sender)
 		return end
 	
 		check_item = actor:item_in_slot(11)
 		if check_item and outfit_effects.get_hud_params(check_item:section()) then
 			eatable_item.can_be_eaten = false
-			send_refusal_tip(check_item)
+			news_manager.item_tip(check_item, sender)
 		return end
 	
 		check_item = actor:item_in_slot(15)
 		if check_item and outfit_effects.get_hud_params(check_item:section()) then
 			eatable_item.can_be_eaten = false
-			send_refusal_tip(check_item)
+			news_manager.item_tip(check_item, sender)
 		return end
 	end
 	

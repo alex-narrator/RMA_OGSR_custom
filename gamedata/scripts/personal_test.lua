@@ -27,7 +27,7 @@
 
 --db.actor:set_character_rank(299)
 
-db.actor:give_info_portion("escape_sidor_box_open")
+--db.actor:give_info_portion("escape_sidor_box_open")
 
 -- local _hour = 24
 -- local _min = 90
@@ -46,3 +46,9 @@ local tgt = level.get_target_obj()
 if tgt then
 	log3("~ target section: %s | name: %s | profile: %s", tgt:section(), tgt:name(), tgt:profile_name() and tgt:profile_name() or "NO PROFILE")
 end
+
+-- local torch = actor_get_torch()
+-- if torch and torch:is_torch() then
+	-- torch = torch:get_torch()
+	-- torch:set_brightness(0)
+-- end

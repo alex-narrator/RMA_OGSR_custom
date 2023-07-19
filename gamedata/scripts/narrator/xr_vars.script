@@ -1,0 +1,12 @@
+local s_vars = get_stored_vars()
+
+function load_var(var_name, def_val)
+	if not s_vars.var_name then
+		s_vars.var_name = def_val
+	end
+	return s_vars.var_name
+end
+
+function save_var(var_name, val)
+	s_vars.var_name = val
+end
