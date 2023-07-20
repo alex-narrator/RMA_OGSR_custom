@@ -1518,6 +1518,17 @@ function read_if_exists(ltx, val_type, section, value, default)
 	end
 end
 
+function get_section_keys_and_values(section, ini_file)
+	local ini = ini_file or sys_ini
+	ASSERT(ini:section_exist(section), "get_section_keys: section '"..section.."' doesn't exist")
+	local t = {}
+	for i = 0, ini:line_count(section) - 1 do
+		local _, key, v = ini:r_line(section, i, "", "")
+		t[key] = v
+	end
+	return t
+end
+
 function get_inv_name(section)
 	return sys_ini:r_string(section,"inv_name")
 end

@@ -93,6 +93,7 @@ function motivator_binder:net_spawn(sobject)
 	--memusage.collect_info(self.object, "after__callback")
 
 	--self.object:set_callback(callback.sound, motivator_binder.hear_callback, self)
+	self.sm:call("on_npc_before_spawn", self.object, self)
 
     --' «агрузка историй дл€ лагер€.
 	if self.loaded == false then
@@ -101,6 +102,7 @@ function motivator_binder:net_spawn(sobject)
 	end
 
 	if not self.object:alive() then
+		self.sm:call("on_npc_spawn", self.object, self)
 		return true
 	end
 
@@ -112,13 +114,9 @@ function motivator_binder:net_spawn(sobject)
 		manager:add_evaluator		(stalker_ids.property_anomaly, property_evaluator_const(false))
 	end
 	
-    --' загрузка озвучки
-    --memusage.collect_info(self.object, "before_soundmgr")
-    xr_sound.load_sound(self.object)
-    --memusage.collect_info(self.object, "after_soundmgr_netspawn_end")
-
 	xr_gulag.setup_gulag_and_logic_on_spawn( self.object, self.st, sobject, modules.stype_stalker, self.loaded )
 
+	self.sm:call("on_npc_spawn", self.object, self)
 	return true
 end
 
