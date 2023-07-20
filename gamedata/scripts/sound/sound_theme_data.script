@@ -3,244 +3,6 @@
 --	автор:  Диденко Руслан  (Stohe)
 --	update: Чугай Александр (Chugai)
 ----------------------------------------------------------------------------------------------------------------------
-nstl = 64
-
-snd_ini = ini_file("misc\\script_sound.ltx")
-
-theme = {}
-ph_snd_themes = {}           
-ph_snd_themes["music"] = {  "characters_voice\\scenario\\megafon\\megafon_music_1",
-	                        "characters_voice\\scenario\\megafon\\megafon_music_2",
-	                        "characters_voice\\scenario\\megafon\\megafon_music_3"
-	                        }
-ph_snd_themes["humor"] = {  "characters_voice\\scenario\\escape\\comandir_megafon_1",
-							"characters_voice\\scenario\\escape\\comandir_megafon_2",
-							"characters_voice\\scenario\\escape\\comandir_megafon_3",
-							"characters_voice\\scenario\\escape\\comandir_megafon_4",
-							"characters_voice\\scenario\\escape\\comandir_megafon_5",
-							"characters_voice\\scenario\\escape\\comandir_megafon_6",
-							"characters_voice\\scenario\\escape\\comandir_megafon_7",
-							"characters_voice\\scenario\\escape\\comandir_megafon_8",
-							"characters_voice\\scenario\\escape\\comandir_megafon_9",
-							"characters_voice\\scenario\\escape\\comandir_megafon_10",
-							"characters_voice\\scenario\\escape\\comandir_megafon_11",
-							"characters_voice\\scenario\\escape\\comandir_megafon_12",
-							"characters_voice\\scenario\\escape\\comandir_megafon_13",
-							"characters_voice\\scenario\\escape\\comandir_megafon_14",
-							"characters_voice\\scenario\\escape\\comandir_megafon_15",
-							"characters_voice\\scenario\\escape\\comandir_megafon_16",
-							"characters_voice\\scenario\\escape\\comandir_megafon_17"
-	                        }	  
-ph_snd_themes["epic"] = { "characters_voice\\scenario\\escape\\megafon_1",
-							"characters_voice\\scenario\\escape\\megafon_2",
-							"characters_voice\\scenario\\escape\\megafon_3",
-							"characters_voice\\scenario\\escape\\megafon_4"
-	                        }                      
-ph_snd_themes["alarm1"] = { "characters_voice\\scenario\\megafon\\megafon_alarm_1",
-	                        "characters_voice\\scenario\\megafon\\megafon_alarm_10",
-	                        "characters_voice\\scenario\\megafon\\megafon_alarm_11",
-	                        "characters_voice\\scenario\\megafon\\megafon_alarm_12",
-	                        "characters_voice\\scenario\\megafon\\megafon_alarm_13"
-	                        }
-ph_snd_themes["alarm2"] = { "characters_voice\\scenario\\megafon\\megafon_alarm_2",
-	                        "characters_voice\\scenario\\megafon\\megafon_alarm_3",
-	                        "characters_voice\\scenario\\megafon\\megafon_alarm_4",
-	                        "characters_voice\\scenario\\megafon\\megafon_alarm_5",
-	                        "characters_voice\\scenario\\megafon\\megafon_alarm_6"
-	                      }
-ph_snd_themes["siren"] =  { "ambient\\siren2" }
-ph_snd_themes["bomb"] = {"detectors\\bomb_timer"}
-ph_snd_themes["detector"] = {"detectors\\da-2_beep1"}
-
-
-ph_snd_themes["radio_music"] = {"characters_voice\\scenario\\bar\\radio_music\\radio_music_1"}
-
-ph_snd_themes["dolg_speech"]		= {[[characters_voice\scenario\bar\barman_megafon\megaphone_barman_1]],
-									   [[characters_voice\scenario\bar\barman_megafon\megaphone_barman_2]],
-									   [[characters_voice\scenario\bar\dolg_megafon\mega_duty_propaganda_1]],
-									   [[characters_voice\scenario\bar\dolg_megafon\mega_duty_propaganda_2]],
-									   [[characters_voice\scenario\bar\dolg_megafon\mega_duty_propaganda_3]],
-									   [[characters_voice\scenario\bar\dolg_megafon\mega_duty_propaganda_4]],
-									   [[characters_voice\scenario\bar\dolg_megafon\mega_duty_propaganda_5]],
-									   [[characters_voice\scenario\megafon\megafon_music_1]],
-									   [[characters_voice\scenario\megafon\megafon_music_2]],
-									   [[characters_voice\scenario\megafon\megafon_music_3]]}
-ph_snd_themes["dolg_alarm"]			= {[[characters_voice\scenario\bar\dolg_megafon\megaphone_duty_alarm]]}
-ph_snd_themes["dolg_megafon_1_hit"] = {[[characters_voice\scenario\bar\dolg_megafon\duty_gunfire_mega_1]]}
-ph_snd_themes["dolg_megafon_2_hit"] = {[[characters_voice\scenario\bar\dolg_megafon\duty_gunfire_mega_2]]}
-ph_snd_themes["dolg_megafon_kill"]	= {[[characters_voice\scenario\bar\dolg_megafon\duty_gunfire_mega_3]]}
-ph_snd_themes["arena_new_fight"]	= {[[characters_voice\scenario\bar\arena_megafon\mega_arena_new_fight]]}
-ph_snd_themes["arena_introduce_pseudodog"]	= {[[characters_voice\scenario\bar\arena_megafon\mega_arena_pseudodog]]}
-ph_snd_themes["arena_introduce_snork"]		= {[[characters_voice\scenario\bar\arena_megafon\mega_arena_snork]]}
-ph_snd_themes["arena_introduce_bloodsucker"]= {[[characters_voice\scenario\bar\arena_megafon\mega_arena_bloodsucker]]}
-ph_snd_themes["arena_introduce_burer"]		= {[[characters_voice\scenario\bar\arena_megafon\mega_arena_burer]]}
-ph_snd_themes["arena_introduce_savage"]		= {[[characters_voice\scenario\bar\arena_megafon\mega_arena_zver]]}
-ph_snd_themes["arena_actor_afraid"]			= {[[characters_voice\scenario\bar\arena_megafon\mega_arena_coward]]}
-ph_snd_themes["arena_fight_begin"]			= {[[characters_voice\scenario\bar\arena_megafon\mega_arena_start]]}
-ph_snd_themes["arena_fight_victory"]		= {[[characters_voice\scenario\bar\arena_megafon\mega_arena_win_1]]}
-ph_snd_themes["arena_fight_victory_notime"]	= {[[characters_voice\scenario\bar\arena_megafon\mega_arena_win_2]]}
-ph_snd_themes["arena_fight_lose"]			= {[[characters_voice\scenario\bar\arena_megafon\mega_arena_out_of_time_win]]}
-ph_snd_themes["arena_fight_time_out"]			= {[[characters_voice\scenario\bar\arena_megafon\mega_arena_out_of_time]]}
-ph_snd_themes["arena_fight_death"]			= {[[characters_voice\scenario\bar\arena_megafon\mega_arena_dead]]}
-
-ph_snd_themes["bar_start_megafon"]		= {[[characters_voice\scenario\bar\barman_megafon\megaphone_barman_1]],
-									   [[characters_voice\scenario\bar\barman_megafon\megaphone_barman_2]],
-									   [[characters_voice\scenario\bar\dolg_megafon\mega_duty_propaganda_1]],
-									   [[characters_voice\scenario\bar\dolg_megafon\mega_duty_propaganda_2]]}
-
-ph_snd_themes["mon_monolith_damaged"]			= {[[characters_voice\scenario\sarcofag\monolith_damaged]]}
-ph_snd_themes["mon_monolith_heavy_damaged"]		= {[[characters_voice\scenario\sarcofag\monolith_heavy_damaged]]}
-ph_snd_themes["mon_monolith_alarm"]				= {[[characters_voice\scenario\sarcofag\monolith_alarm]]}
-ph_snd_themes["mon_monolith_recharged"]			= {[[characters_voice\scenario\sarcofag\monolith_recharged]]}
-
-ph_snd_themes["sar_monolith_call"]			= {[[characters_voice\scenario\sarcofag\monolith_call_1]],
-												[[characters_voice\scenario\sarcofag\monolith_call_2]],
-												[[characters_voice\scenario\sarcofag\monolith_call_3]],
-												[[characters_voice\scenario\sarcofag\monolith_call_4]],
-												[[characters_voice\scenario\sarcofag\monolith_call_5]],
-												[[characters_voice\scenario\sarcofag\monolith_call_6]],
-												[[characters_voice\scenario\sarcofag\monolith_call_7]]}
-
-ph_snd_themes["gar_seryi_shooting"]	= {[[characters_voice\scenario\garbage\distance_shooting]]}
-ph_snd_themes["gar_seryi_shooting_2"]	= {[[characters_voice\scenario\bandits\bandit_replic_2]]}
-ph_snd_themes["aes_battle1"] =        {"ambient\\battle_1"}
-ph_snd_themes["aes_battle2"] =        {"ambient\\battle_2"}
-ph_snd_themes["gar_bandits_seryi"] =   {[[characters_voice\scenario\garbage\grey_bandit_1]],      
-										[[characters_voice\scenario\garbage\grey_bandit_2]],
-										[[characters_voice\scenario\garbage\grey_bandit_3]],
-										[[characters_voice\scenario\garbage\grey_bandit_4]],
-										[[characters_voice\scenario\garbage\grey_bandit_5]]}
-ph_snd_themes["radar_drone"] = {"ambient\\radar_1"}
-ph_snd_themes["radar_thunder"] = {"ambient\\radar_2"}
-ph_snd_themes["radar_sparks"] = {"ambient\\radarsparks_1"}
-ph_snd_themes["aes_teleport"] = {"anomaly\\teleport_incoming"}
-
-ph_snd_themes["yan_antenna"] = {{"characters_voice\\scenario\\yantar\\psy_voices_1"}} --' Стерео
-
-ph_snd_themes["radar_meh_on"] = {"ambient\\cooling_run"}
-ph_snd_themes["radar_meh_off"] = {"ambient\\cooling_stop"}                               
-ph_snd_themes["system_message_1"]	= {[[characters_voice\scenario\yantar\system_message_1]]}
-ph_snd_themes["system_message_2"]	= {[[characters_voice\scenario\yantar\system_message_2]]}
-ph_snd_themes["system_message_3"]	= {[[characters_voice\scenario\yantar\system_message_3]]}
-ph_snd_themes["system_message_4"]	= {[[characters_voice\scenario\yantar\system_message_4]]}
-ph_snd_themes["system_message_5"]	= {[[characters_voice\scenario\yantar\system_message_5]]}
-ph_snd_themes["agro_test"]	= {[[weapons\grenade1]]}
-ph_snd_themes["bar_arena_public"]	= {"characters_voice\\scenario\\bar\\arena_public\\new_arena_public_1",
-	                        "characters_voice\\scenario\\bar\\arena_public\\new_arena_public_1",
-	                        "characters_voice\\scenario\\bar\\arena_public\\new_arena_public_2",
-	                        "characters_voice\\scenario\\bar\\arena_public\\new_arena_public_3",
-	                        "characters_voice\\scenario\\bar\\arena_public\\new_arena_public_4",
-	                        "characters_voice\\scenario\\bar\\arena_public\\new_arena_public_5",
-	                        "characters_voice\\scenario\\bar\\arena_public\\new_arena_public_6",
-	                        "characters_voice\\scenario\\bar\\arena_public\\new_arena_public_7",
-	                        "characters_voice\\scenario\\bar\\arena_public\\new_arena_public_8",
-	                        "characters_voice\\scenario\\bar\\arena_public\\new_arena_public_9"
-	                        }
-ph_snd_themes["bar_arena_public_death"]	= {"ambient\\arena\\crowd_wave_1",
-	                        "ambient\\arena\\crowd_wave_2",
-	                        "ambient\\arena\\crowd_wave_3"
-	                        }
-ph_snd_themes["bar_arena_fight_1"]	= {"characters_voice\\scenario\\bar\\arena_sound\\bar_fight_1_ready"}
-ph_snd_themes["bar_arena_fight_1_end"]	= {"characters_voice\\scenario\\bar\\arena_sound\\bar_fight_1_finish"}
-ph_snd_themes["bar_arena_fight_2"]	= {"characters_voice\\scenario\\bar\\arena_sound\\bar_fight_2_ready"}
-ph_snd_themes["bar_arena_fight_2_end"]	= {"characters_voice\\scenario\\bar\\arena_sound\\bar_fight_2_finish"}
-ph_snd_themes["bar_arena_fight_3"]	= {"characters_voice\\scenario\\bar\\arena_sound\\bar_fight_3_ready"}
-ph_snd_themes["bar_arena_fight_3_end"]	= {"characters_voice\\scenario\\bar\\arena_sound\\bar_fight_3_finish"}
-ph_snd_themes["bar_arena_fight_4"]	= {"characters_voice\\scenario\\bar\\arena_sound\\bar_fight_4_ready"}
-ph_snd_themes["bar_arena_fight_4_end"]	= {"characters_voice\\scenario\\bar\\arena_sound\\bar_fight_4_finish"}
-ph_snd_themes["bar_arena_fight_5"]	= {"characters_voice\\scenario\\bar\\arena_sound\\bar_fight_5_ready"}
-ph_snd_themes["bar_arena_fight_5_end"]	= {"characters_voice\\scenario\\bar\\arena_sound\\bar_fight_5_finish"}
-ph_snd_themes["bar_arena_fight_6"]	= {"characters_voice\\scenario\\bar\\arena_sound\\bar_fight_6_ready"}
-ph_snd_themes["bar_arena_fight_6_end"]	= {"characters_voice\\scenario\\bar\\arena_sound\\bar_fight_6_finish"}
-ph_snd_themes["bar_arena_fight_7"]	= {"characters_voice\\scenario\\bar\\arena_sound\\bar_fight_7_ready"}
-ph_snd_themes["bar_arena_fight_7_end"]	= {"characters_voice\\scenario\\bar\\arena_sound\\bar_fight_7_finish"}
-ph_snd_themes["bar_arena_fight_8"]	= {"characters_voice\\scenario\\bar\\arena_sound\\bar_fight_8_ready"}
-ph_snd_themes["bar_arena_fight_8_end"]	= {"characters_voice\\scenario\\bar\\arena_sound\\bar_fight_8_finish"}
-
-ph_snd_themes["bar_teleport_inc"]	= {[[characters_voice\scenario\bar\bar_teleport_incoming]]}
-
-ph_snd_themes["cit_expl_mine"]	= {[[weapons\grenade1]]}
-ph_snd_themes["cit_jail_btn_broke"]	= {[[characters_voice\scenario\cit\cit_jail_button_broke]]}
-ph_snd_themes["cit_button_sparks"]	= {[[characters_voice\scenario\cit\cit_jail_button_sparks]]}
-
-ph_snd_themes["x18_sound_1"] = {"ambient\\x18\\x18_hit_8"}
-ph_snd_themes["x18_sound_2"] = {"ambient\\x18\\x18_metal_2"}
-ph_snd_themes["x18_sound_3"] = {"ambient\\x18\\x18_metal_3"}
-ph_snd_themes["x18_sound_4"] = {"ambient\\x18\\x18_metal_4"}
-ph_snd_themes["x18_sound_5"] = {"ambient\\x18\\x18_metal_5"}
-ph_snd_themes["x18_sound_6"] = {"ambient\\x18\\x18_creak_2"}
-ph_snd_themes["x18_sound_7"] = {"ambient\\x18\\x18_creak_1"}
-ph_snd_themes["x18_sound_8"] = {"ambient\\x18\\x18_hit_7"}
-ph_snd_themes["x18_sound_9"] = {"ambient\\x18\\x18_footsteps_2"}
-ph_snd_themes["x18_sound_10"] = {"ambient\\x18\\x18_move_4"}
-ph_snd_themes["x18_sound_11"] = {"ambient\\x18\\x18_footsteps"}
-ph_snd_themes["x18_sound_12"] = {"ambient\\x18\\x18_move_3"}
-
-ph_snd_themes["x16_engine1_run"] = {"ambient\\x16\\x16_engine1_run"}
-ph_snd_themes["x16_engine1_stop"] = {"ambient\\x16\\x16_engine1_stop"}
-
-ph_snd_themes["x16_engine2_run"] = {"ambient\\x16\\x16_engine2_run"}
-ph_snd_themes["x16_engine2_stop"] = {"ambient\\x16\\x16_engine2_stop"}
-
-ph_snd_themes["x16_hum_2"] = {"ambient\\x16\\x16_hum_2"}
-ph_snd_themes["x16_switch_1"] = {"ambient\\x16\\switch_1"}
-ph_snd_themes["x16_switch_2"] = {"ambient\\x16\\switch_2"}
-
-ph_snd_themes["x18_firedoor"] = {"anomaly\\fireball_idle"}
-ph_snd_themes["mon_poltergeist"] = {"anomaly\\anomaly_gravy_hit1"}
-
-ph_snd_themes["psy_voices"] = {{[[characters_voice\scenario\yantar\psy_voices_1]]}} --' Стерео
-
-ph_snd_themes["heli_explosion"] = {[[weapons\heli_explosion]]}
-
-ph_snd_themes["trader_door_open_start"]		= {[[device\door_start]]}
-ph_snd_themes["trader_door_close_start"]	= {[[device\door_closing]]}
-ph_snd_themes["trader_door_close_stop"]		= {[[device\door_stop]]}
-ph_snd_themes["trader_door_locked"]			= {[[device\door_locked]]}
-ph_snd_themes["trader_door_unlock"]			= {[[device\door_servomotor]]}
-ph_snd_themes["wood_small_open"]			= {[[device\wood_small_open]]}
-ph_snd_themes["wood_small_close_start"]		= {[[device\wood_small_close_start]]}
-ph_snd_themes["wood_small_close_stop"]		= {[[device\wood_small_close_stop]]}
-ph_snd_themes["wood_large_open"]			= {[[device\wood_large_open]]}
-ph_snd_themes["wood_large_close_start"]		= {[[device\wood_large_close_start]]}
-ph_snd_themes["wood_large_close_stop"]		= {[[device\wood_large_close_stop]]}
-ph_snd_themes["metal_small_open"]			= {[[device\metal_small_open]]}
-ph_snd_themes["metal_small_close_start"]	= {[[device\metal_small_close_start]]}
-ph_snd_themes["metal_small_close_stop"]		= {[[device\metal_small_close_stop]]}
-
-ph_snd_themes["esc_heli_attack"]		= {[[characters_voice\scenario\helicopter\heli_attack]]}
-ph_snd_themes["x18_frightening_sound_0"]	= {[[ambient\x18\h_tal_grate_impact_hard2]]}
-ph_snd_themes["x18_frightening_sound_1"]	= {[[ambient\x18\x18_noise_1]]}
-ph_snd_themes["x18_frightening_sound_2"]	= {[[ambient\x18\x18_move_2]]}
-ph_snd_themes["x18_frightening_sound_3"]	= {[[ambient\x18\h_am_hit1]]}
-
---Мухи
-ph_snd_themes["flies"] = {[[ambient\new_flies1]],      
-							[[ambient\new_flies2]]}
-
-
------------------------------------------------------------------------------------------------------------------------------------
---	Theme  functions
------------------------------------------------------------------------------------------------------------------------------------
-function weather_class(avail_types, npc)
-	local type = "weather_good"
-	if level.rain_factor() < 0.07 then
-		type = "weather_good"
-	else
-		type = "weather_bad"
-	end
-	return type
-end
-
-function combat_class(avail_types, npc)
-	if npc:best_enemy() ~= nil or
-	   npc:best_danger() ~= nil
-	then
-		return ""
-	end
-	return "state"
-end
-
 -------------------------------------------------------------------------
 -- ЗВУКИ СТАЛКЕРОВ
 -------------------------------------------------------------------------
@@ -250,14 +12,40 @@ function id()
 	return sounds_base - 1
 end
 
+function weather_class( avail_types, npc )
+  local type = "weather_good"
+  if level.rain_factor() < 0.07 then
+    type = "weather_good"
+  else
+    type = "weather_bad"
+  end
+  return type
+end
+
+function combat_class( avail_types, npc )
+  if npc:best_enemy() ~= nil or
+    npc:best_danger() ~= nil
+  then
+    return ""
+  end
+  return "state"
+end
+
+
+local sounds_base = stalker_ids.sound_script + 10000
+function id()
+  sounds_base = sounds_base + 1
+  return sounds_base - 1
+end
+
 theme = {
 	-- погода
-	weather = {	exec = sound_theme.weather_class, 
+	weather = {	exec = weather_class, 
 				types = {weather_bad	= {min_snd = 3, max_snd = 5, rnd = 100, prior = 5, rnd_id = id(), into_id = id(), max_ids = {}},
 						 weather_good	= {min_snd = 3, max_snd = 5, rnd = 100, prior = 5, rnd_id = id(), into_id = id(), max_ids = {}} }},
 
 	-- состояния тела
-	state = {	exec = sound_theme.combat_class, 
+	state = {	exec = combat_class, 
 				types = {state	= {min_snd = 60, max_snd = 90, rnd = 25, prior = 5, rnd_id = id(), into_id = id(), max_ids = {}}} },
 	
 
@@ -697,7 +485,231 @@ theme = {
     mil_dolg_silent                = {min_snd = 3, max_snd = 5, rnd = 100, prior = 5, rnd_id = id(), into_id = id(), max_ids = {}},
     mil_cherep_hi                 = {min_snd = 1, max_snd = 3, rnd = 100, prior = 5, rnd_id = id(), into_id = id(), max_ids = {}}
 }
-   
+
+
+ph_snd_themes = { 
+["music"] = {  "characters_voice\\scenario\\megafon\\megafon_music_1",
+	                        "characters_voice\\scenario\\megafon\\megafon_music_2",
+	                        "characters_voice\\scenario\\megafon\\megafon_music_3",
+	                        },
+							
+["humor"] = {  "characters_voice\\scenario\\escape\\comandir_megafon_1",
+							"characters_voice\\scenario\\escape\\comandir_megafon_2",
+							"characters_voice\\scenario\\escape\\comandir_megafon_3",
+							"characters_voice\\scenario\\escape\\comandir_megafon_4",
+							"characters_voice\\scenario\\escape\\comandir_megafon_5",
+							"characters_voice\\scenario\\escape\\comandir_megafon_6",
+							"characters_voice\\scenario\\escape\\comandir_megafon_7",
+							"characters_voice\\scenario\\escape\\comandir_megafon_8",
+							"characters_voice\\scenario\\escape\\comandir_megafon_9",
+							"characters_voice\\scenario\\escape\\comandir_megafon_10",
+							"characters_voice\\scenario\\escape\\comandir_megafon_11",
+							"characters_voice\\scenario\\escape\\comandir_megafon_12",
+							"characters_voice\\scenario\\escape\\comandir_megafon_13",
+							"characters_voice\\scenario\\escape\\comandir_megafon_14",
+							"characters_voice\\scenario\\escape\\comandir_megafon_15",
+							"characters_voice\\scenario\\escape\\comandir_megafon_16",
+							"characters_voice\\scenario\\escape\\comandir_megafon_17",
+	                        },
+							
+["epic"] = { "characters_voice\\scenario\\escape\\megafon_1",
+							"characters_voice\\scenario\\escape\\megafon_2",
+							"characters_voice\\scenario\\escape\\megafon_3",
+							"characters_voice\\scenario\\escape\\megafon_4",
+	                        },
+							
+["alarm1"] = { "characters_voice\\scenario\\megafon\\megafon_alarm_1",
+	                        "characters_voice\\scenario\\megafon\\megafon_alarm_10",
+	                        "characters_voice\\scenario\\megafon\\megafon_alarm_11",
+	                        "characters_voice\\scenario\\megafon\\megafon_alarm_12",
+	                        "characters_voice\\scenario\\megafon\\megafon_alarm_13",
+	                        },
+							
+["alarm2"] = { "characters_voice\\scenario\\megafon\\megafon_alarm_2",
+	                        "characters_voice\\scenario\\megafon\\megafon_alarm_3",
+	                        "characters_voice\\scenario\\megafon\\megafon_alarm_4",
+	                        "characters_voice\\scenario\\megafon\\megafon_alarm_5",
+	                        "characters_voice\\scenario\\megafon\\megafon_alarm_6",
+	                      },
+						  
+["siren"] =  { "ambient\\siren2",},
+["bomb"] = {"detectors\\bomb_timer",},
+["detector"] = {"detectors\\da-2_beep1",},
+
+["radio_music"] = {"characters_voice\\scenario\\bar\\radio_music\\radio_music_1"},
+
+["dolg_speech"]		= {[[characters_voice\scenario\bar\barman_megafon\megaphone_barman_1]],
+									   [[characters_voice\scenario\bar\barman_megafon\megaphone_barman_2]],
+									   [[characters_voice\scenario\bar\dolg_megafon\mega_duty_propaganda_1]],
+									   [[characters_voice\scenario\bar\dolg_megafon\mega_duty_propaganda_2]],
+									   [[characters_voice\scenario\bar\dolg_megafon\mega_duty_propaganda_3]],
+									   [[characters_voice\scenario\bar\dolg_megafon\mega_duty_propaganda_4]],
+									   [[characters_voice\scenario\bar\dolg_megafon\mega_duty_propaganda_5]],
+									   [[characters_voice\scenario\megafon\megafon_music_1]],
+									   [[characters_voice\scenario\megafon\megafon_music_2]],
+									   [[characters_voice\scenario\megafon\megafon_music_3]],},
+									   
+["dolg_alarm"]			= {[[characters_voice\scenario\bar\dolg_megafon\megaphone_duty_alarm]],},
+["dolg_megafon_1_hit"] = {[[characters_voice\scenario\bar\dolg_megafon\duty_gunfire_mega_1]],},
+["dolg_megafon_2_hit"] = {[[characters_voice\scenario\bar\dolg_megafon\duty_gunfire_mega_2]],},
+["dolg_megafon_kill"]	= {[[characters_voice\scenario\bar\dolg_megafon\duty_gunfire_mega_3]],},
+
+["arena_new_fight"]	= {[[characters_voice\scenario\bar\arena_megafon\mega_arena_new_fight]],},
+["arena_introduce_pseudodog"]	= {[[characters_voice\scenario\bar\arena_megafon\mega_arena_pseudodog]],},
+["arena_introduce_snork"]		= {[[characters_voice\scenario\bar\arena_megafon\mega_arena_snork]],},
+["arena_introduce_bloodsucker"]= {[[characters_voice\scenario\bar\arena_megafon\mega_arena_bloodsucker]],},
+["arena_introduce_burer"]		= {[[characters_voice\scenario\bar\arena_megafon\mega_arena_burer]],},
+["arena_introduce_savage"]		= {[[characters_voice\scenario\bar\arena_megafon\mega_arena_zver]],},
+["arena_actor_afraid"]			= {[[characters_voice\scenario\bar\arena_megafon\mega_arena_coward]],},
+["arena_fight_begin"]			= {[[characters_voice\scenario\bar\arena_megafon\mega_arena_start]],},
+["arena_fight_victory"]		= {[[characters_voice\scenario\bar\arena_megafon\mega_arena_win_1]],},
+["arena_fight_victory_notime"]	= {[[characters_voice\scenario\bar\arena_megafon\mega_arena_win_2]],},
+["arena_fight_lose"]			= {[[characters_voice\scenario\bar\arena_megafon\mega_arena_out_of_time_win]],},
+["arena_fight_time_out"]			= {[[characters_voice\scenario\bar\arena_megafon\mega_arena_out_of_time]],},
+["arena_fight_death"]			= {[[characters_voice\scenario\bar\arena_megafon\mega_arena_dead]],},
+
+["bar_start_megafon"]		= {[[characters_voice\scenario\bar\barman_megafon\megaphone_barman_1]],
+									   [[characters_voice\scenario\bar\barman_megafon\megaphone_barman_2]],
+									   [[characters_voice\scenario\bar\dolg_megafon\mega_duty_propaganda_1]],
+									   [[characters_voice\scenario\bar\dolg_megafon\mega_duty_propaganda_2]],},
+
+["mon_monolith_damaged"]			= {[[characters_voice\scenario\sarcofag\monolith_damaged]],},
+["mon_monolith_heavy_damaged"]		= {[[characters_voice\scenario\sarcofag\monolith_heavy_damaged]],},
+["mon_monolith_alarm"]				= {[[characters_voice\scenario\sarcofag\monolith_alarm]],},
+["mon_monolith_recharged"]			= {[[characters_voice\scenario\sarcofag\monolith_recharged]],},
+
+["sar_monolith_call"]			= {[[characters_voice\scenario\sarcofag\monolith_call_1]],
+												[[characters_voice\scenario\sarcofag\monolith_call_2]],
+												[[characters_voice\scenario\sarcofag\monolith_call_3]],
+												[[characters_voice\scenario\sarcofag\monolith_call_4]],
+												[[characters_voice\scenario\sarcofag\monolith_call_5]],
+												[[characters_voice\scenario\sarcofag\monolith_call_6]],
+												[[characters_voice\scenario\sarcofag\monolith_call_7]],},
+
+["gar_seryi_shooting"]	= {[[characters_voice\scenario\garbage\distance_shooting]],},
+["gar_seryi_shooting_2"]	= {[[characters_voice\scenario\bandits\bandit_replic_2]],},
+
+["aes_battle1"] =        {"ambient\\battle_1",},
+["aes_battle2"] =        {"ambient\\battle_2",},
+
+["gar_bandits_seryi"] =   {[[characters_voice\scenario\garbage\grey_bandit_1]],      
+										[[characters_voice\scenario\garbage\grey_bandit_2]],
+										[[characters_voice\scenario\garbage\grey_bandit_3]],
+										[[characters_voice\scenario\garbage\grey_bandit_4]],
+										[[characters_voice\scenario\garbage\grey_bandit_5]],},
+										
+["radar_drone"] = {"ambient\\radar_1",},
+["radar_thunder"] = {"ambient\\radar_2",},
+["radar_sparks"] = {"ambient\\radarsparks_1",},
+["aes_teleport"] = {"anomaly\\teleport_incoming",},
+
+["yan_antenna"] = {{"characters_voice\\scenario\\yantar\\psy_voices_1"},},--' Стерео
+
+["radar_meh_on"] = {"ambient\\cooling_run",},
+["radar_meh_off"] = {"ambient\\cooling_stop",},
+
+["system_message_1"]	= {[[characters_voice\scenario\yantar\system_message_1]],},
+["system_message_2"]	= {[[characters_voice\scenario\yantar\system_message_2]],},
+["system_message_3"]	= {[[characters_voice\scenario\yantar\system_message_3]],},
+["system_message_4"]	= {[[characters_voice\scenario\yantar\system_message_4]],},
+["system_message_5"]	= {[[characters_voice\scenario\yantar\system_message_5]],},
+
+["agro_test"]	= {[[weapons\grenade1]],},
+
+["bar_arena_public"]	= {"characters_voice\\scenario\\bar\\arena_public\\new_arena_public_1",
+	                        "characters_voice\\scenario\\bar\\arena_public\\new_arena_public_1",
+	                        "characters_voice\\scenario\\bar\\arena_public\\new_arena_public_2",
+	                        "characters_voice\\scenario\\bar\\arena_public\\new_arena_public_3",
+	                        "characters_voice\\scenario\\bar\\arena_public\\new_arena_public_4",
+	                        "characters_voice\\scenario\\bar\\arena_public\\new_arena_public_5",
+	                        "characters_voice\\scenario\\bar\\arena_public\\new_arena_public_6",
+	                        "characters_voice\\scenario\\bar\\arena_public\\new_arena_public_7",
+	                        "characters_voice\\scenario\\bar\\arena_public\\new_arena_public_8",
+	                        "characters_voice\\scenario\\bar\\arena_public\\new_arena_public_9",
+	                        },
+["bar_arena_public_death"]	= {"ambient\\arena\\crowd_wave_1",
+	                        "ambient\\arena\\crowd_wave_2",
+	                        "ambient\\arena\\crowd_wave_3"
+	                        },
+["bar_arena_fight_1"]	= {"characters_voice\\scenario\\bar\\arena_sound\\bar_fight_1_ready",},
+["bar_arena_fight_1_end"]	= {"characters_voice\\scenario\\bar\\arena_sound\\bar_fight_1_finish",},
+["bar_arena_fight_2"]	= {"characters_voice\\scenario\\bar\\arena_sound\\bar_fight_2_ready",},
+["bar_arena_fight_2_end"]	= {"characters_voice\\scenario\\bar\\arena_sound\\bar_fight_2_finish",},
+["bar_arena_fight_3"]	= {"characters_voice\\scenario\\bar\\arena_sound\\bar_fight_3_ready",},
+["bar_arena_fight_3_end"]	= {"characters_voice\\scenario\\bar\\arena_sound\\bar_fight_3_finish",},
+["bar_arena_fight_4"]	= {"characters_voice\\scenario\\bar\\arena_sound\\bar_fight_4_ready",},
+["bar_arena_fight_4_end"]	= {"characters_voice\\scenario\\bar\\arena_sound\\bar_fight_4_finish",},
+["bar_arena_fight_5"]	= {"characters_voice\\scenario\\bar\\arena_sound\\bar_fight_5_ready",},
+["bar_arena_fight_5_end"]	= {"characters_voice\\scenario\\bar\\arena_sound\\bar_fight_5_finish",},
+["bar_arena_fight_6"]	= {"characters_voice\\scenario\\bar\\arena_sound\\bar_fight_6_ready",},
+["bar_arena_fight_6_end"]	= {"characters_voice\\scenario\\bar\\arena_sound\\bar_fight_6_finish",},
+["bar_arena_fight_7"]	= {"characters_voice\\scenario\\bar\\arena_sound\\bar_fight_7_ready",},
+["bar_arena_fight_7_end"]	= {"characters_voice\\scenario\\bar\\arena_sound\\bar_fight_7_finish",},
+["bar_arena_fight_8"]	= {"characters_voice\\scenario\\bar\\arena_sound\\bar_fight_8_ready",},
+["bar_arena_fight_8_end"]	= {"characters_voice\\scenario\\bar\\arena_sound\\bar_fight_8_finish",},
+
+["bar_teleport_inc"]	= {[[characters_voice\scenario\bar\bar_teleport_incoming]],},
+
+["cit_expl_mine"]	= {[[weapons\grenade1]],},
+["cit_jail_btn_broke"]	= {[[characters_voice\scenario\cit\cit_jail_button_broke]],},
+["cit_button_sparks"]	= {[[characters_voice\scenario\cit\cit_jail_button_sparks]],},
+
+["x18_sound_1"] = {"ambient\\x18\\x18_hit_8",},
+["x18_sound_2"] = {"ambient\\x18\\x18_metal_2",},
+["x18_sound_3"] = {"ambient\\x18\\x18_metal_3",},
+["x18_sound_4"] = {"ambient\\x18\\x18_metal_4",},
+["x18_sound_5"] = {"ambient\\x18\\x18_metal_5",},
+["x18_sound_6"] = {"ambient\\x18\\x18_creak_2",},
+["x18_sound_7"] = {"ambient\\x18\\x18_creak_1",},
+["x18_sound_8"] = {"ambient\\x18\\x18_hit_7",},
+["x18_sound_9"] = {"ambient\\x18\\x18_footsteps_2",},
+["x18_sound_10"] = {"ambient\\x18\\x18_move_4",},
+["x18_sound_11"] = {"ambient\\x18\\x18_footsteps",},
+["x18_sound_12"] = {"ambient\\x18\\x18_move_3",},
+
+["x16_engine1_run"] = {"ambient\\x16\\x16_engine1_run",},
+["x16_engine1_stop"] = {"ambient\\x16\\x16_engine1_stop",},
+
+["x16_engine2_run"] = {"ambient\\x16\\x16_engine2_run",},
+["x16_engine2_stop"] = {"ambient\\x16\\x16_engine2_stop",},
+
+["x16_hum_2"] = {"ambient\\x16\\x16_hum_2",},
+["x16_switch_1"] = {"ambient\\x16\\switch_1",},
+["x16_switch_2"] = {"ambient\\x16\\switch_2",},
+
+["x18_firedoor"] = {"anomaly\\fireball_idle",},
+["mon_poltergeist"] = {"anomaly\\anomaly_gravy_hit1",},
+
+["psy_voices"] = {{[[characters_voice\scenario\yantar\psy_voices_1]]},}, --' Стерео
+
+["heli_explosion"] = {[[weapons\heli_explosion]],},
+
+["trader_door_open_start"]		= {[[device\door_start]],},
+["trader_door_close_start"]	= {[[device\door_closing]],},
+["trader_door_close_stop"]		= {[[device\door_stop]],},
+["trader_door_locked"]			= {[[device\door_locked]],},
+["trader_door_unlock"]			= {[[device\door_servomotor]],},
+["wood_small_open"]			= {[[device\wood_small_open]],},
+["wood_small_close_start"]		= {[[device\wood_small_close_start]],},
+["wood_small_close_stop"]		= {[[device\wood_small_close_stop]],},
+["wood_large_open"]			= {[[device\wood_large_open]],},
+["wood_large_close_start"]		= {[[device\wood_large_close_start]],},
+["wood_large_close_stop"]		= {[[device\wood_large_close_stop]],},
+["metal_small_open"]			= {[[device\metal_small_open]],},
+["metal_small_close_start"]	= {[[device\metal_small_close_start]],},
+["metal_small_close_stop"]		= {[[device\metal_small_close_stop]],},
+
+["esc_heli_attack"]		= {[[characters_voice\scenario\helicopter\heli_attack]],},
+["x18_frightening_sound_0"]	= {[[ambient\x18\h_tal_grate_impact_hard2]],},
+["x18_frightening_sound_1"]	= {[[ambient\x18\x18_noise_1]],},
+["x18_frightening_sound_2"]	= {[[ambient\x18\x18_move_2]],},
+["x18_frightening_sound_3"]	= {[[ambient\x18\h_am_hit1]],},
+
+--Мухи
+["flies"] = {[[ambient\new_flies1]],      
+							[[ambient\new_flies2]],},
+}
+
 --' В темах для игрока интервал задается в миллисекундах!!!
 actor_theme = {
 	level_border_detector = {min_snd = 10, max_snd = 100,
@@ -709,120 +721,5 @@ actor_theme = {
 									   xr_sound.get_safe_sound_object([[detectors\geiger_2]]),
 									   xr_sound.get_safe_sound_object([[detectors\geiger_4]]),
 									   xr_sound.get_safe_sound_object([[detectors\geiger_5]]),
-									   xr_sound.get_safe_sound_object([[detectors\geiger_6]]) }}
+									   xr_sound.get_safe_sound_object([[detectors\geiger_6]]),},}
 }
-   										
-function select_sound_from_ltx(obj, section, ltx)
---	1. проверка по story_id
-	local c = obj:story_id()
-	if ltx:line_exist(section, utils.to_str(c)) then
-		return ltx:r_string(section, utils.to_str(c))
-	end
-
---	2. проверка по npc_profile
-	c = obj:profile_name()
-	if ltx:line_exist(section, c) then
-		return ltx:r_string(section, c)
-	end
-
---	3. проверка по character_community
-	c = obj:character_community()
-	if ltx:line_exist(section, c) then
-		return ltx:r_string(section, c)
-	end
-	
---	4. загрузка дефолта
-	if ltx:line_exist(section, "stalker") then
-		return ltx:r_string(section, "stalker")
-	else
-		return nil
-	end
-end
-
------------------------------------------------------------------------------------------------------------------------------------
-local character_prefix = ""
-local default_prefix = "characters_voice\\"
-function check_prefix(s)
-	local flag = string.sub(s, 1, 1)
-	return flag, string.sub(s, 3)
-end
-
-function load_sound(obj)
-	local k,v = 0,0
-	
-	-- загрузка звуков на основе данных ltx
-	function load_sound_from_ltx(obj, name, tbl)		
-		tbl.max_ids[obj:id()] = {}
-		if snd_ini:section_exist(name.."_rnd") then		
-			local s = select_sound_from_ltx(obj, name.."_rnd", snd_ini)			
-			if s then
-				local flag, path = check_prefix(s)
-				if flag == "0" then
-					character_prefix = obj:sound_prefix()
-					obj:sound_prefix(default_prefix)
-				end
-					
-				--printf("NPC[%s] flag[%s] prefix[%s] path[%s]", obj:name(), flag, obj:sound_prefix(), path)
-				tbl.max_ids[obj:id()].rnd_max = obj:add_sound(path, nstl, snd_type.talk, 2, 1, tbl.rnd_id)
-
-				if flag == "0" then
-					obj:sound_prefix(character_prefix)
-				end
-			end
-		end
-		if snd_ini:section_exist(name.."_seq") then
-			local s = select_sound_from_ltx(obj, name.."_seq", snd_ini)
-			if s then
-				local flag, path = check_prefix(s)
-				if flag == "0" then
-					character_prefix = obj:sound_prefix()
-					obj:sound_prefix(default_prefix)
-				end
-
-				--printf("NPC[%s] flag[%s] prefix[%s] path[%s]", obj:name(), flag, obj:sound_prefix(), path)
-				tbl.max_ids[obj:id()].into_max = obj:add_sound(path, nstl, snd_type.talk, 2, 1, tbl.into_id)
-				tbl.max_ids[obj:id()].into_cycled = true
-
-				if flag == "0" then
-					obj:sound_prefix(character_prefix)
-				end
-			end
-		end
-		if snd_ini:section_exist(name.."_single") then
-			local s = select_sound_from_ltx(obj, name.."_single", snd_ini)
-			if s then
-				local flag, path = check_prefix(s)
-				if flag == "0" then
-					character_prefix = obj:sound_prefix()
-					obj:sound_prefix(default_prefix)
-				end
-
-				--printf("NPC[%s] flag[%s] prefix[%s] path[%s]", obj:name(), flag, obj:sound_prefix(), path)
-				tbl.max_ids[obj:id()].into_max = obj:add_sound(path, nstl, snd_type.talk, 2, 1, tbl.into_id)
-				tbl.max_ids[obj:id()].into_cycled = false
-
-				if flag == "0" then
-					obj:sound_prefix(character_prefix)
-				end			
-			end
-		end
-	end
-	
-	function load_theme_sound(npc, tbl)
-		for k,v in pairs(tbl) do
-			if v.types == nil then
-				load_sound_from_ltx(npc, k, v)
-			else
-				load_theme_sound(npc, v.types)
-			end
-		end
-	end
-
-	load_theme_sound(obj, theme)
-
-	-- делаем заготовку в db.sound
-	db.sound[obj:id()] = {}
-	
-----	printf("All sounds loaded for %s, section %s", obj:name(), obj:section())
----	print_table(theme)
-end
