@@ -52,3 +52,5 @@ end
 	-- torch = torch:get_torch()
 	-- torch:set_brightness(0)
 -- end
+
+--actor:get_inventory_owner():SetName("Kotek Bibochynsky")

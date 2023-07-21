@@ -3,6 +3,7 @@
 ------------------------------------------------------------------------------------------
 
 local POWER_CONSUMING_UPDATE_TIME = 10 --//час оновлення декременту у ігрових секундах
+local DEF_WORK_TIME = 1
 
 function init(obj)
 	if not is_power_device(obj) then
@@ -21,10 +22,9 @@ end
 class "device_binder" (object_binder)
 function device_binder:__init(obj) super(obj)
 	--log3("%s __init for object %s", script_name(), self.object:name())
-	self.work_time = false
 	self.power_consumption = false
 	self.last_update_time = false
-	self.power_sect_tbl = {}
+	self.t_power_sources = {}
 	self.se_obj = alife():object(self.object:id())
 	
 end
@@ -33,8 +33,40 @@ function device_binder:reload(section)
 	--log3("%s reload for object %s", script_name(), self.object:name())
     object_binder.reload(self, section)
 	
-	local power_sect_str = read_if_exists(sys_ini, "r_string", self.object:section(), "power_source", self.object:section())
-	self.power_sect_tbl = split_string(power_sect_str, ",")
+	local power_str = read_if_exists(sys_ini, "r_string", self.object:section(), "power_source", self.object:section())
+	self.t_power_sources = self:parse_sorces(power_str)
+	
+	-- for k,v in pairs(self.t_power_sources) do
+		-- log3("device %s power section %s, work_time %s", self.object:section(), v.section, v.work_time )
+	-- end
+end
+
+function device_binder:parse_sorces(line)
+	local t = se_respawn.parse_names(line)
+	local ret_table = {}
+	local k = 1
+	while k <= #t do
+		local sources = {}
+		sources.section = t[k]
+		-- Проверяем что это не последняя запись
+		if t[k+1] ~= nil then
+			local p = tonumber(t[k+1])
+			if p then
+				-- забиваем число
+				sources.work_time = p
+				k = k + 2
+			else
+				-- забиваем дефолт
+				sources.work_time = DEF_WORK_TIME
+				k = k + 1
+			end
+		else
+			sources.work_time = DEF_WORK_TIME
+			k = k + 1
+		end
+		table.insert(ret_table, sources)
+	end
+	return ret_table
 end
  
 function device_binder:net_spawn(data)
@@ -56,8 +88,7 @@ function device_binder:update(delta)
 end
  
 function device_binder:init_power_source()
-	self.work_time = read_if_exists(sys_ini, "r_u32", self:get_power_sect(), "work_time", 1)
-	self.power_consumption = 1 / (self.work_time * 3600)
+	self.power_consumption = 1 / (self:get_work_time() * 3600)
 	self.last_update_time = false
 end
 
@@ -97,7 +128,7 @@ function device_binder:decrease_power()
 end
 
 function device_binder:power_source_detachable()
-	return self.power_sect_tbl[1] ~= self.object:section()
+	return self.t_power_sources[1] ~= self.object:section()
 end
 
 function device_binder:can_attach(obj)
@@ -108,28 +139,28 @@ function device_binder:can_attach(obj)
 end
 
 function device_binder:get_power_sect()
-	return self.power_sect_tbl[self.se_obj.cur_power_sect]
+	return self.t_power_sources[self.se_obj.cur_power_sect].section
+end
+
+function device_binder:get_work_time()
+	return self.t_power_sources[self.se_obj.cur_power_sect].work_time
 end
 
 function device_binder:set_power_sect(num)
-	if num > #self.power_sect_tbl then
-		log3("![%s]: wrong cur_power_sect [%s/%s] for device [%s] - set default battery section", script_name(), num, #self.power_sect_tbl, self.object:section())
+	if num > #self.t_power_sources then
+		log3("![%s]: wrong cur_power_sect [%s/%s] for device [%s] - set default battery section", script_name(), num, #self.t_power_sources, self.object:section())
 		num = 1
 	end
 	self.se_obj.cur_power_sect = num
 end
 
 function device_binder:get_power_sect_num(section)
-	for k, v in pairs(self.power_sect_tbl) do
-		if section == v then
+	for k, v in pairs(self.t_power_sources) do
+		if section == v.section then
 			return k
 		end
 	end
 	return false
-end
-
-function device_binder:get_work_time()
-	return self.work_time
 end
 
 function device_binder:get_power_level()
@@ -162,6 +193,7 @@ function device_binder:recharge(obj_battery)
 	local new_power_level = obj_battery:condition()
 	self:set_power_level(new_power_level)
 	self:set_power_sect(self:get_power_sect_num(obj_battery:section()))
+	self:init_power_source()
 	
 	alife():release(alife():object(obj_battery:id()), true)
 	if not self.object:is_power_on() then

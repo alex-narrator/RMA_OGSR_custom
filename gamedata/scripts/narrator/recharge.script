@@ -6,7 +6,7 @@ function try_recharge(obj, drop_on_obj)
 	if not is_power_device(drop_on_obj)
 	then return end
 	
-	if bind_obj:can_attach(obj) then
+	if drop_on_obj:binded_object():can_attach(obj) then
 		show_recharge_wnd(obj, drop_on_obj)
 	end
 end
