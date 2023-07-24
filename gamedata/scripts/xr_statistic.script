@@ -64,9 +64,10 @@ monster_classes = {
 		}		
 
 function attach(sm)
-	sm:subscribe({signal = "on_take", 	fun = this.try_add_artefact})
-	sm:subscribe({signal = "on_save", 	fun = this.on_save})
-	sm:subscribe({signal = "on_load", 	fun = this.on_load})
+	sm:subscribe({signal = "on_take", 			fun = this.try_add_artefact})
+	sm:subscribe({signal = "on_save", 			fun = this.on_save})
+	sm:subscribe({signal = "on_load", 			fun = this.on_load})
+	sm:subscribe({signal = "on_pda_actor_info", fun = this.on_info_tab})
 end
 
 function addKillCount(npc)
@@ -87,7 +88,7 @@ function addKillCount(npc)
 --'		abort("Statistic ERROR: required section [%s] not present, based [%s]", tostring(sect_name), tostring(sect))
 		return
 	end
-	actor_stats.add_points(props, sect_name, 1, killCountProps[sect_name])
+	actor_stats.add_points(props, sect_name, 1, 1)--killCountProps[sect_name])
 	actor:change_character_rank(killCountProps[sect_name])
 end
 
@@ -155,4 +156,10 @@ function on_save()
 end
 function on_load()
 	art_ids = xr_vars.load_var("founded_art_ids", art_ids)
+end
+
+function on_info_tab()
+	while level.get_time_days() > actor_stats.get_points("days_in_game") do
+		actor_stats.add_points("days_in_game", game.translate_string("st_days_in_zone"), 1, 1)
+	end
 end

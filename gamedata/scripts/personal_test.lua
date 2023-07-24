@@ -54,3 +54,5 @@ end
 -- end
 
 --actor:get_inventory_owner():SetName("Kotek Bibochynsky")
+
+local item = actor:item_in_slot(8)

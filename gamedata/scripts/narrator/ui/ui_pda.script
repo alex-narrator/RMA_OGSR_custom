@@ -114,21 +114,14 @@ function PDAOverlay:InitControls()
 	self:Register(self.btn_off, "off_btn")
 	self:AddCallback("off_btn", ui_events.BUTTON_CLICKED, self.HidePda, self)
 	
-	--// actor info overlay	
-	self.info = CUIStatic()
-	self.info:Init(0, 0, 1024, 768)
-	self:AttachChild(self.info)
-	self.info:Show(false)
-	
-	self.days_text = xml:InitStatic("days_in_zone_text", self.info)
-	self.days_text:SetText(game.translate_string("st_days_in_zone"))
-	self.days_count = xml:InitStatic("days_in_zone_count", self.info)
-	
 	--//skip timer
-	self.wait_background = xml:InitStatic("timer_background", self.info)
+	self.skip_time_frame = xml:InitFrame("timer_frame", self)
+	self.skip_time_frame:Show(false)
 	
-	self.hour_st = xml:InitStatic("hour_static", self.wait_background)
-	self.minute_st = xml:InitStatic("minute_static", self.wait_background)
+	self.skip_time_header = xml:InitStatic("timer_header", self.skip_time_frame)
+	self.hour_st = xml:InitStatic("hour_static", self.skip_time_frame)
+	self.minute_st = xml:InitStatic("minute_static", self.skip_time_frame)
+	self.hm_separator = xml:InitStatic("separator_static", self.skip_time_frame)
 	
 	self.minus_h = xml:InitButton("minus_button_h", self.hour_st)
 	self:Register(self.minus_h, "minus_hour")
@@ -146,20 +139,25 @@ function PDAOverlay:InitControls()
 	self:Register(self.plus_m, "plus_minute")
 	self:AddCallback("plus_minute", ui_events.BUTTON_CLICKED, self.IncMinute, self)
 	
-	self.skip_time = xml:InitButton("wait_button", self.wait_background)
+	self.skip_time = xml:InitButton("wait_button", self.skip_time_frame)
 	self:Register(self.skip_time, "skip_time")
 	self:AddCallback("skip_time", ui_events.BUTTON_CLICKED, self.SkipTime, self)
+	
+	self.clear_time = xml:InitButton("clear_button", self.skip_time_frame)
+	self:Register(self.clear_time, "clear_time")
+	self:AddCallback("clear_time", ui_events.BUTTON_CLICKED, self.ClearTime, self)
 end
 
 function PDAOverlay:Update()
 	CUIScriptWnd.Update(self)
 	local pda = actor_get_pda()
 	
-	local show = pda and pda:is_power_on()
-	self.power_static:Show(show)
-	self.btn_off:Show(show)
-	show = show and has_alife_info("ui_pda_actor_info")
-	self.info:Show(show)
+	local has_pda_power = pda and pda:is_power_on()
+	self.power_static:Show(has_pda_power)
+	self.btn_off:Show(has_pda_power)
+	
+	local show = has_pda_power and self.owner:FindChild("detail_days_in_game")
+	self.skip_time_frame:Show(show)
 
 	local power = is_power_device(pda) and pda:binded_object():get_power_level() or 1
 	local text = string.format("%.0f %s", power * 100, "%")	
@@ -168,10 +166,7 @@ function PDAOverlay:Update()
 		self.power_static:SetTextColor(255, 255, 0, 0)
 	elseif self.power_static:GetTextColor() ~= self.def_power_color then
 		self.power_static:SetTextColor(self.def_power_color)
-	end
-	
-	text = string.format("%d", level.get_time_days())
-	self.days_count:SetText(text)
+	end	
 end
 
 function PDAOverlay:UpdateTimer()
@@ -216,6 +211,10 @@ function PDAOverlay:SkipTime()
 	return end
 	
 	skip_time(self.wait_h, self.wait_m)
+	self:ClearTime()
+end
+
+function PDAOverlay:ClearTime()
 	self.wait_h = 0
 	self.wait_m = 0
 	self:UpdateTimer()
