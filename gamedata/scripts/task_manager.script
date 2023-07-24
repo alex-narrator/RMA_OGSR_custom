@@ -790,8 +790,8 @@ function CRandomTask:task_reward(npc, actor, p1, p2)
 				end
 
 				if task_desc.reward_rank ~= nil then
-					actor_stats.add_points("quests", task_desc.name, 1, task_desc.reward_rank)
-					db.actor:set_character_rank(db.actor:character_rank() + task_desc.reward_rank)
+					actor_stats.add_points("quests", task_desc.name, 1, 1)--task_desc.reward_rank)
+					db.actor:change_character_rank(task_desc.reward_rank)--set_character_rank(db.actor:character_rank() + task_desc.reward_rank)
 				end
 			end
 		end	
@@ -815,8 +815,8 @@ function CRandomTask:task_reward_storyline(task)
 	end
 
 	if task_desc.reward_rank ~= nil then
-		actor_stats.add_points("quests", task_desc.name, 1, task_desc.reward_rank)
-		db.actor:set_character_rank(db.actor:character_rank() + task_desc.reward_rank)
+		actor_stats.add_points("quests", task_desc.name, 1, 1)--task_desc.reward_rank)
+		db.actor:change_character_rank(task_desc.reward_rank)--set_character_rank(db.actor:character_rank() + task_desc.reward_rank)
 	end
 end
 --' Создается диалог актера, в котором будут приниматься задания
