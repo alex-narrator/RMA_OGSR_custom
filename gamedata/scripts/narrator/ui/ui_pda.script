@@ -123,27 +123,27 @@ function PDAOverlay:InitControls()
 	self.minute_st = xml:InitStatic("minute_static", self.skip_time_frame)
 	self.hm_separator = xml:InitStatic("separator_static", self.skip_time_frame)
 	
-	self.minus_h = xml:InitButton("minus_button_h", self.hour_st)
+	self.minus_h = xml:Init3tButton("minus_button_h", self.hour_st)
 	self:Register(self.minus_h, "minus_hour")
 	self:AddCallback("minus_hour", ui_events.BUTTON_CLICKED, self.DecHour, self)
 	
-	self.plus_h = xml:InitButton("plus_button_h", self.hour_st)
+	self.plus_h = xml:Init3tButton("plus_button_h", self.hour_st)
 	self:Register(self.plus_h, "plus_hour")
 	self:AddCallback("plus_hour", ui_events.BUTTON_CLICKED, self.IncHour, self)
 	
-	self.minus_m = xml:InitButton("minus_button_m", self.minute_st)
+	self.minus_m = xml:Init3tButton("minus_button_m", self.minute_st)
 	self:Register(self.minus_m, "minus_minute")
 	self:AddCallback("minus_minute", ui_events.BUTTON_CLICKED, self.DecMinute, self)
 	
-	self.plus_m = xml:InitButton("plus_button_m", self.minute_st)
+	self.plus_m = xml:Init3tButton("plus_button_m", self.minute_st)
 	self:Register(self.plus_m, "plus_minute")
 	self:AddCallback("plus_minute", ui_events.BUTTON_CLICKED, self.IncMinute, self)
 	
-	self.skip_time = xml:InitButton("wait_button", self.skip_time_frame)
+	self.skip_time = xml:Init3tButton("wait_button", self.skip_time_frame)
 	self:Register(self.skip_time, "skip_time")
 	self:AddCallback("skip_time", ui_events.BUTTON_CLICKED, self.SkipTime, self)
 	
-	self.clear_time = xml:InitButton("clear_button", self.skip_time_frame)
+	self.clear_time = xml:Init3tButton("clear_button", self.skip_time_frame)
 	self:Register(self.clear_time, "clear_time")
 	self:AddCallback("clear_time", ui_events.BUTTON_CLICKED, self.ClearTime, self)
 end
