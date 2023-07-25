@@ -1,0 +1,33 @@
+function attach(sm)
+	sm:subscribe({signal = "on_inventory_show", fun = this.start_dof})
+	sm:subscribe({signal = "on_carbody_show", 	fun = this.start_dof})
+	sm:subscribe({signal = "on_pda_show", 		fun = this.start_dof})
+	sm:subscribe({signal = "on_dialog", 		fun = this.start_dof})
+	
+	sm:subscribe({signal = "on_inventory_hide", fun = this.stop_dof})
+	sm:subscribe({signal = "on_carbody_hide", 	fun = this.stop_dof})
+	sm:subscribe({signal = "on_pda_hide", 		fun = this.stop_dof})
+	sm:subscribe({signal = "on_dialog_hide", 	fun = this.stop_dof})
+end
+
+local sm = ogse_signals.get_mgr()
+local sg = false
+
+function start_dof()
+	if not sg then
+		sg = {signal = "on_update", fun = this.update_dof}
+		sm:subscribe(sg)
+	end
+end
+
+function stop_dof()
+	if sg then
+		sm:unsubscribe(sg)
+		sg = false
+	end
+	set_dof_params(0, 0, 0, 0)
+end
+
+function update_dof()
+	set_dof_params(0, 0, 1, 0)
+end

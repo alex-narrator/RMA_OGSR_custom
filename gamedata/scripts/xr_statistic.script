@@ -68,10 +68,14 @@ function attach(sm)
 	sm:subscribe({signal = "on_save", 			fun = this.on_save})
 	sm:subscribe({signal = "on_load", 			fun = this.on_load})
 	sm:subscribe({signal = "on_pda_actor_info", fun = this.on_info_tab})
+	sm:subscribe({signal = "on_death", 			fun = this.addKillCount})
 end
 
-function addKillCount(npc)
-	local props, sect = getNpcType(npc)
+function addKillCount(victim, killer)
+	if not killer:is_actor() then
+	return end
+	
+	local props, sect = getNpcType(victim)
 	if props == nil then
 		return
 	end

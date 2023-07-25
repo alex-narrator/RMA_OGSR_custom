@@ -1,11 +1,5 @@
 local overlay = nil
 
-local color_by_relation = {
-	[0] = "%c[green]",
-	[1] = "%c[UI_orange]",
-	[2] = "%c[red]",
-}
-
 function attach(sm)
 	sm:subscribe({signal = "on_spawn",   fun = this.create_window})
 	sm:subscribe({signal = "on_destroy",   fun = this.destroy_window})
@@ -52,7 +46,7 @@ end
 
 function customize_relation_spot(spot, id)
 	local npc = level.object_by_id(id)
-	local hint_text = string.format("%s\\n%s%s", npc:character_name(), color_by_relation[npc:relation(actor)], game.translate_string(npc:character_community()))
+	local hint_text = string.format("%s%s\\n%s[%s]", color_by_relation[npc:relation(actor)], npc:character_name(), "%c[white]", game.translate_string(npc:character_community()))
 	level.map_change_spot_hint(id, spot, hint_text)
 end
 
