@@ -65,8 +65,6 @@ monster_classes = {
 
 function attach(sm)
 	sm:subscribe({signal = "on_take", 			fun = this.try_add_artefact})
-	sm:subscribe({signal = "on_save", 			fun = this.on_save})
-	sm:subscribe({signal = "on_load", 			fun = this.on_load})
 	sm:subscribe({signal = "on_pda_actor_info", fun = this.on_info_tab})
 	sm:subscribe({signal = "on_death", 			fun = this.addKillCount})
 end
@@ -146,20 +144,15 @@ function try_add_artefact(item)
 	if already_counted(item) then
 	return end
 	
-	art_ids[item:id()] = true
+	alife():object(item:id()).is_taken = true
+	
 	local sect = item:section()
 	actor_stats.add_points("artefacts", get_inv_name(sect), 1, 1)
 	local af_rank = read_if_exists(sys_ini, "r_u32", sect, "af_rank", 0)
 	actor:change_character_rank(af_rank)
 end
 function already_counted(item)
-	return art_ids[item:id()]
-end
-function on_save()
-	xr_vars.save_var("founded_art_ids", art_ids)
-end
-function on_load()
-	art_ids = xr_vars.load_var("founded_art_ids", art_ids)
+	return alife():object(item:id()).is_taken
 end
 
 function on_info_tab()
