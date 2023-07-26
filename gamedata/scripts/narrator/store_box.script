@@ -1,0 +1,34 @@
+local store_box_names = {
+	bar_barman_box = true,
+	bar_voronin_dolg_box = true,
+	escape_novice_camp_box = true,
+	escape_sidor_box = true,
+	garbage_bes_box = true,
+	garbage_dolg_blockpost_box = true,
+	garbage_garage_siryi_box = true,
+	military_cherep_khutor_box = true,
+	military_volya_max_box = true,
+	yantar_sakharov_box = true,
+}
+
+function is_opened(box)
+	return alife():object(box:id()).is_opened
+end
+
+function unlock(box)
+	alife():object(box:id()).is_opened = true
+	--news tip
+	news_manager.custom_news("st_storebox", "st_storebox_opened", "ui_store_box")
+	--box sound
+	xr_sound.get_safe_sound_object([[device\door_servomotor]],sound_object.s3d):play_at_pos(box,box:position())
+end
+
+function lock(box)
+	alife():object(box:id()).is_opened = false
+end
+
+function unlock_by_name(name)
+	if not store_box_names[name] then
+	return end
+	unlock(cobj_by_name(name))
+end

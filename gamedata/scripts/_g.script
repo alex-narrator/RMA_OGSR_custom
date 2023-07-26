@@ -1539,6 +1539,10 @@ function get_inv_name(section)
 	return sys_ini:r_string(section,"inv_name")
 end
 
+function cobj_by_name(name)
+	return level.object_by_id(alife():object(name).id)
+end
+
 function GetIconParams(section)
 	if section and
 		sys_ini:section_exist(section) and

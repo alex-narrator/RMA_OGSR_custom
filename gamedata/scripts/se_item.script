@@ -237,6 +237,22 @@ function se_eatable:STATE_Read (packet, size)
 	self.last_time_called = utils.r_CTime(packet)
 end
 
+-- INVENTORY BOX ---------------------------------------------------------------------------------------------------------------------
+class "se_invbox" (cse_alife_inventory_box)
+function se_invbox:__init (section) super (section)
+	self.is_opened = false
+end
+function se_invbox:STATE_Write (packet)
+	cse_alife_inventory_box.STATE_Write (self, packet)
+	packet:w_bool(self.is_opened)
+end
+function se_invbox:STATE_Read (packet, size)
+	cse_alife_inventory_box.STATE_Read (self, packet, size)
+	if packet:r_eof() then
+	return end
+	self.is_opened = packet:r_bool()
+end
+
 --' ФИзобъекты
 class "se_physic" (cse_alife_object_physic)
 function se_physic:__init (section) super (section)
