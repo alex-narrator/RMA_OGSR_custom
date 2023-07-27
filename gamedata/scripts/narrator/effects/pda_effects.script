@@ -1,0 +1,23 @@
+function attach(sm)
+	sm:subscribe({signal = "on_pda_show", 		fun = this.on_swow})
+	sm:subscribe({signal = "on_pda_hide", 		fun = this.on_hide})
+end
+
+function on_swow()
+	actor:hide_weapon()
+	if actor_get_pda() then
+		try_play_pda_sound(read_if_exists(sys_ini, "r_string", actor_get_pda():section(), "snd_draw", nil))
+	end
+end
+
+function on_hide()
+	actor:restore_weapon()
+	if actor_get_pda() then
+		try_play_pda_sound(read_if_exists(sys_ini, "r_string", actor_get_pda():section(), "snd_holster", nil))
+	end
+end
+
+function try_play_pda_sound(snd_name)
+	if not snd_name then return end
+	xr_sound.get_safe_sound_object(snd_name,sound_object.s2d):play_at_pos(actor, actor:position())
+end

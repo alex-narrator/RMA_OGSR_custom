@@ -88,6 +88,9 @@ attach_position_offset	= 0.080000,0.021273,0.100000
 attach_bone_name		= bip01_r_hand
 auto_attach				= false
 
+snd_draw					= device\pda\pda_draw
+snd_holster					= device\pda\pda_holster
+
 [device_torch]:identity_immunities
 GroupControlSection	= spawn_group
 discovery_dependency =
@@ -121,8 +124,8 @@ attach_position_offset	= 0.115, 0.00, 0.07
 attach_bone_name		= bip01_head
 auto_attach				= false
 
-snd_torch_on 			= weapons\nv_start
-snd_torch_off 			= weapons\nv_off
+snd_torch_on 			= device\torch\switch_torch
+snd_torch_off 			= device\torch\switch_torch
 
 light_definition 		= torch_definition
 light_definition_second = torch_definition_long_range
@@ -161,10 +164,10 @@ auto_attach				= false
 ;night_vision_texture		= hud_mask\nightvision\hud_nvg_gen1;wpn\wpn_crosshair;wpn\wpn_night
 night_vision_effector		= effector_nightvision ;postprocess_night
 
-snd_night_vision_on			= weapons\nv_start
-snd_night_vision_off		= weapons\nv_off
-snd_night_vision_idle		= weapons\nv_loop
-snd_night_vision_broken		= weapons\nv_off
+snd_night_vision_on			= device\torch\nv_start
+snd_night_vision_off		= device\torch\nv_off
+;snd_night_vision_idle		= weapons\nv_loop
+;snd_night_vision_broken		= weapons\nv_offв
 
 night_vision_recharge_time			= 6		;(c) время зарядки аккамулятора
 night_vision_recharge_time_min		= 2		;(c) мин. время зарядки аккамулятора, после которого уст-во уже может работать
