@@ -4,6 +4,7 @@
 
 local POWER_CONSUMING_UPDATE_TIME = 10 --//час оновлення декременту у ігрових секундах
 local DEF_WORK_TIME = 1
+local LOW_POWER_LEVEL = 0.1
 
 function init(obj)
 	if not is_power_device(obj) then
@@ -26,7 +27,7 @@ function device_binder:__init(obj) super(obj)
 	self.last_update_time = false
 	self.t_power_sources = {}
 	self.se_obj = alife():object(self.object:id())
-	
+	self.b_was_sended = false
 end
  
 function device_binder:reload(section)
@@ -100,9 +101,6 @@ function device_binder:decrease_power()
 	if self.object:condition() == 0 or self:get_power_level() == 0 then
 		if self.object:is_power_on() then
 			self.object:switch_power(false)
-			if not xr_conditions.black_screen() then
-				news_manager.item_tip(self.object, script_name())
-			end
 		end
 	return end
 	
@@ -125,6 +123,11 @@ function device_binder:decrease_power()
 	self.last_update_time = game_time
 	
 	self:change_power_level(-self.power_consumption * delta_time)
+	
+	if self:get_power_level() <= LOW_POWER_LEVEL and not self.b_was_sended and not xr_conditions.black_screen() then
+		news_manager.item_tip(self.object, script_name())
+		self.b_was_sended = true
+	end
 end
 
 function device_binder:power_source_detachable()
@@ -164,8 +167,7 @@ function device_binder:get_power_sect_num(section)
 end
 
 function device_binder:get_power_level()
-	local power_level = self.se_obj.power_level or 0
-	return power_level
+	return self.se_obj.power_level or 0
 end
 
 function device_binder:set_power_level(val)
@@ -190,8 +192,7 @@ function device_binder:recharge(obj_battery)
 		end
 	end
 	
-	local new_power_level = obj_battery:condition()
-	self:set_power_level(new_power_level)
+	self:set_power_level(obj_battery:condition())
 	self:set_power_sect(self:get_power_sect_num(obj_battery:section()))
 	self:init_power_source()
 	
@@ -199,4 +200,6 @@ function device_binder:recharge(obj_battery)
 	if not self.object:is_power_on() then
 		self.object:switch_power(true)
 	end
+	
+	self.b_was_sended = false
 end
