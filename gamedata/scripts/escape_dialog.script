@@ -416,6 +416,36 @@ function soldiers_bribe_conditions_announcement(actor, npc)
 	end
 	return string.format("%s%s%s", phrase_text, "\\n", bribe_text)
 end
+function has_soldiers_bribe_1(actor, npc)
+	return actor:object(bribe_items[1])
+end
+function give_soldiers_bribe_1(actor, npc)
+	local item = actor:object(bribe_items[1])
+	if item then
+		dialogs.relocate_item_section(npc, bribe_items[1], "out")
+		alife():release(alife():object(item:id()), true)
+	end
+end
+function has_soldiers_bribe_2(actor, npc)
+	return actor:object(bribe_items[2])
+end
+function give_soldiers_bribe_2(actor, npc)
+	local item = actor:object(bribe_items[2])
+	if item then
+		dialogs.relocate_item_section(npc, bribe_items[2], "out")
+		alife():release(alife():object(item:id()), true)
+	end
+end
+function has_soldiers_bribe_3(actor, npc)
+	return actor:object(bribe_items[3])
+end
+function give_soldiers_bribe_3(actor, npc)
+	local item = actor:object(bribe_items[3])
+	if item then
+		dialogs.relocate_item_section(npc, bribe_items[3], "out")
+		alife():release(alife():object(item:id()), true)
+	end
+end
 
 function fox_pay_money(actor, npc)
 	dialogs.relocate_money(npc, 1000, "in")	

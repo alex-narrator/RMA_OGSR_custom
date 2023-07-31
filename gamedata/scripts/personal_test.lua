@@ -58,4 +58,3 @@ end
 --local item = actor:item_in_slot(8)
 
 store_box.unlock_by_name("escape_sidor_box")
-log3("try")
