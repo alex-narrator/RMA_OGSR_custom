@@ -96,29 +96,9 @@ end
 
 
 function getNpcType(npc)
-	if IsStalker(npc) then
-		local community = "neutral"
-		if npc:character_community() == "monolith" then
-			community = "monolith"
-		elseif npc:character_community() == "military" then
-			community = "military"
-		elseif npc:character_community() == "killer" then
-			community = "killer"
-		elseif npc:character_community() == "ecolog" then
-			community = "ecolog"
-		elseif npc:character_community() == "dolg" then
-			community = "dolg"
-		elseif npc:character_community() == "freedom" then
-			community = "freedom"
-		elseif npc:character_community() == "bandit" then
-			community = "bandit"
-		elseif npc:character_community() == "zombied" then
-			community = "zombied"
-		elseif npc:character_community() == "stranger" then
-			community = "stranger"
-		end
-		local rank = ranks.get_obj_rank_name(npc)
-		return "stalkerkills", community.."_"..rank
+	local rank = ranks.get_obj_rank_name(npc)
+	if npc:is_stalker() then
+		return "stalkerkills", npc:character_community().."_"..rank
 	else
 		local community = monster_classes[get_clsid(npc)]
 		if community == nil then
@@ -127,8 +107,6 @@ function getNpcType(npc)
 		if community == "NIL" then
 			return nil,nil
 		end
-		
-		local rank = ranks.get_obj_rank_name(npc)
 		return "monsterkills", community.."_"..rank
 	end	
 end

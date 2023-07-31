@@ -3,8 +3,9 @@ function attach(sm)
 end
 
 function send_tip(victim, killer)
-	if victim:relation(actor) == game_object.enemy then
-	return end
+	if not victim:is_stalker() or 
+		victim:relation(actor) == game_object.enemy 
+	then return end
 	
 	local tip_header = game.translate_string("st_stalker_death") 						--/заголовок загальний
 	local victim_header = game.translate_string("st_victim_header") 					--/заголовок жертви

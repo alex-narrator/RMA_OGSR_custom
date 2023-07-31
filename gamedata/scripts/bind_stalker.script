@@ -99,6 +99,8 @@ function actor_binder:net_destroy()
 	self.object:set_callback(callback.on_cell_item_mouse, nil)
 	--
 	self.object:set_callback(callback.on_key_press, nil)
+	self.object:set_callback(callback.on_key_release, nil)
+	self.object:set_callback(callback.on_key_hold, nil)
 	--
 	self.object:set_callback(callback.map_relation_location_added, nil)
 	self.object:set_callback(callback.on_hud_state_switch, nil)
@@ -160,6 +162,8 @@ function actor_binder:reinit()
 	self.object:set_callback(callback.on_cell_item_mouse, self.on_cell_item_mouse, self)
 	--
 	self.object:set_callback(callback.on_key_press, self.on_key_press, self)
+	self.object:set_callback(callback.on_key_release, self.on_key_release, self)
+	self.object:set_callback(callback.on_key_hold, self.on_key_hold, self)
 	--
 	self.object:set_callback(callback.map_relation_location_added, self.on_map_relation_location_added, self)
 	self.object:set_callback(callback.on_hud_state_switch, self.on_hud_state_switch, self)
@@ -572,7 +576,12 @@ end
 
 function actor_binder:on_key_press(key, game_action)
 	self.sm:call("on_key_press", key, game_action)
-	--log3("on_key_press key %s, game_action %s", key, game_action)
+end
+function actor_binder:on_key_release(key, game_action)
+	self.sm:call("on_key_release", key, game_action)
+end
+function actor_binder:on_key_hold(key, game_action)
+	self.sm:call("on_key_hold", key, game_action)
 end
 
 function actor_binder:on_map_relation_location_added(spot, id)
