@@ -103,7 +103,10 @@ function actor_binder:net_destroy()
 	self.object:set_callback(callback.on_key_hold, nil)
 	--
 	self.object:set_callback(callback.map_relation_location_added, nil)
+	--
 	self.object:set_callback(callback.on_hud_state_switch, nil)
+	self.object:set_callback(callback.on_actor_weapon_zoom_in, nil)
+	self.object:set_callback(callback.on_actor_weapon_zoom_out, nil)
 	--
 	self.object:set_callback(callback.update_items_effect, nil)
 	--
@@ -166,7 +169,10 @@ function actor_binder:reinit()
 	self.object:set_callback(callback.on_key_hold, self.on_key_hold, self)
 	--
 	self.object:set_callback(callback.map_relation_location_added, self.on_map_relation_location_added, self)
+	--
 	self.object:set_callback(callback.on_hud_state_switch, self.on_hud_state_switch, self)
+	self.object:set_callback(callback.on_actor_weapon_zoom_in, self.on_actor_weapon_zoom_in, self)
+	self.object:set_callback(callback.on_actor_weapon_zoom_out, self.on_actor_weapon_zoom_out, self)
 	--
 	self.object:set_callback(callback.update_items_effect, self.update_items_effect, self)
 	--
@@ -590,6 +596,14 @@ end
 
 function actor_binder:on_hud_state_switch(item, state, old_state)
 	self.sm:call("on_hud_state_switch", item, state, old_state)
+end
+
+function actor_binder:on_actor_weapon_zoom_in(weapon)
+	self.sm:call("on_actor_weapon_zoom_in", weapon)
+end
+
+function actor_binder:on_actor_weapon_zoom_out(weapon)
+	self.sm:call("on_actor_weapon_zoom_out", weapon)
 end
 
 function actor_binder:update_items_effect(update_time)

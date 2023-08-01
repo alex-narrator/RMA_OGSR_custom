@@ -23,7 +23,7 @@
 -- actor:hit(h)
 
 -- actor.health = 1
---actor.power = -actor.power
+actor.power = -actor.power
 
 --db.actor:set_character_rank(299)
 
@@ -44,7 +44,11 @@
 
 local tgt = level.get_target_obj()
 if tgt then
-	log3("~ target section: %s | name: %s | profile: %s", tgt:section(), tgt:name(), tgt:profile_name() and tgt:profile_name() or "NO PROFILE")
+	log3("~ target section: %s | name: %s | profile: %s | species %s", 
+		tgt:section(), 
+		tgt:name(), 
+		tgt:profile_name() and tgt:profile_name() or "NO PROFILE", 
+		read_if_exists(sys_ini, "r_string", tgt:section(), "species", "NO SPECIES"))
 end
 
 -- local torch = actor_get_torch()
@@ -57,4 +61,4 @@ end
 
 --local item = actor:item_in_slot(8)
 
-store_box.unlock_by_name("escape_sidor_box")
+--store_box.unlock_by_name("escape_sidor_box")
