@@ -23,7 +23,7 @@
 -- actor:hit(h)
 
 -- actor.health = 1
-actor.power = -actor.power
+--actor.power = -actor.power
 
 --db.actor:set_character_rank(299)
 
