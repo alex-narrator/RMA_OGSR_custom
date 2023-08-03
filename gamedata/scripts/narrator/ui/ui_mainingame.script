@@ -71,6 +71,11 @@ function MainIngameOverlay:InitControls()
 	
 	local xml = CScriptXmlInit()
 	xml:ParseFile("script_overlays\\mainingame_overlay.xml")
+	
+	--//stamina bar
+	self.stamina = xml:InitStatic("stamina", self)
+	self.stamina = xml:InitStatic("stamina:stamina_static", self.stamina)
+	self.stamina_bar = xml:InitProgressBar("stamina:stamina_progress", self.stamina)
 
 	--// quick slots
 	self.quick_slots_back = xml:InitStatic("quick_slots_back", self)
@@ -120,4 +125,9 @@ function MainIngameOverlay:UpdateSlots()
 	for i=0,3 do
 		self:DrawSlotIcon(i)
 	end
+end
+
+function MainIngameOverlay:Update()
+	CUIScriptWnd.Update(self)
+	self.stamina_bar:SetProgressPos(stamina.get_stamina())
 end

@@ -13,7 +13,7 @@ local ZOOM_POWER_K = read_if_exists(sys_ini, "r_float", "actor_condition", "powe
 local CROUCH_K = 0.25
 
 function can_set_hard_hold(game_action)
-	return not level.main_input_receiver() and game_action == key_bindings.kADDITIONAL_ACTION and ezi
+	return not level.main_input_receiver() and game_action == key_bindings.kADDITIONAL_ACTION and ezi and not actor_obj:is_actor_creep() and not force_disable_hard_hold()
 end
 
 function get_zoom_effector_k()
@@ -24,6 +24,10 @@ function get_zoom_effector_k()
 	return (1 + (ZOOM_POWER_K * (1 - actor.power)))/zoom_factor * crouch_k
 end
 
+function force_disable_hard_hold()
+	return stamina.get_stamina() == 0 or actor_obj.condition.cant_sprint or actor_obj.condition.limping
+end
+
 function is_hard_hold()
 	if actor_obj.condition.cant_sprint or actor_obj.condition.limping then
 	return false end
@@ -32,6 +36,10 @@ end
 
 function set_hard_hold(on)
 	hard_hold = on
+end
+
+function get_hard_hold()
+	return hard_hold
 end
 
 function on_key_press(key, game_action)
@@ -76,7 +84,7 @@ function on_zoom_out(weapon)
 	zoom_factor = false
 end
 
-function on_update()
+function on_update(delta)
 	if not ezi then
 		ezi = find_effector_zi()
 		if not ezi then
@@ -84,7 +92,9 @@ function on_update()
 		base_k = ezi.zoom_aim_disp_k
 	end
 	ezi.zoom_aim_disp_k = base_k * get_zoom_effector_k()
-	--log3("ezi.zoom_aim_disp_k %s", ezi.zoom_aim_disp_k)
-	
 	ezi.pause_effect = is_hard_hold()
+	
+	if ezi.pause_effect and (force_disable_hard_hold() or actor_obj:is_actor_creep()) then
+		set_hard_hold(false)
+	end
 end

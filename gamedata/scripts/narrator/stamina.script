@@ -1,0 +1,38 @@
+function attach(sm)
+	sm:subscribe({signal = "on_save",   				fun = this.on_save})
+	sm:subscribe({signal = "on_load",   				fun = this.on_load})
+	sm:subscribe({signal = "on_update",   				fun = this.on_update})
+end
+
+local stamina = 1
+local stamina_dec = 1 / (read_if_exists(sys_ini, "r_u32", "actor_condition", "stamina_dec_time", 2) * 1000)
+local stamina_inc = 1 / (read_if_exists(sys_ini, "r_u32", "actor_condition", "stamina_inc_time", 6) * 1000)
+
+function on_save(packet)
+	packet:w_float(stamina)
+end
+
+function on_load(reader)
+	if reader:r_eof() then
+	return end
+	stamina = reader:r_float()
+end
+
+function on_update(delta)
+	local diff = 0
+	if ezi_control.get_hard_hold() then
+		diff = -stamina_dec
+	else
+		diff = stamina_inc
+	end
+	change_stamina(diff * delta)
+end
+
+function change_stamina(val)
+	stamina = stamina + val
+	stamina = math.clamp(stamina, 0, 1)
+end
+
+function get_stamina()
+	return stamina
+end
