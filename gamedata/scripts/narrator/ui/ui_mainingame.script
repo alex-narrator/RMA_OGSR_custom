@@ -72,9 +72,18 @@ function MainIngameOverlay:InitControls()
 	local xml = CScriptXmlInit()
 	xml:ParseFile("script_overlays\\mainingame_overlay.xml")
 	
+	self.actor_params = xml:InitStatic("actor_params", self)
+	--//health bar
+	self.health = xml:InitStatic("health", self.actor_params)
+	self.health_static = xml:InitStatic("health:health_static", self.health)
+	self.health_bar = xml:InitProgressBar("health:health_progress", self.health)
+	--//power bar
+	self.power = xml:InitStatic("power", self.actor_params)
+	self.power_static = xml:InitStatic("power:power_static", self.power)
+	self.power_bar = xml:InitProgressBar("power:power_progress", self.power)
 	--//stamina bar
-	self.stamina = xml:InitStatic("stamina", self)
-	self.stamina = xml:InitStatic("stamina:stamina_static", self.stamina)
+	self.stamina = xml:InitStatic("stamina", self.actor_params)
+	self.stamina_static = xml:InitStatic("stamina:stamina_static", self.stamina)
 	self.stamina_bar = xml:InitProgressBar("stamina:stamina_progress", self.stamina)
 
 	--// quick slots
@@ -129,5 +138,7 @@ end
 
 function MainIngameOverlay:Update()
 	CUIScriptWnd.Update(self)
+	self.health_bar:SetProgressPos(actor.health)
+	self.power_bar:SetProgressPos(actor.power)
 	self.stamina_bar:SetProgressPos(stamina.get_stamina())
 end
