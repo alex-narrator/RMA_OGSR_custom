@@ -154,6 +154,10 @@ inv_grid_x         = 24
 inv_grid_y         = 32
 cost				= 500	;30
 
+script_action_0 	= st_attach_to_pda, script_actions.can_attach_to_pda, script_actions.attach_pda
+script_action_1 	= st_attach_to_torch, script_actions.can_attach_to_torch, script_actions.attach_to_torch
+script_action_2 	= st_attach_to_detector, script_actions.can_attach_to_detector, script_actions.attach_to_detector
+
 [pda_battery]:battery
 visual				= equipments\item_battery_02.ogf
 inv_grid_width     = 1
@@ -166,6 +170,7 @@ inv_name_short		= pda_battery
 inv_weight			= 0.3
 
 work_time 			= 24
+script_action_0 	= st_attach_to_pda, script_actions.can_attach_to_pda, script_actions.attach_to_pda
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;vest;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [vest]:identity_immunities
 GroupControlSection	= spawn_group

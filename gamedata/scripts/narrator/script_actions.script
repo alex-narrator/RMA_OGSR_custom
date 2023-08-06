@@ -1,0 +1,27 @@
+function can_detach_power_source(obj)
+	return is_power_device(obj) and obj:binded_object():can_detach_power_source()
+end
+function detach_power_source(obj)
+	obj:binded_object():detach_power_source()
+end
+
+function can_attach_to_pda(obj)
+	return recharge.can_recharge(obj, actor_get_pda())
+end
+function attach_to_pda(obj)
+	recharge.recharge(obj, actor_get_pda())
+end
+
+function can_attach_to_torch(obj)
+	return recharge.can_recharge(obj, actor_get_torch())
+end
+function attach_to_torch(obj)
+	recharge.recharge(obj, actor_get_torch())
+end
+
+function can_attach_to_detector(obj)
+	return recharge.can_recharge(obj, actor_get_detector())
+end
+function attach_to_detector(obj)
+	recharge.recharge(obj, actor_get_detector())
+end

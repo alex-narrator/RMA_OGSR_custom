@@ -1601,6 +1601,8 @@ function actor_get_torch()
 end
 
 function is_power_device(obj)
+	if not obj then
+	return false end
 	local se_obj = alife():object(obj:id())
 	return se_obj and se_obj.power_level and se_obj.cur_power_sect
 end

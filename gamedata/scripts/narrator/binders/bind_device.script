@@ -183,13 +183,8 @@ function device_binder:change_power_level(val)
 end
 
 function device_binder:recharge(obj_battery)
-	if self:get_power_level() > 0 then
-		if self:power_source_detachable() then
-			local parent = self.object:parent()
-			local sobj = alife():create(self:get_power_sect(), parent:position(), parent:level_vertex_id(), parent:game_vertex_id(), parent:id())
-			local sobj_iitem = alife():object(sobj.id):get_inventory_item()
-			sobj_iitem.item_condition = self:get_power_level()
-		end
+	if self:can_detach_power_source() then
+		self:detach_power_source()
 	end
 	
 	self:set_power_level(obj_battery:condition())
@@ -202,4 +197,16 @@ function device_binder:recharge(obj_battery)
 	end
 	
 	self.b_was_sended = false
+end
+
+function device_binder:can_detach_power_source()
+	return self:get_power_level() > 0 and self:power_source_detachable()
+end
+
+function device_binder:detach_power_source()
+	local parent = self.object:parent()
+	local sobj = alife():create(self:get_power_sect(), parent:position(), parent:level_vertex_id(), parent:game_vertex_id(), parent:id())
+	local sobj_iitem = alife():object(sobj.id):get_inventory_item()
+	sobj_iitem.item_condition = self:get_power_level()
+	self:set_power_level(0)
 end

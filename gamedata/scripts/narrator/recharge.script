@@ -3,12 +3,13 @@ function attach(sm)
 end
 
 function try_recharge(obj, drop_on_obj)
-	if not is_power_device(drop_on_obj)
-	then return end
-	
-	if drop_on_obj:binded_object():can_attach(obj) then
-		show_recharge_wnd(obj, drop_on_obj)
-	end
+	if not can_recharge(obj, drop_on_obj) then 
+	return end
+	show_recharge_wnd(obj, drop_on_obj)
+end
+
+function can_recharge(obj, drop_on_obj)
+	return is_power_device(drop_on_obj) and drop_on_obj:binded_object():can_attach(obj)
 end
 
 function show_recharge_wnd(obj, drop_on_obj)
