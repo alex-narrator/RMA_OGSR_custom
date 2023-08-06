@@ -1,0 +1,74 @@
+function attach(sm)
+	sm:subscribe({signal = "on_key_press",   fun = this.on_key_press})
+end
+
+local info_action = {
+	[key_bindings.kCHECKGEAR] = true,
+	[key_bindings.kCHECKACTIVEITEM] = true,
+}
+
+local ACTIVE_ITEM_INFO_TTL 	= read_if_exists(sys_ini, "r_u32", "actor", "active_item_info_ttl", 2) * 1000;
+local GEAR_INFO_TTL 		= read_if_exists(sys_ini, "r_u32", "actor", "gear_info_ttl", 2) * 1000;
+
+local act_item = false
+local act_detector = false
+
+function on_key_press(key, game_action)
+	if level.main_input_receiver() or 
+		not info_action[game_action] or 
+		not actor_hands_free() then
+	return end
+	
+	act_item = actor:active_item()
+	act_detector = actor:active_detector()
+	
+	if game_action == key_bindings.kCHECKGEAR then
+		try_show_gear_info()
+	else
+		try_show_active_item_info()
+	end
+end
+
+function try_show_active_item_info()
+	if (not act_item and not act_detector) or get_main_window().show_active_item_info
+	then return end
+	
+	if act_item then
+		hud_anims.play_anim_check_item(act_item)
+	end
+	if act_detector then
+		hud_anims.play_anim_check_item(act_detector)
+	end
+	
+	if act_detector and act_detector:get_detector():can_switch_modes() then
+		local det_mode = act_detector:get_detector():is_af_mode() and "st_af_mode" or "st_zone_mode"
+		local str = string.format("%s: %s", game.translate_string(get_inv_name(act_detector:section())), game.translate_string(det_mode))
+		hud_add_info_message("item_usage", str)
+	end
+	
+	get_main_window().show_active_item_info = true
+	add_time_delayed_action(ACTIVE_ITEM_INFO_TTL, hide_item_info)
+end
+
+function hide_item_info()
+	get_main_window().show_active_item_info = false
+end
+
+function try_show_gear_info()
+	if get_main_window().show_gear_info then
+	return end
+
+	if act_item then
+		hud_anims.play_anim_check_gear(act_item)
+	end
+	if act_detector then
+		hud_anims.play_anim_check_gear(act_detector)
+	end
+	
+	get_main_window().show_gear_info = true
+	add_time_delayed_action(GEAR_INFO_TTL, hide_gear_info)
+end
+
+function hide_gear_info()
+	get_main_window().show_gear_info = false
+end

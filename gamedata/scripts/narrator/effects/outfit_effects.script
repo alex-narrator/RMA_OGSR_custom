@@ -12,6 +12,7 @@ local last_power_idx
 local breathe_val
 
 local dec_breathe = false
+local show_minimap = false
 
 function get_hud_params(sect)
 	hud_params = {}
@@ -79,6 +80,12 @@ function enable_effects(obj)
 		actor:set_character_icon(icon)
 	end
 	
+	show_minimap = read_if_exists(sys_ini, "r_bool", obj:section(), "show_minimap", nil)
+	if show_minimap then
+		--get_main_window().show_zone_map = actor_get_pda() and actor_get_pda():is_power_on()
+		ogse_signals.get_mgr():subscribe({signal = "on_update", fun = this.on_update_minimap})
+	end
+	
 	if get_hud_params(obj:section()) then
 		hud_obj = obj
 		try_switch_shader_effects(true) 
@@ -96,6 +103,11 @@ function disable_effects(obj, prev_place)
 	local default_icon = actor:get_default_character_icon()
 	if obj:is_outfit() and default_icon ~= actor:get_character_icon() then
 		actor:set_character_icon(default_icon)
+	end
+	
+	if show_minimap and get_main_window().show_zone_map then
+		get_main_window().show_zone_map = false
+		ogse_signals.get_mgr():unsubscribe({signal = "on_update", fun = this.on_update_minimap})
 	end
 	
 	if get_hud_params(obj:section()) then
@@ -124,12 +136,12 @@ function try_set_hud_mask(val)
 		breathe_val = 0
 		dec_breathe = false
 		if val then
-			sm:subscribe({signal = "update_items_effect", fun = this.on_update})
+			sm:subscribe({signal = "update_items_effect", fun = this.on_update_mask})
 			breathe_static = create_breathe_static()
 			main_wnd:AttachChild(breathe_static)
 			main_wnd:BringToBottom(breathe_static)
 		else
-			sm:unsubscribe({signal = "update_items_effect", fun = this.on_update})
+			sm:unsubscribe({signal = "update_items_effect", fun = this.on_update_mask})
 			main_wnd:DetachChild(breathe_static)
 			breathe_static = nil
 		end
@@ -213,7 +225,7 @@ function on_hit(victim, health_lost, direction, draftsman, bone_id)
 	end
 end
 
-function on_update(delta)
+function on_update_mask(delta)
 	--log3("%s | %s", script_name(), delta)
 	local change = delta * hud_params.breathe
 	change = change + (change * (1 - actor.power))
@@ -241,4 +253,10 @@ function on_update(delta)
 		--log3("last_power_idx %s", last_power_idx)
 	end
 	--log3("breathe_val %s", breathe_val)
+end
+
+function on_update_minimap()
+	if show_minimap then
+		get_main_window().show_zone_map = actor_get_pda() and actor_get_pda():is_power_on()
+	end
 end

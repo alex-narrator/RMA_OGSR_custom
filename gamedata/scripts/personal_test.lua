@@ -62,3 +62,8 @@ end
 --local item = actor:item_in_slot(8)
 
 --store_box.unlock_by_name("escape_sidor_box")
+
+-- local main_wnd = get_main_window()
+-- if main_wnd then
+	-- main_wnd.show_zone_map = not main_wnd.show_zone_map
+-- end

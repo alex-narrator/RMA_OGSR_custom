@@ -1543,6 +1543,10 @@ function cobj_by_name(name)
 	return level.object_by_id(alife():object(name).id)
 end
 
+function hud_anim_exists(item, anim_name)
+	return read_if_exists(sys_ini, "r_string", read_if_exists(sys_ini, "r_string", item:section(), "hud", nil), anim_name, nil)
+end
+
 function GetIconParams(section)
 	if section and
 		sys_ini:section_exist(section) and
@@ -1623,6 +1627,14 @@ function split_string(inputstr, sep)
       table.insert(t, str)
    end
    return t
+end
+
+function add_time_delayed_action(delay_time, func)
+	local delay = time_global() + delay_time
+	function time_check()
+		return time_global() >= delay
+	end
+	level.add_call(time_check, func)
 end
 
 ammo_section = {}
