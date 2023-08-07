@@ -3,16 +3,20 @@ function attach(sm)
 end
 
 function try_repair(obj, drop_on_obj)
+	if not can_repair(obj, drop_on_obj) then
+	return false end
+	show_repair_wnd(obj, drop_on_obj)
+end
+
+function can_repair(obj, drop_on_obj)
+	if not drop_on_obj then
+	return false end
 	local repair_type = read_if_exists(sys_ini, "r_float", obj:section(), "repair_type", 0)
-	if not repair_type then return end
-	
 	local can_repair = 
 		(repair_type == 1 and drop_on_obj:is_knife()) or
 		(repair_type == 2 and drop_on_obj:is_weapon_magazined()) or
 		(repair_type == 3 and drop_on_obj:is_outfit())
-	if can_repair and check_condition(obj, drop_on_obj) then
-		show_repair_wnd(obj, drop_on_obj)
-	end
+	return can_repair and check_condition(obj, drop_on_obj)
 end
 
 function get_rank_k()
@@ -55,7 +59,6 @@ function repair(obj, drop_on_obj)
 	end
 	local repair_sound = read_if_exists(sys_ini, "r_string", rep_kit_sect, "use_sound", nil)
 	if repair_sound then
-		local actor = db.actor
 		xr_sound.get_safe_sound_object(repair_sound,sound_object.s2d):play_at_pos(actor,actor:position())
 	end
 	local repair_effector = read_if_exists(sys_ini, "r_string", rep_kit_sect, "use_effector", nil)

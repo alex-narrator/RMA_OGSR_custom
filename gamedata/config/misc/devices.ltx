@@ -92,6 +92,7 @@ auto_attach				= false
 
 snd_draw					= device\pda\pda_draw
 snd_holster					= device\pda\pda_holster
+use_sound 					= interface\inv_detach_addon
 
 [device_torch]:identity_immunities
 GroupControlSection	= spawn_group
@@ -117,6 +118,7 @@ slot				= 9
 power_source 		= battery
 script_binding      = bind_device.init
 script_action_0 	= st_detach_power_source, script_actions.can_detach_power_source, script_actions.detach_power_source
+use_sound 			= interface\inv_detach_addon
 
 ;вещью нельзя торговать
 can_trade				= true
@@ -156,6 +158,7 @@ slot				= 9
 power_source 		= battery
 script_binding      = bind_device.init
 script_action_0 	= st_detach_power_source, script_actions.can_detach_power_source, script_actions.detach_power_source
+use_sound 			= interface\inv_detach_addon
 
 ;вещью нельзя торговать
 can_trade				= true
@@ -194,6 +197,7 @@ vest 				= true
 power_source 		= battery
 script_binding      = bind_device.init
 script_action_0 	= st_detach_power_source, script_actions.can_detach_power_source, script_actions.detach_power_source
+use_sound 			= interface\inv_detach_addon
 
 [detector_simple]:detector_base
 $spawn 				= "devices\detector_simple"
@@ -359,11 +363,12 @@ night_vision_particle		= nature\flies_light
 snd_draw					= device\pda\pda_draw
 snd_holster					= device\pda\pda_holster
 
-throw_enabled = true
+throw_enabled 		= true
 
 power_source 		= battery
 script_binding      = bind_device.init
 script_action_0 	= st_detach_power_source, script_actions.can_detach_power_source, script_actions.detach_power_source
+use_sound 			= interface\inv_detach_addon
 
 [detector_simple_cop]:detector_cop_base
 
