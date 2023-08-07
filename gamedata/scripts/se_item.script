@@ -188,6 +188,7 @@ local zero_time = game.CTime()
 class "se_item"	(cse_alife_item)
 function se_item:__init (section) super (section)
 	self.last_time_called = zero_time
+	self.is_taken = false
 end
 function se_item:on_register()
 	cse_alife_item.on_register( self )
@@ -208,12 +209,14 @@ end
 function se_item:STATE_Write (packet)
 	cse_alife_item.STATE_Write (self, packet)
 	utils.w_CTime(packet, self.last_time_called)
+	packet:w_bool(self.is_taken)
 end
 function se_item:STATE_Read (packet, size)
 	cse_alife_item.STATE_Read (self, packet, size)
 	if packet:r_eof() then
 	return end
 	self.last_time_called = utils.r_CTime(packet)
+	self.is_taken = packet:r_bool()
 end
 -------------------EATEBLE---------------------------------------------------------------------------------------------
 class "se_eatable" (cse_alife_item_eatable)

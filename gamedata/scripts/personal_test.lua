@@ -67,3 +67,6 @@ end
 -- if main_wnd then
 	-- main_wnd.show_zone_map = not main_wnd.show_zone_map
 -- end
+
+game.play_hud_motion(1, "bolt_hud", "anm_throw")
+game.stop_hud_motion()

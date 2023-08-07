@@ -64,7 +64,7 @@ monster_classes = {
 		}		
 
 function attach(sm)
-	sm:subscribe({signal = "on_take", 			fun = this.try_add_artefact})
+	sm:subscribe({signal = "on_take", 			fun = this.try_add_item})
 	sm:subscribe({signal = "on_pda_actor_info", fun = this.on_info_tab})
 	sm:subscribe({signal = "on_death", 			fun = this.addKillCount})
 end
@@ -111,23 +111,24 @@ function getNpcType(npc)
 	end	
 end
 
-local art_ids = {}
-function try_add_artefact(item)
+function try_add_item(item)
 	if xr_conditions.black_screen() then
-	return end
-	if not item:is_artefact() then
 	return end
 	if actor:is_talking() then
 	return end
 	if already_counted(item) then
 	return end
 	
+	if not item:is_artefact() and get_clsid(item) ~= clsid.monster_part_s  
+	then return end
+	
 	alife():object(item:id()).is_taken = true
 	
 	local sect = item:section()
-	actor_stats.add_points("artefacts", get_inv_name(sect), 1, 1)
-	local af_rank = read_if_exists(sys_ini, "r_u32", sect, "af_rank", 0)
-	actor:change_character_rank(af_rank)
+	local stat_sect = item:is_artefact() and "artefacts" or "trophies"
+	actor_stats.add_points(stat_sect, get_inv_name(sect), 1, 1)
+	local rank = read_if_exists(sys_ini, "r_u32", sect, "rank", 0)
+	actor:change_character_rank(rank)
 end
 function already_counted(item)
 	return alife():object(item:id()).is_taken
