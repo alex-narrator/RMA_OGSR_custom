@@ -1,0 +1,90 @@
+function attach(sm)
+	sm:subscribe({signal = "on_hud_state_switch",   fun = this.on_state_switch})
+	sm:subscribe({signal = "on_key_press",   		fun = this.on_key_press})
+	sm:subscribe({signal = "on_take",   			fun = this.on_take})
+end
+
+local prev_active_slot = NO_ACTIVE_SLOT
+local quick_grenade = false
+local quick_knife = false
+
+local quick_action = {
+	[key_bindings.kQUICK_GRENADE] = true,
+	[key_bindings.kQUICK_KNIFE] = true,
+}
+
+function on_take(item)
+	if item:is_grenade() and quick_grenade then
+		quick_grenade = false
+	return end
+	if item:is_knife() and quick_knife then
+		quick_knife = false
+	return end
+end
+
+function on_key_press(key, game_action)
+	if level.main_input_receiver() or 
+		not quick_action[game_action] 
+	then
+	return end
+	
+	if game_action == key_bindings.kQUICK_GRENADE then
+		if actor:active_slot() == GRENADE_SLOT then
+		return end
+		quick_grenade = actor_get_grenade()
+		if not quick_grenade then
+		return end
+		prev_active_slot = actor:active_slot()
+		actor:activate_slot(GRENADE_SLOT, true)
+	end
+	
+	if game_action == key_bindings.kQUICK_KNIFE then
+		if actor:active_slot() == KNIFE_SLOT then
+		return end
+		quick_knife = actor_get_knife()
+		if not quick_knife then
+		return end
+		prev_active_slot = actor:active_slot()
+		actor:activate_slot(KNIFE_SLOT, true)
+	end
+end
+
+function on_state_switch(item, state, old_state)
+	if not quick_grenade and not quick_knife then
+	return end
+	
+	--log3("state %s | old_state %s | item:is_pending() %s", state, old_state, item:is_pending())
+	
+	if quick_grenade and item:id() == quick_grenade:id() then
+		if state == global_flags.eIdle then
+			level.send_event_key_press(bind_to_dik(key_bindings.kWPN_FIRE))
+		return end
+		if old_state == global_flags.eHidden then
+			actor:activate_slot(prev_active_slot, true)
+			quick_grenade = false
+		return end
+	end
+	if quick_knife and item:id() == quick_knife:id() then
+		if state == global_flags.eShowing then
+			level.add_call(
+				function() 
+					return actor_hands_free() 
+				end,
+				function() 
+					level.send_event_key_press(bind_to_dik(key_bindings.kWPN_FIRE)) 
+				end
+			)
+		return end
+		if old_state == global_flags.eFire then
+			level.add_call(
+				function() 
+					return actor_hands_free()
+				end,
+				function() 
+					actor:activate_slot(prev_active_slot, true)
+					quick_knife = false
+				end
+			)
+		return end
+	end	
+end

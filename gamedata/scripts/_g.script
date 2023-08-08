@@ -1498,6 +1498,8 @@ function start_game_callback()
 end
 
 --рушійно-подібні константи
+KNIFE_SLOT = 0
+GRENADE_SLOT = 3
 NO_ACTIVE_SLOT = 255
 
 color_by_relation = {
@@ -1547,6 +1549,10 @@ function hud_anim_exists(item, anim_name)
 	return read_if_exists(sys_ini, "r_string", read_if_exists(sys_ini, "r_string", item:section(), "hud", nil), anim_name, nil)
 end
 
+function get_hud_sect(item)
+	return read_if_exists(sys_ini, "r_string", item:section(), "hud", nil)
+end
+
 function GetIconParams(section)
 	if section and
 		sys_ini:section_exist(section) and
@@ -1582,13 +1588,16 @@ end
 
 function actor_hands_free()
 	local act_item = actor:active_item()
-	return not act_item or act_item:get_hud_item_state() == global_flags.eIdle
+	return not act_item or not act_item:is_pending()
 end
 function actor_cant_walk()
 	return get_actor_obj().condition.cant_walk
 end
-function actor_get_backpack()
-	return actor:item_in_slot(13)
+function actor_get_knife()
+	return actor:item_in_slot(0)
+end
+function actor_get_grenade()
+	return actor:item_in_slot(3)
 end
 function actor_get_pda()
 	return actor:item_in_slot(7)
@@ -1598,6 +1607,9 @@ function actor_get_detector()
 end
 function actor_get_torch()
 	return actor:item_in_slot(9)
+end
+function actor_get_backpack()
+	return actor:item_in_slot(13)
 end
 
 function is_power_device(obj)

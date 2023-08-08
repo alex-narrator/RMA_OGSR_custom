@@ -1,0 +1,35 @@
+function attach(sm)
+	sm:subscribe({signal = "on_hud_state_switch",   fun = this.on_state_switch})
+end
+
+local is_playing = false
+
+local play_states = {
+	[global_flags.eThrowStart] = "anm_throw_begin",
+	[global_flags.eReady] = "anm_throw_idle",
+	[global_flags.eThrow] = "anm_throw",
+	[global_flags.eThrowEnd] = "anm_show",
+}
+
+local stop_states = {
+	[global_flags.eIdle] = true,
+	[global_flags.eHiding] = true,
+	[global_flags.eHidden] = true,
+	[global_flags.eThrowEnd] = true,
+}
+
+function on_state_switch(item, state, old_state)
+	if not item:is_missile() then
+	return end
+	if not actor:active_detector() then
+	return end
+	if stop_states[old_state] and is_playing then
+		is_playing = false
+		game.stop_hud_motion()
+	return end
+	if not play_states[state] then
+	return end
+
+	game.play_hud_motion(1, get_hud_sect(item), play_states[state])
+	is_playing = true
+end
