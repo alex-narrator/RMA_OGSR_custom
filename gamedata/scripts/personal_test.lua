@@ -68,5 +68,5 @@ end
 	-- main_wnd.show_zone_map = not main_wnd.show_zone_map
 -- end
 
-game.play_hud_motion(1, get_hud_sect(actor:active_item()), "anm_throw")
-game.stop_hud_motion()
+-- game.play_hud_motion(1, get_hud_sect(actor:active_item()), "anm_throw")
+-- game.stop_hud_motion()

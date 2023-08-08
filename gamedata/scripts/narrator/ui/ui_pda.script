@@ -8,15 +8,15 @@ end
 local subscribed = false
 
 function create_window()
-	if not subscribed then
-		subscribed = {
-			{signal = "on_map_relation_location_added", fun = this.customize_relation_spot},
-		}
-		local sm = ogse_signals.get_mgr()
-		for _, s in ipairs( subscribed ) do
-			sm:subscribe( s )
-		end
-	end
+	-- if not subscribed then
+		-- subscribed = {
+			-- {signal = "on_map_relation_location_added", fun = this.customize_relation_spot},
+		-- }
+		-- local sm = ogse_signals.get_mgr()
+		-- for _, s in ipairs( subscribed ) do
+			-- sm:subscribe( s )
+		-- end
+	-- end
 	
 	if not overlay then
 		overlay = PDAOverlay(level.get_pda_wnd())
@@ -24,13 +24,13 @@ function create_window()
 end
 
 function destroy_window()
-	if subscribed then
-		local sm = ogse_signals.get_mgr()
-		for _, s in ipairs( subscribed ) do
-			sm:unsubscribe( s )
-		end
-		subscribed = false
-	end
+	-- if subscribed then
+		-- local sm = ogse_signals.get_mgr()
+		-- for _, s in ipairs( subscribed ) do
+			-- sm:unsubscribe( s )
+		-- end
+		-- subscribed = false
+	-- end
 	
 	if overlay then
 		overlay:DetachWnd()
@@ -44,11 +44,11 @@ function skip_time(h, m)
 	xr_sound.get_safe_sound_object("device\\pda\\pda_alarm",sound_object.s2d):play_at_pos(actor,actor:position())
 end
 
-function customize_relation_spot(spot, id)
-	local npc = level.object_by_id(id)
-	local hint_text = string.format("%s%s\\n%s[%s]", color_by_relation[npc:relation(actor)], npc:character_name(), "%c[white]", game.translate_string(npc:character_community()))
-	level.map_change_spot_hint(id, spot, hint_text)
-end
+-- function customize_relation_spot(spot, id)
+	-- local npc = level.object_by_id(id)
+	-- local hint_text = string.format("%s%s\\n%s[%s]", color_by_relation[npc:relation(actor)], npc:character_name(), "%c[white]", game.translate_string(npc:character_community()))
+	-- level.map_change_spot_hint(id, spot, hint_text)
+-- end
 
 class "PDAOverlay" (CUIScriptWnd)
 
@@ -160,7 +160,30 @@ function PDAOverlay:Update()
 		self.power_static:SetTextColor(255, 255, 0, 0)
 	elseif self.power_static:GetTextColor() ~= self.def_power_color then
 		self.power_static:SetTextColor(self.def_power_color)
-	end	
+	end
+	
+	self:UpdateRelationSpotText()
+end
+
+local spot_type = {
+	neutral_location = true,
+	friend_location = true,
+	enemy_location = true,
+	deadbody_location = true,
+}
+
+function PDAOverlay:UpdateRelationSpotText()
+	for id,val in pairs(db.storage) do
+		for spot, v in pairs(spot_type) do
+			if level.map_has_object_spot(id, spot) then
+				npc = level.object_by_id(id)
+				if npc and not npc:is_actor() and (npc:is_stalker() or npc:is_trader()) then
+					local hint_text = string.format("%s%s\\n%s[%s]", color_by_relation[npc:relation(actor)], npc:character_name(), "%c[white]", game.translate_string(npc:character_community()))
+					level.map_change_spot_hint(id, spot, hint_text)
+				end
+			end
+		end
+	end
 end
 
 function PDAOverlay:UpdateTimer()
