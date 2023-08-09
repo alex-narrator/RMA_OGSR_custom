@@ -6,6 +6,9 @@ function add_custom_info(UIDesc, obj)
 	if is_power_device(obj) then
 		attach_power_params(UIDesc, obj:binded_object())
 	end
+	if obj:get_weapon_m() then
+		attach_loaded_ammo(UIDesc, obj)
+	end
 end
 
 function attach_power_params(UIDesc, bind_obj)
@@ -26,4 +29,65 @@ function attach_power_params(UIDesc, bind_obj)
 	local power_progress = xml:InitProgressBar("power_params:progress_power", power_params)
 	local power_level = bind_obj:get_power_level()
 	power_progress:SetProgressPos(power_level)
+end
+
+local pos_x
+function attach_loaded_ammo(UIDesc, obj)
+	local wpn = obj:get_weapon_m()
+	local show_ammo = obj:get_ammo_in_magazine() > 0
+	local show_mag = wpn:is_addon_attached(addon.magazine)
+	local show_ammo2 = obj:get_ammo_in_magazine2() > 0
+	
+	if 
+		not show_ammo and
+		not show_mag and
+		not show_ammo2 then
+	return end
+
+	pos_x = 0
+	
+	local xml = CScriptXmlInit()
+	xml:ParseFile("script_overlays\\loaded_ammo.xml")
+	local main = xml:InitStatic("loaded_ammo", UIDesc)
+	
+	local ammo_s = {}
+	for i=1,3 do
+		ammo_s[i] = xml:InitStatic("loaded_ammo:ammo_icon", main)
+		ammo_s[i]:InitTexture("ui\\ui_icon_equipment")
+		ammo_s[i]:Show(false)
+	end
+
+	if show_ammo then
+		set_ammo_icon(ammo_s[1], get_cur_ammo_sect(obj))
+	end
+	if show_mag then
+		set_ammo_icon(ammo_s[2], wpn:get_addon_name(addon.magazine))
+	end
+	if show_ammo2 then
+		set_ammo_icon(ammo_s[3], get_cur_ammo2_sect(obj))
+	end	
+end
+
+local cell_w = 50
+local cell_h = 50
+function set_ammo_icon(icon, sect)
+	local params = GetIconParams(sect)
+	icon:SetOriginalRect(params.x, params.y, params.w, params.h)
+		
+	local width_k = params.w/cell_w
+	local height_k = params.h/cell_h
+	local width = icon:GetWidth() * width_k
+	local height = icon:GetHeight() * height_k
+		
+	if height_k > 1 then --//пропорційно зменшимо іконку з висотою > 1 клітинки
+		width = width / height_k
+		height = height / height_k
+	end
+		
+	icon:SetWidth(width)
+	icon:SetHeight(height)
+
+	icon:Show(true)
+	icon:SetWndPos(pos_x, icon:GetWndPos().y)
+	pos_x = pos_x + icon:GetWidth()
 end

@@ -1651,6 +1651,18 @@ function add_time_delayed_action(delay_time, func)
 	level.add_call(time_check, func)
 end
 
+function get_cur_ammo_sect(obj)
+	local ammo_sect = read_if_exists(sys_ini, "r_string", obj:section(), obj:get_gl_mode() and "grenade_class" or "ammo_class", nil)
+	local ammo_table = split_string(ammo_sect, ",")
+	return ammo_table[obj:get_ammo_type()+1]
+end
+
+function get_cur_ammo2_sect(obj)
+	local ammo_sect = read_if_exists(sys_ini, "r_string", obj:section(), obj:get_gl_mode() and "ammo_class" or "grenade_class", nil)
+	local ammo_table = split_string(ammo_sect, ",")
+	return ammo_table[obj:get_underbarrel_ammo_type()+1]
+end
+
 ammo_section = {}
 ammo_section["ammo_9x18_fmj"]		= true
 ammo_section["ammo_9x18_pbp"]		= true
