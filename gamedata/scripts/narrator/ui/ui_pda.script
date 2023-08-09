@@ -103,6 +103,8 @@ function PDAOverlay:InitControls()
 	self.power_static = xml:InitStatic("power_level", self)
 	self.def_power_color = self.power_static:GetTextColor()
 	
+	self.money_static = xml:InitStatic("money", self)
+	
 	--// off button
 	self.btn_off = xml:Init3tButton("off_button", self)
 	self:Register(self.btn_off, "off_btn")
@@ -149,6 +151,7 @@ function PDAOverlay:Update()
 	local has_pda_power = pda and pda:is_power_on()
 	self.power_static:Show(has_pda_power)
 	self.btn_off:Show(has_pda_power)
+	self.money_static:Show(has_pda_power)
 	
 	local show = has_pda_power and self.owner:FindChild("detail_days_in_game")
 	self.skip_time_frame:Show(show)
@@ -161,6 +164,9 @@ function PDAOverlay:Update()
 	elseif self.power_static:GetTextColor() ~= self.def_power_color then
 		self.power_static:SetTextColor(self.def_power_color)
 	end
+	
+	text = string.format("%.0f %s", actor:money(), game.translate_string("ui_st_money_regional"))	
+	self.money_static:SetText(text)
 	
 	self:UpdateRelationSpotText()
 end

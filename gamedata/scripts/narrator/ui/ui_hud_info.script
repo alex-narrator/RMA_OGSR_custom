@@ -1,5 +1,6 @@
 function attach(sm)
-	sm:subscribe({signal = "on_key_press",   fun = this.on_key_press})
+	sm:subscribe({signal = "on_key_press",   	fun = this.on_key_press})
+	sm:subscribe({signal = "on_spawn",   		fun = this.on_spawn})
 end
 
 local info_action = {
@@ -12,6 +13,11 @@ local GEAR_INFO_TTL 		= read_if_exists(sys_ini, "r_u32", "actor", "gear_info_ttl
 
 local act_item = false
 local act_detector = false
+
+function on_spawn()
+	hide_item_info()
+	hide_gear_info()
+end
 
 function on_key_press(key, game_action)
 	if level.main_input_receiver() or 
@@ -58,12 +64,15 @@ function try_show_gear_info()
 	if get_main_window().show_gear_info then
 	return end
 
-	if act_item then
-		hud_anims.play_anim_check_gear(act_item)
-	end
-	if act_detector then
-		hud_anims.play_anim_check_gear(act_detector)
-	end
+	-- if act_item then
+		-- hud_anims.play_anim_check_gear(act_item)
+	-- end
+	-- if act_detector then
+		-- hud_anims.play_anim_check_gear(act_detector)
+	-- end
+	
+	game.play_hud_motion(1, "bolt_hud", "anm_throw_idle", false, 1, true)
+	game.stop_hud_motion()
 	
 	get_main_window().show_gear_info = true
 	add_time_delayed_action(GEAR_INFO_TTL, hide_gear_info)

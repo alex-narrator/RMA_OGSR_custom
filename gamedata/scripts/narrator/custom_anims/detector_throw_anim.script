@@ -26,10 +26,12 @@ function on_state_switch(item, state, old_state)
 	if stop_states[old_state] and is_playing then
 		is_playing = false
 		game.stop_hud_motion()
+		--log3("~stop on state %s | old_state %s", state, old_state)
 	return end
 	if not play_states[state] then
 	return end
 
-	game.play_hud_motion(1, get_hud_sect(item), play_states[state])
+	game.play_hud_motion(1, get_hud_sect(item), play_states[state], false, 1)
 	is_playing = true
+	--log3("~play on state %s | old_state %s", state, old_state)
 end
