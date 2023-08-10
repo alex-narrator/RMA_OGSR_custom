@@ -6,6 +6,9 @@ function add_custom_info(UIDesc, obj)
 	if is_power_device(obj) then
 		attach_power_params(UIDesc, obj:binded_object())
 	end
+	if actor_get_pda() and actor_get_pda():id() == obj:id() then
+		attach_pda_time_money(UIDesc, obj)
+	end
 	if obj:is_weapon() then
 		atach_wpn_params(UIDesc, obj)
 	end
@@ -32,6 +35,23 @@ function attach_power_params(UIDesc, bind_obj)
 	local power_progress = xml:InitProgressBar("power_params:progress_power", power_params)
 	local power_level = bind_obj:get_power_level()
 	power_progress:SetProgressPos(power_level)
+end
+
+function attach_pda_time_money(UIDesc, obj)
+	if not obj:is_power_on() then
+	return end
+	
+	local xml = CScriptXmlInit()
+	xml:ParseFile("script_overlays\\pda_time_money.xml")
+	local main = xml:InitStatic("time_money", UIDesc)
+	
+	local time_st = xml:InitStatic("time_money:time", main)
+	local money_st = xml:InitStatic("time_money:money", main)
+	
+	local str = string.format("%s: %s:%s", game.translate_string("ui_inv_time"), level.get_time_hours(), level.get_time_minutes())
+	time_st:SetText(str)
+	str = string.format("%s: %.0f %s", game.translate_string("ui_inv_money"), actor:money(), game.translate_string("ui_st_money_regional"))
+	money_st:SetText(str)
 end
 
 function atach_wpn_params(UIDesc, obj)
