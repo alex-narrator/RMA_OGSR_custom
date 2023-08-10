@@ -125,7 +125,7 @@ function device_binder:decrease_power()
 	self:change_power_level(-self.power_consumption * delta_time)
 	
 	if self:get_power_level() <= LOW_POWER_LEVEL and not self.b_was_sended and not xr_conditions.black_screen() then
-		news_manager.item_tip(self.object, script_name())
+		news_manager.item_tip(self.object, "low_power")
 		self.b_was_sended = true
 	end
 end
