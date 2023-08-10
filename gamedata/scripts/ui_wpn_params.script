@@ -1,19 +1,18 @@
-function normalize(val)
-	if val > 100 then
-		val = 100
-	elseif val < 1 then
-		val  = 1
-	end
-	
-	return val
-end
-
 function GetRPM(section)
 	return sys_ini:r_float(section,"rpm")
 end
 
 function GetDamage(section)
-	return sys_ini:r_float(section,"hit_power")
+	local res = sys_ini:r_float(section,"hit_power")	
+	
+	local hit_power_sect = read_if_exists(sys_ini, "r_string", section, "hit_power", nil)
+	local hit_power_table = split_string(hit_power_sect, ",")
+	local cur_gd_hit_power = hit_power_table[level.get_game_difficulty()+1]
+	if cur_gd_hit_power then
+		res = cur_gd_hit_power
+	end
+	log3("game_difficulty %s | res %s", level.get_game_difficulty(), res)
+	return res
 end
 
 function GetHandling(section)
@@ -32,7 +31,7 @@ function GetHandling(section)
 		val = 15 - (2*PDM_disp_base + control_inertion_factor)
 	end	
 	
-	return normalize(val) 
+	return math.clamp(val, 1, 100)
 end
 
 function GetAccuracy(section)
