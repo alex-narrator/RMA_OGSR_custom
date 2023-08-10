@@ -1,29 +1,29 @@
-function GetRPM(section)
-	return sys_ini:r_float(section,"rpm")
+function GetRPM(obj)
+	return sys_ini:r_float(obj:section(),"rpm")
 end
 
-function GetDamage(section)
-	local res = sys_ini:r_float(section,"hit_power")	
+function GetDamage(obj)
+	local res = sys_ini:r_float(obj:section(),"hit_power")	
 	
-	local hit_power_sect = read_if_exists(sys_ini, "r_string", section, "hit_power", nil)
+	local hit_power_sect = read_if_exists(sys_ini, "r_string", obj:section(), "hit_power", nil)
 	local hit_power_table = split_string(hit_power_sect, ",")
 	local cur_gd_hit_power = hit_power_table[level.get_game_difficulty()+1]
 	if cur_gd_hit_power then
 		res = cur_gd_hit_power
 	end
-	log3("game_difficulty %s | res %s", level.get_game_difficulty(), res)
+	--log3("game_difficulty %s | res %s", level.get_game_difficulty(), res)
 	return res
 end
 
-function GetHandling(section)
-	--log3("wpn_params_script section %s", section)
+function GetHandling(obj)
+	--log3("wpn_params_script section %s", obj:section())
 	local val	
 	
-	local control_inertion_factor = read_if_exists(sys_ini, "r_float", section, "control_inertion_factor", 1) 	
-	local PDM_disp_base 		= read_if_exists(sys_ini, "r_float", section, "PDM_disp_base", 1) 	
-	local PDM_disp_vel_factor	= read_if_exists(sys_ini, "r_float", section, "PDM_disp_vel_factor", 1) 
+	local control_inertion_factor = read_if_exists(sys_ini, "r_float", obj:section(), "control_inertion_factor", 1) 	
+	local PDM_disp_base 		= read_if_exists(sys_ini, "r_float", obj:section(), "PDM_disp_base", 1) 	
+	local PDM_disp_vel_factor	= read_if_exists(sys_ini, "r_float", obj:section(), "PDM_disp_vel_factor", 1) 
 	
-	--log3("wpn_params_script section %s | control_inertion_factor %s", section, control_inertion_factor)
+	--log3("wpn_params_script section %s | control_inertion_factor %s", obj:section(), control_inertion_factor)
 	
 	if control_inertion_factor < 2 and PDM_disp_base < 1.5 then
 		val = (1 - math.pow(PDM_disp_vel_factor - 0.5, 2) + math.pow(2 - control_inertion_factor,2))*50	
@@ -34,22 +34,22 @@ function GetHandling(section)
 	return math.clamp(val, 1, 100)
 end
 
-function GetAccuracy(section)
-	local fire_dispersion_base	= read_if_exists(sys_ini, "r_float", section, "fire_dispersion_base", 0)
+function GetAccuracy(obj)
+	local fire_dispersion_base	= read_if_exists(sys_ini, "r_float", obj:section(), "fire_dispersion_base", 0)
 	local disp_in_moa = fire_dispersion_base * 60
 	local res = 1 / disp_in_moa
-	-- log3("dispertion %s MOA for weapon %s", disp_in_moa, section)
-	-- log3("res %s for weapon %s", res, section)
+	-- log3("dispertion %s MOA for weapon %s", disp_in_moa, obj:section())
+	-- log3("res %s for weapon %s", res, obj:section())
 	return res
 end
 
-function GetRange(section)
-	return read_if_exists(sys_ini, "r_float", section, "fire_distance", 0)
+function GetRange(obj)
+	return read_if_exists(sys_ini, "r_float", obj:section(), "fire_distance", 0)
 end
 
-function GetReliability(section)
-	local shot_dec = read_if_exists(sys_ini, "r_float", section, "condition_shot_dec", 0.00001)
+function GetReliability(obj)
+	local shot_dec = read_if_exists(sys_ini, "r_float", obj:section(), "condition_shot_dec", 0.00001)
 	local resource = 1 / shot_dec
-	-- log3("resource %s for weapon %s", resource, section)
+	-- log3("resource %s for weapon %s", resource, obj:section())
 	return resource
 end

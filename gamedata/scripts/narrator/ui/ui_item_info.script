@@ -6,7 +6,10 @@ function add_custom_info(UIDesc, obj)
 	if is_power_device(obj) then
 		attach_power_params(UIDesc, obj:binded_object())
 	end
-	if obj:get_weapon_m() then
+	if obj:is_weapon() then
+		atach_wpn_params(UIDesc, obj)
+	end
+	if obj:is_weapon_magazined() then
 		attach_loaded_ammo(UIDesc, obj)
 	end
 end
@@ -29,6 +32,36 @@ function attach_power_params(UIDesc, bind_obj)
 	local power_progress = xml:InitProgressBar("power_params:progress_power", power_params)
 	local power_level = bind_obj:get_power_level()
 	power_progress:SetProgressPos(power_level)
+end
+
+function atach_wpn_params(UIDesc, obj)
+	if not read_if_exists(sys_ini, "r_bool", obj:section(), "show_wpn_properties", true) then
+	return end
+	
+	local xml = CScriptXmlInit()
+	xml:ParseFile("wpn_params.xml")
+	local main = xml:InitStatic("wpn_params", UIDesc)
+	
+	local cap_accuracy 		= xml:InitStatic("wpn_params:cap_accuracy", main)
+	local cap_damage 		= xml:InitStatic("wpn_params:cap_damage", main)
+	local cap_handling 		= xml:InitStatic("wpn_params:cap_handling", main)
+	local cap_rpm 			= xml:InitStatic("wpn_params:cap_rpm", main)
+	local cap_range 		= xml:InitStatic("wpn_params:cap_range", main)
+	local cap_reliability 	= xml:InitStatic("wpn_params:cap_reliability", main)
+	
+	local progress_accuracy 	= xml:InitProgressBar("wpn_params:progress_accuracy", main)
+	local progress_damage 		= xml:InitProgressBar("wpn_params:progress_damage", main)
+	local progress_handling 	= xml:InitProgressBar("wpn_params:progress_handling", main)
+	local progress_rpm 			= xml:InitProgressBar("wpn_params:progress_rpm", main)
+	local progress_range 		= xml:InitProgressBar("wpn_params:progress_range", main)
+	local progress_reliability 	= xml:InitProgressBar("wpn_params:progress_reliability", main)
+	
+	progress_accuracy:SetProgressPos(ui_wpn_params.GetAccuracy(obj))
+	progress_damage:SetProgressPos(ui_wpn_params.GetDamage(obj))
+	progress_handling:SetProgressPos(ui_wpn_params.GetHandling(obj))
+	progress_rpm:SetProgressPos(ui_wpn_params.GetRPM(obj))
+	progress_range:SetProgressPos(ui_wpn_params.GetRange(obj))
+	progress_reliability:SetProgressPos(ui_wpn_params.GetReliability(obj))
 end
 
 local pos_x
