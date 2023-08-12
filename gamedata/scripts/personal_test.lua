@@ -68,5 +68,7 @@ end
 	-- main_wnd.show_zone_map = not main_wnd.show_zone_map
 -- end
 
--- game.play_hud_motion(1, get_hud_sect(actor:active_item()), "anm_throw")
--- game.stop_hud_motion()
+--game.play_hud_motion(2, "booster_hud", "anm_show", false, 1, true)
+--game.stop_hud_motion()
+--actor:activate_slot(NO_ACTIVE_SLOT, true)
+level.only_allow_movekeys(false)

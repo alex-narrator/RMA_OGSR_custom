@@ -14,7 +14,7 @@ function check_use_enabled(item)
 	if not eatable_item then
 	return end
 	
-	if item:is_food_item() and actor.satiety > 0.95 then	
+	if item:is_food_item() and not item:is_bottle_item() and actor.satiety > 0.95 then	
 		eatable_item.can_be_eaten = false
 		news_manager.item_tip(item, "satiety_block_eat")
 	return end
@@ -39,9 +39,7 @@ function check_use_enabled(item)
 			news_manager.item_tip(check_item, "outfit_block_eat")
 		return end
 	end
-	
-	
-	
+		
 	eatable_item.can_be_eaten = true
 end
 
@@ -56,12 +54,6 @@ function use_item_effects(obj, user)
 	end
 	--тільки для актора
 	if user:is_actor() then
-		--active item action
-		local act_item = user:active_item()
-		if act_item then
-			--act_item:play_hud_motion("anm_show")
-			user:activate_slot(NO_ACTIVE_SLOT)
-		end
 		--use effectors
 		local eff_name = read_if_exists(sys_ini, "r_string", obj:section(), "use_effector", nil)
 		if eff_name then
@@ -69,19 +61,21 @@ function use_item_effects(obj, user)
 			level.add_complex_effector(eff_name, use_effector_id)
 			log3("~ used item %s played effector %s for user %s", sect, eff_name, user:name())
 		end
+		--use animation
+		use_item_anim.try_play(obj)
 	end
 end
 
 function enable_effect(booster)
-	local effector_name = read_if_exists(sys_ini, "r_string", booster.section, "boost_effector", false)
-	local effector_id = read_if_exists(sys_ini, "r_float", booster.section, "boost_effector_id", false)
+	local effector_name = read_if_exists(sys_ini, "r_string", booster.section, "boost_effector", nil)
+	local effector_id = read_if_exists(sys_ini, "r_float", booster.section, "boost_effector_id", boost_efefctor_id)
 	if not effector_name then return end
 	level.add_complex_effector(effector_name, effector_id)
 	log3("~ enable booster effect %s, id %s", effector_name, effector_id)
 end
 
 function disable_effect(booster)
-	local effector_id = read_if_exists(sys_ini, "r_float", booster.section, "boost_effector_id", false)
+	local effector_id = read_if_exists(sys_ini, "r_float", booster.section, "boost_effector_id", boost_efefctor_id)
 	if not effector_id then return end
 	level.remove_complex_effector(effector_id)
 	log3("~ disabling booster effect %s, id %s", booster.section, effector_id)

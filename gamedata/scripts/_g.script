@@ -1588,7 +1588,7 @@ end
 
 function actor_hands_free()
 	local act_item = actor:active_item()
-	return not act_item or not act_item:is_pending()
+	return (not act_item or not act_item:is_pending()) and game.hud_motion_allowed()
 end
 function actor_cant_walk()
 	return get_actor_obj().condition.cant_walk
@@ -1644,7 +1644,7 @@ function split_string(inputstr, sep)
 end
 
 function add_time_delayed_action(delay_time, func)
-	local delay = time_global() + delay_time
+	local delay = time_global() + delay_time * 1000
 	function time_check()
 		return time_global() >= delay
 	end

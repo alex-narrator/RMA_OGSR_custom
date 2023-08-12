@@ -1,0 +1,44 @@
+function attach(sm)
+	sm:subscribe({signal = "on_key_press",   		fun = this.on_key_press})
+end
+
+local torch_action = {
+	[key_bindings.kTORCH] = true,
+	[key_bindings.kNIGHT_VISION] = true,
+}
+
+local block_delay = 0.8
+
+function on_key_press(key, game_action)
+	if not torch_action[game_action] or
+		not actor_hands_free() or
+		not actor_get_torch()
+	then
+	return end
+	get_actor_obj():block_action(key_bindings.kTORCH)
+	get_actor_obj():block_action(key_bindings.kNIGHT_VISION)
+	game.play_hud_motion(1, "switch_torch_hud", "anm_switch", false, 1, false)
+	
+	add_time_delayed_action(
+		block_delay,
+		function()
+			-- get_actor_obj():unblock_action(key_bindings.kTORCH)
+			-- get_actor_obj():unblock_action(key_bindings.kNIGHT_VISION)
+			if game_action == key_bindings.kTORCH then
+				actor_get_torch():switch_torch(not actor_get_torch():is_power_on())
+			else
+				actor_get_torch():switch_night_vision(not actor_get_torch():is_power_on())
+			end
+		end
+	)
+	
+	level.add_call(
+		function()
+			return game.hud_motion_allowed()
+		end,
+		function()
+			get_actor_obj():unblock_action(key_bindings.kTORCH)
+			get_actor_obj():unblock_action(key_bindings.kNIGHT_VISION)
+		end
+	)
+end

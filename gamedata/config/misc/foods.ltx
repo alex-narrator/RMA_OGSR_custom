@@ -15,7 +15,8 @@ animation_slot		= 4
 hud = wpn_vodka_hud
 
 menu_use_tip 		= st_eat
-use_sound 			= interface\inv_food
+use_sound 			= interface\food_use
+use_effector 		= bread_use
 breakable 			= true
 helmet_use 			= false
 
@@ -51,6 +52,7 @@ eat_portions_num = 2
 radiation_accum_factor = 0.1
 radiation_accum_limit = 1
 
+hud 				= bread_hud
 
 [kolbasa]:food_base,corruptible
 $spawn 				= "food and drugs\kolbasa"
@@ -81,6 +83,8 @@ angle_offset			 = 1.570790,1.570790,3.92699
 ; eatable item
 eat_satiety = 0.3
 
+hud = kolbasa_hud
+
 [conserva]:food_base
 $spawn 				= "food and drugs\conserva"
 visual				= food\conserv1.ogf
@@ -108,6 +112,10 @@ auto_attach				= false
 bone_name				= bip01_r_hand
 position_offset			 = 0.0,0.0,0.0
 angle_offset			 = 1.570790,1.570790,3.92699
+
+hud = conserva_hud
+use_sound = interface\conserva_use
+use_effector 		= conserva_use
 
 [vodka]:food_base
 GroupControlSection	= spawn_group
@@ -152,6 +160,10 @@ use_sound = interface\inv_vodka
 break_particles		= explosions\explosion_bottle
 break_sound			= material\bottle\collide\bottle_break_1
 
+hud = vodka_hud
+use_sound = interface\vodka_use
+use_effector 		= vodka_use
+
 [energy_drink]:vodka
 $spawn 				= "food and drugs\energy_drink"
 inv_name			= energy_drink_name
@@ -190,3 +202,7 @@ vest = true
 use_sound = interface\inv_softdrink
 
 quick_slot = true
+
+hud = energy_drink_hud
+use_sound = interface\drink_soda_use
+use_effector 		= energy_drink_use

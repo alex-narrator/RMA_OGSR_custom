@@ -2,12 +2,20 @@
 ;;	MEDICAL
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [drugs_base]:identity_immunities
+class				= II_MEDKI
+cform				= skeleton
+
+inv_weight			= 0.1	;0.2
+
 default_to_ruck = true
 belt = true
 vest = true
 use_condition = true
 breakable = true
 quick_slot = true
+
+use_sound = interface\medkit_use
+use_effector = medkit_use
 
 [antirad]:drugs_base
 GroupControlSection	= spawn_group
@@ -21,7 +29,6 @@ description		= enc_equipment_medi_antirad1
 
 inv_name			= Antirad
 inv_name_short		= Antirad
-inv_weight			= 0.1
 
 inv_grid_width		= 1
 inv_grid_height		= 1
@@ -39,19 +46,16 @@ boost_time = 15
 animation_slot		= 4
 
 ;hud item
-hud = wpn_vodka_hud
+hud = antirad_hud
 
-use_sound = interface\inv_pills
-use_effector = effector_drug_use
-
+use_sound = interface\antirad_use
+use_effector = antirad_use
 
 [medkit]:drugs_base
 GroupControlSection	= spawn_group
 discovery_dependency =
 $spawn 				= "food and drugs\medkit"
 $prefetch 			= 8
-class				= II_MEDKI
-cform				= skeleton
 visual				= equipments\item_aptechka.ogf
 description			= enc_equipment_medi_medkit1
 inv_name			= Medkit
@@ -79,20 +83,16 @@ boost_time = 10
 ; food item
 animation_slot		= 4
 
-use_sound = interface\inv_medkit
-use_effector = effector_drug_use
-boost_effector = effector_nightvision_good
+;boost_effector = effector_nightvision_good
 
 ;hud item
-hud = wpn_vodka_hud
+hud = medkit_hud
 
 [medkit_army]:drugs_base
 GroupControlSection	= spawn_group
 discovery_dependency =
 $spawn 				= "food and drugs\medkit_army"
 $prefetch 			= 8
-class				= II_MEDKI
-cform				= skeleton
 visual				= equipments\item_aptechka3.ogf
 description			= enc_equipment_medi_medkit2
 inv_name			= Medkit_army
@@ -120,19 +120,14 @@ boost_time = 15
 ; food item
 animation_slot		= 4
 
-use_sound = interface\inv_medkit
-use_effector = effector_drug_use
-
 ;hud item
-hud = wpn_vodka_hud
+hud = medkit_army_hud
 
 [medkit_scientic]:drugs_base
 GroupControlSection	= spawn_group
 discovery_dependency =
 $spawn 				= "food and drugs\medkit_scientic"
 $prefetch 			= 8
-class				= II_MEDKI
-cform				= skeleton
 visual				= equipments\item_aptechka2.ogf
 description			= enc_equipment_medi_medkit3
 inv_name			= Medkit_scientific
@@ -160,11 +155,8 @@ boost_time = 15
 ; food item
 animation_slot		= 4
 
-use_sound = interface\inv_medkit
-use_effector = effector_drug_use
-
 ;hud item
-hud = wpn_vodka_hud
+hud = medkit_scientic_hud
 
 [bandage]:drugs_base
 GroupControlSection	= spawn_group
@@ -178,7 +170,6 @@ description			= enc_equipment_medi_bandage1
 
 inv_name			= bandage
 inv_name_short		= bandage
-inv_weight			= 0.1	;0.2
 
 inv_grid_width		= 1
 inv_grid_height		= 1
@@ -197,8 +188,129 @@ eat_portions_num = 1	;100
 ; food item
 animation_slot		= 4
 
-use_sound = interface\inv_bandage
-use_effector = effector_drug_use
+use_sound = interface\bandage_use
+use_effector = bandage_use
 
 ;hud item
-hud = wpn_vodka_hud
+hud = bandage_hud
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;boosters from COP;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+[drug_booster]:drugs_base
+$spawn 				= "food and drugs\drug_booster"
+visual				= dynamics\equipments\medical\drug_booster.ogf
+inv_name			= st_drug_booster
+inv_name_short		= st_drug_booster
+description			= st_drug_booster_descr
+
+inv_grid_width		= 1
+inv_grid_height		= 1
+inv_grid_x			= 10
+inv_grid_y			= 31
+cost				= 200
+
+boost_time			= 300.0
+boost_max_weight	= 20.0
+
+hud = vodka_hud
+use_sound = interface\vodka_use
+use_effector 		= vodka_use
+
+[drug_coagulant]:drugs_base
+$spawn 				= "food and drugs\drug_coagulant"
+visual				= dynamics\equipments\medical\drug_coagulant.ogf
+inv_name			= st_drug_coagulant
+inv_name_short		= st_drug_coagulant
+description			= st_drug_coagulant_descr
+
+inv_grid_width		= 1
+inv_grid_height		= 1
+inv_grid_x			= 9
+inv_grid_y			= 32
+cost				= 200
+
+boost_time				= 20.0
+boost_bleeding_restore	= 0.03
+
+use_sound			= interface\pills_use
+use_effector 		= pills_use
+hud 				= coagulant_hud
+
+[drug_psy_blockade]:drugs_base
+$spawn 				= "food and drugs\drug_psy_blockade"
+visual				= dynamics\equipments\medical\drug_psy_blockade.ogf
+inv_name			= st_drug_psy_blockade
+inv_name_short		= st_drug_psy_blockade
+description			= st_drug_psy_blockade_descr
+
+inv_grid_width		= 1
+inv_grid_height		= 1
+inv_grid_x			= 10
+inv_grid_y			= 32
+cost				= 550
+
+boost_time				= 60.0
+boost_telepat_protection 	= 0.05
+
+use_sound			= interface\pills_use
+use_effector 		= pills_use
+hud 				= coagulant_hud
+
+[drug_antidot]:drugs_base
+$spawn 				= "food and drugs\drug_antidot"
+visual				= dynamics\equipments\medical\drug_antidot.ogf
+inv_name			= st_drug_antidot
+inv_name_short		= st_drug_antidot
+description			= st_drug_antidot_descr
+
+inv_grid_width		= 1
+inv_grid_height		= 1
+inv_grid_x			= 11
+inv_grid_y			= 32
+cost				= 300
+
+boost_time				= 60.0
+boost_chemburn_protection 	= 0.1
+
+use_sound			= interface\pills_use
+use_effector 		= pills_use
+hud 				= coagulant_hud
+
+[drug_radioprotector]:drugs_base
+$spawn 				= "food and drugs\drug_radioprotector"
+visual				= dynamics\equipments\medical\drug_radioprotector.ogf
+inv_name			= st_drug_radioprotector
+inv_name_short		= st_drug_radioprotector
+description			= st_drug_radioprotector_descr
+
+inv_grid_width		= 1
+inv_grid_height		= 1
+inv_grid_x			= 11
+inv_grid_y			= 31
+cost				= 300
+
+boost_time					= 60.0
+;boost_radiation_immunity	= 0.015
+boost_radiation_protection	= 0.015
+
+use_sound			= interface\pills_use
+use_effector 		= pills_use
+hud 				= radioprotector_hud
+
+[drug_anabiotic]:drugs_base
+$spawn 				= "food and drugs\drug_anabiotic"
+visual				= dynamics\equipments\medical\drug_anabiotic.ogf
+inv_name			= st_drug_anabiotic
+inv_name_short		= st_drug_anabiotic
+description			= st_drug_anabiotic_descr
+
+inv_grid_width		= 1
+inv_grid_height		= 1
+inv_grid_x			= 11
+inv_grid_y			= 33
+cost				= 1000
+
+use_sound			= interface\pills_use
+use_effector 		= pills_use
+hud 				= coagulant_hud

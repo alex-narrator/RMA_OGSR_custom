@@ -70,15 +70,14 @@ function attach(sm)
 end
 
 function addKillCount(victim, killer)
-	if not killer:is_actor() then
-		log3("return - not killer:is_actor()")
+	if not killer:is_actor() or	
+		victim:id() == killer:id()
+	then
 	return end
 	
 	local props, sect = getNpcType(victim)
 	if props == nil then
-		log3("return - not props")
-		return
-	end
+	return end
 
 	local sect_name
 	if sect_alias[sect] ~= nil then

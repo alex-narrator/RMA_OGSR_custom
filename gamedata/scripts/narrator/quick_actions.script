@@ -24,7 +24,8 @@ end
 
 function on_key_press(key, game_action)
 	if level.main_input_receiver() or 
-		not quick_action[game_action] 
+		not quick_action[game_action] or
+		not game.hud_motion_allowed()
 	then
 	return end
 	
