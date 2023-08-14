@@ -11,7 +11,6 @@ local block_delay = 0.8
 
 function on_key_press(key, game_action)
 	if not torch_action[game_action] or
-		not actor_hands_free() or
 		not actor_get_torch()
 	then
 	return end
@@ -22,8 +21,6 @@ function on_key_press(key, game_action)
 	add_time_delayed_action(
 		block_delay,
 		function()
-			-- get_actor_obj():unblock_action(key_bindings.kTORCH)
-			-- get_actor_obj():unblock_action(key_bindings.kNIGHT_VISION)
 			if game_action == key_bindings.kTORCH then
 				actor_get_torch():switch_torch(not actor_get_torch():is_power_on())
 			else

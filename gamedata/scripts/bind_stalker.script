@@ -111,6 +111,7 @@ function actor_binder:net_destroy()
 	self.object:set_callback(callback.update_items_effect, nil)
 	--
 	self.object:set_callback(callback.on_before_use_item, nil)
+	self.object:set_callback(callback.on_pickup_item_showing, nil)
 
 	if sr_psy_antenna.psy_antenna then
 		sr_psy_antenna.psy_antenna:destroy()
@@ -177,6 +178,7 @@ function actor_binder:reinit()
 	self.object:set_callback(callback.update_items_effect, self.update_items_effect, self)
 	--
 	self.object:set_callback(callback.on_before_use_item, self.on_before_use_item, self)
+	self.object:set_callback(callback.on_pickup_item_showing, self.on_pickup_item_showing, self)
 	--
 	self.sm:call("on_reinit")
 end
@@ -608,13 +610,16 @@ end
 
 function actor_binder:update_items_effect(update_time)
 	self.sm:call("update_items_effect", update_time)
-	--log3("%s | %s", script_name(), update_time)
 end
 
 function actor_binder:on_before_use_item(item)
 	self.sm:call("on_before_use_item", item)
-	--log3("%s | %s", script_name(), update_time)
 end
+
+function actor_binder:on_pickup_item_showing(item, icon)
+	self.sm:call("on_pickup_item_showing", item, icon)
+end
+
 --старт префетча звуков
 --if string.find(command_line(), "-noprefetch") == nil then
 --	sound_prefetch.prefetch_sounds()

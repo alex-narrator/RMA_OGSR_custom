@@ -20,9 +20,10 @@ function send_tip(victim, killer)
 			actor:give_info_portion("eliminate_gunslinger_done")
 	end
 	
-	local news_text = string.format("%s%s\\n%s%s\\n[%s]", 
+	local news_text = string.format("%s%s\\n%s%s\\n%s[%s]", 
 									"%c[red]", tip_header, 
-									color_by_relation[victim:relation(actor)], victim_name, victim_comm)
+									color_by_relation[victim:relation(actor)], victim_name, 
+									"%c[white]", victim_comm)
 	
 	local rnd = math.random(2, 5)
 	actor:give_game_news(news_text, "ui\\ui_actor_newsmanager_icons", Frect():set(83,188,83,47), rnd * 1000, 2000)

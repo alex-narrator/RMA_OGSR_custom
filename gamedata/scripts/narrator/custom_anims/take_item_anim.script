@@ -1,28 +1,48 @@
 function attach(sm)
-	sm:subscribe({signal = "on_take",   fun = this.on_item_take})
+	--sm:subscribe({signal = "on_take",   fun = this.on_item_take})
+	sm:subscribe({signal = "on_key_press", 				fun = this.on_key_press})
+	sm:subscribe({signal = "on_pickup_item_showing", 	fun = this.on_pickup_item_showing})
 end
 
-local ANIM_TAKE_DELAY 	= read_if_exists(sys_ini, "r_u32", "actor", "anim_take_delay", 1);
+local BLOCK_TAKE_DELAY 	= 0.7--read_if_exists(sys_ini, "r_u32", "actor", "anim_take_delay", 1);
+local is_playing = false
+local item_icon = false
 
-local anim_blocked = false
+function on_pickup_item_showing(item, icon)
+	item_icon = icon
+end
 
-function on_item_take(item)
-	if anim_blocked or 
-		level.main_input_receiver() or 
-		xr_conditions.black_screen() or
-		not actor_hands_free() then
+function can_play_anim()
+	return item_icon and item_icon:IsShown() and actor_hands_free() and not is_playing
+end
+
+function on_key_press(key, game_action)
+	if game_action ~= key_bindings.kUSE or
+		not can_play_anim()
+	then
 	return end
-	
+		
+	is_playing = true
+	get_actor_obj():block_action(key_bindings.kUSE)
+		
 	local wpn = actor:active_item() and actor:active_item():get_weapon()
 	if wpn and wpn.zoom_mode then
 		wpn:zoom_out()
 	end
 	
-	game.play_hud_motion(1, "detector_simple_hud", "anm_hide_fast", false, 1, true)
-	game.stop_hud_motion()
+	game.play_hud_anm("camera_effects\\item_use\\two_handed_weapon_effect.anm", 0, 1.4, 1, false)
+	game.play_hud_motion(1, "pickup_hud", "anm_take", false, 1, false)
 	
-	xr_sound.get_safe_sound_object("interface\\inv_ruck",sound_object.s2d):play_at_pos(actor,actor:position())
+	xr_sound.get_safe_sound_object("interface\\item_usage\\pickup",sound_object.s2d):play_at_pos(actor,actor:position())
 	
-	anim_blocked = true
-	add_time_delayed_action(ANIM_TAKE_DELAY, function() anim_blocked = false end)
+	add_time_delayed_action(
+		BLOCK_TAKE_DELAY, 
+		function() 
+			get_actor_obj():unblock_action(key_bindings.kUSE)
+			level.send_event_key_press(bind_to_dik(key_bindings.kUSE))
+			level.send_event_key_release(bind_to_dik(key_bindings.kUSE))
+			is_playing = false
+		end,
+		true
+	)
 end

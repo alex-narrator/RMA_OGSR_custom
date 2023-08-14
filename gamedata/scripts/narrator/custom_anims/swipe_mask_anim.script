@@ -3,7 +3,8 @@ function attach(sm)
 end
 
 local console = get_console()
-local restore_drops_delay = 2
+local RESTORE_DROPS_DELAY = 2
+local REMOVE_DROPS_DELAY = 0.2
 
 function on_key_press(key, game_action)
 	if level.main_input_receiver() or 
@@ -19,11 +20,18 @@ function on_key_press(key, game_action)
 	end
 	
 	game.play_hud_motion(1, "swipe_mask_hud", "anm_swipe", false, 1, false)
-	xr_sound.get_safe_sound_object("interface\\inv_slot",sound_object.s2d):play_at_pos(actor,actor:position())
-	console:execute("r2_rain_drops_control off")
+	xr_sound.get_safe_sound_object("interface\\item_usage\\mask_clean",sound_object.s2d):play_at_pos(actor,actor:position())
+	
+	--//щоб крапельки зникали відповідно до анімації
+	add_time_delayed_action(
+		REMOVE_DROPS_DELAY,
+		function()
+			console:execute("r2_rain_drops_control off")
+		end
+	)
 		
 	add_time_delayed_action(
-		restore_drops_delay,
+		RESTORE_DROPS_DELAY,
 		function()
 			console:execute("r2_rain_drops_control on")
 		end
