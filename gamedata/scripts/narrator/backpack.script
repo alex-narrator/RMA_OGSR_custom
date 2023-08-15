@@ -23,3 +23,50 @@ function try_drop()
 	
 	hud_add_info_message("item_usage", "st_backpack_dropped")
 end
+
+local actor_obj = get_actor_obj()
+local saved_state = false
+local effect = {
+	name = "effector_backpack",
+	id = 66677,
+}
+local anims = {
+	"anm_show",
+	"anm_show",
+	"anm_idle",
+}
+function play_anim(state)
+	game.play_hud_motion(2, "backpack_hud", anims[state], true, 1, false)
+end
+
+function skip_state()
+	return actor_obj:is_actor_climb() or actor_obj:is_actor_climbing() or 
+			actor_obj:is_actor_crouch() or actor_obj:is_actor_crouching() or 
+			actor_obj:is_actor_creep() or actor_obj:is_actor_creeping()
+end
+
+function force_crouch(enable)
+	if enable then
+		saved_state = skip_state() and false or actor_obj:get_state_wishful()
+		if saved_state then
+			actor_obj:set_state_wishful(move_command.mcCrouch)
+			actor_obj.clear_crouch = false
+		end
+	else
+		if saved_state then
+			actor_obj:set_state_wishful(saved_state)
+			actor_obj.clear_crouch = true
+		end
+	end
+end
+
+function play_effects(enable)
+	force_crouch(enable)
+	play_anim(enable and 1 or 2)
+	
+	local snd_name = enable and "interface\\item_usage\\backpack_open" or "interface\\item_usage\\backpack_close"
+	xr_sound.get_safe_sound_object(snd_name, sound_object.s2d):play_at_pos(actor,actor:position())
+	if not level.check_complex_effector(effect.name) then 
+		level.add_complex_effector(effect.name, effect.id)
+	end
+end

@@ -1,0 +1,38 @@
+function attach(sm)
+	sm:subscribe({signal = "on_carbody_show", 	fun = this.on_show})
+	sm:subscribe({signal = "on_carbody_hide", 	fun = this.on_hide})
+end
+
+local actor_obj = get_actor_obj()
+
+function on_show()
+	actor:hide_weapon(true)
+	level.add_call(
+		function() 
+			return actor:active_slot() == NO_ACTIVE_SLOT
+		end,
+		function() 
+			backpack.play_effects(true)
+			level.add_call(
+				function()
+					return game.hud_motion_allowed()
+				end,
+				function()
+					backpack.play_anim(3)
+				end
+			)
+		end
+	)
+end
+
+function on_hide()
+	backpack.play_effects(false)
+	level.add_call(
+		function()
+			return game.hud_motion_allowed()
+		end,
+		function()
+			actor:restore_weapon(true)
+		end
+	)
+end
