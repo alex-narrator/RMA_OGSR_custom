@@ -1,19 +1,32 @@
 function attach(sm)
-	--sm:subscribe({signal = "on_take",   fun = this.on_item_take})
+	--sm:subscribe({signal = "on_take",   				fun = this.on_item_take})
 	sm:subscribe({signal = "on_key_press", 				fun = this.on_key_press})
 	sm:subscribe({signal = "on_pickup_item_showing", 	fun = this.on_pickup_item_showing})
 end
 
-local BLOCK_TAKE_DELAY 	= 0.7--read_if_exists(sys_ini, "r_u32", "actor", "anim_take_delay", 1);
+local BLOCK_TAKE_DELAY 	= 0.7
 local is_playing = false
 local item_icon = false
+local pickup_item = false
 
 function on_pickup_item_showing(item, icon)
 	item_icon = icon
+	pickup_item = item
+end
+
+function is_quick_info_shown()
+	return get_main_window() and get_main_window():FindChild("quick_info") and get_main_window():FindChild("quick_info"):IsShown()
+end
+
+function can_play_for_container()
+	return not pickup_item:is_inventory_box() or 
+		not is_quick_info_shown() or
+		level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) or
+		(not level.get_target_obj() or level.get_target_obj():id() ~= pickup_item:id())
 end
 
 function can_play_anim()
-	return item_icon and item_icon:IsShown() and actor_hands_free() and not is_playing
+	return item_icon and item_icon:IsShown() and actor_hands_free() and not is_playing and can_play_for_container()
 end
 
 function on_key_press(key, game_action)

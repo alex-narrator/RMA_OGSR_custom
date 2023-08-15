@@ -4,17 +4,24 @@ function attach(sm)
 	sm:subscribe({signal = "on_key_press",   	fun = this.on_key_press})
 end
 
+local inv_wnd = level.get_inventory_wnd()
 local actor_obj = get_actor_obj()
-local SHOW_INVENTORY = false
+local OPEN_ANIM_STARTED = false
 
 function on_key_press(key, game_action)
-	if game_action ~= key_bindings.kINVENTORY or 
-		level.main_input_receiver() or
-		SHOW_INVENTORY
+	if game_action ~= key_bindings.kINVENTORY or
+		OPEN_ANIM_STARTED
 	then return end
 	
+	if level.main_input_receiver() then
+		if inv_wnd:IsShown() then
+			level.start_stop_menu(inv_wnd, true)
+		end
+	return end
+	
 	actor_obj:block_action(key_bindings.kINVENTORY)
-	actor:hide_weapon(true)
+	actor:hide_weapon()
+	OPEN_ANIM_STARTED = true
 	
 	level.add_call(
 		function() 
@@ -27,10 +34,7 @@ function on_key_press(key, game_action)
 					return game.hud_motion_allowed()
 				end,
 				function()
-					SHOW_INVENTORY = true
-					actor_obj:unblock_action(key_bindings.kINVENTORY)
-					level.send_event_key_press(bind_to_dik(key_bindings.kINVENTORY))
-					level.send_event_key_release(bind_to_dik(key_bindings.kINVENTORY))
+					level.start_stop_menu(inv_wnd, true)
 				end
 			)
 		end
@@ -39,17 +43,17 @@ end
 
 function on_show()
 	backpack.play_anim(3)
+	OPEN_ANIM_STARTED = false
 end
 
 function on_hide()
 	backpack.play_effects(false)
-	SHOW_INVENTORY = false
 	level.add_call(
 		function()
 			return game.hud_motion_allowed()
 		end,
 		function()
-			actor:restore_weapon(true)
+			actor:restore_weapon()
 		end
 	)
 end

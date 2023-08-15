@@ -15,15 +15,17 @@ local quick_sect = {
 local quick_selected
 
 function attach(sm)
-	sm:subscribe({signal = "on_key_press",   fun = this.process_use})
-	sm:subscribe({signal = "on_save",   fun = this.on_save})
-	sm:subscribe({signal = "on_load",   fun = this.on_load})
-	sm:subscribe({signal = "on_cell_item_mouse",   fun = this.try_set_item})
+	sm:subscribe({signal = "on_key_press",   		fun = this.on_key_press})
+	sm:subscribe({signal = "on_save",   			fun = this.on_save})
+	sm:subscribe({signal = "on_load",   			fun = this.on_load})
+	sm:subscribe({signal = "on_cell_item_mouse",   	fun = this.try_set_item})
 end
 
-function process_use(key, game_action)
+function on_key_press(key, game_action)
 	if level.main_input_receiver() or 
-		not quick_action[game_action] then
+		not quick_action[game_action] or
+		not actor_hands_free()
+	then
 	return end
 	
 	local slot_num = game_action - key_bindings.kQUICK_SLOT_0
@@ -32,7 +34,10 @@ end
 
 function try_set_item(obj, x, y, action)
 	local item_allowed = read_if_exists(sys_ini, "r_bool", obj:section(), "quick_slot", false)
-	if action ~= ui_events.DRAG_DROP_ITEM_DROP or not quick_selected or not item_allowed then 
+	if action ~= ui_events.DRAG_DROP_ITEM_DROP or 
+		not quick_selected or 
+		not item_allowed 
+	then 
 	return end
 	
 	set_item(obj:section(), quick_selected)

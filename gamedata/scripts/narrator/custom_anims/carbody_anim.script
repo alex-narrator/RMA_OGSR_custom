@@ -1,12 +1,47 @@
 function attach(sm)
 	sm:subscribe({signal = "on_carbody_show", 	fun = this.on_show})
 	sm:subscribe({signal = "on_carbody_hide", 	fun = this.on_hide})
+	sm:subscribe({signal = "on_key_press",   	fun = this.on_key_press})
 end
 
 local actor_obj = get_actor_obj()
+local OPEN_ANIM_STARTED = false
 
-function on_show()
-	actor:hide_weapon(true)
+function is_quick_info_shown()
+	return get_main_window() and get_main_window():FindChild("quick_info") and get_main_window():FindChild("quick_info"):IsShown()
+end
+
+function check_dist(obj)
+	return distance_between_safe(actor, obj) - obj:radius() <= sys_ini:r_float("inventory", "take_dist")
+end
+
+function get_carbody_target()
+	local tgt = level.get_target_obj()
+	if not tgt or 
+		not is_quick_info_shown() or 
+		level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) 
+	then
+	return false end
+	
+	if tgt:is_inventory_box() or (tgt:is_stalker() and not tgt:alive()) then
+		return tgt
+	end
+	
+	return false
+end
+
+function on_key_press(key, game_action)
+	local target = get_carbody_target()
+	if game_action ~= key_bindings.kUSE or
+		not target or
+		level.main_input_receiver() or
+		OPEN_ANIM_STARTED
+	then return end
+	
+	actor_obj:block_action(key_bindings.kUSE)
+	actor:hide_weapon()
+	OPEN_ANIM_STARTED = true
+	
 	level.add_call(
 		function() 
 			return actor:active_slot() == NO_ACTIVE_SLOT
@@ -18,11 +53,22 @@ function on_show()
 					return game.hud_motion_allowed()
 				end,
 				function()
-					backpack.play_anim(3)
+					actor_obj:unblock_action(key_bindings.kUSE)
+					if check_dist(target) then
+						actor:start_carbody(target)
+					else
+						on_hide()
+						OPEN_ANIM_STARTED = false
+					end
 				end
 			)
 		end
-	)
+	)	
+end
+
+function on_show()
+	backpack.play_anim(3)
+	OPEN_ANIM_STARTED = false
 end
 
 function on_hide()
@@ -32,7 +78,7 @@ function on_hide()
 			return game.hud_motion_allowed()
 		end,
 		function()
-			actor:restore_weapon(true)
+			actor:restore_weapon()
 		end
 	)
 end

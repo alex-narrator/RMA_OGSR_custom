@@ -54,6 +54,7 @@ function use_item_effects(obj, user)
 	end
 	--тільки для актора
 	if user:is_actor() then
+		actor_break_sprint()
 		--use effectors
 		local eff_name = read_if_exists(sys_ini, "r_string", obj:section(), "use_effector", nil)
 		if eff_name then

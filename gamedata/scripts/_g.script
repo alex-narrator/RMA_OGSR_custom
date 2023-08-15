@@ -1612,6 +1612,13 @@ function actor_get_backpack()
 	return actor:item_in_slot(13)
 end
 
+function actor_break_sprint()
+	local actor_obj = get_actor_obj()
+	if actor_obj:is_actor_sprinting() then
+		actor_obj:set_state_wishful(move_command.mcAccel)
+	end
+end
+
 function is_power_device(obj)
 	if not obj then
 	return false end

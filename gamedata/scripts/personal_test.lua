@@ -49,6 +49,10 @@ if tgt then
 		tgt:name(), 
 		tgt:profile_name() and tgt:profile_name() or "NO PROFILE", 
 		read_if_exists(sys_ini, "r_string", tgt:section(), "species", "NO SPECIES"))
+		
+	if tgt:is_stalker() or tgt:is_inventory_box() then
+		actor:start_carbody(tgt)
+	end
 end
 
 -- local torch = actor_get_torch()
@@ -72,4 +76,4 @@ end
 --game.stop_hud_motion()
 --actor:activate_slot(NO_ACTIVE_SLOT, true)
 --level.only_allow_movekeys(false)
-get_actor_obj():block_action(key_bindings.kINVENTORY)
+--get_actor_obj():block_action(key_bindings.kINVENTORY)

@@ -25,14 +25,14 @@ function try_drop()
 end
 
 local actor_obj = get_actor_obj()
-local saved_state = false
+local saved_state = nil
 local effect = {
 	name = "effector_backpack",
 	id = 66677,
 }
 local anims = {
 	"anm_show",
-	"anm_show",
+	"anm_hide",
 	"anm_idle",
 }
 function play_anim(state)
@@ -47,7 +47,7 @@ end
 
 function force_crouch(enable)
 	if enable then
-		saved_state = skip_state() and false or actor_obj:get_state_wishful()
+		saved_state = not skip_state() and actor_obj:get_state_wishful() or nil
 		if saved_state then
 			actor_obj:set_state_wishful(move_command.mcCrouch)
 			actor_obj.clear_crouch = false
