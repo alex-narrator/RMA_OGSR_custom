@@ -4,6 +4,7 @@ end
 
 local console = get_console()
 local hud_sect = "swipe_mask_hud"
+local hud_effector_id = 5556
 
 function on_key_press(key, game_action)
 	if level.main_input_receiver() or 
@@ -21,6 +22,8 @@ function on_key_press(key, game_action)
 	game.play_hud_motion(1, hud_sect, "anm_swipe", false, 1, false)
 	local snd_name = read_if_exists(sys_ini, "r_string", hud_sect, "hud_sound", nil)
 	xr_sound.get_safe_sound_object(snd_name,sound_object.s2d):play_at_pos(actor,actor:position())
+	local eff_name = read_if_exists(sys_ini, "r_string", hud_sect, "hud_effector", nil)
+	level.add_complex_effector(eff_name, hud_effector_id)
 	
 	--//щоб крапельки зникали відповідно до анімації
 	add_time_delayed_action(
