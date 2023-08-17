@@ -50,9 +50,9 @@ if tgt then
 		tgt:profile_name() and tgt:profile_name() or "NO PROFILE", 
 		read_if_exists(sys_ini, "r_string", tgt:section(), "species", "NO SPECIES"))
 		
-	if tgt:is_stalker() or tgt:is_inventory_box() then
-		actor:start_carbody(tgt)
-	end
+	-- if tgt:is_stalker() or tgt:is_inventory_box() then
+		-- actor:start_carbody(tgt)
+	-- end
 end
 
 -- local torch = actor_get_torch()
@@ -72,8 +72,8 @@ end
 	-- main_wnd.show_zone_map = not main_wnd.show_zone_map
 -- end
 
---game.play_hud_motion(2, "backpack_hud", "anm_show", false, 1, false)
+--game.play_hud_motion(2, "harv_wpn_knife_hud", "anm_show", false, 1, false)
 --game.stop_hud_motion()
 --actor:activate_slot(NO_ACTIVE_SLOT, true)
---level.only_allow_movekeys(false)
+level.only_allow_movekeys(false)
 --get_actor_obj():block_action(key_bindings.kINVENTORY)

@@ -2,55 +2,41 @@
 ;___________________________________________________________________________________________________________________
 ;Анимации - свежевание
 
-;Ножи - базовые параметры
-[harv_useknife_animset]
-anim_length                 = 2868
-anim_sound                  = interface\item_usage\harvest_use
+[harv_wpn_knife_hud]
+hands_position                      = -0.0055,-0.07, 0.36
+hands_position_16x9                 = -0.0055,-0.07, 0.36
 
-[harv_useknife_animset_hud]
-hands_position                           = -0.0055,-0.07, 0.36
-hands_position_16x9                      = -0.0055,-0.07, 0.36
+anm_show                    		= skinning_knife, idle
+item_visual                      = dynamics\weapons\wpn_knife\wpn_knife_hud.ogf
 
-anm_show                    = skinning_knife, idle
-
-
-;____Ножи
-[harv_wpn_knife]:harv_useknife_animset
-
-[harv_wpn_knife_hud]:harv_useknife_animset_hud
-item_visual                      = anomaly_weapons\wpn_knife\wpn_knife_hud.ogf
-
-[harv_wpn_knife2_hud]:harv_useknife_animset_hud
+[harv_wpn_knife_nr40_hud]:harv_wpn_knife_hud
 item_visual                      = anomaly_weapons\wpn_knife\wpn_knife_nr40_hud.ogf
 
-[harv_wpn_knife3_hud]:harv_useknife_animset_hud
+[harv_wpn_knife_hunting_hud]:harv_wpn_knife_hud
 item_visual                      = anomaly_weapons\wpn_knife\wpn_knife_hunting_hud.ogf
 
-[harv_wpn_knife4_hud]:harv_useknife_animset_hud
+[harv_wpn_knife_swat_hud]:harv_wpn_knife_hud
 item_visual                      = anomaly_weapons\wpn_knife\wpn_knife_swat_hud.ogf
 
-[harv_wpn_knife5_hud]:harv_useknife_animset_hud
+[harv_wpn_knife_combat_hud]:harv_wpn_knife_hud
 item_visual                      = anomaly_weapons\wpn_knife\wpn_knife_combat_hud.ogf
 
-[harv_wpn_knife6_hud]:harv_useknife_animset_hud
+[harv_wpn_knife_f4_hud]:harv_wpn_knife_hud
 item_visual                      = dynamics\weapons\wpn_knife\wpn_knifebf4_hud.ogf
 
-[harv_wpn_knife7_hud]:harv_useknife_animset_hud
+[harv_wpn_knife_tactical_hud]:harv_wpn_knife_hud
 item_visual                      = dynamics\weapons\wpn_knife\wpn_tactical_knife_hud.ogf
 
-[harv_wpn_knife8_hud]:harv_useknife_animset_hud
+[harv_wpn_kukri_hud]:harv_wpn_knife_hud
 item_visual                      = dynamics\weapons\wpn_knife\wpn_kukri_hud.ogf
 
-[harv_wpn_knife9_hud]:harv_useknife_animset_hud
+[harv_wpn_tomahawk_hud]:harv_wpn_knife_hud
 item_visual                      = dynamics\weapons\wpn_knife\wpn_tomahawk_hud.ogf
 
-[harv_wpn_axe3_hud]:harv_useknife_animset_hud
+[harv_wpn_axe3_hud]:harv_wpn_knife_hud
 item_visual                      = dynamics\weapons\wpn_axe\wpn_axe3_hud.ogf
 
-[harv_wpn_axe2_hud]:harv_useknife_animset_hud
-item_visual                      = dynamics\weapons\wpn_axe\wpn_axe_hud.ogf
-
-[harv_wpn_axe_hud]:harv_useknife_animset_hud
+[harv_wpn_axe_hud]:harv_wpn_knife_hud
 item_visual                      = dynamics\weapons\wpn_axe\wpn_axe_hud.ogf
 
 
@@ -63,7 +49,9 @@ item_visual                      = dynamics\weapons\wpn_axe\wpn_axe_hud.ogf
 
 ;Мясо_базовые параметры
 
-[harv_meat_animset_hud]
+;____Мясо
+
+[harv_meat_hud]
 hands_position                           = -0.0055,-0.085, 0.32
 hands_position_16x9                      = -0.0055,-0.085, 0.32
 
@@ -71,48 +59,41 @@ item_visual                 = dynamics\weapons\wpn_eat\harvest\meat_1\wpn_harves
 
 anm_show                    = harv_loot_hands, harvest_success_wpn_eat
 
-
-;____Мясо
-
-[harv_meat_1_hud]:harv_meat_animset_hud
-item_visual                 = dynamics\weapons\wpn_eat\harvest\meat_1\wpn_harvest_meat_1_hud.ogf
-test_motion_names = harv_loot_hands, harvest_success_wpn_eat
-
-[harv_meat_4_hud]:harv_meat_animset_hud
+[harv_meat_boar_hud]:harv_meat_hud
 item_visual                 = dynamics\weapons\wpn_eat\harvest\meat_1\wpn_harvest_meat_boar_hud.ogf
 
-[harv_meat_6_hud]:harv_meat_animset_hud
+[harv_meat_dog_hud]:harv_meat_hud
 item_visual                 = dynamics\weapons\wpn_eat\harvest\meat_1\wpn_harvest_meat_dog_hud.ogf
 
-[harv_meat_8_hud]:harv_meat_animset_hud
+[harv_meat_eye_hud]:harv_meat_hud
 item_visual                 = dynamics\weapons\wpn_eat\harvest\meat_1\wpn_harvest_meat_eye_hud.ogf
 
-[harv_meat_3_hud]:harv_meat_animset_hud
+[harv_meat_flesh_hud]:harv_meat_hud
 item_visual                 = dynamics\weapons\wpn_eat\harvest\meat_1\wpn_harvest_meat_flesh_hud.ogf
 
-[harv_meat_9_hud]:harv_meat_animset_hud
+[harv_meat_himera_hud]:harv_meat_hud
 item_visual                 = dynamics\weapons\wpn_eat\harvest\meat_1\wpn_harvest_meat_himera_hud.ogf
 
-[harv_meat_2_hud]:harv_meat_animset_hud
+[harv_meat_meat_hud]:harv_meat_hud
 item_visual                 = dynamics\weapons\wpn_eat\harvest\meat_1\wpn_harvest_meat_hud.ogf
 
-[harv_meat_10_hud]:harv_meat_animset_hud
+[harv_meat_krovosos_hud]:harv_meat_hud
 item_visual                 = dynamics\weapons\wpn_eat\harvest\meat_1\wpn_harvest_meat_krovosos_hud.ogf
 
-[harv_meat_12_hud]:harv_meat_animset_hud
+[harv_meat_nose_hud]:harv_meat_hud
 item_visual                 = dynamics\weapons\wpn_eat\harvest\meat_1\wpn_harvest_meat_nose_hud.ogf
 
-[harv_meat_14_hud]:harv_meat_animset_hud
+[harv_meat_polter_hud]:harv_meat_hud
 item_visual                 = dynamics\weapons\wpn_eat\harvest\meat_1\wpn_harvest_meat_polter_hud.ogf
 
-[harv_meat_13_hud]:harv_meat_animset_hud
+[harv_meat_pseudodog_hud]:harv_meat_hud
 item_visual                 = dynamics\weapons\wpn_eat\harvest\meat_1\wpn_harvest_meat_pseudodog_hud.ogf
 
-[harv_meat_5_hud]:harv_meat_animset_hud
+[harv_meat_snork_hud]:harv_meat_hud
 item_visual                 = dynamics\weapons\wpn_eat\harvest\meat_1\wpn_harvest_meat_snork_hud.ogf
 
-[harv_meat_7_hud]:harv_meat_animset_hud
+[harv_meat_tushkan_hud]:harv_meat_hud
 item_visual                 = dynamics\weapons\wpn_eat\harvest\meat_1\wpn_harvest_meat_tushkan_tail_hud.ogf
 
-[harv_meat_11_hud]:harv_meat_animset_hud
+[harv_meat_zombie_hud]:harv_meat_hud
 item_visual                 = dynamics\weapons\wpn_eat\harvest\meat_1\wpn_harvest_meat_zombie_hud.ogf

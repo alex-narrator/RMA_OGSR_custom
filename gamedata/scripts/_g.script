@@ -1670,6 +1670,12 @@ function get_cur_ammo2_sect(obj)
 	return ammo_table[obj:get_underbarrel_ammo_type()+1]
 end
 
+function get_inventory_items(inventory_owner)
+	local items_list = {}
+	inventory_owner:iterate_inventory(function(dummy, item) table.insert(items_list, item) end, nil)
+	return items_list
+end
+
 ammo_section = {}
 ammo_section["ammo_9x18_fmj"]		= true
 ammo_section["ammo_9x18_pbp"]		= true

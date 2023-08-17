@@ -1,5 +1,4 @@
 function attach(sm)
-	--sm:subscribe({signal = "on_take",   				fun = this.on_item_take})
 	sm:subscribe({signal = "on_key_press", 				fun = this.on_key_press})
 	sm:subscribe({signal = "on_pickup_item_showing", 	fun = this.on_pickup_item_showing})
 end
@@ -25,8 +24,12 @@ function can_play_for_container()
 		(not level.get_target_obj() or level.get_target_obj():id() ~= pickup_item:id())
 end
 
+function check_target_item()
+	return not level.get_target_obj() or level.get_target_obj():is_inventory_item()
+end
+
 function can_play_anim()
-	return item_icon and item_icon:IsShown() and actor_hands_free() and not is_playing and can_play_for_container()
+	return item_icon and item_icon:IsShown() and actor_hands_free() and not is_playing and check_target_item() and can_play_for_container()
 end
 
 function on_key_press(key, game_action)

@@ -66,7 +66,7 @@ function play_effects(enable)
 	
 	local snd_name = enable and "interface\\item_usage\\backpack_open" or "interface\\item_usage\\backpack_close"
 	xr_sound.get_safe_sound_object(snd_name, sound_object.s2d):play_at_pos(actor,actor:position())
-	if not level.check_complex_effector(effect.name) then 
+	if not level.check_complex_effector(effect.id) then 
 		level.add_complex_effector(effect.name, effect.id)
 	end
 end

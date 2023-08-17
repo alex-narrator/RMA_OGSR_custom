@@ -19,11 +19,11 @@ function get_carbody_target()
 	local tgt = level.get_target_obj()
 	if not tgt or 
 		not is_quick_info_shown() or 
+		actor:ph_capture() or
 		level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) 
-	then
-	return false end
+	then return false end
 	
-	if tgt:is_inventory_box() or (tgt:is_stalker() and not tgt:alive()) then
+	if tgt:is_inventory_box() or (tgt:is_inventory_owner() and not tgt:alive()) then
 		return tgt
 	end
 	
@@ -32,6 +32,7 @@ end
 
 function on_key_press(key, game_action)
 	local target = get_carbody_target()
+		
 	if game_action ~= key_bindings.kUSE or
 		not target or
 		level.main_input_receiver() or
@@ -39,6 +40,16 @@ function on_key_press(key, game_action)
 	then return end
 	
 	actor_obj:block_action(key_bindings.kUSE)
+	
+	if target:is_monster() then
+		if harvest.can_harvest(target) then
+			harvest.harvest_items(target, get_inventory_items(target))
+		else
+			local n = 0
+			level.add_call(function() n = n+1 return n > 1 end, function() actor_obj:unblock_action(key_bindings.kUSE) end)
+		end
+	return end
+	
 	actor:hide_weapon()
 	OPEN_ANIM_STARTED = true
 	
