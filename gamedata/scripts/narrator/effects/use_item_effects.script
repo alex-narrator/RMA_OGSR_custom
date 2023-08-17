@@ -9,7 +9,9 @@ end
 local use_effector_id = 66613 --спеціальний id для ефектору використання, щоб саме його видаляти при використанні іншого предмету
 local boost_efefctor_id = 666650 --id ефектору бустера за замовчуванням
 
-function check_use_enabled(item)
+delay_use = false
+
+function check_use_enabled(item, user)
 	local eatable_item = item:get_eatable_item()
 	if not eatable_item then
 	return end
@@ -39,6 +41,13 @@ function check_use_enabled(item)
 			news_manager.item_tip(check_item, "outfit_block_eat")
 		return end
 	end
+	
+	if user:is_actor() and get_hud_sect(item) then
+		if not delay_use then
+			eatable_item.can_be_eaten = false
+			use_item_anim.play(item)
+		return end
+	end
 		
 	eatable_item.can_be_eaten = true
 end
@@ -54,6 +63,9 @@ function use_item_effects(obj, user)
 	end
 	--тільки для актора
 	if user:is_actor() then
+		if delay_use then
+			delay_use = false
+		end
 		actor_break_sprint()
 		--use effectors
 		local eff_name = read_if_exists(sys_ini, "r_string", sect, "use_effector", nil)
@@ -62,8 +74,6 @@ function use_item_effects(obj, user)
 			level.add_complex_effector(eff_name, use_effector_id)
 			log3("~ used item %s played effector %s for user %s", sect, eff_name, user:name())
 		end
-		--use animation
-		use_item_anim.try_play(obj)
 	end
 end
 

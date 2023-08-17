@@ -47,11 +47,8 @@ function on_key_press(key, game_action)
 			actor_obj:unblock_action(key_bindings.kUSE) 
 			level.only_allow_movekeys(false) 
 		else
-			local n = 0
-			level.add_call(
-				function() 
-					n = n+1 return n > 1 
-				end, 
+			add_updates_delayed_action(
+				1, 
 				function() 
 					actor_obj:unblock_action(key_bindings.kUSE) 
 					level.only_allow_movekeys(false) 

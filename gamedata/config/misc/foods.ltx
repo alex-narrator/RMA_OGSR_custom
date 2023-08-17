@@ -1,4 +1,4 @@
-[food_base]:identity_immunities
+[food_base]:identity_immunities,quick_item
 GroupControlSection	= spawn_group
 discovery_dependency =
 class				= II_FOOD
@@ -8,9 +8,11 @@ animation_slot		= 4
 ;hud item
 hud = wpn_vodka_hud
 
+default_to_ruck 	= true
+belt = true
+vest = true
+
 menu_use_tip 		= st_eat
-hud_sound 			= interface\item_usage\food_use
-hud_effector 		= bread_use
 breakable 			= true
 helmet_use 			= false
 
@@ -78,7 +80,6 @@ angle_offset			 = 1.570790,1.570790,3.92699
 eat_satiety = 0.3
 
 hud = kolbasa_hud
-hud_effector = kolbasa_use
 
 [conserva]:food_base
 $spawn 				= "food and drugs\conserva"
@@ -109,8 +110,6 @@ position_offset			 = 0.0,0.0,0.0
 angle_offset			 = 1.570790,1.570790,3.92699
 
 hud 				= conserva_hud
-hud_sound 			= interface\item_usage\conserva_use
-hud_effector 		= conserva_use
 
 [vodka]:food_base
 GroupControlSection	= spawn_group
@@ -155,10 +154,8 @@ break_particles		= explosions\explosion_bottle
 break_sound			= material\bottle\collide\bottle_break_1
 
 hud 				= vodka_hud
-hud_sound 			= interface\item_usage\vodka_use
-hud_effector 		= vodka_use
 
-[energy_drink]:vodka,quick_item
+[energy_drink]:vodka
 $spawn 				= "food and drugs\energy_drink"
 inv_name			= energy_drink_name
 inv_name_short		= energy_drink_short_name
@@ -189,10 +186,4 @@ attach_position_offset	= 0.087266, -0.078540, 0.052360
 attach_bone_name		= bip01_r_hand
 auto_attach				= false
 
-default_to_ruck 	= true
-belt = true
-vest = true
-
 hud 				= energy_drink_nonstop_hud
-hud_sound 			= interface\item_usage\drink_soda_use
-hud_effector 		= energy_drink_use

@@ -2,28 +2,60 @@
 ;;;;;;;;;;;;;;;;;;;;;;НАПИТКИ;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+[vodka_hud] 
+hands_position                           = -0.0055,-0.07, 0.32
+hands_position_16x9                      = -0.0055,-0.07, 0.32
+item_visual             	= dynamics\weapons\wpn_eat\vodki\wpn_vodka_kazaki_hud.ogf
+
+anm_use					= vodka_hands_eat_invtrans, vodka_wpn_eat
+
+hud_sound 			= interface\item_usage\vodka_use
+hud_effector 		= vodka_use
+use_delay = 2.7
+
+;ВОДКА НЕМИРОФ
+
+[hemupob_vodka_hud]:vodka_hud
+hands_position              = -0.0055,-0.09, 0.27
+hands_position_16x9         = -0.0055,-0.09, 0.27
+
+item_visual             	= dynamics\weapons\wpn_eat\vodki\wpn_vodka_hemupob_hud.ogf
+
+;ВОДКА СМИРНОВ
+
+[cmuphob_vodka_hud]:vodka_hud
+hands_position              = -0.0055,-0.09, 0.27
+hands_position_16x9         = -0.0055,-0.09, 0.27
+
+item_visual             	= dynamics\weapons\wpn_eat\vodki\wpn_vodka_cmuphob_hud.ogf
+
+;ВИНО
+
+[vodka_wine_hud]:vodka_hud
+hands_position              = -0.0055,-0.09, 0.27
+hands_position_16x9         = -0.0055,-0.09, 0.27
+
+item_visual             	= dynamics\weapons\wpn_eat\vodki\wpn_vodka_wine_hud.ogf
+
 ;ГЕРКУЛЕС
-[booster_hud] 
+[booster_hud]:vodka_hud
 hands_position              = -0.0055,-0.07, 0.32
 hands_position_16x9         = -0.0055,-0.07, 0.32
 
 item_visual             	= dynamics\weapons\wpn_eat\drinks\wpn_drug_booster_hud.ogf
-anm_use					= vodka_hands_eat_invtrans, vodka_wpn_eat
 
-[booster_weight_hud]
+[booster_weight_hud]:vodka_hud
 hands_position              = -0.0055,-0.09, 0.27
 hands_position_16x9         = -0.0055,-0.09, 0.27
 
 item_visual             	= dynamics\weapons\wpn_eat\drinks\wpn_drug_booster_hud.ogf
-anm_use					= vodka_hands_eat_invtrans, vodka_wpn_eat
 
 ;ВОДА
-[mineral_water_hud]
+[mineral_water_hud]:vodka_hud
 hands_position              = -0.0055,-0.09, 0.27
 hands_position_16x9         = -0.0055,-0.09, 0.27
 
 item_visual             	= dynamics\weapons\wpn_eat\drinks\wpn_voda_hud.ogf
-anm_use					= vodka_hands_eat_invtrans, vodka_wpn_eat
 
 [flask_hud]
 hands_position              = -0.0275,-0.03, 0.14
@@ -55,6 +87,10 @@ hands_position_16x9         = -0.0055,-0.072, 0.31
 item_visual             	= dynamics\weapons\wpn_eat\banki\wpn_banka_nonstop_hud.ogf
 anm_use					= banka_1_hands_eat_invtrans, banka_1_wpn_eat
 
+hud_sound 			= interface\item_usage\drink_soda_use
+hud_effector 		= energy_drink_use
+use_delay = 1.6
+
 ;ЭНЕРГЕТИК
 
 [energy_drink_hud]:energy_drink_nonstop_hud
@@ -65,33 +101,6 @@ item_visual             	= dynamics\weapons\wpn_eat\banki\wpn_banka_energy_hud.o
 [chmielnitskoe_beer_hud]:energy_drink_nonstop_hud
 item_visual             	= dynamics\weapons\wpn_eat\banki\wpn_banka_chmielnitskoe_hud.ogf
 
-;ВОДКА НЕМИРОФ
-
-[hemupob_vodka_hud]
-hands_position              = -0.0055,-0.09, 0.27
-hands_position_16x9         = -0.0055,-0.09, 0.27
-
-item_visual             	= dynamics\weapons\wpn_eat\vodki\wpn_vodka_hemupob_hud.ogf
-anm_use					= vodka_hands_eat_invtrans, vodka_wpn_eat
-
-;ВОДКА СМИРНОВ
-
-[cmuphob_vodka_hud]
-hands_position              = -0.0055,-0.09, 0.27
-hands_position_16x9         = -0.0055,-0.09, 0.27
-
-item_visual             	= dynamics\weapons\wpn_eat\vodki\wpn_vodka_cmuphob_hud.ogf
-anm_use					= vodka_hands_eat_invtrans, vodka_wpn_eat
-
-;ВИНО
-
-[vodka_wine_hud]
-hands_position              = -0.0055,-0.09, 0.27
-hands_position_16x9         = -0.0055,-0.09, 0.27
-
-item_visual             	= dynamics\weapons\wpn_eat\vodki\wpn_vodka_wine_hud.ogf
-anm_use					= vodka_hands_eat_invtrans, vodka_wpn_eat
-
 ;ПИВО ПРИПЯТЬ
 
 [pripiat_beer_hud]
@@ -100,10 +109,3 @@ hands_position_16x9         = -0.0055,-0.06, 0.34
 
 item_visual             	= dynamics\weapons\wpn_eat\butilki_steklo\wpn_butilka_steklo_pripiat_hud.ogf
 anm_use					= butilka_steklo_1_hands_eat_alt_1_invtrans, butilka_steklo_1_wpn_eat_alt_1
-
-[vodka_hud] 
-hands_position                           = -0.0055,-0.07, 0.32
-hands_position_16x9                      = -0.0055,-0.07, 0.32
-item_visual             	= dynamics\weapons\wpn_eat\vodki\wpn_vodka_kazaki_hud.ogf
-
-anm_use					= vodka_hands_eat_invtrans, vodka_wpn_eat

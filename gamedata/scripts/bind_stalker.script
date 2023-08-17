@@ -613,7 +613,7 @@ function actor_binder:update_items_effect(update_time)
 end
 
 function actor_binder:on_before_use_item(item)
-	self.sm:call("on_before_use_item", item)
+	self.sm:call("on_before_use_item", item, self.object)
 end
 
 function actor_binder:on_pickup_item_showing(item, icon)

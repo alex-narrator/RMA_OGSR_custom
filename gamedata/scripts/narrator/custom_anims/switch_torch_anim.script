@@ -7,7 +7,6 @@ local torch_action = {
 	[key_bindings.kNIGHT_VISION] = true,
 }
 
-local block_delay = 0.8
 local actor_obj = get_actor_obj()
 local is_playing = false
 
@@ -19,6 +18,9 @@ function on_key_press(key, game_action)
 	then
 	return end
 	
+	actor_obj:block_action(key_bindings.kTORCH)
+	actor_obj:block_action(key_bindings.kNIGHT_VISION)
+	
 	if game_action == key_bindings.kTORCH and 
 		not read_if_exists(sys_ini, "r_string", actor_get_torch():section(), "light_definition", nil) 
 	then return end
@@ -27,14 +29,13 @@ function on_key_press(key, game_action)
 		not read_if_exists(sys_ini, "r_string", actor_get_torch():section(), "night_vision_effector", nil) 
 	then return end
 	
-	actor_obj:block_action(key_bindings.kTORCH)
-	actor_obj:block_action(key_bindings.kNIGHT_VISION)
+	local hud_sect = get_hud_sect(actor_get_torch())
 	
-	game.play_hud_motion(1, "switch_torch_hud", "anm_switch", false, 1, false)
+	game.play_hud_motion(1, hud_sect, "anm_switch", false, 1, false)
 	is_playing = true
 	
 	add_time_delayed_action(
-		block_delay,
+		read_if_exists(sys_ini, "r_float", hud_sect, "use_delay", 1.5),
 		function()
 			if game_action == key_bindings.kTORCH then
 				actor_get_torch():switch_torch(not actor_get_torch():is_power_on())
@@ -49,8 +50,6 @@ function on_key_press(key, game_action)
 			return game.hud_motion_allowed()
 		end,
 		function()
-			-- actor_obj:unblock_action(key_bindings.kTORCH)
-			-- actor_obj:unblock_action(key_bindings.kNIGHT_VISION)
 			is_playing = false
 		end
 	)
