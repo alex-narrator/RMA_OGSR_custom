@@ -121,14 +121,12 @@ function attach_loaded_ammo(UIDesc, obj)
 	end	
 end
 
-local cell_w = 50
-local cell_h = 50
 function set_ammo_icon(icon, sect)
 	local params = GetIconParams(sect)
 	icon:SetOriginalRect(params.x, params.y, params.w, params.h)
 		
-	local width_k = params.w/cell_w
-	local height_k = params.h/cell_h
+	local width_k = params.w/CELL_W
+	local height_k = params.h/CELL_H
 	local width = icon:GetWidth() * width_k
 	local height = icon:GetHeight() * height_k
 		

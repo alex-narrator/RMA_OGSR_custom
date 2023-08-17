@@ -106,6 +106,11 @@ function MainIngameOverlay:InitControls()
 		s.icon = xml:InitStatic("slot_icon", s)
 		s.icon:InitTexture("ui\\ui_icon_equipment")
 		
+		s.base_x = s.icon:GetWndPos().x
+		s.base_y = s.icon:GetWndPos().y
+		s.base_w = s.icon:GetWidth()
+		s.base_h = s.icon:GetHeight()
+		
 		s.count = xml:InitStatic("slot_count", s)
 		
 		self:DrawSlotIcon(i)
@@ -123,6 +128,24 @@ function MainIngameOverlay:DrawSlotIcon(slot_num)
 	s.count:Show(count > 0)
 	
 	s.icon:SetOriginalRect(params.x, params.y, params.w, params.h)
+
+	local width_k = params.w/CELL_W
+	local height_k = params.h/CELL_H
+	local width = s.base_w * width_k
+	local height = s.base_h * height_k
+	local pos_x = s.base_x
+	local pos_y = s.base_y
+		
+	if height_k > 1 then --//пропорційно зменшимо іконку з висотою > 1 клітинки
+		width = width / height_k
+		height = height / height_k
+		pos_x = pos_x + width / height_k
+	end
+		
+	s.icon:SetWidth(width)
+	s.icon:SetHeight(height)
+	s.icon:SetWndPos(pos_x, pos_y)
+
 	if count > 0 then
 		s.icon:SetColor(self.quick_color_has_item)
 	else
