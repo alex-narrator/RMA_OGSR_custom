@@ -20,6 +20,9 @@ function on_key_press(key, game_action)
 	return end
 	
 	actor_obj:block_action(key_bindings.kINVENTORY)
+	
+	level.only_allow_movekeys(true)
+	
 	actor:hide_weapon()
 	OPEN_ANIM_STARTED = true
 	
@@ -42,17 +45,20 @@ function on_key_press(key, game_action)
 end
 
 function on_show()
+	level.only_allow_movekeys(false)
 	backpack.play_anim(3)
 	OPEN_ANIM_STARTED = false
 end
 
 function on_hide()
 	backpack.play_effects(false)
+	level.only_allow_movekeys(true)
 	level.add_call(
 		function()
 			return game.hud_motion_allowed()
 		end,
 		function()
+			level.only_allow_movekeys(false)
 			actor:restore_weapon()
 		end
 	)

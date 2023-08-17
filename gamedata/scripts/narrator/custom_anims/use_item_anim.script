@@ -1,7 +1,10 @@
+local hud_effector_id = 5555
+
 function try_play(item)
 	local hud_sect = get_hud_sect(item)
 	if not hud_sect then
 	return end
+	local sect = item:section()
 	actor:hide_weapon(true)
 	level.add_call(
 		function() 
@@ -9,6 +12,8 @@ function try_play(item)
 		end,
 		function() 
 			game.play_hud_motion(2, hud_sect, "anm_use", false, 1, true)
+			play_hud_sound(sect)
+			play_hud_effector(sect)
 			level.only_allow_movekeys(true)
 			level.add_call(
 				function()
@@ -24,4 +29,19 @@ function try_play(item)
 			)
 		end
 	)
+end
+
+function play_hud_sound(sect)
+	local snd_name = read_if_exists(sys_ini, "r_string", sect, "hud_sound", nil)
+	if snd_name then
+		xr_sound.get_safe_sound_object(snd_name,sound_object.s2d):play_at_pos(actor,actor:position())
+	end
+end
+
+function play_hud_effector(sect)
+	local eff_name = read_if_exists(sys_ini, "r_string", sect, "hud_effector", nil)
+	if eff_name then
+		level.remove_complex_effector(hud_effector_id)
+		level.add_complex_effector(eff_name, hud_effector_id)
+	end
 end

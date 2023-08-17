@@ -40,13 +40,23 @@ function on_key_press(key, game_action)
 	then return end
 	
 	actor_obj:block_action(key_bindings.kUSE)
+	level.only_allow_movekeys(true)
 	
 	if target:is_monster() then
-		if harvest.can_harvest(target) then
-			harvest.harvest_items(target, get_inventory_items(target))
+		if harvest.try_harvest(target) then
+			actor_obj:unblock_action(key_bindings.kUSE) 
+			level.only_allow_movekeys(false) 
 		else
 			local n = 0
-			level.add_call(function() n = n+1 return n > 1 end, function() actor_obj:unblock_action(key_bindings.kUSE) end)
+			level.add_call(
+				function() 
+					n = n+1 return n > 1 
+				end, 
+				function() 
+					actor_obj:unblock_action(key_bindings.kUSE) 
+					level.only_allow_movekeys(false) 
+				end
+			)
 		end
 	return end
 	
@@ -78,18 +88,21 @@ function on_key_press(key, game_action)
 end
 
 function on_show()
+	level.only_allow_movekeys(false)
 	backpack.play_anim(3)
 	OPEN_ANIM_STARTED = false
 end
 
 function on_hide()
 	backpack.play_effects(false)
+	level.only_allow_movekeys(true)
 	level.add_call(
 		function()
 			return game.hud_motion_allowed()
 		end,
 		function()
 			actor:restore_weapon()
+			level.only_allow_movekeys(false)
 		end
 	)
 end

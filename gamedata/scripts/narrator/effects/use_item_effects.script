@@ -56,7 +56,7 @@ function use_item_effects(obj, user)
 	if user:is_actor() then
 		actor_break_sprint()
 		--use effectors
-		local eff_name = read_if_exists(sys_ini, "r_string", obj:section(), "use_effector", nil)
+		local eff_name = read_if_exists(sys_ini, "r_string", sect, "use_effector", nil)
 		if eff_name then
 			level.remove_complex_effector(use_effector_id)
 			level.add_complex_effector(eff_name, use_effector_id)
