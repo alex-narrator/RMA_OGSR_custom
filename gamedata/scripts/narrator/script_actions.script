@@ -60,3 +60,28 @@ end
 function repair_6(obj)
 	repair_kit.repair(obj, actor:item_in_slot(6))
 end
+
+function can_set_quick_0(obj)
+	return read_if_exists(sys_ini, "r_bool", obj:section(), "quick_slot", false) and quick_slots.get_item_sect(0) ~= obj:section()
+end
+function can_set_quick_1(obj)
+	return read_if_exists(sys_ini, "r_bool", obj:section(), "quick_slot", false) and quick_slots.get_item_sect(1) ~= obj:section()
+end
+function can_set_quick_2(obj)
+	return read_if_exists(sys_ini, "r_bool", obj:section(), "quick_slot", false) and quick_slots.get_item_sect(2) ~= obj:section()
+end
+function can_set_quick_3(obj)
+	return read_if_exists(sys_ini, "r_bool", obj:section(), "quick_slot", false) and quick_slots.get_item_sect(3) ~= obj:section()
+end
+function set_quick_0(obj)
+	quick_slots.set_item(obj:section(), 0)
+end
+function set_quick_1(obj)
+	quick_slots.set_item(obj:section(), 1)
+end
+function set_quick_2(obj)
+	quick_slots.set_item(obj:section(), 2)
+end
+function set_quick_3(obj)
+	quick_slots.set_item(obj:section(), 3)
+end

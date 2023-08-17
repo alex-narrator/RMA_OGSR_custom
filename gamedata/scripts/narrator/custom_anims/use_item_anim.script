@@ -17,6 +17,9 @@ function try_play(item)
 				function()
 					level.only_allow_movekeys(false)
 					actor:restore_weapon(true)
+					if has_alife_info("ui_inventory") or has_alife_info("ui_car_body") then
+						backpack.play_anim(3)
+					end
 				end
 			)
 		end

@@ -18,6 +18,15 @@ function on_key_press(key, game_action)
 		not actor_get_torch()
 	then
 	return end
+	
+	if game_action == key_bindings.kTORCH and 
+		not read_if_exists(sys_ini, "r_string", actor_get_torch():section(), "light_definition", nil) 
+	then return end
+	
+	if game_action == key_bindings.kNIGHT_VISION and 
+		not read_if_exists(sys_ini, "r_string", actor_get_torch():section(), "night_vision_effector", nil) 
+	then return end
+	
 	actor_obj:block_action(key_bindings.kTORCH)
 	actor_obj:block_action(key_bindings.kNIGHT_VISION)
 	

@@ -242,3 +242,21 @@ anim_hide			= kurit_4
 anim_play			= kurit_5
 anim_prepare		= kurit_5
 anim_eat			= kurit_3
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;COMMON BASE SECTIONS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+[corruptible]
+class				= S_FOOD
+corruption_time 	= 12
+destroy_corrupted 	= true
+script_binding 		= bind_corruptible.init
+
+[quick_item]
+quick_slot = true
+
+script_action_0 	= st_to_quick_slot_0, script_actions.can_set_quick_0, script_actions.set_quick_0
+script_action_1 	= st_to_quick_slot_1, script_actions.can_set_quick_1, script_actions.set_quick_1
+script_action_2 	= st_to_quick_slot_2, script_actions.can_set_quick_2, script_actions.set_quick_2
+script_action_3 	= st_to_quick_slot_3, script_actions.can_set_quick_3, script_actions.set_quick_3

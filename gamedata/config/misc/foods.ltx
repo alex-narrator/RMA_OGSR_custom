@@ -1,9 +1,3 @@
-[corruptible]
-class				= S_FOOD
-corruption_time 	= 12
-destroy_corrupted 	= true
-script_binding 		= bind_corruptible.init
-
 [food_base]:identity_immunities
 GroupControlSection	= spawn_group
 discovery_dependency =
@@ -164,7 +158,7 @@ hud 				= vodka_hud
 use_sound 			= interface\item_usage\vodka_use
 use_effector 		= vodka_use
 
-[energy_drink]:vodka
+[energy_drink]:vodka,quick_item
 $spawn 				= "food and drugs\energy_drink"
 inv_name			= energy_drink_name
 inv_name_short		= energy_drink_short_name
@@ -198,8 +192,6 @@ auto_attach				= false
 default_to_ruck 	= true
 belt = true
 vest = true
-
-quick_slot = true
 
 hud 				= energy_drink_nonstop_hud
 use_sound 			= interface\item_usage\drink_soda_use
