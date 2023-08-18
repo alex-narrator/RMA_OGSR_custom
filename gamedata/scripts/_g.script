@@ -1614,12 +1614,20 @@ end
 function actor_get_backpack()
 	return actor:item_in_slot(13)
 end
+function actor_get_gasmask()
+	return actor:item_in_slot(15)
+end
 
 function actor_break_sprint()
 	local actor_obj = get_actor_obj()
 	if actor_obj:is_actor_sprinting() then
 		actor_obj:set_state_wishful(move_command.mcAccel)
 	end
+end
+
+function block_non_move_action(block)
+	level.only_allow_movekeys(block)
+    level.set_actor_allow_ladder(not block)
 end
 
 function is_power_device(obj)
@@ -1680,12 +1688,6 @@ function get_cur_ammo2_sect(obj)
 	local ammo_sect = read_if_exists(sys_ini, "r_string", obj:section(), obj:get_gl_mode() and "ammo_class" or "grenade_class", nil)
 	local ammo_table = split_string(ammo_sect, ",")
 	return ammo_table[obj:get_underbarrel_ammo_type()+1]
-end
-
-function get_inventory_items(inventory_owner)
-	local items_list = {}
-	inventory_owner:iterate_inventory(function(dummy, item) table.insert(items_list, item) end, nil)
-	return items_list
 end
 
 ammo_section = {}

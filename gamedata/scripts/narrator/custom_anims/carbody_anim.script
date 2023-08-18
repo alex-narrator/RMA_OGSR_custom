@@ -40,18 +40,18 @@ function on_key_press(key, game_action)
 	then return end
 	
 	actor_obj:block_action(key_bindings.kUSE)
-	level.only_allow_movekeys(true)
+	block_non_move_action(true)
 	
 	if target:is_monster() then
 		if harvest.try_harvest(target) then
 			actor_obj:unblock_action(key_bindings.kUSE) 
-			level.only_allow_movekeys(false) 
+			block_non_move_action(false) 
 		else
 			add_updates_delayed_action(
 				1, 
 				function() 
 					actor_obj:unblock_action(key_bindings.kUSE) 
-					level.only_allow_movekeys(false) 
+					block_non_move_action(false) 
 				end
 			)
 		end
@@ -85,21 +85,21 @@ function on_key_press(key, game_action)
 end
 
 function on_show()
-	level.only_allow_movekeys(false)
+	block_non_move_action(false)
 	backpack.play_anim(3)
 	OPEN_ANIM_STARTED = false
 end
 
 function on_hide()
 	backpack.play_effects(false)
-	level.only_allow_movekeys(true)
+	block_non_move_action(true)
 	level.add_call(
 		function()
 			return game.hud_motion_allowed()
 		end,
 		function()
 			actor:restore_weapon()
-			level.only_allow_movekeys(false)
+			block_non_move_action(false)
 		end
 	)
 end

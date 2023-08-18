@@ -54,8 +54,14 @@ function use_quick_item(slot_num)
 		return
 	end
 	
-	if item:id() == actor_get_backpack():id() then
+	if actor_get_backpack() and 
+		item:id() == actor_get_backpack():id() then
 		backpack.try_drop()
+		return
+	end
+	
+	if item:is_gasmask() then
+		gasmask.wear_mask(item)
 		return
 	end
 end

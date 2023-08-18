@@ -15,13 +15,13 @@ function play(item)
 			play_hud_sound(hud_sect)
 			play_hud_effector(hud_sect)
 			set_use_delay(hud_sect, item)
-			level.only_allow_movekeys(true)
+			block_non_move_action(true)
 			level.add_call(
 				function()
 					return game.hud_motion_allowed()
 				end,
 				function()
-					level.only_allow_movekeys(false)
+					block_non_move_action(false)
 					actor:restore_weapon(true)
 					if has_alife_info("ui_inventory") or has_alife_info("ui_car_body") then
 						backpack.play_anim(3)

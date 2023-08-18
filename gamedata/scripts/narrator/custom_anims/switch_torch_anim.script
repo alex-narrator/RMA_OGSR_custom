@@ -9,6 +9,7 @@ local torch_action = {
 
 local actor_obj = get_actor_obj()
 local is_playing = false
+local hud_effector_id = 5557
 
 function on_key_press(key, game_action)
 	if not torch_action[game_action] or
@@ -31,7 +32,9 @@ function on_key_press(key, game_action)
 	
 	local hud_sect = get_hud_sect(actor_get_torch())
 	
-	game.play_hud_motion(1, hud_sect, "anm_switch", false, 1, false)
+	game.play_hud_motion(1, hud_sect, "anm_use", false, 1, false)
+	local eff_name = read_if_exists(sys_ini, "r_string", hud_sect, "hud_effector", nil)
+	level.add_complex_effector(eff_name, hud_effector_id)
 	is_playing = true
 	
 	add_time_delayed_action(

@@ -9,7 +9,7 @@ function on_monster_update(monster, delta)
 end
 
 function can_harvest(monster)
-	if #get_inventory_items(monster) == 0 then
+	if monster:ruck_count() == 0 then
 	return false end
 	local act_item = actor:active_item()
 	return act_item and act_item:is_knife() and act_item:condition() > 0
@@ -19,6 +19,6 @@ function try_harvest(target)
 	if not can_harvest(target) then
 	return false end
 	
-	harvest_anim.play_harvest(target, get_inventory_items(target))
+	harvest_anim.play_harvest(target)
 	return true
 end

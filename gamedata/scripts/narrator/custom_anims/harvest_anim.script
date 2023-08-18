@@ -35,7 +35,7 @@ local meat_type = {
 	zombie 		= "harv_meat_zombie_hud",
 }
 
-function play_harvest(monster, items)
+function play_harvest(monster)
 	local knife = actor:active_item()
 	local cond_dec = read_if_exists(sys_ini, "r_float", monster:section(), "knife_harvest_cond_k", 1) * 
 						read_if_exists(sys_ini, "r_float", knife:section(), "condition_shot_dec_on_hit", 0)
@@ -62,10 +62,13 @@ function play_harvest(monster, items)
 					return game.hud_motion_allowed()
 				end,
 				function()
-					for _,item in pairs(items) do
-						knife:change_condition(-cond_dec)
-						monster:transfer_item(item, actor)
-						news_manager.item_tip(item, "harvest")
+					for i = 0, monster:ruck_count() - 1 do
+						local item = monster:item_in_ruck(i)
+						if item then
+							knife:change_condition(-cond_dec)
+							monster:transfer_item(item, actor)
+							news_manager.item_tip(item, "harvest")
+						end
 					end
 					backpack.force_crouch(false)
 					level.enable_input()

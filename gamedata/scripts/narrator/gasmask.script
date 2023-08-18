@@ -1,0 +1,31 @@
+function attach(sm)
+	sm:subscribe({signal = "on_key_press",   fun = this.on_key_press})
+end
+
+function on_key_press(key, game_action)
+	if level.main_input_receiver() or 
+		game_action ~= key_bindings.kWEAR_MASK then
+	return end
+	
+	local mask = actor_get_gasmask()
+	
+	for i = 0, actor:belt_count() - 1 do
+		local item = actor:item_on_belt(i)
+		if item and item:is_gasmask() then
+			mask = item
+			break
+		end
+	end
+	
+	if mask then
+		wear_mask(mask)
+	end
+end
+
+function wear_mask(item)
+	if actor:is_in_slot(item) then
+		actor:move_to_belt(item)
+	else
+		actor:move_to_slot(item)
+	end
+end
