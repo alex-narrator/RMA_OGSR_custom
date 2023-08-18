@@ -88,7 +88,7 @@ function play_mask_anim(obj, prev_place, enable)
 	
 	xr_sound.get_safe_sound_object(hud_snd,sound_object.s2d):play_at_pos(actor,actor:position())
 	level.add_complex_effector(hud_effector_name, hud_effector_id)
-		
+	
 	block_non_move_action(true)
 		
 	add_time_delayed_action(
@@ -96,7 +96,7 @@ function play_mask_anim(obj, prev_place, enable)
 		function()
 			block_non_move_action(false)
 			if enable then
-				enable_effects(obj, prev_place)
+				enable_effects(obj)
 			else
 				disable_effects(obj, prev_place)
 			end				
@@ -108,8 +108,8 @@ function on_slot(obj, prev_place)
 	if not allowed_item(obj) then
 	return end
 	
-	if obj:is_gasmask() then
-		play_mask_anim(obj, prev_place, obj:get_slot() == 15)
+	if obj:is_gasmask() and not level.is_removing_objects() then
+		play_mask_anim(obj, prev_place, true)
 	return end
 	
 	enable_effects(obj)
@@ -122,10 +122,8 @@ function on_non_slot(obj, prev_place)
 	if not allowed_item(obj) then
 	return end
 	
-	if obj:is_gasmask() then
-		if obj:get_slot() == 15 then
-			play_mask_anim(obj, prev_place, false)
-		end
+	if obj:is_gasmask() and not level.is_removing_objects() then
+		play_mask_anim(obj, prev_place, false)
 	return end
 	
 	disable_effects(obj, prev_place)

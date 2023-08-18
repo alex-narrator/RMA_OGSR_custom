@@ -275,7 +275,7 @@ function actor_binder:on_item_take (obj)
 	self.sm:call("on_take", obj)
 end
 ----------------------------------------------------------------------------------------------------------------------
-function actor_binder:on_item_drop (obj, prev_place)
+function actor_binder:on_item_drop(obj, prev_place)
     level_tasks.proceed(self.object)
     --game_stats.update_drop_item (obj, self.object)
 	self.sm:call("on_drop", obj, prev_place)
