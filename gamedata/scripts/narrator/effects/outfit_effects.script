@@ -109,7 +109,7 @@ function on_slot(obj, prev_place)
 	return end
 	
 	if obj:is_gasmask() then
-		play_mask_anim(obj, prev_place, true)
+		play_mask_anim(obj, prev_place, obj:get_slot() == 15)
 	return end
 	
 	enable_effects(obj)
@@ -123,7 +123,9 @@ function on_non_slot(obj, prev_place)
 	return end
 	
 	if obj:is_gasmask() then
-		play_mask_anim(obj, prev_place, false)
+		if obj:get_slot() == 15 then
+			play_mask_anim(obj, prev_place, false)
+		end
 	return end
 	
 	disable_effects(obj, prev_place)

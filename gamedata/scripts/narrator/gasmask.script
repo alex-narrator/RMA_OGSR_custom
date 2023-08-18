@@ -9,11 +9,10 @@ function on_key_press(key, game_action)
 	
 	local mask = actor_get_gasmask()
 	
-	for i = 0, actor:belt_count() - 1 do
-		local item = actor:item_on_belt(i)
-		if item and item:is_gasmask() then
-			mask = item
-			break
+	if not mask then
+		local item_in_artefact_slot = actor_get_artefact()
+		if item_in_artefact_slot and item_in_artefact_slot:is_gasmask() then
+			mask = item_in_artefact_slot
 		end
 	end
 	
@@ -23,9 +22,18 @@ function on_key_press(key, game_action)
 end
 
 function wear_mask(item)
-	if actor:is_in_slot(item) then
-		actor:move_to_belt(item)
-	else
-		actor:move_to_slot(item)
+	if item:get_slot() == 15 then --//знімаємо протигаз у підсумок
+		if actor:can_put_in_slot(item, 10) then
+			item:set_slot(10)
+			actor:move_to_slot(item)
+		else
+			actor:drop_item(item)
+			hud_add_info_message("item_usage", "st_gasmask_dropped")
+		end
+	elseif item:get_slot() == 10 then --//вдягаємо протигаз з підсумка
+		if actor:can_put_in_slot(item, 15) then
+			item:set_slot(15)
+			actor:move_to_slot(item)
+		end
 	end
 end
