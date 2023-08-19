@@ -35,9 +35,22 @@ end
 
 
 function play_hud_sound(sect)
+	local sound
 	local snd_name = read_if_exists(sys_ini, "r_string", sect, "hud_sound", nil)
 	if snd_name then
-		xr_sound.get_safe_sound_object(snd_name,sound_object.s2d):play_at_pos(actor,actor:position())
+		sound = xr_sound.get_safe_sound_object(snd_name,sound_object.s2d)
+		sound:play_at_pos(actor,actor:position())
+		
+		level.add_call(
+			function()
+				if sound:playing() then
+					sound:set_position(actor:position())
+				end
+				return not sound:playing()
+			end,
+			function()
+			end
+		)
 	end
 end
 

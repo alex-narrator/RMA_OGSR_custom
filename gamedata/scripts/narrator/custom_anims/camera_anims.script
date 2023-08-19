@@ -1,50 +1,15 @@
 function attach(sm)
-	sm:subscribe({signal = "on_actor_weapon_zoom_in",   fun = this.on_zoom_in})
-	sm:subscribe({signal = "on_actor_weapon_zoom_out", 	fun = this.on_zoom_out})
 	sm:subscribe({signal = "on_key_press",   			fun = this.on_key_press})
 	sm:subscribe({signal = "on_key_release",   			fun = this.on_key_release})
-	sm:subscribe({signal = "on_update",   				fun = this.on_update})
 end
 
 local actor_obj = get_actor_obj()
-local firemode_switch = {
-	[key_bindings.kWPN_FIREMODE_PREV] = true,
-	[key_bindings.kWPN_FIREMODE_NEXT] = true,
-}
-
-function has_fire_modes(wpn)
-	local f_modes_str = read_if_exists(sys_ini, "r_string", wpn:section(), "fire_modes", nil)
-    return f_modes_str and #split_string(f_modes_str, ",") > 1
-end
 
 function is_hold_to_crouch()
 	return get_console():get_string("g_hold_to_crouch") == "on"
 end
 
-function on_zoom_in(weapon)
-	level.add_cam_effector("camera_effects\\actor_actions\\zoom_crp.anm", 1908, false, "")
-end
-
-function on_zoom_out(weapon)
-	level.add_cam_effector("camera_effects\\actor_actions\\zoom_crp.anm", 1907, false, "")
-end
-
 function on_key_press(key, game_action)
-	local act_item = actor:active_item()
-	local act_wpn = act_item and act_item:get_weapon_m() or nil
-		
-	if game_action == key_bindings.kWPN_FIRE then
-		if act_wpn and act_wpn:is_misfire() and actor_hands_free() then
-			level.add_cam_effector("camera_effects\\actor_actions\\jammed_crp.anm", 1913, false, "")
-		end
-	end
-	
-	if firemode_switch[game_action] then
-		if act_wpn and has_fire_modes(act_item) then
-			level.add_cam_effector("camera_effects\\actor_actions\\fmode_crp.anm", 1912, false, "")
-		end
-	end
-	
 	if game_action == key_bindings.kR_LOOKOUT then
 		level.add_cam_effector("camera_effects\\actor_actions\\lean_right_crp.anm", 1903, false, "")
 	end
@@ -71,7 +36,4 @@ function on_key_release(key, game_action)
 			level.add_cam_effector("camera_effects\\actor_actions\\crouch_crp.anm", 1900, false, "")
 		end
 	end	
-end
-
-function on_update(delta)
 end
