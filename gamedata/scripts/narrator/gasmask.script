@@ -33,6 +33,9 @@ function on_key_press(key, game_action)
 end
 
 function wear_mask(item)
+	if not actor_hands_free() then
+	return end
+	
 	if actor:is_in_slot(item) then
 		if actor:can_put_in_belt(item) then
 			actor:move_to_belt(item)

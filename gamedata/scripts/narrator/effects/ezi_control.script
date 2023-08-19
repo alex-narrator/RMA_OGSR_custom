@@ -56,6 +56,7 @@ end
 
 function on_zoom_in(weapon)
 	zoom_factor = weapon:get_zoom_factor()
+	level.add_cam_effector("camera_effects\\actor_actions\\zoom_crp.anm", 1908, false, "")
 	if not subscribed then
 		subscribed = {
 			{ signal = "on_update", 				fun = this.on_update },
@@ -71,6 +72,7 @@ function on_zoom_in(weapon)
 end
 
 function on_zoom_out(weapon)
+	level.add_cam_effector("camera_effects\\actor_actions\\zoom_crp.anm", 1907, false, "")
 	if subscribed then
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( subscribed ) do
