@@ -3,7 +3,15 @@ function attach(sm)
 	sm:subscribe({signal = "on_pda_hide", 		fun = this.on_hide})
 end
 
+function is_3d_pda()
+	return actor_get_pda() and actor_get_pda():is_hud_item() and get_console():get_string("g_3d_pda") == "on"
+end
+
 function on_swow()
+	if is_3d_pda() then
+	return end
+	
+	mir_dof_effect.start_dof()
 	actor:hide_weapon()
 	if actor_get_pda() then
 		try_play_pda_sound(read_if_exists(sys_ini, "r_string", actor_get_pda():section(), "snd_draw", nil))
@@ -11,6 +19,10 @@ function on_swow()
 end
 
 function on_hide()
+	if is_3d_pda() then
+	return end
+	
+	mir_dof_effect.stop_dof()
 	actor:restore_weapon()
 	if actor_get_pda() then
 		try_play_pda_sound(read_if_exists(sys_ini, "r_string", actor_get_pda():section(), "snd_holster", nil))

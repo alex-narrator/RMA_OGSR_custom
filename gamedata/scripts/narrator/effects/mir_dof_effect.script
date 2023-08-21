@@ -1,12 +1,10 @@
 function attach(sm)
 	sm:subscribe({signal = "on_inventory_show", fun = this.start_dof})
 	sm:subscribe({signal = "on_carbody_show", 	fun = this.start_dof})
-	sm:subscribe({signal = "on_pda_show", 		fun = this.start_dof})
 	sm:subscribe({signal = "on_dialog", 		fun = this.start_dof})
 	
 	sm:subscribe({signal = "on_inventory_hide", fun = this.stop_dof})
 	sm:subscribe({signal = "on_carbody_hide", 	fun = this.stop_dof})
-	sm:subscribe({signal = "on_pda_hide", 		fun = this.stop_dof})
 	sm:subscribe({signal = "on_dialog_hide", 	fun = this.stop_dof})
 end
 
@@ -24,8 +22,8 @@ function stop_dof()
 	if sg then
 		sm:unsubscribe(sg)
 		sg = false
+		set_dof_params(0, 0, 0, 0)
 	end
-	set_dof_params(0, 0, 0, 0)
 end
 
 function update_dof()

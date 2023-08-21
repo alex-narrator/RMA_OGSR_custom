@@ -65,7 +65,7 @@ $spawn 				= "devices\pda"
 $prefetch 			= 16
 class				= S_PDA
 cform				= skeleton
-visual				= dynamics\devices\dev_pda\dev_pda.ogf;equipments\item_pda.ogf
+visual				= dynamics\devices\dev_pda\dev_pda.ogf
 description			= enc_equipment_devic_device-pda1
 radius				= 50;0 ;75
 slot				= 7
@@ -81,8 +81,8 @@ inv_weight			= 0.3	;0.2
 
 inv_grid_width     = 1
 inv_grid_height    = 1
-inv_grid_x         = 11
-inv_grid_y         = 24
+inv_grid_x         = 13
+inv_grid_y         = 23
 cost				= 20
 
 attach_angle_offset		= 3.080506,-1.493053,-1.202040   ;устанавливается в радианах Angle*PI/180
@@ -90,9 +90,24 @@ attach_position_offset	= 0.080000,0.021273,0.100000
 attach_bone_name		= bip01_r_hand
 auto_attach				= false
 
-snd_draw					= device\pda\pda_draw
-snd_holster					= device\pda\pda_holster
 use_sound 					= interface\inv_detach_addon
+
+hud                                                = pda_hud
+animation_slot                                     = 2
+joystick_bone                                      = joystick
+
+snd_btn_press                                      = device\pda\pda_btn_press
+snd_btn_release                                    = device\pda\pda_btn_release
+snd_draw                             	           = device\pda\pda_draw
+snd_draw_empty							 		   = device\pda\pda_draw_empty
+snd_holster                          	 		   = device\pda\pda_holster
+snd_holster_empty                      	 		   = device\pda\pda_holster_empty
+snd_empty								 		   = device\pda\pda_dead
+
+screen_on_delay							 		   = 0.7
+screen_off_delay						 		   = 0.5
+thumb_rot_x										   = 1
+thumb_rot_y										   = -0.1
 
 [device_torch]:identity_immunities
 GroupControlSection	= spawn_group

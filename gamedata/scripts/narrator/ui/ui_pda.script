@@ -7,6 +7,10 @@ end
 
 local subscribed = false
 
+function is_3d_pda()
+	return actor_get_pda() and actor_get_pda():is_hud_item() and get_console():get_string("g_3d_pda") == "on"
+end
+
 function create_window()
 	-- if not subscribed then
 		-- subscribed = {
@@ -244,5 +248,9 @@ function PDAOverlay:ClearTime()
 end
 
 function PDAOverlay:HidePda()
-	level.start_stop_menu(level.main_input_receiver(), true)
+	if is_3d_pda() then
+		actor:activate_slot(NO_ACTIVE_SLOT)
+	else
+		level.start_stop_menu(level.main_input_receiver(), true)
+	end
 end
