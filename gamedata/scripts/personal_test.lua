@@ -72,8 +72,9 @@ end
 	-- main_wnd.show_zone_map = not main_wnd.show_zone_map
 -- end
 
-game.play_hud_motion(2, "pda_hud", "anm_idle", false, 1, true)
+-- game.play_hud_motion(2, "pistol_kick_hud", "anm_attack", false, 1, false)
+-- level.add_cam_effector('camera_effects\\kick\\attack_heavy.anm', 8073, false,'')
 --game.stop_hud_motion()
 --actor:activate_slot(NO_ACTIVE_SLOT, true)
---level.only_allow_movekeys(false)
+level.only_allow_movekeys(false)
 --get_actor_obj():block_action(key_bindings.kINVENTORY)

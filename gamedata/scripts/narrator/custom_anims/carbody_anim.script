@@ -18,12 +18,16 @@ end
 function get_carbody_target()
 	local tgt = level.get_target_obj()
 	if not tgt or 
+		not tgt:is_nonscript_usable() or
 		not is_quick_info_shown() or 
-		actor:ph_capture() or
-		level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) 
+		actor:ph_capture()
 	then return false end
 	
-	if tgt:is_inventory_box() or (tgt:is_inventory_owner() and not tgt:alive()) then
+	if tgt:is_inventory_box() and (not tgt:get_container() or not level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION))) then
+		return tgt
+	end
+	
+	if tgt:is_inventory_owner() and not tgt:alive() and not level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) then
 		return tgt
 	end
 	

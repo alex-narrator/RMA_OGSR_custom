@@ -1,0 +1,131 @@
+function attach(sm)
+	sm:subscribe({signal = "on_key_press", 				fun = this.on_key_press})
+end
+
+local KICK_IMPULSE = 250
+local KICK_POWER = 0.5
+local KICK_DIST = actor.inventory.take_dist
+local POWER_DEC_K = 0.001
+
+local is_playing = false
+local hud_effector_id = 5560
+
+local console = get_console()
+local need_crosshair_hard = false
+
+function can_play_anim()
+	return level.get_target_obj() and 
+		level.get_target_dist() <= KICK_DIST and
+		actor_hands_free() and 
+		not is_playing and 
+		not actor:ph_capture() and
+		(not actor:active_item() or not actor:active_item():is_knife()) 
+end
+
+function on_key_press(key, game_action)
+	if game_action ~= key_bindings.kKICK or
+		not can_play_anim()
+	then
+	return end
+		
+	is_playing = true
+	block_non_move_action(true)
+	
+	if console:get_string("hud_crosshair_hard") == "on" then
+		console:execute("hud_crosshair_hard 0")
+		need_crosshair_hard = true
+	end
+		
+	local hud_sect = "arm_kick_hud"
+	local act_item = actor:active_item()
+	local wpn = act_item and act_item:get_weapon() or nil
+	
+	if act_item and wpn then
+		if wpn and wpn.zoom_mode then
+			wpn:zoom_out()
+		end			
+		
+		hud_sect = "rifle_kick_hud"
+		
+		if get_clsid(act_item) == clsid.wpn_bm16_s then
+			hud_sect = "sawed_kick_hud"
+		elseif act_item:is_pistol() then
+			hud_sect = "pistol_kick_hud"
+		end
+	end
+	
+	game.play_hud_motion(2, hud_sect, "anm_use", true, 1, false)
+	-- local eff_name = read_if_exists(sys_ini, "r_string", hud_sect, "hud_effector", nil)
+	-- level.add_complex_effector(eff_name, hud_effector_id)
+	
+	local sound_name = "interface\\kick\\swing\\swing_"..math.random(1,6)
+	xr_sound.get_safe_sound_object(sound_name,sound_object.s2d):play_at_pos(actor,actor:position())
+	
+	add_time_delayed_action(
+		read_if_exists(sys_ini, "r_float", hud_sect, "use_delay", 1),
+		function()
+			kick()
+			block_non_move_action(false)
+			is_playing = false
+			if need_crosshair_hard then
+				console:execute("hud_crosshair_hard 1")
+				need_crosshair_hard = false
+			end
+		end
+	)
+end
+
+function kick()
+	local target = level.get_target_obj()
+	if not target or 
+		level.get_target_dist() > KICK_DIST
+	then
+	return end
+	
+	local dir = actor:direction()--device().cam_dir --//саме direction актора а не камери, щоб можна було пинати предмети нижче рівня зору
+	local rq = level.get_current_ray_query()
+	local bone_id = rq and rq.element or 0
+	local impulse = KICK_IMPULSE * actor.power
+	local power = KICK_POWER * actor.power
+	
+	local h = hit()
+	h.power = power
+	h.impulse = impulse
+	h.direction = dir
+	h.bone = bone_id
+	h.draftsman = actor
+	h.type = hit.strike
+	target:hit(h)
+	
+	local mass = target:mass()
+	if target:get_inventory_owner() or target:get_container() then
+		mass = mass + target:get_total_weight()
+	end
+	
+	dir:mul(impulse * mass)
+	local ph = target:get_physics_shell()
+	if ph then 
+		ph_bone = ph:get_element_by_bone_id(h.bone) 
+		if ph_bone then
+			ph_bone:apply_force(dir.x,dir.y,dir.z)
+		else
+			ph:apply_force(dir.x,dir.y,dir.z)
+		end
+	end
+	
+	local power_dec = mass * POWER_DEC_K
+	actor.power = - power_dec
+	
+	--log3("~kick object %s | mass %s | power_dec %s", target:name(), mass, power_dec)
+	
+	local sound_name = "interface\\kick\\metal\\metal_"..math.random(1,4)
+	if target:is_stalker() or target:is_monster() then
+		sound_name = "interface\\kick\\flesh\\flesh_"..math.random(1,6)
+	else
+		local spawn_name = read_if_exists(sys_ini, "r_string", target:section(), "$spawn", nil)
+		if spawn_name and string.find(spawn_name,"wood") then
+			sound_name = "interface\\kick\\wood\\wood_"..math.random(1,4)
+		end
+	end
+	xr_sound.get_safe_sound_object(sound_name, sound_object.s2d):play_at_pos(target,target:position())
+end

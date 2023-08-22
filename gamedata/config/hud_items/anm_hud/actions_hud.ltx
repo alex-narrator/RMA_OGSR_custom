@@ -1,29 +1,58 @@
 [swipe_mask_hud]:hud_base
-hands_position				= 0.021,-0.16,-0.1025
-hands_orientation			= -0.5,1,1.15
-hands_position_16x9			= 0.053,-0.1805,-0.1
-hands_orientation_16x9		= 2.35,2.75,2.85
-
-anm_use 		= gasmask_swipe
-
-hud_sound			= interface\item_usage\inv_mask_clean
-hud_effector 		= gasmask_swipe
-use_delay = 0.2
-restore_delay = 2
-
+hands_position							= 0.021,-0.16,-0.1025
+hands_orientation						= -0.5,1,1.15
+hands_position_16x9						= 0.053,-0.1805,-0.1
+hands_orientation_16x9					= 2.35,2.75,2.85
+anm_use 								= gasmask_swipe
+hud_sound								= interface\item_usage\inv_mask_clean
+hud_effector 							= gasmask_swipe
+use_delay 								= 0.2
+restore_delay 							= 2
 
 [switch_torch_hud]:hud_base
-hands_position				= -0.021000,-0.160000,0.002500
-hands_orientation			= -0.500000,1.000000,1.149999
-hands_position_16x9			= 0.033000,-0.189500,0.039000
-hands_orientation_16x9		= 2.349998,2.749999,2.849998
-
-anm_use 		= torch
-hud_effector = torch_switch
-use_delay = 0.8
+hands_position							= -0.021000,-0.160000,0.002500
+hands_orientation						= -0.500000,1.000000,1.149999
+hands_position_16x9						= 0.033000,-0.189500,0.039000
+hands_orientation_16x9					= 2.349998,2.749999,2.849998
+anm_use 								= torch
+hud_effector 							= torch_switch
+use_delay 								= 0.8
 
 [pickup_hud]
-hands_position                           = 0, 0.00, -0.1
-hands_position_16x9                      = 0, 0.00, -0.1
+hands_position                          = 0, 0.00, -0.1
+hands_position_16x9                     = 0, 0.00, -0.1
 anm_use 								= take_anim_enhanced
-hud_effector = item_take
+hud_effector 							= item_take
+use_delay 								= 0.7
+
+[pistol_kick_hud]
+hands_position							= -0.021000,-0.160000,0.002500
+hands_orientation						= -0.500000,1.000000,1.149999
+hands_position_16x9 					= 0.033000,-0.189500,0.039000
+hands_orientation_16x9 					= -0.510000,0.910001,2.849998
+anm_use									= pm_kick
+hud_effector 							= kick_light
+
+[sawed_kick_hud]
+hands_position							= 0.014500,-0.096000,0.057500
+hands_orientation						= -0.450030,2.099998,-0.200003
+hands_position_16x9						= 0.016500,-0.096000,-0.004000
+hands_orientation_16x9					= 0.300000,1.350000,-2.599999
+anm_use									= bm16_kick
+hud_effector 							= kick_heavy_fast
+
+[rifle_kick_hud]
+hands_position							= 0.0300,-0.2,0.0500
+hands_orientation						= -0.500000,1.00000,1.149999
+hands_position_16x9						= -0.0200,-0.2,0.03
+hands_orientation_16x9					= 7,3.5,-5
+anm_use									= zatvor_bash
+hud_effector 							= kick_heavy
+
+[arm_kick_hud]
+hands_position							= 0.0300,-0.2,0.0500
+hands_orientation						= -0.500000,1.000000,1.149999
+hands_position_16x9						= 0.0300,-0.2,0.0500
+hands_orientation_16x9					= 2.349998,2.749999,2.849998
+anm_use									= kulak_hit
+hud_effector 							= kick_light

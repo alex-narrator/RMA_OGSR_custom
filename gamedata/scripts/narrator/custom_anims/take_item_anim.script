@@ -3,12 +3,15 @@ function attach(sm)
 	sm:subscribe({signal = "on_pickup_item_showing", 	fun = this.on_pickup_item_showing})
 end
 
-local BLOCK_TAKE_DELAY 	= 0.7
+local actor_obj = get_actor_obj()
 local is_playing = false
 local item_icon = false
 local pickup_item = false
 local hud_sect = "pickup_hud"
 local hud_effector_id = 5559
+
+local console = get_console()
+local need_crosshair_hard = false
 
 function on_pickup_item_showing(item, icon)
 	item_icon = icon
@@ -20,7 +23,7 @@ function is_quick_info_shown()
 end
 
 function can_play_for_container()
-	return not pickup_item:is_inventory_box() or 
+	return not pickup_item:get_container() or 
 		not is_quick_info_shown() or
 		level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) or
 		(not level.get_target_obj() or level.get_target_obj():id() ~= pickup_item:id())
@@ -41,7 +44,13 @@ function on_key_press(key, game_action)
 	return end
 		
 	is_playing = true
-	get_actor_obj():block_action(key_bindings.kUSE)
+	actor_obj:block_action(key_bindings.kUSE)
+	block_non_move_action(true)
+	
+	if console:get_string("hud_crosshair_hard") == "on" then
+		console:execute("hud_crosshair_hard 0")
+		need_crosshair_hard = true
+	end
 		
 	local wpn = actor:active_item() and actor:active_item():get_weapon()
 	if wpn and wpn.zoom_mode then
@@ -56,12 +65,17 @@ function on_key_press(key, game_action)
 	xr_sound.get_safe_sound_object("interface\\item_usage\\pickup",sound_object.s2d):play_at_pos(actor,actor:position())
 	
 	add_time_delayed_action(
-		BLOCK_TAKE_DELAY, 
+		read_if_exists(sys_ini, "r_float", hud_sect, "use_delay", 0.7),
 		function() 
-			get_actor_obj():unblock_action(key_bindings.kUSE)
+			block_non_move_action(false)
+			actor_obj:unblock_action(key_bindings.kUSE)
 			level.send_event_key_press(bind_to_dik(key_bindings.kUSE))
 			level.send_event_key_release(bind_to_dik(key_bindings.kUSE))
 			is_playing = false
+			if need_crosshair_hard then
+				console:execute("hud_crosshair_hard 1")
+				need_crosshair_hard = false
+			end
 		end
 	)
 end
