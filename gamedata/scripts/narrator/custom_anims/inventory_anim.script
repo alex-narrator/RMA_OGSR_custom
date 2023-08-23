@@ -8,6 +8,8 @@ local inv_wnd = level.get_inventory_wnd()
 local actor_obj = get_actor_obj()
 local OPEN_ANIM_STARTED = false
 
+local ANIM_FAST = false
+
 function on_key_press(key, game_action)
 	if game_action ~= key_bindings.kINVENTORY or
 		OPEN_ANIM_STARTED
@@ -23,7 +25,7 @@ function on_key_press(key, game_action)
 	
 	block_non_move_action(true)
 	
-	actor:hide_weapon()
+	actor:hide_weapon(ANIM_FAST)
 	OPEN_ANIM_STARTED = true
 	
 	level.add_call(
@@ -59,7 +61,7 @@ function on_hide()
 		end,
 		function()
 			block_non_move_action(false)
-			actor:restore_weapon()
+			actor:restore_weapon(ANIM_FAST)
 		end
 	)
 end

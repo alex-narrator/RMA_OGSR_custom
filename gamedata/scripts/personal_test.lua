@@ -76,5 +76,5 @@ end
 -- level.add_cam_effector('camera_effects\\kick\\attack_heavy.anm', 8073, false,'')
 --game.stop_hud_motion()
 --actor:activate_slot(NO_ACTIVE_SLOT, true)
-level.only_allow_movekeys(false)
+block_non_move_action(false)
 --get_actor_obj():block_action(key_bindings.kINVENTORY)

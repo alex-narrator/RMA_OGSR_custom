@@ -1,11 +1,13 @@
 local hud_effector_id = 5555
 
+local ANIM_FAST = false
+
 function play(item)
 	local hud_sect = get_hud_sect(item)
 	if not hud_sect then
 	return end
 
-	actor:hide_weapon(true)
+	actor:hide_weapon(ANIM_FAST)
 	level.add_call(
 		function() 
 			return actor:active_slot() == NO_ACTIVE_SLOT
@@ -22,7 +24,7 @@ function play(item)
 				end,
 				function()
 					block_non_move_action(false)
-					actor:restore_weapon(true)
+					actor:restore_weapon(ANIM_FAST)
 					if has_alife_info("ui_inventory") or has_alife_info("ui_car_body") then
 						backpack.play_anim(3)
 					end
@@ -31,8 +33,6 @@ function play(item)
 		end
 	)
 end
-
-
 
 function play_hud_sound(sect)
 	local sound

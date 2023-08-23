@@ -25,11 +25,11 @@ function is_switch_slot()
 end
 
 function on_zoom_in(weapon)
-	level.add_cam_effector("camera_effects\\actor_actions\\zoom_crp.anm", 1908, false, "")
+	level.add_complex_effector("aim", 1908)
 end
 
 function on_zoom_out(weapon)
-	level.add_cam_effector("camera_effects\\actor_actions\\zoom_crp.anm", 1907, false, "")
+	level.add_complex_effector("aim", 1907)
 end
 
 function on_mouse_wheel()
@@ -44,7 +44,7 @@ function on_mouse_wheel()
 	play_switch_anim(act_item)
 end
 
-function on_key_press(key, game_action)
+function on_key_press(key, game_action)	
 	if not actor_hands_free() then
 	return end
 	
@@ -56,7 +56,7 @@ function on_key_press(key, game_action)
 		
 	if game_action == key_bindings.kWPN_FIRE then
 		if act_wpn and act_wpn:is_misfire() then
-			level.add_cam_effector("camera_effects\\actor_actions\\jammed_crp.anm", 1913, false, "")
+			level.add_complex_effector("jammed", 1913)
 		end
 	end
 	
@@ -69,9 +69,9 @@ end
 
 local switch_snd = [[weapons\groza_switch]]
 function play_switch_anim(item)
-	level.add_cam_effector("camera_effects\\actor_actions\\fmode_crp.anm", 1912, false, "")
+	level.add_complex_effector("fire_mode", 1912)
 	xr_sound.get_safe_sound_object(switch_snd, sound_object.s2d):play_at_pos(actor,actor:position())
-	if hud_anim_exists(item, "anm_switch") then
-		game.play_hud_motion(2, get_hud_sect(item), "anm_switch", false, 1, false)
-	end
+	-- if hud_anim_exists(item, "anm_switch") then
+		-- game.play_hud_motion(2, get_hud_sect(item), "anm_switch", false, 1, false)
+	-- end
 end

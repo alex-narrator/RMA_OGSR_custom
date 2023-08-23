@@ -7,6 +7,8 @@ end
 local actor_obj = get_actor_obj()
 local OPEN_ANIM_STARTED = false
 
+local ANIM_FAST = false
+
 function is_quick_info_shown()
 	return get_main_window() and get_main_window():FindChild("quick_info") and get_main_window():FindChild("quick_info"):IsShown()
 end
@@ -61,7 +63,7 @@ function on_key_press(key, game_action)
 		end
 	return end
 	
-	actor:hide_weapon()
+	actor:hide_weapon(ANIM_FAST)
 	OPEN_ANIM_STARTED = true
 	
 	level.add_call(
@@ -102,7 +104,7 @@ function on_hide()
 			return game.hud_motion_allowed()
 		end,
 		function()
-			actor:restore_weapon()
+			actor:restore_weapon(ANIM_FAST)
 			block_non_move_action(false)
 		end
 	)

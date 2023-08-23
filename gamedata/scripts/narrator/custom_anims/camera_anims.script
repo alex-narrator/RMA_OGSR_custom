@@ -1,6 +1,7 @@
 function attach(sm)
 	sm:subscribe({signal = "on_key_press",   			fun = this.on_key_press})
 	sm:subscribe({signal = "on_key_release",   			fun = this.on_key_release})
+	sm:subscribe({signal = "on_hud_state_switch",   	fun = this.on_state_switch})
 end
 
 local actor_obj = get_actor_obj()
@@ -11,29 +12,42 @@ end
 
 function on_key_press(key, game_action)
 	if game_action == key_bindings.kR_LOOKOUT then
-		level.add_cam_effector("camera_effects\\actor_actions\\lean_right_crp.anm", 1903, false, "")
+		level.add_complex_effector("lean_right", 1903)
 	end
 	if game_action == key_bindings.kL_LOOKOUT then
-		level.add_cam_effector("camera_effects\\actor_actions\\lean_left_crp.anm", 1902, false, "")
+		level.add_complex_effector("lean_left", 1902)
 	end
-	
 	if game_action == key_bindings.kCROUCH or 
 		game_action == key_bindings.kSPRINT_TOGGLE and not is_hold_to_crouch() and not actor_obj.clear_crouch 
 		then
-		level.add_cam_effector("camera_effects\\actor_actions\\crouch_crp.anm", 1900, false, "")
+		level.add_complex_effector("crouch", 1912)
 	end
 end
 
 function on_key_release(key, game_action)
 	if game_action == key_bindings.kR_LOOKOUT then
-		level.add_cam_effector("camera_effects\\actor_actions\\lean_right_crp.anm", 1903, false, "")
+		level.add_complex_effector("lean_right", 1903)
 	end
 	if game_action == key_bindings.kL_LOOKOUT then
-		level.add_cam_effector("camera_effects\\actor_actions\\lean_left_crp.anm", 1902, false, "")
+		level.add_complex_effector("lean_left", 1902)
 	end
 	if is_hold_to_crouch() then 
 		if game_action == key_bindings.kCROUCH then
-			level.add_cam_effector("camera_effects\\actor_actions\\crouch_crp.anm", 1900, false, "")
+			level.add_complex_effector("crouch", 1912)
 		end
 	end	
+end
+
+local show_hide = {
+	[global_flags.eShowing] = true,
+	[global_flags.eHiding] = true,
+}
+
+function on_state_switch(item, state, old_state)
+	if not show_hide[state] then
+	return end
+	
+	if not level.check_complex_effector(1919) then
+		level.add_complex_effector("jammed", 1919)
+	end
 end
