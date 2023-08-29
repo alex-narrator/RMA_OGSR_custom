@@ -1,0 +1,26 @@
+function attach(sm)
+	sm:subscribe({signal = "on_update_addons_visibility",   	fun = this.on_update_addons_visibility})
+	sm:subscribe({signal = "on_update_hud_addons_visibility",   fun = this.on_update_hud_addons_visibility})
+end
+
+function on_update_addons_visibility(item)
+	local scope_mesh = read_if_exists(sys_ini, "r_string", item:section(), "scope_mesh", nil)
+	if scope_mesh then
+		local wpn = item:get_weapon()
+		local scope_mesh_table = split_string(scope_mesh, ",")
+		for k,v in pairs(scope_mesh_table) do
+			item:set_show_model_mesh(v, wpn:is_addon_attached(addon.scope))
+		end
+	end
+end
+
+function on_update_hud_addons_visibility(item)
+	local scope_mesh = read_if_exists(sys_ini, "r_string", get_hud_sect(item), "scope_mesh", nil)
+	if scope_mesh then
+		local wpn = item:get_weapon()
+		scope_mesh_table = split_string(scope_mesh, ",")
+		for k,v in pairs(scope_mesh_table) do
+			item:set_show_model_mesh_hud(v, wpn:is_addon_attached(addon.scope))
+		end
+	end
+end
