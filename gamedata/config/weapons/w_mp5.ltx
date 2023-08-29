@@ -1,4 +1,4 @@
-[wpn_mp5]:identity_immunities
+[wpn_mp5]:identity_immunities,weapon_base,wpn_mp5_sounds,scope_respawn_mp5
 GroupControlSection		= spawn_group
 discovery_dependency 	= 
 $spawn                  = "weapons\mp5"					; option for Level Editor
@@ -83,9 +83,9 @@ fire_point              = 0.0, 0.188, 0.392
 flame_particles			= weapons\generic_weapon05
 smoke_particles         = weapons\generic_shoot_00
 
-shell_point		 		= 0.0, 0.188, 0.082
-shell_dir		 		= 0.0, 1.0, 0.0
-shell_particles	 		= weapons\generic_shells
+shell_point					             = 0.0, 0.188, 0.082
+shell_dir					             = 0.0, 1.0, 0.0
+shell_particles	 			             = weapons\9x19
 
 rpm_empty_click 	 	= 200
 
@@ -125,7 +125,7 @@ strap_bone0					= bip01_spine2
 strap_bone1					= bip01_spine1
 
 startup_ammo            = 1000
-visual                  = weapons\mp5\wpn_mp5.ogf
+visual                  = dynamics\weapons\wpn_mp5\wpn_mp5
 
 light_color		 		= 0.6,0.5,0.3
 light_range		 		= 5
@@ -137,20 +137,17 @@ ph_mass			 		= 3
 ;cost			 		= 2500
 
 ;addons
-scope_status			= 0
+scope_status			= 2
 silencer_status			= 2
 grenade_launcher_status	= 0
 
 
-silencer_name  				= wpn_addon_silencer
 silencer_name  				= wpn_addon_silencer
 silencer_x 					= 130
 silencer_y 					= -15
 
 ;silencer_flame_particles 	= weapons\generic_weapon01
 silencer_smoke_particles 	= weapons\generic_shoot_00
-
-snd_silncer_shot			= weapons\w_ak74_shot1 
 
 silencer_light_color		= 0.6,0.5,0.3
 silencer_light_range		= 0.01
@@ -164,14 +161,6 @@ scope_zoom_factor	    = 50
 magazine_x = 82
 magazine_y = 24
 
-;звуки
-snd_draw			= weapons\generic_draw
-snd_holster			= weapons\generic_holster
-snd_shoot			= weapons\n_mp5_shot;t_mp53_shot       ;lr300_shoot
-snd_empty			= weapons\gen_empty, 0.5
-snd_reload			= weapons\mp5_reload;, 0.7, 0.3
-snd_checkout		= weapons\mp5_bore
-
 ;params when silencer is attached 
 ;similar to corresponding params without prefix silencer_
 
@@ -183,4 +172,21 @@ silencer_bullet_speed	 	= 300
 ;silencer_flame_particles 	= weapons\generic_weapon01
 silencer_smoke_particles 	= weapons\generic_shoot_00
 
-snd_silncer_shot			= weapons\w_ak74_shot1 
+[wpn_mp5_acog]:wpn_mp5
+hud           = wpn_mp5_acog_hud
+visual        = dynamics\weapons\wpn_mp5\wpn_mp5_acog.ogf
+
+scope_respawn = wpn_mp5
+ignore_scope_texture = true
+
+[wpn_mp5_eot]:wpn_mp5,eot_scope_names
+hud           = wpn_mp5_eot_hud
+visual        = dynamics\weapons\wpn_mp5\wpn_mp5_eot.ogf
+
+scope_respawn = wpn_mp5
+
+[wpn_mp5_ac10632]:wpn_mp5,ac10632_scope_names
+hud           = wpn_mp5_ac10632_hud
+visual        = dynamics\weapons\wpn_mp5\wpn_mp5_ac10632.ogf
+
+scope_respawn = wpn_mp5

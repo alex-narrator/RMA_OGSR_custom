@@ -21,7 +21,7 @@ local stop_states = {
 function on_state_switch(item, state, old_state)
 	if not item:is_missile() then
 	return end
-	if not actor:active_detector() then
+	if not actor:active_item_2() then
 	return end
 	if stop_states[old_state] and is_playing then
 		is_playing = false

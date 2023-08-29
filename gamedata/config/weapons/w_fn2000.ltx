@@ -1,4 +1,4 @@
-[wpn_fn2000]:identity_immunities
+[wpn_fn2000]:identity_immunities,weapon_base,wpn_fn2000_sounds
 GroupControlSection	= spawn_group
 discovery_dependency = 
 $spawn                   = "weapons\fn-2000
@@ -12,6 +12,8 @@ description				= enc_weapons1_wpn-fn2000
 
 ef_main_weapon_type		 = 2
 ef_weapon_type			 = 6
+
+script_binding      	= bind_weapon.init
 
 ;-----------------------------------------------------------------------------------
 holder_range_modifier	= 1.85            ; во сколько раз увеличивается eye_range 
@@ -80,9 +82,9 @@ flame_particles			 = weapons\generic_weapon05
 smoke_particles			 = weapons\generic_shoot_00
 grenade_flame_particles	= weapons\generic_weapon01
 
-shell_point			= -0.020000,0.186000,0.200000
-shell_dir		 		= 0.0, 1.0, 0.0
-shell_particles	 		= weapons\generic_shells
+shell_point 				= -0.02,0.186,0.2
+shell_dir					= 0.0, 1.0, 0.0
+shell_particles				= weapons\556x45
 rpm_empty_click 	     = 200
 
 PDM_disp_base 			= 1.0
@@ -116,7 +118,7 @@ strap_bone0					= bip01_spine2
 strap_bone1					= bip01_spine1
 
 startup_ammo             = 1000
-visual                   = weapons\fn2000\wpn_fn2000_new.ogf
+visual                   = dynamics\weapons\wpn_fn2000\wpn_fn2000_nimble
 
 light_color		         = 0.6,0.5,0.3
 light_range		         = 4
@@ -129,46 +131,35 @@ ph_mass			         = 4
 ;cost			         = 5000
 
 ;addons
-scope_status				= 1
+scope_status				= 2
 silencer_status				= 2
-grenade_launcher_status		= 1
+grenade_launcher_status		= 0
 zoom_enabled				= true
 
-scope_texture			= wpn\crosshairs\anomaly\wpn_crosshair_fn2000
-scope_texture_broken	= wpn\crosshairs\anomaly\wpn_crosshair_fn2000_moist
+
 lens_texture		= wpn\wpn_crosshair_g36_lens
 lens_texture_x		= 183
 lens_texture_y		= 75
 lens_texture_w		= 648
 lens_texture_h		= 648
 
+scope_name 								= wpn_addon_scope_eot, wpn_addon_scope_fn2000
+scope_respawn_wpn_addon_scope_eot 		= wpn_fn2000_eot
+scope_respawn_wpn_addon_scope_fn2000 	= wpn_fn2000_stock
 
 silencer_name  				= wpn_addon_silencer
 silencer_x 					= 152						; offset in inventory icon
 silencer_y 					= 10
 zoom_enabled				= true
-scope_zoom_factor	    	= 1.6 			;1.8X		; fov for zoom mode
 
 magazine_x = 54
 magazine_y = 52
-
-;звуки
-snd_draw			= weapons\generic_draw
-snd_holster			= weapons\generic_holster
-snd_shoot			= weapons\t_fn2000_shot              ;fn2000_shoot	;weapons\generic_shoot
-snd_empty			= weapons\gen_empty, 0.5
-snd_reload			= weapons\fn2000_reload, 0.8, 0.3
-snd_shoot_grenade	= weapons\gen_grenshoot
-snd_reload_grenade	= weapons\gen_grenload, 1.0, 1.0
-snd_switch			= weapons\groza_switch, 1.0, 0.5
 
 ;params when silencer is attached 
 ;similar to corresponding params without prefix silencer_
 
 ;silencer_flame_particles 	= weapons\generic_weapon01
 silencer_smoke_particles 	= weapons\generic_shoot_00
-
-snd_silncer_shot			= weapons\w_ak74_shot1 
 
 silencer_light_color		= 0.6,0.5,0.3
 silencer_light_range		= 0.01
@@ -179,3 +170,22 @@ silencer_light_time 		= 0.2
 grenade_vel					= 76
 
 grenade_class				= ammo_m209
+
+hidden_meshes 				= 0
+scope_bone 					= none
+
+[wpn_fn2000_eot]:wpn_fn2000  
+hud                         = wpn_fn2000_eot_hud
+visual                      = dynamics\weapons\wpn_fn2000\wpn_fn2000_nimble
+
+scope_respawn 				= wpn_fn2000
+hidden_meshes 				= 
+
+[wpn_fn2000_stock]:wpn_fn2000  
+hud                         = wpn_fn2000_stock_hud
+visual                      = dynamics\weapons\wpn_fn2000\wpn_fn2000
+
+scope_name 					= wpn_addon_scope_fn2000, wpn_addon_scope_eot
+
+scope_respawn 				= wpn_fn2000
+hidden_meshes 				= 

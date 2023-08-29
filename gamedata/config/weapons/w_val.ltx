@@ -1,5 +1,4 @@
-;;;;;;;;;;;;;;;;;;;;;;
-[wpn_val]:identity_immunities
+[wpn_val]:identity_immunities,weapon_base,wpn_val_sounds,scope_respawn_val
 GroupControlSection			= spawn_group
 discovery_dependency 		= 
 $spawn                  	= "weapons\val"					; option for Level Editor
@@ -79,9 +78,9 @@ fire_point           	    = 0.0, 0.174, 0.562
 
 smoke_particles				= weapons\generic_shoot_00
 
-shell_point		 			= 0.0, 0.174, 0.078
-shell_dir		 			= 0.0, 1.0, 0.0
-shell_particles	 			= weapons\generic_shells
+shell_point			                     = -0.02,0.167,0.082
+shell_dir		 	                     = 0,1,0
+shell_particles         	             = weapons\9x39
 
 rpm_empty_click 			= 200
 
@@ -119,7 +118,7 @@ strap_bone0					= bip01_spine2
 strap_bone1					= bip01_spine1
 
 startup_ammo    	        = 90
-visual                  	= weapons\val\wpn_val.ogf
+visual                  	= dynamics\weapons\wpn_val\wpn_val
 
 light_disabled				= true
 
@@ -131,26 +130,26 @@ scope_status				= 2
 silencer_status				= 1
 grenade_launcher_status		= 0
 
-scope_name 					= wpn_addon_scope			; section name for the attachable scope
 scope_x 					= 42						; offset in inventory icon
 scope_y 					= 3
 
 zoom_enabled				= true
 scope_zoom_factor		    = 50
-scope_name 					= wpn_addon_scope
+
 scope_x 					= 36						; offset in inventory icon
 scope_y 					= 1
 
 magazine_x = 89
 magazine_y = 45
 
-;звуки
-snd_draw					= weapons\generic_draw
-snd_holster					= weapons\generic_holster
-snd_shoot					= weapons\tm_val_shot_0      ; t_val_shot     ;silencer4a
-snd_shoot1					= weapons\tm_val_shot_1
-snd_shoot2					= weapons\tm_val_shot_2
-snd_shoot3					= weapons\tm_val_shot_3
-snd_empty					= weapons\gen_empty, 0.5
-snd_reload					= weapons\val_reload, 0.7, 0.5
-snd_close					= weapons\generic_close
+[wpn_val_1p29]:wpn_val,1p29_scope_names
+hud           = wpn_val_1p29_hud
+visual        = dynamics\weapons\wpn_val\wpn_val_1p29.ogf
+
+scope_respawn = wpn_val
+
+[wpn_val_kobra]:wpn_val,kobra_scope_names
+hud           = wpn_val_kobra_hud
+visual        = dynamics\weapons\wpn_val\wpn_val_kobra.ogf
+
+scope_respawn = wpn_val

@@ -1,8 +1,4 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; RPG7
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-[wpn_rpg7]:identity_immunities
+[wpn_rpg7]:identity_immunities,wpn_rpg7_sounds
 
 GroupControlSection			= spawn_group
 discovery_dependency 		= 
@@ -110,7 +106,7 @@ strap_bone1					= bip01_spine1
 scope_bone = scope
 
 ;startup_ammo             	= 90
-visual                   	= weapons\rpg_7\wpn_rpg_7.ogf
+visual                   	= dynamics\weapons\wpn_rpg7\wpn_rpg7
 
 
 fragment_speed	 			= 50
@@ -127,26 +123,14 @@ ph_mass			 			= 1
 ;cost			 			= 350
 
 ;addons
-scope_status				= 2
+scope_status				= 0
 silencer_status				= 0
 grenade_launcher_status		= 0
 
 zoom_enabled				= true
 
-scope_name 					= wpn_addon_scope_pgo_7v ; section name for the attachable scope
-scope_x                     = 114		; offset in inventory icon
-scope_y                     = 18
-
 grenade_x = 119
 grenade_y = 26
-
-;звуки
-snd_draw					= weapons\generic_draw
-snd_holster					= weapons\generic_holster
-snd_shoot					= weapons\t_rpg7_explosion      ;rpg7_shoot
-snd_empty					= weapons\generic_empty
-snd_reload					= weapons\rpg7_reload, 1.0, 0.8
-snd_explode					= weapons\rpg7_explode; t_rpg7_explosion
 
 grenade_bone				= grenade
 
@@ -154,9 +138,3 @@ grenade_bone				= grenade
 rocket_class				= wpn_rpg7_missile
 ;wallmarks
 wallmark_section			= explosion_marks
-;///////////////////////////////////////////////////////
-;спавнить автоматически боеприпасы при подъеме оружия
-auto_spawn_ammo	= false
-
-;запрещение режима Sprint для Актера
-sprint_allowed			= true

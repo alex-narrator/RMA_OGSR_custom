@@ -1,4 +1,4 @@
-[wpn_beretta]:identity_immunities
+[wpn_beretta]:identity_immunities,wpn_beretta_sounds
 GroupControlSection			= spawn_group
 discovery_dependency 		= 
 $spawn                   	= "weapons\beretta"					; option for Level Editor
@@ -96,7 +96,7 @@ silencer_bullet_speed	 	= 240
 ;-----------------------------------------------------------------------------------
 hud                      	= wpn_beretta_hud
 ;hud                      	= wpn_FORT_hud
-visual                   	= weapons\beretta92fs\wpn_beretta92fs.ogf
+visual                   	= dynamics\weapons\wpn_beretta92fs\wpn_beretta92fs
 
 normal                   	= 0, 1, 0
 position                 	= -0.021, -0.085, 0.0
@@ -111,12 +111,13 @@ orientation              	= 0, 0, 0
 direction           	    = 0, 0, 1
 fire_point               	= 0.0, 0.133, 0.161
 
-flame_particles		   		= weapons\generic_weapon03
-smoke_particles		   		= weapons\generic_shoot_00
+flame_particles                          = weapons\generic_weapon03
+smoke_particles                          = weapons\generic_shoot_00
+grenade_flame_particles                  = weapons\generic_weapon01
 
-shell_point		 			= 0.0, 0.133, 0.047
-shell_dir		 			= 0.0, 0.0, 0.4
-shell_particles	 			= weapons\generic_shells
+shell_point		 	                     = 0.0, 0.133, 0.047
+shell_dir		 	                     = 0.0, 0.0, 0.4
+shell_particles	 		                 = weapons\9x19
 
 ;-----------------------------------------------------------------------------------
 ;startup_ammo            	= 90
@@ -139,15 +140,6 @@ flashlight_status = 2
 
 zoom_enabled				= true
 scope_zoom_factor	    	= 55
-
-;звуки
-snd_draw					= weapons\walther_draw
-snd_holster					= weapons\generic_holster
-snd_shoot					= weapons\t_beretta_shot   ;walther_p99_shoot
-snd_empty					= weapons\pistol_empty
-snd_reload					= weapons\pm_reload, 0.8
-snd_close					= weapons\generic_close
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; silencer

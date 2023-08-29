@@ -1,5 +1,4 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-[wpn_pm]:identity_immunities
+[wpn_pm]:identity_immunities,wpn_pm_sounds
 GroupControlSection			= spawn_group
 discovery_dependency 		= 
 $spawn                   	= "weapons\pm"					; option for Level Editor
@@ -70,9 +69,9 @@ fire_point               	= 0.0, 0.127, 0.117
 flame_particles				= weapons\generic_weapon03
 smoke_particles				= weapons\generic_shoot_00
 
-shell_point		 			= 0.00, 0.127, 0.03
+shell_point		 			= 0.0, 0.133, 0.047
 shell_dir		 			= 0.0, 0.0, 0.4
-shell_particles	 			= weapons\generic_shells
+shell_particles	 			= weapons\9x18
 
 rpm_empty_click 	 		= 100
 
@@ -112,7 +111,7 @@ orientation              	= 0, 0, 1
 ;strap_bone1					= bip01_spine1
 
 ;startup_ammo             	= 90
-visual                   	= weapons\pm\wpn_pm.ogf
+visual                   	= dynamics\weapons\wpn_pm\wpn_pm
 
 light_color		 			= 0.6,0.5,0.3
 light_range		 			= 3.0
@@ -133,17 +132,6 @@ flashlight_status			= 2
 zoom_enabled				= true
 scope_zoom_factor	    	= 55
 
-;звуки
-snd_draw					= weapons\generic_holster ;weapons\pm_draw
-snd_holster					= weapons\generic_holster
-snd_shoot					= weapons\t_pm_shot      ;pm_shoot
-snd_empty					= weapons\pistol_empty
-snd_reload					= weapons\pm_reload, 0.8
-snd_close					= weapons\generic_close
-snd_shutter 				= weapons\pm_draw
-
-snd_unload 					= weapons\pm_reload, 0.8
-
 weapon_remove_time			= 5000
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; silencer
@@ -162,7 +150,6 @@ silencer_fire_distance   	= 100
 silencer_bullet_speed	 	= 220
 ;silencer_flame_particles 	= weapons\generic_weapon01
 silencer_smoke_particles 	= weapons\generic_shoot_00
-snd_silncer_shot			= weapons\w_ak74_shot1 
 silencer_light_color		= 0.6,0.5,0.3
 silencer_light_range		= 0.01
 silencer_light_var_color	= 0.05

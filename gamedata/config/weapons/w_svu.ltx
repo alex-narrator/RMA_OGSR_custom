@@ -1,4 +1,4 @@
-[wpn_svu]:identity_immunities
+[wpn_svu]:identity_immunities,weapon_base,wpn_svu_sounds,scope_respawn_svu
 GroupControlSection	= spawn_group
 discovery_dependency = 
 $spawn                  = "weapons\svu"		; option for Level Editor
@@ -82,9 +82,9 @@ flame_particles		   	= weapons\generic_weapon_svu
 smoke_particles		   	= weapons\generic_shoot_00
 rpm_empty_click 	 	= 200
 
-shell_point		 		= 0.0, 0.128, 0.0
-shell_dir		 		= 0.0, 0.0, 0.4
-shell_particles	 		= weapons\generic_shells
+shell_point					             = 0.0, 0.128, 0.0
+shell_dir		 			             = 0.0, 0.0, 0.4
+shell_particles				             = weapons\762x54
 
 PDM_disp_base 			= 4.0
 PDM_disp_vel_factor 		= 0.8
@@ -118,7 +118,7 @@ strap_bone0					= bip01_spine2
 strap_bone1					= bip01_spine1
 
 startup_ammo            = 10
-visual                  = weapons\svu\wpn_svu.ogf
+visual                  = dynamics\weapons\wpn_svu\wpn_svu
 
 light_disabled					= true
 
@@ -133,7 +133,6 @@ zoom_enabled			= true
 
 zoom_enabled			= true
 
-scope_name 					= wpn_addon_scope ; section name for the attachable scope
 scope_x 					= 42						; offset in inventory icon
 scope_y 					= 3
 
@@ -144,12 +143,22 @@ silencer_y 					= 18
 magazine_x = 50
 magazine_y = 50
 
-;звуки
-snd_draw				= weapons\svu_draw
-snd_holster				= weapons\generic_holster
-snd_shoot				= weapons\t_svu_shot         ;svu_shoot
-snd_empty				= weapons\gen_empty, 0.5
-snd_reload				= weapons\svu_reload
-snd_close				= weapons\generic_close
+ignore_scope_second = true
 
-snd_silncer_shot			= weapons\w_ak74_shot1
+[wpn_svu_pso1]:wpn_svu
+hud           = wpn_svu_pso1_hud
+visual        = dynamics\weapons\wpn_svu\wpn_svu_pso1.ogf
+
+scope_respawn = wpn_svu
+
+[wpn_svu_1p29]:wpn_svu,1p29_scope_names
+hud           = wpn_svu_1p29_hud
+visual        = dynamics\weapons\wpn_svu\wpn_svu_1p29.ogf
+
+scope_respawn = wpn_svu
+
+[wpn_svu_kobra]:wpn_svu,kobra_scope_names
+hud           = wpn_svu_kobra_hud
+visual        = dynamics\weapons\wpn_svu\wpn_svu_kobra.ogf
+
+scope_respawn = wpn_svu

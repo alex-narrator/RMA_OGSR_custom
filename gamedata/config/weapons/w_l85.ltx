@@ -1,5 +1,5 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-[wpn_l85]:identity_immunities
+[wpn_l85]:identity_immunities,weapon_base,wpn_l85_sounds
 GroupControlSection		= spawn_group
 discovery_dependency	= 
 $spawn              	= "weapons\l85"		; option for Level Editor
@@ -89,9 +89,9 @@ flame_particles				= weapons\generic_weapon05
 smoke_particles				= weapons\generic_shoot_00
 grenade_flame_particles		= weapons\generic_weapon01
 	
-shell_point		 			= 0.0, 0.186, 0.0
-shell_dir		 			= 0.0, 0.0, 0.4
-shell_particles	 			= weapons\generic_shells
+shell_point					             = -0.020000, 0.167000, 0.082000
+shell_dir					             = 0.0, 0.0, 0.4
+shell_particles				             = weapons\556x45
 
 rpm_empty_click 	 		= 200
 
@@ -127,7 +127,7 @@ strap_bone0					= bip01_spine2
 strap_bone1					= bip01_spine1
 
 startup_ammo   		        = 90
-visual         		        = weapons\l85\wpn_l85.ogf
+visual         		        = dynamics\weapons\wpn_l85\wpn_l85
 	
 light_color					= 0.6,0.5,0.3
 light_range					= 5
@@ -139,15 +139,14 @@ ph_mass						= 5
 ;cost						= 2100
 
 ;addons
-scope_status				= 2
+scope_status				= 1
 silencer_status				= 2
-grenade_launcher_status		= 2
+grenade_launcher_status		= 0
 
 zoom_enabled				= true
+scope_zoom_factor			= 4
+scope_second 				= true
 
-scope_name 					= wpn_addon_scope_susat
-scope_x 					= 59
-scope_y 					= -3
 silencer_name  				= wpn_addon_silencer
 silencer_x 					= 190
 silencer_y 					= 10
@@ -158,22 +157,9 @@ grenade_launcher_y 			= 28
 magazine_x = 46
 magazine_y = 42
 
-;звуки
-snd_draw					= weapons\ak74_draw
-snd_holster					= weapons\generic_holster
-snd_shoot					= weapons\t_l85_shot      ;test_shoot ;was ak74_shoot
-snd_empty					= weapons\gen_empty, 0.5
-snd_reload					= weapons\l85_reload, 0.7, 0.35
-snd_shoot_grenade			= weapons\gen_grenshoot
-snd_reload_grenade			= weapons\gen_grenload, 1.0, 0.8
-snd_switch					= weapons\groza_switch, 1.0, 0.5
-snd_checkout 				= weapons\mp5_bore
-
 ;настройки для глушителя
 ;silencer_flame_particles 	= weapons\generic_weapon01
 silencer_smoke_particles 	= weapons\generic_shoot_00
-
-snd_silncer_shot			= weapons\w_ak74_shot1 
 
 silencer_light_color		= 0.6,0.5,0.3
 silencer_light_range		= 0.01

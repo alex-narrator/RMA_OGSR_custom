@@ -1,4 +1,4 @@
-[wpn_svd]:identity_immunities
+[wpn_svd]:identity_immunities,weapon_base,wpn_svd_sounds,scope_respawn_svd
 GroupControlSection	= spawn_group
 discovery_dependency = 
 $spawn                  = "weapons\svd"		; option for Level Editor
@@ -81,9 +81,9 @@ flame_particles		    = weapons\generic_weapon06
 smoke_particles		   	= weapons\generic_shoot_00
 rpm_empty_click 		= 200
 
-shell_point		 		= 0.0, 0.129, 0.192	
-shell_dir		 		= 0.0, 0.0, 0.4
-shell_particles	 		= weapons\generic_shells
+shell_point		 			             = 0.0, 0.129, 0.192
+shell_dir		 			             = 0.0, 0.0, 0.4
+shell_particles	 		                 = weapons\762x54
 
 PDM_disp_base 			= 6.0
 PDM_disp_vel_factor 		= 0.9
@@ -118,10 +118,8 @@ strap_orientation      		= -25,-189,65				; (3rd person view in degrees)
 strap_bone0					= bip01_spine2
 strap_bone1					= bip01_spine1
 
-scope_bone = scope
-
 startup_ammo            = 10
-visual                  = weapons\svd\wpn_svd.ogf
+visual                  = dynamics\weapons\wpn_svd\wpn_svd
 
 light_color		 		= 0.6,0.5,0.3
 light_range		 		= 4.0
@@ -134,23 +132,27 @@ ph_mass			 		= 3
 
 ;addons
 scope_status				= 2
-silencer_status				= 0
+silencer_status				= 2
 grenade_launcher_status		= 0
 zoom_enabled				= true
 
-scope_name 					= wpn_addon_scope ; section name for the attachable scope
 scope_x 					= 44						; offset in inventory icon
 scope_y 					= 8
+
+silencer_name 				= wpn_addon_silencer
 
 zoom_enabled			= true
 
 magazine_x = 103
 magazine_y = 46
 
-;звуки
-snd_draw		= weapons\svd_draw
-snd_holster		= weapons\generic_holster
-snd_shoot		= weapons\rc_svd_shot     ;svd_shoot
-snd_empty		= weapons\gen_empty, 0.5
-snd_reload		= weapons\svd_reload
-snd_checkout	= weapons\mp5_bore
+[wpn_svd_1p29]:wpn_svd,1p29_scope_names
+hud           = wpn_svd_1p29_hud
+visual        = dynamics\weapons\wpn_svd\wpn_svd_1p29.ogf
+
+scope_respawn = wpn_svd
+
+[wpn_svd_kobra]:wpn_svd,kobra_scope_names
+hud           = wpn_svd_kobra_hud
+visual        = dynamics\weapons\wpn_svd\wpn_svd_kobra.ogf
+scope_respawn = wpn_svd

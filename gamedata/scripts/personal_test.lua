@@ -76,5 +76,14 @@ end
 -- level.add_cam_effector('camera_effects\\kick\\attack_heavy.anm', 8073, false,'')
 --game.stop_hud_motion()
 --actor:activate_slot(NO_ACTIVE_SLOT, true)
-block_non_move_action(false)
+-- block_non_move_action(false)
 --get_actor_obj():block_action(key_bindings.kINVENTORY)
+
+local item = db.actor:active_item()
+if item then
+item:dump_visual_to_log() --Распечатать в лог информацию о мешах и костях модели - мировой и худовой, если худовая доступна.
+log3("--Mesh count of [%s]: [%s]", item:name(), item:get_mesh_count_hud()) --вывести кол-во мешей в худовой модели.
+--item:set_show_model_mesh(1, true) --Установить видимость меша для худовой модели
+item:set_show_model_mesh(0, false) --Установить видимость меша для худовой модели
+--local shown = item:get_show_model_mesh_hud(0) --узнать показан ли меш
+end

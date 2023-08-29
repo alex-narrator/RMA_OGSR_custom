@@ -1,14 +1,20 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;	WEAPON ADDON
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-[wpn_addon_scope]:identity_immunities
+[wpn_addon_scope_base]:identity_immunities
 GroupControlSection	= spawn_group
 discovery_dependency = 
 $spawn			= "weapons\addons\scope" ; option for Level Editor
 class			= WP_SCOPE
 cform           = skeleton
-visual          = weapons\upgrade\wpn_scope.ogf
 $prefetch 		= 32
+
+cost 			= 100
+inv_weight 		= 0.1
+
+[wpn_addon_scope]:wpn_addon_scope_base
+visual          = dynamics\weapons\wpn_upgrade\wpn_scope.ogf
+
 description		= enc_weapons1_wpn-addon-scope
 cost			= 200
 
@@ -19,13 +25,13 @@ inv_name		= wpn-addon-scope
 inv_name_short	= wpn-addon-scope
 inv_weight		= .2
 
-inv_grid_width		= 2
-inv_grid_height		= 1
-inv_grid_x			= 18
-inv_grid_y			= 2
+inv_grid_width     = 2
+inv_grid_height    = 1
+inv_grid_x         = 35
+inv_grid_y         = 2
 scope_texture			= wpn\crosshairs\anomaly\wpn_crosshair_pso1
 scope_texture_broken 	= wpn\crosshairs\anomaly\wpn_crosshair_pso1_broken
-scope_zoom_factor	= 1, 6, 5; формат запису: мінімільний зум, максимальний зум, кількість кроків наближення
+scope_zoom_factor	= 4;1, 6, 5; формат запису: мінімільний зум, максимальний зум, кількість кроків наближення
 
 range_meter = true
 range_meter_offset = -0.1, 0.2
@@ -52,7 +58,71 @@ scope_second 				= true
 ;snd_night_vision_idle		= weapons\nv_loop
 ;snd_night_vision_broken		= weapons\nv_off
 
-[wpn_addon_scope_susat]:identity_immunities
+[wpn_addon_scope_pso1]:wpn_addon_scope_base
+visual          = dynamics\weapons\wpn_upgrade\wpn_scope.ogf
+
+description		= wwpn_addon_scope_pso_descr
+inv_name		= wpn_addon_scope_pso_name
+inv_name_short	= wpn_addon_scope_pso_name_short
+
+inv_grid_width     = 2
+inv_grid_height    = 1
+inv_grid_x         = 35
+inv_grid_y         = 2
+
+scope_zoom_factor	= 4
+
+scope_texture		 = wpn\wpn_crosshair_pso1
+scope_texture_broken = wpn\wpn\wpn_crosshair_pso1_broken
+
+[wpn_addon_scope_1p29]:wpn_addon_scope_base
+visual          = dynamics\weapons\wpn_upgrade\wpn_scope_1p29.ogf
+
+description		= wpn_addon_scope_1p29_descr
+inv_name		= wpn_addon_scope_1p29_name
+inv_name_short	= wpn_addon_scope_1p29_name_short
+
+inv_grid_width     = 1
+inv_grid_height    = 1
+inv_grid_x         = 34
+inv_grid_y         = 2
+
+inv_weight 			= 1.25
+
+scope_zoom_factor	= 4
+
+scope_texture		= wpn\wpn_crosshair_1p29
+scope_second 		= true
+
+[wpn_addon_scope_kobra]:wpn_addon_scope_base
+visual          = dynamics\weapons\wpn_upgrade\wpn_scope_kobra.ogf
+
+description		= wpn_addon_scope_cobra_descr
+inv_name		= wpn_addon_scope_cobra_name
+inv_name_short	= wpn_addon_scope_cobra_name_short
+
+inv_grid_width     = 1
+inv_grid_height    = 1
+inv_grid_x         = 29
+inv_grid_y         = 2
+
+[wpn_addon_scope_po4x32]:wpn_addon_scope_base
+visual          = dynamics\weapons\wpn_upgrade\wpn_scope_po4x34.ogf
+
+description		= wpn_addon_scope_po4x32_descr
+inv_name		= wpn_addon_scope_po4x32_name
+inv_name_short	= wpn_addon_scope_po4x32_short
+
+inv_grid_width     = 2
+inv_grid_height    = 1
+inv_grid_x         = 38
+inv_grid_y         = 2
+
+scope_zoom_factor	= 4
+
+scope_texture		= wpn\wpn_crosshair_po4x34
+
+[wpn_addon_scope_susat]:wpn_addon_scope_base
 GroupControlSection	= spawn_group
 discovery_dependency = 
 $spawn			= "weapons\addons\scope_susat" ; option for Level Editor
@@ -76,23 +146,79 @@ inv_grid_width		= 1
 inv_grid_height		= 1
 inv_grid_x			= 19
 inv_grid_y			= 1
-scope_texture			= wpn\crosshairs\anomaly\wpn_crosshair_susat
-scope_texture_broken	= wpn\crosshairs\anomaly\wpn_crosshair_susat_broken
-scope_zoom_factor	= 4		;SUSAT 2X
 
-scope_second = true
+scope_zoom_factor	= 4
 
-[wpn_addon_scope_pgo_7v]:wpn_addon_scope
-description		= enc_weapons1_wpn_addon_scope_pgo_7v
-inv_name		= wpn_addon_scope_pgo_7v
-inv_name_short	= wpn_addon_scope_pgo_7v
-inv_weight		= .2
+scope_texture		 = wpn\wpn_crosshair_susat
+scope_texture_broken = wpn\wpn_crosshair_susat_broken
+
+[wpn_addon_scope_acog]:wpn_addon_scope_base
+visual          = dynamics\weapons\wpn_upgrade\wpn_scope_acog.ogf
+
+description		= wpn_addon_scope_acog_descr
+inv_name		= wpn_addon_scope_acog_name
+inv_name_short	= wpn_addon_scope_acog_name_short
+
 inv_grid_width     = 1
 inv_grid_height    = 1
-inv_grid_x         = 25
-inv_grid_y         = 1
-scope_texture			= wpn\crosshairs\anomaly\wpn_crosshair_rpg
-scope_zoom_factor = 2.7
+inv_grid_x         = 30
+inv_grid_y         = 2
+
+scope_zoom_factor	= 4
+
+scope_texture		= wpn\wpn_crosshair_acog
+
+[wpn_addon_scope_eot]:wpn_addon_scope_base
+visual          = dynamics\weapons\wpn_upgrade\wpn_scope_acog.ogf
+
+description		= wpn_addon_scope_eot_descr
+inv_name		= wpn_addon_scope_eot_name
+inv_name_short	= wpn_addon_scope_eot_name_short
+
+inv_grid_width     = 1
+inv_grid_height    = 1
+inv_grid_x         = 28
+inv_grid_y         = 2
+
+[wpn_addon_scope_ac10632]:wpn_addon_scope_base
+visual          = dynamics\weapons\wpn_upgrade\wpn_scope_ac10632.ogf
+
+description		= wpn_addon_scope_ac10632_descr
+inv_name		= wpn_addon_scope_ac10632_name
+inv_name_short	= wpn_addon_scope_ac10632_name_short
+
+inv_grid_width     = 1
+inv_grid_height    = 1
+inv_grid_x         = 29
+inv_grid_y         = 2
+
+[wpn_addon_scope_aimpoint]:wpn_addon_scope_base
+visual          = dynamics\weapons\wpn_upgrade\wpn_scope_aimpoint.ogf
+
+description		= wpn_addon_scope_aimpoint_descr
+inv_name		= wpn_addon_scope_aimpoint_name
+inv_name_short	= wpn_addon_scope_aimpoint_short
+
+inv_grid_width     = 1
+inv_grid_height    = 1
+inv_grid_x         = 32
+inv_grid_y         = 2
+
+[wpn_addon_scope_fn2000]:wpn_addon_scope
+description		= wpn_addon_scope_fn2000_descr
+inv_name		= wpn_addon_scope_fn2000_name
+inv_name_short	= wpn_addon_scope_fn2000_short
+
+inv_grid_width     = 2
+inv_grid_height    = 1
+inv_grid_x         = 34
+inv_grid_y         = 3
+
+scope_texture			= wpn\crosshairs\anomaly\wpn_crosshair_fn2000
+scope_texture_broken	= wpn\crosshairs\anomaly\wpn_crosshair_fn2000_moist
+
+scope_zoom_factor	    = 1.6
+scope_second 			= true
 
 [wpn_addon_silencer]:identity_immunities
 GroupControlSection	= spawn_group

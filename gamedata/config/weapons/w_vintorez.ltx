@@ -1,4 +1,4 @@
-[wpn_vintorez]:identity_immunities
+[wpn_vintorez]:identity_immunities,weapon_base,wpn_vintorez_sounds,scope_respawn_vintorez
 GroupControlSection		 	= spawn_group
 discovery_dependency 	 	= 
 $spawn                   	= "weapons\vintorez"					; option for Level Editor
@@ -78,9 +78,9 @@ fire_point               	= 0.0, 0.127, 0.559
 
 smoke_particles				= weapons\generic_shoot_00
 
-shell_point		 			= 0.0, 0.127, 0.10
-shell_dir		 			= 0.0, 1.0, 0.0
-shell_particles	 			= weapons\generic_shells
+shell_point				                 = -0.02, 0.167, 0.082
+shell_dir					             = 0, 0, 0.4
+shell_particles         			     = weapons\9x39
 
 rpm_empty_click 	     	= 200
 
@@ -116,7 +116,7 @@ strap_bone0					= bip01_spine2
 strap_bone1					= bip01_spine1
 
 startup_ammo             	= 1000
-visual                   	= weapons\vintorez\wpn_vintorez.ogf
+visual                   	= dynamics\weapons\wpn_vintorez\wpn_vintorez
 	
 light_disabled				= true
 
@@ -131,22 +131,20 @@ zoom_enabled				= true
 
 zoom_enabled				= true
 
-scope_name 					= wpn_addon_scope ; section name for the attachable scope
 scope_x 					= 57						; offset in inventory icon
 scope_y 					= 12
 
 magazine_x = 108
 magazine_y = 57
 
-;звуки
-snd_draw					= weapons\generic_draw
-snd_holster					= weapons\generic_holster
-;snd_shoot					= weapons\t_vintorez_shot      ;silencer4a
-snd_shoot					= weapons\tm_val_shot_0      ; t_val_shot     ;silencer4a
-snd_shoot1					= weapons\tm_val_shot_1
-snd_shoot2					= weapons\tm_val_shot_2
-snd_shoot3					= weapons\tm_val_shot_3
-snd_empty					= weapons\gen_empty, 0.5
-snd_reload					= weapons\vintorez_reload, 0.7, 0.5
-snd_shoot_grenade			= weapons\gen_grenshoot
-snd_reload_grenade			= weapons\gen_grenload
+[wpn_vintorez_1p29]:wpn_vintorez,1p29_scope_names
+hud           = wpn_vintorez_1p29_hud
+visual        = dynamics\weapons\wpn_vintorez\wpn_vintorez_1p29.ogf
+
+scope_respawn = wpn_vintorez
+
+[wpn_vintorez_kobra]:wpn_vintorez,kobra_scope_names
+hud           = wpn_vintorez_kobra_hud
+visual        = dynamics\weapons\wpn_vintorez\wpn_vintorez_kobra.ogf
+
+scope_respawn = wpn_vintorez

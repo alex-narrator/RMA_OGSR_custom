@@ -1,45 +1,37 @@
 [wpn_spas12_hud]:hud_base
-
-shell_point			= 0.028,0.052,0.0147
-shell_dir                     	= 0.0, 1.0, 0.0
-shell_bone			= wpn_body
-
-
-fire_point		= 0, 0.051, 0.808
-fire_bone			= wpn_body
-
-
-attach_place_idx		= 0
-item_visual                   	= dynamics\weapons\wpn_spas12\wpn_spas12_hud.ogf
-
-hands_position				= -0.131000,-0.084001,0.197000
-hands_orientation			= 1.950000,-0.999998,3.349998
-
-hands_position_16x9 = -0.153601,-0.076699,0.129097
-hands_orientation_16x9 = 0.570000,-3.149996,2.349999
-
-item_position				= 0.001394,0.007643,0.003674
-item_orientation			= -0.194673,-0.83 9747,-0.116095
-
-aim_hud_offset_pos				= -0.098000,0.051000,0.000000
-aim_hud_offset_rot				= 0.017500,0.025000,-0.022500
-
-aim_hud_offset_pos_16x9 = -0.069899,0.070200,-0.089801
-aim_hud_offset_rot_16x9 = 0.010500,0.003000,-0.045000
-
-
-anm_show						= spas12_draw
-anm_hide						= spas12_holster
-anm_idle						= spas12_idle
-anm_idle_aim				= spas12_idle_aim
-anm_idle_moving			= spas12_idle_moving
-anm_idle_sprint			= spas12_idle_sprint
-anm_bore						= spas12_idle_bore
-
-anm_shots					= spas12_shoot
-
-anm_open						= spas12_reload_start
-anm_add_cartridge			= spas12_reload
-anm_close					= spas12_reload_end
-
-anm_reload = spas12_reload
+        item_visual                 = anomaly_weapons\wpn_spas12\wpn_spas12_hud.ogf
+        attach_place_idx            = 0
+        zoom_hide_crosshair         = true
+        
+        item_position               = 0, 0, 0
+        item_orientation            = 0, 0, 0
+        
+        hands_position              = 0.02, -0.18, 0.15
+        hands_position_16x9         = 0.020000,-0.180000,0.150000
+        hands_orientation           = 0, 0, 0
+        hands_orientation_16x9      = 0.080000,0.470000,0.000000
+        
+        aim_hud_offset_pos          = -0.08023, 0.0417, -0.25
+        aim_hud_offset_pos_16x9     = -0.080230,0.041700,-0.250000
+        aim_hud_offset_rot          = -0.0107, 0.00012, 0.0
+        aim_hud_offset_rot_16x9     = -0.003950,0.001620,0.000000
+        
+        anm_add_cartridge           = spas12_reload, reload
+        anm_close                   = spas12_reload_end, reload_end
+        anm_hide                    = spas12_holster
+        anm_idle                    = spas12_idle
+        anm_idle_aim                = spas12_aim
+        anm_idle_aim_moving         = spas12_move, idle
+        anm_idle_aim_moving_crouch  = spas12_move, idle
+        anm_idle_moving             = spas12_move
+        anm_idle_sprint             = spas12_sprint
+        anm_open                    = spas12_reload_start, reload_start
+        anm_shots                   = spas12_shoot
+        anm_show                    = spas12_draw
+        
+        shell_bone                  = gilza2
+        shell_dir                   = 0.0, 1.0, 0.0
+        shell_point                 = 0, 0, 0
+        
+        fire_bone                   = muzzle
+        fire_point                  = 0, 0, 0

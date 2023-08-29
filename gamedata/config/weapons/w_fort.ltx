@@ -1,4 +1,4 @@
-[wpn_fort]:identity_immunities
+[wpn_fort]:identity_immunities,wpn_fort_sounds
 GroupControlSection			= spawn_group
 discovery_dependency 		= 
 $spawn                   	= "weapons\fort"					; option for Level Editor
@@ -76,9 +76,9 @@ flame_particles		   		= weapons\generic_weapon03
 smoke_particles		   		= weapons\generic_shoot_00
 rpm_empty_click 	 		= 200
 
-shell_point		 			= 0.05, 0.148, 0.053
-shell_dir		 			= 0.0, 0.0, 0.4
-shell_particles	 			= weapons\generic_shells
+shell_point		 	        = 0.0, 0.133, 0.047
+shell_dir		 	        = 0.0, 0.0, 0.4
+shell_particles	 		    = weapons\9x18
 
 PDM_disp_base 			= 1.0
 PDM_disp_vel_factor 		= 0.6
@@ -116,7 +116,7 @@ orientation              	= 0, 0, 0
 ;strap_bone1					= bip01_spine1
 
 startup_ammo             	= 90
-visual                   	= weapons\fort\wpn_fort.ogf
+visual                   	= dynamics\weapons\wpn_fort\wpn_fort
 
 light_color		 			= 0.6,0.5,0.3
 light_range		 			= 3.0
@@ -135,14 +135,6 @@ grenade_launcher_status		= 0
 zoom_enabled				= true
 scope_zoom_factor	    	= 55
 
-;звуки
-snd_draw					= weapons\fort_draw
-snd_holster					= weapons\generic_holster
-snd_shoot					= weapons\t_fort_shot         ;usp_shoot
-snd_empty					= weapons\pistol_empty
-snd_reload					= weapons\pm_reload, 0.8
-snd_close					= weapons\generic_close
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; silencer
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -156,7 +148,6 @@ silencer_y 					= -17
 
 ;silencer_flame_particles 	= weapons\generic_weapon01
 silencer_smoke_particles 	= weapons\generic_shoot_00
-snd_silncer_shot			= weapons\w_ak74_shot1 
 silencer_light_color		= 0.6,0.5,0.3
 silencer_light_range		= 0.01
 silencer_light_var_color	= 0.05

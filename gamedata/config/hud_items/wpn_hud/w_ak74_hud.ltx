@@ -1,85 +1,96 @@
-[wpn_ak74_hud]:hud_base
-zoom_hide_crosshair        = true
-attach_place_idx        = 0
-item_visual                = dynamics\weapons\wpn_ak74\wpn_ak74_hud.ogf
+[wpn_ak74_hud]:hud_base,weapon_hud_base
+item_visual                              = anomaly_weapons\wpn_aks74\wpn_aks74_hud.ogf
+attach_place_idx                         = 0
+zoom_hide_crosshair                      = true   
 
-hands_position				= -0.120500,-0.180999,0.132501
-hands_orientation			= -2.599998,0.000000,-2.549999
+item_position                            = 0, 0, 0
+item_orientation                         = 0, 0, 0
 
-hands_position_16x9 = -0.119500,-0.199000,0.091000
-hands_orientation_16x9 = -0.670000,0.900001,-4.199999
+hands_position                           = -0.065, -0.15, 0.1
+hands_orientation                        = 2, 2, 0
 
-item_position				= 0.004111,0.008527,-0.005906
-item_orientation			= -15.488927,-3.320898,367.220154
+hands_position_16x9 					 = -0.065000,-0.150000,0.100000
+hands_orientation_16x9 					 = 0.140002,0.200002,0.000000
 
-shell_point                = 0.017,0.054,0.17
-shell_dir               = 0.0, 1.0, 0.0
-shell_bone                = wpn_body
+aim_hud_offset_pos                       = -0.090725, 0.0599, -0.26
+aim_hud_offset_rot                       = 0.03095, 0.03503, 0.001
 
-fire_point			= 0,0.042,0.684
-fire_bone                            = wpn_body
-fire_point2                        = 0.0,-0.011,0.553
-fire_bone2                = wpn_body
+aim_hud_offset_pos_16x9 				 = -0.087725,0.059300,-0.260000
+aim_hud_offset_rot_16x9 				 = 0.002950,0.003030,0.001000
 
-anm_show						= ak74_draw
-anm_hide                = ak74_holster
-anm_idle                = ak74_idle
-anm_idle_sprint         = ak74_idle_sprint
-anm_idle_moving         = ak74_idle_moving
-anm_shots               = ak74_shoot
-anm_reload              = ak74_reload
-anm_idle_aim            = ak74_idle_aim
+aim_second_hud_offset_pos                = -0.090725, 0.0599, -0.26
+aim_second_hud_offset_pos_16x9           = -0.090725, 0.0599, -0.26
+aim_second_hud_offset_rot                = 0.002950,0.003030,0.001000
+aim_second_hud_offset_rot_16x9           = 0.002950,0.003030,0.001000
 
-anm_switch              = ak74_switch_off           ;abakan_switch_off
-anm_switch_g            = ak74_switch_on           ;abakan_switch_on
-anm_bore                = ak74_idle_bore
+gl_hud_offset_pos                        = -0.052, 0.017, -0.15
+gl_hud_offset_pos_16x9                   = -0.052, 0.017, -0.15
+gl_hud_offset_rot                        = -0.072, 0.032, 0
+gl_hud_offset_rot_16x9                   = -0.072, 0.032, 0
 
-anm_hide_w_gl           = ak74_holster_w_gl
-anm_show_w_gl           = ak74_draw_w_gl
-anm_idle_w_gl           = ak74_idle_w_gl
-anm_shots_w_gl          = ak74_shoot_w_gl
-anm_reload_w_gl         = ak74_reload_w_gl
-anm_idle_w_gl_aim       = ak74_idle_aim_w_gl
-anm_idle_sprint_w_gl    = ak74_idle_sprint_w_gl
-anm_idle_moving_w_gl    = ak74_idle_moving_w_gl
-anm_bore_w_gl           = ak74_idle_bore_w_gl
+lean_hud_offset_pos                      = 0, 0, 0
+lean_hud_offset_rot                      = 0, 0, 0
 
-anm_show_g              = ak74_draw_w_gl							;abakan_draw_grenade
-anm_hide_g              = ak74_holster_w_gl						;abakan_holster_grenade
-anm_idle_g              = ak74_idle_w_gl							;abakan_idle_grenade
-anm_reload_g            = ak74_reload_grenade
-anm_idle_g_aim          = ak74_idle_aim_w_gl						;abakan_idle_grenade
-anm_shots_g             = ak74_shoot_grenade
-anm_idle_sprint_g       = ak74_idle_sprint_w_gl					;abakan_idle_sprint_grenade
-anm_idle_moving_g       = ak74_idle_moving_w_gl					;abakan_idle_moving_grenade
-anm_bore_g              = ak74_idle_bore_w_gl
+anm_hide                                 = ak74_holster
+anm_hide_g                               = ak74_holster_w_gl
+anm_hide_w_gl                            = ak74_holster_w_gl
+anm_idle                                 = ak74_idle
+anm_idle_aim                             = ak74_idle_aim
+anm_idle_aim_moving                      = ak74_idle_moving, idle
+anm_idle_aim_moving_crouch               = ak74_idle_crouch
+anm_idle_g                               = ak74_idle_w_gl
+anm_idle_g_aim                           = ak74_idle_aim_w_gl
+anm_idle_moving                          = ak74_idle_moving
+anm_idle_moving_crouch                   = ak74_idle_crouch
+anm_idle_moving_crouch_g                 = ak74_idle_crouch_w_gl
+anm_idle_moving_crouch_g_aim             = ak74_idle_moving_w_gl, idle
+anm_idle_moving_crouch_w_gl              = ak74_idle_crouch_w_gl
+anm_idle_moving_crouch_w_gl_aim          = ak74_idle_moving_w_gl, idle
+anm_idle_moving_g                        = ak74_idle_moving_w_gl
+anm_idle_moving_g_aim                    = ak74_idle_moving_w_gl, idle
+anm_idle_moving_w_gl                     = ak74_idle_moving_w_gl
+anm_idle_moving_w_gl_aim                 = ak74_idle_moving_w_gl, idle
+anm_idle_sprint                          = ak74_idle_sprint
+anm_idle_sprint_g                        = ak74_idle_sprint_w_gl
+anm_idle_sprint_w_gl                     = ak74_idle_sprint_w_gl
+anm_idle_w_gl                            = ak74_idle_w_gl
+anm_idle_w_gl_aim                        = ak74_idle_aim_w_gl
+anm_reload                               = ak74_reload
+anm_reload_empty                         = ak74_reload_empty
+anm_reload_empty_w_gl                    = ak74_reload_empty_w_gl
+anm_reload_g                             = ak74_reload_grenade
+anm_reload_w_gl                          = ak74_reload_w_gl
+anm_shots                                = ak74_shoot
+anm_shots_g                              = ak74_shoot_grenade
+anm_shots_w_gl                           = ak74_shoot_w_gl
+anm_show                                 = ak74_draw
+anm_show_g                               = ak74_draw_w_gl
+anm_show_w_gl                            = ak74_draw_w_gl
 
-anm_reload_partly				= ak74_reload
-anm_reload_partly_stop_k 		= 0.5
+anm_switch                  			= lancew_ak74_no_reload_w_gl
+anm_switch_g                			= lancew_ak74_no_reload_w_gl		
 
-anm_reload_w_gl_partly = ak74_reload
-anm_reload_w_gl_partly_stop_k 		= 0.5
+shell_bone                               = gilza
+shell_dir                                = 0, 1, 0
+shell_point                              = 0, 0, 0
 
-anm_fire_modes = ak74_switch_off
-anm_laser = ak74_switch_off
-anm_flashlight = ak74_switch_off
+fire_bone                                = muzzle
+fire_bone2                               = muzzle_gl
+fire_point                               = 0, 0, 0
+fire_point2                              = 0, 0, 0
 
-aim_hud_offset_pos				= -0.101000,0.035300,0.029000
-aim_hud_offset_rot				= -0.032500,-0.032500,0.020000
+[wpn_ak74_1p29_hud]:wpn_ak74_hud
+item_visual                              = anomaly_weapons\wpn_aks74\wpn_aks74_1p29_hud.ogf
 
-aim_hud_offset_pos_16x9 = -0.101900,0.034500,0.029000
-aim_hud_offset_rot_16x9 = -0.012500,0.001000,-0.007500
+aim_hud_offset_pos                       = -0.09015, 0.0299, -0.27
+aim_hud_offset_pos_16x9                  = -0.09015, 0.0299, -0.27
+aim_hud_offset_rot                       = 0.0298, 0.03795, 0
+aim_hud_offset_rot_16x9                  = 0.0298, 0.03795, 0
 
-gl_hud_offset_pos               = 0,0,0;-0.053000,-0.059000,0.000000
-gl_hud_offset_rot               = 0,0,0;-0.145000,0.000000,0.000000
+[wpn_ak74_kobra_hud]:wpn_ak74_hud
+item_visual                              = anomaly_weapons\wpn_aks74\wpn_aks74_kobra_hud.ogf
 
-gl_hud_offset_pos_16x9 = -0.088301,0.015100,0.000000
-gl_hud_offset_rot_16x9	 = -0.079000,0.013500,0.000000
-
-lean_hud_offset_pos        = 0,0,0
-lean_hud_offset_rot        = 0,0,0
-
-aim_second_hud_offset_pos_16x9 = -0.131001,-0.136832,-0.043800
-aim_second_hud_offset_rot_16x9 = -0.041500,0.066500,1.060014
-
-magazine_bone = magazin
+aim_hud_offset_pos                       = -0.09035,0.0296,-0.27
+aim_hud_offset_rot                       = 0.0298, 0.03795, 0
+aim_hud_offset_pos_16x9 				 = -0.084750,0.021700,-0.270000
+aim_hud_offset_rot_16x9 				 = -0.011700,-0.000050,0.000000

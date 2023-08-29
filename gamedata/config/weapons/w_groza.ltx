@@ -1,4 +1,4 @@
-[wpn_groza]:identity_immunities
+[wpn_groza]:identity_immunities,weapon_base,wpn_groza_sounds
 GroupControlSection	= spawn_group
 discovery_dependency = 
 $spawn                   = "weapons\groza"					; option for Level Editor
@@ -84,9 +84,9 @@ smoke_particles			= weapons\generic_shoot_00
 grenade_flame_particles = weapons\generic_weapon01
 
 
-shell_point				= 0.0, 0.194, 0.04
-shell_dir				= 0.0, 0.0, 0.4
-shell_particles			= weapons\generic_shells
+shell_point					             = 0.0, 0.194, 0.04
+shell_dir					             = 0.0, 0.0, 0.4
+shell_particles				             = weapons\9x39
 rpm_empty_click 		= 200
 
 PDM_disp_base 			= 1.0
@@ -129,7 +129,7 @@ strap_bone0					= bip01_spine2
 strap_bone1					= bip01_spine1
 
 startup_ammo            = 90
-visual                  = weapons\groza\wpn_groza.ogf
+visual                  = dynamics\weapons\wpn_groza\wpn_groza
 
 light_color		 		= 0.6,0.5,0.3
 light_range		 		= 5
@@ -148,7 +148,7 @@ grenade_launcher_status	= 1
 zoom_enabled			= true
 scope_zoom_factor	    = 50	;30
 
-scope_name 					= wpn_addon_scope			; section name for the attachable scope
+scope_name 					= wpn_addon_scope_po4x32			; section name for the attachable scope
 scope_x 					= 63						; offset in inventory icon
 scope_y 					= -1
 silencer_name  				= wpn_addon_silencer		; section name for the attachable silencer
@@ -158,26 +158,11 @@ silencer_y 					= 16
 magazine_x = 67
 magazine_y = 52
 
-;звуки
-snd_draw			= weapons\generic_draw
-snd_holster			= weapons\generic_holster
-;snd_shoot			= weapons\t_groza_shot        ;test2_shoot; was generic_shoot
-snd_shoot		    = weapons\groza_shoot
-snd_shoot1			= weapons\groza_shoot2
-snd_empty			= weapons\gen_empty, 0.5
-snd_reload			= weapons\groza_reload, 0.7, 0.45
-snd_shoot_grenade	= weapons\gen_grenshoot
-snd_reload_grenade	= weapons\gen_grenload, 1.0, 1.3
-snd_switch			= weapons\groza_switch, 1.0, 0.45
-snd_checkout 		= weapons\groza_bore
-
 ;params when silencer is attached 
 ;similar to corresponding params without prefix silencer_
 
 ;silencer_flame_particles 	= weapons\generic_weapon01
 silencer_smoke_particles 	= weapons\generic_shoot_00
-
-snd_silncer_shot			= weapons\w_ak74_shot1 
 
 silencer_light_color		= 0.6,0.5,0.3
 silencer_light_range		= 0.01

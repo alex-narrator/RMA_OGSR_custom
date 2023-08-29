@@ -1,4 +1,4 @@
-[wpn_ak74u]:identity_immunities
+[wpn_ak74u]:identity_immunities,weapon_base,wpn_aks74u_sounds,scope_respawn_ak74u
 GroupControlSection		= spawn_group
 discovery_dependency	= 
 $spawn              	= "weapons\ak-74u"	; name and section in level editor
@@ -88,12 +88,14 @@ condition_shot_dec 			= 0.0001	;увеличение износа при каждом выстреле
 fire_point             		=  0.0, 0.262, 0.447		; position (3rd person view) for particles of fire 
 ;fire_point2            		=  0.0, 0.262, 0.547		; position (3rd person view) for particles of fire (when shooting with secondary fire)
 
-flame_particles				= weapons\generic_weapon05	; particles for shooting effects
-smoke_particles				= weapons\generic_shoot_00
-grenade_flame_particles		= weapons\generic_weapon01
-	
-shell_point		 			= 0.00, 0.262, 0.189			; position (3rd person view) for shell to throw out
-shell_particles	 			= weapons\generic_shells	; name of the particles for shells
+flame_particles                          = weapons\generic_weapon05
+smoke_particles                          = weapons\generic_shoot_00
+grenade_flame_particles                  = weapons\generic_weapon01
+
+shell_point               	             = 0.07,0.2,0.466
+shell_dir               	             = 0, 1, 0
+shell_bone                	             = wpn_body
+shell_particles			                 = weapons\545x39
 
 PDM_disp_base 				= 1.0
 PDM_disp_vel_factor 			= 0.95
@@ -129,7 +131,7 @@ strap_orientation      		= -10,-5,10					; (3rd person view in degrees)
 strap_bone0					= bip01_spine2
 strap_bone1					= bip01_spine1
 
-visual         		        = weapons\ak-74u\ak74u.ogf	; name of the model for 3rd person view
+visual         		        = dynamics\weapons\wpn_ak74u\wpn_ak74u	; name of the model for 3rd person view
 
 light_color					= 0.6,0.5,0.3				; params for light during the fire
 light_range					= 5							; radius
@@ -142,7 +144,7 @@ ph_mass						= 5							; physic mass (kg)
 
 
 ;addons
-scope_status				= 0							; 0 - no addon
+scope_status				= 2							; 0 - no addon
 silencer_status				= 2							; 1 - permanent
 grenade_launcher_status		= 0							; 2 - attachable
 
@@ -162,20 +164,6 @@ silencer_y 				= -3
 magazine_x = 106
 magazine_y = 34
 
-;sounds (name of the sound, volume (0.0 - 1.0), delay (sec))
-snd_draw					= weapons\ak74_draw
-snd_holster					= weapons\generic_holster
-snd_shoot					= weapons\ak74u_shot_0
-snd_shoot1					= weapons\ak74u_shot_1
-snd_shoot2					= weapons\ak74u_shot_2
-snd_shoot3					= weapons\ak74u_shot_3
-snd_empty					= weapons\gen_empty, 0.5
-snd_reload					= weapons\ak74u_reload, 0.7, 0.75
-snd_shoot_grenade			= weapons\gen_grenshoot
-snd_reload_grenade			= weapons\gen_grenload, 1.0, 0.8
-snd_switch					= weapons\groza_switch, 1.0, 0.5
-snd_checkout				= weapons\ak74_bore, 0.7
-
 
 ;params when silencer is attached 
 ;similar to corresponding params without prefix silencer_
@@ -184,10 +172,23 @@ snd_checkout				= weapons\ak74_bore, 0.7
 ;silencer_flame_particles 	= weapons\generic_weapon01
 silencer_smoke_particles 	= weapons\generic_shoot_00
 
-snd_silncer_shot			= weapons\w_ak74_shot1 
-
 silencer_light_color		= 0.6,0.5,0.3
 silencer_light_range		= 0.01
 silencer_light_var_color	= 0.05
 silencer_light_var_range	= 0.5
 silencer_light_time 		= 0.2
+
+ignore_scope_second = true
+
+[wpn_ak74u_1p29]:wpn_ak74u,1p29_scope_names
+hud                         = wpn_ak74u_1p29_hud
+visual                      = dynamics\weapons\wpn_ak74u\wpn_ak74u_1p29.ogf
+
+scope_respawn 				= wpn_ak74u
+
+[wpn_ak74u_kobra]:wpn_ak74u,kobra_scope_names
+
+hud                         = wpn_ak74u_kobra_hud
+visual                      = dynamics\weapons\wpn_ak74u\wpn_ak74u_kobra.ogf
+
+scope_respawn 				= wpn_ak74u

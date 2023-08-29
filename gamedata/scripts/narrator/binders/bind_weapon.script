@@ -1,0 +1,59 @@
+------------------------------------------------------------------------------------------
+--біндер зброї
+------------------------------------------------------------------------------------------
+
+function init(obj)
+    local new_binder = weapon_binder(obj)
+    obj:bind_object(new_binder)
+end
+
+--послідовність викликів:
+--__init
+--reload
+--load (if save was called before)
+--net_spawn
+
+class "weapon_binder" (object_binder)
+function weapon_binder:__init(obj) super(obj)
+	self.hidden_meshes_table = {}
+	self.hidden_meshes_hud_table = {}
+	
+	local hidden_meshes_sect = read_if_exists(sys_ini, "r_string", obj:section(), "hidden_meshes", nil)
+	if hidden_meshes_sect then
+		self.hidden_meshes_table = split_string(hidden_meshes_sect, ",")
+	end
+	
+	local hidden_meshes_hud_sect = read_if_exists(sys_ini, "r_string", get_hud_sect(obj), "hidden_meshes", nil)
+	if hidden_meshes_hud_sect then
+		self.hidden_meshes_hud_table = split_string(hidden_meshes_hud_sect, ",")
+	end
+	
+	self.hud_meshes_hidden = false
+end
+ 
+function weapon_binder:reload(section)
+end
+ 
+function weapon_binder:net_spawn(data)
+	--log3("%s net_spawn for object %s", script_name(), self.object:name())
+    local spawned = object_binder.net_spawn(self, data)
+	
+	for k,v in pairs(self.hidden_meshes_table) do
+		self.object:set_show_model_mesh(v, false)
+	end
+	
+	return spawned
+end
+ 
+function weapon_binder:update(delta)
+    object_binder.update(self, delta)
+	
+	if not self.hud_meshes_hidden then
+		if actor:active_item() and actor:active_item():id() == self.object:id() then
+			for k,v in pairs(self.hidden_meshes_hud_table) do
+				self.object:set_show_model_mesh_hud(v, false)
+			end
+			self.hud_meshes_hidden = true
+		end
+	end
+end

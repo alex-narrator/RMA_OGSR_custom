@@ -1,4 +1,4 @@
-[wpn_protecta]:identity_immunities
+[wpn_protecta]:identity_immunities,wpn_protecta_sounds
 GroupControlSection			= spawn_group
 discovery_dependency 		=
 $spawn                   	= "weapons\protecta"					; option for Level Editor
@@ -99,7 +99,9 @@ hit_probability_gd_master	= 0.70
 position                 	= -0.024, -0.097, 0.
 orientation              	= 0, -4, 0      ;значение устанавливается в градусах
 
-shell_point				= 0.0, 0.180, 0.647
+shell_point					             = 0.0, 0.180, 0.647
+shell_particles         				 = weapons\12ga
+
 fire_point              = 0.0, 0.158, 0.647
 fire_point2				= 0.0, 0.158, 0.647
 hand_dependence 	 		= 1
@@ -124,7 +126,7 @@ kill_msg_width		= 94
 kill_msg_height		= 21
 
 flame_particles		   	= weapons\generic_weapon05
-smoke_particles		   	= weapons\generic_shoot_00
+smoke_particles		   	= amik\weapons\smoke_particles\smoke_particles_pump_01
 rpm_empty_click 	   	= 200
 
 ;--STRAP PARAMETERS-----------------------------------------------------------------
@@ -150,21 +152,17 @@ scope_status				= 2
 silencer_status				= 0
 grenade_launcher_status		= 0
 
-scope_name 					= wpn_addon_scope_susat
+scope_name 					= wpn_addon_scope_aimpoint
 scope_x                     = 97		; offset in inventory icon
 scope_y                     = 0
 
 zoom_enabled            = true                                                ; (on,off)zoom mode (right mouse button)
 zoom_rotate_time		= 0.25
 
-;звуки
-snd_draw					= weapons\generic_draw
-snd_holster					= weapons\generic_holster
-snd_shoot					= weapons\tm_spas12_shot;weapons\n_spas12_shot
-snd_empty					= weapons\generic_empty
-snd_reload					= weapons\toz34_reload;weapons\spas12_reload_end
-snd_shoot_duplet			= weapons\tm_spas12_shot;weapons\n_spas12_shot
+scope_respawn_wpn_addon_scope_aimpoint = wpn_protecta_aim
 
-snd_open_weapon            	= weapons\spas12_open;weapons\draw_silent
-snd_add_cartridge			= weapons\w1300_load;weapons\spas12_reload
-snd_close_weapon        	= weapons\spas12_close;weapons\spas12_reload_end
+[wpn_protecta_aim]:wpn_protecta
+hud         	= wpn_protecta_aim_hud
+visual      	= dynamics\weapons\wpn_protecta\wpn_protecta_aim.ogf
+
+scope_respawn 	= wpn_protecta
