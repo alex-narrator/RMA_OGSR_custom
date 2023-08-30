@@ -18,8 +18,8 @@ function can_play_anim()
 		--level.get_target_dist() <= KICK_DIST and
 		actor_hands_free() and 
 		not is_playing and 
-		not actor:ph_capture() and
-		(not actor:active_item() or not actor:active_item():is_knife()) 
+		not actor:ph_capture()-- and
+		--(not actor:active_item() or not actor:active_item():is_knife()) 
 end
 
 function on_key_press(key, game_action)
@@ -51,6 +51,8 @@ function on_key_press(key, game_action)
 			hud_sect = "sawed_kick_hud"
 		elseif act_item:is_pistol() then
 			hud_sect = "pistol_kick_hud"
+		elseif act_item:is_knife() then
+			hud_sect = "knife_kick_hud"
 		end
 	end
 	
@@ -65,6 +67,9 @@ function on_key_press(key, game_action)
 		read_if_exists(sys_ini, "r_float", hud_sect, "use_delay", 0.5),
 		function()
 			kick()
+			if act_item and act_item:is_knife() then
+				game.stop_hud_motion()
+			end
 			is_playing = false
 		end
 	)

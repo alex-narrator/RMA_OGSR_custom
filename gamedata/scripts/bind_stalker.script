@@ -50,6 +50,11 @@ function actor_binder:net_spawn(data)
 	if self.st.disable_input_time == nil then
 		level.enable_input()
 	end
+	
+	--на випадок якщо гравець перезавантажився
+	--у той час поки діяло блокування керування,
+	--наприклад від скриптових анімацій
+	block_non_move_action(false)
 
 	self.weather_manager:reset()
 --	game_stats.initialize ()

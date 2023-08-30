@@ -248,36 +248,6 @@ fire_dispersion_base_k = 0
 cam_dispersion_k	= 0
 condition_shot_dec_silencer = 1.5 ;коефіцієнт зношування зброї підчас вогню з встановленим глушником (0,1 = +10%)
 
-[wpn_addon_silencer_svu]:identity_immunities
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn			= "weapons\addons\silencer" ; option for Level Editor
-class			= W_SILENC
-cform           = skeleton
-visual          = weapons\upgrade\wpn_silencer.ogf
-description		= enc_weapons1_wpn-addon-silencer
-$prefetch 		= 32
-
-cost					 = 100;150
-inv_name		= wpn-addon-silencer_long
-inv_name_short	= wpn-addon-silencer_long
-inv_weight		= .1
-
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 24
-inv_grid_y         = 0
-
-condition_shot_dec = 0.01 ;износ глушителя за выстрел
-
-bullet_hit_power_k	= 0.1
-bullet_speed_k	 	= 0.1
-fire_dispersion_base_k = 0
-cam_dispersion_k	= 0
-condition_shot_dec_silencer = 0.5 ;коефіцієнт зношування зброї підчас вогню з встановленим глушником (0,1 = +10%)
-
-silencer_flame_particles 	= weapons\generic_weapon01
-
 [wpn_addon_choke]:wpn_addon_silencer
 description		= wpn_addon_choke_descr
 inv_name		= wpn-addon-choke
@@ -296,43 +266,6 @@ condition_shot_dec 		= 0.001
 condition_shot_dec_silencer = 2 ;коефіцієнт зношування зброї підчас вогню з встановленим глушником (0,1 = +10%)
 
 show_on_model = false
-
-[wpn_addon_muzzle_break_ak74]:identity_immunities
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn			= "weapons\addons\silencer" ; option for Level Editor
-class			= W_SILENC
-cform           = skeleton
-visual          = weapons\upgrade\wpn_silencer.ogf
-description		= muzzle_break_ak74
-$prefetch 		= 32
-
-description		= descr_muzzle_break_ak74
-inv_name		= muzzle_break_ak74
-inv_name_short	= muzzle_break_ak74_short
-
-inv_weight		= 0.1
-cost = 100
-
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 20
-inv_grid_y         = 0
-
-;fire_dispersion_base_k = -0.5
-cam_dispersion_k	= -0.2
-
-show_on_model = false
-
-[wpn_addon_muzzle_break_lr300]:wpn_addon_muzzle_break_ak74
-description		= descr_muzzle_break_lr300
-description		= muzzle_break_lr300
-inv_name		= muzzle_break_lr300
-inv_name_short	= muzzle_break_lr300_short
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 21
-inv_grid_y         = 0
 
 [wpn_addon_grenade_launcher]:identity_immunities
 GroupControlSection	= spawn_group
