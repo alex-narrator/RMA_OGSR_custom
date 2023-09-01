@@ -95,7 +95,6 @@ bullet_speed				= 430	;начальная скорость пули
 rpm                      	= 1000
 ; end ttc
 
-hud                      	= wpn_toz34_hud
 normal  	                = 0, 1, 0
 position                 	= -0.026, -0.132, 0.06 ;-0.026, -0.117, 0.0
 orientation              	= 0, 30, 0      ;значение устанавливается в градусах
@@ -108,7 +107,10 @@ strap_bone0					= bip01_spine2
 strap_bone1					= bip01_spine1
 
 startup_ammo             = 10
-visual                   = dynamics\weapons\wpn_toz34\wpn_toz34
+
+;visual                   = dynamics\weapons\wpn_toz34\wpn_toz34
+visual 					 = dynamics\weapons\wpn_toz34\wpn_toz34_mark4.ogf
+hud                      = wpn_toz34_hud
 
 light_color		 = 0.6,0.5,0.3
 light_range		 = 6.0
@@ -120,9 +122,61 @@ ph_mass			 = 3
 ;cost			 = 900
 
 ;addons
-scope_status				= 0
+;scope_status				= 0
 silencer_status				= 0
 grenade_launcher_status		= 0
 
 zoom_enabled				= true
 scope_zoom_factor	    	= 55
+
+script_binding      		= bind_weapon.init
+scope_mesh 					= 0,1
+scope_status 				= 2
+scope_name 					= wpn_addon_scope_hunter
+use_scope_zoom 				= true
+
+[wpn_toz34_decor]:wpn_toz34
+inv_name                                 = st_wpn_toz34_decor
+inv_name_short                           = st_wpn_toz34_decor
+
+hud                                      = wpn_toz34_sk1_hud
+visual                                   = dynamics\weapons\wpn_toz34\wpn_toz34_sk1.ogf
+
+scope_status							 = 0
+scope_mesh 								 =
+
+; [wpn_toz34_mark4]:wpn_toz34
+; inv_name                                 = st_wpn_toz34_mark4
+; inv_name_short                           = st_wpn_toz34_mark4
+; description                              = st_wpn_toz34_mark4_descr
+
+; hud                                      = wpn_toz34_mark4_hud
+; visual                                   = dynamics\weapons\wpn_toz34\wpn_toz34_mark4.ogf
+
+; script_binding      					 = bind_weapon.init
+; scope_mesh 								 = 0,1
+; scope_status 							 = 2
+; scope_name 								 = wpn_addon_scope_hunter
+; use_scope_zoom 							 = true
+
+[wpn_toz34_bull]:wpn_toz34
+inv_name                                 = st_wpn_toz34_bull
+inv_name_short                           = st_wpn_toz34_bull
+description                              = st_wpn_toz34_bull_descr
+
+hud                                      = wpn_toz34_bull_hud
+visual                                   = dynamics\weapons\wpn_toz34\wpn_toz34_bull.ogf
+
+scope_mesh 								 = 0
+scope_name 								 = wpn_addon_scope_ac10632
+
+[wpn_toz34_obrez]:wpn_toz34,wpn_toz34_obrez_sounds
+inv_name                                 = st_wpn_toz34_obrez
+inv_name_short                           = st_wpn_toz34_obrez
+description                              = st_wpn_toz34_obrez_descr
+
+hud                                      = wpn_toz34_obrez_hud
+visual                                   = dynamics\weapons\wpn_toz34\wpn_toz34_obrez.ogf
+
+scope_status							 = 0
+scope_mesh 								 =

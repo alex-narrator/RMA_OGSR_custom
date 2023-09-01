@@ -129,7 +129,7 @@ ph_mass			 			= 1
 
 ;addons
 scope_status				= 0
-silencer_status				= 2
+silencer_status				= 0
 grenade_launcher_status		= 0
 
 zoom_enabled				= true
@@ -141,7 +141,9 @@ scope_zoom_factor	   		= 55
 
 silencer_name  				= wpn_addon_silencer		; section name for the attachable silencer
 silencer_x 					= 77						; offset in inventory icon
-silencer_y 					= -17					
+silencer_y 					= -17		
+
+scope_name 					= wpn_addon_scope_eot			
 
 ;params when silencer is attached 
 ;similar to corresponding params without prefix silencer_
@@ -153,3 +155,18 @@ silencer_light_range		= 0.01
 silencer_light_var_color	= 0.05
 silencer_light_var_range	= 0.5
 silencer_light_time 		= 0.2
+
+[wpn_desert_eagle_nimble]:wpn_desert_eagle
+inv_name                    = st_wpn_desert_eagle_nimble
+description                 = st_wpn_desert_eagle_nimble_descr
+               
+hud                         = wpn_desert_eagle_nimble_hud
+visual                      = dynamics\weapons\wpn_desert_eagle\wpn_desert_eagle_nimble.ogf
+
+script_binding      		= bind_weapon.init
+scope_status				= 2
+scope_name 					= wpn_addon_scope_de
+scope_x                     = 48
+scope_y                     = -21
+scope_mesh 					= 0
+use_scope_zoom 				= true
