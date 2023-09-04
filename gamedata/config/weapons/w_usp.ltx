@@ -38,15 +38,10 @@ inv_name					= wpn_usp
 inv_name_short				= wpn_usp
 inv_weight					= .72
 
-inv_grid_width				= 1
-inv_grid_height				= 1
-inv_grid_x					= 11
-inv_grid_y					= 8
-
-kill_msg_x			= 134
-kill_msg_y			= 177
-kill_msg_width		= 31
-kill_msg_height		= 25
+inv_grid_width     = 2
+inv_grid_height    = 1
+inv_grid_x         = 8
+inv_grid_y         = 20
 
 control_inertion_factor = 1
 ;-----------------------------------------------------------------------------------
@@ -140,9 +135,9 @@ scope_zoom_factor	    	= 55
 ;; silencer
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-silencer_name  				= wpn_addon_silencer		; section name for the attachable silencer
-silencer_x 					= 40						; offset in inventory icon
-silencer_y 					= -15					
+silencer_name  				= wpn_sil_gemtech		; section name for the attachable silencer
+silencer_x                  = 86		; offset in inventory icon
+silencer_y                  = -15				
 
 ;params when silencer is attached 
 ;similar to corresponding params without prefix silencer_
@@ -156,9 +151,17 @@ silencer_light_var_range	= 0.5
 silencer_light_time 		= 0.2
 
 [wpn_usp_match]:wpn_usp
+inv_grid_width     = 2
+inv_grid_height    = 1
+inv_grid_x         = 8
+inv_grid_y         = 22
+
 inv_name                    = st_wpn_usp_match
 inv_name_short              = st_wpn_usp_match
 description                 = st_wpn_usp_match_descr
                 
 hud                         = wpn_usp_match_hud
 visual                      = dynamics\weapons\wpn_usp45\wpn_usp_match.ogf
+
+silencer_x                  = 90		; offset in inventory icon
+silencer_y                  = -15

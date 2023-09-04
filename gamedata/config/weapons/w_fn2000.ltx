@@ -13,8 +13,6 @@ description				= enc_weapons1_wpn-fn2000
 ef_main_weapon_type		 = 2
 ef_weapon_type			 = 6
 
-script_binding      	= bind_weapon.init
-
 ;-----------------------------------------------------------------------------------
 holder_range_modifier	= 1.85            ; во сколько раз увеличивается eye_range 
 holder_fov_modifier		= 0.3              ; во сколько раз увеличивается eye_fov
@@ -48,11 +46,6 @@ inv_grid_width				= 4
 inv_grid_height				= 2
 inv_grid_x					= 5
 inv_grid_y					= 9
-
-kill_msg_x					= 131
-kill_msg_y					= 123
-kill_msg_width				= 64
-kill_msg_height				= 30
 
 control_inertion_factor = 2.1
 ;-----------------------------------------------------------------------------------
@@ -147,15 +140,15 @@ scope_name 								= wpn_addon_scope_eot, wpn_addon_scope_fn2000
 scope_respawn_wpn_addon_scope_fn2000 	= wpn_fn2000_stock
 
 scope_x                     = 88		; offset in inventory icon
-scope_y                     = 0
+scope_y                     = -6
 
-silencer_name  				= wpn_addon_silencer
-silencer_x 					= 152						; offset in inventory icon
-silencer_y 					= 10
+silencer_name  				= wpn_sil_nato
+silencer_x 					= 16						; offset in inventory icon
+silencer_y 					= 0
 zoom_enabled				= true
 
-magazine_x = 54
-magazine_y = 52
+magazine_x = 55
+magazine_y = 61
 
 ;params when silencer is attached 
 ;similar to corresponding params without prefix silencer_
@@ -173,16 +166,16 @@ grenade_vel					= 76
 
 grenade_class				= ammo_m209
 
+script_binding      		= bind_weapon.init
 scope_bone 					= none
 scope_mesh 					= 0
-
-use_scope_zoom = true
+use_scope_zoom 				= true
 
 [wpn_fn2000_stock]:wpn_fn2000  
 hud                         = wpn_fn2000_stock_hud
 visual                      = dynamics\weapons\wpn_fn2000\wpn_fn2000
 
-scope_x                     = 57		; offset in inventory icon
+scope_x                     = 65		; offset in inventory icon
 scope_y                     = -3
 
 scope_respawn 				= wpn_fn2000

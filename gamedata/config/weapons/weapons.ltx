@@ -1,7 +1,11 @@
 #include "weapon_sounds.ltx"
 
 #include "magazines.ltx"
-#include "addons.ltx"
+#include "addon_scope.ltx"
+#include "addon_silencer.ltx"
+#include "addon_launcher.ltx"
+#include "addon_light_laser.ltx"
+#include "addon_extender.ltx"
 
 #include "addon_group.ltx"
 
@@ -113,12 +117,13 @@ inv_name		= ammo-9x18-fmj
 inv_name_short	= ammo-9x18-fmj_s
 inv_weight		= .2
 
-inv_grid_width		= 1
-inv_grid_height		= 1
-inv_grid_x			= 11
-inv_grid_y			= 12
+inv_grid_width     = 1
+inv_grid_height    = 1
+inv_grid_x         = 11
+inv_grid_y         = 12
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;це 9x18 мм ПБМ (7Н25)
 [ammo_9x18_pbp]:ammo_base
 GroupControlSection	= spawn_group
 discovery_dependency = 
@@ -133,14 +138,14 @@ cost					 = 100
 
 box_size		= 20	;50
 
-inv_name		= "9x18 PBP"
-inv_name_short		= "JSP-AP"
+inv_name		= ammo-9x18-pbp
+inv_name_short	= ammo-9x18-pbp_s
 inv_weight		= .2
 
-inv_grid_width		= 1
-inv_grid_height		= 1
-inv_grid_x			= 13
-inv_grid_y			= 12
+inv_grid_width     = 1
+inv_grid_height    = 1
+inv_grid_x         = 13
+inv_grid_y         = 12
 
 k_dist			= 1
 k_disp			= 3
@@ -153,7 +158,7 @@ tracer			= off
 wm_size         = 0.05
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;насправді це 9x18 мм ПБМ (7Н25) - бо набій ПММ має зависоку енергію для ПМ (а у нас саме ПМ а не ПММ через 8 набоїв у магазині)
+;;;це 9x18 ПММ - тільки для пістолету ПММ через збільшену навіску пороху у набої
 [ammo_9x18_pmm]:ammo_base
 GroupControlSection	= spawn_group
 discovery_dependency = 
@@ -172,13 +177,13 @@ inv_name		= ammo-9x18-pmm
 inv_name_short	= ammo-9x18-pmm_s
 inv_weight		= .2
 
-inv_grid_width		= 1
-inv_grid_height		= 1
-inv_grid_x			= 12
-inv_grid_y			= 12
+inv_grid_width     = 1
+inv_grid_height    = 1
+inv_grid_x         = 12
+inv_grid_y         = 12
 
 k_speed 		= 0.75
-k_pierce		= 1.1
+k_pierce		= 1.5
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [ammo_9x19_fmj]:ammo_base
@@ -199,10 +204,10 @@ inv_name		= ammo-9x19-fmj
 inv_name_short	= ammo-9x19-fmj_s
 inv_weight		= .24
 
-inv_grid_width		= 1
-inv_grid_height		= 1
-inv_grid_x			= 15
-inv_grid_y			= 12
+inv_grid_width     = 1
+inv_grid_height    = 1
+inv_grid_x         = 14
+inv_grid_y         = 12
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [ammo_9x19_pbp]:ammo_base
@@ -223,10 +228,10 @@ inv_name		= ammo-9x19-pbp
 inv_name_short	= ammo-9x19-pbp_s
 inv_weight		= .24
 
-inv_grid_width		= 1
-inv_grid_height		= 1
-inv_grid_x			= 14
-inv_grid_y			= 12
+inv_grid_width     = 1
+inv_grid_height    = 1
+inv_grid_x         = 15
+inv_grid_y         = 12
 
 k_speed 		= 0.67
 k_hit			= 0.1

@@ -47,11 +47,6 @@ inv_grid_height				= 2
 inv_grid_x					= 0
 inv_grid_y					= 10
 
-kill_msg_x					= 157
-kill_msg_y					= 29
-kill_msg_width				= 78
-kill_msg_height				= 31
-
 control_inertion_factor = 1.9
 ;-----------------------------------------------------------------------------------
 ;базовая дисперсия
@@ -145,15 +140,15 @@ scope_second 				= true
 ;scope_name 					= wpn_addon_scope_susat
 ;scope_x 					= 78
 ;scope_y 					= 0
-silencer_name  				= wpn_addon_silencer
-silencer_x 					= 214
-silencer_y 					= 12
+silencer_name  				= wpn_sil_nato
+silencer_x                  = 227		; offset in inventory icon
+silencer_y                  = 17
 grenade_launcher_name 		= wpn_addon_grenade_launcher_m203
 grenade_launcher_x 			= 130
 grenade_launcher_y 			= 31
 
-magazine_x = 119
-magazine_y = 47
+magazine_x = 101
+magazine_y = 69
 
 ;настройки для глушителя
 silencer_hit_power       	= 0.5
@@ -170,7 +165,15 @@ silencer_light_var_color	= 0.05
 silencer_light_var_range	= 0.5
 silencer_light_time 		= 0.2
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;; насправді це G36E ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [wpn_g36k]:wpn_g36,wpn_g36_sounds
+inv_grid_width     = 5
+inv_grid_height    = 2
+inv_grid_x         = 12
+inv_grid_y         = 2
+
 inv_name                                 = st_wpn_g36k
 inv_name_short                           = st_wpn_g36k
 description                              = st_wpn_g36k_descr
@@ -180,3 +183,9 @@ visual                                   = dynamics\weapons\wpn_g36\wpn_g36k.ogf
 
 scope_zoom_factor	    				 = 1.5
 ignore_scope_texture 					 = true
+
+silencer_x                  = 224		; offset in inventory icon
+silencer_y                  = 14
+
+magazine_x = 116
+magazine_y = 57

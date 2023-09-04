@@ -49,11 +49,6 @@ inv_grid_height			= 2
 inv_grid_x				= 5
 inv_grid_y				= 7
 
-kill_msg_x			= 80
-kill_msg_y			= 59
-kill_msg_width		= 87
-kill_msg_height		= 24
-
 control_inertion_factor		= 2
 ;-----------------------------------------------------------------------------------
 ;базовая дисперсия
@@ -139,17 +134,17 @@ grenade_launcher_status		= 2
 
 zoom_enabled				= true						; (on,off)zoom mode (right mouse button)
 
-scope_x 					= 78
-scope_y 					= 0
-silencer_name  				= wpn_addon_silencer
-silencer_x 					= 221
-silencer_y 					= 16
+scope_x                     = 77		; offset in inventory icon
+scope_y                     = 3
+silencer_name  				= wpn_sil_nato
+silencer_x                  = 222		; offset in inventory icon
+silencer_y                  = 20
 grenade_launcher_name 		= wpn_addon_grenade_launcher_m203
 grenade_launcher_x 			= 109
 grenade_launcher_y 			= 30
 
-magazine_x = 94
-magazine_y = 45
+magazine_x = 93
+magazine_y = 52
 
 ;настройки для глушителя
 silencer_hit_power       	= 0.48
@@ -170,18 +165,52 @@ silencer_light_time 		= 0.2
 hud           = wpn_sig550_acog_hud
 visual        = dynamics\weapons\wpn_sig550\wpn_sig550_acog.ogf
 
-[wpn_sig550_ac10632]:wpn_sig550
-hud           = wpn_sig550_ac10632_hud
-visual        = dynamics\weapons\wpn_sig550\wpn_sig550_ac10632.ogf
+scope_x                     = 63		; offset in inventory icon
+scope_y                     = 0
 
 [wpn_sig550_eot]:wpn_sig550
 hud           = wpn_sig550_eot_hud
 visual        = dynamics\weapons\wpn_sig550\wpn_sig550_eot.ogf
 
+[wpn_sig550_ac10632]:wpn_sig550
+hud           = wpn_sig550_ac10632_hud
+visual        = dynamics\weapons\wpn_sig550\wpn_sig550_ac10632.ogf
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;; SIG SG 550 SNIPER ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+[wpn_sig550_sniper]:wpn_sig550,wpn_sig550_sniper_sounds
+inv_grid_width     						 = 6
+inv_grid_height    						 = 2
+inv_grid_x         						 = 10
+inv_grid_y         						 = 21
+
+hud                                      = wpn_sig550_sniper_hud
+visual                                   = dynamics\weapons\wpn_sig550\wpn_sig550_sniper.ogf
+
+fire_modes 								 = 1
+scope_status 							 = 1
+scope_texture                            = wpn\wpn_crosshair_m24
+
+scope_respawn 							 = wpn_sig550_sniper
+
+scope_zoom_factor						 = 2, 8, 3
+
+silencer_x                  = 291		; offset in inventory icon
+silencer_y                  = 20
+
+magazine_x = 109
+magazine_y = 54
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;; SIG SG 552 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [wpn_sig552]:wpn_sig550,wpn_sig552_sounds,scope_respawn_sig552
+inv_grid_width     						 = 5
+inv_grid_height    						 = 2
+inv_grid_x         						 = 5
+inv_grid_y         						 = 27
+
 inv_name                                 = st_wpn_sig552
 inv_name_short                           = st_wpn_sig552
 description                              = st_wpn_sig552_descr
@@ -189,14 +218,26 @@ description                              = st_wpn_sig552_descr
 hud                                      = wpn_sig552_hud
 visual                                   = dynamics\weapons\wpn_sig552\wpn_sig552.ogf
 
+silencer_x                  = 180		; offset in inventory icon
+silencer_y                  = 20
+
+scope_x                     = 87		; offset in inventory icon
+scope_y                     = 0
+
+magazine_x = 108
+magazine_y = 54
+
 [wpn_sig552_acog]:wpn_sig552
 hud           = wpn_sig552_acog_hud
 visual        = dynamics\weapons\wpn_sig552\wpn_sig552_acog.ogf
 
-[wpn_sig552_ac10632]:wpn_sig552
-hud           = wpn_sig552_ac10632_hud
-visual        = dynamics\weapons\wpn_sig552\wpn_sig552_ac10632.ogf
+silencer_x                  = 180		; offset in inventory icon
+silencer_y                  = 20
 
 [wpn_sig552_eot]:wpn_sig552
 hud           = wpn_sig552_eot_hud
 visual        = dynamics\weapons\wpn_sig552\wpn_sig552_eot.ogf
+
+[wpn_sig552_ac10632]:wpn_sig552
+hud           = wpn_sig552_ac10632_hud
+visual        = dynamics\weapons\wpn_sig552\wpn_sig552_ac10632.ogf

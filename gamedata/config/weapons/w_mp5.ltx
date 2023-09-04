@@ -40,15 +40,10 @@ inv_name				= wpn-mp5
 inv_name_short			= wpn-mp5
 inv_weight				= 2.5
 
-inv_grid_width			= 3
-inv_grid_height			= 1
-inv_grid_x				= 5
-inv_grid_y				= 11
-
-kill_msg_x			= 72
-kill_msg_y			= 82
-kill_msg_width		= 56
-kill_msg_height		= 23
+inv_grid_width     = 4
+inv_grid_height    = 2
+inv_grid_x         = 16
+inv_grid_y         = 34
 
 slot 					= 1,2		; // secondary
 animation_slot			= 2		; type of the animation that will be used
@@ -141,10 +136,12 @@ scope_status			= 2
 silencer_status			= 2
 grenade_launcher_status	= 0
 
+scope_x                     = 79		; offset in inventory icon
+scope_y                     = -6
 
-silencer_name  				= wpn_addon_silencer
-silencer_x 					= 130
-silencer_y 					= -15
+silencer_name  				= wpn_sil_9mm
+silencer_x                  = 193		; offset in inventory icon
+silencer_y                  = 13
 
 ;silencer_flame_particles 	= weapons\generic_weapon01
 silencer_smoke_particles 	= weapons\generic_shoot_00
@@ -158,8 +155,8 @@ silencer_light_time 		= 0.2
 zoom_enabled			= true
 scope_zoom_factor	    = 50
 
-magazine_x = 82
-magazine_y = 24
+magazine_x = 120
+magazine_y = 49
 
 ;params when silencer is attached 
 ;similar to corresponding params without prefix silencer_
@@ -188,10 +185,21 @@ visual        = dynamics\weapons\wpn_mp5\wpn_mp5_ac10632.ogf
 ;-- MP5SD
 ;------------------------------------------------------------------------------------------------
 [wpn_mp5sd]:wpn_mp5,wpn_mp5sd_sounds,scope_respawn_mp5sd
+inv_grid_width     = 4
+inv_grid_height    = 2
+inv_grid_x         = 20
+inv_grid_y         = 34
+
 hud           = wpn_mp5sd_hud
 visual        = dynamics\weapons\wpn_mp5sd\wpn_mp5sd.ogf
 
 silencer_status = 1
+
+scope_x                     = 73		; offset in inventory icon
+scope_y                     = 1
+
+magazine_x = 105
+magazine_y = 48
 
 [wpn_mp5sd_acog]:wpn_mp5sd
 hud           = wpn_mp5sd_acog_hud

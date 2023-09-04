@@ -83,13 +83,13 @@ end
 -- if item then
 -- item:dump_visual_to_log() --Распечатать в лог информацию о мешах и костях модели - мировой и худовой, если худовая доступна.
 -- log3("--HUD Mesh count of [%s]: [%s]", item:name(), item:get_mesh_count_hud())
--- item:set_show_model_mesh_hud(1, false) --Установить видимость меша для худовой модели
+-- item:set_show_model_mesh_hud(3, false)
 -- end
 
-local item = level.get_target_obj()
-if item then
-item:dump_visual_to_log() --Распечатать в лог информацию о мешах и костях модели - мировой и худовой, если худовая доступна.
-log3("--Mesh count of [%s]: [%s]", item:name(), item:get_mesh_count()) --вывести кол-во мешей в худовой модели.
-item:set_show_model_mesh(1, false) --Установить видимость меша для худовой модели
--- --local shown = item:get_show_model_mesh_hud(0) --узнать показан ли меш
-end
+-- local item = level.get_target_obj()
+-- if item then
+-- item:dump_visual_to_log() --Распечатать в лог информацию о мешах и костях модели - мировой и худовой, если худовая доступна.
+-- log3("--Mesh count of [%s]: [%s]", item:name(), item:get_mesh_count()) --вывести кол-во мешей в худовой модели.
+-- item:set_show_model_mesh(1, false) --Установить видимость меша для худовой модели
+-- -- --local shown = item:get_show_model_mesh_hud(0) --узнать показан ли меш
+-- end
