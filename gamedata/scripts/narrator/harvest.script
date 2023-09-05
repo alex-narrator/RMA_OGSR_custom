@@ -5,14 +5,12 @@ end
 function on_monster_update(monster, delta)
 	if monster:alive() then
 	return end
-	monster:set_tip_text(harvest.can_harvest(monster) and "monster_use_or_drag" or "game_object_drag")
+	local tip_text = has_loot(monster) and (has_good_knife() and "monster_use_or_drag" or "monster_use_or_drag_no_knife") or "game_object_drag"
+	monster:set_tip_text(tip_text)
 end
 
 function can_harvest(monster)
-	if monster:ruck_count() == 0 then
-	return false end
-	local act_item = actor:active_item()
-	return act_item and act_item:is_knife() and act_item:condition() > 0
+	return has_loot(monster) and has_good_knife()
 end
 
 function try_harvest(target)
@@ -21,4 +19,13 @@ function try_harvest(target)
 	
 	harvest_anim.play_harvest(target)
 	return true
+end
+
+function has_loot(monster)
+	return monster:ruck_count() > 0
+end
+
+function has_good_knife()
+	local act_item = actor:active_item()
+	return act_item and act_item:is_knife() and act_item:condition() > 0
 end

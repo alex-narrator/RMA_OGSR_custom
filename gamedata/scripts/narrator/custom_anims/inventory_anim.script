@@ -11,6 +11,9 @@ local OPEN_ANIM_STARTED = false
 local ANIM_FAST = false
 
 function on_key_press(key, game_action)
+	if not actor_get_backpack() then
+	return end
+
 	if game_action ~= key_bindings.kINVENTORY or
 		OPEN_ANIM_STARTED
 	then return end
@@ -47,12 +50,16 @@ function on_key_press(key, game_action)
 end
 
 function on_show()
+	if not actor_get_backpack() then
+	return end
 	block_non_move_action(false)
 	backpack.play_anim(3)
 	OPEN_ANIM_STARTED = false
 end
 
 function on_hide()
+	if not actor_get_backpack() then
+	return end
 	backpack.play_effects(false)
 	block_non_move_action(true)
 	level.add_call(
