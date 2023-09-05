@@ -14,6 +14,7 @@ function add_custom_info(UIDesc, obj)
 	end
 	if obj:is_weapon_magazined() then
 		attach_loaded_ammo(UIDesc, obj)
+		attach_weapon_addons(UIDesc, obj)
 	end
 end
 
@@ -141,4 +142,46 @@ function set_ammo_icon(icon, sect)
 	icon:Show(true)
 	icon:SetWndPos(pos_x, icon:GetWndPos().y)
 	pos_x = pos_x + icon:GetWidth()
+end
+
+local addon_type = {
+	"scope",
+	"silencer",
+	"grenade_launcher",
+	"laser",
+	"flashlight",
+	"stock",
+	"extender",
+	"forend",
+}
+function attach_weapon_addons(UIDesc, obj)
+	local xml = CScriptXmlInit()
+	xml:ParseFile("script_overlays\\weapon_addons.xml")
+	
+	local addons_header	= xml:InitStatic("addons_header", UIDesc)
+	addons_header:Show(false)
+	local addons_list = xml:InitStatic("addons_list", UIDesc)
+	
+	local addons_txt = ""
+	local addon_str = nil
+	local addon_status = 0
+	local addons = {}
+	
+	for _,addon in pairs(addon_type) do
+		addon_str = read_if_exists(sys_ini, "r_string", obj:section(), addon.."_name", nil)
+		addon_status = read_if_exists(sys_ini, "r_u32", obj:section(), addon.."_status", 0)
+		if addon_str and addon_status == 2 then
+			addons = split_string(addon_str, ",")
+			for __,addon_sect in pairs(addons) do
+				addons_txt = addons_txt.."*"..game.translate_string(get_inv_name(addon_sect)).."\\n"
+			end
+	end
+	end
+	
+	if addons_txt ~= "" then
+		addons_header:Show(true)
+		addons_txt = addons_txt.."\\n "
+		addons_list:SetText(addons_txt)
+		addons_list:AdjustHeightToText()
+	end
 end

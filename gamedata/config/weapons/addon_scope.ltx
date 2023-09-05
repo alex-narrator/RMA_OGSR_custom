@@ -1,7 +1,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;	WEAPON ADDON
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-[wpn_addon_scope_base]:identity_immunities
+[wpn_addon_scope_base]:identity_immunities,wpn_binoc_sounds
 GroupControlSection	= spawn_group
 discovery_dependency = 
 $spawn			= "weapons\addons\scope" ; option for Level Editor
@@ -11,6 +11,8 @@ $prefetch 		= 32
 
 cost 			= 100
 inv_weight 		= 0.1
+
+vision_present  = false
 
 [wpn_addon_scope]:wpn_addon_scope_base
 visual          = dynamics\weapons\wpn_upgrade\wpn_scope.ogf
@@ -58,10 +60,10 @@ scope_second 				= true
 ;snd_night_vision_idle		= weapons\nv_loop
 ;snd_night_vision_broken		= weapons\nv_off
 
-[wpn_addon_scope_pso1]:wpn_addon_scope_base
+[wpn_addon_scope_pso1_simple]:wpn_addon_scope_base
 visual          = dynamics\weapons\wpn_upgrade\wpn_scope.ogf
 
-description		= wwpn_addon_scope_pso_descr
+description		= wpn_addon_scope_pso_descr
 inv_name		= wpn_addon_scope_pso_name
 inv_name_short	= wpn_addon_scope_pso_name_short
 
@@ -75,14 +77,20 @@ scope_zoom_factor	= 4
 scope_texture		 = wpn\wpn_crosshair_pso1
 scope_texture_broken = wpn\wpn_crosshair_pso1_broken
 
-[wpn_addon_scope_pso1_1]:wpn_addon_scope_pso1
+[wpn_addon_scope_pso1_m2_simple]:wpn_addon_scope_pso1_simple
+visual             = dynamics\weapons\wpn_upgrade\wpn_scope_pso1m2-01
+
+description		= wpn_addon_scope_pso1_m2_descr
+inv_name		= wpn_addon_scope_pso1_m2_name
+inv_name_short	= wpn_addon_scope_pso1_m2_name_short
+
 inv_grid_width     = 2
 inv_grid_height    = 1
 inv_grid_x         = 21
 inv_grid_y         = 2
 scope_texture 		= wpn\wpn_crosshair_vss
 
-[wpn_addon_scope_1p29]:wpn_addon_scope_base
+[wpn_addon_scope_1p29_simple]:wpn_addon_scope_base
 visual          = dynamics\weapons\wpn_upgrade\wpn_scope_1p29.ogf
 
 description		= wpn_addon_scope_1p29_descr
@@ -101,7 +109,7 @@ scope_zoom_factor	= 4
 scope_texture		= wpn\wpn_crosshair_1p29
 scope_second 		= true
 
-[wpn_addon_scope_1p59]:wpn_addon_scope_base
+[wpn_addon_scope_1p59_simple]:wpn_addon_scope_base
 visual          = dynamics\weapons\wpn_upgrade\wpn_scope.ogf
 
 description		= wpn_addon_scope_1p59_descr
@@ -131,7 +139,7 @@ inv_grid_height    = 1
 inv_grid_x         = 23
 inv_grid_y         = 2
 
-[wpn_addon_scope_po4x34]:wpn_addon_scope_base
+[wpn_addon_scope_po4x34_simple]:wpn_addon_scope_base
 visual          = dynamics\weapons\wpn_upgrade\wpn_scope_po4x34.ogf
 
 description		= wpn_addon_scope_po4x34_descr
@@ -177,7 +185,7 @@ scope_zoom_factor	= 4
 scope_texture		 = wpn\wpn_crosshair_susat
 scope_texture_broken = wpn\wpn_crosshair_susat_broken
 
-[wpn_addon_scope_acog]:wpn_addon_scope_base
+[wpn_addon_scope_acog_simple]:wpn_addon_scope_base
 visual          = dynamics\weapons\wpn_upgrade\wpn_scope_acog.ogf
 
 description		= wpn_addon_scope_acog_descr
@@ -253,7 +261,7 @@ inv_grid_height    = 1
 inv_grid_x         = 26
 inv_grid_y         = 1
 
-[wpn_addon_scope_march_f]:wpn_addon_scope_base
+[wpn_addon_scope_march_f_simple]:wpn_addon_scope_base
 visual          = dynamics\weapons\wpn_upgrade\wpn_scope.ogf
 
 description		= wpn_addon_scope_march_f_descr

@@ -12,7 +12,7 @@ local ACTIVE_ITEM_INFO_TTL 	= read_if_exists(sys_ini, "r_u32", "actor", "active_
 local GEAR_INFO_TTL 		= read_if_exists(sys_ini, "r_u32", "actor", "gear_info_ttl", 2);
 
 local act_item = false
-local act_detector = false
+local act_item_2 = false
 
 function on_spawn()
 	hide_item_info()
@@ -26,7 +26,7 @@ function on_key_press(key, game_action)
 	return end
 	
 	act_item = actor:active_item()
-	act_detector = actor:active_item_2()
+	act_item_2 = actor:active_item_2()
 	
 	if game_action == key_bindings.kCHECKGEAR then
 		try_show_gear_info()
@@ -36,19 +36,19 @@ function on_key_press(key, game_action)
 end
 
 function try_show_active_item_info()
-	if (not act_item and not act_detector) or get_main_window().show_active_item_info
+	if (not act_item and not act_item_2) or get_main_window().show_active_item_info
 	then return end
 	
 	if act_item then
 		check_item_anim.play(act_item)
 	end
-	if act_detector then
-		check_item_anim.play(act_detector)
+	if act_item_2 then
+		check_item_anim.play(act_item_2)
 	end
 	
-	if act_detector and act_detector:get_detector():can_switch_modes() then
-		local det_mode = act_detector:get_detector():is_af_mode() and "st_af_mode" or "st_zone_mode"
-		local str = string.format("%s: %s", game.translate_string(get_inv_name(act_detector:section())), game.translate_string(det_mode))
+	if act_item_2 and act_item_2:get_detector() and act_item_2:get_detector():can_switch_modes() then
+		local det_mode = act_item_2:get_detector():is_af_mode() and "st_af_mode" or "st_zone_mode"
+		local str = string.format("%s: %s", game.translate_string(get_inv_name(act_item_2:section())), game.translate_string(det_mode))
 		hud_add_info_message("item_usage", str)
 	end
 	
