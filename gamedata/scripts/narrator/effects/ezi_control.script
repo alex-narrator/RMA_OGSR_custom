@@ -38,6 +38,18 @@ function set_hard_hold(on)
 	hard_hold = on
 end
 
+function set_stop_aim_inertion(on)
+	local act_item = actor:active_item()
+	local act_item_2 = actor:active_item_2()
+	
+	if act_item then
+		act_item:stop_aim_inertion(on)
+	end
+	if act_item_2 then
+		act_item_2:stop_aim_inertion(on)
+	end
+end
+
 function get_hard_hold()
 	return hard_hold
 end
@@ -99,4 +111,6 @@ function on_update(delta)
 	if ezi.pause_effect and (force_disable_hard_hold() or actor_obj:is_actor_creep()) then
 		set_hard_hold(false)
 	end
+	
+	set_stop_aim_inertion(is_hard_hold())
 end

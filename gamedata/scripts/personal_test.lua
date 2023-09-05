@@ -93,3 +93,7 @@ end
 -- item:set_show_model_mesh(1, false) --Установить видимость меша для худовой модели
 -- -- --local shown = item:get_show_model_mesh_hud(0) --узнать показан ли меш
 -- end
+
+if actor:active_item() then
+	actor:active_item():stop_aim_inertion(false)
+end
