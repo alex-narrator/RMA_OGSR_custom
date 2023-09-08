@@ -44,11 +44,12 @@
 
 local tgt = level.get_target_obj()
 if tgt then
-	log3("~ target section: %s | name: %s | profile: %s | species %s", 
+	log3("~ target section: %s | name: %s | profile: %s | species %s | nonscript usable %s", 
 		tgt:section(), 
 		tgt:name(), 
 		tgt:profile_name() and tgt:profile_name() or "NO PROFILE", 
-		read_if_exists(sys_ini, "r_string", tgt:section(), "species", "NO SPECIES"))
+		read_if_exists(sys_ini, "r_string", tgt:section(), "species", "NO SPECIES"),
+		tgt:is_nonscript_usable())
 		
 	-- if tgt:is_stalker() or tgt:is_inventory_box() then
 		-- actor:start_carbody(tgt)
@@ -94,6 +95,6 @@ end
 -- -- --local shown = item:get_show_model_mesh_hud(0) --узнать показан ли меш
 -- end
 
-if actor:active_item() then
-	actor:active_item():stop_aim_inertion(false)
-end
+-- if actor:active_item() then
+	-- actor:active_item():stop_aim_inertion(false)
+-- end

@@ -1,0 +1,26 @@
+function attach(sm)
+	sm:subscribe({signal = "on_key_press", 				fun = this.on_key_press})
+end
+
+function can_play_for_container()
+	return not pickup_item:get_container() or 
+		not is_quick_info_shown() or
+		level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) or
+		(not level.get_target_obj() or level.get_target_obj():id() ~= pickup_item:id())
+end
+
+function can_play_anim()
+	local target = level.get_target_obj()
+	if not target or not actor_hands_free() then
+	return false end
+	return target and not target:is_nonscript_usable()
+end
+
+function on_key_press(key, game_action)
+	if game_action ~= key_bindings.kUSE or
+		not can_play_anim()
+	then
+	return end
+	
+	interact_item_anim.play()
+end

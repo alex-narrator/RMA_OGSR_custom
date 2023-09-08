@@ -1,0 +1,15 @@
+function attach(sm)
+	sm:subscribe({signal = "on_first_update",   fun = this.on_first_update})
+end
+
+function on_first_update()
+	local inv = actor.inventory
+	local item
+	for i = 0, sys_ini:r_u32("inventory","slots") - 1 do
+		item = actor:item_in_slot(i)
+		if item and not inv:is_slot_allowed(i) then
+			actor:move_to_ruck(item)
+			log3("! item [%s] founded in not allowed slot [%s], moving to ruck", item:section(), i)
+		end
+	end
+end

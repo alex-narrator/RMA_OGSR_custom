@@ -40,8 +40,8 @@ function check_condition(obj, drop_on_obj)
 end
 
 function show_repair_wnd(obj, drop_on_obj)
-	local repair_wnd = RepairWnd(level.main_input_receiver())
-	repair_wnd:InitRepair(obj, drop_on_obj)
+	local repair_wnd = ui_dragdrop_menu.DragdropMenuWnd()
+	repair_wnd:InitAction("st_repair_item", "st_repair_with", repair, obj, drop_on_obj)
 end
 
 repair_effector_id = 20000
@@ -66,57 +66,4 @@ function repair(obj, drop_on_obj)
 		level.remove_complex_effector(repair_effector_id)
 		level.add_complex_effector(repair_effector, repair_effector_id)
 	end
-end
-
-class "RepairWnd" (CUIScriptWnd)
-
-function RepairWnd:__init(owner) super()
-	self.owner = owner
-	self:Init(0, 0, 1024, 768)
-	self:InitWnd()
-end
-
-function RepairWnd:DetachWnd()
-	self:ClearCallbacks()
-	self.owner:DetachChild(self.message_box)
-end
-
-function RepairWnd:InitWnd()	
-	local xml = CScriptXmlInit()
-	xml:ParseFile("message_box.xml")
-
-	self.message_box = CUIMessageBox()
-	self.message_box:Init("message_box_accept_decline")
-	self:Register(self.message_box, "message_box")
-	
-	self:AddCallback("message_box", ui_events.MESSAGE_BOX_YES_CLICKED, self.ProcessRepair, self)
-	self:AddCallback("message_box", ui_events.MESSAGE_BOX_NO_CLICKED, self.HideWnd, self)
-	
-	self.owner:AttachChild(self.message_box)
-	self.message_box:Show(true)
-end
-
-function RepairWnd:InitRepair(obj, drop_on_obj)
-	self.item_repair_with = obj
-	self.item_to_repair = drop_on_obj
-	local msg_text = string.format(
-		"%s %s\\n%s %s ?", 
-		game.translate_string("st_repair_item"), 
-		game.translate_string(get_inv_name(drop_on_obj:section())), 
-		game.translate_string("st_repair_with"), 
-		game.translate_string(get_inv_name(obj:section())))
-	
-	self.message_box:SetText(msg_text)
-end
-
-function RepairWnd:ProcessRepair()
-	repair(self.item_repair_with, self.item_to_repair)
-	self:HideWnd()
-end
-
-function RepairWnd:HideWnd()
-	self.owner:GetHolder():start_stop_menu(self.message_box, true)
-	self.item_to_repair = nil
-	self.item_repair_with = nil
-	self:DetachWnd()
 end
