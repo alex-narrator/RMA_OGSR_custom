@@ -77,11 +77,22 @@ end
 -- level.add_cam_effector('camera_effects\\kick\\attack_heavy.anm', 8073, false,'')
 --game.stop_hud_motion()
 --actor:activate_slot(NO_ACTIVE_SLOT, true)
---block_non_move_action(false)
+block_non_move_action(false)
 --get_actor_obj():block_action(key_bindings.kINVENTORY)
 
--- local item = db.actor:active_item()
--- if item then
+local item = db.actor:active_item()
+if item then
+		local wpn = item:get_weapon()
+		if not wpn then
+		return end
+		if read_if_exists(sys_ini, "r_u32", item:section(), "scope_status", 0) == 2 then
+		local respawn_str = wpn:is_addon_attached(addon.scope) and "scope_respawn_"..wpn:get_addon_name(addon.scope) or "scope_respawn"
+		local respawn_sect = read_if_exists(sys_ini, "r_string", item:section(), respawn_str, nil)
+		if respawn_sect and respawn_sect~= item:section() then
+			item:get_weapon_m():respawn_weapon(respawn_sect)
+		end
+	end
+end
 -- item:dump_visual_to_log() --Распечатать в лог информацию о мешах и костях модели - мировой и худовой, если худовая доступна.
 -- log3("--HUD Mesh count of [%s]: [%s]", item:name(), item:get_mesh_count_hud())
 -- item:set_show_model_mesh_hud(3, false)

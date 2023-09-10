@@ -62,7 +62,7 @@ function play_harvest(monster)
 					return game.hud_motion_allowed()
 				end,
 				function()
-					for i = 0, i < monster:ruck_count() do
+					for i = 0, monster:ruck_count() - 1 do
 						local item = monster:item_in_ruck(i)
 						if item then
 							knife:change_condition(-cond_dec)

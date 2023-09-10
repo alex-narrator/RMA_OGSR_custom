@@ -38,6 +38,8 @@ local anims = {
 	"anm_idle",
 }
 function play_anim(state)
+	if not actor_get_backpack() then
+	return end
 	game.play_hud_motion(2, "backpack_hud", anims[state], true, 1, false)
 end
 

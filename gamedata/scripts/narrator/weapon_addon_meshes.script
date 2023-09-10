@@ -11,6 +11,12 @@ function on_update_addons_visibility(item)
 		for k,v in pairs(scope_mesh_table) do
 			item:set_show_model_mesh(v, wpn:is_addon_attached(addon.scope))
 		end
+	else
+		for i = 0, item:get_mesh_count() - 1 do
+			if not item:get_show_model_mesh(i) then
+				item:set_show_model_mesh(i, true)
+			end
+		end
 	end
 end
 
@@ -21,6 +27,12 @@ function on_update_hud_addons_visibility(item)
 		scope_mesh_table = split_string(scope_mesh, ",")
 		for k,v in pairs(scope_mesh_table) do
 			item:set_show_model_mesh_hud(v, wpn:is_addon_attached(addon.scope))
+		end
+	else
+		for i = 0, item:get_mesh_count_hud() - 1 do
+			if not item:get_show_model_mesh_hud(i) then
+				item:set_show_model_mesh_hud(i, true)
+			end
 		end
 	end
 end
