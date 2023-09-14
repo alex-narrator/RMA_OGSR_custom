@@ -34,11 +34,8 @@ function MainIngameOverlay:Subscribe()
 		self.subscribed = {
 			{signal = "on_quick_item_set", self = self, fun = self.UpdateSlots},
 			{signal = "on_use", self = self, fun = self.UpdateSlots},
-			{signal = "on_slot", self = self, fun = self.UpdateSlots},
-			{signal = "on_ruck", self = self, fun = self.UpdateSlots},
-			{signal = "on_belt", self = self, fun = self.UpdateSlots},
-			{signal = "on_vest", self = self, fun = self.UpdateSlots},
-			{signal = "on_drop", self = self, fun = self.UpdateSlots},
+			{signal = "on_item_to_loadout", self = self, fun = self.UpdateSlots},
+			{signal = "on_item_from_loadout", self = self, fun = self.UpdateSlots},
 		}
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do

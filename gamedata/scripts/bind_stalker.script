@@ -118,6 +118,9 @@ function actor_binder:net_destroy()
 	--
 	self.object:set_callback(callback.on_before_use_item, nil)
 	self.object:set_callback(callback.on_pickup_item_showing, nil)
+	
+	self.object:set_callback(callback.on_group_items, nil)
+	self.object:set_callback(callback.on_grenade_type_switch, nil)
 
 	if sr_psy_antenna.psy_antenna then
 		sr_psy_antenna.psy_antenna:destroy()
@@ -186,6 +189,9 @@ function actor_binder:reinit()
 	--
 	self.object:set_callback(callback.on_before_use_item, self.on_before_use_item, self)
 	self.object:set_callback(callback.on_pickup_item_showing, self.on_pickup_item_showing, self)
+	
+	self.object:set_callback(callback.on_group_items, self.on_group_items, self)
+	self.object:set_callback(callback.on_grenade_type_switch, self.on_grenade_type_switch, self)
 	--
 	self.sm:call("on_reinit")
 end
@@ -628,6 +634,14 @@ end
 
 function actor_binder:on_pickup_item_showing(item, icon)
 	self.sm:call("on_pickup_item_showing", item, icon)
+end
+
+function actor_binder:on_group_items(item1, item2)
+	self.sm:call("on_group_items", item1, item2)
+end
+
+function actor_binder:on_grenade_type_switch(prev_grenade, next_grenade)
+	self.sm:call("on_grenade_type_switch", prev_grenade, next_grenade)
 end
 
 --старт префетча звуков

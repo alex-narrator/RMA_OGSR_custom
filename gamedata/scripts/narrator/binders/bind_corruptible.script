@@ -76,9 +76,13 @@ function corruptible_binder:decrease_condition()
 	self.object:change_condition(-self.condition_decrease * delta_time)
 	
 	if self.object:condition() == 0 and self.destroy_corrupted then
+		local obj_name = self.object:name()
 		if self.object:parent() then
 			self.object:parent():drop_item(self.object)
 		end
+		if not self.object then
+			log3("!%s : can't destroy item [%s] - it`s alreday released", script_name(), obj_name)
+		return end
 		alife():release(alife():object(self.object:id()), true)
 		log3("~[%s] item %s destroyed due to total corruption at %s %s", script_name(), self.object:name(), game_time:dateToString(game.CTime.DateToDay), game_time:timeToString(game.CTime.TimeToMilisecs), self.object:name())
 		

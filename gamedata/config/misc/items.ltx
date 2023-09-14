@@ -253,10 +253,60 @@ corruption_time 	= 12
 destroy_corrupted 	= true
 script_binding 		= bind_corruptible.init
 
-[quick_item]
+[loadout_item]
+marked_icon_sect 	= icon_loadout
+script_action_0 	= loadout.menu_tip_to, loadout.can_take, loadout.move_to
+script_action_1 	= loadout.menu_tip_from, loadout.can_remove, loadout.move_from
+
+[quick_item]:loadout_item
 quick_slot = true
 
-script_action_0 	= st_to_quick_slot_0, script_actions.can_set_quick_0, script_actions.set_quick_0
-script_action_1 	= st_to_quick_slot_1, script_actions.can_set_quick_1, script_actions.set_quick_1
-script_action_2 	= st_to_quick_slot_2, script_actions.can_set_quick_2, script_actions.set_quick_2
-script_action_3 	= st_to_quick_slot_3, script_actions.can_set_quick_3, script_actions.set_quick_3
+loadout_type 		= medicine
+marked_icon_sect 	= icon_medicine
+script_action_2 	= quick_slots.menu_tip_set, quick_slots.can_set, quick_slots.set
+
+[loadout_grenade]:loadout_item
+loadout_type 		= grenade
+marked_icon_sect 	= icon_grenade
+
+[icon_loadout]
+inv_grid_width     = 1
+inv_grid_height    = 1
+inv_grid_x         = 13
+inv_grid_y         = 38
+
+[icon_rifle_ammo]
+inv_grid_width     = 1
+inv_grid_height    = 1
+inv_grid_x         = 14
+inv_grid_y         = 38
+
+[icon_pistol_ammo]
+inv_grid_width     = 1
+inv_grid_height    = 1
+inv_grid_x         = 15
+inv_grid_y         = 38
+
+[icon_shotgun_ammo]
+inv_grid_width     = 1
+inv_grid_height    = 1
+inv_grid_x         = 16
+inv_grid_y         = 38
+
+[icon_heavy_ammo]
+inv_grid_width     = 1
+inv_grid_height    = 1
+inv_grid_x         = 17
+inv_grid_y         = 38
+
+[icon_grenade]
+inv_grid_width     = 1
+inv_grid_height    = 1
+inv_grid_x         = 19
+inv_grid_y         = 38
+
+[icon_medicine]
+inv_grid_width     = 1
+inv_grid_height    = 1
+inv_grid_x         = 18
+inv_grid_y         = 38

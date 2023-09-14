@@ -1,7 +1,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;МАГАЗИНЫ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-[mag_base]:identity_immunities
+[mag_base]:identity_immunities,loadout_item
 default_to_ruck = true
 
 class			= AMMO
@@ -26,28 +26,29 @@ load_sound = interface\wm_load
 unload_sound = interface\wm_load
 
 [mag_small]:mag_base
-belt = true
-vest = true
-ammo_icon_ofset = 12,12
+ammo_icon_scale 	= 0.7
+ammo_icon_ofset 	= 6,30
+marked_icon_sect 	= icon_pistol_ammo
+loadout_type 		= pistol_ammo
 
 [mag_large]:mag_base
-vest = true
-belt = true
-ammo_icon_ofset = -2,35
+ammo_icon_ofset 	= -2,35
+marked_icon_sect 	= icon_rifle_ammo
+loadout_type 		= rifle_ammo
 
 [mag_box]:mag_base
-vest = true
-belt = true
-ammo_icon_ofset = -2,72
+ammo_icon_ofset 	= -2,72
+marked_icon_sect 	= icon_heavy_ammo
+loadout_type 		= heavy_ammo
 
 ;;;;;;;;;;;;;;;;;;;;;;;;магазин 8 набоїв 9х18;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [clip_8_900x18]:mag_small
 visual 			= weapons\magazines\clip_8_900x18.ogf
 box_size 			= 8
 inv_grid_width     = 1
-inv_grid_height    = 1
+inv_grid_height    = 2
 inv_grid_x         = 20
-inv_grid_y         = 9
+inv_grid_y         = 8
 
 inv_name		= clip_8_900x18
 inv_name_short 	= clip_8_900x18_short
@@ -62,9 +63,9 @@ ammo_counter 	= true
 visual          = weapons\magazines\clip_12_900x18.ogf
 box_size 		= 12
 inv_grid_width     = 1
-inv_grid_height    = 1
+inv_grid_height    = 2
 inv_grid_x         = 21
-inv_grid_y         = 9
+inv_grid_y         = 8
 
 inv_name		= clip_12_900x18
 inv_name_short 	= clip_12_900x18_short
@@ -78,9 +79,9 @@ ammo_types 		= ammo_9x18_fmj, ammo_9x18_pmm
 visual          = weapons\magazines\clip_13_900x19.ogf
 box_size 		= 13
 inv_grid_width     = 1
-inv_grid_height    = 1
+inv_grid_height    = 2
 inv_grid_x         = 22
-inv_grid_y         = 9
+inv_grid_y         = 8
 
 inv_name		= clip_13_900x19
 inv_name_short 	= clip_13_900x19_short
@@ -94,9 +95,9 @@ ammo_types 		= ammo_9x19_fmj, ammo_9x19_pbp
 visual          = weapons\magazines\clip_15_900x19.ogf
 box_size 		= 15
 inv_grid_width     = 1
-inv_grid_height    = 1
+inv_grid_height    = 2
 inv_grid_x         = 23
-inv_grid_y         = 9
+inv_grid_y         = 8
 
 inv_name		= clip_15_900x19
 inv_name_short 	= clip_15_900x19_short
@@ -110,9 +111,9 @@ ammo_types 		= ammo_9x19_fmj, ammo_9x19_pbp
 visual          = weapons\magazines\clip_16_900x19.ogf
 box_size 		= 16
 inv_grid_width     = 1
-inv_grid_height    = 1
+inv_grid_height    = 2
 inv_grid_x         = 24
-inv_grid_y         = 9
+inv_grid_y         = 8
 
 inv_name		= clip_16_900x19
 inv_name_short 	= clip_16_900x19_short
@@ -146,12 +147,12 @@ ammo_types 		= ammo_9x19_fmj, ammo_9x19_pbp
 visual          = weapons\magazines\clip_7_1143x23.ogf
 box_size 		= 7
 inv_grid_width     = 1
-inv_grid_height    = 1
+inv_grid_height    = 2
 inv_grid_x         = 23
-inv_grid_y         = 9
+inv_grid_y         = 8
 
-ammo_icon_scale = 0.5
-ammo_icon_ofset = -1,8
+ammo_icon_scale 	= 0.5
+ammo_icon_ofset 	= -2,35
 
 inv_name		= clip_7_1143x23
 inv_name_short 	= clip_7_1143x23_short
@@ -166,12 +167,12 @@ ammo_counter 	= true
 visual          = weapons\magazines\clip_8_1143x23.ogf
 box_size 		= 12
 inv_grid_width     = 1
-inv_grid_height    = 1
+inv_grid_height    = 2
 inv_grid_x         = 23
-inv_grid_y         = 9
+inv_grid_y         = 8
 
-ammo_icon_scale = 0.5
-ammo_icon_ofset = -1,8
+ammo_icon_scale 	= 0.5
+ammo_icon_ofset 	= -2,35
 
 inv_name		= clip_12_1143x23
 inv_name_short 	= clip_12_1143x23_short
@@ -314,7 +315,7 @@ inv_name		= box_100_762x54
 inv_name_short 	= box_100_762x54_short
 description 	= box_100_762x54_descr
 inv_weight 		= 0.2
-ammo_types 		= ammo_7.62x54_7h1, ammo_7.62x54_7h14, ammo_7.62x54_ap 
+ammo_types 		= ammo_7.62x54_7h1, ammo_7.62x54_7h14, ammo_7.62x54_ap
 
 [icon_mag_30_545]
 inv_grid_width     = 1

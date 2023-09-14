@@ -1,0 +1,225 @@
+function attach(sm)
+	sm:subscribe({signal = "on_drop",   fun = this.on_drop})
+	sm:subscribe({signal = "on_ruck",   fun = this.on_ruck})
+	sm:subscribe({signal = "on_take",   fun = this.on_take})
+	sm:subscribe({signal = "on_slot",   fun = this.on_slot})
+	sm:subscribe({signal = "on_vest",   fun = this.on_vest})
+	sm:subscribe({signal = "on_belt",   fun = this.on_belt})
+	sm:subscribe({signal = "on_grenade_type_switch",   fun = this.on_grenade_type_switch})
+end
+
+--//loadout slot types and default capacities
+slot_space = {
+	["pistol_ammo"] 	= {max_count = 2, current_count = 0},
+	["rifle_ammo"] 		= {max_count = 0, current_count = 0},
+	["shotgun_ammo"] 	= {max_count = 0, current_count = 0},
+	["heavy_ammo"] 		= {max_count = 0, current_count = 0},
+	["grenade"]			= {max_count = 0, current_count = 0},
+	["medicine"] 		= {max_count = 2, current_count = 0},
+}
+
+loaded_items = {}
+
+function get_slot_type(item)
+	return read_if_exists(sys_ini, "r_string", item:section(), "loadout_type", nil)
+end
+
+function is_module(item)
+	local slot_volume
+	for k,v in pairs(slot_space) do
+		slot_volume = read_if_exists(sys_ini, "r_u32", item:section(), k, 0)
+		if slot_volume > 0 then
+			--log3("~item %s is module for loadout type %s [%s]", item:name(), k, slot_volume)
+			return true
+		end
+	end
+	return false
+end
+
+function has_drop_pouch()
+	if xr_conditions.black_screen() then
+	return true end
+	local item
+	for i = 0, actor:belt_count() - 1 do
+		item = actor:item_on_belt(i)
+		if read_if_exists(sys_ini, "r_bool", item:section(), "is_drop_pouch", false) then
+		return true end
+	end
+	for i = 0, actor:vest_count() - 1 do
+		item = actor:item_on_vest(i)
+		if read_if_exists(sys_ini, "r_bool", item:section(), "is_drop_pouch", false) then
+		return true end
+	end	
+	return false
+end
+
+function update_item_count(item, item_in)
+	local delta = item_in and 1 or -1
+	local slot_type = get_slot_type(item)
+	slot_space[slot_type].current_count = slot_space[slot_type].current_count + delta
+	if item_in then
+		loaded_items[item:id()] = true
+	else
+		loaded_items[item:id()] = nil
+	end
+
+	ogse_signals.get_mgr():call("on_loadout_update_count", item)
+	--log3("~update_item_count item %s [%s] | slot_type %s, slot_space[slot_type].current_count %s, slot_space[slot_type].max_count %s", item:name(), item:id(), slot_type, slot_space[slot_type].current_count, slot_space[slot_type].max_count)
+end
+
+function update_max_count(item, item_in)
+	for k,v in pairs(slot_space) do
+		slot_volume = read_if_exists(sys_ini, "r_u32", item:section(), k, 0)
+		if slot_volume > 0 then
+			v.max_count = item_in and v.max_count + slot_volume or v.max_count - slot_volume
+			--log3("~item %s | loadout type %s | max_count %s", item:name(), k, v.max_count)
+			if v.max_count < 0 then
+				log3("!fixing wrong max_count! : item %s | loadout type %s | max_count %s", item:name(), k, v.max_count)
+				v.max_count = 0
+			end
+			ogse_signals.get_mgr():call("on_loadout_update_max_count", item)
+			if item_in then
+			return end
+			
+			local _item
+			for _k,_v in pairs(loaded_items) do
+				_item = level.object_by_id(_k)
+				if not _item then
+				return end
+				if get_slot_type(_item) == k then
+					if v.current_count > v.max_count then
+						move_from(_item)
+					end
+				end
+			end
+		end
+	end
+end
+
+function on_grenade_type_switch(prev_grenade, next_grenade)
+	if can_remove(next_grenade) then
+		move_from(next_grenade)
+	end
+	if can_take(prev_grenade) then
+		move_to(prev_grenade)
+	end	
+end
+
+function on_drop(item, prev_place)
+	if item.marked then
+		move_from(item)
+	end
+	
+	if is_module(item) and (prev_place == item_place.vest or prev_place == item_place.belt) then
+		update_max_count(item, false)
+	end
+end
+
+function on_take(item)
+	local ammo = item:get_weapon_ammo()
+	if ammo and ammo.unloaded_from_weapon then
+		ammo.unloaded_from_weapon = false
+		if can_take(item) then
+			move_to(item)
+		elseif not has_drop_pouch() and not level.main_input_receiver() then
+			actor:drop_item(item)
+		end
+	end
+	
+	if item.marked and xr_conditions.black_screen() then
+		move_to(item)
+	end
+end
+
+function on_slot(item, prev_place)
+	if item:is_grenade() and can_remove(item) then
+		move_from(item)
+	end
+end
+
+function on_belt(item, prev_place)
+	if is_module(item) then
+		update_max_count(item, true)
+	end
+end
+
+function on_vest(item, prev_place)
+	if is_module(item) then
+		update_max_count(item, true)
+	end
+end
+
+function on_ruck(item, prev_place)
+	if is_module(item) and (prev_place == item_place.vest or prev_place == item_place.belt) then
+		update_max_count(item, false)
+	end
+end
+
+function can_take(item)
+	local slot_type = get_slot_type(item)
+	if not slot_type or not slot_space[slot_type] then
+	return false end
+	
+	local ammo = item:get_weapon_ammo()
+	if item.marked or (ammo and ammo.box_curr == 0) or (item:is_grenade() and actor:is_in_slot(item)) then
+	return false end
+	
+	--log3("~can_take item %s [%s] slot_type %s, slot_space[slot_type].current_count %s, slot_space[slot_type].max_count %s",item:name(), item:id(), slot_type, slot_space[slot_type].current_count, slot_space[slot_type].max_count)
+	return slot_space[slot_type].current_count + 1 <= slot_space[slot_type].max_count
+end
+
+function can_remove(item)
+	return item.marked and loaded_items[item:id()]
+end
+
+function move_to(item)
+	item.marked = true
+	
+	update_item_count(item, true)
+	
+	local f = item:get_inventory_item_flags()
+	f:set( global_flags.FIUngroupable, item.marked )
+	item:set_inventory_item_flags( f )
+	if level.main_input_receiver() then
+		update_inventory_window()
+	end
+	xr_sound.get_safe_sound_object("interface\\inv_slot", sound_object.s2d):play_at_pos(actor,actor:position())
+	ogse_signals.get_mgr():call("on_item_to_loadout", item)
+end
+
+function move_from(item)
+	item.marked = false
+	
+	update_item_count(item, false)
+	
+	local f = item:get_inventory_item_flags()
+	f:set( global_flags.FIUngroupable, item.marked )
+	item:set_inventory_item_flags( f )
+	if level.main_input_receiver() then
+		update_inventory_window()
+	end
+	xr_sound.get_safe_sound_object("interface\\inv_ruck", sound_object.s2d):play_at_pos(actor,actor:position())
+	ogse_signals.get_mgr():call("on_item_from_loadout", item)
+end
+
+function clear_all()
+	local item
+	for k,v in pairs(loaded_items) do
+		item = level.object_by_id(k)
+		if item then
+			move_from(item)
+		end
+	end
+	xr_sound.get_safe_sound_object("interface\\inv_ruck", sound_object.s2d):play_at_pos(actor,actor:position())
+end
+
+function menu_tip_to(item)
+	local slot_type = get_slot_type(item)
+	local tip_text = string.format("%s [%s/%s]", game.translate_string("st_to_loadout"), slot_space[slot_type].current_count, slot_space[slot_type].max_count)
+	return tip_text
+end
+function menu_tip_from(item)
+	local slot_type = get_slot_type(item)
+	local tip_text = string.format("%s [%s/%s]", game.translate_string("st_from_loadout"), slot_space[slot_type].current_count, slot_space[slot_type].max_count)
+	return tip_text
+end

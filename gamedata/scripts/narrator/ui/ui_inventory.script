@@ -36,11 +36,10 @@ function InventoryOverlay:Subscribe()
 			{signal = "on_cell_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
 			{signal = "on_quick_item_set", self = self, fun = self.OnQuickItemSet},
 			{signal = "on_use", self = self, fun = self.UpdateSlots},
-			{signal = "on_slot", self = self, fun = self.UpdateSlots},
-			{signal = "on_ruck", self = self, fun = self.UpdateSlots},
-			{signal = "on_belt", self = self, fun = self.UpdateSlots},
-			{signal = "on_vest", self = self, fun = self.UpdateSlots},
-			{signal = "on_drop", self = self, fun = self.UpdateSlots},
+			--{signal = "on_item_to_loadout", self = self, fun = self.UpdateSlots},
+			--{signal = "on_item_from_loadout", self = self, fun = self.UpdateSlots},
+			{signal = "on_loadout_update_count", self = self, fun = self.UpdateSlots},
+			{signal = "on_loadout_update_max_count", self = self, fun = self.UpdateSlots},
 		}
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
@@ -148,6 +147,36 @@ function InventoryOverlay:InitControls()
 		local key_text = "ui_use_slot_"..k
 		v.static:SetText(game.translate_string(key_text))
 	end
+	
+	--//loadout
+	--//loadout colors
+	self.loadout_color_default 		= GetARGB(255, 255, 255, 255)
+	self.loadout_color_highlight 	= GetARGB(255, 0, 255, 0)
+	self.loadout_color_blocked 		= GetARGB(255, 255, 0, 0)
+	self.loadout_color_equiped 		= GetARGB(255, 238, 153, 26)
+	self.loadout_color_hidden 		= GetARGB(0, 255, 255, 255)
+	
+	self.loadout = loadout.slot_space
+	self.loadout_back = xml:InitStatic("loadout_back", self)
+	self.clear_loadout = xml:Init3tButton("clear_loadout_button", self.loadout_back)
+	self:Register(self.clear_loadout, "clear_loadout")
+	self:AddCallback("clear_loadout", ui_events.BUTTON_CLICKED, self.ClearLoadout, self)
+	for k,v in pairs(self.loadout) do
+		v.static = xml:InitStatic(k.."_static", self.loadout_back)
+		v.static:SetTextColor(self.loadout_color_default)
+		v.icon = xml:InitStatic(k.."_icon", v.static)
+		--v.icon:SetColor(self.loadout_color_default)
+		v.max = function() return loadout.slot_space[k].max_count end
+		v.curr = function() return loadout.slot_space[k].current_count end
+		
+		v.hint = xml:InitStatic("loadout_hint", self.loadout_back)--v.static)
+		v.hint:SetText(game.translate_string(string.format("%s%s%s","st_", k, "_hint")))
+		v.hint:Show(false)
+		self:Register(v.static, k)
+		self:AddCallback(k, ui_events.STATIC_FOCUS_RECEIVED, function() self:LoadoutOnFocusReceived(k) end)
+		self:AddCallback(k, ui_events.STATIC_FOCUS_LOST, function() self:LoadoutOnFocusLost(k) end)		
+	end
+	self:UpdateSlots()
 end
 
 function InventoryOverlay:QuickOnFocusReceived(slot_num)
@@ -162,16 +191,36 @@ end
 
 function InventoryOverlay:OnCellItemFocus(obj)
 	local highlight_quick_slots = read_if_exists(sys_ini, "r_bool", obj:section(), "quick_slot", false)
-	if not highlight_quick_slots then return
+	if highlight_quick_slots then
+		for i=0,3 do
+			self.slots[i]:SetColor(self.quick_color_highlight)
+		end
 	end
-	for i=0,3 do
-		self.slots[i]:SetColor(self.quick_color_highlight)
+	local slot_type = loadout.get_slot_type(obj)
+	if slot_type then
+		for k,v in pairs(self.loadout) do
+			if slot_type == k then
+				local color = self.loadout_color_blocked
+				if obj.marked then
+					color = self.loadout_color_equiped
+				end
+				if loadout.can_take(obj) then
+					color = self.loadout_color_highlight
+				end
+				v.static:SetTextColor(color)
+				--v.icon:SetColor(color)
+			end
+		end
 	end
 end
 
 function InventoryOverlay:OnCellItemFocusLost(obj)
 	for i=0,3 do
 		self.slots[i]:SetColor(self.quick_color_default)
+	end
+	for k,v in pairs(self.loadout) do
+		v.static:SetTextColor(self.loadout_color_default)
+		--v.icon:SetColor(self.loadout_color_default)
 	end
 end
 
@@ -208,6 +257,12 @@ function InventoryOverlay:UpdateSlots()
 	for i=0,3 do
 		self:DrawSlotIcon(i)
 	end
+	
+	local loadout_slot_text
+	for k,v in pairs(self.loadout) do
+		loadout_slot_text = string.format("[%s/%s] %s", v.curr(), v.max(), game.translate_string(k))
+		v.static:SetText(loadout_slot_text)
+	end
 end
 
 function InventoryOverlay:CheckNeedUpdate(obj, prev_place)
@@ -220,10 +275,22 @@ end
 
 function InventoryOverlay:ConditionOnFocusReceived(cond_name)
 	self.conditions[cond_name].hint:Show(true)
+	self.conditions[cond_name].progress:Show(false)
 end
 
 function InventoryOverlay:ConditionOnFocusLost(cond_name)
 	self.conditions[cond_name].hint:Show(false)
+	self.conditions[cond_name].progress:Show(true)
+end
+
+function InventoryOverlay:LoadoutOnFocusReceived(slot_name)
+	self.loadout[slot_name].hint:Show(true)
+	self.loadout[slot_name].static:SetTextColor(self.loadout_color_equiped)
+end
+
+function InventoryOverlay:LoadoutOnFocusLost(slot_name)
+	self.loadout[slot_name].hint:Show(false)
+	self.loadout[slot_name].static:SetTextColor(self.loadout_color_default)
 end
 
 function InventoryOverlay:Update()
@@ -238,4 +305,8 @@ function InventoryOverlay:Update()
 		hint_text = string.format("%s %.0f%s",cond_descr, val, "%")
 		v.hint:SetText(hint_text)
 	end
+end
+
+function InventoryOverlay:ClearLoadout()
+	loadout.clear_all()
 end

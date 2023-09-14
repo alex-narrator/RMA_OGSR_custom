@@ -1,0 +1,17 @@
+function attach(sm)
+	sm:subscribe({signal = "on_group_items",   fun = this.on_group_items})
+end
+
+function on_group_items(item1, item2)
+	if item1.marked then
+		local f = item1:get_inventory_item_flags()
+		f:set( global_flags.FIUngroupable, item1.marked )
+		item1:set_inventory_item_flags( f )
+	end
+	
+	if item2.marked then
+		local f = item2:get_inventory_item_flags()
+		f:set( global_flags.FIUngroupable, item2.marked )
+		item2:set_inventory_item_flags( f )
+	end
+end

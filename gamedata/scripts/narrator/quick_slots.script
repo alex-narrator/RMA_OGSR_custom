@@ -71,20 +71,13 @@ function get_item(slot_num)
 	local founded_item = nil
 	
 	function perform_check(dummy, item)
-		if item:section() == sect then
+		if item:section() == sect and item.marked then
 			founded_item = item
 		end
 	end
 	
-	actor:iterate_vest(perform_check, nil)
-	
-	if not item then
-		actor:iterate_belt(perform_check, nil)
-	end
-	if not item then
-		actor:iterate_slots(perform_check, nil)
-	end	
-	
+	actor:iterate_inventory(perform_check, nil)
+		
 	return founded_item
 end
 
@@ -95,6 +88,7 @@ function set_item(item_sect, slot_num)
 			quick_sect[num] = ""
 		end
 	end
+	xr_sound.get_safe_sound_object("interface\\inv_slot", sound_object.s2d):play_at_pos(actor,actor:position())
 	ogse_signals.get_mgr():call("on_quick_item_set", item_sect, slot_num)
 end
 
@@ -110,18 +104,19 @@ function get_item_count(slot_num)
 		return res
 	end
 	
-	function perform_check(dummy, item)
-		if item:section() == sect then
+	-- function perform_check(dummy, item)
+		-- if item:section() == sect and item.marked then
+			-- res = res + 1
+		-- end
+	-- end
+	
+	-- actor:iterate_inventory(perform_check, nil)
+	local item
+	for k,v in pairs(loadout.loaded_items) do
+		item = level.object_by_id(k)
+		if item and item:section() == sect then
 			res = res + 1
 		end
-	end
-	
-	actor:iterate_vest(perform_check, nil)
-	if not item then
-		actor:iterate_belt(perform_check, nil)
-	end
-	if not item then
-		actor:iterate_slots(perform_check, nil)
 	end
 	
 	return res
@@ -144,4 +139,32 @@ function on_load(reader)
 	for num, sect in pairs(quick_sect) do
 		quick_sect[num] = reader:r_stringZ()
 	end
+end
+
+--//функції для скриптового пункту контекстного меню
+local selected_slot = nil
+function can_set(item)
+	if not read_if_exists(sys_ini, "r_bool", item:section(), "quick_slot", false) then
+	return false end
+	
+	selected_slot = nil
+	for slot_num,item_sect in pairs(quick_sect) do
+		if item_sect == "" then
+			selected_slot = slot_num
+			return true
+		end
+	end
+	for slot_num,item_sect in pairs(quick_sect) do
+		if item_sect ~= item:section() then
+			selected_slot = slot_num
+			return true
+		end
+	end	
+	return false
+end
+function set(item)
+	set_item(item:section(), selected_slot)
+end
+function menu_tip_set(item)
+	return game.translate_string("st_to_quick_slot_"..selected_slot)
 end
