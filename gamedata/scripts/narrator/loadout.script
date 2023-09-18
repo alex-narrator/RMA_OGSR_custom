@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
 	sm:subscribe({signal = "on_drop",   fun = this.on_drop})
 	sm:subscribe({signal = "on_ruck",   fun = this.on_ruck})
@@ -28,30 +29,39 @@ end
 
 loaded_items = {}
 
+local unload_states = {
+	[global_flags.eReload] = true,
+	[global_flags.eShutter] = true,
+}
+function is_weapon_unloading()
+	local weapon = actor:active_item() and actor:active_item():get_weapon_m()
+	return weapon and unload_states[weapon.state]
+end
+
 function on_save(packet)
-	log3("%s on save", script_name())
+	--log3("%s on save", script_name())
 	local size = table.size(loaded_items)
 	packet:w_u8(size)
-	log3("~saving size %s", size)
+	--log3("~saving size %s", size)
 	for k, v in pairs(loaded_items) do
 		packet:w_stringZ(k)
-		log3("~saving id %s", k)
+		--log3("~saving id %s", k)
 	end
 end
 
 function on_load(reader)
 	if reader:r_eof() then
 	return end
-	log3("%s on load", script_name())
+	--log3("%s on load", script_name())
 	local size = reader:r_u8()
-	log3("~loading size %s", size)
+	--log3("~loading size %s", size)
 	if size == 0 then
 	return end
 	loaded_items = {}
 	local id
 	for i=1, size do
 		id = tonumber(reader:r_stringZ())
-		log3("~loading id %s", id)
+		--log3("~loading id %s", id)
 		loaded_items[id] = true
 	end
 end
@@ -162,17 +172,15 @@ function on_drop(item, prev_place)
 	if can_remove(item) then
 		remove(item)
 	end
-	
-	if is_module(item) and (prev_place == item_place.vest or prev_place == item_place.belt) then
+	if is_module(item) and (prev_place == item_place.vest or prev_place == item_place.belt or prev_place == item_place.slot) then
 		update_max_count(item, false)
 	end
 end
 
 function on_take(item)
 	local ammo = item:get_weapon_ammo()
-	if ammo and ammo.unloaded_from_weapon then
-		ammo.unloaded_from_weapon = false
-		--item.marked = false
+	if ammo and is_weapon_unloading() then
+		--log3("~ammo %s [%s] unloaded from weapon", item:name(), item:id())
 		if xr_conditions.black_screen() or level.main_input_receiver() then
 		return end
 		
@@ -191,6 +199,9 @@ function on_slot(item, prev_place)
 	if item:is_grenade() and can_remove(item) then
 		remove(item)
 	end
+	if is_module(item) then
+		update_max_count(item, true)
+	end	
 end
 
 function on_belt(item, prev_place)
@@ -230,7 +241,7 @@ end
 
 function add(item)
 	item.marked = true
-	log3("~add item %s | %s", item:name(), item:id())
+	--log3("~add item %s | %s", item:name(), item:id())
 	update_item_count(item, true)
 	
 	set_item_ungroupable(item)

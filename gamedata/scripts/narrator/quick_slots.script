@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 local quick_action = {
 	[key_bindings.kQUICK_SLOT_0] = true,
 	[key_bindings.kQUICK_SLOT_1] = true,
@@ -114,7 +115,7 @@ function set_selected(val)
 end
 
 function on_save(packet)
-	log3("%s on save", script_name())
+	--log3("%s on save", script_name())
 	for num, sect in pairs(quick_sect) do
 		packet:w_stringZ(sect)
 	end
@@ -123,7 +124,7 @@ end
 function on_load(reader)
 	if reader:r_eof() then
 	return end
-	log3("%s on load", script_name())
+	--log3("%s on load", script_name())
 	for num, sect in pairs(quick_sect) do
 		quick_sect[num] = reader:r_stringZ()
 	end

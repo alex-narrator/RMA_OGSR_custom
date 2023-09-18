@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 local overlay = nil
 
 function attach(sm)
@@ -160,7 +161,7 @@ function CarbodyOverlay:InitControls()
 		["medicine"] 		= {},
 	}
 	for k,v in pairs(self.loadout) do
-		log3("~%s init loadout slot %s", script_name(), k)
+		--log3("~%s init loadout slot %s", script_name(), k)
 		v.static = xml:InitStatic(k.."_static", self.loadout_back)
 		v.static:SetTextColor(self.loadout_color_default)
 		v.icon = xml:InitStatic(k.."_icon", v.static)
@@ -367,7 +368,7 @@ function CarbodyOverlay:OnHide()
 	self:UpdateEquipedItemVisibility()
 	inventory.show_ruck_items_all(actor)
 	inventory.show_ruck_items_all(self.target)
-	self:OnShowButtonClick("all")
+	self:OnShowButtonClick("all")	
 	self.target = false
 end
 
