@@ -68,17 +68,14 @@ end
 
 function get_item(slot_num)
 	local sect = quick_sect[slot_num]
-	local founded_item = nil
-	
-	function perform_check(dummy, item)
-		if item:section() == sect and item.marked then
-			founded_item = item
+	local item
+	for k,v in pairs(loadout.loaded_items) do
+		item = level.object_by_id(k)
+		if item and item:section() == sect then
+			return item
 		end
 	end
-	
-	actor:iterate_inventory(perform_check, nil)
-		
-	return founded_item
+	return nil
 end
 
 function set_item(item_sect, slot_num)
@@ -99,18 +96,9 @@ end
 function get_item_count(slot_num)
 	local sect = quick_sect[slot_num]
 	local res = 0
-	
 	if not sect then
 		return res
 	end
-	
-	-- function perform_check(dummy, item)
-		-- if item:section() == sect and item.marked then
-			-- res = res + 1
-		-- end
-	-- end
-	
-	-- actor:iterate_inventory(perform_check, nil)
 	local item
 	for k,v in pairs(loadout.loaded_items) do
 		item = level.object_by_id(k)
@@ -118,7 +106,6 @@ function get_item_count(slot_num)
 			res = res + 1
 		end
 	end
-	
 	return res
 end
 
@@ -127,6 +114,7 @@ function set_selected(val)
 end
 
 function on_save(packet)
+	log3("%s on save", script_name())
 	for num, sect in pairs(quick_sect) do
 		packet:w_stringZ(sect)
 	end
@@ -135,7 +123,7 @@ end
 function on_load(reader)
 	if reader:r_eof() then
 	return end
-	
+	log3("%s on load", script_name())
 	for num, sect in pairs(quick_sect) do
 		quick_sect[num] = reader:r_stringZ()
 	end

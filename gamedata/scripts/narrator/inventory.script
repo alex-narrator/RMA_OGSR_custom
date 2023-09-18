@@ -13,3 +13,130 @@ function on_first_update()
 		end
 	end
 end
+
+function set_equiped_items_visibility(visible)
+	log3("set_equiped_items_visibility(%s) is called", visible)
+	function perform_action(dummy, item)
+		if actor:is_on_belt(item) or
+			actor:is_on_vest(item) or
+			actor:is_in_slot(item)
+		then
+			if visible then
+				set_item_inv_visible(item)
+			else
+				set_item_inv_hidden(item)
+			end
+		end
+	end	
+	actor:iterate_inventory(perform_action, nil)
+end
+
+function show_ruck_items_all(inv_owner)
+	function perform_action(dummy, item)
+		set_item_inv_visible(item)
+	end	
+	if inv_owner:is_actor() then
+		inv_owner:iterate_ruck(perform_action, nil)
+	else
+		inv_owner:iterate_inventory(perform_action, nil)
+	end
+end
+
+function show_ruck_items_weapon(inv_owner)
+	function perform_action(dummy, item)
+		if item:is_weapon() then
+			set_item_inv_visible(item)
+		else
+			set_item_inv_hidden(item)
+		end
+	end	
+	if inv_owner:is_actor() then
+		inv_owner:iterate_ruck(perform_action, nil)
+	else
+		inv_owner:iterate_inventory(perform_action, nil)
+	end	
+end
+
+function show_ruck_items_ammo(inv_owner)
+	function perform_action(dummy, item)
+		if item:is_ammo() or item:is_grenade() then
+			set_item_inv_visible(item)
+		else
+			set_item_inv_hidden(item)
+		end
+	end	
+	if inv_owner:is_actor() then
+		inv_owner:iterate_ruck(perform_action, nil)
+	else
+		inv_owner:iterate_inventory(perform_action, nil)
+	end	
+end
+
+function show_ruck_items_outfit(inv_owner)
+	function perform_action(dummy, item)
+		if item:is_outfit() or 
+			item:is_helmet() or 
+			item:is_gasmask() or
+			sys_ini:r_string(item:section(), "class") == "EQ_WRBLT" or
+			sys_ini:r_string(item:section(), "class") == "EQ_TVEST"
+		then
+			set_item_inv_visible(item)
+		else
+			set_item_inv_hidden(item)
+		end
+	end	
+	if inv_owner:is_actor() then
+		inv_owner:iterate_ruck(perform_action, nil)
+	else
+		inv_owner:iterate_inventory(perform_action, nil)
+	end		
+end
+
+function show_ruck_items_eatable(inv_owner)
+	function perform_action(dummy, item)
+		if item:is_eatable_item() then
+			set_item_inv_visible(item)
+		else
+			set_item_inv_hidden(item)
+		end
+	end	
+	if inv_owner:is_actor() then
+		inv_owner:iterate_ruck(perform_action, nil)
+	else
+		inv_owner:iterate_inventory(perform_action, nil)
+	end		
+end
+
+function show_ruck_items_artefact(inv_owner)
+	function perform_action(dummy, item)
+		if item:is_artefact() then
+			set_item_inv_visible(item)
+		else
+			set_item_inv_hidden(item)
+		end
+	end	
+	if inv_owner:is_actor() then
+		inv_owner:iterate_ruck(perform_action, nil)
+	else
+		inv_owner:iterate_inventory(perform_action, nil)
+	end			
+end
+
+function show_ruck_items_device(inv_owner)
+	function perform_action(dummy, item)
+		if item:is_torch() or
+			item:get_pda() or
+			item:get_detector() or
+			is_power_device(item)
+		then
+			set_item_inv_visible(item)
+		else
+			set_item_inv_hidden(item)
+		end
+	end	
+	if inv_owner:is_actor() then
+		inv_owner:iterate_ruck(perform_action, nil)
+	else
+		inv_owner:iterate_inventory(perform_action, nil)
+	end		
+end

@@ -40,6 +40,8 @@ function InventoryOverlay:Subscribe()
 			--{signal = "on_item_from_loadout", self = self, fun = self.UpdateSlots},
 			{signal = "on_loadout_update_count", self = self, fun = self.UpdateSlots},
 			{signal = "on_loadout_update_max_count", self = self, fun = self.UpdateSlots},
+			{signal = "on_inventory_show", self = self, fun = self.OnShow},
+			{signal = "on_inventory_hide", self = self, fun = self.OnHide},			
 		}
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
@@ -77,7 +79,9 @@ function InventoryOverlay:InitControls()
 	local xml = CScriptXmlInit()
 	xml:ParseFile("script_overlays\\inventory_overlay.xml")
 
-	self.background = xml:InitStatic("background", self)
+	self.conditions_background = xml:InitStatic("conditions_background", self)
+	
+	local name
 	
 	--// actor condition progressbars
 	self.conditions = {
@@ -90,10 +94,10 @@ function InventoryOverlay:InitControls()
 	}
 	
 	for k, v in pairs(self.conditions) do
-		v.static = xml:InitStatic(k.."static", self.background)
+		v.static = xml:InitStatic(k.."static", self.conditions_background)
 		v.icon = xml:InitStatic(k.."icon", v.static)
 		v.progress = xml:InitProgressBar(k.."progress", v.static)	
-		v.hint = xml:InitStatic("condition_hint", v.static)
+		v.hint = xml:InitStatic("condition_hint", self.conditions_background)
 		v.hint:Show(false)
 
 		self:Register(v.static, k)
@@ -124,7 +128,7 @@ function InventoryOverlay:InitControls()
 		
 		s.count = xml:InitStatic("slot_count", s)
 		
-		local name = "quick_"..i
+		name = "quick_"..i
 		self:Register(s, name)
 		self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:QuickOnFocusReceived(i) end, self)
 		self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:QuickOnFocusLost(i) end, self)
@@ -155,28 +159,58 @@ function InventoryOverlay:InitControls()
 	self.loadout_color_blocked 		= GetARGB(255, 255, 0, 0)
 	self.loadout_color_equiped 		= GetARGB(255, 238, 153, 26)
 	self.loadout_color_hidden 		= GetARGB(0, 255, 255, 255)
-	
-	self.loadout = loadout.slot_space
+		
 	self.loadout_back = xml:InitStatic("loadout_back", self)
+	name = "loadout_back"
+	self:Register(self.loadout_back, name)
+	self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, self.LoadoutBackOnFocusReceived)
+	self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, self.LoadoutBackOnFocusLost)	
+
 	self.clear_loadout = xml:Init3tButton("clear_loadout_button", self.loadout_back)
-	self:Register(self.clear_loadout, "clear_loadout")
-	self:AddCallback("clear_loadout", ui_events.BUTTON_CLICKED, self.ClearLoadout, self)
+	name = "clear_loadout"
+	self:Register(self.clear_loadout, name)
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.ClearLoadout, self)
+	
+	self.loadout = {
+		["pistol_ammo"] 	= {},
+		["rifle_ammo"] 		= {},
+		["shotgun_ammo"] 	= {},
+		["heavy_ammo"] 		= {},
+		["grenade"]			= {},
+		["medicine"] 		= {},
+	}
 	for k,v in pairs(self.loadout) do
 		v.static = xml:InitStatic(k.."_static", self.loadout_back)
 		v.static:SetTextColor(self.loadout_color_default)
 		v.icon = xml:InitStatic(k.."_icon", v.static)
 		--v.icon:SetColor(self.loadout_color_default)
-		v.max = function() return loadout.slot_space[k].max_count end
-		v.curr = function() return loadout.slot_space[k].current_count end
 		
 		v.hint = xml:InitStatic("loadout_hint", self.loadout_back)--v.static)
 		v.hint:SetText(game.translate_string(string.format("%s%s%s","st_", k, "_hint")))
 		v.hint:Show(false)
 		self:Register(v.static, k)
-		self:AddCallback(k, ui_events.STATIC_FOCUS_RECEIVED, function() self:LoadoutOnFocusReceived(k) end)
-		self:AddCallback(k, ui_events.STATIC_FOCUS_LOST, function() self:LoadoutOnFocusLost(k) end)		
+		self:AddCallback(k, ui_events.STATIC_FOCUS_RECEIVED, function() self:LoadoutSlotOnFocusReceived(k) end)
+		self:AddCallback(k, ui_events.STATIC_FOCUS_LOST, function() self:LoadoutSlotOnFocusLost(k) end)		
 	end
 	self:UpdateSlots()
+	
+	--//show types buttons back
+	self.show_buttons_back = xml:InitStatic("show_buttons_back", self)
+	self.show_buttons = {
+		["all"] = {},
+		["weapon"] = {},
+		["ammo"] = {},
+		["outfit"] = {},
+		["eatable"] = {},
+		["artefact"] = {},
+		["device"] = {},
+	}
+	for k,v in pairs(self.show_buttons) do
+		v.button = xml:InitCheck("show_"..k.."_button", self.show_buttons_back)
+		name = "show_"..k
+		self:Register(v.button, name)
+		self:AddCallback(name, ui_events.BUTTON_CLICKED, function() self:OnShowButtonClick(k) end, self)
+	end
 end
 
 function InventoryOverlay:QuickOnFocusReceived(slot_num)
@@ -204,7 +238,7 @@ function InventoryOverlay:OnCellItemFocus(obj)
 				if obj.marked then
 					color = self.loadout_color_equiped
 				end
-				if loadout.can_take(obj) then
+				if loadout.can_add(obj) then
 					color = self.loadout_color_highlight
 				end
 				v.static:SetTextColor(color)
@@ -223,7 +257,6 @@ function InventoryOverlay:OnCellItemFocusLost(obj)
 		--v.icon:SetColor(self.loadout_color_default)
 	end
 end
-
 
 function InventoryOverlay:DrawSlotIcon(slot_num)
 	local s = self.slots[slot_num]
@@ -260,7 +293,7 @@ function InventoryOverlay:UpdateSlots()
 	
 	local loadout_slot_text
 	for k,v in pairs(self.loadout) do
-		loadout_slot_text = string.format("[%s/%s] %s", v.curr(), v.max(), game.translate_string(k))
+		loadout_slot_text = string.format("[%s/%s] %s", loadout.get_current(k), loadout.get_max(k), game.translate_string(k))
 		v.static:SetText(loadout_slot_text)
 	end
 end
@@ -275,22 +308,30 @@ end
 
 function InventoryOverlay:ConditionOnFocusReceived(cond_name)
 	self.conditions[cond_name].hint:Show(true)
-	self.conditions[cond_name].progress:Show(false)
+	self.conditions[cond_name].icon:SetColor(self.loadout_color_equiped)
 end
 
 function InventoryOverlay:ConditionOnFocusLost(cond_name)
 	self.conditions[cond_name].hint:Show(false)
-	self.conditions[cond_name].progress:Show(true)
+	self.conditions[cond_name].icon:SetColor(self.loadout_color_default)
 end
 
-function InventoryOverlay:LoadoutOnFocusReceived(slot_name)
+function InventoryOverlay:LoadoutSlotOnFocusReceived(slot_name)
 	self.loadout[slot_name].hint:Show(true)
 	self.loadout[slot_name].static:SetTextColor(self.loadout_color_equiped)
 end
 
-function InventoryOverlay:LoadoutOnFocusLost(slot_name)
+function InventoryOverlay:LoadoutSlotOnFocusLost(slot_name)
 	self.loadout[slot_name].hint:Show(false)
 	self.loadout[slot_name].static:SetTextColor(self.loadout_color_default)
+end
+
+function InventoryOverlay:LoadoutBackOnFocusReceived(slot_name)
+	loadout.static_focused = true
+end
+
+function InventoryOverlay:LoadoutBackOnFocusLost(slot_name)
+	loadout.static_focused = false
 end
 
 function InventoryOverlay:Update()
@@ -298,15 +339,47 @@ function InventoryOverlay:Update()
 	
 	local hint_text
 	local cond_descr
+	local cond_text
 	for k,v in pairs(self.conditions) do
 		local val = v.condition() * 100
 		v.progress:SetProgressPos(val)
 		cond_descr = game.translate_string(string.format("%s%s%s","st_", k, "hint"))
-		hint_text = string.format("%s %.0f%s",cond_descr, val, "%")
+		cond_text = game.translate_string(string.format("%s%s%s","st_", k, "hint_text"))
+		hint_text = string.format("%s %.0f%s\\n%s", cond_descr, val, "%", cond_text)
 		v.hint:SetText(hint_text)
 	end
 end
 
 function InventoryOverlay:ClearLoadout()
 	loadout.clear_all()
+end
+
+function InventoryOverlay:OnShow()
+	self:OnShowButtonClick("all")
+end
+function InventoryOverlay:OnHide()
+	self:OnShowButtonClick("all")
+end
+
+--//switching of item visibility functions
+function InventoryOverlay:OnShowButtonClick(show_type)
+	if show_type == "all" then
+		inventory.show_ruck_items_all(actor)
+	elseif show_type == "weapon" then
+		inventory.show_ruck_items_weapon(actor)
+	elseif show_type == "ammo" then
+		inventory.show_ruck_items_ammo(actor)
+	elseif show_type == "outfit" then
+		inventory.show_ruck_items_outfit(actor)
+	elseif show_type == "eatable" then
+		inventory.show_ruck_items_eatable(actor)
+	elseif show_type == "artefact" then
+		inventory.show_ruck_items_artefact(actor)
+	elseif show_type == "device" then
+		inventory.show_ruck_items_device(actor)
+	end
+	for k,v in pairs(self.show_buttons) do
+		v.button:SetCheck(k == show_type)
+	end
+	update_inventory_window()
 end

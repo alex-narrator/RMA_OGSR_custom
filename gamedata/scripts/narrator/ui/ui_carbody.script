@@ -1,0 +1,402 @@
+local overlay = nil
+
+function attach(sm)
+	sm:subscribe({signal = "on_spawn",   fun = this.create_window})
+	sm:subscribe({signal = "on_destroy",   fun = this.destroy_window})
+end
+
+local subscribed = false
+
+function create_window()
+	if not overlay then
+		overlay = CarbodyOverlay(level.get_car_body_wnd())
+	end
+end
+
+function destroy_window()
+	if overlay then
+		overlay:DetachWnd()
+		overlay = nil
+	end
+end
+
+class "CarbodyOverlay" (CUIScriptWnd)
+
+function CarbodyOverlay:__init(owner) super()
+	self.owner = owner
+	self:InitControls()
+	self:Subscribe()
+end
+
+function CarbodyOverlay:Subscribe()
+	self.subscribed = false
+	if not self.subscribed then
+		self.subscribed = {
+			{signal = "on_cell_item_focus", self = self, fun = self.OnCellItemFocus},
+			{signal = "on_cell_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
+			{signal = "on_quick_item_set", self = self, fun = self.OnQuickItemSet},
+			{signal = "on_use", self = self, fun = self.UpdateSlots},
+			{signal = "on_loadout_update_count", self = self, fun = self.UpdateSlots},
+			{signal = "on_loadout_update_max_count", self = self, fun = self.UpdateSlots},
+			{signal = "on_carbody_show", self = self, fun = self.OnShow},
+			{signal = "on_carbody_hide", self = self, fun = self.OnHide},
+		}
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs( self.subscribed ) do
+			sm:subscribe( s )
+		end
+	end
+end
+
+function CarbodyOverlay:Unsubscribe()
+	if self.subscribed then
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs( self.subscribed ) do
+			sm:unsubscribe( s )
+		end
+		self.subscribed = false
+	end
+end
+
+function CarbodyOverlay:DetachWnd()
+	quick_slots.set_selected(nil)
+	self:Unsubscribe()
+	self:ClearCallbacks()
+	self.owner:DetachChild(self)
+end
+
+function CarbodyOverlay:InitControls()
+	self.owner:AttachChild(self)
+	self:Init(0, 0, 1024, 768)
+	self:Enable(true)
+	self:Show(true)
+	
+	local xml = CScriptXmlInit()
+	xml:ParseFile("script_overlays\\carbody_overlay.xml")
+
+	self.conditions_background = xml:InitStatic("conditions_background", self)
+	
+	local name
+	
+	--// actor condition progressbars
+	self.conditions = {
+		["health_"] 	= { condition = function() return actor.health end },
+		["psy_"] 		= { condition = function() return actor.psy_health end },
+		["power_"] 		= { condition = function() return actor.power end },
+		["satiety_"] 	= { condition = function() return actor.satiety end },
+		["alcohol_"] 	= { condition = function() return actor.alcohol end },
+		["radiation_"] 	= { condition = function() return actor.radiation end },
+	}
+	
+	for k, v in pairs(self.conditions) do
+		v.static = xml:InitStatic(k.."static", self.conditions_background)
+		v.icon = xml:InitStatic(k.."icon", v.static)
+		v.progress = xml:InitProgressBar(k.."progress", v.static)	
+		v.hint = xml:InitStatic("condition_hint", self.conditions_background)
+		v.hint:Show(false)
+
+		self:Register(v.static, k)
+		self:AddCallback(k, ui_events.STATIC_FOCUS_RECEIVED, function() self:ConditionOnFocusReceived(k) end)
+		self:AddCallback(k, ui_events.STATIC_FOCUS_LOST, function() self:ConditionOnFocusLost(k) end)
+	end
+	
+	--// quick slots
+	self.quick_slots_back = xml:InitStatic("quick_slots_back", self)
+	
+	--//slot colors
+	self.quick_color_default 	= GetARGB(0, 255, 255, 255)
+	self.quick_color_highlight 	= GetARGB(45, 255, 255, 255)
+	self.quick_color_has_item 	= GetARGB(255, 255, 255, 255)
+	self.quick_color_no_item 	= GetARGB(120, 255, 255, 255)
+	
+	self.slots = {}
+	for i=0,3 do
+		local s = xml:InitStatic("quick_slot_"..i, self.quick_slots_back)
+		self.slots[i] = s
+		s:SetColor(self.quick_color_default)
+		
+		local key_text = "ui_quick_slot_"..i
+		s:SetText(game.translate_string(key_text))
+		
+		s.icon = xml:InitStatic("slot_icon", s)
+		s.icon:InitTexture("ui\\ui_icon_equipment")
+		
+		s.count = xml:InitStatic("slot_count", s)
+		
+		name = "quick_"..i
+		self:Register(s, name)
+		self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:QuickOnFocusReceived(i) end, self)
+		self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:QuickOnFocusLost(i) end, self)
+		self:AddCallback(name, ui_events.WINDOW_LBUTTON_DB_CLICK, function() self:QuickOnDbClick(i) end, self)
+		
+		self:DrawSlotIcon(i)
+	end
+	
+	--//loadout
+	--//loadout colors
+	self.loadout_color_default 		= GetARGB(255, 255, 255, 255)
+	self.loadout_color_highlight 	= GetARGB(255, 0, 255, 0)
+	self.loadout_color_blocked 		= GetARGB(255, 255, 0, 0)
+	self.loadout_color_equiped 		= GetARGB(255, 238, 153, 26)
+	self.loadout_color_hidden 		= GetARGB(0, 255, 255, 255)
+	
+	self.loadout_back = xml:InitStatic("loadout_back", self)
+	name = "loadout_back"
+	self:Register(self.loadout_back, name)
+	self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, self.LoadoutBackOnFocusReceived)
+	self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, self.LoadoutBackOnFocusLost)
+	
+	self.clear_loadout = xml:Init3tButton("clear_loadout_button", self.loadout_back)
+	name = "clear_loadout"
+	self:Register(self.clear_loadout, name)
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.ClearLoadout, self)
+
+	self.loadout = {
+		["pistol_ammo"] 	= {},
+		["rifle_ammo"] 		= {},
+		["shotgun_ammo"] 	= {},
+		["heavy_ammo"] 		= {},
+		["grenade"]			= {},
+		["medicine"] 		= {},
+	}
+	for k,v in pairs(self.loadout) do
+		log3("~%s init loadout slot %s", script_name(), k)
+		v.static = xml:InitStatic(k.."_static", self.loadout_back)
+		v.static:SetTextColor(self.loadout_color_default)
+		v.icon = xml:InitStatic(k.."_icon", v.static)
+		--v.icon:SetColor(self.loadout_color_default)
+		
+		v.hint = xml:InitStatic("loadout_hint", self.loadout_back)--v.static)
+		v.hint:SetText(game.translate_string(string.format("%s%s%s","st_", k, "_hint")))
+		v.hint:Show(false)
+		self:Register(v.static, k)
+		self:AddCallback(k, ui_events.STATIC_FOCUS_RECEIVED, function() self:LoadoutSlotOnFocusReceived(k) end)
+		self:AddCallback(k, ui_events.STATIC_FOCUS_LOST, function() self:LoadoutSlotOnFocusLost(k) end)		
+	end
+	self:UpdateSlots()
+	
+	self.switch_equiped_item_visibility = xml:Init3tButton("switch_equiped_item_visibility_button", self)
+	name = "switch_equiped_item_visibility"
+	self:Register(self.switch_equiped_item_visibility, name)
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.SwitchEquipedItemVisibility, self)
+	
+	--//show types buttons back
+	self.show_buttons_back = xml:InitStatic("show_buttons_back", self)
+	self.show_buttons = {
+		["all"] = {},
+		["weapon"] = {},
+		["ammo"] = {},
+		["outfit"] = {},
+		["eatable"] = {},
+		["artefact"] = {},
+		["device"] = {},
+	}
+	for k,v in pairs(self.show_buttons) do
+		v.button = xml:InitCheck("show_"..k.."_button", self.show_buttons_back)
+		name = "show_"..k
+		self:Register(v.button, name)
+		self:AddCallback(name, ui_events.BUTTON_CLICKED, function() self:OnShowButtonClick(k) end, self)
+	end	
+end
+
+function CarbodyOverlay:QuickOnFocusReceived(slot_num)
+	quick_slots.set_selected(slot_num)
+	self.slots[slot_num]:SetColor(self.quick_color_highlight)
+end
+
+function CarbodyOverlay:QuickOnFocusLost(slot_num)
+	quick_slots.set_selected(nil)
+	self.slots[slot_num]:SetColor(self.quick_color_default)
+end
+
+function CarbodyOverlay:OnCellItemFocus(obj)
+	local highlight_quick_slots = read_if_exists(sys_ini, "r_bool", obj:section(), "quick_slot", false)
+	if highlight_quick_slots then
+		for i=0,3 do
+			self.slots[i]:SetColor(self.quick_color_highlight)
+		end
+	end
+	local slot_type = loadout.get_slot_type(obj)
+	if slot_type then
+		for k,v in pairs(self.loadout) do
+			if slot_type == k then
+				local color = self.loadout_color_blocked
+				if obj.marked then
+					color = self.loadout_color_equiped
+				end
+				if loadout.can_add(obj) then
+					color = self.loadout_color_highlight
+				end
+				v.static:SetTextColor(color)
+				--v.icon:SetColor(color)
+			end
+		end
+	end
+end
+
+function CarbodyOverlay:OnCellItemFocusLost(obj)
+	for i=0,3 do
+		self.slots[i]:SetColor(self.quick_color_default)
+	end
+	for k,v in pairs(self.loadout) do
+		v.static:SetTextColor(self.loadout_color_default)
+		--v.icon:SetColor(self.loadout_color_default)
+	end
+end
+
+
+function CarbodyOverlay:DrawSlotIcon(slot_num)
+	local s = self.slots[slot_num]
+	local sect = quick_slots.get_item_sect(slot_num)
+	local params = GetIconParams(sect)
+	
+	local count = quick_slots.get_item_count(slot_num)
+	local count_text = string.format("x%s", count)
+	s.count:SetText(count_text)
+	s.count:Show(count > 0)
+	
+	s.icon:SetOriginalRect(params.x, params.y, params.w, params.h)
+			
+	if count > 0 then
+		s.icon:SetColor(self.quick_color_has_item)
+	else
+		s.icon:SetColor(self.quick_color_no_item)
+	end
+end
+
+function CarbodyOverlay:OnQuickItemSet(section, slot_num)
+	self:UpdateSlots()
+end
+
+function CarbodyOverlay:QuickOnDbClick(slot_num)
+	quick_slots.set_item("", slot_num)
+	self:UpdateSlots()
+end
+
+function CarbodyOverlay:UpdateSlots()
+	for i=0,3 do
+		self:DrawSlotIcon(i)
+	end
+	
+	local loadout_slot_text
+	for k,v in pairs(self.loadout) do
+		loadout_slot_text = string.format("[%s/%s] %s", loadout.get_current(k), loadout.get_max(k), game.translate_string(k))
+		v.static:SetText(loadout_slot_text)
+	end
+end
+
+function CarbodyOverlay:CheckNeedUpdate(obj, prev_place)
+	local item_allowed = read_if_exists(sys_ini, "r_bool", obj:section(), "quick_slot", false)
+	if not item_allowed then
+		return
+	end
+	self:UpdateSlots()
+end
+
+function CarbodyOverlay:ConditionOnFocusReceived(cond_name)
+	self.conditions[cond_name].hint:Show(true)
+	self.conditions[cond_name].icon:SetColor(self.loadout_color_equiped)
+end
+
+function CarbodyOverlay:ConditionOnFocusLost(cond_name)
+	self.conditions[cond_name].hint:Show(false)
+	self.conditions[cond_name].icon:SetColor(self.loadout_color_default)
+end
+
+function CarbodyOverlay:LoadoutSlotOnFocusReceived(slot_name)
+	self.loadout[slot_name].hint:Show(true)
+	self.loadout[slot_name].static:SetTextColor(self.loadout_color_equiped)
+end
+
+function CarbodyOverlay:LoadoutSlotOnFocusLost(slot_name)
+	self.loadout[slot_name].hint:Show(false)
+	self.loadout[slot_name].static:SetTextColor(self.loadout_color_default)
+end
+
+function CarbodyOverlay:LoadoutBackOnFocusReceived(slot_name)
+	loadout.static_focused = true
+end
+
+function CarbodyOverlay:LoadoutBackOnFocusLost(slot_name)
+	loadout.static_focused = false
+end
+
+function CarbodyOverlay:Update()
+	CUIScriptWnd.Update(self)
+	
+	local hint_text
+	local cond_descr
+	local cond_text
+	for k,v in pairs(self.conditions) do
+		local val = v.condition() * 100
+		v.progress:SetProgressPos(val)
+		cond_descr = game.translate_string(string.format("%s%s%s","st_", k, "hint"))
+		cond_text = game.translate_string(string.format("%s%s%s","st_", k, "hint_text"))
+		hint_text = string.format("%s %.0f%s\\n%s", cond_descr, val, "%", cond_text)
+		v.hint:SetText(hint_text)
+	end
+end
+
+function CarbodyOverlay:ClearLoadout()
+	loadout.clear_all()
+end
+
+function CarbodyOverlay:SwitchEquipedItemVisibility()
+	self.equiped_item_visible = not self.equiped_item_visible
+	self:UpdateEquipedItemVisibility()
+end
+
+function CarbodyOverlay:UpdateEquipedItemVisibility()
+	inventory.set_equiped_items_visibility(self.equiped_item_visible)
+	update_inventory_window()
+	
+	local button_text = self.equiped_item_visible and "st_hide_equiped_item" or "st_show_equiped_item"
+	button_text = game.translate_string(button_text)
+	self.switch_equiped_item_visibility:SetText(button_text)
+end
+
+function CarbodyOverlay:OnShow()
+	self.target = level.get_car_body_target()
+	self.equiped_item_visible = false
+	self:UpdateEquipedItemVisibility()
+	self:OnShowButtonClick("all")
+end
+
+function CarbodyOverlay:OnHide()
+	self.equiped_item_visible = true
+	self:UpdateEquipedItemVisibility()
+	inventory.show_ruck_items_all(actor)
+	inventory.show_ruck_items_all(self.target)
+	self:OnShowButtonClick("all")
+	self.target = false
+end
+
+--//switching of item visibility functions
+function CarbodyOverlay:OnShowButtonClick(show_type)
+	if show_type == "all" then
+		inventory.show_ruck_items_all(actor)
+		inventory.show_ruck_items_all(self.target)
+	elseif show_type == "weapon" then
+		inventory.show_ruck_items_weapon(actor)
+		inventory.show_ruck_items_weapon(self.target)
+	elseif show_type == "ammo" then
+		inventory.show_ruck_items_ammo(actor)
+		inventory.show_ruck_items_ammo(self.target)
+	elseif show_type == "outfit" then
+		inventory.show_ruck_items_outfit(actor)
+		inventory.show_ruck_items_outfit(self.target)
+	elseif show_type == "eatable" then
+		inventory.show_ruck_items_eatable(actor)
+		inventory.show_ruck_items_eatable(self.target)
+	elseif show_type == "artefact" then
+		inventory.show_ruck_items_artefact(actor)
+		inventory.show_ruck_items_artefact(self.target)
+	elseif show_type == "device" then
+		inventory.show_ruck_items_device(actor)
+		inventory.show_ruck_items_device(self.target)
+	end
+	for k,v in pairs(self.show_buttons) do
+		v.button:SetCheck(k == show_type)
+	end
+	update_inventory_window()
+end

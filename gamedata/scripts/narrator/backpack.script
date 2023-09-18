@@ -1,5 +1,29 @@
 function attach(sm)
 	sm:subscribe({signal = "on_key_press",   fun = this.on_key_press})
+	sm:subscribe({signal = "on_slot",   fun = this.on_slot})
+	sm:subscribe({signal = "on_drop",   fun = this.on_drop})
+end
+
+function on_slot(obj, prev_place)
+	if obj:get_container() then
+		function perform_action(dummy, item)
+			obj:transfer_item(item, actor)
+		end	
+		obj:iterate_inventory(perform_action, nil)	
+	end
+end
+
+function on_drop(obj, prev_place)
+	if prev_place == item_place.slot then
+		if obj:get_container() then
+			function perform_action(dummy, item)
+				if not loadout.can_remove(item) then
+					actor:transfer_item(item, obj)
+				end
+			end	
+			actor:iterate_ruck(perform_action, nil)	
+		end
+	end
 end
 
 function on_key_press(key, game_action)

@@ -1,9 +1,7 @@
--- local item = db.actor:item_in_slot(6)
--- if item and item:is_power_consumer() and item:is_power_source_attached() then
-	-- if item:get_power_level() < 100 then
-		-- item:set_power_level(1)
-	-- end
--- end
+local item = db.actor:item_in_slot(0)
+if item then
+	set_item_inv_hidden(item)
+end
 
 -- local actor = db.actor
 
@@ -109,3 +107,7 @@ end
 -- if actor:active_item() then
 	-- actor:active_item():stop_aim_inertion(false)
 -- end
+
+for k,v in pairs(loadout.loaded_items) do
+	log3("in table id %s | %s", k, level.object_by_id(k):name())
+end

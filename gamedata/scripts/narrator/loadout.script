@@ -6,19 +6,72 @@ function attach(sm)
 	sm:subscribe({signal = "on_vest",   fun = this.on_vest})
 	sm:subscribe({signal = "on_belt",   fun = this.on_belt})
 	sm:subscribe({signal = "on_grenade_type_switch",   fun = this.on_grenade_type_switch})
+	sm:subscribe({signal = "on_cell_item_mouse",   	fun = this.try_set_item})
+	sm:subscribe({signal = "on_save",   fun = this.on_save})
+	sm:subscribe({signal = "on_load",   fun = this.on_load})
+	sm:subscribe({signal = "on_first_update",   fun = this.on_first_update})
 end
 
 --//loadout slot types and default capacities
-slot_space = {
-	["pistol_ammo"] 	= {max_count = 2, current_count = 0},
-	["rifle_ammo"] 		= {max_count = 0, current_count = 0},
-	["shotgun_ammo"] 	= {max_count = 0, current_count = 0},
-	["heavy_ammo"] 		= {max_count = 0, current_count = 0},
-	["grenade"]			= {max_count = 0, current_count = 0},
-	["medicine"] 		= {max_count = 2, current_count = 0},
+local slots = {
+	["pistol_ammo"] 	= {},
+	["rifle_ammo"] 		= {},
+	["shotgun_ammo"] 	= {},
+	["heavy_ammo"] 		= {},
+	["grenade"]			= {},
+	["medicine"] 		= {},
 }
+for k,v in pairs(slots) do
+	v.max_count = read_if_exists(sys_ini, "r_u32", "loadout", k, 0)
+	v.current_count = 0
+end
 
 loaded_items = {}
+
+function on_save(packet)
+	log3("%s on save", script_name())
+	local size = table.size(loaded_items)
+	packet:w_u8(size)
+	log3("~saving size %s", size)
+	for k, v in pairs(loaded_items) do
+		packet:w_stringZ(k)
+		log3("~saving id %s", k)
+	end
+end
+
+function on_load(reader)
+	if reader:r_eof() then
+	return end
+	log3("%s on load", script_name())
+	local size = reader:r_u8()
+	log3("~loading size %s", size)
+	if size == 0 then
+	return end
+	loaded_items = {}
+	local id
+	for i=1, size do
+		id = tonumber(reader:r_stringZ())
+		log3("~loading id %s", id)
+		loaded_items[id] = true
+	end
+end
+
+function on_first_update()
+	local item
+	for i=0, actor:ruck_count()-1 do
+		item = actor:item_in_ruck(i)
+		if loaded_items[item:id()] then
+			add(item)
+		end			
+	end
+end
+
+function get_max(slot)
+	return slots[slot].max_count
+end
+function get_current(slot)
+	return slots[slot].current_count
+end
 
 function get_slot_type(item)
 	return read_if_exists(sys_ini, "r_string", item:section(), "loadout_type", nil)
@@ -26,7 +79,7 @@ end
 
 function is_module(item)
 	local slot_volume
-	for k,v in pairs(slot_space) do
+	for k,v in pairs(slots) do
 		slot_volume = read_if_exists(sys_ini, "r_u32", item:section(), k, 0)
 		if slot_volume > 0 then
 			--log3("~item %s is module for loadout type %s [%s]", item:name(), k, slot_volume)
@@ -56,7 +109,7 @@ end
 function update_item_count(item, item_in)
 	local delta = item_in and 1 or -1
 	local slot_type = get_slot_type(item)
-	slot_space[slot_type].current_count = slot_space[slot_type].current_count + delta
+	slots[slot_type].current_count = slots[slot_type].current_count + delta
 	if item_in then
 		loaded_items[item:id()] = true
 	else
@@ -64,11 +117,11 @@ function update_item_count(item, item_in)
 	end
 
 	ogse_signals.get_mgr():call("on_loadout_update_count", item)
-	--log3("~update_item_count item %s [%s] | slot_type %s, slot_space[slot_type].current_count %s, slot_space[slot_type].max_count %s", item:name(), item:id(), slot_type, slot_space[slot_type].current_count, slot_space[slot_type].max_count)
+	--log3("~update_item_count item %s [%s] | slot_type %s, slots[slot_type].current_count %s, slots[slot_type].max_count %s", item:name(), item:id(), slot_type, slots[slot_type].current_count, slots[slot_type].max_count)
 end
 
 function update_max_count(item, item_in)
-	for k,v in pairs(slot_space) do
+	for k,v in pairs(slots) do
 		slot_volume = read_if_exists(sys_ini, "r_u32", item:section(), k, 0)
 		if slot_volume > 0 then
 			v.max_count = item_in and v.max_count + slot_volume or v.max_count - slot_volume
@@ -88,7 +141,7 @@ function update_max_count(item, item_in)
 				return end
 				if get_slot_type(_item) == k then
 					if v.current_count > v.max_count then
-						move_from(_item)
+						remove(_item)
 					end
 				end
 			end
@@ -98,16 +151,16 @@ end
 
 function on_grenade_type_switch(prev_grenade, next_grenade)
 	if can_remove(next_grenade) then
-		move_from(next_grenade)
+		remove(next_grenade)
 	end
-	if can_take(prev_grenade) then
-		move_to(prev_grenade)
+	if can_add(prev_grenade) then
+		add(prev_grenade)
 	end	
 end
 
 function on_drop(item, prev_place)
-	if item.marked then
-		move_from(item)
+	if can_remove(item) then
+		remove(item)
 	end
 	
 	if is_module(item) and (prev_place == item_place.vest or prev_place == item_place.belt) then
@@ -119,21 +172,24 @@ function on_take(item)
 	local ammo = item:get_weapon_ammo()
 	if ammo and ammo.unloaded_from_weapon then
 		ammo.unloaded_from_weapon = false
-		if can_take(item) then
-			move_to(item)
-		elseif not has_drop_pouch() and not level.main_input_receiver() then
+		--item.marked = false
+		if xr_conditions.black_screen() or level.main_input_receiver() then
+		return end
+		
+		if ammo.box_curr == 0 and has_drop_pouch() then
+		return end
+		
+		if can_add(item) then
+			add(item)
+		elseif not has_drop_pouch() then
 			actor:drop_item(item)
 		end
-	end
-	
-	if item.marked and xr_conditions.black_screen() then
-		move_to(item)
 	end
 end
 
 function on_slot(item, prev_place)
 	if item:is_grenade() and can_remove(item) then
-		move_from(item)
+		remove(item)
 	end
 end
 
@@ -155,31 +211,29 @@ function on_ruck(item, prev_place)
 	end
 end
 
-function can_take(item)
+function can_add(item)
 	local slot_type = get_slot_type(item)
-	if not slot_type or not slot_space[slot_type] then
+	if not slot_type or not slots[slot_type] then
 	return false end
 	
-	local ammo = item:get_weapon_ammo()
-	if item.marked or (ammo and ammo.box_curr == 0) or (item:is_grenade() and actor:is_in_slot(item)) then
+	--local ammo = item:get_weapon_ammo()
+	if can_remove(item) or (item:is_grenade() and actor:is_in_slot(item)) then --or (ammo and ammo.box_curr == 0) then
 	return false end
 	
-	--log3("~can_take item %s [%s] slot_type %s, slot_space[slot_type].current_count %s, slot_space[slot_type].max_count %s",item:name(), item:id(), slot_type, slot_space[slot_type].current_count, slot_space[slot_type].max_count)
-	return slot_space[slot_type].current_count + 1 <= slot_space[slot_type].max_count
+	--log3("~can_add item %s [%s] slot_type %s, slots[slot_type].current_count %s, slots[slot_type].max_count %s",item:name(), item:id(), slot_type, slots[slot_type].current_count, slots[slot_type].max_count)
+	return slots[slot_type].current_count + 1 <= slots[slot_type].max_count
 end
 
 function can_remove(item)
-	return item.marked and loaded_items[item:id()]
+	return loaded_items[item:id()]
 end
 
-function move_to(item)
+function add(item)
 	item.marked = true
-	
+	log3("~add item %s | %s", item:name(), item:id())
 	update_item_count(item, true)
 	
-	local f = item:get_inventory_item_flags()
-	f:set( global_flags.FIUngroupable, item.marked )
-	item:set_inventory_item_flags( f )
+	set_item_ungroupable(item)
 	if level.main_input_receiver() then
 		update_inventory_window()
 	end
@@ -187,14 +241,12 @@ function move_to(item)
 	ogse_signals.get_mgr():call("on_item_to_loadout", item)
 end
 
-function move_from(item)
+function remove(item)
 	item.marked = false
 	
 	update_item_count(item, false)
 	
-	local f = item:get_inventory_item_flags()
-	f:set( global_flags.FIUngroupable, item.marked )
-	item:set_inventory_item_flags( f )
+	set_item_default_grouping(item)
 	if level.main_input_receiver() then
 		update_inventory_window()
 	end
@@ -207,7 +259,7 @@ function clear_all()
 	for k,v in pairs(loaded_items) do
 		item = level.object_by_id(k)
 		if item then
-			move_from(item)
+			remove(item)
 		end
 	end
 	xr_sound.get_safe_sound_object("interface\\inv_ruck", sound_object.s2d):play_at_pos(actor,actor:position())
@@ -215,11 +267,27 @@ end
 
 function menu_tip_to(item)
 	local slot_type = get_slot_type(item)
-	local tip_text = string.format("%s [%s/%s]", game.translate_string("st_to_loadout"), slot_space[slot_type].current_count, slot_space[slot_type].max_count)
+	local tip_text = string.format("%s [%s/%s]", game.translate_string("st_to_loadout"), slots[slot_type].current_count, slots[slot_type].max_count)
 	return tip_text
 end
 function menu_tip_from(item)
 	local slot_type = get_slot_type(item)
-	local tip_text = string.format("%s [%s/%s]", game.translate_string("st_from_loadout"), slot_space[slot_type].current_count, slot_space[slot_type].max_count)
+	local tip_text = string.format("%s [%s/%s]", game.translate_string("st_from_loadout"), slots[slot_type].current_count, slots[slot_type].max_count)
 	return tip_text
+end
+
+static_focused = false
+function try_set_item(obj, x, y, action)
+	local action_allowed = can_add(obj) or can_remove(obj)
+	if action ~= ui_events.DRAG_DROP_ITEM_DROP or 
+		not static_focused or
+		not action_allowed
+	then 
+	return end
+	
+	if can_add(obj) then
+		add(obj)
+	elseif can_remove(obj) then
+		remove(obj)
+	end
 end
