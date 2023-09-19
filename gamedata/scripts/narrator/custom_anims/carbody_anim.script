@@ -7,15 +7,11 @@ end
 
 local actor_obj = get_actor_obj()
 local OPEN_ANIM_STARTED = false
-
-local ANIM_FAST = false
+local need_show_crosshair = false
+local console = get_console()
 
 function is_quick_info_shown()
 	return get_main_window() and get_main_window():FindChild("quick_info") and get_main_window():FindChild("quick_info"):IsShown()
-end
-
-function check_dist(obj)
-	return distance_between_safe(actor, obj) - obj:radius() <= sys_ini:r_float("inventory", "take_dist")
 end
 
 function get_carbody_target()
@@ -26,11 +22,7 @@ function get_carbody_target()
 		actor:ph_capture()
 	then return false end
 	
-	if tgt:is_inventory_box() and (not tgt:get_container() or not level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION))) then
-		return tgt
-	end
-	
-	if tgt:is_inventory_owner() and not tgt:alive() and not level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) then
+	if tgt:is_monster() and not tgt:alive() and not level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) then
 		return tgt
 	end
 	
@@ -62,14 +54,12 @@ function on_key_press(key, game_action)
 				end
 			)
 		end
-	return end
-	
-	if not actor_get_backpack() then
-		actor_obj:unblock_action(key_bindings.kUSE) 
-		block_non_move_action(false) 
-	return end
-	
-	actor:hide_weapon(ANIM_FAST)
+	end
+end
+
+function on_show()
+	block_non_move_action(true)
+	actor:hide_weapon(backpack.play_fast())
 	OPEN_ANIM_STARTED = true
 	
 	level.add_call(
@@ -78,35 +68,25 @@ function on_key_press(key, game_action)
 		end,
 		function() 
 			backpack.play_effects(true)
+			block_non_move_action(false)
+			
 			level.add_call(
 				function()
 					return game.hud_motion_allowed()
 				end,
 				function()
-					actor_obj:unblock_action(key_bindings.kUSE)
-					if check_dist(target) then
-						actor:start_carbody(target)
-					else
-						on_hide()
+					if OPEN_ANIM_STARTED then
+						backpack.play_anim(3)
 						OPEN_ANIM_STARTED = false
 					end
 				end
 			)
 		end
-	)	
-end
-
-function on_show()
-	if not actor_get_backpack() then
-	return end
-	block_non_move_action(false)
-	backpack.play_anim(3)
-	OPEN_ANIM_STARTED = false
+	)
 end
 
 function on_hide()
-	if not actor_get_backpack() then
-	return end
+	OPEN_ANIM_STARTED = false
 	backpack.play_effects(false)
 	block_non_move_action(true)
 	level.add_call(
@@ -114,7 +94,7 @@ function on_hide()
 			return game.hud_motion_allowed()
 		end,
 		function()
-			actor:restore_weapon(ANIM_FAST)
+			actor:restore_weapon(backpack.play_fast())
 			block_non_move_action(false)
 		end
 	)

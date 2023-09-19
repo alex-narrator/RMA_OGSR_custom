@@ -28,7 +28,7 @@ function check_target_item()
 end
 
 function can_play_anim()
-	return item_icon and item_icon:IsShown() and actor_hands_free() and check_target_item() and can_play_for_container()
+	return item_icon and item_icon:IsShown() and actor_hands_free() and check_target_item() and can_play_for_container() and not level.main_input_receiver()
 end
 
 function on_key_press(key, game_action)

@@ -1,3 +1,7 @@
+function attach(sm)
+	sm:subscribe({signal = "on_take_from_box",   	fun = this.take_item_from_box})
+end
+
 local treasure_manager = nil
 
 function parse_spawns(line)
@@ -248,9 +252,9 @@ function CTreasure:loss_workaround()
 	self.loss_workaround_queue = {}
 end
 --' Снимаем отметку с тайника
-function CTreasure:treasure_empty(box, box_story_id)
+function CTreasure:treasure_empty(box)
 	printf("!!! treasure empty")
-	local k = self.treasure_by_target[box_story_id]
+	local k = self.treasure_by_target[box:story_id()]
 
 	if k == nil or self.treasure_info[k] == nil then 
 		return
@@ -291,10 +295,12 @@ function get_treasure_manager()
 	return treasure_manager
 end
 
-function take_item_from_box(box, box_story_id)
+function take_item_from_box(box, item, sobj)
+	if not box:story_id() then
+	return end
 	printf("!!! take item from box %s", tostring(box:is_inv_box_empty()))
 	if box:is_inv_box_empty() == true then
-		get_treasure_manager():treasure_empty(box, box_story_id)
+		get_treasure_manager():treasure_empty(box)
 	end
 end
 
