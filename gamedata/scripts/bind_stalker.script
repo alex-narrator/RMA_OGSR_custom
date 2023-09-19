@@ -113,6 +113,7 @@ function actor_binder:net_destroy()
 	self.object:set_callback(callback.on_hud_state_switch, nil)
 	self.object:set_callback(callback.on_actor_weapon_zoom_in, nil)
 	self.object:set_callback(callback.on_actor_weapon_zoom_out, nil)
+	self.object:set_callback(callback.on_weapon_shell_drop, nil)
 	--
 	self.object:set_callback(callback.update_items_effect, nil)
 	--
@@ -184,6 +185,7 @@ function actor_binder:reinit()
 	self.object:set_callback(callback.on_hud_state_switch, self.on_hud_state_switch, self)
 	self.object:set_callback(callback.on_actor_weapon_zoom_in, self.on_actor_weapon_zoom_in, self)
 	self.object:set_callback(callback.on_actor_weapon_zoom_out, self.on_actor_weapon_zoom_out, self)
+	self.object:set_callback(callback.on_weapon_shell_drop, self.on_weapon_shell_drop, self)
 	--
 	self.object:set_callback(callback.update_items_effect, self.update_items_effect, self)
 	--
@@ -622,6 +624,10 @@ end
 
 function actor_binder:on_actor_weapon_zoom_out(weapon)
 	self.sm:call("on_actor_weapon_zoom_out", weapon)
+end
+
+function actor_binder:on_weapon_shell_drop(wpn, pos, vel)
+	self.sm:call("on_weapon_shell_drop", wpn, pos, vel)
 end
 
 function actor_binder:update_items_effect(update_time)
