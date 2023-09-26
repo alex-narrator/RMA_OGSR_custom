@@ -1,101 +1,57 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <window x="0" y="0" w="640" h="480" r="227" g="121" b="222" texture="1">
 
-	<static_icon x="27" y="22" width="160" height="220" stretch="1">
-		<texture>ui_charinfo_left</texture>
-		<texture_offset x="-8" y="0"/>
-	</static_icon>
-	<static_icon x="850" y="22" width="160" height="220" stretch="1">
-		<texture>ui_charinfo_right</texture>
-	</static_icon>
+	<main x="0" y="0" width="1024" height="768">
+		<auto_static x="0" y="0" width="1024" height="768" stretch="1">
+			<texture a="175">ui_inv_back_gray</texture>
+		</auto_static>
+	</main>
 
-	<main x=0 y=0 width=1024 height=768/>
-
-	<top_background x=0 y=0 width=1024 height=128>
-		<texture>ui\ui_top_background</texture>
-	</top_background>
-
-	<bottom_background x=0 y=736 width=1024 height=32>
-		<texture>ui\ui_bottom_background</texture>
-	</bottom_background>
-
-	<button x="345" y="695" width="110" height="35"  hR="255" hB="83" hG="179" highlight_text="1" accel = "kT" stretch="1">
-		<texture>ui_button_ordinary</texture>
-		<text font="graffiti22" r="238" g="153" b="26" align="c" v_align="c">ui_st_trade</text>
-	</button>
-	<button x="580" y="695" width="110" height="35"  hR="255" hB="83" hG="179" highlight_text="1" accel = "kQ" stretch="1">
-		<texture>ui_button_ordinary</texture>
-		<text font="graffiti22" r="238" g="153" b="26" align="c" v_align="c">ui_st_leave</text>
-	</button>
-	<button x="460" y="695" width="115" height="35"  hR="255" hB="83" hG="179" highlight_text="1" accel = "kD" stretch="1">>
-		<texture>ui_button_ordinary</texture>
-		<text font="graffiti22" r="238" g="153" b="26" align="c" v_align="c">ui_st_donate</text>
-	</button>
-
-
-	<our_bag_static x="15" y="270" width="333" height="450" stretch="1">
-		<texture width="305" height="455">ui\ui_dg_inventory_exchange_trade</texture>
-	</our_bag_static>
+    <dragdrop_list_our_bag x="10" y="140" width="376" height="560"
+            cell_width = "30" cell_height="40" rows_num="14" cols_num="12" 
+            unlimited="1" group_similar="1" condition_progress_bar="1"/>
+	<auto_static x="10" y="140" width="360" height="560" stretch="1">
+		<texture a="175">ui_inv_back_green</texture>
+	</auto_static>			
 	
-	<our_money_static x="0" y="-17" width="119" height="46">
-	<texture>ui_hud_frame_moneyNumber</texture>
-		<text align="c" y="10" font="graffiti22" r="238" g="155" b="23" complex_mode="0"/>
-	</our_money_static>
+	<dragdrop_list_other_bag x="630" y="140" width="376" height="560"
+			cell_width = "30" cell_height="40" rows_num="14" cols_num="12" 
+			unlimited="1" group_similar="1"/>
+	<auto_static x="630" y="140" width="360" height="560" stretch="1">
+		<texture a="175">ui_inv_back_green</texture>
+	</auto_static>
 
-	<dragdrop_list x="29" y="37" width="296" height="410"
-			cell_width = "31" cell_height="41" rows_num="10" cols_num="9" 
+	<dragdrop_list_our_trade x="395" y="60" width="226" height="160"
+			cell_width = "30" cell_height="40"
+			rows_num="4" cols_num="7" 
 			group_similar="1" unlimited="1"/>
+	<auto_static x="395" y="60" width="210" height="160" stretch="1">
+		<texture a="175">ui_inv_back_green</texture>
+	</auto_static>			
 
-
-	<others_bag_static x="680" y="270" width="333" height="455" stretch="1">
-		<texture mirror="h" width="305" height="455">ui\ui_dg_inventory_exchange_trade</texture>
-	</others_bag_static>
-
-	<other_money_static x="168" y="-17" width="119" height="46">
-	<texture>ui_hud_frame_moneyNumber</texture>
-		<text align="c" y="10" font="graffiti22" r="238" g="155" b="23" complex_mode="0"/>
-	</other_money_static>
-
-	<dragdrop_list x="29" y="35" width="296" height="410"
-			cell_width = "31" cell_height="41" rows_num="10" cols_num="9" 
+	<dragdrop_list_other_trade x="395" y="240" width="226" height="160"
+			cell_width = "30" cell_height="40"
+			rows_num="4" cols_num="7" 
 			group_similar="1" unlimited="1"/>
-
-	<static x="350" y="260" width="333" height="212" stretch="1">
-		<texture width="350" height="210">ui\ui_trade_list_back</texture>
-	</static>
-
-	<dragdrop_list x="31" y="37" width="296" height="164"
-			cell_width = "31" cell_height="41"
-			rows_num="4" cols_num="9" 
-			group_similar="1" unlimited="1"/>
+	<auto_static x="395" y="240" width="210" height="160" stretch="1">
+		<texture a="175">ui_inv_back_green</texture>
+	</auto_static>			
 
 
-	<static x="350" y="480" width="333" height="212" stretch="1">
-		<texture width="350" height="210">ui\ui_trade_list_back</texture>
-	</static>
-
-	<dragdrop_list x="31" y="37" width="296" height="164"
-			cell_width = "31" cell_height="41"
-			rows_num="4" cols_num="9" 
-			group_similar="1" unlimited="1"/>
-
-
-	<price_mt_static x="35" y="10" width="347" height="40">
-		<phrase x="0" y="0" width="170" font="graffiti22" r="238" g="153" b="26">ui_st_your_items</phrase>
-		<phrase x="175" y="0" font="graffiti22" r="220" g="185" b="140">ui_st_price</phrase>
-		<phrase x="230" y="0" font="graffiti22" r="240" g="215" b="185"></phrase>
-	</price_mt_static>
+	<price_mt_static_our x="395" y="40" width="210" height="20" stretch="1">
+		<phrase x="0" y="0" font="graffiti22" r="238" g="153" b="26">ui_st_your_items</phrase>
+		<phrase x="90" y="0" font="graffiti22" r="220" g="185" b="140">ui_st_price</phrase>
+		<phrase x="140" y="0" font="graffiti22" r="240" g="215" b="185"></phrase>
+		<texture a="175">ui_inv_back_green</texture>
+	</price_mt_static_our>
 	
-	<show_all_inv x="135" y="277" width="110" height="15" stretch="0">
-		<text font="graffiti19" r="215" g="195" b="170">ui_inv_show_all_inv</text>
-			<text_color>
-				<e r="240"	g="217" b="182"/>				
-				<t r="238" g="153" b="26"/>				
-				<d r="240"	g="217" b="182"/>
-				<h r="238" g="153" b="26"/>
-			</text_color>
-	</show_all_inv>
-
+	<price_mt_static_other x="395" y="220" width="210" height="20" stretch="1">
+		<phrase x="0" y="0" font="graffiti22" r="238" g="153" b="26">ui_st_your_items</phrase>
+		<phrase x="90" y="0" font="graffiti22" r="220" g="185" b="140">ui_st_price</phrase>
+		<phrase x="140" y="0" font="graffiti22" r="240" g="215" b="185"></phrase>
+		<texture a="175">ui_inv_back_green</texture>
+	</price_mt_static_other>	
+	
 	<action_sounds>
 		<snd_open>interface\inv_open</snd_open>
 		<snd_properties>interface\inv_properties</snd_properties>

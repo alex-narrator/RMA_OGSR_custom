@@ -1,5 +1,6 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 local overlay = nil
+local OVERLAY_XML = "script_overlays\\actor_menu_overlay.xml"
 
 function attach(sm)
 	sm:subscribe({signal = "on_spawn",   fun = this.create_window})
@@ -37,12 +38,11 @@ function InventoryOverlay:Subscribe()
 			{signal = "on_cell_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
 			{signal = "on_quick_item_set", self = self, fun = self.OnQuickItemSet},
 			{signal = "on_use", self = self, fun = self.UpdateSlots},
-			--{signal = "on_item_to_loadout", self = self, fun = self.UpdateSlots},
-			--{signal = "on_item_from_loadout", self = self, fun = self.UpdateSlots},
 			{signal = "on_loadout_update_count", self = self, fun = self.UpdateSlots},
 			{signal = "on_loadout_update_max_count", self = self, fun = self.UpdateSlots},
 			{signal = "on_inventory_show", self = self, fun = self.OnShow},
-			{signal = "on_inventory_hide", self = self, fun = self.OnHide},			
+			{signal = "on_inventory_hide", self = self, fun = self.OnHide},
+			{signal = "on_script_actor_icon_update", self = self, fun = self.OnActorIconUpdate},
 		}
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
@@ -78,7 +78,7 @@ function InventoryOverlay:InitControls()
 	self:Show(true)
 	
 	local xml = CScriptXmlInit()
-	xml:ParseFile("script_overlays\\inventory_overlay.xml")
+	xml:ParseFile(OVERLAY_XML)
 
 	self.conditions_background = xml:InitStatic("conditions_background", self)
 	
@@ -212,6 +212,22 @@ function InventoryOverlay:InitControls()
 		self:Register(v.button, name)
 		self:AddCallback(name, ui_events.BUTTON_CLICKED, function() self:OnShowButtonClick(k) end, self)
 	end
+	
+	--//character info
+	self.char_info_back = xml:InitStatic("char_info_back", self)
+	self.char_info_icon = xml:InitStatic("char_info_icon", self.char_info_back)
+	self.char_info_text = xml:InitStatic("char_info_text", self.char_info_back)
+	self.char_info_text_header = xml:InitStatic("char_info_text_header", self.char_info_back)
+	
+	--//exit button
+	self.exit_button = xml:Init3tButton("exit_button", self)
+	name = "exit_button"
+	self:Register(self.exit_button, name)
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.Exit, self)
+	
+	--//weight static
+	self.inv_weight = xml:InitStatic("weight_static", self)
+	self:UpdateWeightText()
 end
 
 function InventoryOverlay:QuickOnFocusReceived(slot_num)
@@ -294,7 +310,7 @@ function InventoryOverlay:UpdateSlots()
 	
 	local loadout_slot_text
 	for k,v in pairs(self.loadout) do
-		loadout_slot_text = string.format("[%s/%s] %s", loadout.get_current(k), loadout.get_max(k), game.translate_string(k))
+		loadout_slot_text = string.format("[%s/%s]", loadout.get_current(k), loadout.get_max(k))
 		v.static:SetText(loadout_slot_text)
 	end
 end
@@ -349,6 +365,8 @@ function InventoryOverlay:Update()
 		hint_text = string.format("%s %.0f%s\\n%s", cond_descr, val, "%", cond_text)
 		v.hint:SetText(hint_text)
 	end
+	
+	self:UpdateWeightText()
 end
 
 function InventoryOverlay:ClearLoadout()
@@ -357,9 +375,15 @@ end
 
 function InventoryOverlay:OnShow()
 	self:OnShowButtonClick("all")
+	self:OnActorIconUpdate()
+	self:SetCharacterText()
 end
 function InventoryOverlay:OnHide()
 	self:OnShowButtonClick("all")
+end
+
+function InventoryOverlay:Exit()
+	level.start_stop_menu(level.main_input_receiver(), true)
 end
 
 --//switching of item visibility functions
@@ -383,4 +407,66 @@ function InventoryOverlay:OnShowButtonClick(show_type)
 		v.button:SetCheck(k == show_type)
 	end
 	update_inventory_window()
+end
+
+function InventoryOverlay:OnActorIconUpdate(icon)
+	if not icon then
+		icon = actor:get_character_icon()
+	end
+	self.char_info_icon:InitTexture(icon)
+end
+
+function InventoryOverlay:SetCharacterText()
+	local name_header = game.translate_string("ui_st_name")
+	local name = game.translate_string(actor:character_name())
+	
+	local comm_header = game.translate_string("ui_st_community")
+	local comm = game.translate_string(actor:character_community())
+	
+	local rank_header = game.translate_string("ui_st_rank")
+	local rank = game.translate_string(ranks.get_obj_rank_name(actor))
+	
+	local rept_header = game.translate_string("ui_st_reputation")
+	local rept_color = reputation.get_obj_reputation_color(actor)
+	local rept = game.translate_string(reputation.get_obj_reputation_name(actor))
+	
+	local money_header = game.translate_string("ui_inv_money")
+	local money = actor:money()
+	local money_unit = game.translate_string("ui_st_money_regional")
+	
+	local char_text_header = string.format("%s:\\n%s:\\n%s:\\n%s:\\n%s:", 
+									name_header,
+									comm_header,
+									rank_header,
+									rept_header,
+									money_header)
+	
+	local char_text = string.format("%s\\n%s\\n%s\\n%s%s\\n%s%s %s", 
+									name,
+									comm,
+									rank,
+									rept_color,rept,
+									"%c[default]",money, money_unit)
+									
+	self.char_info_text_header:SetText(char_text_header)
+	self.char_info_text:SetText(char_text)
+end
+
+function InventoryOverlay:UpdateWeightText()
+	local inv = actor.inventory
+	local weight = actor:get_inventory_weight()
+	local max_weight = actor:get_max_weight()
+	
+	local weight_header = game.translate_string("ui_inv_weight")
+	local weight_color = weight < max_weight and "%c[UI_orange]" or "%c[red]"
+	local weight_unit = game.translate_string("st_kg")
+	
+	local weight_text = string.format("%s: %s%.1f/%.1f %s", 
+									weight_header,
+									weight_color,
+									weight,
+									max_weight,
+									weight_unit)
+									
+	self.inv_weight:SetText(weight_text)
 end

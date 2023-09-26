@@ -16,7 +16,7 @@ function on_first_update()
 end
 
 function set_equiped_items_visibility(visible)
-	log3("set_equiped_items_visibility(%s) is called", visible)
+	--log3("set_equiped_items_visibility(%s) is called", visible)
 	function perform_action(dummy, item)
 		if actor:is_on_belt(item) or
 			actor:is_on_vest(item) or
@@ -140,4 +140,18 @@ function show_ruck_items_device(inv_owner)
 	else
 		inv_owner:iterate_inventory(perform_action, nil)
 	end		
+end
+
+function take_all(inv_owner)
+	function perform_action(dummy, item)
+		inv_owner:transfer_item(item, actor)
+	end	
+	inv_owner:iterate_inventory(perform_action, nil)
+end
+
+function move_all_ruck(inv_owner)
+	function perform_action(dummy, item)
+		actor:transfer_item(item, inv_owner)
+	end	
+	actor:iterate_ruck(perform_action, nil)
 end

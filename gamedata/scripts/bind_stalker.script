@@ -122,6 +122,8 @@ function actor_binder:net_destroy()
 	
 	self.object:set_callback(callback.on_group_items, nil)
 	self.object:set_callback(callback.on_grenade_type_switch, nil)
+	
+	self.object:set_callback(callback.trade_perform_operation, nil)
 
 	if sr_psy_antenna.psy_antenna then
 		sr_psy_antenna.psy_antenna:destroy()
@@ -194,6 +196,8 @@ function actor_binder:reinit()
 	
 	self.object:set_callback(callback.on_group_items, self.on_group_items, self)
 	self.object:set_callback(callback.on_grenade_type_switch, self.on_grenade_type_switch, self)
+	
+	self.object:set_callback(callback.trade_perform_operation, self.trade_perform_operation, self)
 	--
 	self.sm:call("on_reinit")
 end
@@ -648,6 +652,10 @@ end
 
 function actor_binder:on_grenade_type_switch(prev_grenade, next_grenade)
 	self.sm:call("on_grenade_type_switch", prev_grenade, next_grenade)
+end
+
+function actor_binder:trade_perform_operation(trader, money_in, money_out)
+	self.sm:call("trade_perform_operation", trader, money_in, money_out)
 end
 
 --старт префетча звуков

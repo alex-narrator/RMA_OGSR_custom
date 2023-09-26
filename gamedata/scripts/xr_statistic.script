@@ -133,7 +133,7 @@ function try_add_item(item)
 	actor:change_character_rank(rank)
 end
 function already_counted(item)
-	return alife():object(item:id()).is_taken
+	return alife():object(item:id()) and alife():object(item:id()).is_taken
 end
 
 function on_info_tab()

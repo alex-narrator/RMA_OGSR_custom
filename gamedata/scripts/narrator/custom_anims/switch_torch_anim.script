@@ -22,7 +22,7 @@ end
 function on_key_press(key, game_action)
 	if not torch_action[game_action] or
 		not actor_hands_free() or
-		is_playing or
+		is_playing or actor:get_holder() or
 		not actor_get_torch()
 	then
 	return end

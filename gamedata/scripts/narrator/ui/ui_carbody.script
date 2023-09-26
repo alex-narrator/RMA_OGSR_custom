@@ -1,5 +1,6 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 local overlay = nil
+local OVERLAY_XML = "script_overlays\\actor_menu_overlay.xml"
 
 function attach(sm)
 	sm:subscribe({signal = "on_spawn",   fun = this.create_window})
@@ -41,6 +42,7 @@ function CarbodyOverlay:Subscribe()
 			{signal = "on_loadout_update_max_count", self = self, fun = self.UpdateSlots},
 			{signal = "on_carbody_show", self = self, fun = self.OnShow},
 			{signal = "on_carbody_hide", self = self, fun = self.OnHide},
+			{signal = "on_script_actor_icon_update", self = self, fun = self.OnActorIconUpdate},
 		}
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
@@ -73,7 +75,7 @@ function CarbodyOverlay:InitControls()
 	self:Show(true)
 	
 	local xml = CScriptXmlInit()
-	xml:ParseFile("script_overlays\\carbody_overlay.xml")
+	xml:ParseFile(OVERLAY_XML)
 
 	self.conditions_background = xml:InitStatic("conditions_background", self)
 	
@@ -197,7 +199,41 @@ function CarbodyOverlay:InitControls()
 		name = "show_"..k
 		self:Register(v.button, name)
 		self:AddCallback(name, ui_events.BUTTON_CLICKED, function() self:OnShowButtonClick(k) end, self)
-	end	
+	end
+	
+	--//character info
+	self.char_info_back = xml:InitStatic("char_info_back", self)
+	self.char_info_icon = xml:InitStatic("char_info_icon", self.char_info_back)
+	self.char_info_text = xml:InitStatic("char_info_text", self.char_info_back)
+	self.char_info_text_header = xml:InitStatic("char_info_text_header", self.char_info_back)
+	
+	--//character info NPC
+	self.char_info_back_npc = xml:InitStatic("char_info_back_npc", self)
+	self.char_info_icon_npc = xml:InitStatic("char_info_icon_npc", self.char_info_back_npc)
+	self.char_info_text_npc = xml:InitStatic("char_info_text_npc", self.char_info_back_npc)
+	self.char_info_text_header_npc = xml:InitStatic("char_info_text_header_npc", self.char_info_back_npc)	
+	
+	--//exit button
+	self.exit_button = xml:Init3tButton("exit_button", self)
+	name = "exit_button"
+	self:Register(self.exit_button, name)
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.Exit, self)
+	
+	--//weight static
+	self.inv_weight = xml:InitStatic("weight_static", self)
+	self:UpdateWeightText()
+	
+	--//take all button
+	self.take_all_button = xml:Init3tButton("take_all_btn", self)
+	name = "take_all_button"
+	self:Register(self.take_all_button, name)
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.TakeAll, self)
+	
+	--//move all ruck button
+	self.move_all_ruck_button = xml:Init3tButton("move_all_ruck_btn", self)
+	name = "move_all_ruck_button"
+	self:Register(self.move_all_ruck_button, name)
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.MoveAllRuck, self)	
 end
 
 function CarbodyOverlay:QuickOnFocusReceived(slot_num)
@@ -281,7 +317,7 @@ function CarbodyOverlay:UpdateSlots()
 	
 	local loadout_slot_text
 	for k,v in pairs(self.loadout) do
-		loadout_slot_text = string.format("[%s/%s] %s", loadout.get_current(k), loadout.get_max(k), game.translate_string(k))
+		loadout_slot_text = string.format("[%s/%s]", loadout.get_current(k), loadout.get_max(k))
 		v.static:SetText(loadout_slot_text)
 	end
 end
@@ -336,6 +372,8 @@ function CarbodyOverlay:Update()
 		hint_text = string.format("%s %.0f%s\\n%s", cond_descr, val, "%", cond_text)
 		v.hint:SetText(hint_text)
 	end
+	
+	self:UpdateWeightText()
 end
 
 function CarbodyOverlay:ClearLoadout()
@@ -361,6 +399,10 @@ function CarbodyOverlay:OnShow()
 	self.equiped_item_visible = false
 	self:UpdateEquipedItemVisibility()
 	self:OnShowButtonClick("all")
+	self:OnActorIconUpdate()
+	self:OnNPCIconUpdate()
+	self:SetCharacterText()
+	self:SetCharacterTextNPC()
 end
 
 function CarbodyOverlay:OnHide()
@@ -370,6 +412,10 @@ function CarbodyOverlay:OnHide()
 	inventory.show_ruck_items_all(self.target)
 	self:OnShowButtonClick("all")	
 	self.target = false
+end
+
+function CarbodyOverlay:Exit()
+	level.start_stop_menu(level.main_input_receiver(), true)
 end
 
 --//switching of item visibility functions
@@ -400,4 +446,111 @@ function CarbodyOverlay:OnShowButtonClick(show_type)
 		v.button:SetCheck(k == show_type)
 	end
 	update_inventory_window()
+end
+
+function CarbodyOverlay:OnActorIconUpdate(icon)
+	if not icon then
+		icon = actor:get_character_icon()
+	end
+	self.char_info_icon:InitTexture(icon)
+end
+
+function CarbodyOverlay:OnNPCIconUpdate()
+	local npc_icon = self.target:get_character_icon()
+	local icon = npc_icon and npc_icon or read_if_exists(sys_ini, "r_string", self.target:section(), "icon", nil)
+	self.char_info_icon_npc:Show(icon)
+	if not icon then
+	return end
+	self.char_info_icon_npc:InitTexture(icon)
+end
+
+function CarbodyOverlay:SetCharacterText()
+	local name_header = game.translate_string("ui_st_name")
+	local name = game.translate_string(actor:character_name())
+	
+	local comm_header = game.translate_string("ui_st_community")
+	local comm = game.translate_string(actor:character_community())
+	
+	local rank_header = game.translate_string("ui_st_rank")
+	local rank = game.translate_string(ranks.get_obj_rank_name(actor))
+	
+	local rept_header = game.translate_string("ui_st_reputation")
+	local rept_color = game.translate_string(reputation.get_obj_reputation_color(actor))
+	local rept = game.translate_string(reputation.get_obj_reputation_name(actor))
+	
+	local char_text_header = string.format("%s:\\n%s:\\n%s:\\n%s:", 
+									name_header,
+									comm_header,
+									rank_header,
+									rept_header)
+	
+	local char_text = string.format("%s\\n%s\\n%s\\n%s%s", 
+									name,
+									comm,
+									rank,
+									rept_color,rept)
+									
+	self.char_info_text_header:SetText(char_text_header)
+	self.char_info_text:SetText(char_text)
+end
+
+function CarbodyOverlay:SetCharacterTextNPC()
+	if not self.target:is_stalker() and not self.target:is_trader() then
+		self.char_info_back_npc:Show(false)
+	return end
+	self.char_info_back_npc:Show(true)
+	
+	local name_header = game.translate_string("ui_st_name")
+	local name = game.translate_string(self.target:character_name())
+	
+	local comm_header = game.translate_string("ui_st_community")
+	local comm = game.translate_string(self.target:character_community())
+	
+	local rank_header = game.translate_string("ui_st_rank")
+	local rank = game.translate_string(ranks.get_obj_rank_name(self.target))
+	
+	local rel_header = game.translate_string("ui_st_relation")
+	local rel_color = color_by_relation[self.target:relation(actor)]
+	local rel = game.translate_string(name_by_relation[self.target:relation(actor)])
+	
+	local char_text_header = string.format("%s:\\n%s:\\n%s:\\n%s:", 
+									name_header,
+									comm_header,
+									rank_header,
+									rel_header)
+	
+	local char_text = string.format("%s\\n%s\\n%s\\n%s%s", 
+									name,
+									comm,
+									rank,
+									rel_color,rel)
+									
+	self.char_info_text_header_npc:SetText(char_text_header)
+	self.char_info_text_npc:SetText(char_text)
+end
+
+function CarbodyOverlay:UpdateWeightText()
+	local inv = actor.inventory
+	local weight = actor:get_inventory_weight()
+	local max_weight = actor:get_max_weight()
+	
+	local weight_header = game.translate_string("ui_inv_weight")
+	local weight_color = weight < max_weight and "%c[UI_orange]" or "%c[red]"
+	local weight_unit = game.translate_string("st_kg")
+	
+	local weight_text = string.format("%s: %s%.1f/%.1f %s", 
+									weight_header,
+									weight_color,
+									weight,
+									max_weight,
+									weight_unit)
+									
+	self.inv_weight:SetText(weight_text)
+end
+
+function CarbodyOverlay:TakeAll()
+	inventory.take_all(self.target)
+end
+function CarbodyOverlay:MoveAllRuck()
+	inventory.move_all_ruck(self.target)
 end

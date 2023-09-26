@@ -104,11 +104,16 @@ function PDAOverlay:InitControls()
 	local xml = CScriptXmlInit()
 	xml:ParseFile("script_overlays\\pda_overlay.xml")
 
-	--//power level
-	self.power_static = xml:InitStatic("power_level", self)
-	self.def_power_color = self.power_static:GetTextColor()
+	--//date/time
+	self.date_time = xml:InitFrameLine("time_frame_line", self)
+	self.date = xml:InitStatic("date", self.date_time)
+	self.time = xml:InitStatic("time", self.date_time)
 	
-	self.money_static = xml:InitStatic("money", self)
+	--//power level
+	self.power_static = xml:InitStatic("power_level", self.date_time)
+	self.def_power_color = self.power_static:GetTextColor()	
+	
+	self.money_static = xml:InitStatic("money", self.date_time)
 	
 	--// off button
 	self.btn_off = xml:Init3tButton("off_button", self)
@@ -154,9 +159,8 @@ function PDAOverlay:Update()
 	local pda = actor_get_pda()
 	
 	local has_pda_power = pda and pda:is_power_on()
-	self.power_static:Show(has_pda_power)
 	self.btn_off:Show(has_pda_power)
-	self.money_static:Show(has_pda_power)
+	self.date_time:Show(has_pda_power)
 	
 	local show = has_pda_power and self.owner:FindChild("detail_days_in_game")
 	self.skip_time_frame:Show(show)
@@ -172,6 +176,10 @@ function PDAOverlay:Update()
 	
 	text = string.format("%.0f %s", actor:money(), game.translate_string("ui_st_money_regional"))	
 	self.money_static:SetText(text)
+	
+	local _time = game.get_game_time()
+	self.date:SetText(_time:dateToString(game.CTime.DateToDay))
+	self.time:SetText(_time:timeToString(game.CTime.TimeToMinutes))
 	
 	self:UpdateRelationSpotText()
 end
