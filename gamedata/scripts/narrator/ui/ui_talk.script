@@ -34,8 +34,8 @@ function TalkOverlay:Subscribe()
 	self.subscribed = false
 	if not self.subscribed then
 		self.subscribed = {
-			{signal = "on_talk_show", self = self, fun = self.OnShow},
-			{signal = "on_talk_hide", self = self, fun = self.OnHide},
+			{signal = "on_dialog_show", self = self, fun = self.OnShow},
+			{signal = "on_dialog_hide", self = self, fun = self.OnHide},
 			{signal = "on_script_actor_icon_update", self = self, fun = self.OnActorIconUpdate},
 			{signal = "on_trade_show", self = self, fun = self.OnShowTrade},
 		}

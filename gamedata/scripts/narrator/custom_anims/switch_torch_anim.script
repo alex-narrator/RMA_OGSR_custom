@@ -50,10 +50,15 @@ function on_key_press(key, game_action)
 		read_if_exists(sys_ini, "r_float", hud_sect, "use_delay", 1.5),
 		function()
 			local torch_obj = actor_get_torch():get_torch()
+			local can_switch = not is_power_device(actor_get_torch()) or actor_get_torch():binded_object():get_power_level() > 0
+			xr_sound.get_safe_sound_object("device\\torch\\switch_torch",sound_object.s2d):play_at_pos(actor,actor:position())
+			
+			if not can_switch then
+			return end
+			
 			if game_action == key_bindings.kTORCH then
 				if switch_mode then
 					torch_obj:switch_mode()
-					xr_sound.get_safe_sound_object("device\\torch\\switch_torch",sound_object.s2d):play_at_pos(actor,actor:position())
 				else
 					torch_obj:switch()
 				end
