@@ -1,0 +1,47 @@
+local comm_icons_news = {
+	default 		= "icon_stranger_framed",
+	actor			= "icon_stalker_framed",
+	actor_dolg		= "icon_duty_framed",
+	actor_freedom 	= "icon_freedom_framed",
+
+	stalker			= "icon_stranger_framed",
+	monolith		= "icon_monolith_framed",
+	military		= "icon_military_framed",
+	killer			= "icon_killer_framed",
+	ecolog			= "icon_ecolog_framed",
+	dolg			= "icon_duty_framed",
+	freedom			= "icon_freedom_framed",
+	bandit			= "icon_bandit_framed",
+	zombied			= "icon_stranger_framed",
+	stranger		= "icon_stranger_framed",
+	trader			= "icon_stranger_framed",
+	arena_enemy 	= "icon_stranger_framed",
+}
+local comm_icons = {
+	default 		= "ui_stalker",
+	actor			= "ui_stalker",
+	actor_dolg		= "ui_dolg",
+	actor_freedom 	= "ui_freedom",
+
+	stalker			= "ui_stalker",
+	monolith		= "ui_monolith",
+	military		= "ui_army",
+	killer			= "ui_killer",
+	ecolog			= "ui_ecolog",
+	dolg			= "ui_dolg",
+	freedom			= "ui_freedom",
+	bandit			= "ui_bandit",
+	zombied			= "ui_zombied",
+	stranger		= "ui_stalker",
+	trader			= "ui_stalker",
+	arena_enemy 	= "ui_stalker",
+}
+
+function get_icon_sect(comm)
+	local icon_sect = comm_icons["default"]
+	if comm_icons[comm] then
+		icon_sect = comm_icons[comm]
+	end
+	log3("community %s | icon sect %s", comm, icon_sect)
+	return icon_sect
+end

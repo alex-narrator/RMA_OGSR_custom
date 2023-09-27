@@ -11,7 +11,7 @@ function play(item)
 	actor:hide_weapon(ANIM_FAST)
 	level.add_call(
 		function() 
-			return actor:active_slot() == NO_ACTIVE_SLOT
+			return not actor:active_item() and not actor:active_item_2()
 		end,
 		function() 
 			game.play_hud_motion(2, hud_sect, "anm_use", false, 1, true)

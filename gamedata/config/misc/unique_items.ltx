@@ -12,7 +12,7 @@ satiety_restore_speed			= 0.001
 wounds_heal_speed				= 0.6
 power_restore_speed				= 0.003
 ; TODO Уменьшить износ
-upgrade_icon_ofset = 0,46
+upgrade_icon_ofset = 0,98
 
 [outfit_bandit_m1]:bandit_outfit,unique_base	;Уплотненный бандитский костюм
 $spawn              			= "outfit\uniq\outfit_bandit_m1"
@@ -39,9 +39,6 @@ inv_name_short					= killer_outfit_name_m1
 description						= killer_outfit_description_m1
 wound_protection				= 0.6 ; TODO Нужна защита от монстров
 bones_koeff_protection			= gilet_antigas_damage ; TODO Нужна защита от пуль
-inv_grid_x						= 18
-inv_grid_y						= 21
-nightvision_sect				= effector_nightvision_bad
 ; TODO Уменьшить износ
 upgrade_icon_ofset = 0,98
 
@@ -52,9 +49,6 @@ inv_name_short					= killer_outfit_name_m2
 description						= killer_outfit_description_m2
 wound_protection				= 0.6 ; TODO Нужна защита от монстров
 bones_koeff_protection			= gilet_antigas_damage ; TODO Нужна защита от пуль
-inv_grid_x						= 18
-inv_grid_y						= 21
-nightvision_sect				= effector_nightvision_good
 ; TODO Уменьшить износ
 upgrade_icon_ofset = 0,98
 
@@ -81,8 +75,7 @@ $spawn							= "outfit\uniq\outfit_stalker_m2"
 inv_name						= stalker_outfit_name_m2
 inv_name_short					= stalker_outfit_name_m2
 description						= stalker_outfit_description_m2
-additional_inventory_weight		= 10
-additional_inventory_weight2	= 20
+additional_weight				= 0.2
 cost							= 18000
 ; TODO Уменьшить износ
 upgrade_icon_ofset = 0,98
@@ -102,18 +95,14 @@ $spawn							= "outfit\uniq\outfit_exo_m1"
 inv_name						= exo_outfit_name_m1
 inv_name_short					= exo_outfit_name_m1
 description						= exo_outfit_description_m1
-inv_grid_x						= 14
-inv_grid_y						= 13
 ; TODO Уменьшить износ
 upgrade_icon_ofset = 0,98
 
-[outfit_monolith_m1]:monolit_outfit	;Модифицированный костюм монолита
+[outfit_monolith_m1]:monolit_outfit,unique_base	;Модифицированный костюм монолита
 $spawn							= "outfit\uniq\outfit_monolith_m1"
 inv_name						= monolit_outfit_name_m
 inv_name_short					= monolit_outfit_name_m
 description						= monolit_outfit_description_m
-inv_grid_x						= 18
-inv_grid_y						= 27
 
 ; Защита от пси-излучения
 telepatic_protection 			= 0.3
@@ -151,21 +140,6 @@ upgrade_icon_sect 				= upgrade_icon_small
 condition_shot_dec 				= 0.0001
 
 [wpn_ak74u_m1]:wpn_ak74u_kobra,unique_base	;АК-74у спецназ
-; $spawn             				= "weapons\uniq\wpn_ak74u_m1"
-; description						= enc_weapons1_wpn-ak74u_m1
-; inv_name	        			= wpn-ak74u_m1
-; inv_name_short					= wpn-ak74u_m1
-;silencer_status					= 1
-;condition_shot_dec 				= 0.00003
-
-; smoke_particles 				= weapons\generic_shoot_00
-; flame_particles					= 
-; light_disabled					= true
-; snd_shoot					= weapons\w_ak74_shot1 
-; snd_shoot1					= weapons\w_ak74_shot1 
-; snd_shoot2					= weapons\w_ak74_shot1 
-; snd_shoot3					= weapons\w_ak74_shot1
-
 scope_installed 			= 2
 silencer_installed 			= 0
 
@@ -349,7 +323,8 @@ inv_name	        			= wpn-walther_m1
 inv_name_short					= wpn-walther_m1
 ammo_class		 				= ammo_9x18_fmj, ammo_9x18_pmm
 condition_shot_dec 				= 0.00015
-upgrade_icon_sect = upgrade_icon_small
+upgrade_icon_ofset 				= 0,0
+upgrade_icon_sect 				= upgrade_icon_small
 
 
 ;-----------Arena-----------

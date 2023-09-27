@@ -246,7 +246,7 @@ local infop_signals = {
 	ui_inventory_hide = "on_inventory_hide",
 	ui_car_body = "on_carbody_show",
 	ui_car_body_hide = "on_carbody_hide",
-	ui_dialog = "on_dialog",
+	ui_dialog = "on_dialog_show",
 	ui_dialog_hide = "on_dialog_hide",
 	ui_talk = "on_talk_show",
 	ui_talk_hide = "on_talk_hide",
@@ -262,6 +262,7 @@ function actor_binder:info_callback(npc, info_id)
 	self.sm:call("on_info_portion", npc, info_id)
 	local signal = infop_signals[info_id]
 	if signal then
+		log3("~infoportion %s received", info_id)
 		self.sm:call(signal, npc, info_id)
 	end
 end

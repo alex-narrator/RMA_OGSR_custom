@@ -36,6 +36,8 @@ function TalkOverlay:Subscribe()
 		self.subscribed = {
 			{signal = "on_dialog_show", self = self, fun = self.OnShow},
 			{signal = "on_dialog_hide", self = self, fun = self.OnHide},
+			{signal = "on_talk_show", self = self, fun = self.OnShow},
+			{signal = "on_talk_hide", self = self, fun = self.OnHide},
 			{signal = "on_script_actor_icon_update", self = self, fun = self.OnActorIconUpdate},
 			{signal = "on_trade_show", self = self, fun = self.OnShowTrade},
 		}
@@ -77,12 +79,14 @@ function TalkOverlay:InitControls()
 	--//character info
 	self.char_info_back = xml:InitStatic("char_info_back_talk", self)
 	self.char_info_icon = xml:InitStatic("char_info_icon_talk", self.char_info_back)
+	self.char_info_icon_comm = xml:InitStatic("char_info_icon_comm_talk", self.char_info_back)
 	self.char_info_text = xml:InitStatic("char_info_text_talk", self.char_info_back)
 	self.char_info_text_header = xml:InitStatic("char_info_text_header_talk", self.char_info_back)
 	
 	--//character info NPC
 	self.char_info_back_npc = xml:InitStatic("char_info_back_npc_talk", self)
 	self.char_info_icon_npc = xml:InitStatic("char_info_icon_npc_talk", self.char_info_back_npc)
+	self.char_info_icon_comm_npc = xml:InitStatic("char_info_icon_comm_npc_talk", self.char_info_back_npc)
 	self.char_info_text_npc = xml:InitStatic("char_info_text_npc_talk", self.char_info_back_npc)
 	self.char_info_text_header_npc = xml:InitStatic("char_info_text_header_npc_talk", self.char_info_back_npc)	
 	
@@ -98,16 +102,30 @@ function TalkOverlay:Update()
 end
 
 function TalkOverlay:OnShow()
-	self.target = level.get_second_talker()
+	add_update_delayed_action(1,
+		function()
+			self.target = level.get_second_talker()
 		
-	self.char_info_back:Show(true)
-	self.char_info_back_npc:Show(true)
-	self.to_trade_button:Show(self.target:is_trade_enabled())
+			self.char_info_back:Show(true)
+			self.char_info_back_npc:Show(true)
+			self.to_trade_button:Show(self.target:is_trade_enabled())
 	
-	self:OnActorIconUpdate()
-	self:OnNPCIconUpdate()
-	self:SetCharacterText()
-	self:SetCharacterTextNPC()
+			self:OnActorIconUpdate()
+			self:OnNPCIconUpdate()
+			self:SetCharacterText()
+			self:SetCharacterTextNPC()
+		end
+	)
+	-- self.target = level.get_second_talker()
+		
+	-- self.char_info_back:Show(true)
+	-- self.char_info_back_npc:Show(true)
+	-- self.to_trade_button:Show(self.target:is_trade_enabled())
+	
+	-- self:OnActorIconUpdate()
+	-- self:OnNPCIconUpdate()
+	-- self:SetCharacterText()
+	-- self:SetCharacterTextNPC()
 end
 
 function TalkOverlay:OnHide()
@@ -125,6 +143,7 @@ function TalkOverlay:OnActorIconUpdate(icon)
 		icon = actor:get_character_icon()
 	end
 	self.char_info_icon:InitTexture(icon)
+	self.char_info_icon_comm:InitTexture(community.get_icon_sect(actor:character_community()))
 end
 
 function TalkOverlay:OnNPCIconUpdate()
@@ -134,6 +153,7 @@ function TalkOverlay:OnNPCIconUpdate()
 	if not icon then
 	return end
 	self.char_info_icon_npc:InitTexture(icon)
+	self.char_info_icon_comm_npc:InitTexture(community.get_icon_sect(self.target:character_community()))
 end
 
 function TalkOverlay:SetCharacterText()

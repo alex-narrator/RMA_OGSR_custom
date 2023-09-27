@@ -216,6 +216,7 @@ function InventoryOverlay:InitControls()
 	--//character info
 	self.char_info_back = xml:InitStatic("char_info_back", self)
 	self.char_info_icon = xml:InitStatic("char_info_icon", self.char_info_back)
+	self.char_info_icon_comm = xml:InitStatic("char_info_icon_comm", self.char_info_back)
 	self.char_info_text = xml:InitStatic("char_info_text", self.char_info_back)
 	self.char_info_text_header = xml:InitStatic("char_info_text_header", self.char_info_back)
 	
@@ -228,6 +229,12 @@ function InventoryOverlay:InitControls()
 	--//weight static
 	self.inv_weight = xml:InitStatic("weight_static", self)
 	self:UpdateWeightText()
+	
+	--//date/time/money
+	self.char_info_back_npc = xml:InitStatic("char_info_back_npc", self)
+	self.char_info_icon_npc = xml:InitStatic("char_info_icon_npc", self.char_info_back_npc)
+	self.char_info_text_npc = xml:InitStatic("char_info_text_npc", self.char_info_back_npc)
+	self.char_info_text_header_npc = xml:InitStatic("char_info_text_header_npc", self.char_info_back_npc)
 end
 
 function InventoryOverlay:QuickOnFocusReceived(slot_num)
@@ -367,6 +374,7 @@ function InventoryOverlay:Update()
 	end
 	
 	self:UpdateWeightText()
+	self:UpdateDateTimeMoneyText()
 end
 
 function InventoryOverlay:ClearLoadout()
@@ -414,6 +422,8 @@ function InventoryOverlay:OnActorIconUpdate(icon)
 		icon = actor:get_character_icon()
 	end
 	self.char_info_icon:InitTexture(icon)
+	self.char_info_icon_comm:InitTexture(community.get_icon_sect(actor:character_community()))
+	self.char_info_icon_npc:InitTexture(community.get_icon_sect(actor:character_community()))
 end
 
 function InventoryOverlay:SetCharacterText()
@@ -469,4 +479,26 @@ function InventoryOverlay:UpdateWeightText()
 									weight_unit)
 									
 	self.inv_weight:SetText(weight_text)
+end
+
+function InventoryOverlay:UpdateDateTimeMoneyText()
+
+	local _time = game.get_game_time()
+
+	local time_header = game.translate_string("ui_inv_time")
+	local time = _time:timeToString(game.CTime.TimeToMinutes)	
+
+	local date_header = game.translate_string("ui_inv_date")
+	local date = _time:dateToString(game.CTime.DateToDay)
+	
+	local char_text_header = string.format("%s:\\n%s:", 
+									time_header,
+									date_header)
+	
+	local char_text = string.format("%s\\n%s", 
+									time,
+									date)
+									
+	self.char_info_text_header_npc:SetText(char_text_header)
+	self.char_info_text_npc:SetText(char_text)
 end

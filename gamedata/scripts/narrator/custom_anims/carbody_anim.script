@@ -64,7 +64,7 @@ function on_show()
 	
 	level.add_call(
 		function() 
-			return actor:active_slot() == NO_ACTIVE_SLOT
+			return not actor:active_item() and not actor:active_item_2()
 		end,
 		function() 
 			backpack.play_effects(true)

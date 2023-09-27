@@ -204,12 +204,14 @@ function CarbodyOverlay:InitControls()
 	--//character info
 	self.char_info_back = xml:InitStatic("char_info_back", self)
 	self.char_info_icon = xml:InitStatic("char_info_icon", self.char_info_back)
+	self.char_info_icon_comm = xml:InitStatic("char_info_icon_comm", self.char_info_back)
 	self.char_info_text = xml:InitStatic("char_info_text", self.char_info_back)
 	self.char_info_text_header = xml:InitStatic("char_info_text_header", self.char_info_back)
 	
 	--//character info NPC
 	self.char_info_back_npc = xml:InitStatic("char_info_back_npc", self)
 	self.char_info_icon_npc = xml:InitStatic("char_info_icon_npc", self.char_info_back_npc)
+	self.char_info_icon_comm_npc = xml:InitStatic("char_info_icon_comm_npc", self.char_info_back_npc)
 	self.char_info_text_npc = xml:InitStatic("char_info_text_npc", self.char_info_back_npc)
 	self.char_info_text_header_npc = xml:InitStatic("char_info_text_header_npc", self.char_info_back_npc)	
 	
@@ -453,6 +455,7 @@ function CarbodyOverlay:OnActorIconUpdate(icon)
 		icon = actor:get_character_icon()
 	end
 	self.char_info_icon:InitTexture(icon)
+	self.char_info_icon_comm:InitTexture(community.get_icon_sect(actor:character_community()))
 end
 
 function CarbodyOverlay:OnNPCIconUpdate()
@@ -462,6 +465,7 @@ function CarbodyOverlay:OnNPCIconUpdate()
 	if not icon then
 	return end
 	self.char_info_icon_npc:InitTexture(icon)
+	self.char_info_icon_comm_npc:InitTexture(community.get_icon_sect(self.target:character_community()))
 end
 
 function CarbodyOverlay:SetCharacterText()

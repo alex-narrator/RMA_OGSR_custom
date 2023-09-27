@@ -1,3 +1,25 @@
+[quest_pda]:identity_immunities
+GroupControlSection	= spawn_group
+discovery_dependency = 
+;$prefetch 			= 32
+class				= II_ATTCH
+cform				= skeleton
+visual				= equipments\item_pda.ogf
+radius				= 1
+;script_binding		= stalker.object_init
+quest_item			= true
+
+description			= quest_pda_descr
+
+inv_name			= quest_pda_name
+inv_name_short		= quest_pda_short
+inv_weight			= 0.1
+
+inv_grid_width     = 1
+inv_grid_height    = 1
+inv_grid_x         = 12
+inv_grid_y         = 23
+cost				= 0
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ESCAPE
@@ -165,29 +187,10 @@ inv_grid_x			= 8
 inv_grid_y			= 18
 cost				= 1000
 
-[agr_deserter_pda]:identity_immunities
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn 				= "devices\quest_items\agr_deserter_pda"
-;$prefetch 			= 32
-class				= II_ATTCH
-cform				= skeleton
-visual				= equipments\item_pda.ogf
-radius				= 1
-;script_binding		= stalker.object_init
-quest_item			= true
-
+[agr_deserter_pda]:quest_pda
 description			= item_pda_deserter_desc
-
 inv_name			= item_pda_deserter_name
 inv_name_short		= item_pda_deserter_name
-inv_weight			= 0
-
-inv_grid_width     	= 1
-inv_grid_height    	= 1
-inv_grid_x         	= 11
-inv_grid_y         	= 24
-cost				= 0
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -271,78 +274,21 @@ inv_grid_x         	= 11
 inv_grid_y         	= 39
 cost				= 0
 
-[bar_tiran_pda]:identity_immunities
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn 				= "devices\quest_items\bar_tiran_pda"
-;$prefetch 			= 32
-class				= II_ATTCH
-cform				= skeleton
-visual				= equipments\item_pda.ogf
-radius				= 1
-;script_binding		= stalker.object_init
-quest_item			= true
-
+[bar_tiran_pda]:quest_pda
 description			= item_pda_tiran_desc
-
 inv_name			= item_pda_tiran_name
 inv_name_short		= item_pda_tiran_name
-inv_weight			= 0
-
-inv_grid_width     	= 1
-inv_grid_height    	= 1
-inv_grid_x        	= 11
-inv_grid_y         	= 24
-cost				= 0
 
 
-[bar_lucky_pda]:identity_immunities
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn 				= "devices\quest_items\bar_lucky_pda"
-;$prefetch 			= 32
-class				= II_ATTCH
-cform				= skeleton
-visual				= equipments\item_pda.ogf
-radius				= 1
-;script_binding		= stalker.object_init
-quest_item			= true
-
+[bar_lucky_pda]:quest_pda
 description			= item_pda_lucky_desc
-
 inv_name			= item_pda_lucky_name
 inv_name_short		= item_pda_lucky_name
-inv_weight			= 0
 
-inv_grid_width     	= 1
-inv_grid_height    	= 1
-inv_grid_x        	= 11
-inv_grid_y         	= 24
-cost				= 0
-
-[bar_sniper_pda]:identity_immunities
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn 				= "devices\quest_items\bar_sniper_pda"
-;$prefetch 			= 32
-class				= II_ATTCH
-cform				= skeleton
-visual				= equipments\item_pda.ogf
-radius				= 1
-;script_binding		= stalker.object_init
-quest_item			= true
-
+[bar_sniper_pda]:quest_pda
 description			= item_pda_sniper_desc
-
 inv_name			= item_pda_sniper_name
 inv_name_short		= item_pda_sniper_name
-inv_weight			= 0
-
-inv_grid_width     	= 1
-inv_grid_height    	= 1
-inv_grid_x        	= 11
-inv_grid_y         	= 24
-cost				= 0
 
 [bar_ecolog_flash]:identity_immunities
 GroupControlSection	= spawn_group
@@ -420,30 +366,10 @@ inv_grid_y			= 19
 cost				= 0
 
 
-[dolg_pda]:identity_immunities
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn 				= "devices\quest_items\dolg_pda"
-;$prefetch 			= 32
-class				= II_ATTCH
-cform				= skeleton
-visual				= equipments\item_pda.ogf
-radius				= 1
-;script_binding		= stalker.object_init
-quest_item			= true
-
+[dolg_pda]:quest_pda
 description			= item_dolg_pda_desc
-
 inv_name			= item_dolg_pda_name
 inv_name_short		= item_dolg_pda_name
-inv_weight			= 0
-
-inv_grid_width     	= 1
-inv_grid_height    	= 1
-inv_grid_x        	= 11
-inv_grid_y         	= 24
-cost				= 0
-
 
 [bar_key_to_val_underground]:identity_immunities
 GroupControlSection	= spawn_group
@@ -499,7 +425,6 @@ cost				= 1000
 attach_angle_offset = -3.092, -0.001, -1.592
 attach_position_offset = -0.001, -0.004, -0.004
 
-has_visor = false
 [bad_psy_helmet]:helmet
 GroupControlSection	= spawn_group
 discovery_dependency = 
@@ -610,54 +535,15 @@ inv_grid_x			= 11
 inv_grid_y			= 23
 cost				= 0
 
-[mil_svoboda_leader_pda]:identity_immunities
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn 				= "devices\quest_items\mil_svoboda_leader_pda"
-;$prefetch 			= 32
-class				= II_ATTCH
-cform				= skeleton
-visual				= equipments\item_pda.ogf
-radius				= 1
-;script_binding		= stalker.object_init
-quest_item			= true
-
+[mil_svoboda_leader_pda]:quest_pda
 description			= item_svoboda_leader_pda_desc
-
 inv_name			= item_svoboda_leader_pda_name
 inv_name_short		= item_svoboda_leader_pda_name
-inv_weight			= 0
 
-inv_grid_width     	= 1
-inv_grid_height    	= 1
-inv_grid_x        	= 11
-inv_grid_y         	= 24
-cost				= 0
-
-[svoboda_pda]:identity_immunities
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn 				= "devices\quest_items\svoboda_pda"
-;$prefetch 			= 32
-class				= II_ATTCH
-cform				= skeleton
-visual				= equipments\item_pda.ogf
-radius				= 1
-;script_binding		= stalker.object_init
-quest_item			= true
-
+[svoboda_pda]:quest_pda
 description			= item_svoboda_pda_desc
-
 inv_name			= item_svoboda_pda_name
 inv_name_short		= item_svoboda_pda_name
-inv_weight			= 0
-
-inv_grid_width		= 2
-inv_grid_height		= 1
-inv_grid_x			= 6
-inv_grid_y			= 13
-cost				= 0
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Laboratory X18
@@ -819,35 +705,13 @@ inv_grid_x			= 6
 inv_grid_y			= 19
 cost				= 1000
 
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; RADAR
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-[rad_jaw_zam_pda]:identity_immunities
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn 				= "devices\quest_items\bar_lucky_pda"
-;$prefetch 			= 32
-class				= II_ATTCH
-cform				= skeleton
-visual				= equipments\item_pda.ogf
-radius				= 1
-;script_binding		= stalker.object_init
-quest_item			= true
-
+[rad_jaw_zam_pda]:quest_pda
 description			= item_pda_jaw_zam_desc
-
 inv_name			= item_pda_jaw_zam_name
 inv_name_short		= item_pda_jaw_zam_name
-inv_weight			= 0
-
-inv_grid_width     	= 1
-inv_grid_height    	= 1
-inv_grid_x         	= 11
-inv_grid_y         	= 24
-cost				= 0
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; PRIPYAT'
@@ -906,30 +770,10 @@ inv_grid_y			= 19
 cost				= 0
 
 
-[cit_leader_killer_pda]:identity_immunities
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn 				= "devices\quest_items\cit_leader_killer_pda"
-;$prefetch 			= 32
-class				= II_ATTCH
-cform				= skeleton
-visual				= equipments\item_pda.ogf
-radius				= 1
-;script_binding		= stalker.object_init
-quest_item			= true
-
+[cit_leader_killer_pda]:quest_pda
 description			= item_pda_killer_leader_desc
-
 inv_name			= item_pda_killer_leader_name
 inv_name_short		= item_pda_killer_leader_name
-inv_weight			= 0
-
-inv_grid_width     	= 1
-inv_grid_height    	= 1
-inv_grid_x         	= 11
-inv_grid_y         	= 24
-cost				= 0
-
 
 [cit_killers_documents]:identity_immunities
 GroupControlSection	= spawn_group
@@ -981,30 +825,10 @@ inv_grid_y         	= 39
 cost				= 0
 
 
-[cit_vp_pda]:identity_immunities
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn 				= "devices\quest_items\cit_vp_pda"
-;$prefetch 			= 32
-class				= II_ATTCH
-cform				= skeleton
-visual				= equipments\item_pda.ogf
-radius				= 1
-;script_binding		= stalker.object_init
-quest_item			= true
-
+[cit_vp_pda]:quest_pda
 description			= item_pda_vp_desc
-
 inv_name			= item_pda_vp_name
 inv_name_short		= item_pda_vp_name
-inv_weight			= 0
-
-inv_grid_width     	= 2
-inv_grid_height    	= 1
-inv_grid_x         	= 15
-inv_grid_y         	= 39
-cost				= 0
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Sarcofag
@@ -1132,4 +956,3 @@ cost				= 0
 
 [war_tushkano_bread]:bread
 $spawn = "devices\quest_items\war_tushkano_bread"
-

@@ -38,7 +38,7 @@ function on_key_press(key, game_action)
 	
 	level.add_call(
 		function() 
-			return actor:active_slot() == NO_ACTIVE_SLOT
+			return actor:active_slot() == NO_ACTIVE_SLOT and not actor:active_item_2()
 		end,
 		function() 
 			backpack.play_effects(true)
