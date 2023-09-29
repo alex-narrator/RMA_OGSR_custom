@@ -111,7 +111,9 @@ function PDAOverlay:InitControls()
 	
 	--//power level
 	self.power_static = xml:InitStatic("power_level", self.date_time)
-	self.def_power_color = self.power_static:GetTextColor()	
+	self.def_power_color = self.power_static:GetTextColor()
+	self.power_icon = xml:InitStatic("power_level_icon", self.power_static)
+	self.power_progress = xml:InitProgressBar("power_level_progress", self.power_static)
 	
 	self.money_static = xml:InitStatic("money", self.date_time)
 	
@@ -166,8 +168,9 @@ function PDAOverlay:Update()
 	self.skip_time_frame:Show(show)
 
 	local power = is_power_device(pda) and pda:binded_object():get_power_level() or 1
-	local text = string.format("%.0f %s", power * 100, "%")	
+	local text = string.format("%.0f%s", power * 100, "%")	
 	self.power_static:SetText(text)
+	self.power_progress:SetProgressPos(power)
 	if power <= 0.1 then
 		self.power_static:SetTextColor(255, 255, 0, 0)
 	elseif self.power_static:GetTextColor() ~= self.def_power_color then

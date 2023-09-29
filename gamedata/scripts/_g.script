@@ -1488,6 +1488,7 @@ end
 --рушійно-подібні константи
 KNIFE_SLOT = 0
 GRENADE_SLOT = 3
+BOLT_SLOT = 5
 NO_ACTIVE_SLOT = 255
 
 CELL_W = 50
@@ -1600,6 +1601,9 @@ function actor_get_knife()
 end
 function actor_get_grenade()
 	return actor:item_in_slot(3)
+end
+function actor_get_bolt()
+	return actor:item_in_slot(5)
 end
 function actor_get_pda()
 	return actor:item_in_slot(7)

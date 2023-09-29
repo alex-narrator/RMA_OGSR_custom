@@ -3,6 +3,8 @@ function attach(sm)
 	sm:subscribe({signal = "on_first_update",   fun = this.on_first_update})
 end
 
+local LIMITED_BOLTS = read_if_exists(sys_ini, "r_bool", "features", "limited_bolts", false)
+
 function on_first_update()
 	local inv = actor.inventory
 	local item
@@ -33,8 +35,15 @@ function set_equiped_items_visibility(visible)
 end
 
 function show_ruck_items_all(inv_owner)
+	if not inv_owner then
+		log3("~%s : show_ruck_items_all - not valid inv_owner", script_name())
+	return end
 	function perform_action(dummy, item)
-		set_item_inv_visible(item)
+		if not LIMITED_BOLTS and get_clsid(item) == clsid.obj_bolt then
+			set_item_inv_hidden(item)
+		else
+			set_item_inv_visible(item)
+		end
 	end	
 	if inv_owner:is_actor() then
 		inv_owner:iterate_ruck(perform_action, nil)
@@ -44,6 +53,9 @@ function show_ruck_items_all(inv_owner)
 end
 
 function show_ruck_items_weapon(inv_owner)
+	if not inv_owner then
+		log3("~%s : show_ruck_items_weapon - not valid inv_owner", script_name())
+	return end
 	function perform_action(dummy, item)
 		if item:is_weapon() then
 			set_item_inv_visible(item)
@@ -59,6 +71,9 @@ function show_ruck_items_weapon(inv_owner)
 end
 
 function show_ruck_items_ammo(inv_owner)
+	if not inv_owner then
+		log3("~%s : show_ruck_items_ammo - not valid inv_owner", script_name())
+	return end
 	function perform_action(dummy, item)
 		if item:is_ammo() or item:is_grenade() then
 			set_item_inv_visible(item)
@@ -74,12 +89,15 @@ function show_ruck_items_ammo(inv_owner)
 end
 
 function show_ruck_items_outfit(inv_owner)
+	if not inv_owner then
+		log3("~%s : show_ruck_items_outfit - not valid inv_owner", script_name())
+	return end
 	function perform_action(dummy, item)
 		if item:is_outfit() or 
 			item:is_helmet() or 
 			item:is_gasmask() or
-			sys_ini:r_string(item:section(), "class") == "EQ_WRBLT" or
-			sys_ini:r_string(item:section(), "class") == "EQ_TVEST"
+			get_clsid(item) == clsid.obj_warbelt or
+			get_clsid(item) == clsid.obj_vest
 		then
 			set_item_inv_visible(item)
 		else
@@ -94,6 +112,9 @@ function show_ruck_items_outfit(inv_owner)
 end
 
 function show_ruck_items_eatable(inv_owner)
+	if not inv_owner then
+		log3("~%s : show_ruck_items_eatable - not valid inv_owner", script_name())
+	return end
 	function perform_action(dummy, item)
 		if item:is_eatable_item() then
 			set_item_inv_visible(item)
@@ -109,6 +130,9 @@ function show_ruck_items_eatable(inv_owner)
 end
 
 function show_ruck_items_artefact(inv_owner)
+	if not inv_owner then
+		log3("~%s : show_ruck_items_artefact - not valid inv_owner", script_name())
+	return end
 	function perform_action(dummy, item)
 		if item:is_artefact() then
 			set_item_inv_visible(item)
@@ -124,6 +148,9 @@ function show_ruck_items_artefact(inv_owner)
 end
 
 function show_ruck_items_device(inv_owner)
+	if not inv_owner then
+		log3("~%s : show_ruck_items_device - not valid inv_owner", script_name())
+	return end
 	function perform_action(dummy, item)
 		if item:is_torch() or
 			item:get_pda() or
@@ -143,15 +170,25 @@ function show_ruck_items_device(inv_owner)
 end
 
 function take_all(inv_owner)
+	if not inv_owner then
+		log3("~%s : take_all - not valid inv_owner", script_name())
+	return end
 	function perform_action(dummy, item)
-		inv_owner:transfer_item(item, actor)
+		if LIMITED_BOLTS or get_clsid(item) ~= clsid.obj_bolt then
+			inv_owner:transfer_item(item, actor)
+		end
 	end	
 	inv_owner:iterate_inventory(perform_action, nil)
 end
 
 function move_all_ruck(inv_owner)
+	if not inv_owner then
+		log3("~%s : move_all_ruck - not valid inv_owner", script_name())
+	return end
 	function perform_action(dummy, item)
-		actor:transfer_item(item, inv_owner)
+		if LIMITED_BOLTS or get_clsid(item) ~= clsid.obj_bolt then
+			actor:transfer_item(item, inv_owner)
+		end
 	end	
 	actor:iterate_ruck(perform_action, nil)
 end

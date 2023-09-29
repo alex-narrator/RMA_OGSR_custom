@@ -1,6 +1,7 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
 	sm:subscribe({signal = "on_key_press",   	fun = this.on_key_press})
+	sm:subscribe({signal = "on_hud_state_switch",   fun = this.on_state_switch})
 	sm:subscribe({signal = "on_spawn",   		fun = this.on_spawn})
 end
 
@@ -9,8 +10,13 @@ local info_action = {
 	[key_bindings.kCHECKACTIVEITEM] = true,
 }
 
-local ACTIVE_ITEM_INFO_TTL 	= read_if_exists(sys_ini, "r_u32", "actor", "active_item_info_ttl", 2);
-local GEAR_INFO_TTL 		= read_if_exists(sys_ini, "r_u32", "actor", "gear_info_ttl", 2);
+local info_state = {
+	[global_flags.eReload] = true,
+	[global_flags.eSwitch] = true,
+}
+
+local ACTIVE_ITEM_INFO_TTL 	= read_if_exists(sys_ini, "r_u32", "actor", "active_item_info_ttl", 3)
+local GEAR_INFO_TTL 		= read_if_exists(sys_ini, "r_u32", "actor", "gear_info_ttl", 3)
 
 local act_item = false
 local act_item_2 = false
@@ -36,16 +42,23 @@ function on_key_press(key, game_action)
 	end
 end
 
+function on_state_switch(item, state, old_state)
+	if not info_state[state] then
+	return end
+	act_item = item
+	try_show_active_item_info()
+end
+
 function try_show_active_item_info()
 	if (not act_item and not act_item_2) or get_main_window().show_active_item_info
 	then return end
 	
-	if act_item then
-		check_item_anim.play(act_item)
-	end
-	if act_item_2 then
-		check_item_anim.play(act_item_2)
-	end
+	-- if act_item then
+		-- check_item_anim.play(act_item)
+	-- end
+	-- if act_item_2 then
+		-- check_item_anim.play(act_item_2)
+	-- end
 	
 	if act_item_2 and act_item_2:get_detector() and act_item_2:get_detector():can_switch_modes() then
 		local det_mode = act_item_2:get_detector():is_af_mode() and "st_af_mode" or "st_zone_mode"
