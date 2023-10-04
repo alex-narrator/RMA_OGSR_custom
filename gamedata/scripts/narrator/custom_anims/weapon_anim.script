@@ -12,11 +12,6 @@ local firemode_switch = {
 	[key_bindings.kWPN_FIREMODE_NEXT] = true,
 }
 
-function has_fire_modes(wpn)
-	local f_modes_str = read_if_exists(sys_ini, "r_string", wpn:section(), "fire_modes", nil)
-    return f_modes_str and #split_string(f_modes_str, ",") > 1
-end
-
 function is_hold_to_crouch()
 	return get_console():get_string("g_hold_to_crouch") == "on"
 end

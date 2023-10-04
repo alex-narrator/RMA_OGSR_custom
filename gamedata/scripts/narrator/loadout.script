@@ -15,16 +15,22 @@ end
 
 --//loadout slot types and default capacities
 local slots = {
-	["pistol_ammo"] 	= {},
-	["rifle_ammo"] 		= {},
-	["shotgun_ammo"] 	= {},
-	["heavy_ammo"] 		= {},
-	["grenade"]			= {},
-	["medicine"] 		= {},
+	pistol_ammo 	= {},
+	rifle_ammo 		= {},
+	shotgun_ammo	= {},
+	heavy_ammo 		= {},
+	grenade			= {},
+	medicine 		= {},
 }
 for k,v in pairs(slots) do
 	v.max_count = read_if_exists(sys_ini, "r_u32", "loadout", k, 0)
 	v.current_count = 0
+end
+
+function log_slots()
+	for k,v in pairs(slots) do
+		log3("slots k = %s", k)
+	end
 end
 
 loaded_items = {}
@@ -89,8 +95,9 @@ end
 
 function is_module(item)
 	local slot_volume
+	local sect = item:section()
 	for k,v in pairs(slots) do
-		slot_volume = read_if_exists(sys_ini, "r_u32", item:section(), k, 0)
+		slot_volume = read_if_exists(sys_ini, "r_u32", sect, k, 0)
 		if slot_volume > 0 then
 			--log3("~item %s is module for loadout type %s [%s]", item:name(), k, slot_volume)
 			return true
@@ -131,27 +138,31 @@ function update_item_count(item, item_in)
 end
 
 function update_max_count(item, item_in)
+	local slot_volume = 0
+	local sect = item:section()
 	for k,v in pairs(slots) do
-		slot_volume = read_if_exists(sys_ini, "r_u32", item:section(), k, 0)
+		log3("! slots k = %s", k)
+		slot_volume = read_if_exists(sys_ini, "r_u32", sect, k, 0)
+		log3("~item %s | loadout type %s | slot_volume %s", item:name(), k, slot_volume)
 		if slot_volume > 0 then
 			v.max_count = item_in and v.max_count + slot_volume or v.max_count - slot_volume
-			--log3("~item %s | loadout type %s | max_count %s", item:name(), k, v.max_count)
+			log3("~item %s | loadout type %s | max_count %s", item:name(), k, v.max_count)
 			if v.max_count < 0 then
 				log3("!fixing wrong max_count! : item %s | loadout type %s | max_count %s", item:name(), k, v.max_count)
 				v.max_count = 0
 			end
 			ogse_signals.get_mgr():call("on_loadout_update_max_count", item)
-			if item_in then
-			return end
 			
-			local _item
-			for _k,_v in pairs(loaded_items) do
-				_item = level.object_by_id(_k)
-				if not _item then
-				return end
-				if get_slot_type(_item) == k then
-					if v.current_count > v.max_count then
-						remove(_item)
+			if not item_in then
+				local _item
+				for _k,_v in pairs(loaded_items) do
+					_item = level.object_by_id(_k)
+					if not _item then
+					return end
+					if get_slot_type(_item) == k then
+						if v.current_count > v.max_count then
+							remove(_item)
+						end
 					end
 				end
 			end
@@ -171,6 +182,7 @@ end
 function on_drop(item, prev_place)
 	if can_remove(item) then
 		remove(item)
+		return
 	end
 	if is_module(item) and (prev_place == item_place.vest or prev_place == item_place.belt or prev_place == item_place.slot) then
 		update_max_count(item, false)
@@ -198,6 +210,7 @@ end
 function on_slot(item, prev_place)
 	if item:is_grenade() and can_remove(item) then
 		remove(item)
+		return
 	end
 	if is_module(item) then
 		update_max_count(item, true)
@@ -217,7 +230,7 @@ function on_vest(item, prev_place)
 end
 
 function on_ruck(item, prev_place)
-	if is_module(item) and (prev_place == item_place.vest or prev_place == item_place.belt) then
+	if is_module(item) and (prev_place == item_place.vest or prev_place == item_place.belt or prev_place == item_place.slot) then
 		update_max_count(item, false)
 	end
 end

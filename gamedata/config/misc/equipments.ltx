@@ -109,7 +109,7 @@ inv_weight			= 0.3
 work_time 			= 24
 script_action_0 	= st_attach_to_pda, script_actions.can_attach_to_pda, script_actions.attach_to_pda
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;vest;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-[vest]:identity_immunities
+[vest_base]:identity_immunities
 GroupControlSection	= spawn_group
 discovery_dependency =
 $spawn 				= "devices\detector_simple"
@@ -117,60 +117,66 @@ $prefetch 			= 32
 class				= EQ_TVEST
 cform				= skeleton
 visual				= equipments\item_datchik1.ogf
-description			= vest_descr
 slot				= 14
+inv_weight			= 0.1
+cost				= 500	;30
+default_to_ruck		= false
 
+[vest_rps]:vest_base
 vest_array 			= 2,2
 vest_vertical 		= true
 
-inv_name			= Vest
-inv_name_short		= Vest
-inv_weight			= 0.1
+inv_name			= vest_rps_short
+inv_name_short		= vest_rps_short
+description			= vest_rps_descr
 
 inv_grid_width     = 2
 inv_grid_height    = 2
 inv_grid_x         = 20
 inv_grid_y         = 18
 
-cost				= 500	;30
-default_to_ruck		= false
+;bones_koeff_protection = actor_vest_medium
 
-bones_koeff_protection = actor_vest_medium
-
-[vest_medium]:vest
-description			= vest_descr_medium
-inv_name			= Vest_medium
-inv_name_short		= Vest_medium
-inv_grid_width     = 2
-inv_grid_height    = 2
-inv_grid_x         = 22
-inv_grid_y         = 18
-
-vest_array 			= 3,2
-
-plates 				= plate_class_2,plate_class_3
-
-[vest_adv]:vest
-description			= vest_descr_adv
-inv_name			= Vest_adv
-inv_name_short		= Vest_adv
+[vest]:vest_base
+description			= vest_descr
+inv_name			= vest_name
+inv_name_short		= vest_short
 inv_grid_width     = 2
 inv_grid_height    = 2
 inv_grid_x         = 24
 inv_grid_y         = 18
-vest_array 			= 4,2
-plates 				= plate_class_3
+;vest_array 			= 4,2
+;plates 				= plate_class_3
 
-[vest_heavy]:vest
-description			= vest_descr_heavy
-inv_name			= Vest_heavy
-inv_name_short		= Vest_heavy
+rifle_ammo 		= 4
+grenade			= 2
+medicine 		= 2
+
+[vest_plate_carrier]:vest_base
+description			= vest_plate_carrier_descr
+inv_name			= vest_plate_carrier_name
+inv_name_short		= vest_plate_carrier_short
 inv_grid_width     = 2
 inv_grid_height    = 2
-inv_grid_x         = 26
-inv_grid_y         = 18
+inv_grid_x         = 20
+inv_grid_y         = 20
+vest_array 			= 4,2
+
+bones_koeff_protection = actor_vest_medium
+plates 				= plate_class_2,plate_class_3
+
+[vest_plate_carrier_heavy]:vest_base
+description			= vest_plate_carrier_heavy_descr
+inv_name			= vest_plate_carrier_heavy_name
+inv_name_short		= vest_plate_carrier_heavy_short
+inv_grid_width     = 2
+inv_grid_height    = 2
+inv_grid_x         = 18
+inv_grid_y         = 20
 vest_array 			= 5,2
-plates 				= plate_class_3,plate_class_4
+
+bones_koeff_protection = actor_vest_medium
+plates 				= plate_class_3,plate_class_4,plate_class_5
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;EQUIPMENT MODULES;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -204,6 +210,8 @@ inv_grid_height    = 1
 inv_grid_x         = 32
 inv_grid_y         = 19
 
+pistol_ammo 		= 2
+
 [pouch_rifle_mag]:pouch_base
 description         = pouch_rifle_mag_desc
 inv_name			= pouch_rifle_mag_name
@@ -224,6 +232,8 @@ inv_grid_height    = 1
 inv_grid_x         = 35
 inv_grid_y         = 19
 
+rifle_ammo 			= 2
+
 [pouch_shotgun_ammo]:pouch_base
 description         = pouch_shotgun_ammo_desc
 inv_name			= pouch_shotgun_ammo_name
@@ -232,6 +242,8 @@ inv_grid_width     = 1
 inv_grid_height    = 1
 inv_grid_x         = 34
 inv_grid_y         = 21
+
+shotgun_ammo 		= 1
 
 [pouch_shotgun_ammo_double]:pouch_base
 description         = pouch_shotgun_ammo_double_desc
@@ -242,6 +254,8 @@ inv_grid_height    = 1
 inv_grid_x         = 33
 inv_grid_y         = 21
 
+shotgun_ammo 		= 2
+
 [pouch_heavy_ammo]:pouch_base
 description         = pouch_heavy_ammo_desc
 inv_name			= pouch_heavy_ammo_name
@@ -250,6 +264,8 @@ inv_grid_width     = 2
 inv_grid_height    = 1
 inv_grid_x         = 30
 inv_grid_y         = 21
+
+heavy_ammo 		= 1
 
 [pouch_medicine]:pouch_base
 description         = pouch_medicine_desc
@@ -260,6 +276,8 @@ inv_grid_height    = 1
 inv_grid_x         = 32
 inv_grid_y         = 20
 
+medicine 			= 1
+
 [pouch_medicine_double]:pouch_base
 description         = pouch_medicine_double_desc
 inv_name			= pouch_medicine_double_name
@@ -268,6 +286,8 @@ inv_grid_width     = 1
 inv_grid_height    = 1
 inv_grid_x         = 33
 inv_grid_y         = 20
+
+medicine 			= 2
 
 [drop_pouch]:pouch_base
 description         = drop_pouch_desc

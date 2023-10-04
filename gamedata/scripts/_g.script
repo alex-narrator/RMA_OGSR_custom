@@ -1684,6 +1684,11 @@ function add_update_delayed_action(updates_count, func)
 	level.add_call(update_count_check, func)
 end
 
+function has_fire_modes(wpn)
+	local f_modes_str = read_if_exists(sys_ini, "r_string", wpn:section(), "fire_modes", nil)
+    return f_modes_str and #split_string(f_modes_str, ",") > 1
+end
+
 function get_cur_ammo_sect(obj)
 	local ammo_sect = read_if_exists(sys_ini, "r_string", obj:section(), obj:get_gl_mode() and "grenade_class" or "ammo_class", nil)
 	local ammo_table = split_string(ammo_sect, ",")

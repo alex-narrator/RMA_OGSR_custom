@@ -1,0 +1,49 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_cell_item_update",   	fun = this.on_cell_item_update})
+end
+
+function on_cell_item_update(item, cell_item)
+	local text = nil
+	
+	local ammo = item:get_weapon_ammo()
+	if ammo and ammo:is_magazine() then
+		text = string.format("%s/%s", ammo.box_curr, ammo.box_size)
+	end
+	
+	local eatable = item:get_eatable_item()
+	if eatable and eatable.eat_start_portions_num > 1 then
+		text = string.format("%s/%s", eatable.eat_portions_num, eatable.eat_start_portions_num)
+	end
+	
+	local weapon_mag = item:get_weapon_m()
+	if weapon_mag and weapon_mag.ammo_mag_size > 0 then
+		text = string.format("%s/%s%s", weapon_mag.ammo_elapsed, weapon_mag.ammo_mag_size, (has_fire_modes(item) or item:get_gl_mode()) and weapon_mag:firemod_string() or "")
+	end
+	
+	if item:get_container() and item:get_inventory_item():item_effect(effect.add_weight) > 0 then
+		text = string.format("+%.0f%s", item:get_inventory_item():item_effect(effect.add_weight) * actor.inventory.max_weight, game.translate_string("st_kg"))
+	end
+	
+	if not text then
+	return end
+	
+	UpdateAdditionalStatic(cell_item, text)
+	log3("item %s, cell_item width %s, cell_item height %s", item:name(), cell_item:GetWidth(), cell_item:GetHeight())
+end
+
+function UpdateAdditionalStatic(cell_item, text)
+	local cell_item_custom = cell_item:FindChild("cell_item_custom")
+	if cell_item_custom then
+		cell_item_custom = cell_item_custom:GetCUIStatic()
+		cell_item_custom:SetText(text)
+		cell_item_custom:SetWndPos(cell_item:GetWidth() - cell_item_custom:GetWidth(), cell_item:GetHeight() - cell_item_custom:GetHeight())
+	return end
+	local xml = CScriptXmlInit()
+	xml:ParseFile("inventory_new.xml")
+	cell_item_custom = xml:InitStatic("cell_item_custom", cell_item)
+	cell_item_custom:SetWindowName("cell_item_custom")
+	cell_item_custom:SetText(text)
+	cell_item_custom:SetWndPos(cell_item:GetWidth() - cell_item_custom:GetWidth(), cell_item:GetHeight() - cell_item_custom:GetHeight())
+	
+end

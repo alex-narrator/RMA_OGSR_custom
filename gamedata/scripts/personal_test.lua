@@ -75,7 +75,7 @@ end
 -- level.add_cam_effector('camera_effects\\kick\\attack_heavy.anm', 8073, false,'')
 --game.stop_hud_motion()
 --actor:activate_slot(NO_ACTIVE_SLOT, true)
-block_non_move_action(false)
+--block_non_move_action(false)
 --get_actor_obj():block_action(key_bindings.kINVENTORY)
 
 -- local item = db.actor:active_item()
@@ -113,4 +113,9 @@ block_non_move_action(false)
 -- end
 
 --actor:hide_weapon(true)
-actor:restore_weapon(true)
+--actor:restore_weapon(true)
+
+	function perform_action(dummy, item)
+		log3("item %s | id %s | condition %.4f", item:section(), item:id(), item:condition())
+	end	
+	actor:iterate_ruck(perform_action, nil)

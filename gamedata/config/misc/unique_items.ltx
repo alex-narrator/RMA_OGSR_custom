@@ -196,13 +196,17 @@ inv_name						= wpn-lr300_m1
 inv_name_short					= wpn-lr300_m1
 rpm								= 300
 
-condition_shot_dec 				= 0.00005
+scope_installed 				= 0
+silencer_status 				= 1
+fire_modes						= 1
+fire_dispersion_base			= 0.015
+condition_shot_dec 				= 0.005
 
 smoke_particles 				= weapons\generic_shoot_00
 flame_particles					= 
 light_disabled					= true
 
-snd_shoot					= weapons\w_ak74_shot1 
+snd_shoot						= weapons\w_ak74_shot1 
 
 [wpn_svd_m1]:wpn_svd,unique_base	;СВД "Дальнобойщик"
 $spawn             				= "weapons\uniq\wpn_svd_m1"	
@@ -316,12 +320,13 @@ inv_name_short					= wpn-rg6_m1
 ammo_class		 				= ammo_m209
 condition_shot_dec 				= 0.00001
 
-[wpn_walther_m1]:wpn_walther,unique_base	;Вальтер 9x18
+[wpn_walther_m1]:wpn_walther,unique_base	;Вальтер Крота
 $spawn             				= "weapons\uniq\wpn_walther_m1"	
 description						= enc_weapons1_wpn-walther_m1
 inv_name	        			= wpn-walther_m1
 inv_name_short					= wpn-walther_m1
-ammo_class		 				= ammo_9x18_fmj, ammo_9x18_pmm
+silencer_installed 				= 0
+;ammo_class		 				= ammo_9x18_fmj, ammo_9x18_pmm
 condition_shot_dec 				= 0.00015
 upgrade_icon_ofset 				= 0,0
 upgrade_icon_sect 				= upgrade_icon_small

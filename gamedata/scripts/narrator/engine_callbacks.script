@@ -8,3 +8,14 @@ end
 function ui_actor_info_callback(list, obj)
 	sm:call("ui_actor_info_callback", list, obj)
 end
+
+function cell_item_condition_callback(item)
+	if is_power_device(item) then
+		return item:binded_object():get_power_level()
+	end
+	return item:condition()
+end
+
+function on_cell_item_update(item, text_static, cell_item)
+	sm:call("on_cell_item_update", item, text_static, cell_item)
+end

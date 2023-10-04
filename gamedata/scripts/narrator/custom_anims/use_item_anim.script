@@ -8,7 +8,12 @@ function play(item)
 	if not hud_sect then
 	return end
 
-	actor:hide_weapon(ANIM_FAST)
+	local already_blocked = actor.inventory:is_active_slot_blocked()
+	
+	if not already_blocked then
+		actor:hide_weapon(ANIM_FAST)
+	end
+	
 	level.add_call(
 		function() 
 			return not actor:active_item() and not actor:active_item_2()
@@ -25,7 +30,9 @@ function play(item)
 				end,
 				function()
 					block_non_move_action(false)
-					actor:restore_weapon(ANIM_FAST)
+					if not already_blocked then
+						actor:restore_weapon(ANIM_FAST)
+					end
 					if has_alife_info("ui_inventory") or has_alife_info("ui_car_body") then
 						backpack.play_anim(3)
 					end
