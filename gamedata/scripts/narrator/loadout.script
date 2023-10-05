@@ -141,12 +141,9 @@ function update_max_count(item, item_in)
 	local slot_volume = 0
 	local sect = item:section()
 	for k,v in pairs(slots) do
-		log3("! slots k = %s", k)
 		slot_volume = read_if_exists(sys_ini, "r_u32", sect, k, 0)
-		log3("~item %s | loadout type %s | slot_volume %s", item:name(), k, slot_volume)
 		if slot_volume > 0 then
 			v.max_count = item_in and v.max_count + slot_volume or v.max_count - slot_volume
-			log3("~item %s | loadout type %s | max_count %s", item:name(), k, v.max_count)
 			if v.max_count < 0 then
 				log3("!fixing wrong max_count! : item %s | loadout type %s | max_count %s", item:name(), k, v.max_count)
 				v.max_count = 0

@@ -58,9 +58,7 @@ function use_item_effects(obj, user)
 	--sounds
 	local snd_name = read_if_exists(sys_ini, "r_string", sect, "use_sound", nil)
 	if snd_name then
-		log3("~ snd name %s", snd_name)
 		xr_sound.get_safe_sound_object(snd_name,sound_object.s2d):play_at_pos(user,user:position())
-		log3("~ used item %s played sound %s for user %s", sect, snd_name, user:name())
 	end
 	--тільки для актора
 	if user:is_actor() then
@@ -73,7 +71,6 @@ function use_item_effects(obj, user)
 		if eff_name then
 			level.remove_complex_effector(use_effector_id)
 			level.add_complex_effector(eff_name, use_effector_id)
-			log3("~ used item %s played effector %s for user %s", sect, eff_name, user:name())
 		end
 	end
 end
@@ -83,12 +80,10 @@ function enable_effect(booster)
 	local effector_id = read_if_exists(sys_ini, "r_float", booster.section, "boost_effector_id", boost_efefctor_id)
 	if not effector_name then return end
 	level.add_complex_effector(effector_name, effector_id)
-	log3("~ enable booster effect %s, id %s", effector_name, effector_id)
 end
 
 function disable_effect(booster)
 	local effector_id = read_if_exists(sys_ini, "r_float", booster.section, "boost_effector_id", boost_efefctor_id)
 	if not effector_id then return end
 	level.remove_complex_effector(effector_id)
-	log3("~ disabling booster effect %s, id %s", booster.section, effector_id)
 end

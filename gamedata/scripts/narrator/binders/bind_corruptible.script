@@ -85,7 +85,7 @@ function corruptible_binder:decrease_condition()
 			log3("!%s : can't destroy item [%s] - it`s alreday released", script_name(), obj_name)
 		return end
 		alife():release(alife():object(self.object:id()), true)
-		log3("~[%s] item %s destroyed due to total corruption at %s %s", script_name(), self.object:name(), game_time:dateToString(game.CTime.DateToDay), game_time:timeToString(game.CTime.TimeToMilisecs), self.object:name())
+		--log3("~[%s] item %s destroyed due to total corruption at %s %s", script_name(), self.object:name(), game_time:dateToString(game.CTime.DateToDay), game_time:timeToString(game.CTime.TimeToMilisecs), self.object:name())
 		
 		if parent_is_actor(self.object) then
 			news_manager.item_tip(self.object, "destroyed_corrupted")

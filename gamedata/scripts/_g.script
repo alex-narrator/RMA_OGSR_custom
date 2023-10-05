@@ -1523,6 +1523,8 @@ function read_if_exists(ltx, val_type, section, value, default)
 			return ltx:r_float(section,value)
 		elseif val_type == "r_u32" then
 			return ltx:r_u32(section,value)
+		elseif val_type == "r_vector" then
+			return ltx:r_vector(section,value)			
 		end
 	else
 		return default

@@ -24,7 +24,6 @@ end
 
 function on_take(item)
 	if get_clsid(item) == clsid.obj_bolt then
-		log3("~take bolt %s id %s", item:name(), item:id())
 		bolts[item:id()] = true
 	end
 end
@@ -39,18 +38,14 @@ function on_state_switch(item, state, old_state)
 	if not LIMITED_BOLTS or get_clsid(item) ~= clsid.obj_bolt then
 	return end
 	
-	log3("item %s, state %s", item:name(), state)
-	
-	if state == global_flags.eThrowEnd then--and not actor_get_bolt() then
+	if state == global_flags.eThrowEnd then
 		local bolt = get_same_bolt(item)
 		if not bolt then
 			bolt = get_next_bolt()
 		end
 		if not bolt then
 		return end
-		
 		actor:move_to_ruck(actor_get_bolt())
-		log3("~item %s, is new bolt", bolt:name())
 		actor:move_to_slot(bolt)
 		add_update_delayed_action(1,
 			function()

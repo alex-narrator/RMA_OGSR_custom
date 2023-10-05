@@ -262,7 +262,6 @@ function actor_binder:info_callback(npc, info_id)
 	self.sm:call("on_info_portion", npc, info_id)
 	local signal = infop_signals[info_id]
 	if signal then
-		log3("~infoportion %s received", info_id)
 		self.sm:call(signal, npc, info_id)
 	end
 end

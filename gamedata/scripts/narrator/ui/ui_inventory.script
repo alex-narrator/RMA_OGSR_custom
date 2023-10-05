@@ -119,22 +119,16 @@ function InventoryOverlay:InitControls()
 	for i=0,3 do
 		local s = xml:InitStatic("quick_slot_"..i, self.quick_slots_back)
 		self.slots[i] = s
-		s:SetColor(self.quick_color_default)
-		
+		s:SetColor(self.quick_color_default)	
 		local key_text = "ui_quick_slot_"..i
-		s:SetText(game.translate_string(key_text))
-		
-		s.icon = xml:InitStatic("slot_icon", s)
-		s.icon:InitTexture("ui\\ui_icon_equipment")
-		
-		s.count = xml:InitStatic("slot_count", s)
-		
+		s:SetText(game.translate_string(key_text))	
+		s.icon = xml:InitStatic("slot_icon", s)	
+		s.count = xml:InitStatic("slot_count", s)	
 		name = "quick_"..i
 		self:Register(s, name)
 		self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:QuickOnFocusReceived(i) end, self)
 		self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:QuickOnFocusLost(i) end, self)
 		self:AddCallback(name, ui_events.WINDOW_LBUTTON_DB_CLICK, function() self:QuickOnDbClick(i) end, self)
-		
 		self:DrawSlotIcon(i)
 	end
 	
@@ -286,14 +280,16 @@ end
 function InventoryOverlay:DrawSlotIcon(slot_num)
 	local s = self.slots[slot_num]
 	local sect = quick_slots.get_item_sect(slot_num)
-	local params = GetIconParams(sect)
+	local show_icon = sect ~= ""
+	s.icon:Show(show_icon)
+	if show_icon then
+		CIconParams(sect):set_shader(s.icon)
+	end	
 	
 	local count = quick_slots.get_item_count(slot_num)
 	local count_text = string.format("x%s", count)
 	s.count:SetText(count_text)
 	s.count:Show(count > 0)
-	
-	s.icon:SetOriginalRect(params.x, params.y, params.w, params.h)
 			
 	if count > 0 then
 		s.icon:SetColor(self.quick_color_has_item)
