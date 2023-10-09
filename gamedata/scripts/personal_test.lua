@@ -115,7 +115,9 @@ end
 --actor:hide_weapon(true)
 --actor:restore_weapon(true)
 
-	function perform_action(dummy, item)
-		log3("item %s | id %s | condition %.4f", item:section(), item:id(), item:condition())
-	end	
-	actor:iterate_ruck(perform_action, nil)
+	-- function perform_action(dummy, item)
+		-- log3("item %s | id %s | condition %.4f", item:section(), item:id(), item:condition())
+	-- end	
+	-- actor:iterate_ruck(perform_action, nil)
+	
+ui_repair.create_window()

@@ -2241,183 +2241,85 @@
 	<dialog id="esc_mechanic_dialog">
         <phrase_list>
             <phrase id="0">
-                <text>esc_mechanic_dialog_0</text>
-                <next>1</next>
-				<next>2</next>
-				<next>3</next>
-				<next>4</next>
-				<next>5</next>
+                <text>esc_mechanic_dialog_start</text>
+                <next>are_you_mechanic</next> <!-- introducing -->
+				<next>start_repair_ui</next>
+				<next>repair_armor</next>
+				<next>good_bye</next> <!-- good bye -->
             </phrase>
-            <phrase id="1">
-                <text>esc_mechanic_dialog_1</text>
+            <phrase id="are_you_mechanic">
+                <text>esc_mechanic_dialog_start_are_you_mechanic</text>
 				<dont_has_info>esc_mechanic_first_talk</dont_has_info>
-                <next>11</next>
+                <next>mechanic_intro</next>
             </phrase>
-            <phrase id="11">
-                <text>esc_mechanic_dialog_11</text>
+            <phrase id="mechanic_intro">
+                <text>esc_mechanic_dialog_start_introducing</text>
 				<give_info>esc_mechanic_first_talk</give_info>
-				<next>2</next>
-				<next>3</next>
-				<next>4</next>
-				<next>5</next>
+				<next>start_repair_ui</next>
+				<next>repair_armor</next>
+				<next>good_bye</next> <!-- good bye -->
             </phrase>
-            <phrase id="2">
-                <text>esc_mechanic_dialog_2</text>
-				<precondition>escape_dialog.repair_precond_s1</precondition>
+			<!-- repair ui -->
+			<phrase id="start_repair_ui">
+                <text>esc_mechanic_dialog_show_repair_ui</text>
 				<has_info>esc_mechanic_first_talk</has_info>
-                <next>21</next>
-				<next>22</next>
+                <action>escape_dialog.show_repair</action>
+				<next>0</next>
             </phrase>
-            <phrase id="21">
-                <text>esc_mechanic_dialog_21</text>
-				<precondition>escape_dialog.repair_precond1_s1</precondition>
-				<next>211</next>
-				<next>422</next>
-            </phrase>
-			<phrase id="22">
-                <text>esc_mechanic_dialog_22</text>
-				<precondition>escape_dialog.repair_precond2_s1</precondition>
-				<next>211</next>
-				<next>422</next>
-            </phrase>
-			<phrase id="211">
-                <text>esc_mechanic_dialog_421</text>
-				<precondition>escape_dialog.has_money_for_repiar_weapon_s1</precondition>
-				<next>2111</next>
-            </phrase>
-			<phrase id="2111">
-                <text>esc_mechanic_dialog_2111</text>
-				<action>escape_dialog.repiar_weapon_s1</action>
-				<next>21111</next>
-            </phrase>
-			<phrase id="21111">
-                <text>esc_mechanic_dialog_42111</text>
-            </phrase>
-			<phrase id="3">
-                <text>esc_mechanic_dialog_3</text>
-				<precondition>escape_dialog.repair_precond_s2</precondition>
+			<!-- repair armor -->
+			<phrase id="repair_armor">
+                <text>esc_mechanic_dialog_repair_slot_6</text>
+				<dont_has_info>esc_mechanic_done_quest</dont_has_info>
 				<has_info>esc_mechanic_first_talk</has_info>
-                <next>31</next>
-				<next>32</next>
+                <next>need_tools</next>
+				<next>has_quest_item</next>
             </phrase>
-            <phrase id="31">
-                <text>esc_mechanic_dialog_31</text>
-				<precondition>escape_dialog.repair_precond1_s2</precondition>
-				<next>311</next>
-				<next>422</next>
-            </phrase>
-			<phrase id="32">
-                <text>esc_mechanic_dialog_32</text>
-				<precondition>escape_dialog.repair_precond2_s2</precondition>
-				<next>311</next>
-				<next>422</next>
-            </phrase>
-			<phrase id="311">
-                <text>esc_mechanic_dialog_421</text>
-				<precondition>escape_dialog.has_money_for_repiar_weapon_s2</precondition>
-				<next>3111</next>
-            </phrase>
-			<phrase id="3111">
-                <text>esc_mechanic_dialog_2111</text>
-				<action>escape_dialog.repiar_weapon_s2</action>
-				<next>31111</next>
-            </phrase>
-			<phrase id="31111">
-                <text>esc_mechanic_dialog_42111</text>
-            </phrase>
-			<phrase id="4">
-                <text>esc_mechanic_dialog_4</text>
-				<precondition>escape_dialog.repair_precond_s6</precondition>
-				<has_info>esc_mechanic_first_talk</has_info>
-                <next>41</next>
-				<next>42</next>
-				<next>43</next>
-				<next>44</next>
-            </phrase>
-			<phrase id="41">
-                <text>esc_mechanic_dialog_41</text>
+			<phrase id="need_tools">
+                <text>esc_mechanic_dialog_need_tools</text>
 				<dont_has_info>esc_mechanic_have_quest</dont_has_info>
-				<next>411</next>
-				<next>412</next>
+				<next>quest_announcment</next>
+				<next>quest_decline</next>
             </phrase>
-			<phrase id="411">
-                <text>esc_mechanic_dialog_411</text>
-				<next>4111</next>
+			<phrase id="quest_announcment">
+                <text>esc_mechanic_dialog_quest_announcment</text>
+				<next>quest_conditions</next>
             </phrase>
-			<phrase id="4111">
-                <text>esc_mechanic_dialog_4111</text>
+			<phrase id="quest_conditions">
+                <text>esc_mechanic_dialog_quest_conditions</text>
 				<give_info>esc_mechanic_have_quest</give_info>
-				<next>41111</next>
+				<next>quest_accept</next>
             </phrase>
-			<phrase id="41111">
-                <text>esc_mechanic_dialog_41111</text>
+			<phrase id="quest_accept">
+                <text>esc_mechanic_dialog_quest_accept</text>
 				<action>dialogs.break_dialog</action>
             </phrase>
-			<phrase id="412">
-                <text>esc_mechanic_dialog_412</text>
-				<next>4121</next>
+			<phrase id="quest_decline">
+                <text>esc_mechanic_dialog_quest_decline</text>
+				<next>quest_decline_answer</next>
             </phrase>
-			<phrase id="4121">
-                <text>esc_mechanic_dialog_4121</text>
+			<phrase id="quest_decline_answer">
+                <text>esc_mechanic_dialog_quest_decline_answer</text>
             </phrase>
-            <phrase id="42">
-                <text>esc_mechanic_dialog_42</text>
-				<precondition>escape_dialog.repair_precond1_s6</precondition>
-				<has_info>esc_mechanic_done_quest</has_info>
-				<next>421</next>
-				<next>422</next>
-            </phrase>
-			<phrase id="43">
-                <text>esc_mechanic_dialog_43</text>
-				<precondition>escape_dialog.repair_precond2_s6</precondition>
-				<has_info>esc_mechanic_done_quest</has_info>
-				<next>421</next>
-				<next>422</next>
-            </phrase>
-			<phrase id="421">
-                <text>esc_mechanic_dialog_421</text>
-				<precondition>escape_dialog.has_money_for_repiar_outfit_s6</precondition>
-				<next>4211</next>
-            </phrase>
-			<phrase id="4211">
-                <text>esc_mechanic_dialog_4211</text>
-				<action>escape_dialog.repiar_outfit_s6</action>
-				<next>42111</next>
-            </phrase>
-			<phrase id="42111">
-                <text>esc_mechanic_dialog_42111</text>
-				<next>421111</next>
-            </phrase>
-			<phrase id="421111">
-                <text>esc_mechanic_dialog_421111</text>
-            </phrase>
-			<phrase id="422">
-                <text>esc_mechanic_dialog_422</text>
-				<next>4221</next>
-            </phrase>
-			<phrase id="4221">
-                <text>esc_mechanic_dialog_4221</text>
-            </phrase>
-			<phrase id="44">
-                <text>esc_mechanic_dialog_44</text>
+			<phrase id="has_quest_item">
+                <text>esc_mechanic_dialog_need_quest_item</text>
 				<dont_has_info>esc_mechanic_done_quest</dont_has_info>
 				<has_info>esc_mechanic_have_quest</has_info>
-				<next>441</next>
-				<next>442</next>
+				<next>quest_has_item</next>
+				<next>quest_dont_has_item</next>
             </phrase>
-			<phrase id="441">
-                <text>esc_mechanic_dialog_441</text>
+			<phrase id="quest_has_item">
+                <text>esc_mechanic_dialog_qest_has_item</text>
 				<precondition>escape_dialog.actor_have_mechanic_case</precondition>
 				<action>escape_dialog.transfer_mechanic_case</action>
 				<action>dialogs.break_dialog</action>
 				<give_info>esc_mechanic_done_quest</give_info>
             </phrase>
-			<phrase id="442">
-                <text>esc_mechanic_dialog_442</text>
+			<phrase id="quest_dont_has_item">
+                <text>esc_mechanic_dialog_qest_dont_has_item</text>
 				<action>dialogs.break_dialog</action>
             </phrase>
-			<phrase id="5">
-                <text>esc_mechanic_dialog_5</text>
+			<phrase id="good_bye">
+                <text>esc_mechanic_dialog_good_bye</text>
 				<has_info>esc_mechanic_first_talk</has_info>
 				<action>dialogs.break_dialog</action>
             </phrase>

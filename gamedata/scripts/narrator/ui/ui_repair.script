@@ -1,0 +1,261 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+local OVERLAY_XML = "script_overlays\\actor_menu_overlay.xml"
+
+class "RepairOverlay" (CUIScriptWnd)
+
+local overlay = nil
+local MEDIUM_CELL_W = 22
+local MEDIUM_CELL_H = 30
+local NORMAL_CELL_W = 30
+local NORMAL_CELL_H = 40
+local repair_sound_weapon = [[interface\inv_repair_kit_use_fast]]
+local repair_sound_armor = [[interface\inv_repair_sewing_kit_fast]]
+
+function create_overlay(condition_limit, cost_k, uniquie_k, armor_repair_infop)
+	if not condition_limit then
+		condition_limit = 1
+	end
+	if not cost_k then
+		cost_k = 1
+	end
+	if not uniquie_k then
+		uniquie_k = 1
+	end
+	if not overlay then
+		overlay = RepairOverlay()		
+		overlay:SetRepairParams(condition_limit, cost_k, uniquie_k, armor_repair_infop)
+		overlay:InitItemsList()
+	end
+end
+
+function is_hidden()
+	return not overlay or not overlay:IsShown()
+end
+
+function RepairOverlay:__init(owner) super()
+	self.owner = level.main_input_receiver()
+	self:InitControls()
+	self:Subscribe()
+end
+
+function RepairOverlay:Subscribe()
+	self.subscribed = false
+	if not self.subscribed then
+		self.subscribed = {
+			{signal = "on_dialog_show", self = self, fun = self.DetachWnd},
+			{signal = "on_dialog_hide", self = self, fun = self.DetachWnd},
+			{signal = "on_talk_show", self = self, fun = self.DetachWnd},
+			{signal = "on_talk_hide", self = self, fun = self.DetachWnd},
+			{signal = "on_trade_show", self = self, fun = self.DetachWnd},
+			{signal = "on_key_press", self = self, fun = self.OnKeyPress},
+		}
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs( self.subscribed ) do
+			sm:subscribe( s )
+		end
+	end
+end
+
+function RepairOverlay:Unsubscribe()
+	if self.subscribed then
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs( self.subscribed ) do
+			sm:unsubscribe( s )
+		end
+		self.subscribed = false
+	end
+end
+
+function RepairOverlay:DetachWnd()
+	quick_slots.set_selected(nil)
+	self:Unsubscribe()
+	self:ClearCallbacks()
+	self.owner:DetachChild(self)
+	overlay = nil
+end
+
+function RepairOverlay:InitControls()
+	self.owner:AttachChild(self)
+	self:Init(0, 0, 1024, 768)
+	self:Enable(true)
+	self:Show(true)
+	
+	local xml = CScriptXmlInit()
+	xml:ParseFile(OVERLAY_XML)
+
+	local name
+	
+	self.repair_back = xml:InitStatic("repair_back", self)
+	
+	xml:InitAutoStaticGroup("repair_back:auto_static", self.repair_back)
+	
+	self.items_scroll_view_weapon = xml:InitScrollView("repair_back:scroll_view_weapon", self.repair_back)
+	self.items_scroll_view_armor = xml:InitScrollView("repair_back:scroll_view_armor", self.repair_back)
+	
+	self.selected_item_back = xml:InitStatic("repair_back:selected_item_back", self.repair_back)
+	self.selected_item_st 	= xml:InitStatic("repair_back:selected_item_back:selected_item", self.selected_item_back)
+	self.selected_item_st:Show(false)
+	self.repair_cost 		= xml:InitStatic("repair_back:selected_item_back:repair_cost", self.selected_item_back)
+	self.repair_cost:Show(false)
+	
+	self.repair_button = xml:Init3tButton("repair_back:repair_button", self.repair_back)
+	name = "repair_button"
+	self:Register(self.repair_button, name)
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.Repair, self)
+	self.repair_button:Enable(false)
+	
+	self.exit_button = xml:Init3tButton("repair_back:exit_button", self.repair_back)
+	name = "exit_button"
+	self:Register(self.exit_button, name)
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.DetachWnd, self)
+	
+	--//list item colors
+	self.color_default 		= GetARGB(255, 255, 255, 255)
+	self.color_highlight 	= GetARGB(255, 238, 153, 26)
+	self.color_selected 	= GetARGB(255, 0, 255, 0)
+	
+	--self:InitItemsList()
+end
+
+function RepairOverlay:Update()
+	CUIScriptWnd.Update(self)
+	
+	for k,v in pairs (self.items) do
+		if not v:IsShown() then
+			v:Show(true)
+		end
+	end
+end
+
+function RepairOverlay:InitItemsList()
+	local item_st, params, name
+	
+	self.selected_item_id = nil
+	self.focused_item_id = nil
+	
+	self.items = {}
+	function perform_action(dummy, item)
+		if item:is_weapon() or (item:is_outfit() and self.repair_armor) then
+			params = CIconParams(item:section())
+			item_st = CUIStatic()
+			self.items[item:id()] = item_st
+			params:set_shader(item_st)
+			item_st:SetWidth(params.grid_width * MEDIUM_CELL_W)
+			item_st:SetHeight(params.grid_height * MEDIUM_CELL_H)
+			
+			ui_inv_utils.AttachAdditionalIcons(item, item_st)
+			
+			if item:is_weapon() then
+				self.items_scroll_view_weapon:AddWindow(item_st)
+			else
+				self.items_scroll_view_armor:AddWindow(item_st)
+			end
+			
+			name = "repair_list_"..item:id()
+			self:Register(item_st, name)
+			self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:RepairListItemOnFocusReceived(item:id()) end, self)
+			self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:RepairListItemOnFocusLost(item:id()) end, self)
+		end
+	end
+	
+	actor:iterate_inventory(perform_action, nil)
+end
+
+function RepairOverlay:RepairListItemOnFocusReceived(id)
+	self.focused_item_id = id
+	log3("~RepairListItemOnFocusReceived item %s | id %s", level.object_by_id(id):name(), id)
+	if not self.selected_item_id or id ~= self.selected_item_id then
+		self.items[self.focused_item_id]:SetColor(self.color_highlight)
+	end
+end
+
+function RepairOverlay:RepairListItemOnFocusLost(id)
+	self.focused_item_id = nil
+	log3("~RepairListItemOnFocusLost item %s | id %s", level.object_by_id(id):name(), id)
+	if not self.selected_item_id or id ~= self.selected_item_id then
+		self.items[id]:SetColor(self.color_default)
+	end
+end
+
+function RepairOverlay:OnKeyPress(key, game_action)
+	if key == DIK_keys.MOUSE_1 and self.focused_item_id then
+		if self.selected_item_id then
+			self.items[self.selected_item_id]:SetColor(self.color_default)
+		end
+		self.selected_item_id = self.focused_item_id
+		log3("selected_item_id item %s | id %s", level.object_by_id(self.selected_item_id):name(), self.selected_item_id)
+		self.items[self.selected_item_id]:SetColor(self.color_selected)
+		
+		local sect = level.object_by_id(self.selected_item_id):section()
+		params = CIconParams(sect)
+		self.selected_item_st:Show(true)
+		params:set_shader(self.selected_item_st)
+		self.selected_item_st:SetWidth(params.grid_width * NORMAL_CELL_W)
+		self.selected_item_st:SetHeight(params.grid_height * NORMAL_CELL_H)
+		local offset = ui_inv_utils.GetOffset("center", self.selected_item_st, self.selected_item_back)
+		self.selected_item_st:SetWndPos(offset.x, offset.y)
+		self.selected_item_back:SetText(game.translate_string(get_inv_name(sect)))
+		
+		self:UpdateRepairInfo()
+	end
+end
+
+function RepairOverlay:UpdateRepairInfo()
+	local cost_text
+	if self:NeedRepairItem(self.selected_item_id) then
+		cost_text = string.format("%s %s%s %s", 
+									game.translate_string("ui_inv_repair_cost"), 
+									self:HasMoneyToRepairItem(self.selected_item_id) and "" or "%c[red]",
+									self:GetRepairCost(self.selected_item_id), 
+									game.translate_string("ui_st_money_regional"))
+	else
+		cost_text = game.translate_string("ui_st_dont_need_repair")
+	end
+	self.repair_cost:SetText(cost_text)
+	self.repair_cost:Show(true)
+	self.repair_button:Enable(self:CanRepairItem(self.selected_item_id))
+	
+	ui_inv_utils.AttachAdditionalIcons(level.object_by_id(self.selected_item_id), self.selected_item_st)
+	for id,item_icon in pairs(self.items) do
+		ui_inv_utils.AttachAdditionalIcons(level.object_by_id(id), item_icon)
+	end
+end
+
+function RepairOverlay:SetRepairParams(condition_limit, cost_k, uniquie_k, armor_repair_infop)
+	self.condition_limit = condition_limit
+	self.cost_k = cost_k
+	self.uniquie_k = uniquie_k
+	self.repair_armor = (not armor_repair_infop or has_alife_info(armor_repair_infop))
+	log3("armor_repair_infop %s, self.repair_armor %s", armor_repair_infop and armor_repair_infop or "NONE", self.repair_armor)
+end
+
+function RepairOverlay:NeedRepairItem(id)
+	log3("item %s | condition %s | cond_limit %s", level.object_by_id(id):name(), level.object_by_id(id):condition(), self.condition_limit)
+	return level.object_by_id(id):condition() < self.condition_limit
+end
+
+function RepairOverlay:HasMoneyToRepairItem(id)
+	return actor:money() >= self:GetRepairCost(id)
+end
+
+function RepairOverlay:CanRepairItem(id)
+	return self:NeedRepairItem(id) and self:HasMoneyToRepairItem(id)
+end
+
+function RepairOverlay:GetRepairCost(id)
+	local item = level.object_by_id(id)
+	local item_cost = item:cost() * self.cost_k
+	local item_corruption = 1 - item:condition()
+	local unique_k = read_if_exists(sys_ini, "r_bool", item:section(), "unique_item", false) and self.uniquie_k or 1
+	return math.floor(item_cost * item_corruption * unique_k)
+end
+
+function RepairOverlay:Repair()
+	dialogs.relocate_money(level.get_second_talker(), self:GetRepairCost(self.selected_item_id), "out")
+	local item = level.object_by_id(self.selected_item_id)
+	item:set_condition(1)
+	self:UpdateRepairInfo()
+	
+	local sound = item:is_weapon() and repair_sound_weapon or repair_sound_armor
+	xr_sound.get_safe_sound_object(sound,sound_object.s2d):play_at_pos(level.get_second_talker(),level.get_second_talker():position())
+end

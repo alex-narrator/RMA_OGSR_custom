@@ -382,14 +382,12 @@ end
 
 
 --' Soldiers on bridge
-
 local bribe_items = {
 	"bread",
 	"kolbasa",
 	"energy_drink",
 }
 function has_soldiers_bribe(actor, npc)
-	--return actor:money() >= 500
 	for k,section in pairs(bribe_items) do
 		if not actor:object(section) then
 			return false
@@ -398,7 +396,6 @@ function has_soldiers_bribe(actor, npc)
 	return true
 end
 function give_soldiers_bribe(actor, npc)
-	--dialogs.relocate_money(npc, 500, "out")
 	for k,section in pairs(bribe_items) do
 		local item = actor:object(section)
 		if item then
@@ -493,218 +490,7 @@ function transfer_mechanic_case(actor, npc)
 	end
 end
 
---Починка
-----Условия:
--------Основные
-function repair_precond_s1()
-	local item_in_slot_1 = db.actor:item_in_slot(1)
-	local item = ""
-	
-	if item_in_slot_1 then
-		item = item_in_slot_1:section()
-	else
-		item = "no_item"
-	end
-	
-	-- Проверка того, что оружие является уникальным (первый слот):
-	if string.find(item, "wpn_fort_m1") or string.find(item, "wpn_eagle_m1") or 
-		string.find(item, "wpn_colt_m1") or string.find(item, "wpn_walther_m1") or 
-		string.find(item, "wpn_deserteagle_coll") then
-		if item_in_slot_1 and 1 > item_in_slot_1:condition() + 0.01 then 
-			return true
-		else
-			return false
-		end
-	else
-		return false
-    end 
+--ремонт
+function show_repair()
+	ui_repair.create_overlay(0.9, 1, 2, "esc_mechanic_done_quest")
 end
-
-function repair_precond_s2()
-	local item_in_slot_2 = db.actor:item_in_slot(2)
-	local item = ""
-	
-	if item_in_slot_2 then
-		item = item_in_slot_2:section()
-	else
-		item = "no_item"
-	end
-	
-	-- Проверка того, что оружие является уникальным (второй слот):
-	if string.find(item, "wpn_ak74_m1") or string.find(item, "wpn_abakan_m1") or 
-		string.find(item, "wpn_ak74u_m1") or string.find(item, "wpn_mp5_m1") or 
-		string.find(item, "wpn_groza_m1") or string.find(item, "wpn_spas12_m1") or 
-		string.find(item, "wpn_winchester_m1") or string.find(item, "wpn_l85_m1") or 
-		string.find(item, "wpn_lr300_m1") or string.find(item, "wpn_svd_m1") or 
-		string.find(item, "wpn_sig_m1") or string.find(item, "wpn_val_m1") or 
-		string.find(item, "wpn_mp5_m2") or string.find(item, "wpn_abakan_m2") or 
-		string.find(item, "wpn_l85_m2") or string.find(item, "wpn_sig_m2") or 
-		string.find(item, "wpn_rg6_m1") or string.find(item, "hunters_toz") or 
-		string.find(item, "pri_lom_ak74") or string.find(item, "wpn_vintorez_coll") then
-		if item_in_slot_2 and 1 > item_in_slot_2:condition() + 0.01 then 
-			return true
-		else
-			return false
-		end
-	else
-		return false
-    end 
-end
-
-function repair_precond_s6()
-	local item_in_slot_6 = db.actor:item_in_slot(6)
-	local item = ""
-	
-	if item_in_slot_6 then
-		item = item_in_slot_6:section()
-	else
-		item = "no_item"
-	end
-	
-		-- Проверка того, что бронежелет является уникальным (шестой слот):
-	if string.find(item, "outfit_novice_m1") or string.find(item, "outfit_bandit_m1") or 
-		string.find(item, "outfit_dolg_m1") or string.find(item, "outfit_killer_m1") or 
-		string.find(item, "outfit_specnaz_m1") or string.find(item, "outfit_stalker_m1") or 
-		string.find(item, "outfit_stalker_m2") or string.find(item, "outfit_svoboda_m1") or 
-		string.find(item, "outfit_exo_m1") or string.find(item, "outfit_monolith_m1") or 
-		string.find(item, "outfit_killer_m2") then
-		if item_in_slot_6 and 1 > item_in_slot_6:condition() + 0.01 then 
-			return true
-		else
-			return false
-		end
-	else
-		return false
-    end 
-end
-
--------Второстепенные 1
-function repair_precond1_s1()
-	local item_in_slot_1 = db.actor:item_in_slot(1)
-	
-	if item_in_slot_1:condition() >= 0.5 then 
-		return true
-	else 
-		return false
-	end	 
-end
-
-function repair_precond1_s2()
-	local item_in_slot_2 = db.actor:item_in_slot(2)
-	
-	if item_in_slot_2:condition() >= 0.5 then 
-		return true
-	else 
-		return false
-	end	 
-end
-
-function repair_precond1_s6()
-	local item_in_slot_6 = db.actor:item_in_slot(6)
-	
-	if item_in_slot_6:condition() >= 0.5 then 
-		return true
-	else 
-		return false
-	end	 
-end
-
--------Второстепенные 2
-function repair_precond2_s1()
-	local item_in_slot_1 = db.actor:item_in_slot(1)
-	
-	if item_in_slot_1:condition() < 0.5 then 
-		return true
-	else 
-		return false
-	end	 
-end
-
-function repair_precond2_s2()
-	local item_in_slot_2 = db.actor:item_in_slot(2)
-	
-	if item_in_slot_2:condition() < 0.5 then 
-		return true
-	else 
-		return false
-	end	 
-end
-
-function repair_precond2_s6()
-	local item_in_slot_6 = db.actor:item_in_slot(6)
-	
-	if item_in_slot_6:condition() < 0.5 then 
-		return true
-	else 
-		return false
-	end	 
-end
-
--------Проверка на наличие денег
-function has_money_for_repiar_weapon_s1(actor, npc)
-	if this.repair_precond1_s1() then
-		return actor:money() >= 1000
-	else
-		return actor:money() >= 3000
-	end
-end
-
-function has_money_for_repiar_weapon_s2(actor, npc)
-	if repair_precond1_s2() then
-		return actor:money() >= 3000
-	else
-		return actor:money() >= 9000
-	end
-end
-
-function has_money_for_repiar_outfit_s6(actor, npc)
-	if this.repair_precond1_s6() then
-		return actor:money() >= 5000
-	else
-		return actor:money() >= 15000
-	end
-end
-
---Сама починка:
------Первый ствол
-function repiar_weapon_s1(actor, npc)
-	local item_in_slot = db.actor:item_in_slot(1)
-
-	if item_in_slot then
-		if this.repair_precond1_s1() then
-			dialogs.relocate_money(actor, 1000, "out")
-		else
-			dialogs.relocate_money(actor, 3000, "out")
-		end
-		item_in_slot:set_condition(1)
-	end
-end
-
------Второй ствол
-function repiar_weapon_s2(actor, npc)
-	local item_in_slot = db.actor:item_in_slot(2)
-
-	if item_in_slot then
-		if repair_precond1_s2() then
-			dialogs.relocate_money(actor, 3000, "out")
-		else
-			dialogs.relocate_money(actor, 9000, "out")
-		end
-		item_in_slot:set_condition(1)
-	end
-end
-
------Бронежелет
-function repiar_outfit_s6(actor, npc)
-	local item_in_slot = db.actor:item_in_slot(6)
-
-	if item_in_slot then
-		if this.repair_precond1_s6() then
-			dialogs.relocate_money(actor, 5000, "out")
-		else
-			dialogs.relocate_money(actor, 15000, "out")
-		end
-		item_in_slot:set_condition(1)
-	end
-end
---Конец

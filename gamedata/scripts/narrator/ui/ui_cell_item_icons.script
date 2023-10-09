@@ -1,0 +1,34 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_cell_item_update",   	fun = this.update_custom_icons})
+	sm:subscribe({signal = "on_pickup_item_showing", 	fun = this.update_custom_icons})
+end
+
+function update_custom_icons(item, cell_item)
+	local text = nil
+	
+	local ammo = item:get_weapon_ammo()
+	if ammo and ammo:is_magazine() then
+		text = string.format("%s/%s", ammo.box_curr, ammo.box_size)
+	end
+	
+	local eatable = item:get_eatable_item()
+	if eatable and eatable.eat_start_portions_num > 1 then
+		text = string.format("%s/%s", eatable.eat_portions_num, eatable.eat_start_portions_num)
+	end
+	
+	local weapon_mag = item:get_weapon_m()
+	if weapon_mag and weapon_mag.ammo_mag_size > 0 then
+		text = string.format("%s/%s%s", weapon_mag.ammo_elapsed, weapon_mag.ammo_mag_size, (has_fire_modes(item) or item:get_gl_mode()) and weapon_mag:firemod_string() or "")
+	end
+	
+	if item:get_container() and item:get_inventory_item():item_effect(effect.add_weight) > 0 then
+		text = string.format("+%.0f%s", item:get_inventory_item():item_effect(effect.add_weight) * actor.inventory.max_weight, game.translate_string("st_kg"))
+	end
+	
+	ui_inv_utils.UpdateAmmoInBoxIcon(item, cell_item)
+	ui_inv_utils.UpdateUpgrageIcon(item, cell_item)
+	ui_inv_utils.UpdateMarkedIcon(item, cell_item)
+	--ui_inv_utils.UpdateConditionStatic(item, cell_item)
+	ui_inv_utils.UpdateAdditionalStatic(cell_item, text)
+end

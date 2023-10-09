@@ -1,0 +1,276 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function GetOffset(offset_type, icon, parent_icon)
+	if offset_type == "center" then
+		return vector():set(
+			(parent_icon:GetWidth() / 2) - (icon:GetWidth() / 2), 
+			(parent_icon:GetHeight() / 2) - (icon:GetHeight() / 2), 
+			0)
+	elseif offset_type == "left_down" then
+		return vector():set(
+			0, 
+			parent_icon:GetHeight() - icon:GetHeight(), 
+			0)
+	elseif offset_type == "left_top" then
+		offset = vector()
+	elseif offset_type == "right_top" then
+		return vector():set(
+			parent_icon:GetWidth() - icon:GetWidth(),
+			0, 
+			0)
+	elseif offset_type == "right_down" then
+		return vector():set(
+			parent_icon:GetWidth() - icon:GetWidth(),
+			parent_icon:GetHeight() - icon:GetHeight(), 
+			0)				
+	end
+end
+
+local OVERLAY_XML = "script_overlays\\actor_menu_overlay.xml"
+local addon_name = {
+	[0]="silencer",
+	[1]="scope",
+	[2]="grenade_launcher",
+	[3]="laser",
+	[4]="flashlight",
+	[5]="stock",
+	[6]="extender",
+	[7]="forend",
+	[8]="magazine",
+}
+function AttachWpnIcons(item, icon)
+	local wpn = item:get_weapon_m()
+	if not wpn then
+	return end
+	
+	local addon_st, addon_sect, offset, icon_sect, params, wpn_params, width, height, cell_w, cell_h
+	
+	local sect = item:section()
+	
+	for i=0,#addon_name do
+		if wpn:addon_attachable(i) and wpn:is_addon_attached(i) then
+			icon_sect = wpn:get_addon_name(i)
+			addon_sect = wpn:get_addon_name(i)
+			offset = wpn:get_addon_offset(i)
+			log3("wpn %s, addon %s, offset.x %s, offset.y %s", item:name(),addon_name[i], offset.x, offset.y)
+			icon_sect = addon_sect
+			if addon_name[i] == "magazine" then
+				icon_sect = read_if_exists(sys_ini, "r_string", addon_sect, "mag_icon_sect", nil)
+			end
+			if icon_sect then
+				addon_st = CUIStatic()
+				params = CIconParams(icon_sect)
+				wpn_params = CIconParams(sect)
+				
+				params:set_shader(addon_st)
+				
+				cell_w = icon:GetWidth() / wpn_params.grid_width
+				cell_h = icon:GetHeight() / wpn_params.grid_height
+				width = params.grid_width * cell_w
+				height = params.grid_height * cell_h
+				addon_st:SetWidth(width)
+				addon_st:SetHeight(height)
+				
+				addon_st:SetWndPos(offset.x * (cell_w/CELL_W), offset.y * (cell_h/CELL_H))
+				icon:AttachChild(addon_st)
+			end
+		end
+	end
+end
+
+function UpdateAdditionalStatic(icon, text)
+	if not text then
+	return end
+
+	local function update(static)
+		local offset = GetOffset("right_down", static, icon)
+		static:SetText(text)
+		static:SetWndPos(offset.x, offset.y)
+		icon:BringToTop(static)
+	end
+	
+	local icon_custom = icon:FindChild("icon_custom")
+	if icon_custom then
+		icon_custom = icon_custom:GetCUIStatic()
+		update(icon_custom)
+	return end
+	local xml = CScriptXmlInit()
+	xml:ParseFile(OVERLAY_XML)
+	icon_custom = xml:InitStatic("cell_item_custom", icon)
+	icon_custom:SetWindowName("icon_custom")
+	update(icon_custom)
+end
+
+function UpdateConditionStatic(item, icon)
+	if not read_if_exists(sys_ini, "r_bool", item:section(), "use_condition", false) then
+	return end
+	local text = string.format("%.0f%s", item:condition() * 100, "%")
+
+	local function update(static)
+		local offset = GetOffset("left_down", static, icon)
+		static:SetText(text)
+		static:SetWndPos(offset.x, offset.y)
+		icon:BringToTop(static)
+	end
+
+	local icon_condition = icon:FindChild("icon_condition")
+	if icon_condition then
+		icon_condition = icon_condition:GetCUIStatic()
+		update(icon_condition)
+	return end
+	local xml = CScriptXmlInit()
+	xml:ParseFile(OVERLAY_XML)
+	icon_condition = xml:InitStatic("cell_item_condition", icon)
+	icon_condition:SetWindowName("icon_condition")
+	update(icon_condition)
+end
+
+function UpdateAmmoInBoxIcon(item, icon)
+	local ammo = item:get_weapon_ammo()
+	if not ammo or not ammo:is_magazine() then
+	return end
+	local sect = item:section()
+	local ammo_in_box = icon:FindChild("ammo_in_box")
+	if ammo_in_box then
+		ammo_in_box:Show(ammo.box_curr > 0)
+		return
+	end
+	
+	local params = CIconParams(ammo:ammo_sect())
+	local icon_params = CIconParams(sect)
+	
+	local cell_w = icon:GetWidth() / icon_params.grid_width
+	local cell_h = icon:GetHeight() / icon_params.grid_height
+	local scale = read_if_exists(sys_ini, "r_float", sect, "ammo_icon_scale", 0.5)
+	local width = params.grid_width * cell_w * scale
+	local height = params.grid_height * cell_h * scale
+	
+	ammo_in_box = CUIStatic()
+	params:set_shader(ammo_in_box)
+	
+	ammo_in_box:SetWidth(width)
+	ammo_in_box:SetHeight(height)
+	
+	local offset = GetOffset(read_if_exists(sys_ini, "r_string", sect, "ammo_icon_offset", "center"), ammo_in_box, icon)
+
+	ammo_in_box:SetWndPos(offset.x, offset.y)
+	ammo_in_box:SetWindowName("ammo_in_box")
+	icon:AttachChild(ammo_in_box)
+end
+
+function UpdateMarkedIcon(item, icon)
+	local sect = item:section()
+	local marked_icon = icon:FindChild("marked_icon")
+	if marked_icon then
+		marked_icon:Show(item.marked)
+		return
+	end
+	if not item.marked then
+	return end
+	
+	local marked_icon_sect = read_if_exists(sys_ini, "r_string", sect, "marked_icon_sect", nil)
+	if not marked_icon_sect then
+	return end
+	
+	local params = CIconParams(marked_icon_sect)
+	local icon_params = CIconParams(sect)
+
+	local cell_w = icon:GetWidth() / icon_params.grid_width
+	local cell_h = icon:GetHeight() / icon_params.grid_height
+	local width = params.grid_width * cell_w
+	local height = params.grid_height * cell_h
+	
+	marked_icon = CUIStatic()
+	params:set_shader(marked_icon)
+	
+	marked_icon:SetWidth(width)
+	marked_icon:SetHeight(height)
+	
+	local offset = GetOffset(read_if_exists(sys_ini, "r_string", sect, "marked_icon_offset", "right_top"), marked_icon, icon)
+	
+	marked_icon:SetWndPos(offset.x, offset.y)
+	marked_icon:SetWindowName("marked_icon")
+	icon:AttachChild(marked_icon)	
+end
+
+function UpdateUpgrageIcon(item, icon)
+	local sect = item:section()
+	
+	local upgrade_icon_sect = read_if_exists(sys_ini, "r_string", sect, "upgrade_icon_sect", nil)
+	if not upgrade_icon_sect then
+	return end
+	
+	local params = CIconParams(upgrade_icon_sect)
+	local icon_params = CIconParams(sect)
+	
+	local offset_type = read_if_exists(sys_ini, "r_string", sect, "upgrade_icon_offset", "left_down")
+	local function update(static)
+		local cell_w = icon:GetWidth() / icon_params.grid_width
+		local cell_h = icon:GetHeight() / icon_params.grid_height
+		if cell_h/cell_w > 1.4 then
+			cell_h = icon:GetWidth() / icon_params.grid_height * 1.3
+			cell_w = icon:GetHeight() / icon_params.grid_width
+		end		
+		local width = params.grid_width * cell_w
+		local height = params.grid_height * cell_h
+		
+		static:SetWidth(width)
+		static:SetHeight(height)
+		local offset = GetOffset(offset_type, static, icon)
+		static:SetWndPos(offset.x, offset.y)
+	end
+	
+	local upgrade_icon = icon:FindChild("upgrade_icon")
+	if upgrade_icon then
+		update(upgrade_icon)
+		return
+	end
+		
+	upgrade_icon = CUIStatic()
+	params:set_shader(upgrade_icon)
+	
+	update(upgrade_icon)
+	
+	upgrade_icon:SetWindowName("upgrade_icon")
+	icon:AttachChild(upgrade_icon)
+end
+
+function UpdateInSlotIcon(item, icon)
+	local sect = item:section()
+	local in_slot_icon = icon:FindChild("in_slot_icon")
+	if in_slot_icon then
+		in_slot_icon:Show(actor:is_in_slot(item))
+		return
+	end
+	if not actor:is_in_slot(item) then
+	return end
+	
+	local params = CIconParams("icon_loadout")
+	local icon_params = CIconParams(sect)
+
+	local cell_w = icon:GetWidth() / icon_params.grid_width
+	local cell_h = icon:GetHeight() / icon_params.grid_height
+	local width = params.grid_width * cell_w
+	local height = params.grid_height * cell_h
+	
+	in_slot_icon = CUIStatic()
+	params:set_shader(in_slot_icon)
+	
+	in_slot_icon:SetWidth(width)
+	in_slot_icon:SetHeight(height)
+	
+	local offset = GetOffset("right_top", in_slot_icon, icon)
+	
+	in_slot_icon:SetWndPos(offset.x, offset.y)
+	in_slot_icon:SetWindowName("in_slot_icon")
+	icon:AttachChild(in_slot_icon)	
+end
+
+function AttachAdditionalIcons(item, icon)
+	icon:DetachAll()
+	AttachWpnIcons(item, icon)
+	UpdateAmmoInBoxIcon(item, icon)
+	UpdateMarkedIcon(item, icon)
+	UpdateUpgrageIcon(item, icon)
+	UpdateInSlotIcon(item, icon)
+	UpdateConditionStatic(item, icon)
+end
