@@ -12,6 +12,8 @@ function is_hold_to_crouch()
 end
 
 function on_key_press(key, game_action)
+	if level.main_input_receiver() then
+	return end
 	if game_action == key_bindings.kR_LOOKOUT then
 		level.add_complex_effector("lean_right", 1903)
 	end
@@ -26,6 +28,8 @@ function on_key_press(key, game_action)
 end
 
 function on_key_release(key, game_action)
+	if level.main_input_receiver() then
+	return end
 	if game_action == key_bindings.kR_LOOKOUT then
 		level.add_complex_effector("lean_right", 1903)
 	end

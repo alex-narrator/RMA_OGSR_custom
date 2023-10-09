@@ -120,4 +120,4 @@ end
 	-- end	
 	-- actor:iterate_ruck(perform_action, nil)
 	
-ui_repair.create_window()
+actor:set_money(10)

@@ -24,7 +24,7 @@ function create_overlay(condition_limit, cost_k, uniquie_k, armor_repair_infop)
 	if not overlay then
 		overlay = RepairOverlay()		
 		overlay:SetRepairParams(condition_limit, cost_k, uniquie_k, armor_repair_infop)
-		overlay:InitItemsList()
+		overlay:Reinit()
 	end
 end
 
@@ -94,15 +94,12 @@ function RepairOverlay:InitControls()
 	
 	self.selected_item_back = xml:InitStatic("repair_back:selected_item_back", self.repair_back)
 	self.selected_item_st 	= xml:InitStatic("repair_back:selected_item_back:selected_item", self.selected_item_back)
-	self.selected_item_st:Show(false)
 	self.repair_cost 		= xml:InitStatic("repair_back:selected_item_back:repair_cost", self.selected_item_back)
-	self.repair_cost:Show(false)
 	
 	self.repair_button = xml:Init3tButton("repair_back:repair_button", self.repair_back)
 	name = "repair_button"
 	self:Register(self.repair_button, name)
 	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.Repair, self)
-	self.repair_button:Enable(false)
 	
 	self.exit_button = xml:Init3tButton("repair_back:exit_button", self.repair_back)
 	name = "exit_button"
@@ -127,15 +124,25 @@ function RepairOverlay:Update()
 	end
 end
 
+function RepairOverlay:Reinit()
+	self.selected_item_back:SetText("")
+	self.selected_item_st:Show(false)
+	self.repair_cost:Show(false)
+	self.repair_button:Enable(false)
+	self:InitItemsList()
+end
+
 function RepairOverlay:InitItemsList()
 	local item_st, params, name
 	
 	self.selected_item_id = nil
 	self.focused_item_id = nil
+	self.items_scroll_view_weapon:Clear()
+	self.items_scroll_view_armor:Clear()
 	
 	self.items = {}
 	function perform_action(dummy, item)
-		if item:is_weapon() or (item:is_outfit() and self.repair_armor) then
+		if self:RepairAllowed(item) then
 			params = CIconParams(item:section())
 			item_st = CUIStatic()
 			self.items[item:id()] = item_st
@@ -202,10 +209,11 @@ end
 
 function RepairOverlay:UpdateRepairInfo()
 	local cost_text
+	local color = self:HasMoneyToRepairItem(self.selected_item_id) and "%c[default]" or "%c[red]"
 	if self:NeedRepairItem(self.selected_item_id) then
-		cost_text = string.format("%s %s%s %s", 
+		cost_text = string.format("%s%s %s %s", 
+									color,
 									game.translate_string("ui_inv_repair_cost"), 
-									self:HasMoneyToRepairItem(self.selected_item_id) and "" or "%c[red]",
 									self:GetRepairCost(self.selected_item_id), 
 									game.translate_string("ui_st_money_regional"))
 	else
@@ -238,6 +246,11 @@ function RepairOverlay:HasMoneyToRepairItem(id)
 	return actor:money() >= self:GetRepairCost(id)
 end
 
+function RepairOverlay:RepairAllowed(item)
+	local item_allowed = item:is_weapon() or (item:is_outfit() and self.repair_armor)
+	return item_allowed and self:NeedRepairItem(item:id())
+end
+
 function RepairOverlay:CanRepairItem(id)
 	return self:NeedRepairItem(id) and self:HasMoneyToRepairItem(id)
 end
@@ -258,4 +271,6 @@ function RepairOverlay:Repair()
 	
 	local sound = item:is_weapon() and repair_sound_weapon or repair_sound_armor
 	xr_sound.get_safe_sound_object(sound,sound_object.s2d):play_at_pos(level.get_second_talker(),level.get_second_talker():position())
+	
+	self:Reinit()
 end
