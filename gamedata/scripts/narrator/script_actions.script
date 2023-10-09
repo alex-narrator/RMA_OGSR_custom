@@ -61,3 +61,14 @@ end
 function repair_6(obj)
 	repair_kit.repair(obj, actor:item_in_slot(6))
 end
+
+function can_donate(item)
+	local quest_item = read_if_exists(sys_ini, "r_bool", item:section(), "quest_item", false)
+	return not quest_item and parent_is_actor(item) and has_alife_info("ui_trade")
+end
+function donate(item)
+	actor:transfer_item(item, level.get_second_talker())
+	local goodwill = item:cost() * 0.01
+	log3("~npc %s, goodwill %s - donate on %s", level.get_second_talker():name(), level.get_second_talker():goodwill(actor), goodwill)
+	level.get_second_talker():change_goodwill(goodwill, actor)
+end

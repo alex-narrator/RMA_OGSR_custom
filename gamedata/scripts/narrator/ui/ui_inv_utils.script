@@ -1,24 +1,25 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function GetOffset(offset_type, icon, parent_icon)
+	local offset = vector()
 	if offset_type == "center" then
-		return vector():set(
+		return offset:set(
 			(parent_icon:GetWidth() / 2) - (icon:GetWidth() / 2), 
 			(parent_icon:GetHeight() / 2) - (icon:GetHeight() / 2), 
 			0)
 	elseif offset_type == "left_down" then
-		return vector():set(
+		return offset:set(
 			0, 
 			parent_icon:GetHeight() - icon:GetHeight(), 
 			0)
 	elseif offset_type == "left_top" then
-		offset = vector()
+		return offset
 	elseif offset_type == "right_top" then
-		return vector():set(
+		return offset:set(
 			parent_icon:GetWidth() - icon:GetWidth(),
 			0, 
 			0)
 	elseif offset_type == "right_down" then
-		return vector():set(
+		return offset:set(
 			parent_icon:GetWidth() - icon:GetWidth(),
 			parent_icon:GetHeight() - icon:GetHeight(), 
 			0)				
@@ -106,7 +107,7 @@ function UpdateConditionStatic(item, icon)
 	local text = string.format("%.0f%s", item:condition() * 100, "%")
 
 	local function update(static)
-		local offset = GetOffset("left_down", static, icon)
+		local offset = GetOffset("right_down", static, icon)
 		static:SetText(text)
 		static:SetWndPos(offset.x, offset.y)
 		icon:BringToTop(static)
