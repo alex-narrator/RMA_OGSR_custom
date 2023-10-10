@@ -14,6 +14,9 @@ function add_custom_info(UIDesc, obj)
 		attach_loaded_ammo(UIDesc, obj)
 		attach_weapon_addons(UIDesc, obj)
 	end
+	if loadout.is_module(obj) then
+		attach_loadout_slots(UIDesc, obj)
+	end
 end
 
 function attach_power_params(UIDesc, bind_obj)
@@ -164,4 +167,32 @@ function attach_weapon_addons(UIDesc, obj)
 		addons_list:SetText(addons_txt)
 		addons_list:AdjustHeightToText()
 	end
+end
+
+local loadout_slots = {
+		"pistol_ammo",
+		"rifle_ammo",
+		"shotgun_ammo",
+		"heavy_ammo",
+		"grenade",
+		"medicine",
+	}
+function attach_loadout_slots(UIDesc, item)
+	local xml = CScriptXmlInit()
+	xml:ParseFile("script_overlays\\loadout_slots.xml")
+	local slots_scroll_view = xml:InitScrollView("scroll_view_loadout", UIDesc)
+	local sect = item:section()
+	local count, icon, text
+	local _h = slots_scroll_view:GetHeight()
+	for k,v in ipairs(loadout_slots) do
+		count = read_if_exists(sys_ini, "r_u32", sect, v, 0)
+		log3("~count %s", count)
+		if count > 0 then
+			icon = xml:InitStatic("scroll_view_loadout:"..v.."_icon", slots_scroll_view)
+			text = string.format("+%s %s", count, game.translate_string("ui_st_"..v))
+			icon:SetText(text)
+			_h = _h + icon:GetHeight()
+		end
+	end
+	slots_scroll_view:SetHeight(_h)
 end

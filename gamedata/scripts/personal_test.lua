@@ -42,8 +42,9 @@ end
 
 local tgt = level.get_target_obj()
 if tgt then
-	log3("~ target section: %s | name: %s | profile: %s | species %s | nonscript usable %s", 
+	log3("~ target section: %s | id %s| name: %s | profile: %s | species %s | nonscript usable %s", 
 		tgt:section(), 
+		tgt:id(), 
 		tgt:name(), 
 		tgt:profile_name() and tgt:profile_name() or "NO PROFILE", 
 		read_if_exists(sys_ini, "r_string", tgt:section(), "species", "NO SPECIES"),
@@ -120,4 +121,6 @@ end
 	-- end	
 	-- actor:iterate_ruck(perform_action, nil)
 	
-actor:set_money(10)
+--game.play_hud_motion(2, get_hud_sect(actor:active_item()), "anm_bore", true, 1, true)
+
+alife():teleport_object(16531, actor:position(), actor:level_vertex_id(), actor:game_vertex_id())
