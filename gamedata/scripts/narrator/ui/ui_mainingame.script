@@ -1,4 +1,5 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
+local OVERLAY_XML = "script_overlays\\mainingame_overlay.xml"
 local overlay = nil
 
 function attach(sm)
@@ -68,7 +69,7 @@ function MainIngameOverlay:InitControls()
 	self:Show(true)
 	
 	local xml = CScriptXmlInit()
-	xml:ParseFile("script_overlays\\mainingame_overlay.xml")
+	xml:ParseFile(OVERLAY_XML)
 	
 	self.actor_params = xml:InitStatic("actor_params", self)
 	--//health bar
@@ -83,6 +84,12 @@ function MainIngameOverlay:InitControls()
 	self.stamina = xml:InitStatic("stamina", self.actor_params)
 	self.stamina_static = xml:InitStatic("stamina:stamina_static", self.stamina)
 	self.stamina_bar = xml:InitProgressBar("stamina:stamina_progress", self.stamina)
+	--//car condition bar
+	self.car = xml:InitStatic("car", self.actor_params)
+	self.car_static = xml:InitStatic("car:car_static", self.car)
+	self.car_bar = xml:InitProgressBar("car:car_progress", self.car)
+	self.car_color_def = self.car_static:GetColor()
+	self.car_color_engine_on = GetARGB(255, 0, 255, 0)
 
 	--// quick slots
 	self.quick_slots_back = xml:InitStatic("quick_slots_back", self)
@@ -138,4 +145,10 @@ function MainIngameOverlay:Update()
 	self.power_bar:SetProgressPos(actor.power)
 	self.stamina_bar:SetProgressPos(stamina.get_stamina())
 	self.stamina:Show(stamina.get_stamina()<1)
+	local car = actor:get_holder() and actor:get_holder():get_car()
+	self.car:Show(car)
+	if car then
+		self.car_bar:SetProgressPos(car:GetfHealth())
+		self.car_static:SetColor(car:IsEngineOn() and self.car_color_engine_on or self.car_color_def)
+	end
 end

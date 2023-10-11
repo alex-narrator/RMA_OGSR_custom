@@ -227,7 +227,7 @@ function InventoryOverlay:InitControls()
 	
 	--//date/time/money
 	self.char_info_back_npc = xml:InitStatic("char_info_back_npc", self)
-	self.char_info_icon_npc = xml:InitStatic("char_info_icon_npc", self.char_info_back_npc)
+	self.char_info_icon_comm_npc = xml:InitStatic("char_info_icon_comm_npc", self.char_info_back_npc)
 	self.char_info_text_npc = xml:InitStatic("char_info_text_npc", self.char_info_back_npc)
 	self.char_info_text_header_npc = xml:InitStatic("char_info_text_header_npc", self.char_info_back_npc)
 end
@@ -371,7 +371,7 @@ function InventoryOverlay:Update()
 	end
 	
 	self:UpdateWeightText()
-	self:UpdateDateTimeMoneyText()
+	self:UpdateDateTimeText()
 end
 
 function InventoryOverlay:ClearLoadout()
@@ -420,7 +420,7 @@ function InventoryOverlay:OnActorIconUpdate(icon)
 	end
 	self.char_info_icon:InitTexture(icon)
 	self.char_info_icon_comm:InitTexture(community.get_icon_sect(actor:character_community()))
-	self.char_info_icon_npc:InitTexture(community.get_icon_sect(actor:character_community()))
+	self.char_info_icon_comm_npc:InitTexture(community.get_icon_sect(actor:character_community()))
 end
 
 function InventoryOverlay:SetCharacterText()
@@ -478,7 +478,7 @@ function InventoryOverlay:UpdateWeightText()
 	self.inv_weight:SetText(weight_text)
 end
 
-function InventoryOverlay:UpdateDateTimeMoneyText()
+function InventoryOverlay:UpdateDateTimeText()
 
 	local _time = game.get_game_time()
 

@@ -96,10 +96,12 @@ function RepairOverlay:InitControls()
 	self.selected_item_st 	= xml:InitStatic("repair_back:selected_item_back:selected_item", self.selected_item_back)
 	self.repair_cost 		= xml:InitStatic("repair_back:selected_item_back:repair_cost", self.selected_item_back)
 	
+	self.actor_money = xml:InitStatic("repair_back:actor_money", self.repair_back)
+	
 	self.repair_button = xml:Init3tButton("repair_back:repair_button", self.repair_back)
 	name = "repair_button"
 	self:Register(self.repair_button, name)
-	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.Repair, self)
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.ShowRepairRequest, self)
 	
 	self.exit_button = xml:Init3tButton("repair_back:exit_button", self.repair_back)
 	name = "exit_button"
@@ -130,6 +132,7 @@ function RepairOverlay:Reinit()
 	self.repair_cost:Show(false)
 	self.repair_button:Enable(false)
 	self:InitItemsList()
+	self.actor_money:SetText(string.format("%s: %s %s", game.translate_string("ui_inv_money"), actor:money(), game.translate_string("ui_st_money_regional")))
 end
 
 function RepairOverlay:InitItemsList()
@@ -261,6 +264,19 @@ function RepairOverlay:GetRepairCost(id)
 	local item_corruption = 1 - item:condition()
 	local unique_k = read_if_exists(sys_ini, "r_bool", item:section(), "unique_item", false) and self.uniquie_k or 1
 	return math.floor(item_cost * item_corruption * unique_k)
+end
+
+function RepairOverlay:ShowRepairRequest()
+	local repair_msg_box = ui_message_box.MessageBoxWnd()
+	local msg_text = string.format(
+		"%s %s\\n%s %s %s ?", 
+		game.translate_string("st_repair_item"), 
+		game.translate_string(get_inv_name(level.object_by_id(self.selected_item_id):section())), 
+		game.translate_string("st_repair_with"), 
+		self:GetRepairCost(self.selected_item_id),
+		game.translate_string("ui_st_money_regional")
+		)
+	repair_msg_box:InitAction(msg_text, function() self:Repair() end)
 end
 
 function RepairOverlay:Repair()

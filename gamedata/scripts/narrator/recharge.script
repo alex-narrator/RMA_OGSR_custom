@@ -14,8 +14,14 @@ function can_recharge(obj, drop_on_obj)
 end
 
 function show_recharge_wnd(obj, drop_on_obj)
-	local recharge_wnd = ui_dragdrop_menu.DragdropMenuWnd()
-	recharge_wnd:InitAction("st_recharge_item", "st_recharge_with", recharge, obj, drop_on_obj)
+	local recharge_msg_box = ui_message_box.MessageBoxWnd()
+	local msg_text = string.format(
+		"%s %s\\n%s %s ?", 
+		game.translate_string("st_recharge_item"), 
+		game.translate_string(get_inv_name(drop_on_obj:section())), 
+		game.translate_string("st_recharge_with"), 
+		game.translate_string(get_inv_name(obj:section())))
+	recharge_msg_box:InitAction(msg_text, recharge, obj, drop_on_obj)
 end
 
 recharge_effector_id = 20001

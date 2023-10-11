@@ -41,8 +41,14 @@ function check_condition(obj, drop_on_obj)
 end
 
 function show_repair_wnd(obj, drop_on_obj)
-	local repair_wnd = ui_dragdrop_menu.DragdropMenuWnd()
-	repair_wnd:InitAction("st_repair_item", "st_repair_with", repair, obj, drop_on_obj)
+	local repair_msg_box = ui_message_box.MessageBoxWnd()
+	local msg_text = string.format(
+		"%s %s\\n%s %s ?", 
+		game.translate_string("st_repair_item"), 
+		game.translate_string(get_inv_name(drop_on_obj:section())), 
+		game.translate_string("st_repair_with"), 
+		game.translate_string(get_inv_name(obj:section())))
+	repair_msg_box:InitAction(msg_text, repair, obj, drop_on_obj)
 end
 
 repair_effector_id = 20000

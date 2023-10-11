@@ -1,0 +1,44 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+class "MessageBoxWnd" (CUIScriptWnd)
+
+function MessageBoxWnd:__init(owner) super()
+	self.owner = level.main_input_receiver()
+	self:Init(0, 0, 1024, 768)
+	self:InitWnd()
+end
+
+function MessageBoxWnd:DetachWnd()
+	self:ClearCallbacks()
+	self.owner:DetachChild(self.message_box)
+end
+
+function MessageBoxWnd:InitWnd()	
+	local xml = CScriptXmlInit()
+	xml:ParseFile("message_box.xml")
+
+	self.message_box = CUIMessageBox()
+	self.message_box:Init("message_box_accept_decline")
+	self:Register(self.message_box, "message_box")
+	
+	self:AddCallback("message_box", ui_events.MESSAGE_BOX_YES_CLICKED, self.ProcessAction, self)
+	self:AddCallback("message_box", ui_events.MESSAGE_BOX_NO_CLICKED, self.HideWnd, self)
+	
+	self.owner:AttachChild(self.message_box)
+	self.message_box:Show(true)
+end
+
+function MessageBoxWnd:InitAction(message_text, action_func, ...)
+	self.action = action_func
+	self.args = {...}
+	self.message_box:SetText(message_text)
+end
+
+function MessageBoxWnd:ProcessAction()
+	self.action(unpack(self.args))
+	self:HideWnd()
+end
+
+function MessageBoxWnd:HideWnd()
+	self.owner:GetHolder():start_stop_menu(self.message_box, true)
+	self:DetachWnd()
+end
