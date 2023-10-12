@@ -121,6 +121,6 @@ end
 	-- end	
 	-- actor:iterate_ruck(perform_action, nil)
 	
---game.play_hud_motion(2, get_hud_sect(actor:active_item()), "anm_bore", true, 1, true)
+game.play_hud_motion(1, get_hud_sect(actor:active_item_2()), "anm_idle", true)
 
-alife():teleport_object(16531, actor:position(), actor:level_vertex_id(), actor:game_vertex_id())
+--alife():teleport_object(16531, actor:position(), actor:level_vertex_id(), actor:game_vertex_id())
