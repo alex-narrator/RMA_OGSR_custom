@@ -1649,11 +1649,14 @@ function is_corruptible(obj)
 	return se_obj and se_obj.last_time_called
 end
 --//інфоповідомлення на худі, у рушійному стилі
-function hud_add_info_message(static_id, text)
+function hud_add_info_message(static_id, text, ttl)
 	local hud = get_hud()
 	local static = hud:GetCustomStatic(static_id)
 	if not static then
 		static = hud:AddCustomStatic(static_id, true)
+		if ttl then
+			hud:GetCustomStatic(static_id).m_endTime = time_global()/1000 + ttl
+		end
 	end
 	static:wnd():SetTextST(text)
 end

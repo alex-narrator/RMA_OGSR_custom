@@ -8,6 +8,7 @@ end
 local info_action = {
 	[key_bindings.kCHECKGEAR] = true,
 	[key_bindings.kCHECKACTIVEITEM] = true,
+	[key_bindings.kWPN_FUNC] = true,
 }
 
 local info_state = {
@@ -62,8 +63,9 @@ function try_show_active_item_info()
 	
 	if act_item_2 and act_item_2:get_detector() and act_item_2:get_detector():can_switch_modes() then
 		local det_mode = act_item_2:get_detector():is_af_mode() and "st_af_mode" or "st_zone_mode"
-		local str = string.format("%s: %s", game.translate_string(get_inv_name(act_item_2:section())), game.translate_string(det_mode))
-		hud_add_info_message("item_usage", str)
+		local power = is_power_device(act_item_2) and act_item_2:binded_object():get_power_level() or 1
+		local str = string.format("%s: %s [%.0f%s]", game.translate_string(get_inv_name(act_item_2:section())), game.translate_string(det_mode), power*100,"%")
+		hud_add_info_message("item_usage", str, ACTIVE_ITEM_INFO_TTL)
 	end
 	
 	get_main_window().show_active_item_info = true

@@ -125,6 +125,34 @@ function UpdateConditionStatic(item, icon)
 	update(icon_condition)
 end
 
+function UpdateConditionProgress(item, icon)
+	if not read_if_exists(sys_ini, "r_bool", "features", "show_inv_item_condition", false) then
+	return end
+	if not read_if_exists(sys_ini, "r_bool", item:section(), "use_condition", false) and not is_power_device(item) then
+	return end
+	local pos = is_power_device(item) and item:binded_object():get_power_level() or item:condition()
+
+	local function update(progress_bar)
+		local offset = GetOffset("left_down", progress_bar, icon)
+		offset.y = offset.y - 1
+		progress_bar:SetWndPos(offset.x, offset.y)
+		progress_bar:SetWidth(icon:GetWidth() - 3)
+		icon:BringToTop(progress_bar)
+		progress_bar:SetProgressPos(pos)
+	end
+
+	local condition_progess_bar = icon:FindChild("condition_progess_bar")
+	if condition_progess_bar then
+		condition_progess_bar = condition_progess_bar:GetProgressBar()
+		update(condition_progess_bar)
+	return end
+	local xml = CScriptXmlInit()
+	xml:ParseFile(OVERLAY_XML)
+	condition_progess_bar = xml:InitProgressBar("condition_progess_bar", icon)
+	condition_progess_bar:SetWindowName("condition_progess_bar")
+	update(condition_progess_bar)
+end
+
 function UpdateAmmoInBoxIcon(item, icon)
 	local ammo = item:get_weapon_ammo()
 	if not ammo or not ammo:is_magazine() then
@@ -274,4 +302,5 @@ function AttachAdditionalIcons(item, icon)
 	UpdateUpgrageIcon(item, icon)
 	UpdateInSlotIcon(item, icon)
 	UpdateConditionStatic(item, icon)
+	UpdateConditionProgress(item, icon)
 end
