@@ -1,6 +1,15 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
 	sm:subscribe({signal = "on_key_press",   fun = this.on_key_press})
+	sm:subscribe({signal = "on_slot",   fun = this.on_slot})
+end
+
+local last_gasmask_sect = nil
+
+function on_slot(obj, prev_place)
+	if obj:is_gasmask() then
+		last_gasmask_sect = obj:section()
+	end
 end
 
 function on_key_press(key, game_action)
@@ -9,24 +18,27 @@ function on_key_press(key, game_action)
 	return end
 	
 	local mask = actor_get_gasmask()
-	
 	if not mask then
-		for i = 0, actor:belt_count() - 1 do
-			local item = actor:item_on_belt(i)
-			if item and item:is_gasmask() then
-				mask = item
-			break end
-		end
+		mask = last_gasmask_sect and actor:object(last_gasmask_sect) or nil
 	end
+
+	-- if not mask then
+		-- for i = 0, actor:belt_count() - 1 do
+			-- local item = actor:item_on_belt(i)
+			-- if item and item:is_gasmask() then
+				-- mask = item
+			-- break end
+		-- end
+	-- end
 	
-	if not mask then
-		for i = 0, actor:vest_count() - 1 do
-			local item = actor:item_on_vest(i)
-			if item and item:is_gasmask() then
-				mask = item
-			break end
-		end
-	end
+	-- if not mask then
+		-- for i = 0, actor:vest_count() - 1 do
+			-- local item = actor:item_on_vest(i)
+			-- if item and item:is_gasmask() then
+				-- mask = item
+			-- break end
+		-- end
+	-- end
 	
 	if mask then
 		wear_mask(mask)
@@ -37,16 +49,24 @@ function wear_mask(item)
 	if not actor_hands_free() then
 	return end
 	
+	local str = nil
+	
 	if actor:is_in_slot(item) then
-		if actor:can_put_in_belt(item) then
-			actor:move_to_belt(item)
-		elseif actor:can_put_in_vest(item) then
-			actor:move_to_vest(item)
-		else
-			actor:drop_item(item)
-			hud_add_info_message("item_usage", "st_gasmask_dropped")
-		end
+		actor:move_to_ruck(item)
+		str = string.format("%s %s", game.translate_string("st_gasmask_off"), game.translate_string(get_inv_name(item:section())))
+		-- if actor:can_put_in_belt(item) then
+			-- actor:move_to_belt(item)
+		-- elseif actor:can_put_in_vest(item) then
+			-- actor:move_to_vest(item)
+		-- else
+			-- actor:drop_item(item)
+			-- hud_add_info_message("item_usage", "st_gasmask_dropped")
+		-- end
 	elseif actor:can_put_in_slot(item, item:get_slot()) then
 			actor:move_to_slot(item)
+			str = string.format("%s %s", game.translate_string("st_gasmask_on"), game.translate_string(get_inv_name(item:section())))
+	end
+	if str then
+		hud_add_info_message("item_usage", str)
 	end
 end

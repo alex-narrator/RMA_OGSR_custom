@@ -69,13 +69,24 @@ end
 
 function get_item(slot_num)
 	local sect = quick_sect[slot_num]
-	local item
+	local item = nil
+	--шукаємо предмети у розгрузці
 	for k,v in pairs(loadout.loaded_items) do
 		item = level.object_by_id(k)
 		if item and item:section() == sect then
 			return item
 		end
 	end
+	--шукаєм рюкзак
+	if actor_get_backpack() and actor_get_backpack():section() == sect then
+		return actor_get_backpack()
+	end
+	--шукаємо протигаз
+	if actor_get_gasmask() and actor_get_gasmask():section() == sect then
+		return actor_get_gasmask()
+	elseif actor:object(sect) and actor:object(sect):is_gasmask() then
+		return actor:object(sect)
+	end	
 	return nil
 end
 
@@ -101,11 +112,22 @@ function get_item_count(slot_num)
 		return res
 	end
 	local item
+	--шукаєм предмети у розгрузці
 	for k,v in pairs(loadout.loaded_items) do
 		item = level.object_by_id(k)
 		if item and item:section() == sect then
 			res = res + 1
 		end
+	end
+	--шукаєм рюкзак
+	if actor_get_backpack() and actor_get_backpack():section() == sect then
+		res = res + 1
+	end
+	--шукаємо протигаз
+	if actor_get_gasmask() and actor_get_gasmask():section() == sect then
+		res = res + 1
+	elseif actor:object(sect) and actor:object(sect):is_gasmask() then
+		res = res + 1
 	end
 	return res
 end
