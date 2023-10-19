@@ -1,0 +1,19 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "inv_drag_drop", fun = this.on_drag_drop})
+end
+
+function on_drag_drop(obj, drop_on_obj)
+	local iitem = obj:get_inventory_item()
+	local drop_on_iitem = drop_on_obj:get_inventory_item()
+	
+	if not drop_on_obj:get_weapon() or actor:is_in_slot(drop_on_obj) then
+		drop_on_obj:is_direct_reload(obj)
+	end
+	
+	if drop_on_iitem:can_attach_addon(iitem) then
+		if drop_on_iitem:attach_addon(iitem, true) then
+			xr_sound.get_safe_sound_object([[interface\inv_attach_addon]],sound_object.s2d):play_at_pos(actor,actor:position())
+		end
+	end
+end

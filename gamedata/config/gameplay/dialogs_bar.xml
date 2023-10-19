@@ -7190,7 +7190,16 @@
             </phrase>
             <phrase id="11114">
                 <text>bar_bar_psih_talk_lisiy_11114</text>
-                <action>dialogs.break_dialog</action>
+				<next>11115</next>
+            </phrase>
+			<phrase id="11115">
+                <text>bar_bar_psih_talk_lisiy_11115</text>
+                <action>bar_dialogs.actor_take_ryaboy_art</action>
+				<next>11116</next>
+            </phrase>
+			<phrase id="11116">
+                <text>bar_bar_psih_talk_lisiy_11116</text>
+                <action>bar_dialogs.play_bar_psih_suicide_demo</action>
                 <give_info>bar_psih_suicide</give_info>
             </phrase>
         </phrase_list>
@@ -7279,6 +7288,28 @@
 			</phrase>
 		</phrase_list>
 	</dialog>
+	<dialog id="bar_barman_storage">
+		<precondition>bar_dialogs.storage_locked</precondition>
+		<phrase_list>
+			<phrase id="0">
+				<text>bar_bar_barmen_open_storage_request</text>
+				<next>bar_bar_barmen_storage_price</next>
+			</phrase>
+			<phrase id="bar_bar_barmen_storage_price">
+				<script_text>bar_dialogs.storage_open_price_text</script_text>
+				<next>bar_bar_barmen_storage_price_accept</next>
+				<next>bar_bar_barmen_storage_price_decline</next>
+			</phrase>
+			<phrase id="bar_bar_barmen_storage_price_accept">
+				<precondition>bar_dialogs.has_money_to_open</precondition>
+				<text>bar_bar_barmen_storage_price_accept</text>
+				<action>bar_dialogs.unlock_storage</action>
+			</phrase>
+			<phrase id="bar_bar_barmen_storage_price_decline">
+				<text>bar_bar_barmen_storage_price_decline</text>
+			</phrase>
+		</phrase_list>
+    </dialog>	
 	<dialog id="bar_svoboda_dialog">
 		<dont_has_info>bar_kill_professor_fail</dont_has_info>
 		<dont_has_info>bar_kill_professor_done</dont_has_info>

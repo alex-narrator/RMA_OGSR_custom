@@ -46,6 +46,9 @@ angle_offset			 = 1.570790,1.570790,3.92699
 eat_satiety = 0.2
 eat_portions_num = 2
 
+boost_satiety = 0.2
+boost_time = 30
+
 radiation_accum_factor = 0.1
 radiation_accum_limit = 1
 
@@ -80,6 +83,9 @@ angle_offset			 = 1.570790,1.570790,3.92699
 ; eatable item
 eat_satiety = 0.3
 
+boost_satiety = 0.3
+boost_time = 30
+
 hud = kolbasa_hud
 
 [conserva]:food_base
@@ -99,6 +105,8 @@ cost				= 100
 
 ; eatable item
 eat_satiety = 0.4
+boost_satiety = 0.4
+boost_time = 30
 
 attach_angle_offset		= 0.440521, 1.378287, -0.644026
 attach_position_offset	= 0.104196, -0.010821, 0.076969
@@ -149,6 +157,10 @@ eat_satiety		= -0.01
 eat_alcohol		= 0.066
 eat_portions_num 	= 5
 
+boost_satiety = -0.2
+boost_alcohol = 0.01
+boost_time = 30
+
 menu_use_tip = st_drink
 
 break_particles		= explosions\explosion_bottle
@@ -156,8 +168,10 @@ break_sound			= material\bottle\collide\bottle_break_1
 
 hud 				= vodka_hud
 
-[energy_drink]:vodka
+[energy_drink]:food_base
 $spawn 				= "food and drugs\energy_drink"
+class				= II_BOTTL
+cform				= skeleton
 inv_name			= energy_drink_name
 inv_name_short		= energy_drink_short_name
 visual				= equipments\drink_nonstop.ogf ;equipments\drink_stalker.ogf
@@ -172,15 +186,15 @@ inv_weight			= 0.3
 
 eat_portions_num 	= 1
 
-eat_alcohol			= 0
 eat_power			= 1.0
-eat_max_power		= 0.2
 
-boost_max_power = 0.2
 boost_satiety = -0.2
 boost_power = 2
+boost_sprint = 0.1
+boost_jump = 0.1
+boost_weight = 0.1
 
-boost_time = 15
+boost_time = 30
 
 attach_angle_offset		= 0.000000, 0.000000, 0.000000
 attach_position_offset	= 0.087266, -0.078540, 0.052360

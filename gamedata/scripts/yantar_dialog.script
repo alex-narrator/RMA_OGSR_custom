@@ -11,3 +11,29 @@ function yantar_give_quest_artefact(first_speaker, second_speaker)
         db.actor:give_info_portion("yantar_ecolog_give_reward")
     end
 end
+
+--ремонт у Круглова/Семенова
+--condition_limit, cost_k, uniquie_k, armor_repair_infop
+function show_repair()
+	ui_repair.create_overlay(0.95, 1, 3)
+end
+
+function unlock_storage()
+	store_box.unlock_by_name("yantar_sakharov_box")
+end
+
+function storage_locked()
+ 	return not store_box.is_opened(cobj_by_name("yantar_sakharov_box"))
+end
+
+function assistant_dead()
+	local kruglov = level_object_by_sid(900)
+	local semenov = level_object_by_sid(905)
+	return (kruglov and not kruglov:alive()) or (semenov and not semenov:alive())
+end
+
+function assistant_alive()
+	local kruglov = level_object_by_sid(900)
+	local semenov = level_object_by_sid(905)
+	return (kruglov and kruglov:alive()) or (semenov and semenov:alive())
+end

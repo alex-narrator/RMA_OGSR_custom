@@ -103,7 +103,8 @@ function CRandomTask:__init()
 
 		local sss = utils.cfg_get_string(self.task_ini, id, "reward_item", nil, false, "")
 		if sss ~= nil then
-			curr_task_info.reward_item = se_respawn.parse_names(sss) 
+			curr_task_info.reward_item = se_respawn.parse_names(sss)
+			curr_task_info.reward_item_placement = read_if_exists(self.task_ini, "r_string", id, "reward_item_placement", nil)
 		else
 			curr_task_info.reward_item = sss
 		end
@@ -123,7 +124,7 @@ function CRandomTask:__init()
 			curr_task_info.condlist			= xr_logic.parse_condlist(db.actor, "task_manager", "condlist", "true")
 		end		
 	
-		curr_task_info.need_return			= utils.cfg_get_bool(self.task_ini, id, "need_return", nil, false, true)
+		curr_task_info.need_return			= read_if_exists(self.task_ini, "r_bool", id, "need_return", true) --utils.cfg_get_bool(self.task_ini, id, "need_return", nil, false, true)
 
 		curr_task_info.init_phrase_id		= self:gen_phrase_id()
 		curr_task_info.desc_phrase_id		= self:gen_phrase_id()
@@ -722,22 +723,55 @@ function CRandomTask:init_task_dialog(dlg, parent)
 	phrase_script = phr:GetPhraseScript()
 	phrase_script:AddPrecondition("task_manager.precondition_vendor_cannot_task")
 	
+	local task_info
 	for k,v in pairs(self.task_id_by_parent[parent]) do
-		phr = dlg:AddPhrase(self.task_info[v].name, tostring(self.task_info[v].init_phrase_id), "1", -10000)		
+		task_info = self.task_info[v]
+		
+		phr = dlg:AddPhrase(task_info.name, tostring(task_info.init_phrase_id), "1", -10000)		
 		phrase_script = phr:GetPhraseScript()
 		phrase_script:AddPrecondition("task_manager.precondition_task_avail")
 
-		phr = dlg:AddPhrase(self.task_info[v].text, tostring(self.task_info[v].desc_phrase_id), tostring(self.task_info[v].init_phrase_id), -10000)
+		phr = dlg:AddPhrase(task_info.text, tostring(task_info.desc_phrase_id), tostring(task_info.init_phrase_id), -10000)
+		phr:SetText(self:GetDescriptionTextEx(task_info))
 		
-		phr = dlg:AddPhrase("tm_seek_job_yes", tostring(self.task_info[v].yes_phrase_id), tostring(self.task_info[v].desc_phrase_id), -10000)
+		phr = dlg:AddPhrase("tm_seek_job_yes", tostring(task_info.yes_phrase_id), tostring(task_info.desc_phrase_id), -10000)
 		phrase_script = phr:GetPhraseScript()
 		phrase_script:AddAction("task_manager.action_give_task")
 
-		phr = dlg:AddPhrase("tm_seek_job_no", tostring(self.task_info[v].no_phrase_id), tostring(self.task_info[v].desc_phrase_id), -10000)
+		phr = dlg:AddPhrase("tm_seek_job_no", tostring(task_info.no_phrase_id), tostring(task_info.desc_phrase_id), -10000)
 	end
 
 	dlg:AddPhrase("tm_seek_job_abandon","3","1",-10000)
 end
+
+function CRandomTask:GetDescriptionTextEx(task_info)
+	local reward_text = string.format("%s%s%s", "%c[white]", game.translate_string("ui_st_reward"), "\\n")
+	local money = task_info.reward_money or nil
+	local items = task_info.reward_item or nil
+	local list_prefix = string.format("%s%s ", "%c[UI_orange]", "Х")--"%c[UI_orange]".."Х".." "
+	if money then
+		money = string.format("%s%s %s%s",list_prefix, money, game.translate_string("ui_st_money_regional"), "\\n")
+		reward_text = string.format("%s%s", reward_text, money)
+	end
+	if items then
+		local items_list = {}
+		for kk,vv in pairs(items) do
+			if not items_list[vv] then
+				items_list[vv] = 1
+			else
+				items_list[vv] = items_list[vv] + 1
+			end
+		end
+		local str_sect, str_count
+		for sect,count in pairs(items_list) do
+			str_count = count > 1 and string.format("x%s ", count) or ""
+			str_sect = string.format("%s%s %s%s",list_prefix, game.translate_string(get_inv_name(sect)), str_count, "\\n")
+			reward_text = string.format("%s%s", reward_text, str_sect)
+		end
+	end
+	return string.format("%s%s%s", game.translate_string(task_info.text) , "\\n", reward_text)
+end
+
 --' ‘ункци€, в которой будет выдаватьс€ вещева€ награда за выполненные квесты
 function CRandomTask:task_reward(npc, actor, p1, p2)
 	local parent = self:get_parent(npc)	
@@ -774,8 +808,9 @@ function CRandomTask:task_reward(npc, actor, p1, p2)
 				end
 				
 				if task_desc.reward_item ~= nil then
+					local receiver = task_desc.reward_item_placement and cobj_by_name(task_desc.reward_item_placement) or actor
 					for kk,vv in pairs(task_desc.reward_item) do
-						dialogs.relocate_item_section(npc, vv, "in")
+						dialogs.relocate_item_section(npc, vv, "in", receiver)
 					end
 				end
 

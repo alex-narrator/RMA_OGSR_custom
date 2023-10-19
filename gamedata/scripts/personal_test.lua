@@ -42,13 +42,14 @@ end
 
 local tgt = level.get_target_obj()
 if tgt then
-	log3("~ target section: %s | id %s| name: %s | profile: %s | species %s | nonscript usable %s", 
+	log3("~ target section: %s | id %s| name: %s | profile: %s | species %s | nonscript usable %s | position (%s, %s, %s)", 
 		tgt:section(), 
 		tgt:id(), 
 		tgt:name(), 
 		tgt:profile_name() and tgt:profile_name() or "NO PROFILE", 
 		read_if_exists(sys_ini, "r_string", tgt:section(), "species", "NO SPECIES"),
-		tgt:is_nonscript_usable())
+		tgt:is_nonscript_usable(),
+		tgt:position().x, tgt:position().y, tgt:position().z)
 		
 	-- if tgt:is_stalker() or tgt:is_inventory_box() then
 		-- actor:start_carbody(tgt)
@@ -121,6 +122,8 @@ end
 	-- end	
 	-- actor:iterate_ruck(perform_action, nil)
 	
-game.play_hud_motion(1, get_hud_sect(actor:active_item_2()), "anm_idle", true)
+--game.play_hud_motion(1, get_hud_sect(actor:active_item_2()), "anm_idle", true)
 
 --alife():teleport_object(16531, actor:position(), actor:level_vertex_id(), actor:game_vertex_id())
+
+--log3("actor position (%s, %s, %s)", actor:position().x, actor:position().y, actor:position().z)

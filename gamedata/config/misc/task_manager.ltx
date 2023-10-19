@@ -225,10 +225,13 @@ cit_killers_base
 cit_find_vp
 sec_monster_attack
 
+[remote_task]
+need_return = false
 
+[trader_remote_task]:remote_task
+reward_item_placement = escape_sidor_box
 
-
-[tm_eliminate_camp_1]
+[tm_eliminate_camp_1]:trader_remote_task
 type = eliminate_lager
 community = actor
 init_condition = {=actor_on_level(l02_garbage) +agroprom_military_case_have}
@@ -243,8 +246,7 @@ reward_rank = 5
 reward_item = grenade_rgd5, grenade_rgd5
 time = 86400
 
-
-[tm_eliminate_camp_2]
+[tm_eliminate_camp_2]:trader_remote_task
 type = eliminate_lager
 community = actor
 init_condition = {=actor_on_level(l01_Escape) +agroprom_military_case_have}
@@ -261,7 +263,7 @@ time = 86400
 ;idle_time = 84000
 prior = 3
 
-[tm_eliminate_camp_3]
+[tm_eliminate_camp_3]:trader_remote_task
 type = eliminate_lager
 community = actor
 init_condition = {=actor_on_level(l03u_agr_underground)}
@@ -276,7 +278,7 @@ reward_rank = 5
 reward_item = grenade_rgd5, grenade_rgd5
 time = 86400
 
-[tm_eliminate_camp_4]
+[tm_eliminate_camp_4]:trader_remote_task
 type = eliminate_lager
 community = actor
 text = tm_eliminate_camp_4_text
@@ -292,7 +294,7 @@ time = 86400
 ;idle_time = 84000
 prior = 1
 
-[tm_eliminate_camp_5]
+[tm_eliminate_camp_5]:trader_remote_task
 type = eliminate_lager
 community = actor
 ;--init_condition = {=actor_on_level(l02_garbage) +agroprom_military_case_have}
@@ -309,7 +311,7 @@ time = 86400
 ;idle_time = 84000
 prior = 2
 
-[tm_eliminate_camp_6]
+[tm_eliminate_camp_6]:trader_remote_task
 type = eliminate_lager
 community = actor
 init_condition = {=actor_on_level(l04_darkvalley)}
@@ -383,7 +385,7 @@ reward_item = medkit_army, medkit_army, medkit_army
 time = 86400
 prior = 3
 
-[tm_kill_stalker_1]
+[tm_kill_stalker_1]:trader_remote_task
 type = kill_stalker
 community = actor
 init_condition = {=actor_on_level(l02_garbage)}
@@ -398,7 +400,7 @@ reward_item = wpn_ak74u, ammo_5.45x39_ap, ammo_5.45x39_ap, ammo_5.45x39_ap, ammo
 reward_rank = 6
 time = 86400
 
-[tm_kill_stalker_2]
+[tm_kill_stalker_2]:trader_remote_task
 type = kill_stalker
 community = actor
 ;condlist = {+agroprom_military_case_have}
@@ -413,7 +415,7 @@ reward_rank = 5
 time = 86400
 prior = 3
 
-[tm_kill_stalker_3]
+[tm_kill_stalker_3]:trader_remote_task
 type = kill_stalker
 community = actor
 text = tm_kill_stalker_3_text
@@ -427,7 +429,7 @@ reward_item = af_blood
 time = 86400
 prior = 2
 
-[tm_kill_stalker_4]
+[tm_kill_stalker_4]:trader_remote_task
 type = kill_stalker
 community = actor
 condlist = {+agroprom_military_case_done}
@@ -441,7 +443,7 @@ reward_item = af_ameba_mica
 time = 86400
 prior = 4
 
-[tm_kill_stalker_5]
+[tm_kill_stalker_5]:trader_remote_task
 type = kill_stalker
 community = actor
 condlist = {+agroprom_military_case_done}
@@ -455,7 +457,7 @@ reward_item = af_fuzz_kolobok
 time = 86400
 prior = 5
 
-[tm_kill_stalker_6]
+[tm_kill_stalker_6]:trader_remote_task
 type = kill_stalker
 community = actor
 text = tm_kill_stalker_6_text
@@ -483,7 +485,7 @@ reward_reputation = +15
 reward_rank = 3
 ;time = 86400
 
-[tm_defend_camp_1]
+[tm_defend_camp_1]:trader_remote_task
 type = defend_lager
 community = actor
 init_condition = {=actor_on_level(l04_darkvalley) =gulag_state(val_smart_bandit_2:1)}
@@ -527,9 +529,10 @@ time = 86400
 reward_item = ammo_12x76_dart, ammo_12x76_dart, ammo_12x76_dart, ammo_12x76_dart, ammo_12x76_dart
 prior = 1
 
+[barman_remote_task]:remote_task
+reward_item_placement = bar_barman_box
 
-
-[barmen_eliminate_camp_1]
+[barmen_eliminate_camp_1]:barman_remote_task
 type = eliminate_lager
 community = actor
 text = barmen_eliminate_camp_1_text
@@ -544,7 +547,7 @@ reward_item = vodka, grenade_f1
 time = 86400
 prior = 1
 
-[barmen_eliminate_camp_2]
+[barmen_eliminate_camp_2]:barman_remote_task
 type = eliminate_lager
 community = actor
 init_condition = {=actor_on_level(l06_rostok)}
@@ -570,7 +573,7 @@ time = 86400
 ;--reward_reputation = +40
 ;--reward_rank = 7
 
-[barmen_eliminate_camp_4]
+[barmen_eliminate_camp_4]:barman_remote_task
 type = eliminate_lager
 community = actor
 text = barmen_eliminate_camp_4_text
@@ -585,7 +588,7 @@ reward_item = grenade_f1
 time = 86400
 prior = 4
 
-[barmen_eliminate_camp_5]
+[barmen_eliminate_camp_5]:barman_remote_task
 type = eliminate_lager
 community = actor
 init_condition = {=actor_on_level(l06_rostok)}
@@ -601,7 +604,7 @@ reward_item = grenade_f1
 time = 86400
 prior = 3
 
-[barmen_eliminate_camp_6]
+[barmen_eliminate_camp_6]:barman_remote_task
 type = eliminate_lager
 community = actor
 text = barmen_eliminate_camp_6_text
@@ -616,7 +619,7 @@ reward_item = grenade_f1
 time = 86400
 prior = 2
 
-[barmen_eliminate_camp_7]
+[barmen_eliminate_camp_7]:barman_remote_task
 type = eliminate_lager
 community = actor
 text = barmen_eliminate_camp_7_text
@@ -630,7 +633,6 @@ reward_rank = 6
 reward_item = grenade_f1, grenade_f1
 time = 86400
 prior = 5
-
 
 [barmen_find_artefact_1]
 type = artefact
@@ -702,7 +704,7 @@ target = af_gold_fish
 reward_reputation = +40
 reward_rank = 7
 time = 86400
-reward_item = wpn_lr300, wpn_addon_grenade_launcher_m203, wpn_addon_scope_susat, wpn_addon_silencer
+reward_item = wpn_lr300, wpn_addon_grenade_launcher_m203, wpn_addon_scope_acog, wpn_sil_nato
 prior = 5
 
 ;[barmen_kill_stalker_1]
@@ -719,7 +721,7 @@ prior = 5
 ;time = 86400
 ;prior = 1
 
-[barmen_kill_stalker_2]
+[barmen_kill_stalker_2]:barman_remote_task
 type = kill_stalker
 community = actor
 condlist = {+bar_darklab_document_done}
@@ -733,11 +735,10 @@ reward_item = af_soul
 time = 86400
 prior = 3
 
-[barmen_kill_stalker_3]
+[barmen_kill_stalker_3]:barman_remote_task
 type = kill_stalker
 community = actor
 init_condition = {=actor_on_level(l10_radar) +yan_kill_brain_done}
-need_return = false
 text = barmen_kill_stalker_3_text
 description = barmen_kill_stalker_3_descr
 parent = barman
@@ -747,7 +748,7 @@ reward_reputation = +200
 reward_rank = 20
 time = 86400
 
-[barmen_kill_stalker_4]
+[barmen_kill_stalker_4]:barman_remote_task
 type = kill_stalker
 community = actor
 text = barmen_kill_stalker_4_text
@@ -760,7 +761,7 @@ reward_item = af_fireball
 time = 86400
 prior = 2
 
-[barmen_kill_stalker_5]
+[barmen_kill_stalker_5]:barman_remote_task
 type = kill_stalker
 community = actor
 condlist = {+bar_darklab_document_done}
@@ -840,7 +841,7 @@ reward_rank = 5
 time = 86400
 prior = 2
 
-[barmen_defend_camp_1]
+[barmen_defend_camp_1]:barman_remote_task
 type = defend_lager
 community = actor
 text = barmen_defend_camp_1_text
@@ -854,7 +855,7 @@ reward_rank = 10
 reward_item = af_gravi
 time = 86400
 
-[barmen_defend_camp_2]
+[barmen_defend_camp_2]:barman_remote_task
 type = defend_lager
 community = actor
 text = barmen_defend_camp_2_text
@@ -868,10 +869,11 @@ reward_rank = 8
 reward_item = af_ameba_slug
 time = 86400
 
-
 ;--------------------Ecolog-----------------------------
+[ecolog_remote_task]:remote_task
+reward_item_placement = yantar_sakharov_box
 
-[ecolog_eliminate_lager_1]
+[ecolog_eliminate_lager_1]:ecolog_remote_task
 type = eliminate_lager
 community = actor
 init_condition = {=actor_on_level(l08_yantar) +yan_kill_brain_done}
@@ -887,7 +889,7 @@ reward_item = medkit_scientic, medkit_scientic
 time = 86400
 prior = 1
 
-[ecolog_eliminate_lager_2]
+[ecolog_eliminate_lager_2]:ecolog_remote_task
 type = eliminate_lager
 community = actor
 init_condition = {=actor_on_level(l06_rostok) +yan_kill_brain_done}
@@ -942,7 +944,7 @@ reward_money = 1000
 reward_reputation = +10
 reward_relation = ecolog, +15
 reward_rank = 2
-reward_item = wpn_addon_scope_susat
+reward_item = wpn_addon_scope_acog
 time = 86400
 prior = 2
 
@@ -1066,13 +1068,10 @@ reward_item = scientific_outfit
 time = 86400
 prior = 5
 
+[dolg_remote_task]:remote_task
+reward_item_placement = bar_voronin_dolg_box
 
-
-
-
-
-
-[dolg_defend_lager_1]
+[dolg_defend_lager_1]:dolg_remote_task
 type = defend_lager
 community = actor
 init_condition = {=actor_on_level(l02_garbage) =gulag_state(gar_smart_boars:1)}
@@ -1087,8 +1086,7 @@ reward_rank = 6
 reward_item = ammo_9x39_ap, ammo_9x39_ap, ammo_vog-25
 time = 86400
 
-
-[dolg_eliminate_lager_1]
+[dolg_eliminate_lager_1]:dolg_remote_task
 type = eliminate_lager
 community = actor
 init_condition = {=actor_on_level(l08_yantar) +yantar_tunnel_finish}
@@ -1103,8 +1101,7 @@ reward_rank = 6
 reward_item = ammo_9x39_ap, ammo_9x39_ap, ammo_vog-25
 time = 86400
 
-
-[dolg_eliminate_lager_2]
+[dolg_eliminate_lager_2]:dolg_remote_task
 type = eliminate_lager
 community = actor
 ;init_condition = {=actor_on_level(L02_Garbage) +agroprom_military_case_done +bar_svoboda_rg6_done}
@@ -1120,7 +1117,7 @@ reward_item = ammo_9x39_ap, ammo_9x39_ap, ammo_vog-25
 time = 86400
 prior = 2
 
-[dolg_eliminate_lager_3]
+[dolg_eliminate_lager_3]:dolg_remote_task
 type = eliminate_lager
 community = actor
 text = dolg_eliminate_lager_3_text
@@ -1135,7 +1132,7 @@ reward_item = ammo_9x39_ap, ammo_9x39_ap, ammo_9x39_ap, ammo_vog-25, ammo_vog-25
 time = 86400
 prior = 5
 
-[dolg_eliminate_lager_4]
+[dolg_eliminate_lager_4]:dolg_remote_task
 type = eliminate_lager
 community = actor
 ;init_condition = {=actor_on_level(l07_military)}
@@ -1151,7 +1148,7 @@ reward_item = ammo_9x39_ap, ammo_9x39_ap, ammo_9x39_ap, ammo_vog-25, ammo_vog-25
 time = 86400
 prior = 6
 
-[dolg_eliminate_lager_5]
+[dolg_eliminate_lager_5]:dolg_remote_task
 type = eliminate_lager
 community = actor
 text = dolg_eliminate_lager_5_text
@@ -1166,7 +1163,7 @@ reward_item = ammo_9x39_ap, ammo_9x39_ap, ammo_9x39_ap, ammo_vog-25, ammo_vog-25
 time = 86400
 prior = 10
 
-[dolg_eliminate_lager_6]
+[dolg_eliminate_lager_6]:dolg_remote_task
 type = eliminate_lager
 community = actor
 text = dolg_eliminate_lager_6_text
@@ -1181,7 +1178,7 @@ reward_item = ammo_9x39_ap, ammo_9x39_ap, ammo_9x39_ap, ammo_vog-25, ammo_vog-25
 time = 86400
 prior = 4
 
-[dolg_eliminate_lager_7]
+[dolg_eliminate_lager_7]:dolg_remote_task
 type = eliminate_lager
 community = actor
 text = dolg_eliminate_lager_7_text
@@ -1197,7 +1194,7 @@ time = 86400
 prior = 5
 prior = 10
 
-[dolg_eliminate_lager_8]
+[dolg_eliminate_lager_8]:dolg_remote_task
 type = eliminate_lager
 community = actor
 text = dolg_eliminate_lager_8_text
@@ -1211,7 +1208,7 @@ reward_item = wpn_val_m1, ammo_9x39_sp5, ammo_9x39_sp5, ammo_9x39_sp5
 time = 86400
 prior = 9
 
-[dolg_eliminate_lager_9]
+[dolg_eliminate_lager_9]:dolg_remote_task
 type = eliminate_lager
 community = actor
 text = dolg_eliminate_lager_9_text
@@ -1241,7 +1238,7 @@ reward_item = ammo_9x39_ap, ammo_9x39_ap, ammo_vog-25
 time = 86400
 prior = 1
 
-[dolg_eliminate_lager_11]
+[dolg_eliminate_lager_11]:dolg_remote_task
 type = eliminate_lager
 community = actor
 text = dolg_eliminate_lager_11_text
@@ -1256,7 +1253,7 @@ reward_item = ammo_9x39_ap, ammo_9x39_ap, ammo_9x39_ap, ammo_vog-25, ammo_vog-25
 time = 86400
 prior = 9
 
-[dolg_eliminate_lager_12]
+[dolg_eliminate_lager_12]:dolg_remote_task
 type = eliminate_lager
 community = actor
 text = dolg_eliminate_lager_12_text
@@ -1271,7 +1268,7 @@ reward_item = ammo_9x39_ap, ammo_9x39_ap, ammo_9x39_ap, ammo_vog-25, ammo_vog-25
 time = 86400
 prior = 9
 
-[dolg_eliminate_lager_13]
+[dolg_eliminate_lager_13]:dolg_remote_task
 type = eliminate_lager
 community = actor
 text = dolg_eliminate_lager_13_text
@@ -1285,7 +1282,7 @@ reward_rank = 8
 reward_item = ammo_9x39_ap, ammo_9x39_ap, ammo_9x39_ap, ammo_vog-25, ammo_vog-25
 time = 86400
 
-[dolg_eliminate_lager_14]
+[dolg_eliminate_lager_14]:dolg_remote_task
 type = eliminate_lager
 community = actor
 text = dolg_eliminate_lager_14_text
@@ -1300,7 +1297,7 @@ reward_item = ammo_9x39_ap, ammo_9x39_ap, ammo_9x39_ap, ammo_vog-25, ammo_vog-25
 time = 86400
 prior = 8
 
-[dolg_kill_stalker_1]
+[dolg_kill_stalker_1]:dolg_remote_task
 type = kill_stalker
 community = actor
 text = dolg_kill_stalker_1_text
@@ -1329,10 +1326,10 @@ reward_item = wpn_vintorez, ammo_9x39_sp5, ammo_9x39_sp5
 prior = 1
 
 
+[freedom_remote_task]:remote_task
+reward_item_placement = military_volya_max_box
 
-
-
-[freedom_eliminate_camp_1]
+[freedom_eliminate_camp_1]:freedom_remote_task
 type = eliminate_lager
 community = actor
 text = freedom_eliminate_camp_1_text
@@ -1347,7 +1344,7 @@ reward_item = ammo_5.56x45_ap, ammo_5.56x45_ap, ammo_5.56x45_ap, ammo_m209,ammo_
 time = 86400
 prior = 5
 
-[freedom_eliminate_camp_2]
+[freedom_eliminate_camp_2]:freedom_remote_task
 type = eliminate_lager
 community = actor
 text = freedom_eliminate_camp_2_text
@@ -1362,7 +1359,7 @@ reward_item = ammo_5.56x45_ap, ammo_5.56x45_ap, ammo_5.56x45_ap, ammo_m209,ammo_
 time = 86400
 prior = 4
 
-[freedom_eliminate_camp_3]
+[freedom_eliminate_camp_3]:freedom_remote_task
 type = eliminate_lager
 community = actor
 text = freedom_eliminate_camp_3_text
@@ -1377,7 +1374,7 @@ reward_item = ammo_5.56x45_ap, ammo_5.56x45_ap, ammo_5.56x45_ap, ammo_m209, ammo
 time = 86400
 prior = 4
 
-[freedom_eliminate_camp_4]
+[freedom_eliminate_camp_4]:freedom_remote_task
 type = eliminate_lager
 community = actor
 text = freedom_eliminate_camp_4_text
@@ -1392,7 +1389,7 @@ reward_item = ammo_5.56x45_ap, ammo_5.56x45_ap, ammo_5.56x45_ap, ammo_m209, ammo
 time = 86400
 prior = 5
 
-[freedom_eliminate_camp_5]
+[freedom_eliminate_camp_5]:freedom_remote_task
 type = eliminate_lager
 community = actor
 text = freedom_eliminate_camp_5_text
@@ -1406,7 +1403,7 @@ reward_item = wpn_sig550, wpn_addon_grenade_launcher_m203, ammo_m209, ammo_m209
 time = 86400
 prior = 3
 
-[freedom_eliminate_camp_6]
+[freedom_eliminate_camp_6]:freedom_remote_task
 type = eliminate_lager
 community = actor
 text = freedom_eliminate_camp_6_text
@@ -1420,7 +1417,7 @@ reward_item = ammo_5.56x45_ap, ammo_5.56x45_ap, ammo_5.56x45_ap, ammo_m209, ammo
 time = 86400
 prior = 2
 
-[freedom_eliminate_camp_7]
+[freedom_eliminate_camp_7]:freedom_remote_task
 type = eliminate_lager
 community = actor
 text = freedom_eliminate_camp_7_text
@@ -1434,7 +1431,7 @@ reward_item = ammo_5.56x45_ap, ammo_5.56x45_ap, ammo_5.56x45_ap, ammo_m209, ammo
 time = 86400
 prior = 1
 
-[freedom_kill_stalker_4]
+[freedom_kill_stalker_4]:freedom_remote_task
 type = kill_stalker
 community = actor
 text = freedom_kill_stalker_4_text
@@ -1448,7 +1445,7 @@ reward_item = af_rusty_sea-urchin
 time = 86400
 prior = 1
 
-[freedom_kill_stalker_5]
+[freedom_kill_stalker_5]:freedom_remote_task
 type = kill_stalker
 community = actor
 text = freedom_kill_stalker_5_text
@@ -1462,7 +1459,7 @@ reward_item = af_dummy_dummy
 time = 86400
 prior = 3
 
-[freedom_kill_stalker_6]
+[freedom_kill_stalker_6]:freedom_remote_task
 type = kill_stalker
 community = actor
 text = freedom_kill_stalker_6_text
@@ -1505,7 +1502,7 @@ reward_item = vodka
 time = 86400
 prior = 1
 
-[freedom_defend_lager_1]
+[freedom_defend_lager_1]:freedom_remote_task
 type = defend_lager
 community = actor
 text = freedom_defend_lager_1_text
@@ -1520,7 +1517,7 @@ reward_rank = 5
 reward_item = af_cristall
 time = 86400
 
-[freedom_defend_lager_2]
+[freedom_defend_lager_2]:freedom_remote_task
 type = defend_lager
 community = actor
 text = freedom_defend_lager_2_text
@@ -1534,8 +1531,6 @@ reward_relation = freedom, +150
 reward_rank = 8
 reward_item = af_rusty_sea-urchin
 time = 86400
-
-
 
 
 ;*************************************************

@@ -836,4 +836,81 @@
             </phrase>
 		</phrase_list>
     </dialog>
+	<!-- додаткові діалоги круглова/семенова -->
+	<dialog id="yantar_scientist_repair">
+        <phrase_list>
+			<phrase id="0">
+				<text>yantar_scientist_repair</text>
+				<action>bar_dialogs.show_repair</action>
+			</phrase>
+		</phrase_list>
+	</dialog>
+	<dialog id="yantar_scientist_storage">
+		<precondition>yantar_dialog.storage_locked</precondition>
+        <phrase_list>
+			<phrase id="0">
+				<text>yantar_scientist_ask_open_storage</text>
+				<next>yantar_scientist_can_open</next>
+				<next>yantar_scientist_can_not_open</next>
+			</phrase>
+			<!-- відкриє сховище -->
+			<phrase id="yantar_scientist_can_open">
+				<text>yantar_scientist_can_open</text>
+				<next>tnanx_and_leave_open</next>
+				<has_info>yan_kill_brain_done</has_info>
+				<action>yantar_dialog.unlock_storage</action>
+			</phrase>
+			<phrase id="tnanx_and_leave_open">
+				<text>tnanx_and_leave_open</text>
+				<!-- <action>dialogs.break_dialog</action> -->
+			</phrase>
+			<!--НЕ відкриє сховище -->
+			<phrase id="yantar_scientist_can_not_open">
+				<text>yantar_scientist_can_not_open</text>
+				<next>tnanx_and_leave_closed</next>
+				<dont_has_info>yan_kill_brain_done</dont_has_info>
+			</phrase>
+			<phrase id="tnanx_and_leave_closed">
+				<text>tnanx_and_leave_closed</text>
+				<!-- <action>dialogs.break_dialog</action> -->
+			</phrase>
+		</phrase_list>
+	</dialog>
+	<!-- додаткові діалоги сахарова -->
+	<dialog id="yantar_general_ucheniy_repair">
+        <phrase_list>
+			<phrase id="0">
+				<text>yantar_general_ucheniy_repair</text>
+				<next>yantar_general_ucheniy_repair_assistent_alive</next>
+				<next>yantar_general_ucheniy_repair_assistent_dead</next>
+			</phrase>
+			<phrase id="yantar_general_ucheniy_repair_assistent_alive">
+				<text>yantar_general_ucheniy_repair_assistent_alive</text>
+				<precondition>yantar_dialog.assistant_alive</precondition>
+			</phrase>
+			<phrase id="yantar_general_ucheniy_repair_assistent_dead">
+				<text>yantar_general_ucheniy_repair_assistent_dead</text>
+				<precondition>yantar_dialog.assistant_dead</precondition>
+			</phrase>
+		</phrase_list>
+	</dialog>
+	<dialog id="yantar_general_ucheniy_storage">
+		<precondition>yantar_dialog.storage_locked</precondition>
+        <phrase_list>
+			<phrase id="0">
+				<text>yantar_general_ucheniy_storage</text>
+				<next>yantar_general_ucheniy_storage_assistent_alive</next>
+				<next>yantar_general_ucheniy_storage_assistent_dead</next>
+			</phrase>
+			<phrase id="yantar_general_ucheniy_storage_assistent_alive">
+				<text>yantar_general_ucheniy_storage_assistent_alive</text>
+				<precondition>yantar_dialog.assistant_alive</precondition>
+			</phrase>
+			<phrase id="yantar_general_ucheniy_storage_assistent_dead">
+				<text>yantar_general_ucheniy_storage_assistent_dead</text>
+				<precondition>yantar_dialog.assistant_dead</precondition>
+				<action>yantar_dialog.unlock_storage</action>
+			</phrase>
+		</phrase_list>
+	</dialog>	
 </game_dialogs>

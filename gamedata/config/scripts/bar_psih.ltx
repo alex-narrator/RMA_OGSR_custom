@@ -1,5 +1,9 @@
 [logic]
 active = walker@start
+on_death = death@suicide
+
+[death@suicide]
+on_info = %=bar_suicide_kill_self =enable_ui%
 
 [walker@start]
 path_walk = bar_bar_psih_walk
@@ -21,13 +25,12 @@ hp_cover = 100|false
 hp_fight = 100|false
 help_dialog = nil
 
-
 [walker@nopain]
 path_walk = bar_bar_psih_walk
 path_look = bar_bar_psih_look
 wounded = wounded@nopain
 meet = meet@nopain
-on_info = {+bar_psih_suicide} walker@suicide
+on_info = {+bar_psih_suicide} walker@suicide %=disable_ui%
 
 [wounded@nopain]
 hp_state = 100|psycho_pain@nil
@@ -42,7 +45,6 @@ help_dialog = nil
 use = true
 use_wpn = true
 meet_dialog = bar_bar_psih_start_gorbun
-
 
 [walker@suicide]
 path_walk = bar_bar_psih_walk

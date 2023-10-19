@@ -220,6 +220,33 @@ function actor_give_ryaboy_art(first_speaker, second_speaker)
 	dialogs.relocate_item_section(second_speaker, "af_fuzz_kolobok", "out")
 end
 
+function actor_take_ryaboy_art(first_speaker, second_speaker)
+	dialogs.relocate_item_section(first_speaker, "af_fuzz_kolobok", "in")
+end
+
+function play_bar_psih_suicide_demo(first_speaker, second_speaker)
+	dialogs.break_dialog(first_speaker, second_speaker)
+	add_time_delayed_action(3, function() get_console():execute("demo_play bar_psih_suicide") end)
+end
+
+-- сховище бармена
+function unlock_storage()
+	store_box.unlock_by_name("bar_barman_box")
+end
+function storage_locked()
+ 	return not store_box.is_opened(cobj_by_name("bar_barman_box"))
+end
+function storage_open_price()
+	return 1000
+end
+function storage_open_price_text()
+	return string.format("%s %s%s %s", game.translate_string("bar_bar_barmen_storage_price"), "%c[UI_orange]", storage_open_price(), game.translate_string("ui_st_money_regional"))
+end
+function has_money_to_open()
+	return actor:money() >= storage_open_price()
+end
+
+
 -- Выдача задания на отключение радара
 function barman_need_radar(actor,npc)
 	if has_alife_info("bar_deactivate_radar_start")	then
@@ -856,4 +883,12 @@ end
 --ремонт у Арні
 function show_repair()
 	ui_repair.create_overlay(0.9, 1.5, 2.5)
+end
+
+function unlock_storage_barman()
+ storage_box.unlock_by_name("bar_barman_box")
+end
+
+function unlock_storage_dolg()
+ storage_box.unlock_by_name("bar_voronin_dolg_box")
 end

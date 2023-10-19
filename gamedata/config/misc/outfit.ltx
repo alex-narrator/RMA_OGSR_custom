@@ -1,3 +1,11 @@
+[scientific_common]
+hud_shader 			= true
+hud_texture 		= sci
+hud_breakable 		= true
+hud_breathe 		= 0.2
+
+slots_locked 		= 9, 11, 15
+
 [outfit_base]
 ; delete full_scale_icon	next update- obsolete, use  full_icon_name instead !!!
 
@@ -434,7 +442,7 @@ fire_wound_immunity			= 0.01
 ;---------------------------------------------------------------------------------------------
 ;		ÍÀÓ×ÍÛÉ ÊÎÑÒŞÌ ÍÅÉÒĞÀËÜÍÎÃÎ ÑÒÀËÊÅĞÀ
 ;---------------------------------------------------------------------------------------------
-[scientific_outfit]:outfit_base
+[scientific_outfit]:outfit_base,scientific_common
 GroupControlSection	= spawn_group
 discovery_dependency = 
 $spawn 			= "outfit\scientific_outfit"
@@ -462,7 +470,6 @@ nightvision_sect	= effector_nightvision_good
 
 cost				= 30000
 full_scale_icon		= 12,11			;èêîíêà ñòàëêåğà â êîñòşìå â ïîëíûé ğîñò
-slots_locked 		= 11, 15
 
 actor_icon = ui_npc_u_stalker_neytral_nauchniy
 immunities_sect			= sect_scientific_outfit_immunities
@@ -757,7 +764,7 @@ fire_wound_immunity			= 0.01
 ;---------------------------------------------------------------------------------------------
 ;		ÍÀÓ×ÍÛÉ ÊÎÑÒŞÌ ÄÎËÃÀ
 ;---------------------------------------------------------------------------------------------
-[dolg_scientific_outfit]:outfit_base
+[dolg_scientific_outfit]:outfit_base,scientific_common
 GroupControlSection	= spawn_group
 discovery_dependency = 
 $spawn 			= "outfit\dolg_scientific_outfit"
@@ -820,7 +827,7 @@ fire_wound_immunity			= 0.01
 ;---------------------------------------------------------------------------------------------
 ;		ÎÁÛ×ÍÛÉ ÊÎÑÒŞÌ Ó×ÅÍÍÎÃÎ
 ;---------------------------------------------------------------------------------------------
-[ecolog_outfit]:outfit_base
+[ecolog_outfit]:outfit_base,scientific_common
 GroupControlSection	= spawn_group
 discovery_dependency = 
 $spawn 			= "outfit\ecolog_outfit"
@@ -884,7 +891,7 @@ fire_wound_immunity			= 0.015
 ;---------------------------------------------------------------------------------------------
 ;		ÓÊĞÅÏËÅÍÍÛÉ ÊÎÑÒŞÌ Ó×ÅÍÍÎÃÎ
 ;---------------------------------------------------------------------------------------------
-[protection_outfit]:outfit_base
+[protection_outfit]:outfit_base,scientific_common
 GroupControlSection	= spawn_group
 discovery_dependency = 
 $spawn 			= "outfit\protection_outfit"

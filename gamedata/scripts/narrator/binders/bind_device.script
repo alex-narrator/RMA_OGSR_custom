@@ -84,7 +84,14 @@ function device_binder:update(delta)
     object_binder.update(self, delta)
 	
 	if self:is_working() then
-		--log3("~[%s]: device %s is working now", script_name(), self.object:name())
+		local item = self.object
+		--log3("~[%s]: device %s is working now (power %s)", script_name(), item:name(), self:get_power_level())
+		--якщо детектор не в худ-режимі - не витрачаємо батарейку
+		if item:get_detector() and (not actor:active_item_2() or item:id() ~= actor:active_item_2():id()) then
+		return end
+		--якщо ПДА не в худ-режимі - не витрачаємо батарейку
+		if item:get_pda() and (not actor:active_item() or item:id() ~= actor:active_item():id()) then
+		return end
 		self:decrease_power()
 	end
 end

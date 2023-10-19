@@ -494,3 +494,20 @@ end
 function show_repair()
 	ui_repair.create_overlay(0.9, 1, 2, "esc_mechanic_done_quest")
 end
+
+-- сховище сидора
+function unlock_storage()
+	store_box.unlock_by_name("escape_sidor_box")
+end
+function storage_locked()
+ 	return not store_box.is_opened(cobj_by_name("escape_sidor_box"))
+end
+function storage_open_price()
+	return 500
+end
+function storage_open_price_text()
+	return string.format("%s %s%s %s", game.translate_string("escape_trader_storage_price"), "%c[UI_orange]", storage_open_price(), game.translate_string("ui_st_money_regional"))
+end
+function has_money_to_open()
+	return actor:money() >= storage_open_price()
+end
