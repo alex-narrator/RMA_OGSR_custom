@@ -1485,15 +1485,6 @@ function start_game_callback()
 	dialog_manager.fill_phrase_table()
 end
 
---рушійно-подібні константи
-KNIFE_SLOT = 0
-GRENADE_SLOT = 3
-BOLT_SLOT = 5
-NO_ACTIVE_SLOT = 255
-
-CELL_W = 50
-CELL_H = 50
-
 color_by_relation = {
 	[0] = "%c[green]",
 	[1] = "%c[default]",
@@ -1511,7 +1502,21 @@ color_by_reputation = {
 	bad = "%c[red]",
 }
 
+--рушійно-подібні константи
+KNIFE_SLOT = 0
+GRENADE_SLOT = 3
+BOLT_SLOT = 5
+NO_ACTIVE_SLOT = 255
+
 sys_ini = system_ini()
+
+CELL_W = 50
+CELL_H = 50
+UI_BASE_HEIGHT = 768
+UI_BASE_WIDTH = 1024
+function get_current_kx()
+    return (device().height / device().width) / (UI_BASE_HEIGHT / UI_BASE_WIDTH)
+end
 
 function read_if_exists(ltx, val_type, section, value, default)
 	if ltx:line_exist(section,value) then

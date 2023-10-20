@@ -2,9 +2,14 @@
 local OVERLAY_XML = "script_overlays\\mainingame_overlay.xml"
 local overlay = nil
 
+local m_boosters = {}
+
 function attach(sm)
-	sm:subscribe({signal = "on_spawn",   fun = this.create_window})
-	sm:subscribe({signal = "on_destroy",   fun = this.destroy_window})
+	sm:subscribe({signal = "on_spawn",   			fun = this.create_window})
+	sm:subscribe({signal = "on_destroy",   			fun = this.destroy_window})
+	sm:subscribe({signal = "on_update",   			fun = this.on_update})
+	sm:subscribe({signal = "on_booster_enable",   	fun = this.on_booster_enable})
+	sm:subscribe({signal = "on_booster_disable",   	fun = this.on_booster_disable})
 end
 
 local subscribed = false
@@ -20,6 +25,23 @@ function destroy_window()
 		overlay:DetachWnd()
 		overlay = nil
 	end
+end
+
+function on_update()
+	local conds = actor.conditions
+	if not conds.has_valid_time then return end
+	local dt_minutes = conds:fdelta_time()/60
+	for b_sect,b_time in pairs(m_boosters) do
+		m_boosters[b_sect] = b_time - dt_minutes
+	end
+end
+
+function on_booster_enable(booster)
+	m_boosters[booster.section] = booster.time
+end
+
+function on_booster_disable(booster)
+	m_boosters[booster.section] = nil
 end
 
 class "MainIngameOverlay" (CUIScriptWnd)
@@ -38,6 +60,11 @@ function MainIngameOverlay:Subscribe()
 			{signal = "on_use", self = self, fun = self.UpdateSlots},
 			{signal = "on_item_to_loadout", self = self, fun = self.UpdateSlots},
 			{signal = "on_item_from_loadout", self = self, fun = self.UpdateSlots},
+			{signal = "on_slot", self = self, fun = self.UpdatePanelItems},
+			{signal = "on_ruck", self = self, fun = self.UpdatePanelItems},
+			{signal = "on_belt", self = self, fun = self.UpdatePanelItems},
+			{signal = "on_vest", self = self, fun = self.UpdatePanelItems},
+			{signal = "on_drop", self = self, fun = self.UpdatePanelItems},
 		}
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
@@ -110,6 +137,42 @@ function MainIngameOverlay:InitControls()
 		s.count = xml:InitStatic("slot_count", s)
 		self:DrawSlotIcon(i)
 	end
+	
+	local tmp_tbl, def_font, def_color = nil, "letterica16", "255, 255, 255, 255"
+	--// slot panel
+	self.slot_panel = xml:InitStatic("slot_panel", self)
+	self.slot_panel.scale = xml:ReadAttribFlt("slot_panel", 0, "scale", 1)
+	self.slot_panel.indent = xml:ReadAttribFlt("slot_panel", 0, "indent", 0)
+	self.slot_panel.vertical = xml:ReadAttribInt("slot_panel", 0, "vertical", 0)
+	self.slot_panel.font = xml:ReadAttrib("slot_panel", 0, "font", def_font)
+	tmp_tbl = split_string(xml:ReadAttrib("slot_panel", 0, "text_color", def_color), ",")
+	self.slot_panel.text_color = GetARGB(tmp_tbl[1], tmp_tbl[2], tmp_tbl[3], tmp_tbl[4])
+	tmp_tbl = split_string(xml:ReadAttrib("slot_panel", 0, "text_offset", "0,0"), ",")
+	self.slot_panel.text_offset = {x = tmp_tbl[1], y = tmp_tbl[2]}
+	self.slot_panel.slots = split_string(xml:ReadAttrib("slot_panel", 0, "slots", ""), ",")
+	--// belt panel
+	self.belt_panel = xml:InitStatic("belt_panel", self)
+	self.belt_panel.scale = xml:ReadAttribFlt("belt_panel", 0, "scale", 1)
+	self.belt_panel.indent = xml:ReadAttribFlt("belt_panel", 0, "indent", 0)
+	self.belt_panel.vertical = xml:ReadAttribInt("belt_panel", 0, "vertical", 0)
+	self.belt_panel.group_similar = xml:ReadAttribInt("belt_panel", 0, "group_similar", 0)
+	self.belt_panel.font = xml:ReadAttrib("belt_panel", 0, "font", def_font)
+	tmp_tbl = split_string(xml:ReadAttrib("belt_panel", 0, "text_color", def_color), ",")
+	self.belt_panel.text_color = GetARGB(tmp_tbl[1], tmp_tbl[2], tmp_tbl[3], tmp_tbl[4])
+	tmp_tbl = split_string(xml:ReadAttrib("belt_panel", 0, "text_offset", "0,0"), ",")
+	self.belt_panel.text_offset = {x = tmp_tbl[1], y = tmp_tbl[2]}
+	self.belt_panel.items = {}
+	--// booster panel
+	self.booster_panel = xml:InitStatic("booster_panel", self)
+	self.booster_panel.scale = xml:ReadAttribFlt("booster_panel", 0, "scale", 1)
+	self.booster_panel.indent = xml:ReadAttribFlt("booster_panel", 0, "indent", 0)
+	self.booster_panel.vertical = xml:ReadAttribInt("booster_panel", 0, "vertical", 0)
+	self.booster_panel.font = xml:ReadAttrib("booster_panel", 0, "font", def_font)
+	tmp_tbl = split_string(xml:ReadAttrib("booster_panel", 0, "text_color", def_color), ",")
+	self.booster_panel.text_color = GetARGB(tmp_tbl[1], tmp_tbl[2], tmp_tbl[3], tmp_tbl[4])
+	tmp_tbl = split_string(xml:ReadAttrib("booster_panel", 0, "text_offset", "0,0"), ",")
+	self.booster_panel.text_offset = {x = tmp_tbl[1], y = tmp_tbl[2]}
+	self:UpdatePanelItems()
 end
 
 function MainIngameOverlay:DrawSlotIcon(slot_num)
@@ -139,6 +202,114 @@ function MainIngameOverlay:UpdateSlots()
 	end
 end
 
+function MainIngameOverlay:UpdatePanelItems()
+	local item, params, item_st, add_st, pos_x, pos_y, text
+	--// slots
+	self.slot_panel:DetachAll()
+	pos_x = 0
+	pos_y = 0
+	for _,i in pairs(self.slot_panel.slots) do
+		item = actor:item_in_slot(i)
+		if item then
+			params = CIconParams(item:section())
+			item_st = CUIStatic()
+			params:set_shader(item_st)
+			item_st:SetWidth(params.grid_width * CELL_W * self.slot_panel.scale * get_current_kx())
+			item_st:SetHeight(params.grid_height * CELL_H * self.slot_panel.scale)
+			ui_inv_utils.AttachPanelIcons(item, item_st)
+			item_st:SetWndPos(pos_x, pos_y)
+			text = "ui_use_slot_"..i
+			item_st:SetText(game.translate_string(text))
+			item_st:SetFont(GetFontCustom(self.slot_panel.font))
+			item_st:SetTextColor(self.slot_panel.text_color)
+			item_st:SetTextPos(self.slot_panel.text_offset.x, self.slot_panel.text_offset.y)
+			if self.slot_panel.vertical > 0 then
+				pos_y = pos_y + item_st:GetHeight() + self.slot_panel.indent
+			else
+				pos_x = pos_x + item_st:GetWidth() + self.slot_panel.indent
+			end
+			self.slot_panel:AttachChild(item_st)
+		end
+	end
+	--// belt & vest
+	self.belt_panel:DetachAll()
+	self.belt_panel.items = {}
+	pos_x = 0
+	pos_y = 0
+	for i = 0, actor:belt_count() - 1 do
+		item = actor:item_on_belt(i)
+		if item then
+			self:TryAddToBeltList(item)
+		end
+	end
+	for i = 0, actor:vest_count() - 1 do
+		item = actor:item_on_vest(i)
+		if item then
+			self:TryAddToBeltList(item)
+		end
+	end
+	for k, v in pairs(self.belt_panel.items) do
+		params = CIconParams(v.item:section())
+		item_st = CUIStatic()
+		params:set_shader(item_st)
+		item_st:SetWidth(params.grid_width * CELL_W * self.belt_panel.scale * get_current_kx())
+		item_st:SetHeight(params.grid_height * CELL_H * self.belt_panel.scale)
+		ui_inv_utils.AttachPanelIcons(v.item, item_st)
+		item_st:SetWndPos(pos_x, pos_y)
+		text = v.count > 1 and string.format("x%s", v.count) or ""
+		item_st:SetText(game.translate_string(text))
+		item_st:SetFont(GetFontCustom(self.belt_panel.font))
+		item_st:SetTextColor(self.belt_panel.text_color)
+		item_st:SetTextPos(self.belt_panel.text_offset.x, self.belt_panel.text_offset.y)
+		if self.belt_panel.vertical > 0 then
+			pos_y = pos_y + item_st:GetHeight() + self.belt_panel.indent
+		else
+			pos_x = pos_x + item_st:GetWidth() + self.belt_panel.indent
+		end
+		self.belt_panel:AttachChild(item_st)
+	end
+end
+
+function MainIngameOverlay:UpdatePanelBoosters()
+	local item, params, item_st, add_st, pos_x, pos_y, text
+	--// boosters
+	self.booster_panel:DetachAll()
+	pos_x = 0
+	pos_y = 0
+	for b_sect,b_time in pairs(m_boosters) do
+		params = CIconParams(b_sect)
+		item_st = CUIStatic()
+		params:set_shader(item_st)
+		item_st:SetWidth(params.grid_width * CELL_W * self.booster_panel.scale * get_current_kx())
+		item_st:SetHeight(params.grid_height * CELL_H * self.booster_panel.scale)
+		--ui_inv_utils.AttachPanelIcons(item, item_st)
+		item_st:SetWndPos(pos_x, pos_y)
+		text = string.format("%.f %s", b_time, game.translate_string("st_time_minute"))
+		item_st:SetText(game.translate_string(text))
+		item_st:SetFont(GetFontCustom(self.booster_panel.font))
+		item_st:SetTextColor(self.booster_panel.text_color)
+		item_st:SetTextPos(self.booster_panel.text_offset.x, self.booster_panel.text_offset.y)
+		if self.booster_panel.vertical > 0 then
+			pos_y = pos_y + item_st:GetHeight() + self.booster_panel.indent
+		else
+			pos_x = pos_x + item_st:GetWidth() + self.booster_panel.indent
+		end
+		self.booster_panel:AttachChild(item_st)
+	end
+end
+
+function MainIngameOverlay:TryAddToBeltList(item)
+	if self.belt_panel.group_similar < 1 then
+		table.insert(self.belt_panel.items, {item = item, count = 1})
+	return end
+	for k, v in pairs(self.belt_panel.items) do
+		if v.item:section() == item:section() then
+			v.count = v.count + 1
+		return end
+	end
+	table.insert(self.belt_panel.items, {item = item, count = 1})
+end
+
 function MainIngameOverlay:Update()
 	CUIScriptWnd.Update(self)
 	self.health_bar:SetProgressPos(actor.health)
@@ -151,4 +322,7 @@ function MainIngameOverlay:Update()
 		self.car_bar:SetProgressPos(car:GetfHealth())
 		self.car_static:SetColor(car:IsEngineOn() and self.car_color_engine_on or self.car_color_def)
 	end
+	self.slot_panel:Show(self.owner.show_gear_info)
+	self.belt_panel:Show(self.owner.show_gear_info)
+	self:UpdatePanelBoosters()
 end

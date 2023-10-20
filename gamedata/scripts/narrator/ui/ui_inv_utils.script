@@ -301,6 +301,17 @@ function AttachAdditionalIcons(item, icon)
 	UpdateMarkedIcon(item, icon)
 	UpdateUpgrageIcon(item, icon)
 	UpdateInSlotIcon(item, icon)
-	UpdateConditionStatic(item, icon)
 	UpdateConditionProgress(item, icon)
+	UpdateConditionStatic(item, icon)
+end
+
+function AttachPanelIcons(item, icon)
+	icon:DetachAll()
+	AttachWpnIcons(item, icon)
+	UpdateAmmoInBoxIcon(item, icon)
+	--UpdateMarkedIcon(item, icon)
+	UpdateUpgrageIcon(item, icon)
+	--UpdateInSlotIcon(item, icon)
+	--UpdateConditionProgress(item, icon)
+	--UpdateConditionStatic(item, icon)
 end

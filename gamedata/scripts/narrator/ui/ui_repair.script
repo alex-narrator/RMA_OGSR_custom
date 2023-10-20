@@ -4,10 +4,6 @@ local OVERLAY_XML = "script_overlays\\actor_menu_overlay.xml"
 class "RepairOverlay" (CUIScriptWnd)
 
 local overlay = nil
-local MEDIUM_CELL_W = 22
-local MEDIUM_CELL_H = 30
-local NORMAL_CELL_W = 30
-local NORMAL_CELL_H = 40
 local repair_sound_weapon = [[interface\inv_repair_kit_use_fast]]
 local repair_sound_armor = [[interface\inv_repair_sewing_kit_fast]]
 
@@ -90,10 +86,14 @@ function RepairOverlay:InitControls()
 	xml:InitAutoStaticGroup("repair_back:auto_static", self.repair_back)
 	
 	self.items_scroll_view_weapon = xml:InitScrollView("repair_back:scroll_view_weapon", self.repair_back)
+	self.items_scroll_view_weapon.scale = xml:ReadAttribFlt("repair_back:scroll_view_weapon", 0, "scale", 1)
+	
 	self.items_scroll_view_armor = xml:InitScrollView("repair_back:scroll_view_armor", self.repair_back)
+	self.items_scroll_view_armor.scale = xml:ReadAttribFlt("repair_back:scroll_view_armor", 0, "scale", 1)
 	
 	self.selected_item_back = xml:InitStatic("repair_back:selected_item_back", self.repair_back)
 	self.selected_item_st 	= xml:InitStatic("repair_back:selected_item_back:selected_item", self.selected_item_back)
+	self.selected_item_st.scale = xml:ReadAttribFlt("repair_back:selected_item_back:selected_item", 0, "scale", 1)
 	self.repair_cost 		= xml:InitStatic("repair_back:selected_item_back:repair_cost", self.selected_item_back)
 	
 	self.actor_money = xml:InitStatic("repair_back:actor_money", self.repair_back)
@@ -144,23 +144,22 @@ function RepairOverlay:InitItemsList()
 	self.items_scroll_view_armor:Clear()
 	
 	self.items = {}
+	local parent
 	function perform_action(dummy, item)
 		if self:RepairAllowed(item) then
 			params = CIconParams(item:section())
 			item_st = CUIStatic()
 			self.items[item:id()] = item_st
 			params:set_shader(item_st)
-			item_st:SetWidth(params.grid_width * MEDIUM_CELL_W)
-			item_st:SetHeight(params.grid_height * MEDIUM_CELL_H)
+			
+			parent = item:is_weapon() and self.items_scroll_view_weapon or self.items_scroll_view_armor
+			
+			item_st:SetWidth(params.grid_width * parent.scale * CELL_W * get_current_kx())
+			item_st:SetHeight(params.grid_height * parent.scale * CELL_H)
 			
 			ui_inv_utils.AttachAdditionalIcons(item, item_st)
-			
-			if item:is_weapon() then
-				self.items_scroll_view_weapon:AddWindow(item_st)
-			else
-				self.items_scroll_view_armor:AddWindow(item_st)
-			end
-			
+			parent:AddWindow(item_st)
+						
 			name = "repair_list_"..item:id()
 			self:Register(item_st, name)
 			self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:RepairListItemOnFocusReceived(item:id()) end, self)
@@ -200,8 +199,8 @@ function RepairOverlay:OnKeyPress(key, game_action)
 		params = CIconParams(sect)
 		self.selected_item_st:Show(true)
 		params:set_shader(self.selected_item_st)
-		self.selected_item_st:SetWidth(params.grid_width * NORMAL_CELL_W)
-		self.selected_item_st:SetHeight(params.grid_height * NORMAL_CELL_H)
+		self.selected_item_st:SetWidth(params.grid_width * CELL_W * self.selected_item_st.scale * get_current_kx())
+		self.selected_item_st:SetHeight(params.grid_height * CELL_H * self.selected_item_st.scale)
 		local offset = ui_inv_utils.GetOffset("center", self.selected_item_st, self.selected_item_back)
 		self.selected_item_st:SetWndPos(offset.x, offset.y)
 		self.selected_item_back:SetText(game.translate_string(get_inv_name(sect)))

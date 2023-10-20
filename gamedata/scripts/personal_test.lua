@@ -127,3 +127,9 @@ end
 --alife():teleport_object(16531, actor:position(), actor:level_vertex_id(), actor:game_vertex_id())
 
 --log3("actor position (%s, %s, %s)", actor:position().x, actor:position().y, actor:position().z)
+
+--dis_consciousness
+--dream
+--head_shot
+level.add_cam_effector("camera_effects\\head_shot.anm", 2023, false, "")
+--level.remove_cam_effector(2023)
