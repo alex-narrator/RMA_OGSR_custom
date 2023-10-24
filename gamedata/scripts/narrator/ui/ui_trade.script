@@ -43,7 +43,7 @@ function TradeOverlay:Subscribe()
 			{signal = "on_trade_show", self = self, fun = self.OnShow},
 			{signal = "on_trade_hide", self = self, fun = self.OnHide},
 			{signal = "on_script_actor_icon_update", self = self, fun = self.OnActorIconUpdate},
-			{signal = "trade_perform_operation", self = self, fun = self.UpdateCharInfos},
+			--{signal = "trade_perform_operation", self = self, fun = self.UpdateCharInfos},
 		}
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
@@ -140,10 +140,10 @@ function TradeOverlay:InitControls()
 	self.loadout_color_hidden 		= GetARGB(0, 255, 255, 255)
 	
 	self.loadout_back = xml:InitStatic("loadout_back", self)
-	name = "loadout_back"
-	self:Register(self.loadout_back, name)
-	self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, self.LoadoutBackOnFocusReceived)
-	self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, self.LoadoutBackOnFocusLost)
+	-- name = "loadout_back"
+	-- self:Register(self.loadout_back, name)
+	-- self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, self.LoadoutBackOnFocusReceived)
+	-- self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, self.LoadoutBackOnFocusLost)
 	
 	self.clear_loadout = xml:Init3tButton("clear_loadout_button", self.loadout_back)
 	name = "clear_loadout"
@@ -350,13 +350,13 @@ function TradeOverlay:LoadoutSlotOnFocusLost(slot_name)
 	self.loadout[slot_name].static:SetTextColor(self.loadout_color_default)
 end
 
-function TradeOverlay:LoadoutBackOnFocusReceived(slot_name)
-	loadout.static_focused = true
-end
+-- function TradeOverlay:LoadoutBackOnFocusReceived(slot_name)
+	-- loadout.static_focused = true
+-- end
 
-function TradeOverlay:LoadoutBackOnFocusLost(slot_name)
-	loadout.static_focused = false
-end
+-- function TradeOverlay:LoadoutBackOnFocusLost(slot_name)
+	-- loadout.static_focused = false
+-- end
 
 function TradeOverlay:Update()
 	CUIScriptWnd.Update(self)
@@ -565,6 +565,7 @@ end
 
 function TradeOverlay:PerformTrade()
 	actor:perform_trade()
+	self:UpdateCharInfos()
 end
 
 function TradeOverlay:SwitchToTalk()

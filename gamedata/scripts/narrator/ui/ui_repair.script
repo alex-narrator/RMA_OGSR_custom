@@ -166,13 +166,12 @@ function RepairOverlay:InitItemsList()
 			self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:RepairListItemOnFocusLost(item:id()) end, self)
 		end
 	end
-	
 	actor:iterate_inventory(perform_action, nil)
 end
 
 function RepairOverlay:RepairListItemOnFocusReceived(id)
 	self.focused_item_id = id
-	log3("~RepairListItemOnFocusReceived item %s | id %s", level.object_by_id(id):name(), id)
+	--log3("~RepairListItemOnFocusReceived item %s | id %s", level.object_by_id(id):name(), id)
 	if not self.selected_item_id or id ~= self.selected_item_id then
 		self.items[self.focused_item_id]:SetColor(self.color_highlight)
 	end
@@ -192,7 +191,7 @@ function RepairOverlay:OnKeyPress(key, game_action)
 			self.items[self.selected_item_id]:SetColor(self.color_default)
 		end
 		self.selected_item_id = self.focused_item_id
-		log3("selected_item_id item %s | id %s", level.object_by_id(self.selected_item_id):name(), self.selected_item_id)
+		--log3("selected_item_id item %s | id %s", level.object_by_id(self.selected_item_id):name(), self.selected_item_id)
 		self.items[self.selected_item_id]:SetColor(self.color_selected)
 		
 		local sect = level.object_by_id(self.selected_item_id):section()
@@ -236,11 +235,11 @@ function RepairOverlay:SetRepairParams(condition_limit, cost_k, uniquie_k, armor
 	self.cost_k = cost_k
 	self.uniquie_k = uniquie_k
 	self.repair_armor = (not armor_repair_infop or has_alife_info(armor_repair_infop))
-	log3("armor_repair_infop %s, self.repair_armor %s", armor_repair_infop and armor_repair_infop or "NONE", self.repair_armor)
+	--log3("armor_repair_infop %s, self.repair_armor %s", armor_repair_infop and armor_repair_infop or "NONE", self.repair_armor)
 end
 
 function RepairOverlay:NeedRepairItem(id)
-	log3("item %s | condition %s | cond_limit %s", level.object_by_id(id):name(), level.object_by_id(id):condition(), self.condition_limit)
+	--log3("item %s | condition %s | cond_limit %s", level.object_by_id(id):name(), level.object_by_id(id):condition(), self.condition_limit)
 	return level.object_by_id(id):condition() < self.condition_limit
 end
 
@@ -249,7 +248,8 @@ function RepairOverlay:HasMoneyToRepairItem(id)
 end
 
 function RepairOverlay:RepairAllowed(item)
-	local item_allowed = item:is_weapon() or (item:is_outfit() and self.repair_armor)
+	local outfit_item = item:is_outfit() or item:is_helmet() or item:is_gasmask() or item:get_container()
+	local item_allowed = item:is_weapon() or (outfit_item and self.repair_armor)
 	return item_allowed and self:NeedRepairItem(item:id())
 end
 

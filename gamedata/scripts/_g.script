@@ -1555,25 +1555,16 @@ function cobj_by_name(name)
 	return level.object_by_id(alife():object(name).id)
 end
 
+function sobj_by_name(name)
+	return alife():object(name)
+end
+
 function hud_anim_exists(item, anim_name)
 	return read_if_exists(sys_ini, "r_string", read_if_exists(sys_ini, "r_string", item:section(), "hud", nil), anim_name, nil)
 end
 
 function get_hud_sect(item)
 	return read_if_exists(sys_ini, "r_string", item:section(), "hud", nil)
-end
-
-function GetIconParams(section)
-	if section and
-		sys_ini:section_exist(section) and
-		sys_ini:line_exist(section, "inv_grid_x")
-	then
-		return {x = sys_ini:r_u32(section, "inv_grid_x") *50,
-				y = sys_ini:r_u32(section, "inv_grid_y") *50,
-				w = sys_ini:r_u32(section, "inv_grid_width") *50,
-				h = sys_ini:r_u32(section, "inv_grid_height") *50}
-	end
-	return {x=0, y=0, w=1, h=1}
 end
 
 function math.clamp(val, _min, _max)
@@ -1788,6 +1779,14 @@ function table.size(tbl)
 		size = size + 1
 	end
 	return size
+end
+
+function get_custom_logic_ini(obj)
+	local custom_logic_ini = read_if_exists(sys_ini, "r_string", obj:section(), "logic_cfg", nil)
+	if custom_logic_ini then
+		return ini_file(custom_logic_ini)
+	end
+	return nil
 end
 
 ammo_section = {}

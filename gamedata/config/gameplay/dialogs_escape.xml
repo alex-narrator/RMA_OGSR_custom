@@ -1671,7 +1671,7 @@
         </phrase_list>
     </dialog>
 	<dialog id="escape_trader_storage">
-		<precondition>escape_dialog.storage_locked</precondition>
+		<precondition>escape_dialog.storage_locked_trader</precondition>
 		<has_info>esc_serious_talk</has_info>
 		<phrase_list>
 			<phrase id="0">
@@ -1679,14 +1679,14 @@
 				<next>escape_trader_storage_price</next>
 			</phrase>
 			<phrase id="escape_trader_storage_price">
-				<script_text>escape_dialog.storage_open_price_text</script_text>
+				<script_text>escape_dialog.storage_open_price_text_trader</script_text>
 				<next>escape_trader_storage_price_accept</next>
 				<next>escape_trader_storage_price_decline</next>
 			</phrase>
 			<phrase id="escape_trader_storage_price_accept">
-				<precondition>escape_dialog.has_money_to_open</precondition>
+				<precondition>escape_dialog.has_money_to_open_trader</precondition>
 				<text>escape_trader_storage_price_accept</text>
-				<action>escape_dialog.unlock_storage</action>
+				<action>escape_dialog.unlock_storage_trader</action>
 			</phrase>
 			<phrase id="escape_trader_storage_price_decline">
 				<text>escape_trader_storage_price_decline</text>
@@ -2286,7 +2286,7 @@
 			<phrase id="start_repair_ui">
                 <text>esc_mechanic_dialog_show_repair_ui</text>
 				<has_info>esc_mechanic_first_talk</has_info>
-                <action>escape_dialog.show_repair</action>
+                <action>escape_dialog.show_repair_esc_mechanic</action>
 				<next>0</next>
             </phrase>
 			<!-- repair armor -->

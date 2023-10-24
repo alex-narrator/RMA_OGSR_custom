@@ -14,26 +14,34 @@ end
 
 --ремонт у Круглова/Семенова
 --condition_limit, cost_k, uniquie_k, armor_repair_infop
-function show_repair()
+function show_repair_ecolog()
 	ui_repair.create_overlay(0.95, 1, 3)
 end
 
-function unlock_storage()
+function unlock_storage_ecolog()
 	store_box.unlock_by_name("yantar_sakharov_box")
 end
 
-function storage_locked()
+function storage_locked_ecolog()
  	return not store_box.is_opened(cobj_by_name("yantar_sakharov_box"))
 end
 
+function can_open_storage_ecolog()
+	return dialogs.actor_in_ecolog() or relation_registry.community_goodwill("ecolog", actor:id()) >= 500 or has_alife_info("yan_kill_brain_done")
+end
+
+function can_not_open_storage_ecolog()
+	return not can_open_storage_dolg()
+end
+
 function assistant_dead()
-	local kruglov = level_object_by_sid(900)
-	local semenov = level_object_by_sid(905)
+	local kruglov = level_object_by_sid(story_ids.yan_ecolog_help)
+	local semenov = level_object_by_sid(story_ids.yan_semenov_help)
 	return (kruglov and not kruglov:alive()) or (semenov and not semenov:alive())
 end
 
 function assistant_alive()
-	local kruglov = level_object_by_sid(900)
-	local semenov = level_object_by_sid(905)
+	local kruglov = level_object_by_sid(story_ids.yan_ecolog_help)
+	local semenov = level_object_by_sid(story_ids.yan_semenov_help)
 	return (kruglov and kruglov:alive()) or (semenov and semenov:alive())
 end

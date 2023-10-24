@@ -104,7 +104,7 @@ function CRandomTask:__init()
 		local sss = utils.cfg_get_string(self.task_ini, id, "reward_item", nil, false, "")
 		if sss ~= nil then
 			curr_task_info.reward_item = se_respawn.parse_names(sss)
-			curr_task_info.reward_item_placement = read_if_exists(self.task_ini, "r_string", id, "reward_item_placement", nil)
+			curr_task_info.reward_item_receiver = read_if_exists(self.task_ini, "r_string", id, "reward_item_receiver", nil)
 		else
 			curr_task_info.reward_item = sss
 		end
@@ -125,6 +125,7 @@ function CRandomTask:__init()
 		end		
 	
 		curr_task_info.need_return			= read_if_exists(self.task_ini, "r_bool", id, "need_return", true) --utils.cfg_get_bool(self.task_ini, id, "need_return", nil, false, true)
+		curr_task_info.remote_reward		= read_if_exists(self.task_ini, "r_bool", id, "remote_reward", true)
 
 		curr_task_info.init_phrase_id		= self:gen_phrase_id()
 		curr_task_info.desc_phrase_id		= self:gen_phrase_id()
@@ -408,6 +409,10 @@ function CRandomTask:task_complete(p1, p2)
 	if p2 == 0 then
 		if not sel_task.need_return and sel_task.status == "completed" then
 			self.task_info[self.active_task_by_type[p1]].last_task_time = game.get_game_time()
+			if sel_task.remote_reward then
+				log3("~remote rewarded task %s completed, vendor %s", sel_task.name, alife():story_object(story_by_parent[sel_task.parent]):name())
+				self:task_reward_remote(sel_task)
+			end
 			return true
 		end
 		if sel_task.status == "rewarded" then
@@ -808,9 +813,8 @@ function CRandomTask:task_reward(npc, actor, p1, p2)
 				end
 				
 				if task_desc.reward_item ~= nil then
-					local receiver = task_desc.reward_item_placement and cobj_by_name(task_desc.reward_item_placement) or actor
 					for kk,vv in pairs(task_desc.reward_item) do
-						dialogs.relocate_item_section(npc, vv, "in", receiver)
+						dialogs.relocate_item_section(npc, vv, "in", actor)
 					end
 				end
 
@@ -830,6 +834,48 @@ function CRandomTask:task_reward(npc, actor, p1, p2)
 				end
 			end
 		end	
+	end
+end
+--//видача винагороди за "віддалені" квести
+function CRandomTask:task_reward_remote(task_desc)
+	log3("~task_reward_remote remote rewarded task %s completed, vendor %s", task_desc.name, alife():story_object(story_by_parent[task_desc.parent]):name())
+	if task_desc.reward_money ~= nil then
+		log3("~reward money %s", task_desc.reward_money)
+		--dialogs.relocate_money(npc, task_desc.reward_money, "in")
+		actor:give_money(task_desc.reward_money)
+		game_stats.money_quest_update(task_desc.reward_money)
+		news_manager.relocate_money(actor, "in", task_desc.reward_money)
+	end
+				
+	if task_desc.reward_item ~= nil then
+		local sim = alife()
+		local receiver = task_desc.reward_item_receiver and sobj_by_name(task_desc.reward_item_receiver) or sim:actor()
+		for k,v in pairs(task_desc.reward_item) do
+			log3("~reward item %s", v)
+			sim:create(v, receiver.position, receiver.m_level_vertex_id, receiver.m_game_vertex_id, receiver.id)
+			news_manager.relocate_item(actor, "in", v)
+		end
+		if task_desc.reward_item_receiver then
+			store_box.unlock_by_name(task_desc.reward_item_receiver, "ui_st_reward_to_box")
+		end
+	end
+
+	if task_desc.reward_reputation ~= nil then
+		log3("~reward reputation %s", task_desc.reward_reputation)
+		actor:change_character_reputation(task_desc.reward_reputation)
+	end
+
+	if task_desc.reward_relation ~= nil then
+		for k,v in pairs(task_desc.reward_relation) do
+			log3("~reward relation of %s amount %s", k, v)
+			relation_registry.change_community_goodwill(k, actor:id(), tonumber(v))
+		end
+	end
+
+	if task_desc.reward_rank ~= nil then
+		log3("~reward rank %s", task_desc.reward_rank)
+		actor_stats.add_points("quests", task_desc.name, 1, 1)--task_desc.reward_rank)
+		actor:change_character_rank(task_desc.reward_rank)--set_character_rank(db.actor:character_rank() + task_desc.reward_rank)
 	end
 end
 --' Функция, в которой будет выдаваться вещевая награда за выполненные сторилайновые квесты

@@ -159,12 +159,12 @@ function killactor (actor, npc)
     xr_gulag.setGulagEnemy ("mil_dolg", actor)
 end
 
-function set_actor_enemy_for (sid)
+function set_actor_enemy_for(sid)
     local npc = level_object_by_sid (sid)
     if npc == nil or npc:alive () == false then
        return 
     end    
-    npc:set_relation (game_object.enemy, db.actor)
+    npc:set_relation (game_object.enemy, actor)
 end
 
 function transfer_scope (npc, actor)
@@ -217,3 +217,46 @@ function give_dolg_pda(actor, npc)
 end
 
 --db.actor:set_character_community("actor_dolg", 0, 0)
+
+--Шуруп не має власного sid тож шукаємо його перебором
+function get_screw()
+	local npc
+	for id,val in pairs(db.storage) do
+		npc = level.object_by_id(id)
+		if npc:profile_name() and npc:profile_name() == "mil_Svoboda_engineer" then
+			return npc
+		end
+	end
+	return nil
+end
+
+--ремонт у Шурупа
+--condition_limit, cost_k, uniquie_k, armor_repair_infop
+function show_repair_screw()
+	ui_repair.create_overlay(0.9, 2, 1)
+end
+
+function can_open_storage_freedom()
+	return dialogs.actor_in_freedom() or relation_registry.community_goodwill("freedom", actor:id()) >= 500
+end
+
+function can_not_open_storage_freedom()
+	return not can_open_storage_freedom()
+end
+
+function storage_locked_freedom()
+ 	return not store_box.is_opened(cobj_by_name("military_volya_max_box"))
+end
+function unlock_storage_freedom()
+	store_box.unlock_by_name("military_volya_max_box")
+end
+
+function screw_dead()
+	local screw = get_screw()
+	return not screw or not screw:alive()
+end
+
+function max_dead()
+	local mil_max = level_object_by_sid(story_ids.Mil_Master_Max)
+	return not mil_max or not mil_max:alive()
+end

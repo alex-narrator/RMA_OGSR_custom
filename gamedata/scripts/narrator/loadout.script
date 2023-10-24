@@ -7,10 +7,12 @@ function attach(sm)
 	sm:subscribe({signal = "on_vest",   fun = this.on_vest})
 	sm:subscribe({signal = "on_belt",   fun = this.on_belt})
 	sm:subscribe({signal = "on_grenade_type_switch",   fun = this.on_grenade_type_switch})
-	sm:subscribe({signal = "on_cell_item_mouse",   	fun = this.try_set_item})
+	--sm:subscribe({signal = "on_cell_item_mouse",   	fun = this.try_set_item})
 	sm:subscribe({signal = "on_save",   fun = this.on_save})
 	sm:subscribe({signal = "on_load",   fun = this.on_load})
 	sm:subscribe({signal = "on_first_update",   fun = this.on_first_update})
+	sm:subscribe({signal = "on_move_to_marked_list",   fun = this.on_move_to_marked_list})
+	sm:subscribe({signal = "on_move_from_marked_list",   fun = this.on_move_from_marked_list})
 end
 
 --//loadout slot types and default capacities
@@ -34,6 +36,18 @@ function log_slots()
 end
 
 loaded_items = {}
+
+--//функції для рушійних колбеків переміщення в драгдроп-лист маркованих предметів
+function on_move_to_marked_list(item)
+	if can_add(item) then
+		add(item)
+	end
+end
+function on_move_from_marked_list(item)
+	if can_remove(item) then
+		remove(item)
+	end
+end
 
 local unload_states = {
 	[global_flags.eReload] = true,
@@ -254,7 +268,7 @@ function add(item)
 	--log3("~add item %s | %s", item:name(), item:id())
 	update_item_count(item, true)
 	
-	set_item_ungroupable(item)
+	--set_item_ungroupable(item)
 	if level.main_input_receiver() then
 		update_inventory_window()
 	end
@@ -267,7 +281,7 @@ function remove(item)
 	
 	update_item_count(item, false)
 	
-	set_item_default_grouping(item)
+	--set_item_default_grouping(item)
 	if level.main_input_receiver() then
 		update_inventory_window()
 	end
@@ -297,18 +311,18 @@ function menu_tip_from(item)
 	return tip_text
 end
 
-static_focused = false
-function try_set_item(obj, x, y, action)
-	local action_allowed = can_add(obj) or can_remove(obj)
-	if action ~= ui_events.DRAG_DROP_ITEM_DROP or 
-		not static_focused or
-		not action_allowed
-	then 
-	return end
+-- static_focused = false
+-- function try_set_item(obj, x, y, action)
+	-- local action_allowed = can_add(obj) or can_remove(obj)
+	-- if action ~= ui_events.DRAG_DROP_ITEM_DROP or 
+		-- not static_focused or
+		-- not action_allowed
+	-- then 
+	-- return end
 	
-	if can_add(obj) then
-		add(obj)
-	elseif can_remove(obj) then
-		remove(obj)
-	end
-end
+	-- if can_add(obj) then
+		-- add(obj)
+	-- elseif can_remove(obj) then
+		-- remove(obj)
+	-- end
+-- end

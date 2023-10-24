@@ -2,6 +2,18 @@
 -- Общие функции
 -- ----------------------------------------------------------------------------------------------------
 
+function give_info(actor, npc, p)
+	if p[1] then
+		actor:give_info_portion(p[1])
+	end
+end
+
+function remove_info(actor, npc, p)
+	if p[1] then
+		actor:disable_info_portion(p[1])
+	end
+end
+
 function disable_ui_elements(actor, npc, p)
     local i, v = 0, 0
     for i, v in pairs(p) do
@@ -1312,7 +1324,9 @@ function bar_arena_weapon_spawn ()
 end
 
 local function transfer_object_item(item)
-    out_object:transfer_item(item, in_object)
+	if not item:get_pda() then
+		out_object:transfer_item(item, in_object)
+	end
 end
 function bar_arena_teleport ( actor, npc)
 
@@ -1850,6 +1864,11 @@ function cit_transfer_actor_inventory(actor)
 	local spawn_coord = vector():set(-28.789925537109, 11.235992431641, 28.981426239014)
 	
 	local inv_box = alife():create("inventory_box_deadcity", spawn_coord, actor:level_vertex_id(), actor:game_vertex_id())
+	alife():assign_story_id(inv_box.id, 1213)
+	inv_box.custom_data = [[
+			[logic]
+			cfg = scripts\cit\cit_actor_weapon_box.ltx
+			]]
 	level.client_spawn_manager():add(inv_box.id, -1, function(id, obj)
 		inv_box_2 = obj
 		out_object = actor

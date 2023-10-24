@@ -2089,7 +2089,7 @@
         <phrase_list>
 			<phrase id="0">
 				<text>bar_arena_man_repair</text>
-				<action>bar_dialogs.show_repair</action>
+				<action>bar_dialogs.show_repair_arni</action>
 			</phrase>
 		</phrase_list>
 	</dialog>
@@ -4779,6 +4779,15 @@
             </phrase>
 		</phrase_list>
 	</dialog>
+	<!-- додаткові діалоги Петренка -->
+	<dialog id="bar_dolg_petrenko_repair">
+        <phrase_list>
+			<phrase id="0">
+				<text>bar_dolg_petrenko_repair</text>
+				<action>bar_dialogs.show_repair_petrenko</action>
+			</phrase>
+		</phrase_list>
+	</dialog>	
     <dialog id="bar_dolg_novice_start">
         <phrase_list>
             <phrase id="41">
@@ -6771,6 +6780,36 @@
             </phrase>
 		</phrase_list>
 	</dialog>
+	<!-- додаткові діалоги Вороніна -->
+	<dialog id="bar_dolg_leader_storage">
+		<precondition>bar_dialogs.storage_locked_dolg</precondition>
+        <phrase_list>
+			<phrase id="0">
+				<text>bar_dolg_leader_ask_open_storage</text>
+				<next>bar_dolg_leader_can_open</next>
+				<next>bar_dolg_leader_can_not_open</next>
+			</phrase>
+			<!-- відкриє сховище -->
+			<phrase id="bar_dolg_leader_can_open">
+				<precondition>bar_dialogs.can_open_storage_dolg</precondition>
+				<text>bar_dolg_leader_can_open</text>
+				<next>tnanx_and_leave_open</next>
+				<action>bar_dialogs.unlock_storage_dolg</action>
+			</phrase>
+			<phrase id="tnanx_and_leave_open">
+				<text>tnanx_and_leave_open_dolg</text>
+			</phrase>
+			<!--НЕ відкриє сховище -->
+			<phrase id="bar_dolg_leader_can_not_open">
+				<precondition>bar_dialogs.can_not_open_storage_dolg</precondition>
+				<text>bar_dolg_leader_can_not_open</text>
+				<next>tnanx_and_leave_closed</next>
+			</phrase>
+			<phrase id="tnanx_and_leave_closed">
+				<text>tnanx_and_leave_closed_dolg</text>
+			</phrase>
+		</phrase_list>
+	</dialog>	
 	<!--dialog id="bar_bar_psih_start_pain">
         <phrase_list>
             <phrase id="0">
@@ -7289,21 +7328,21 @@
 		</phrase_list>
 	</dialog>
 	<dialog id="bar_barman_storage">
-		<precondition>bar_dialogs.storage_locked</precondition>
+		<precondition>bar_dialogs.storage_locked_barman</precondition>
 		<phrase_list>
 			<phrase id="0">
 				<text>bar_bar_barmen_open_storage_request</text>
 				<next>bar_bar_barmen_storage_price</next>
 			</phrase>
 			<phrase id="bar_bar_barmen_storage_price">
-				<script_text>bar_dialogs.storage_open_price_text</script_text>
+				<script_text>bar_dialogs.storage_open_price_text_barman</script_text>
 				<next>bar_bar_barmen_storage_price_accept</next>
 				<next>bar_bar_barmen_storage_price_decline</next>
 			</phrase>
 			<phrase id="bar_bar_barmen_storage_price_accept">
-				<precondition>bar_dialogs.has_money_to_open</precondition>
+				<precondition>bar_dialogs.has_money_to_open_barman</precondition>
 				<text>bar_bar_barmen_storage_price_accept</text>
-				<action>bar_dialogs.unlock_storage</action>
+				<action>bar_dialogs.unlock_storage_barman</action>
 			</phrase>
 			<phrase id="bar_bar_barmen_storage_price_decline">
 				<text>bar_bar_barmen_storage_price_decline</text>

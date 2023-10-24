@@ -64,7 +64,7 @@ function MainIngameOverlay:Subscribe()
 			{signal = "on_ruck", self = self, fun = self.UpdatePanelItems},
 			{signal = "on_belt", self = self, fun = self.UpdatePanelItems},
 			{signal = "on_vest", self = self, fun = self.UpdatePanelItems},
-			{signal = "on_drop", self = self, fun = self.UpdatePanelItems},
+			{signal = "on_loadout_update_count", self = self, fun = self.UpdatePanelItems},
 		}
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
@@ -162,6 +162,18 @@ function MainIngameOverlay:InitControls()
 	tmp_tbl = split_string(xml:ReadAttrib("belt_panel", 0, "text_offset", "0,0"), ",")
 	self.belt_panel.text_offset = {x = tmp_tbl[1], y = tmp_tbl[2]}
 	self.belt_panel.items = {}
+	--// loadout panel
+	self.loadout_panel = xml:InitStatic("loadout_panel", self)
+	self.loadout_panel.scale = xml:ReadAttribFlt("loadout_panel", 0, "scale", 1)
+	self.loadout_panel.indent = xml:ReadAttribFlt("loadout_panel", 0, "indent", 0)
+	self.loadout_panel.vertical = xml:ReadAttribInt("loadout_panel", 0, "vertical", 0)
+	self.loadout_panel.group_similar = xml:ReadAttribInt("loadout_panel", 0, "group_similar", 0)
+	self.loadout_panel.font = xml:ReadAttrib("loadout_panel", 0, "font", def_font)
+	tmp_tbl = split_string(xml:ReadAttrib("loadout_panel", 0, "text_color", def_color), ",")
+	self.loadout_panel.text_color = GetARGB(tmp_tbl[1], tmp_tbl[2], tmp_tbl[3], tmp_tbl[4])
+	tmp_tbl = split_string(xml:ReadAttrib("loadout_panel", 0, "text_offset", "0,0"), ",")
+	self.loadout_panel.text_offset = {x = tmp_tbl[1], y = tmp_tbl[2]}
+	self.loadout_panel.items = {}	
 	--// booster panel
 	self.booster_panel = xml:InitStatic("booster_panel", self)
 	self.booster_panel.scale = xml:ReadAttribFlt("booster_panel", 0, "scale", 1)
@@ -268,6 +280,37 @@ function MainIngameOverlay:UpdatePanelItems()
 		end
 		self.belt_panel:AttachChild(item_st)
 	end
+	--// loadout
+	self.loadout_panel:DetachAll()
+	self.loadout_panel.items = {}
+	pos_x = 0
+	pos_y = 0
+	for k,v in pairs(loadout.loaded_items) do
+		item = level.object_by_id(k)
+		if item then
+			self:TryAddToLoadoutList(item)
+		end
+	end
+	for k, v in pairs(self.loadout_panel.items) do
+		params = CIconParams(v.item:section())
+		item_st = CUIStatic()
+		params:set_shader(item_st)
+		item_st:SetWidth(params.grid_width * CELL_W * self.loadout_panel.scale * get_current_kx())
+		item_st:SetHeight(params.grid_height * CELL_H * self.loadout_panel.scale)
+		ui_inv_utils.AttachPanelIcons(v.item, item_st)
+		item_st:SetWndPos(pos_x, pos_y)
+		text = v.count > 1 and string.format("x%s", v.count) or ""
+		item_st:SetText(game.translate_string(text))
+		item_st:SetFont(GetFontCustom(self.loadout_panel.font))
+		item_st:SetTextColor(self.loadout_panel.text_color)
+		item_st:SetTextPos(self.loadout_panel.text_offset.x, self.loadout_panel.text_offset.y)
+		if self.loadout_panel.vertical > 0 then
+			pos_y = pos_y + item_st:GetHeight() + self.loadout_panel.indent
+		else
+			pos_x = pos_x + item_st:GetWidth() + self.loadout_panel.indent
+		end
+		self.loadout_panel:AttachChild(item_st)
+	end	
 end
 
 function MainIngameOverlay:UpdatePanelBoosters()
@@ -310,6 +353,18 @@ function MainIngameOverlay:TryAddToBeltList(item)
 	table.insert(self.belt_panel.items, {item = item, count = 1})
 end
 
+function MainIngameOverlay:TryAddToLoadoutList(item)
+	if self.loadout_panel.group_similar < 1 then
+		table.insert(self.loadout_panel.items, {item = item, count = 1})
+	return end
+	for k, v in pairs(self.loadout_panel.items) do
+		if ui_inv_utils.similar_item(v.item, item) then
+			v.count = v.count + 1
+		return end
+	end
+	table.insert(self.loadout_panel.items, {item = item, count = 1})
+end
+
 function MainIngameOverlay:Update()
 	CUIScriptWnd.Update(self)
 	self.health_bar:SetProgressPos(actor.health)
@@ -324,5 +379,6 @@ function MainIngameOverlay:Update()
 	end
 	self.slot_panel:Show(self.owner.show_gear_info)
 	self.belt_panel:Show(self.owner.show_gear_info)
+	self.loadout_panel:Show(self.owner.show_gear_info)
 	self:UpdatePanelBoosters()
 end

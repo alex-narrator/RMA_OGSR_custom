@@ -42,9 +42,10 @@ end
 
 local tgt = level.get_target_obj()
 if tgt then
-	log3("~ target section: %s | id %s| name: %s | profile: %s | species %s | nonscript usable %s | position (%s, %s, %s)", 
+	log3("~ target section: %s | id %s| story_id %s | name: %s | profile: %s | species %s | nonscript usable %s | position (%s, %s, %s)", 
 		tgt:section(), 
 		tgt:id(), 
+		tgt:story_id(), 
 		tgt:name(), 
 		tgt:profile_name() and tgt:profile_name() or "NO PROFILE", 
 		read_if_exists(sys_ini, "r_string", tgt:section(), "species", "NO SPECIES"),
@@ -131,5 +132,9 @@ end
 --dis_consciousness
 --dream
 --head_shot
-level.add_cam_effector("camera_effects\\head_shot.anm", 2023, false, "")
+--level.add_cam_effector("camera_effects\\head_shot.anm", 2023, false, "")
 --level.remove_cam_effector(2023)
+
+--dialogs_military.killactor(actor)
+--dialogs_military.set_actor_enemy_for(708)
+log3("freedom goodwill %s", relation_registry.community_goodwill("dolg", actor:id()))

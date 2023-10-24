@@ -1408,11 +1408,11 @@ function load_obj(obj, reader)
 	pstor_load_all(obj, reader)
 end
 
-function get_customdata_or_ini_file(npc, filename)
+function get_customdata_or_ini_file(obj, filename)
 --	printf( "get_customdata_or_ini_file: filename=%s", filename )
-
+	
 	if filename == "<customdata>" then
-		local ini = npc:spawn_ini()
+		local ini = obj:spawn_ini() or get_custom_logic_ini(obj)
 		if ini then
 			return ini
 		else

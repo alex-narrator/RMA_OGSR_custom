@@ -157,10 +157,10 @@ function InventoryOverlay:InitControls()
 	self.loadout_color_hidden 		= GetARGB(0, 255, 255, 255)
 		
 	self.loadout_back = xml:InitStatic("loadout_back", self)
-	name = "loadout_back"
-	self:Register(self.loadout_back, name)
-	self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, self.LoadoutBackOnFocusReceived)
-	self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, self.LoadoutBackOnFocusLost)	
+	-- name = "loadout_back"
+	-- self:Register(self.loadout_back, name)
+	-- self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, self.LoadoutBackOnFocusReceived)
+	-- self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, self.LoadoutBackOnFocusLost)	
 
 	self.clear_loadout = xml:Init3tButton("clear_loadout_button", self.loadout_back)
 	name = "clear_loadout"
@@ -347,13 +347,13 @@ function InventoryOverlay:LoadoutSlotOnFocusLost(slot_name)
 	self.loadout[slot_name].static:SetTextColor(self.loadout_color_default)
 end
 
-function InventoryOverlay:LoadoutBackOnFocusReceived(slot_name)
-	loadout.static_focused = true
-end
+-- function InventoryOverlay:LoadoutBackOnFocusReceived(slot_name)
+	-- loadout.static_focused = true
+-- end
 
-function InventoryOverlay:LoadoutBackOnFocusLost(slot_name)
-	loadout.static_focused = false
-end
+-- function InventoryOverlay:LoadoutBackOnFocusLost(slot_name)
+	-- loadout.static_focused = false
+-- end
 
 function InventoryOverlay:Update()
 	CUIScriptWnd.Update(self)
@@ -369,6 +369,11 @@ function InventoryOverlay:Update()
 		hint_text = string.format("%s %.0f%s\\n%s", cond_descr, val, "%", cond_text)
 		v.hint:SetText(hint_text)
 	end
+	
+	local inv = actor.inventory
+	for k, v in pairs(self.slot_keys) do
+		v.static:Show(inv:is_slot_allowed(k))
+	end	
 	
 	self:UpdateWeightText()
 	self:UpdateDateTimeText()

@@ -14,7 +14,7 @@ delay_use = false
 
 function check_use_enabled(item, user)
 	local eatable_item = item:get_eatable_item()
-	if not eatable_item then
+	if not eatable_item or not user:is_actor() then
 	return end
 	
 	if item:is_food_item() and not item:is_bottle_item() and actor.satiety > 0.95 then	
@@ -43,7 +43,7 @@ function check_use_enabled(item, user)
 		return end
 	end
 	
-	if user:is_actor() and get_hud_sect(item) then
+	if get_hud_sect(item) then
 		if not delay_use then
 			eatable_item.can_be_eaten = false
 			use_item_anim.play(item)

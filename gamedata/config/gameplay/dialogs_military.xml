@@ -93,6 +93,15 @@
             </phrase>
         </phrase_list>
     </dialog>
+	<!-- додаткові діалоги Шурупа -->
+	<dialog id="mil_screw_repair">
+        <phrase_list>
+			<phrase id="0">
+				<text>mil_screw_repair</text>
+				<action>dialogs_military.show_repair_screw</action>
+			</phrase>
+		</phrase_list>
+	</dialog>	
     <dialog id="mil_zoneguard_common1">
         <has_info>mil_freedom_rg6_task</has_info>
         <dont_has_info>mil_cook_question_already</dont_has_info>
@@ -1367,6 +1376,36 @@
 			</phrase>
         </phrase_list>
     </dialog>
+	<!-- додаткові діалоги Макса -->
+	<dialog id="mil_max_storage">
+		<precondition>dialogs_military.storage_locked_freedom</precondition>
+        <phrase_list>
+			<phrase id="0">
+				<text>mil_max_ask_open_storage</text>
+				<next>mil_max_can_open</next>
+				<next>mil_max_can_not_open</next>
+			</phrase>
+			<!-- відкриє сховище -->
+			<phrase id="mil_max_can_open">
+				<precondition>dialogs_military.can_open_storage_freedom</precondition>
+				<text>mil_max_can_open</text>
+				<next>tnanx_and_leave_open</next>
+				<action>dialogs_military.unlock_storage_freedom</action>
+			</phrase>
+			<phrase id="tnanx_and_leave_open">
+				<text>tnanx_and_leave_open_freedom</text>
+			</phrase>
+			<!--НЕ відкриє сховище -->
+			<phrase id="mil_max_can_not_open">
+				<precondition>dialogs_military.can_not_open_storage_freedom</precondition>
+				<text>mil_max_can_not_open</text>
+				<next>tnanx_and_leave_closed</next>
+			</phrase>
+			<phrase id="tnanx_and_leave_closed">
+				<text>tnanx_and_leave_closed_freedom</text>
+			</phrase>
+		</phrase_list>
+	</dialog>	
     <dialog id="mil_dolg_skull_dialog">
         <phrase_list>
             <phrase id="130">
@@ -2421,6 +2460,7 @@
             </phrase>
             <phrase id="11012">
                 <text>mil_leader_start_dialog_11012</text>
+				<action>dialogs_military.killactor</action>
             </phrase>
             <phrase id="10011">
                 <text>mil_leader_start_dialog_10011</text>
@@ -2645,6 +2685,49 @@
 			</phrase>
 		</phrase_list>
     </dialog>
+	<!-- додаткові діалоги Лукаша -->
+	<dialog id="mil_leader_repair">
+		<precondition>dialogs_military.screw_dead</precondition>
+        <phrase_list>
+			<phrase id="0">
+				<text>mil_leader_repair</text>
+				<next>mil_leader_repair_screw_dead</next>
+			</phrase>
+			<phrase id="mil_leader_repair_screw_dead">
+				<text>mil_leader_repair_screw_dead</text>
+			</phrase>
+		</phrase_list>
+	</dialog>
+	<dialog id="mil_leader_storage">
+		<precondition>dialogs_military.storage_locked_freedom</precondition>
+		<precondition>dialogs_military.max_dead</precondition>
+        <phrase_list>
+			<phrase id="0">
+				<text>mil_leader_ask_open_storage</text>
+				<next>mil_leader_can_open</next>
+				<next>mil_leader_can_not_open</next>
+			</phrase>
+			<!-- відкриє сховище -->
+			<phrase id="mil_leader_can_open">
+				<precondition>dialogs_military.can_open_storage_freedom</precondition>
+				<text>mil_leader_can_open</text>
+				<next>tnanx_and_leave_open</next>
+				<action>dialogs_military.unlock_storage_freedom</action>
+			</phrase>
+			<phrase id="tnanx_and_leave_open">
+				<text>tnanx_and_leave_open_freedom</text>
+			</phrase>
+			<!--НЕ відкриє сховище -->
+			<phrase id="mil_leader_can_not_open">
+				<precondition>dialogs_military.can_not_open_storage_freedom</precondition>
+				<text>mil_leader_can_not_open</text>
+				<next>tnanx_and_leave_closed</next>
+			</phrase>
+			<phrase id="tnanx_and_leave_closed">
+				<text>tnanx_and_leave_closed_freedom</text>
+			</phrase>
+		</phrase_list>
+	</dialog>	
     <dialog id="mil_bodyguard_dialog">
         <phrase_list>
             <phrase id="5">

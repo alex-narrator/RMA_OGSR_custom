@@ -12,24 +12,40 @@ local locked_box_names = {
 	yantar_sakharov_box = true,
 }
 
+local store_box_spot = "spot_storebox_cop"
+
 function is_opened(box)
 	return alife():object(box:id()).is_opened or not locked_box_names[box:name()]
 end
 
-function unlock(box)
-	alife():object(box:id()).is_opened = true
+function unlock(box, custom_text)
+	alife():object(box.id).is_opened = true
+	--map spot
+	local header_color = "%c[255,160,160,160]"
+	local news_text = custom_text and custom_text or "st_storebox_opened"
+	local box_name_text = "st_"..box:name()
+	local text = string.format("%s%s\\n%s%s", header_color, game.translate_string(box_name_text), "%c[default]", game.translate_string(news_text))
+	level.map_add_object_spot_ser(box.id, store_box_spot, text)
 	--news tip
-	news_manager.custom_news("st_storebox", "st_storebox_opened", "ui_store_box")
+	news_manager.custom_news(box_name_text, news_text, "ui_store_box")
 	--box sound
-	xr_sound.get_safe_sound_object([[device\door_servomotor]],sound_object.s3d):play_at_pos(box,box:position())
+	local c_box = level.object_by_id(box.id)
+	if c_box then
+		local sound_name = read_if_exists(sys_ini, "r_string", c_box:section(), "unlock_snd", nil)
+		xr_sound.get_safe_sound_object(sound_name,sound_object.s3d):play_at_pos(c_box, c_box:position())
+	end
 end
 
 function lock(box)
-	alife():object(box:id()).is_opened = false
+	local sobj = alife():object(box:id())
+	sobj.is_opened = false
+	if level.map_has_object_spot(sobj.id) then
+		level.map_remove_object_spot(sobj.id, store_box_spot)
+	end
 end
 
-function unlock_by_name(name)
+function unlock_by_name(name, custom_text)
 	if not locked_box_names[name] then
 	return end
-	unlock(cobj_by_name(name))
+	unlock(sobj_by_name(name), custom_text)
 end

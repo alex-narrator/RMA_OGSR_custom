@@ -227,9 +227,22 @@ sec_monster_attack
 
 [remote_task]
 need_return = false
+remote_reward = true
 
 [trader_remote_task]:remote_task
-reward_item_placement = escape_sidor_box
+reward_item_receiver = escape_sidor_box
+
+[barman_remote_task]:remote_task
+reward_item_receiver = bar_barman_box
+
+[ecolog_remote_task]:remote_task
+reward_item_receiver = yantar_sakharov_box
+
+[dolg_remote_task]:remote_task
+reward_item_receiver = bar_voronin_dolg_box
+
+[freedom_remote_task]:remote_task
+reward_item_receiver = military_volya_max_box
 
 [tm_eliminate_camp_1]:trader_remote_task
 type = eliminate_lager
@@ -528,9 +541,6 @@ reward_rank = 5
 time = 86400
 reward_item = ammo_12x76_dart, ammo_12x76_dart, ammo_12x76_dart, ammo_12x76_dart, ammo_12x76_dart
 prior = 1
-
-[barman_remote_task]:remote_task
-reward_item_placement = bar_barman_box
 
 [barmen_eliminate_camp_1]:barman_remote_task
 type = eliminate_lager
@@ -870,9 +880,6 @@ reward_item = af_ameba_slug
 time = 86400
 
 ;--------------------Ecolog-----------------------------
-[ecolog_remote_task]:remote_task
-reward_item_placement = yantar_sakharov_box
-
 [ecolog_eliminate_lager_1]:ecolog_remote_task
 type = eliminate_lager
 community = actor
@@ -1067,9 +1074,6 @@ reward_rank = 10
 reward_item = scientific_outfit
 time = 86400
 prior = 5
-
-[dolg_remote_task]:remote_task
-reward_item_placement = bar_voronin_dolg_box
 
 [dolg_defend_lager_1]:dolg_remote_task
 type = defend_lager
@@ -1325,9 +1329,6 @@ reward_item = wpn_vintorez, ammo_9x39_sp5, ammo_9x39_sp5
 ;time = 86400
 prior = 1
 
-
-[freedom_remote_task]:remote_task
-reward_item_placement = military_volya_max_box
 
 [freedom_eliminate_camp_1]:freedom_remote_task
 type = eliminate_lager
