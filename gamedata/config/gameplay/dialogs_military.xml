@@ -2255,9 +2255,10 @@
                 <text>mil_leader_start_dialog_10001</text>
 				<dont_has_info>mil_leader_attach_community</dont_has_info>
                 <action>dialogs_military.mil_dolg_payment</action>
-                <action>dialogs_military.actor_set_freedom</action>
+                <!-- <action>dialogs_military.actor_set_freedom</action> -->
 				<give_info>mil_freedom_quests_end</give_info>
-				<give_info>mil_leader_attach_community</give_info>
+				<give_info>mil_freedom_friend</give_info>
+				<!-- <give_info>mil_leader_attach_community</give_info> -->
             </phrase>
 			<phrase id="10002">
                 <text>mil_leader_start_dialog_10002</text>
@@ -2317,8 +2318,9 @@
             </phrase>
             <phrase id="8004">
                 <text>mil_leader_start_dialog_8004</text>
-                <action>dialogs_military.actor_set_freedom</action>
-				<give_info>mil_leader_attach_community</give_info>
+                <!-- <action>dialogs_military.actor_set_freedom</action> -->
+				<!-- <give_info>mil_leader_attach_community</give_info> -->
+				<give_info>mil_freedom_friend</give_info>
                 <next>8005</next>
             </phrase>
             <phrase id="8005">
@@ -2533,16 +2535,18 @@
                 <text>mil_leader_start_dialog_5001</text>
 				<dont_has_info>mil_blockpost_free_task</dont_has_info>
                 <action>dialogs_military.lukash_payment</action>
-				<action>dialogs_military.actor_set_freedom</action>
-				<give_info>mil_leader_attach_community</give_info>
+				<!-- <action>dialogs_military.actor_set_freedom</action> -->
+				<!-- <give_info>mil_leader_attach_community</give_info> -->
+				<give_info>mil_freedom_friend</give_info>
                 <next>5002</next>
             </phrase>
 			<phrase id="5005">
                 <text>mil_leader_start_dialog_5005</text>
 				<has_info>mil_blockpost_free_task</has_info>
                 <action>dialogs_military.lukash_payment</action>
-				<action>dialogs_military.actor_set_freedom</action>
-				<give_info>mil_leader_attach_community</give_info>
+				<!-- <action>dialogs_military.actor_set_freedom</action> -->
+				<!-- <give_info>mil_leader_attach_community</give_info> -->
+				<give_info>mil_freedom_friend</give_info>
 				<give_info>mil_lukash_blockpost</give_info>
 				<give_info>mil_freedom_quests_end</give_info>
             </phrase>
@@ -2554,8 +2558,9 @@
 				<text>mil_leader_start_dialog_5004</text>
 				<has_info>mil_fblockpost_quest_complete</has_info>
 				<action>dialogs_military.lukash_payment</action>
-				<action>dialogs_military.actor_set_freedom</action>
-				<give_info>mil_leader_attach_community</give_info>
+				<!-- <action>dialogs_military.actor_set_freedom</action> -->
+				<!-- <give_info>mil_leader_attach_community</give_info> -->
+				<give_info>mil_freedom_friend</give_info>
 				<give_info>mil_lukash_blockpost</give_info>
 				<give_info>mil_freedom_quests_end</give_info>
 			</phrase>
@@ -2725,6 +2730,51 @@
 			</phrase>
 			<phrase id="tnanx_and_leave_closed">
 				<text>tnanx_and_leave_closed_freedom</text>
+			</phrase>
+		</phrase_list>
+	</dialog>
+	<!-- приєднання до Волі -->
+	<dialog id="mil_leader_attach_community">
+		<precondition>dialogs.actor_not_in_freedom</precondition>
+        <phrase_list>
+			<phrase id="0">
+				<text>mil_leader_ask_attach_community</text>
+				<next>mil_leader_can_attach_community</next>
+				<next>mil_leader_can_not_attach_community</next>
+			</phrase>
+			<!-- можна приєднатись -->
+			<phrase id="mil_leader_can_attach_community">
+				<precondition>dialogs_military.actor_can_join_freedom</precondition>
+				<text>mil_leader_can_attach_community</text>
+				<next>accept_attach_community</next>
+				<next>refuse_attach_community</next>
+			</phrase>
+				<!-- згодні приєднатись -->
+				<phrase id="accept_attach_community">
+					<text>accept_attach_community_freedom</text>
+					<next>leave_attach_community</next>
+					<action>dialogs_military.actor_set_freedom</action>
+					<give_info>mil_leader_attach_community</give_info>
+				</phrase>
+				<phrase id="leave_attach_community">
+					<text>leave_attach_community_freedom</text>
+				</phrase>
+				<!-- НЕ згодні приєднатись -->			
+				<phrase id="refuse_attach_community">
+					<text>refuse_attach_community_freedom</text>
+					<next>leave_refuse_attach_community</next>
+				</phrase>
+				<phrase id="leave_refuse_attach_community">
+					<text>leave_refuse_attach_community_freedom</text>
+				</phrase>			
+			<!--НЕ можна приєднатись -->
+			<phrase id="mil_leader_can_not_attach_community">
+				<precondition>dialogs_military.actor_can_not_join_freedom</precondition>
+				<text>mil_leader_can_not_attach_community</text>
+				<next>tnanx_and_leave_dont_attach_community</next>
+			</phrase>
+			<phrase id="tnanx_and_leave_dont_attach_community">
+				<text>tnanx_and_leave_dont_attach_community_freedom</text>
 			</phrase>
 		</phrase_list>
 	</dialog>	

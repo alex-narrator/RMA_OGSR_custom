@@ -216,6 +216,14 @@ function give_dolg_pda(actor, npc)
 	item(actor)
 end
 
+function actor_can_join_freedom()
+	return has_alife_info("mil_freedom_friend") or relation_registry.community_goodwill("freedom", actor:id()) >= 500
+end
+
+function actor_can_not_join_freedom()
+	return not actor_can_join_freedom()
+end
+
 --db.actor:set_character_community("actor_dolg", 0, 0)
 
 --Шуруп не має власного sid тож шукаємо його перебором
@@ -237,7 +245,7 @@ function show_repair_screw()
 end
 
 function can_open_storage_freedom()
-	return dialogs.actor_in_freedom() or relation_registry.community_goodwill("freedom", actor:id()) >= 500
+	return dialogs.actor_in_freedom() or has_alife_info("mil_freedom_friend") or relation_registry.community_goodwill("freedom", actor:id()) >= 500
 end
 
 function can_not_open_storage_freedom()

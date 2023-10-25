@@ -137,4 +137,4 @@ end
 
 --dialogs_military.killactor(actor)
 --dialogs_military.set_actor_enemy_for(708)
-log3("freedom goodwill %s", relation_registry.community_goodwill("dolg", actor:id()))
+--log3("dolg goodwill %s", relation_registry.community_goodwill("dolg", actor:id()))
