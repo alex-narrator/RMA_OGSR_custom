@@ -48,7 +48,7 @@ function GetRange(obj)
 end
 
 function GetReliability(obj)
-	local shot_dec = read_if_exists(sys_ini, "r_float", obj:section(), "condition_shot_dec", 0.00001)
+	local shot_dec = obj:is_knife() and read_if_exists(sys_ini, "r_float", obj:section(), "condition_shot_dec_on_hit", 0.00001) or read_if_exists(sys_ini, "r_float", obj:section(), "condition_shot_dec", 0.00001)
 	local resource = 1 / shot_dec
 	-- log3("resource %s for weapon %s", resource, obj:section())
 	return resource

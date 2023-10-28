@@ -269,9 +269,9 @@ function add(item)
 	update_item_count(item, true)
 	
 	--set_item_ungroupable(item)
-	if level.main_input_receiver() then
-		update_inventory_window()
-	end
+	-- if level.main_input_receiver() then
+		-- update_inventory_window()
+	-- end
 	xr_sound.get_safe_sound_object("interface\\inv_slot", sound_object.s2d):play_at_pos(actor,actor:position())
 	ogse_signals.get_mgr():call("on_item_to_loadout", item)
 end
@@ -282,9 +282,9 @@ function remove(item)
 	update_item_count(item, false)
 	
 	--set_item_default_grouping(item)
-	if level.main_input_receiver() then
-		update_inventory_window()
-	end
+	-- if level.main_input_receiver() then
+		-- update_inventory_window()
+	-- end
 	xr_sound.get_safe_sound_object("interface\\inv_ruck", sound_object.s2d):play_at_pos(actor,actor:position())
 	ogse_signals.get_mgr():call("on_item_from_loadout", item)
 end

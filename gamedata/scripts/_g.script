@@ -1528,6 +1528,8 @@ function read_if_exists(ltx, val_type, section, value, default)
 			return ltx:r_float(section,value)
 		elseif val_type == "r_u32" then
 			return ltx:r_u32(section,value)
+		elseif val_type == "r_s32" then
+			return ltx:r_s32(section,value)			
 		elseif val_type == "r_vector" then
 			return ltx:r_vector(section,value)			
 		end
@@ -1545,6 +1547,10 @@ function get_section_keys_and_values(section, ini_file)
 		t[key] = v
 	end
 	return t
+end
+
+function is_osoznanie_mode(npc)
+	return read_if_exists(sys_ini, "r_bool", npc:section(), "need_osoznanie_mode", false)
 end
 
 function get_inv_name(section)

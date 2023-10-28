@@ -32,5 +32,8 @@ function stop_dof()
 end
 
 function update_dof()
+	if actor:is_talking() and is_osoznanie_mode(level.get_second_talker()) then
+		set_dof_params(0, 0, 0, 0)
+	return end
 	set_dof_params(0, 0, 1, 0)
 end

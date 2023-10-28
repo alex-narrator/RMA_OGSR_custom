@@ -105,6 +105,11 @@ function TalkOverlay:OnShow()
 	add_update_delayed_action(1,
 		function()
 			self.target = level.get_second_talker()
+			if is_osoznanie_mode(self.target) then
+				self.char_info_back:Show(false)
+				self.char_info_back_npc:Show(false)
+				self.to_trade_button:Show(false)
+			return end
 		
 			self.char_info_back:Show(true)
 			self.char_info_back_npc:Show(true)

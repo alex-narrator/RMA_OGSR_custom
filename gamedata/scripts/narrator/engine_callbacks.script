@@ -1,9 +1,9 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 local sm = ogse_signals.get_mgr()
 
-function ui_item_info_callback(UIDesc, obj)
-	sm:call("ui_item_info_callback", UIDesc, obj)
-end
+-- function ui_item_info_callback(UIDesc, obj)
+	-- sm:call("ui_item_info_callback", UIDesc, obj)
+-- end
 
 function ui_actor_info_callback(list, obj)
 	sm:call("ui_actor_info_callback", list, obj)
@@ -14,7 +14,7 @@ function on_cell_item_update(item, text_static, cell_item)
 end
 
 function ui_inventory_try_use_item(item)
-	if item:get_eatable_item() then
+	if item and item:get_eatable_item() then
 		if not loadout.can_add(item) and not loadout.can_remove(item) then
 			actor:eat(item)
 			return true
@@ -24,7 +24,7 @@ function ui_inventory_try_use_item(item)
 end
 
 function can_move_to_marked_list(item)
-	return loadout.can_add(item)
+	return item and loadout.can_add(item) or false
 end
 
 function on_move_to_marked_list(item)

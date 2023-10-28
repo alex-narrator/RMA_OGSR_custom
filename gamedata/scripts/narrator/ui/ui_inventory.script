@@ -221,6 +221,12 @@ function InventoryOverlay:InitControls()
 	self:Register(self.exit_button, name)
 	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.Exit, self)
 	
+	--//organize button
+	self.organize_button = xml:Init3tButton("organize_button", self)
+	name = "organize_button"
+	self:Register(self.organize_button, name)
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.Organize, self)	
+	
 	--//weight static
 	self.inv_weight = xml:InitStatic("weight_static", self)
 	self:UpdateWeightText()
@@ -394,6 +400,10 @@ end
 
 function InventoryOverlay:Exit()
 	level.start_stop_menu(level.main_input_receiver(), true)
+end
+
+function InventoryOverlay:Organize()
+	update_inventory_window()
 end
 
 --//switching of item visibility functions

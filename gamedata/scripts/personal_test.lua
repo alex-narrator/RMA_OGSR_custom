@@ -138,3 +138,7 @@ end
 --dialogs_military.killactor(actor)
 --dialogs_military.set_actor_enemy_for(708)
 --log3("dolg goodwill %s", relation_registry.community_goodwill("dolg", actor:id()))
+
+--pri_wave4_monolith5_free2
+
+--alife():release(sobj_by_name("pri_wave4_monolith5_free2"), true)

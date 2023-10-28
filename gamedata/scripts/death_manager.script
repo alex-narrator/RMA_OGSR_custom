@@ -180,6 +180,7 @@ end
 --' Функция спавнит необходимое число предметов
 function create_items(npc, section, number, rnd)
     --'printf("create %s of %s", tostring(number), tostring(section))
+	local sobj
     if ammo_sections[section] == true then
         if number > 0 then
             se_respawn.create_ammo(section, 
@@ -193,11 +194,15 @@ function create_items(npc, section, number, rnd)
         for i=1,number do
       --' Проверяем вероятность появить каждый объект в отдельности
             if math.random(1000) <=  rnd then
-			alife():create(section, 
-            npc:position(),
-            npc:level_vertex_id(),  
-            npc:game_vertex_id(),
-            npc:id())
+				sobj = alife():create(section, 
+										npc:position(),
+										npc:level_vertex_id(),  
+										npc:game_vertex_id(),
+										npc:id())
+				if sobj:clsid() ~= clsid.artefact_s then
+					alife():object(sobj.id):get_inventory_item().item_radiation_restore_speed = math.clamp(npc.radiation,0,read_if_exists(sys_ini, "r_float", sobj:section_name(), "radiation_accum_limit", 0))
+					log3("~npc %s, radiation %s, spawn item %s", npc:name(), npc.radiation, sobj:section_name())
+				end
 			end
         end
     end    

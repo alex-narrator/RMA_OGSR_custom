@@ -222,7 +222,7 @@ function MainIngameOverlay:UpdatePanelItems()
 	pos_y = 0
 	for _,i in pairs(self.slot_panel.slots) do
 		item = actor:item_in_slot(i)
-		if item then
+		if item and (i ~= 13 or read_if_exists(sys_ini, "r_bool", item:section(), "quick_drop", false)) then
 			params = CIconParams(item:section())
 			item_st = CUIStatic()
 			params:set_shader(item_st)
