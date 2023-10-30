@@ -20,19 +20,22 @@ function on_spawn()
 end
 
 function on_key_press(key, game_action)
+	local curr_torch = actor_get_torch()
 	if not torch_action[game_action] or
 		not actor_hands_free() or
 		is_playing or actor:get_holder() or
-		not actor_get_torch()
+		not curr_torch
 	then
 	return end
 	
+	local torch_sect = curr_torch:section()
+	
 	if game_action == key_bindings.kTORCH and 
-		not read_if_exists(sys_ini, "r_string", actor_get_torch():section(), "light_definition", nil) 
+		not torch.get_light_sect(curr_torch)
 	then return end
 	
 	if game_action == key_bindings.kNIGHT_VISION and 
-		not read_if_exists(sys_ini, "r_string", actor_get_torch():section(), "night_vision_effector", nil) 
+		not torch.get_nvd_sect(curr_torch)
 	then return end
 	
 	local hud_sect = get_hud_sect(actor_get_torch())
@@ -44,26 +47,23 @@ function on_key_press(key, game_action)
 	
 	local switch_mode = game_action == key_bindings.kTORCH and
 		level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) and 
-		read_if_exists(sys_ini, "r_string", actor_get_torch():section(), "light_definition_second", nil)
+		torch.get_light_sect_second(curr_torch)
 	
 	add_time_delayed_action(
 		read_if_exists(sys_ini, "r_float", hud_sect, "use_delay", 1.5),
 		function()
-			local torch_obj = actor_get_torch():get_torch()
-			local can_switch = not is_power_device(actor_get_torch()) or actor_get_torch():binded_object():get_power_level() > 0
-			xr_sound.get_safe_sound_object("device\\torch\\switch_torch",sound_object.s2d):play_at_pos(actor,actor:position())
-			
-			if not can_switch then
+
+			if not torch.can_switch(curr_torch) then
 			return end
 			
 			if game_action == key_bindings.kTORCH then
 				if switch_mode then
-					torch_obj:switch_mode()
+					torch.switch_mode(curr_torch)
 				else
-					torch_obj:switch()
+					torch.switch_torch(curr_torch)
 				end
 			else
-				torch_obj:switch_nvd()
+				torch.switch_nvd(curr_torch)
 			end
 		end
 	)

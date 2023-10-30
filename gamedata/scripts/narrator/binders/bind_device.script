@@ -131,6 +131,9 @@ function device_binder:decrease_power()
 	self.last_update_time = game_time
 	
 	self:change_power_level(-self.power_consumption * delta_time)
+	if self.object:get_torch() then
+		torch.update_brightness(self.object)
+	end
 	
 	if self:get_power_level() <= LOW_POWER_LEVEL and not self.b_was_sended and not xr_conditions.black_screen() then
 		news_manager.item_tip(self.object, "low_power")

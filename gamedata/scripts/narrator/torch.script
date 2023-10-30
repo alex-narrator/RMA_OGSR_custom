@@ -1,0 +1,79 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_save",   			fun = this.on_save})
+	sm:subscribe({signal = "on_load",   			fun = this.on_load})
+	sm:subscribe({signal = "on_slot",   			fun = this.on_slot})
+end
+
+local is_second_mode = false
+
+function get_light_sect(item)
+	return read_if_exists(sys_ini, "r_string", item:section(), "light_definition", nil)
+end
+function get_light_sect_second(item)
+	return read_if_exists(sys_ini, "r_string", item:section(), "light_definition_second", nil)
+end
+function get_nvd_sect(item)
+	return read_if_exists(sys_ini, "r_string", item:section(), "night_vision_effector", nil) 
+end
+
+function can_switch(item)
+	return not is_power_device(item) or item:binded_object():get_power_level() > 0
+end
+
+function set_torch_params(torch_obj)
+	local torch_sect = actor_get_torch():section()
+	local light_sect = is_second_mode and read_if_exists(sys_ini, "r_string", torch_sect, "light_definition_second", nil) or read_if_exists(sys_ini, "r_string", torch_sect, "light_definition", nil)
+
+	local range = read_if_exists(sys_ini, "r_float", light_sect, "range", 10)
+	local angle = read_if_exists(sys_ini, "r_float", light_sect, "spot_angle", 90)
+	
+	torch_obj:set_range(range)
+	torch_obj:set_angle(math.rad(angle))
+end
+
+function update_brightness(item)
+	if not is_power_device(item) then
+	return end
+	local brightness = item:binded_object():get_power_level()
+	local light_sect = read_if_exists(sys_ini, "r_string", item:section(), "light_definition", nil)
+	local brightness_min_k = read_if_exists(sys_ini, "r_float", light_sect, "brightness_min_k", 0.3)
+	item:get_torch():set_brightness(math.clamp(brightness, brightness_min_k, 1))	
+end
+
+function on_save(packet)
+	packet:w_bool(is_second_mode)
+end
+
+function on_load(reader)
+	if reader:r_eof() then
+	return end
+	is_second_mode = reader:r_bool()
+end
+
+function switch_mode(item)
+	is_second_mode = not is_second_mode
+	xr_sound.get_safe_sound_object("device\\torch\\switch_torch",sound_object.s2d):play_at_pos(actor,actor:position())
+	set_torch_params(item:get_torch())
+end
+
+function switch_torch(item)
+	set_torch_params(item:get_torch())
+	item:get_torch():switch()
+	xr_sound.get_safe_sound_object("device\\torch\\switch_torch",sound_object.s2d):play_at_pos(actor,actor:position())
+end
+
+function switch_nvd(item)
+	local torch_obj = item:get_torch()
+	torch_obj:switch_nvd()
+	xr_sound.get_safe_sound_object("device\\torch\\switch_torch",sound_object.s2d):play_at_pos(actor,actor:position())
+end
+
+function on_slot(obj, prev_place)
+	if obj:get_torch() and get_light_sect(obj) then
+		if not xr_conditions.black_screen() then
+			is_second_mode = false
+		end
+		set_torch_params(obj:get_torch())
+	end
+end

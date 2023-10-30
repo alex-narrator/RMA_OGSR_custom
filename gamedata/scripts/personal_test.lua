@@ -142,3 +142,10 @@ end
 --pri_wave4_monolith5_free2
 
 --alife():release(sobj_by_name("pri_wave4_monolith5_free2"), true)
+
+-- local torch = actor_get_torch() and actor_get_torch():get_torch() or nil
+-- if torch then
+	-- --torch:set_brightness(1)
+	-- --torch:set_range(70)
+	-- --torch:set_angle(math.rad(30))
+-- end
