@@ -102,13 +102,16 @@ function device_binder:init_power_source()
 end
 
 function device_binder:is_working()
-	return parent_is_actor(self.object) and self.object:is_power_on()
+	return parent_is_actor(self.object) and (self.object:is_power_on() or nvd.is_nvd_on(self.object))
 end
 
 function device_binder:decrease_power()
 	if self.object:condition() == 0 or self:get_power_level() == 0 then
 		if self.object:is_power_on() then
 			self.object:switch_power(false)
+		end
+		if nvd.is_nvd_on(self.object) then
+			nvd.enable_nvd(self.object, false)
 		end
 	return end
 	

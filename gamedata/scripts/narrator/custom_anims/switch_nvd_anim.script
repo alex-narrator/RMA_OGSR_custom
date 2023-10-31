@@ -1,0 +1,56 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_key_press",   		fun = this.on_key_press})
+	sm:subscribe({signal = "on_spawn",   			fun = this.on_spawn})
+end
+
+local nvd_action = {
+	[key_bindings.kNIGHT_VISION] = true,
+}
+
+local actor_obj = get_actor_obj()
+local is_playing = false
+local hud_effector_id = 5558
+
+function on_spawn()
+	for action,_ in pairs(nvd_action) do
+		actor_obj:block_action(action)
+	end
+end
+
+function on_key_press(key, game_action)
+	local curr_nvd = actor_get_nvd()
+	if not nvd_action[game_action] or
+		not actor_hands_free() or
+		is_playing or --actor:get_holder() or
+		not curr_nvd
+	then
+	return end
+	
+	local hud_sect = "switch_torch_hud"
+	
+	game.play_hud_motion(1, hud_sect, "anm_use", false, 1, false)
+	local eff_name = read_if_exists(sys_ini, "r_string", hud_sect, "hud_effector", nil)
+	level.add_complex_effector(eff_name, hud_effector_id)
+	is_playing = true
+	
+	add_time_delayed_action(
+		read_if_exists(sys_ini, "r_float", hud_sect, "use_delay", 1.5),
+		function()
+
+			if not nvd.can_switch(curr_nvd) then
+			return end
+			
+			nvd.switch_nvd(curr_nvd)
+		end
+	)
+	
+	level.add_call(
+		function()
+			return game.hud_motion_allowed()
+		end,
+		function()
+			is_playing = false
+		end
+	)
+end

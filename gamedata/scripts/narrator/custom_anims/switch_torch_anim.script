@@ -6,7 +6,6 @@ end
 
 local torch_action = {
 	[key_bindings.kTORCH] = true,
-	[key_bindings.kNIGHT_VISION] = true,
 }
 
 local actor_obj = get_actor_obj()
@@ -34,10 +33,6 @@ function on_key_press(key, game_action)
 		not torch.get_light_sect(curr_torch)
 	then return end
 	
-	if game_action == key_bindings.kNIGHT_VISION and 
-		not torch.get_nvd_sect(curr_torch)
-	then return end
-	
 	local hud_sect = get_hud_sect(actor_get_torch())
 	
 	game.play_hud_motion(1, hud_sect, "anm_use", false, 1, false)
@@ -56,14 +51,10 @@ function on_key_press(key, game_action)
 			if not torch.can_switch(curr_torch) then
 			return end
 			
-			if game_action == key_bindings.kTORCH then
-				if switch_mode then
-					torch.switch_mode(curr_torch)
-				else
-					torch.switch_torch(curr_torch)
-				end
+			if switch_mode then
+				torch.switch_mode(curr_torch)
 			else
-				torch.switch_nvd(curr_torch)
+				torch.switch_torch(curr_torch)
 			end
 		end
 	)

@@ -1,0 +1,78 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_save",   			fun = this.on_save})
+	sm:subscribe({signal = "on_load",   			fun = this.on_load})
+	sm:subscribe({signal = "on_slot",   			fun = this.on_slot})
+	sm:subscribe({signal = "on_ruck",   			fun = this.on_ruck})
+	sm:subscribe({signal = "on_drop",   			fun = this.on_ruck})
+end
+
+local is_on = false
+local nvd_effector_id = 7777
+
+local on_snd = [[device\torch\nv_start]]
+local off_snd = [[device\torch\nv_off]]
+
+function get_nvd_sect(item)
+	return read_if_exists(sys_ini, "r_string", item:section(), "nightvision_sect", nil) 
+end
+
+function can_switch(item)
+	return (not is_power_device(item) or item:binded_object():get_power_level() > 0) and item:condition() > 0
+end
+
+function on_save(packet)
+	packet:w_bool(is_on)
+end
+
+function on_load(reader)
+	if reader:r_eof() then
+	return end
+	is_on = reader:r_bool()
+end
+
+function switch_nvd(item)
+	is_on = not is_on
+	local snd_name = is_on and on_snd or off_snd
+	xr_sound.get_safe_sound_object(snd_name,sound_object.s2d):play_at_pos(actor,actor:position())
+	set_nvd_effector(item, is_on)
+end
+
+function enable_nvd(item, power_on)
+	is_on = power_on
+	local snd_name = is_on and on_snd or off_snd
+	xr_sound.get_safe_sound_object(snd_name,sound_object.s2d):play_at_pos(actor,actor:position())
+	set_nvd_effector(item, is_on)
+end
+
+function set_nvd_effector(item, enable)
+	log3("set_nvd_effector item %s, enable %s", item:name(), enable)
+	if not enable then
+		level.remove_complex_effector(nvd_effector_id)
+	else
+		level.add_complex_effector(get_nvd_sect(item), nvd_effector_id)
+	end
+end
+
+function on_slot(obj, prev_place)
+	if get_nvd_sect(obj) then
+		if not xr_conditions.black_screen() then
+			is_on = false
+		end
+		if is_on and can_switch(obj) then
+			enable_nvd(obj, true)
+		end
+	end
+end
+
+function on_ruck(obj, prev_place)
+	if get_nvd_sect(obj) and prev_place == item_place.slot then
+		if is_on then
+			enable_nvd(obj, false)
+		end
+	end
+end
+
+function is_nvd_on(item)
+	return actor_get_nvd() and item:id() == actor_get_nvd():id() and is_on
+end

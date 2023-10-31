@@ -17,6 +17,7 @@ local need_crosshair_hard = false
 function can_play_anim()
 	return --level.get_target_obj() and 
 		--level.get_target_dist() <= KICK_DIST and
+		not level.main_input_receiver() and
 		actor_hands_free() and 
 		not is_playing and 
 		not actor:ph_capture()-- and

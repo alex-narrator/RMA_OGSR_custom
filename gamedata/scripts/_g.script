@@ -1628,6 +1628,17 @@ function actor_get_gasmask()
 	return actor:item_in_slot(15)
 end
 
+function actor_get_nvd()
+	local item = nil
+	for i = 0, sys_ini:r_u32("inventory","slots") - 1 do
+		item = actor:item_in_slot(i)
+		if item and read_if_exists(sys_ini, "r_string", item:section(), "nightvision_sect", nil) then
+			return item
+		end
+	end
+	return item
+end
+
 function actor_break_sprint()
 	local actor_obj = get_actor_obj()
 	if actor_obj:is_actor_sprinting() then
