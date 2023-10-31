@@ -194,6 +194,30 @@ use_sound 			= interface\inv_detach_addon
 
 highlight_item = battery
 
+[detector_geiger_cop]:detector_cop_base, detect_radiation
+
+$spawn 			= "devices\detector_simple"
+class			= S_DET_CSTM
+visual			= dynamics\devices\dev_dosimeter\dosimeter.ogf
+hud				= detector_geiger_hud
+inv_name		= st_detector_geiger
+inv_name_short	= st_detector_geiger_short
+description		= st_detector_geiger_descr
+
+
+inv_weight		= 0.5
+
+inv_grid_width     = 1
+inv_grid_height    = 1
+inv_grid_x         = 12
+inv_grid_y         = 25
+cost			= 500
+
+custom_ui_pos 	= -0.0281,-0.0101,0.0375
+custom_ui_rot 	= 0,63,0
+custom_ui_func 	= ui_dosimeter.get_UI
+custom_ui_bone 	= cover
+
 [detector_simple_cop]:detector_cop_base, detect_radiation
 
 $spawn 			= "devices\detector_simple"

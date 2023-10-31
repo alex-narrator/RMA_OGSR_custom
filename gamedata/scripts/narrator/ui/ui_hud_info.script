@@ -61,9 +61,9 @@ function try_show_active_item_info()
 		-- check_item_anim.play(act_item_2)
 	-- end
 	
-	if act_item_2 and act_item_2:get_detector() then
+	if act_item_2 then
 		local det_mode = ""
-		if act_item_2:get_detector():can_switch_modes() then
+		if act_item_2:get_detector() and act_item_2:get_detector():can_switch_modes() then
 			det_mode = act_item_2:get_detector():is_af_mode() and "st_af_mode" or "st_zone_mode"
 		end
 		local power = is_power_device(act_item_2) and act_item_2:binded_object():get_power_level() or 1
