@@ -137,6 +137,8 @@ function UIItemInfo:InitItemInfo(item)
 	end
 	self.descr_list:SetHeight(self.descr_list:GetPadSize().y)
 	self.background_frame:SetHeight(self.base_height + self.descr_list:GetHeight())
+	
+	self.owner:BringToTop(self)
 end
 
 function UIItemInfo:UpdateWndPos()

@@ -43,7 +43,6 @@ function TradeOverlay:Subscribe()
 			{signal = "on_trade_show", self = self, fun = self.OnShow},
 			{signal = "on_trade_hide", self = self, fun = self.OnHide},
 			{signal = "on_script_actor_icon_update", self = self, fun = self.OnActorIconUpdate},
-			--{signal = "trade_perform_operation", self = self, fun = self.UpdateCharInfos},
 		}
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
