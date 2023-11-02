@@ -80,7 +80,6 @@ function corruptible_binder:decrease_condition()
 		local obj_name = self.object:name()
 		if self.object:parent() then
 			self.object:parent():drop_item(self.object)
-			update_inventory_window()
 		end
 		if not self.object then
 			log3("!%s : can't destroy item [%s] - it`s alreday released", script_name(), obj_name)

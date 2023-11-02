@@ -4,6 +4,7 @@ local updateTimer = 0
 local updateFreq = 555 -- in milliseconds
 
 local OVERLAY_XML = "script_overlays\\ui_dosimeter.xml"
+local sm = ogse_signals.get_mgr()
 
 class "ui_dosimeter" (CUIScriptWnd)
 function ui_dosimeter:__init(item) super()
@@ -27,10 +28,13 @@ function ui_dosimeter:__init(item) super()
 	self.ui_enabled 			= true
 	
 	self.item = item
+	sm:subscribe({signal = "on_actor_before_hit", self = self, fun = self.OnBeforeHit})
+	self.rad_hit = 0
 end
 
 function ui_dosimeter:__finalize() 
 	dosimeter_ui = nil
+	sm:unsubscribe({signal = "on_actor_before_hit", self = self, fun = self.OnBeforeHit})
 end
 
 function ui_dosimeter:Update()
@@ -63,7 +67,7 @@ function ui_dosimeter:Update()
 		updateTimer = tg + updateFreq
 	end
 	
-	local rads = math.floor(actor.radiation*10000*0.387)--item_device.dosimeter_env_rads_mode and math.floor(level.get_env_rads()*2500) or math.floor(db.actor.radiation*10000*0.387)
+	local rads = math.floor(self.rad_hit*100000*0.387)--item_device.dosimeter_env_rads_mode and math.floor(level.get_env_rads()*2500) or math.floor(db.actor.radiation*10000*0.387)
 	
 	-- -- Emissions: the closer the wave, the higher the psi influnces
 	-- if GetEvent("surge", "state") then
@@ -114,6 +118,11 @@ function ui_dosimeter:Update()
 	self.m_seg2:InitTextureEx(seg2, "hud\\p3d")
 	self.m_seg3:InitTextureEx(seg3, "hud\\p3d")
 	self.m_seg4:InitTextureEx(seg4, "hud\\p3d")
+	
+	self.rad_hit = 0
+	-- if self.rad_hit > 0 then
+		-- self.rad_hit = self.rad_hit - self.rad_hit*0.5
+	-- end
 end
 
 function get_UI(item)
@@ -122,4 +131,10 @@ function get_UI(item)
 	end
 	
 	return dosimeter_ui
+end
+
+function ui_dosimeter:OnBeforeHit(s_hit)
+	if s_hit.hit_type ~= hit.radiation then
+	return end
+	self.rad_hit = s_hit.full_power
 end

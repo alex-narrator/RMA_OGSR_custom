@@ -86,11 +86,9 @@ function device_binder:update(delta)
 	if self:is_working() then
 		local item = self.object
 		--log3("~[%s]: device %s is working now (power %s)", script_name(), item:name(), self:get_power_level())
-		--якщо детектор не в худ-режимі - не витрачаємо батарейку
-		if item:get_detector() and (not actor:active_item_2() or item:id() ~= actor:active_item_2():id()) then
-		return end
-		--якщо ПДА не в худ-режимі - не витрачаємо батарейку
-		if item:get_pda() and (not actor:active_item() or item:id() ~= actor:active_item():id()) then
+		--якщо худ девайс не в худ-режимі - не витрачаємо батарейку
+		if item:is_hud_item() and ((not actor:active_item() or item:id() ~= actor:active_item():id()) and (not actor:active_item_2() or item:id() ~= actor:active_item_2():id())) then
+			self.last_update_time = false
 		return end
 		self:decrease_power()
 	end
@@ -120,6 +118,8 @@ function device_binder:decrease_power()
 	if not self.last_update_time then
 		self.last_update_time = game_time
 	end
+	
+	--log3("~decrease_power for item %s", self.object:name())
 	
 	--log3("%s:decrease_condition self.last_update_time %s : %s for item %s", script_name(), self.last_update_time:dateToString(game.CTime.DateToDay), self.last_update_time:timeToString(game.CTime.TimeToMilisecs), self.object:name())
 	--log3("%s:decrease_condition game_time %s : %s for item %s",script_name(), game_time:dateToString(game.CTime.DateToDay), game_time:timeToString(game.CTime.TimeToMilisecs), self.object:name())
