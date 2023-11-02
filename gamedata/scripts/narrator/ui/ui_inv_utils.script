@@ -1,4 +1,17 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_drop",   fun = this.update_inv_wnd})
+	sm:subscribe({signal = "on_take",   fun = this.update_inv_wnd})
+end
+
+--//цей метод важливий!
+--//без нього будуть вильоти при використанні предметів у інвентарі
+function update_inv_wnd()
+	if has_alife_info("ui_inventory") then
+		update_inventory_window()
+	end
+end
+
 function GetOffset(offset_type, icon, parent_icon)
 	local offset = vector()
 	if offset_type == "center" then

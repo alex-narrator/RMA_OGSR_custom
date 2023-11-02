@@ -3,8 +3,6 @@ local actor_obj = get_actor_obj()
 local is_playing = false
 local hud_sect = "pickup_hud"
 local hud_effector_id = 5559
-local console = get_console()
-local need_crosshair_hard = false
 
 function play()
 	if is_playing then
@@ -14,10 +12,7 @@ function play()
 	actor_obj:block_action(key_bindings.kUSE)
 	block_non_move_action(true)
 	
-	if console:get_string("hud_crosshair_hard") == "on" then
-		console:execute("hud_crosshair_hard 0")
-		need_crosshair_hard = true
-	end
+	actor:hard_crosshair(false)
 		
 	local wpn = actor:active_item() and actor:active_item():get_weapon()
 	if wpn and wpn.zoom_mode then
@@ -39,10 +34,7 @@ function play()
 			level.send_event_key_press(bind_to_dik(key_bindings.kUSE))
 			level.send_event_key_release(bind_to_dik(key_bindings.kUSE))
 			is_playing = false
-			if need_crosshair_hard then
-				console:execute("hud_crosshair_hard 1")
-				need_crosshair_hard = false
-			end
+			actor:hard_crosshair(true)
 		end
 	)
 end

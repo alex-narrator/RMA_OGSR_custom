@@ -274,6 +274,7 @@ function add(item)
 	-- end
 	xr_sound.get_safe_sound_object("interface\\inv_slot", sound_object.s2d):play_at_pos(actor,actor:position())
 	ogse_signals.get_mgr():call("on_item_to_loadout", item)
+	actor:invalidate_inventory()
 end
 
 function remove(item)
@@ -287,6 +288,7 @@ function remove(item)
 	-- end
 	xr_sound.get_safe_sound_object("interface\\inv_ruck", sound_object.s2d):play_at_pos(actor,actor:position())
 	ogse_signals.get_mgr():call("on_item_from_loadout", item)
+	actor:invalidate_inventory()
 end
 
 function clear_all()

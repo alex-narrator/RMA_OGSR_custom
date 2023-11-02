@@ -11,9 +11,6 @@ local POWER_DEC_K = 0.001
 local is_playing = false
 local hud_effector_id = 5560
 
-local console = get_console()
-local need_crosshair_hard = false
-
 function can_play_anim()
 	return --level.get_target_obj() and 
 		--level.get_target_dist() <= KICK_DIST and
@@ -33,10 +30,7 @@ function on_key_press(key, game_action)
 	is_playing = true
 	block_non_move_action(true)
 	
-	if console:get_string("hud_crosshair_hard") == "on" then
-		console:execute("hud_crosshair_hard 0")
-		need_crosshair_hard = true
-	end
+	actor:hard_crosshair(false)
 		
 	local hud_sect = "arm_kick_hud"
 	local act_item = actor:active_item()
@@ -79,10 +73,7 @@ function on_key_press(key, game_action)
 		game.get_motion_length(hud_sect, "anm_use", 1) * 0.001,
 		function()
 			block_non_move_action(false)
-			if need_crosshair_hard then
-				console:execute("hud_crosshair_hard 1")
-				need_crosshair_hard = false
-			end
+			actor:hard_crosshair(true)
 		end
 	)
 end

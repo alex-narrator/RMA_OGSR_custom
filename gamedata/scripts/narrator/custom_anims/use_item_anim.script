@@ -21,10 +21,8 @@ function play(item)
 			return not actor:active_item() and not actor:active_item_2()
 		end,
 		function()
-			if console:get_string("hud_crosshair") == "on" then
-				console:execute("hud_crosshair 0")
-				need_show_crosshair = true
-			end
+			actor:hide_crosshair(true)
+			
 			game.play_hud_motion(2, hud_sect, "anm_use", false, 1, true)
 			play_hud_sound(hud_sect)
 			play_hud_effector(hud_sect)
@@ -42,10 +40,7 @@ function play(item)
 					if has_alife_info("ui_inventory") or has_alife_info("ui_car_body") then
 						backpack.play_anim(3)
 					end
-					if need_show_crosshair then
-						console:execute("hud_crosshair 1")
-						need_show_crosshair = false
-					end
+					actor:hide_crosshair(false)
 				end
 			)
 		end
