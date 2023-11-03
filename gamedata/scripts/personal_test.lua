@@ -55,6 +55,14 @@ if tgt then
 	-- if tgt:is_stalker() or tgt:is_inventory_box() then
 		-- actor:start_carbody(tgt)
 	-- end
+	
+	-- if tgt:get_custom_monster() then
+		-- local anomaly_detector = tgt:get_custom_monster():anomaly_detector()
+		-- log3( "~Anomaly_Detect_Radius = %s", anomaly_detector.Anomaly_Detect_Radius )
+		-- log3( "~Anomaly_Detect_Time_Remember = %s", anomaly_detector.Anomaly_Detect_Time_Remember )
+		-- log3( "~is_active = %s", anomaly_detector.is_active )
+		-- anomaly_detector:activate()
+	-- end
 end
 
 -- local torch = actor_get_torch()

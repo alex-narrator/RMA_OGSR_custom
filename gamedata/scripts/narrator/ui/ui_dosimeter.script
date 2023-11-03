@@ -6,6 +6,10 @@ local updateFreq = 555 -- in milliseconds
 local OVERLAY_XML = "script_overlays\\ui_dosimeter.xml"
 local sm = ogse_signals.get_mgr()
 
+function play_click()
+	xr_sound.get_safe_sound_object("detectors\\geiger_"..math.random(1,8),sound_object.s2d):play_at_pos(actor,actor:position())
+end
+
 class "ui_dosimeter" (CUIScriptWnd)
 function ui_dosimeter:__init(item) super()
 	self:Show					(true)
@@ -28,13 +32,12 @@ function ui_dosimeter:__init(item) super()
 	self.ui_enabled 			= true
 	
 	self.item = item
-	sm:subscribe({signal = "on_actor_before_hit", self = self, fun = self.OnBeforeHit})
-	self.rad_hit = 0
+	
+	self.radius 				= read_if_exists(sys_ini, "r_float", self.item:section(), "radius", 10)
 end
 
 function ui_dosimeter:__finalize() 
 	dosimeter_ui = nil
-	sm:unsubscribe({signal = "on_actor_before_hit", self = self, fun = self.OnBeforeHit})
 end
 
 function ui_dosimeter:Update()
@@ -67,7 +70,45 @@ function ui_dosimeter:Update()
 		updateTimer = tg + updateFreq
 	end
 	
-	local rads = math.floor(self.rad_hit*100000*0.387)--item_device.dosimeter_env_rads_mode and math.floor(level.get_env_rads()*2500) or math.floor(db.actor.radiation*10000*0.387)
+	
+	local rads = 0
+	local dist
+	
+	function perform_action(obj)
+		if obj:is_anomaly() and get_clsid(obj) == clsid.zone_radioactive then
+			dist = distance_between_safe(actor, obj) - obj:radius()
+			if dist <= self.radius then
+				if dist < 0 then
+					dist = 0
+				end
+				local power = 1 - dist/self.radius
+				power = math.clamp(power, 0.1, 1)
+		
+				play_click()
+				if power >= 0.8 then
+					add_time_delayed_action(0.1, function() play_click() end)
+					add_time_delayed_action(0.2, function() play_click() end)
+					add_time_delayed_action(0.3, function() play_click() end)
+					add_time_delayed_action(0.4, function() play_click() end)
+				elseif power >= 0.6 then
+					add_time_delayed_action(0.2, function() play_click() end)
+					add_time_delayed_action(0.4, function() play_click() end)
+					add_time_delayed_action(0.6, function() play_click() end)
+				elseif power >= 0.4 then
+					add_time_delayed_action(0.4, function() play_click() end)
+					add_time_delayed_action(0.6, function() play_click() end)
+				elseif power >= 0.2 then
+					add_time_delayed_action(0.5, function() play_click() end)
+				end
+				
+				rads = rads + power * read_if_exists(sys_ini, "r_float", obj:section(), "min_start_power", 1)
+			end
+		end
+	end		
+	
+	level.iterate_nearest(actor:position(), self.radius, perform_action)
+	
+	rads = math.floor(rads*100000*0.387)
 	
 	-- -- Emissions: the closer the wave, the higher the psi influnces
 	-- if GetEvent("surge", "state") then
@@ -118,11 +159,6 @@ function ui_dosimeter:Update()
 	self.m_seg2:InitTextureEx(seg2, "hud\\p3d")
 	self.m_seg3:InitTextureEx(seg3, "hud\\p3d")
 	self.m_seg4:InitTextureEx(seg4, "hud\\p3d")
-	
-	self.rad_hit = 0
-	-- if self.rad_hit > 0 then
-		-- self.rad_hit = self.rad_hit - self.rad_hit*0.5
-	-- end
 end
 
 function get_UI(item)
@@ -131,10 +167,4 @@ function get_UI(item)
 	end
 	
 	return dosimeter_ui
-end
-
-function ui_dosimeter:OnBeforeHit(s_hit)
-	if s_hit.hit_type ~= hit.radiation then
-	return end
-	self.rad_hit = s_hit.full_power
 end
