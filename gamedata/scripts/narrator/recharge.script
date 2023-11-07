@@ -39,3 +39,45 @@ function recharge(obj, drop_on_obj)
 		level.add_complex_effector(recharge_effector, recharge_effector_id)
 	end
 end
+
+
+--//script menu actions
+function detach_power_source_tip(obj)
+	return string.format("%s %s", game.translate_string("st_detach_power_source"), game.translate_string(get_inv_name(obj:binded_object():get_power_sect())))
+end
+function can_detach_power_source(obj)
+	return is_power_device(obj) and obj:binded_object():can_detach_power_source()
+end
+function detach_power_source(obj)
+	obj:binded_object():detach_power_source()
+end
+
+function pda_tip(obj)
+	return string.format("%s %s", game.translate_string("st_attach_to"), game.translate_string(get_inv_name(actor_get_pda():section())))
+end
+function can_recharge_pda(obj)
+	return can_recharge(obj, actor_get_pda())
+end
+function recharge_pda(obj)
+	recharge(obj, actor_get_pda())
+end
+
+function torch_tip(obj)
+	return string.format("%s %s", game.translate_string("st_attach_to"), game.translate_string(get_inv_name(actor_get_torch():section())))
+end
+function can_recharge_torch(obj)
+	return can_recharge(obj, actor_get_torch())
+end
+function recharge_torch(obj)
+	recharge(obj, actor_get_torch())
+end
+
+function detector_tip(obj)
+	return string.format("%s %s", game.translate_string("st_attach_to"), game.translate_string(get_inv_name(actor_get_detector():section())))
+end
+function can_recharge_detector(obj)
+	return can_recharge(obj, actor_get_detector())
+end
+function recharge_detector(obj)
+	recharge(obj, actor_get_detector())
+end

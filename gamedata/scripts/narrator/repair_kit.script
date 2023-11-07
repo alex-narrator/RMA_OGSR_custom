@@ -74,3 +74,54 @@ function repair(obj, drop_on_obj)
 		level.add_complex_effector(repair_effector, repair_effector_id)
 	end
 end
+
+--//script menu actions
+function repair_0_tip(obj)
+	return string.format("%s %s", game.translate_string("st_repair"), game.translate_string(get_inv_name(actor:item_in_slot(0):section())))
+end
+function can_repair_0(obj)
+	return can_repair(obj, actor:item_in_slot(0))
+end
+function repair_0(obj)
+	repair(obj, actor:item_in_slot(0))
+end
+
+function repair_1_tip(obj)
+	return string.format("%s %s", game.translate_string("st_repair"), game.translate_string(get_inv_name(actor:item_in_slot(1):section())))
+end
+function can_repair_1(obj)
+	return can_repair(obj, actor:item_in_slot(1))
+end
+function repair_1(obj)
+	repair(obj, actor:item_in_slot(1))
+end
+
+function repair_2_tip(obj)
+	return string.format("%s %s", game.translate_string("st_repair"), game.translate_string(get_inv_name(actor:item_in_slot(2):section())))
+end
+function can_repair_2(obj)
+	return can_repair(obj, actor:item_in_slot(2))
+end
+function repair_2(obj)
+	repair(obj, actor:item_in_slot(2))
+end
+
+function repair_4_tip(obj)
+	return string.format("%s %s", game.translate_string("st_repair"), game.translate_string(get_inv_name(actor:item_in_slot(4):section())))
+end
+function can_repair_4(obj)
+	return can_repair(obj, actor:item_in_slot(4))
+end
+function repair_4(obj)
+	repair(obj, actor:item_in_slot(4))
+end
+
+function repair_6_tip(obj)
+	return string.format("%s %s", game.translate_string("st_repair"), game.translate_string(get_inv_name(actor:item_in_slot(6):section())))
+end
+function can_repair_6(obj)
+	return can_repair(obj, actor:item_in_slot(6))
+end
+function repair_6(obj)
+	repair(obj, actor:item_in_slot(6))
+end

@@ -1,0 +1,107 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_slot", fun = this.enable})
+	sm:subscribe({signal = "on_belt", fun = this.enable})
+	sm:subscribe({signal = "on_vest", fun = this.enable})
+	sm:subscribe({signal = "on_ruck", fun = this.disable})
+end
+
+local subscribed = false
+local detect_radius, min_freq, max_freq
+local detector = nil
+local result_power = 0
+
+local sound_time = {}
+function play_sound(anomaly, power, dt)
+	local snd_time = sound_time[anomaly:id()]
+	if not snd_time or power == 0 then 
+		sound_time[anomaly:id()] = 0
+	return end
+
+	local snd = xr_sound.get_safe_sound_object("detectors\\geiger_"..math.random(1,8),sound_object.s2d)
+	local cur_freq = min_freq + (max_freq - min_freq) * power * power * power * power
+	local current_snd_time = 1000 / cur_freq;
+
+	if snd_time > current_snd_time then
+		if not snd:playing() then
+			sound_time[anomaly:id()] = 0
+			snd:play_at_pos(actor,actor:position())
+		end
+	else
+		sound_time[anomaly:id()] = sound_time[anomaly:id()] + dt
+	end
+end
+
+function enable(item, prev_place)
+	if item:section() == "detector_geiger_cop" then
+		if not is_power_device(item) or item:binded_object():get_power_level() > 0 then	
+			detector = item
+			detector:switch_power(true)
+			
+			local sect = detector:section()
+			detect_radius = read_if_exists(sys_ini, "r_float", sect, "radius", 10)
+			min_freq = read_if_exists(sys_ini, "r_float", sect, "min_snd_freq", 0.5)
+			max_freq = read_if_exists(sys_ini, "r_float", sect, "min_snd_freq", 30)
+			
+			result_power = 0
+			sound_time = {}
+			if not subscribed then
+				subscribed = {
+					{ signal = "on_update", fun = this.detect_radiation },
+				}
+				local sm = ogse_signals.get_mgr()
+				for _, s in ipairs( subscribed ) do
+					sm:subscribe( s )
+				end
+			end
+		end
+	end
+end
+
+function disable(item, prev_place)
+	if item:section() == "detector_geiger_cop" and detector and item:id() == detector:id() then
+		if prev_place ~= item_place.undefined then
+			detector:switch_power(false)
+			detector = nil
+			result_power = 0
+			sound_time = {}
+			if subscribed then
+				local sm = ogse_signals.get_mgr()
+				for _, s in ipairs( subscribed ) do
+					sm:unsubscribe( s )
+				end
+				subscribed = false
+			end
+		end
+	end
+end
+
+function detect_radiation(dt)
+	local dist
+	result_power = 0
+	if not detector or not detector:is_power_on() then
+	return end
+	
+	function perform_action(obj)
+		if obj:is_anomaly() and get_clsid(obj) == clsid.zone_radioactive then
+			dist = distance_between_safe(actor, obj) - obj:radius()
+			if dist <= detect_radius then
+				if dist < 0 then
+					dist = 0
+				end
+				local power = 1 - dist/detect_radius
+				power = math.clamp(power, 0.1, 1)
+				
+				play_sound(obj, power, dt)
+				
+				result_power = result_power + power * read_if_exists(sys_ini, "r_float", obj:section(), "min_start_power", 1)
+			end
+		end
+	end		
+	
+	level.iterate_nearest(actor:position(), detect_radius, perform_action)
+end
+
+function get_result_radiation()
+	return result_power
+end

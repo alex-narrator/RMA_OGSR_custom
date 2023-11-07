@@ -1114,7 +1114,7 @@ end
 function gulag:set_goodwill( relation, target_obj )
 	for obj_id, obj in pairs( self.Object ) do
 		if obj ~= true and level.object_by_id( obj_id ) ~= nil then
-			obj:set_community_goodwill( goodwill, target_obj )
+			obj:set_goodwill( goodwill, target_obj )
 		end
 	end
 end

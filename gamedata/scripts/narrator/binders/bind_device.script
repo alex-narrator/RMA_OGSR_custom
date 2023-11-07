@@ -87,7 +87,7 @@ function device_binder:update(delta)
 		local item = self.object
 		--log3("~[%s]: device %s is working now (power %s)", script_name(), item:name(), self:get_power_level())
 		--якщо худ девайс не в худ-режимі - не витрачаємо батарейку
-		if item:is_hud_item() and ((not actor:active_item() or item:id() ~= actor:active_item():id()) and (not actor:active_item_2() or item:id() ~= actor:active_item_2():id())) then
+		if item:is_hud_item() and ((not actor:active_item() or item:id() ~= actor:active_item():id()) and (not actor:active_device() or item:id() ~= actor:active_device():id())) then
 			self.last_update_time = false
 		return end
 		self:decrease_power()
@@ -137,6 +137,9 @@ function device_binder:decrease_power()
 	if self.object:get_torch() then
 		torch.update_brightness(self.object)
 	end
+	if self.object:get_flashlight() then
+		flashlight.update_brightness(self.object)
+	end	
 	
 	if self:get_power_level() <= LOW_POWER_LEVEL and not self.b_was_sended and not xr_conditions.black_screen() then
 		news_manager.item_tip(self.object, "low_power")
@@ -206,7 +209,7 @@ function device_binder:recharge(obj_battery)
 	self:init_power_source()
 	
 	alife():release(alife():object(obj_battery:id()), true)
-	if not self.object:is_power_on() then
+	if not self.object:is_power_on() and not self.object:get_flashlight() then
 		self.object:switch_power(true)
 	end
 	
@@ -223,6 +226,7 @@ function device_binder:detach_power_source()
 	local sobj_iitem = alife():object(sobj.id):get_inventory_item()
 	sobj_iitem.item_condition = self:get_power_level()
 	self:set_power_level(0)
+	self.object:switch_power(false)
 	local detach_sound = read_if_exists(sys_ini, "r_string", self.object:section(), "use_sound", nil)
 	if detach_sound then
 		xr_sound.get_safe_sound_object(detach_sound,sound_object.s2d):play_at_pos(parent,parent:position())

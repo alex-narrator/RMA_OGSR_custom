@@ -87,7 +87,7 @@ slot				= 7
 power_source 		= pda_battery, 24
 script_binding      = bind_device.init
 
-script_action_0 	= st_detach_power_source, script_actions.can_detach_power_source, script_actions.detach_power_source
+script_action_0 	= recharge.detach_power_source_tip, recharge.can_detach_power_source, recharge.detach_power_source
 
 highlight_item = pda_battery
 
@@ -150,7 +150,7 @@ slot				= 9
 
 power_source 		= battery
 script_binding      = bind_device.init
-script_action_0 	= st_detach_power_source, script_actions.can_detach_power_source, script_actions.detach_power_source
+script_action_0 	= recharge.detach_power_source_tip, recharge.can_detach_power_source, recharge.detach_power_source
 use_sound 			= interface\inv_detach_addon
 
 highlight_item = battery
@@ -194,7 +194,7 @@ slot				= 9
 
 power_source 		= battery
 script_binding      = bind_device.init
-script_action_0 	= st_detach_power_source, script_actions.can_detach_power_source, script_actions.detach_power_source
+script_action_0 	= recharge.detach_power_source_tip, recharge.can_detach_power_source, recharge.detach_power_source
 use_sound 			= interface\inv_detach_addon
 
 highlight_item = battery
@@ -220,3 +220,81 @@ snd_night_vision_off		= device\torch\nv_off
 night_vision_recharge_time			= 6		;(c) время зарядки аккамулятора
 night_vision_recharge_time_min		= 2		;(c) мин. время зарядки аккамулятора, после которого уст-во уже может работать
 night_vision_discharge_time			= 20	;(c) время разрядки (работы) устройства после полной зарядки
+
+;;--==========================< Flashlight >=============================
+[device_flashlight]:identity_immunities
+GroupControlSection										= spawn_group
+discovery_dependency =
+$spawn													= "devices\flashlight"
+$prefetch 												= 32
+class                                                  = S_FLALIT
+cform                                                  = skeleton
+visual                                                 = dynamics\devices\dev_tactical_torch\dev_tactical_torch.ogf; dynamics\devices\dev_flashlight\dev_flashlight.ogf
+hud                                                    = device_flashlight_hud
+slot                                                   = 8
+animation_slot                                         = 7
+cost                                                   = 2440
+inv_weight                                             = 0.484
+inv_grid_width     = 1
+inv_grid_height    = 1
+inv_grid_x         = 12
+inv_grid_y         = 28
+description			                                   = st_device_flashlight_descr
+inv_name			                                   = st_device_flashlight
+inv_name_short		                                   = st_device_flashlight
+
+attach_angle_offset                                    = -1.303,0.107,-1.702
+attach_position_offset                                 = 0.14,0.001,0.02
+attach_bone_name                                       = bip01_l_hand
+auto_attach                                            = false
+
+torch_offset                                           = 0,0,0
+omni_offset                                            = 0,0,0
+torch_inertion_speed_min                               = 0.5
+torch_inertion_speed_max                               = 7.5
+light_definition                                       = device_flashlight_definition
+light_definition_second                                = device_flashlight_definition_second
+light_trace_bone                                       = light_bone_1
+
+attach_angle_offset                                    = 3.062, 0.008, -1.532
+attach_position_offset                                 = 0.134, -0.007, 0.09
+
+power_source 										   = battery
+script_binding      								   = bind_device.init
+script_action_0 									   = recharge.detach_power_source_tip, recharge.can_detach_power_source, recharge.detach_power_source
+use_sound 											   = interface\inv_detach_addon
+
+highlight_item = battery
+
+[device_flashlight_definition]
+type                                                   = 2 ; type  0-Direct 1-Point 2-Spot 3-OMNIPART 4-Reflected
+range                                                  = 20 ; range                 <in meters>
+range_r2                                               = 20 ; range                 <in meters>
+color                                                  = 0.8,0.7,0.8,0.2 ; four color components <r,g,b,a> 0.f<X<3.f
+color_r2                                               = 1.0,0.9,1.0,0.9 ; four color components <r,g,b,a> 0.f<X<3.f
+color_animator                                         = empty ; color animator name   (empty - not using animator) //light_torch_01
+volumetric                                             = false
+volumetric_quality                                     = 0.5
+volumetric_intensity                                   = 0.10
+volumetric_distance                                    = 0.25
+
+omni_type                                              = 1 ; type  0-Direct 1-Point 2-Spot 3-OMNIPART 4-Reflected
+omni_range                                             = 2 ; range                 <in meters>
+omni_range_r2                                          = 0.5 ; range                 <in meters>
+omni_color                                             = 0.35,0.3,0.35,0.1 ; four color components <r,g,b,a> 0.f<X<3.f
+omni_color_r2                                          = 0.45,0.4,0.45,0.1 ; four color components <r,g,b,a> 0.f<X<3.f
+
+spot_texture                                           = internal\internal_tactical_torch ; spot texture name     (using only in Second Render)
+spot_angle                                             = 65 ; spot angle            <in gradus>
+
+glow_texture                                           = glow\glow_tactical_torch ; glow texture name     (required)
+glow_radius                                            = 0.2 ; glow radius           <in meters>
+guide_bone                                             = light_bone_1 ; guid bone name        (required)
+
+volumetric_enabled = true
+volumetric_for_actor = true
+
+[device_flashlight_definition_second]:device_flashlight_definition
+spot_angle                                             = 35
+range                                                  = 30 ; range                 <in meters>
+range_r2                                               = 30 ; range                 <in meters>

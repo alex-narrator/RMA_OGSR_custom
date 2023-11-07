@@ -91,9 +91,9 @@ cost				= 500	;30
 
 use_sound 			= interface\inv_detach_addon
 
-script_action_0 	= st_attach_to_pda, script_actions.can_attach_to_pda, script_actions.attach_pda
-script_action_1 	= st_attach_to_torch, script_actions.can_attach_to_torch, script_actions.attach_to_torch
-script_action_2 	= st_attach_to_detector, script_actions.can_attach_to_detector, script_actions.attach_to_detector
+script_action_0 	= recharge.pda_tip, recharge.can_recharge_pda, recharge.recharge_pda
+script_action_1 	= recharge.torch_tip, recharge.can_recharge_torch, recharge.recharge_torch
+script_action_2 	= recharge.detector_tip, recharge.can_recharge_detector, recharge.recharge_detector
 
 [pda_battery]:battery
 visual				= equipments\item_battery_02.ogf
@@ -107,7 +107,9 @@ inv_name_short		= pda_battery
 inv_weight			= 0.3
 
 work_time 			= 24
-script_action_0 	= st_attach_to_pda, script_actions.can_attach_to_pda, script_actions.attach_to_pda
+script_action_0 	= recharge.pda_tip, recharge.can_recharge_pda, recharge.recharge_pda
+script_action_1 	= recharge.torch_tip, recharge.can_recharge_torch, recharge.recharge_torch
+script_action_2 	= recharge.detector_tip, recharge.can_recharge_detector, recharge.recharge_detector
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;vest;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [vest_base]:identity_immunities
 GroupControlSection	= spawn_group

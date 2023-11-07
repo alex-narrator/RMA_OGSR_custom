@@ -22,9 +22,9 @@ local stop_states = {
 function on_state_switch(item, state, old_state)
 	if not item:is_missile() then
 	return end
-	if not actor:active_item_2() then
+	if not actor:active_device() then
 	return end
-	if sys_ini:line_exist(get_hud_sect(actor:active_item_2()), "anm_throw") then
+	if sys_ini:line_exist(get_hud_sect(actor:active_device()), "anm_throw") then
 	return end
 	if stop_states[old_state] and is_playing then
 		is_playing = false

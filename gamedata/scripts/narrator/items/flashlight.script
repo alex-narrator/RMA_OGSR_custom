@@ -1,0 +1,93 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_slot",   			fun = this.on_slot})
+	sm:subscribe({signal = "on_hud_state_switch",   fun = this.on_state_switch})
+	sm:subscribe({signal = "on_key_press",   		fun = this.on_key_press})	
+end
+
+function on_key_press(key, game_action)
+	local device = actor:active_device()
+	if level.main_input_receiver() or 
+		game_action ~= key_bindings.kWPN_FUNC or
+		not actor_hands_free() or
+		not device or
+		not device:get_flashlight()
+		then
+	return end
+	
+	switch_mode(device)
+end
+
+function on_state_switch(item, state, old_state)
+	if item:get_flashlight() then
+		if state == global_flags.eShowing then
+			add_time_delayed_action(0.75, 
+				function() 
+					if not is_power_device(item) or item:binded_object():get_power_level() > 0 then
+						update_brightness(item)
+						set_light_params(item)
+						item:switch_power(true)
+					end
+					xr_sound.get_safe_sound_object("device\\torch\\switch_torch",sound_object.s2d):play_at_pos(actor,actor:position())
+				end)
+		elseif state == global_flags.eHiding then
+			item:switch_power(false)
+			xr_sound.get_safe_sound_object("device\\torch\\switch_torch",sound_object.s2d):play_at_pos(actor,actor:position())
+		end
+	end
+end
+
+function get_light_sect(item)
+	return read_if_exists(sys_ini, "r_string", item:section(), "light_definition", nil)
+end
+function get_light_sect_second(item)
+	return read_if_exists(sys_ini, "r_string", item:section(), "light_definition_second", nil)
+end
+
+function can_switch(item)
+	return not is_power_device(item) or item:binded_object():get_power_level() > 0
+end
+
+function set_light_params(item)
+	local sect = item:section()
+	local light_sect = alife():object(item:id()).is_second_mode and read_if_exists(sys_ini, "r_string", sect, "light_definition_second", nil) or read_if_exists(sys_ini, "r_string", sect, "light_definition", nil)
+
+	local range = read_if_exists(sys_ini, "r_float", light_sect, "range", 10)
+	local angle = read_if_exists(sys_ini, "r_float", light_sect, "spot_angle", 90)
+
+	local flashlight_obj = item:get_flashlight()	
+	flashlight_obj:set_range(range)
+	flashlight_obj:set_angle(math.rad(angle))
+end
+
+function update_brightness(item)
+	if not is_power_device(item) then
+	return end
+	local brightness = item:binded_object():get_power_level()
+	local light_sect = read_if_exists(sys_ini, "r_string", item:section(), "light_definition", nil)
+	local brightness_min_k = read_if_exists(sys_ini, "r_float", light_sect, "brightness_min_k", 0.3)
+	item:get_flashlight():set_brightness(math.clamp(brightness, brightness_min_k, 1))	
+end
+
+local idle_zoom_states = {
+	[global_flags.eIdleZoom] = true,
+	[global_flags.eIdleZoomIn] = true,
+	[global_flags.eIdleZoomOut] = true,
+}
+
+function switch_mode(item)
+	alife():object(item:id()).is_second_mode = not alife():object(item:id()).is_second_mode
+	xr_sound.get_safe_sound_object("device\\torch\\switch_torch",sound_object.s2d):play_at_pos(actor,actor:position())
+	set_light_params(item)
+	
+	if hud_anim_exists(item, "anm_switch") and not idle_zoom_states[item:get_hud_item_state()] then
+		--item:play_hud_motion("anm_switch")
+		game.play_hud_motion(1, get_hud_sect(item), "anm_switch", true, 2, false)
+	end
+end
+
+function on_slot(obj, prev_place)
+	if obj:get_flashlight() and get_light_sect(obj) then
+		set_light_params(obj)
+	end
+end

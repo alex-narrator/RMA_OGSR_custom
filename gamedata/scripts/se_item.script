@@ -106,6 +106,7 @@ class "se_torch" (cse_alife_item_torch)
 function se_torch:__init (section) super (section)
 	self.power_level = 1
 	self.cur_power_sect = 1
+	self.is_second_mode = false
 end
 function se_torch:on_register()
 	cse_alife_item_torch.on_register( self )
@@ -127,6 +128,7 @@ function se_torch:STATE_Write (packet)
 	cse_alife_item_torch.STATE_Write (self, packet)
 	packet:w_float(self.power_level)
 	packet:w_u8(self.cur_power_sect)
+	packet:w_bool(self.is_second_mode)
 end
 function se_torch:STATE_Read (packet, size)
 	cse_alife_item_torch.STATE_Read (self, packet, size)
@@ -134,6 +136,7 @@ function se_torch:STATE_Read (packet, size)
 	return end	
 	self.power_level = packet:r_float()
 	self.cur_power_sect = packet:r_u8()
+	self.is_second_mode = packet:r_bool()
 end
 -- PDA -------------------------------------------------------------------------------------------------------------------------------
 class "se_pda" (cse_alife_item_pda)
@@ -182,6 +185,33 @@ function se_detector:STATE_Read (packet, size)
 	return end	
 	self.power_level = packet:r_float()
 	self.cur_power_sect = packet:r_u8()
+end
+---CUSTOM DEVICE-------------------------------------------------------------------------------------
+class "se_device" (cse_alife_item_device)
+function se_device:__init (section) super (section)
+	self.power_level = 1
+	self.cur_power_sect = 1
+	self.is_second_mode = false
+end
+function se_device:on_register()
+	cse_alife_item_device.on_register( self )
+end
+function se_device:on_unregister()
+	cse_alife_item_device.on_unregister( self )
+end
+function se_device:STATE_Write (packet)
+	cse_alife_item_device.STATE_Write (self, packet)
+	packet:w_float(self.power_level)
+	packet:w_u8(self.cur_power_sect)
+	packet:w_bool(self.is_second_mode)
+end
+function se_device:STATE_Read (packet, size)
+	cse_alife_item_device.STATE_Read (self, packet, size)
+	if packet:r_eof() then
+	return end	
+	self.power_level = packet:r_float()
+	self.cur_power_sect = packet:r_u8()
+	self.is_second_mode = packet:r_bool()
 end
 -------------------------INVENTORY ITEM-------------------------------------------------------------------------------
 local zero_time = game.CTime()

@@ -131,7 +131,7 @@ end
 	-- end	
 	-- actor:iterate_ruck(perform_action, nil)
 	
---game.play_hud_motion(1, get_hud_sect(actor:active_item_2()), "anm_idle", true)
+--game.play_hud_motion(1, get_hud_sect(actor:active_device()), "anm_idle", true)
 
 --alife():teleport_object(16531, actor:position(), actor:level_vertex_id(), actor:game_vertex_id())
 
@@ -157,3 +157,5 @@ end
 	-- --torch:set_range(70)
 	-- --torch:set_angle(math.rad(30))
 -- end
+
+log3("zoom_rotation_factor %s", actor:active_item():get_weapon().zoom_rotation_factor)

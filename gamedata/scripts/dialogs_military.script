@@ -156,7 +156,12 @@ function set_snipers_spots (npc, actor)
 end
 
 function killactor (actor, npc)
-    xr_gulag.setGulagEnemy ("mil_dolg", actor)
+    --xr_gulag.setGulagEnemy ("mil_dolg", actor)
+	log3("~ gulag mil_dolg is enemy to actor now")
+    local gulag = xr_gulag.get_gulag_by_name ("mil_dolg")
+    if (gulag) then
+       gulag:set_relation(game_object.enemy, actor)
+    end  	
 end
 
 function set_actor_enemy_for(sid)

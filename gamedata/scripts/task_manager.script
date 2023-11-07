@@ -39,6 +39,27 @@ local return_task_by_type = {
 	artefact = "return_for_reward_bring",
 	monster_part = "return_for_reward_bring",
 	find_item = "return_for_reward_bring"}
+	
+local mob_lagers = {
+	["esc_bridge_boar"] = true,
+	["esc2_dogs_lair"] = true,
+	["esc_flesh_2"] = true,
+	["gar_smart_monster_lair2"] = true,
+	["gar_nest_flesh"] = true,
+	["val_smart_bloodsucker_lair_2"] = true,
+	["val_snork_lair_1"] = true,
+	["bar_zastava_dogs_lair"] = true,
+	["ros_smart_monster1"] = true,
+	["ros_smart_monster2"] = true,
+	["ros_smart_monster5"] = true,
+	["yan_smart_controler1"] = true,
+	["yantar2_snork_small4"] = true,
+	["yan_tonnel_snorks"] = true,
+	["mil_hunters_bloodsucker"] = true,
+	["mil_lair2"] = true,
+	["mil_lair3"] = true,
+	["mil_village_lair"] = true,
+}	
 
 
 
@@ -148,6 +169,7 @@ function CRandomTask:__init()
 	self.task_id_by_parent = {}
 	self.task_id_by_yes_phrase_id = {}
 	self.task_id_by_init_phrase_id = {}
+	self.task_id_by_desc_phrase_id = {}
 	self.active_task_by_type = {}
 	self.task_id_self_inited = {}
 	for k,v in pairs(self.task_info) do
@@ -167,6 +189,8 @@ function CRandomTask:__init()
 		self.task_id_by_yes_phrase_id[tostring(v.yes_phrase_id)] = k
 		--' По id фразы выдачи квеста.
 		self.task_id_by_init_phrase_id[tostring(v.init_phrase_id)] = k
+		--' По id фрази опису
+		self.task_id_by_desc_phrase_id[tostring(v.desc_phrase_id)] = k
 		--' По самовыдаваемости
 		if v.init_condition ~= nil then
 			table.insert(self.task_id_self_inited, k)
@@ -310,6 +334,9 @@ function CRandomTask:action_give_task(actor, npc, p1, p2)
 
 	local oo = task:get_objective(0)
 	oo:set_article_id(task_desc.description)
+	if mob_lagers[task_desc.target] then
+		oo:set_icon_name("ui_icons_task_eliminate_layer")
+	end	
 	
 	local objective = SGameTaskObjective(task,1)
 	objective:set_description(task_desc.name)
@@ -321,18 +348,9 @@ function CRandomTask:action_give_task(actor, npc, p1, p2)
 		print_table(task_desc.target_objects)
 	end
 	
-	local mob_lagers = {"esc_bridge_boar","esc2_dogs_lair","esc_flesh_2","gar_smart_monster_lair2","gar_nest_flesh","val_smart_bloodsucker_lair_2","val_snork_lair_1","bar_zastava_dogs_lair","ros_smart_monster1","ros_smart_monster2","ros_smart_monster5","yan_smart_controler1","yantar2_snork_small4","yan_tonnel_snorks","mil_hunters_bloodsucker","mil_lair2","mil_lair3","mil_village_lair"}
-
 	if task_desc.type == "eliminate_lager" then
 		objective:set_map_hint(task_desc.text)
-		for i=1, #mob_lagers, 1 do
-			if task_desc.target == mob_lagers[i] then
-				objective:set_map_location("eliminate_lair_location")
-				break
-			else
-				objective:set_map_location("eliminate_lager_location")
-			end
-		end
+		objective:set_map_location(mob_lagers[task_desc.target] and "eliminate_lair_location" or "eliminate_lager_location")
 		objective:set_object_id(task_desc.selected_target)
 	elseif task_desc.type == "defend_lager" then
 		objective:set_map_hint(task_desc.text)
@@ -543,7 +561,8 @@ function CRandomTask:action_task_show(npc, actor)
 	local parent = self:get_parent(npc)	
 	for k,v in pairs(self.task_id_by_parent[parent]) do		
 		if self:task_avail(actor, npc, nil, nil, self.task_info[v].init_phrase_id, false) then
-			local task_texture, task_rect = get_texture_info("ui_icons_task_"..self.task_info[v].type, "ui_iconsTotal_locations")
+			local icon_type = (self.task_info[v].type == "eliminate_lager") and (mob_lagers[self.task_info[v].target] and "eliminate_layer" or "eliminate_lager") or self.task_info[v].type
+			local task_texture, task_rect = get_texture_info("ui_icons_task_"..icon_type, "ui_iconsTotal_locations")
 			db.actor:give_talk_message(game.translate_string(self.task_info[v].name), task_texture, task_rect,"iconed_trade_info")
 		end
 	end
@@ -744,7 +763,9 @@ function CRandomTask:init_task_dialog(dlg, parent)
 		phrase_script:AddPrecondition("task_manager.precondition_task_avail")
 
 		phr = dlg:AddPhrase(task_info.text, tostring(task_info.desc_phrase_id), tostring(task_info.init_phrase_id), -10000)
-		phr:SetText(self:GetDescriptionTextEx(task_info))
+		--phr:SetText(self:GetDescriptionTextEx(task_info))
+		phrase_script = phr:GetPhraseScript()
+		phrase_script:AddAction("task_manager.show_reward_text")
 		
 		phr = dlg:AddPhrase("tm_seek_job_yes", tostring(task_info.yes_phrase_id), tostring(task_info.desc_phrase_id), -10000)
 		phrase_script = phr:GetPhraseScript()
@@ -756,10 +777,21 @@ function CRandomTask:init_task_dialog(dlg, parent)
 	dlg:AddPhrase("tm_seek_job_abandon","3","1",-10000)
 end
 
-function CRandomTask:GetDescriptionTextEx(task_info)
+function CRandomTask:ShowRewardText(actor, npc, p1, p2)
+	local task_info = self.task_info[self.task_id_by_desc_phrase_id[p2]]
+	local icon_type = (task_info.type == "eliminate_lager") and (mob_lagers[task_info.target] and "eliminate_layer" or "eliminate_lager") or task_info.type
+	local task_texture, task_rect = get_texture_info("ui_icons_task_"..icon_type, "ui_iconsTotal_locations")
+	actor:give_talk_message(self:GetRewardText(task_info), task_texture, task_rect, "iconed_trade_info")
+end
+
+function CRandomTask:GetRewardText(task_info)
 	local reward_text = string.format("%s%s\\n", "%c[white]", game.translate_string("ui_st_reward"))
 	local money = task_info.reward_money or nil
 	local items = task_info.reward_item or nil
+	local reputation = task_info.reward_reputation or nil
+	local relation = task_info.reward_relation or nil
+	local rank = task_info.reward_rank or nil
+	
 	local list_prefix = "%c[UI_orange]•"
 	if money then
 		money = string.format("%s%s %s\\n",list_prefix, money, game.translate_string("ui_st_money_regional"))
@@ -781,7 +813,23 @@ function CRandomTask:GetDescriptionTextEx(task_info)
 			reward_text = string.format("%s%s", reward_text, str_sect)
 		end
 	end
-	return string.format("%s\\n%s", game.translate_string(task_info.text), reward_text)
+	if reputation then
+		reputation = string.format("%s%s %+1.0f\\n",list_prefix, game.translate_string("ui_st_reputation"), reputation)
+		reward_text = string.format("%s%s", reward_text, reputation)
+	end
+	if relation ~= nil then
+		local rel
+		for k,v in pairs(relation) do
+			rel = string.format("%s%s %s %+1.0f\\n",list_prefix, game.translate_string("ui_st_relation"), game.translate_string(k), v)
+			reward_text = string.format("%s%s", reward_text, rel)
+		end
+	end
+	if rank then
+		rank = string.format("%s%s %+1.0f\\n",list_prefix, game.translate_string("ui_st_rank"), rank)
+		reward_text = string.format("%s%s", reward_text, rank)
+	end
+	
+	return reward_text
 end
 
 --' Функция, в которой будет выдаваться вещевая награда за выполненные квесты
@@ -851,7 +899,7 @@ function CRandomTask:task_reward_remote(task_desc)
 		--dialogs.relocate_money(npc, task_desc.reward_money, "in")
 		actor:give_money(task_desc.reward_money)
 		game_stats.money_quest_update(task_desc.reward_money)
-		news_manager.relocate_money(actor, "in", task_desc.reward_money)
+		--news_manager.relocate_money(actor, "in", task_desc.reward_money)
 	end
 				
 	if task_desc.reward_item ~= nil then
@@ -860,7 +908,7 @@ function CRandomTask:task_reward_remote(task_desc)
 		for k,v in pairs(task_desc.reward_item) do
 			log3("~reward item %s", v)
 			sim:create(v, receiver.position, receiver.m_level_vertex_id, receiver.m_game_vertex_id, receiver.id)
-			news_manager.relocate_item(actor, "in", v)
+			--news_manager.relocate_item(actor, "in", v)
 		end
 		if task_desc.reward_item_receiver then
 			store_box.unlock_by_name(task_desc.reward_item_receiver, "ui_st_reward_to_box")
@@ -884,6 +932,10 @@ function CRandomTask:task_reward_remote(task_desc)
 		actor_stats.add_points("quests", task_desc.name, 1, 1)--task_desc.reward_rank)
 		actor:change_character_rank(task_desc.reward_rank)--set_character_rank(db.actor:character_rank() + task_desc.reward_rank)
 	end
+	
+	local icon_type = (task_desc.type == "eliminate_lager") and (mob_lagers[task_desc.target] and "eliminate_layer" or "eliminate_lager") or task_desc.type
+	local task_texture, task_rect = get_texture_info("ui_icons_task_"..icon_type, "ui_iconsTotal_locations")
+	actor:give_game_news(self:GetRewardText(task_desc), task_texture, task_rect, 0, 3000)
 end
 --' Функция, в которой будет выдаваться вещевая награда за выполненные сторилайновые квесты
 function CRandomTask:task_reward_storyline(task)
@@ -1158,6 +1210,10 @@ function action_task_reward(actor, npc, p1, p2)
 end
 function reward_by_task(task)	
 	get_random_task():task_reward_storyline(task)
+end
+
+function show_reward_text(actor, npc, p1, p2)
+	get_random_task():ShowRewardText(actor, npc, p1, p2)
 end
 
 function task_complete(p1, p2)

@@ -14,7 +14,7 @@ vest 				= true
 
 power_source 		= battery
 script_binding      = bind_device.init
-script_action_0 	= st_detach_power_source, script_actions.can_detach_power_source, script_actions.detach_power_source
+script_action_0 	= recharge.detach_power_source_tip, recharge.can_detach_power_source, recharge.detach_power_source
 use_sound 			= interface\inv_detach_addon
 
 [detector_simple]:detector_base
@@ -189,15 +189,15 @@ snd_holster					= device\pda\pda_holster
 
 power_source 		= battery
 script_binding      = bind_device.init
-script_action_0 	= st_detach_power_source, script_actions.can_detach_power_source, script_actions.detach_power_source
+script_action_0 	= recharge.detach_power_source_tip, recharge.can_detach_power_source, recharge.detach_power_source
 use_sound 			= interface\inv_detach_addon
 
 highlight_item = battery
 
-[detector_geiger_cop]:detector_cop_base, detect_radiation
+[detector_geiger_cop]:detector_cop_base
 
 $spawn 			= "devices\detector_simple"
-class			= S_DET_CSTM
+class			= S_DEV_CSTM
 visual			= dynamics\devices\dev_dosimeter\dosimeter.ogf
 hud				= detector_geiger_hud
 inv_name		= st_detector_geiger
