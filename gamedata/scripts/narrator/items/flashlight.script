@@ -11,28 +11,39 @@ function on_key_press(key, game_action)
 		game_action ~= key_bindings.kWPN_FUNC or
 		not actor_hands_free() or
 		not device or
-		not device:get_flashlight()
+		not device:get_flashlight() or
+		is_glowstick(device)
 		then
 	return end
 	
 	switch_mode(device)
 end
 
+function is_glowstick(item)
+	return string.find(item:section(), "glowstick")
+end
+
 function on_state_switch(item, state, old_state)
 	if item:get_flashlight() then
 		if state == global_flags.eShowing then
-			add_time_delayed_action(0.75, 
-				function() 
-					if not is_power_device(item) or item:binded_object():get_power_level() > 0 then
-						update_brightness(item)
-						set_light_params(item)
-						item:switch_power(true)
-					end
-					xr_sound.get_safe_sound_object("device\\torch\\switch_torch",sound_object.s2d):play_at_pos(actor,actor:position())
-				end)
-		elseif state == global_flags.eHiding then
+			if not is_glowstick(item) then
+				add_time_delayed_action(0.75, 
+					function() 
+						if not is_power_device(item) or item:binded_object():get_power_level() > 0 then
+							update_brightness(item)
+							set_light_params(item)
+							item:switch_power(true)
+						end
+						xr_sound.get_safe_sound_object("device\\torch\\switch_torch",sound_object.s2d):play_at_pos(actor,actor:position())
+					end)
+			else
+				item:switch_power(true)
+			end
+		elseif state == global_flags.eHiding and not is_glowstick(item) then
 			item:switch_power(false)
 			xr_sound.get_safe_sound_object("device\\torch\\switch_torch",sound_object.s2d):play_at_pos(actor,actor:position())
+		elseif state == global_flags.eHidden and is_glowstick(item) then
+			item:switch_power(false)	
 		end
 	end
 end
@@ -54,10 +65,12 @@ function set_light_params(item)
 
 	local range = read_if_exists(sys_ini, "r_float", light_sect, "range", 10)
 	local angle = read_if_exists(sys_ini, "r_float", light_sect, "spot_angle", 90)
+	local clr_rgba = split_string(read_if_exists(sys_ini, "r_string", light_sect, "color_r2", nil), ",")
 
 	local flashlight_obj = item:get_flashlight()	
 	flashlight_obj:set_range(range)
 	flashlight_obj:set_angle(math.rad(angle))
+	flashlight_obj:set_rgb(clr_rgba[1], clr_rgba[2], clr_rgba[3])
 end
 
 function update_brightness(item)

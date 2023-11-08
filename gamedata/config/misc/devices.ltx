@@ -298,3 +298,108 @@ volumetric_for_actor = true
 spot_angle                                             = 35
 range                                                  = 30 ; range                 <in meters>
 range_r2                                               = 30 ; range                 <in meters>
+
+;;;;;;;;;;;;;;;;;;;;;GLOWSTICK;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+[device_glowstick]:identity_immunities
+GroupControlSection						= spawn_group
+discovery_dependency =
+$spawn									= "devices\glow_stick"
+$prefetch 								= 32
+cform                                   = skeleton
+class									= S_FLALIT
+visual									= dynamics\devices\dev_glowstick\dev_glowstick_glow
+slot									= 8
+animation_slot							= 7
+description								= st_device_glowstick_descr
+inv_name								= st_device_glowstick
+inv_name_short							= st_device_glowstick
+inv_grid_width     						= 1
+inv_grid_height    						= 1
+inv_grid_x         						= 12
+inv_grid_y         						= 26
+cost									= 1800
+inv_weight								= 0.084
+hud										= device_glowstick_hud
+snd_draw								= device\glowstick_draw
+snd_holster								= device\glowstick_holster
+light_definition						= glowstick_definition
+
+script_binding      					= bind_device.init
+
+[glowstick_definition]
+type									= 1 ; type  0-Direct 1-Point 2-Spot 3-OMNIPART 4-Reflected
+range									= 0 ; range                 <in meters>
+range_r2								= 0 ; range                 <in meters>
+color									= 0.0,0.8,0.6,0.8 ; four color components <r,g,b,a> 0.f<X<3.f
+color_r2								= 0.0,0.8,0.6,0.8 ; four color components <r,g,b,a> 0.f<X<3.f
+color_animator							= empty ; color animator name   (empty - not using animator) //light_torch_01
+
+omni_type								= 1 ; type  0-Direct 1-Point 2-Spot 3-OMNIPART 4-Reflected
+omni_range								= 2 ; range                 <in meters>
+omni_range_r2							= 12 ; range                 <in meters>
+omni_color								= 0.35,0.3,0.35,0.1 ; four color components <r,g,b,a> 0.f<X<3.f
+omni_color_r2							= 0.0,0.8,0.6,0.8 ; four color components <r,g,b,a> 0.f<X<3.f
+
+;spot_texture							= internal\internal_tactical_torch ; spot texture name     (using only in Second Render)
+spot_angle								= 65 ; spot angle            <in gradus>
+
+glow_texture							= glow\empty ; glow texture name     (required)
+glow_radius								= 0.2 ; glow radius           <in meters>
+guide_bone								= lid ; guid bone name        (required)
+
+[device_glowstick_orange]:device_glowstick
+visual									= dynamics\devices\dev_glowstick\dev_glowstick_glow_orange
+light_definition						= glowstick_definition_orange
+hud										= device_glowstick_hud_orange
+inv_name								= st_device_glowstick_orange
+inv_name_short							= st_device_glowstick_orange
+description								= st_device_glowstick_orange_descr													 
+inv_grid_x         						= 13
+cost									= 2000
+
+[glowstick_definition_orange]:glowstick_definition
+; color									= 0.8,0.4,0.0,0.8
+; color_r2								= 0.8,0.4,0.0,0.8
+; range									= 10 ; range                 <in meters>
+; range_r2								= 10 ; range                 <in meters>
+
+omni_color_r2							= 0.8,0.4,0.0,0.8 ; four color components <r,g,b,a> 0.f<X<3.f
+omni_range_r2							= 10 ; range                 <in meters>
+
+[device_glowstick_red]:device_glowstick
+visual									= dynamics\devices\dev_glowstick\dev_glowstick_glow_red
+light_definition						= glowstick_definition_red
+hud										= device_glowstick_hud_red
+inv_name								= st_device_glowstick_red
+inv_name_short							= st_device_glowstick_red
+description								= st_device_glowstick_red_descr												  
+inv_grid_x         						= 14
+cost									= 2400
+
+[glowstick_definition_red]:glowstick_definition
+; color									= 0.4,0.1,0.0,0.8
+; color_r2								= 0.4,0.1,0.0,0.8
+; range									= 24 ; range                 <in meters>
+; range_r2								= 24 ; range                 <in meters>
+
+omni_color_r2							= 0.4,0.1,0.0,0.8 ; four color components <r,g,b,a> 0.f<X<3.f
+omni_range_r2							= 24 ; range                 <in meters>
+
+[device_glowstick_blue]:device_glowstick
+visual									= dynamics\devices\dev_glowstick\dev_glowstick_glow_blue
+light_definition						= glowstick_definition_blue
+hud										= device_glowstick_hud_blue
+inv_name								= st_device_glowstick_blue
+inv_name_short							= st_device_glowstick_blue
+description								= st_device_glowstick_blue_descr												   
+inv_grid_x         						= 15
+cost									= 1600
+
+[glowstick_definition_blue]:glowstick_definition
+; color									= 0.0,0.6,1.0,0.8
+; color_r2								= 0.0,0.6,1.0,0.8
+; range									= 8 ; range                 <in meters>
+; range_r2								= 8 ; range                 <in meters>
+
+omni_color_r2							= 0.0,0.6,1.0,0.8 ; four color components <r,g,b,a> 0.f<X<3.f
+omni_range_r2							= 8 ; range                 <in meters>
