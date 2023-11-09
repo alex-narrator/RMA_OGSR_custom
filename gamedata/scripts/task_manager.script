@@ -134,7 +134,7 @@ function CRandomTask:__init()
 		-- if self.task_ini:line_exist(id, "community") then
 			-- curr_task_info.community = self.task_ini:r_string(id, "community")
 		-- end		
-		curr_task_info.community 			= read_if_exists(self.task_ini, "r_string", id, "community", "actor")
+		curr_task_info.community 			= read_if_exists(self.task_ini, "r_string", id, "community", nil)
 
 		curr_task_info.reward_rank			= utils.cfg_get_number(self.task_ini, id, "reward_rank", nil, false, 0)
 		curr_task_info.reward_reputation	= utils.cfg_get_number(self.task_ini, id, "reward_reputation", nil, false)
@@ -628,7 +628,9 @@ function CRandomTask:check_task_props(task_id)
 	end
 	
 	--перевірка по community
-	if self.task_info[task_id].community ~= actor:character_community() then
+	if self.task_info[task_id].community and 
+		self.task_info[task_id].community ~= actor:character_community() 
+	then
 		self.task_info[task_id].enabled_props = false
 		return
 	end
@@ -784,6 +786,12 @@ function CRandomTask:ShowRewardText(actor, npc, p1, p2)
 	actor:give_talk_message(self:GetRewardText(task_info), task_texture, task_rect, "iconed_trade_info")
 end
 
+function CRandomTask:ShowRewardMsg(task_info)
+	local icon_type = (task_info.type == "eliminate_lager") and (mob_lagers[task_info.target] and "eliminate_layer" or "eliminate_lager") or task_info.type
+	local task_texture, task_rect = get_texture_info("ui_icons_task_"..icon_type, "ui_iconsTotal_locations")
+	actor:give_talk_message(self:GetRewardText(task_info), task_texture, task_rect, "iconed_trade_info")
+end
+
 function CRandomTask:GetRewardText(task_info)
 	local reward_text = string.format("%s%s\\n", "%c[white]", game.translate_string("ui_st_reward"))
 	local money = task_info.reward_money or nil
@@ -864,12 +872,16 @@ function CRandomTask:task_reward(npc, actor, p1, p2)
 				self.task_info[v].status = "rewarded"
 				
 				if task_desc.reward_money ~= nil then
-					dialogs.relocate_money(npc, task_desc.reward_money, "in")
+					--dialogs.relocate_money(npc, task_desc.reward_money, "in")
+					db.actor:give_money(task_desc.reward_money)
+					game_stats.money_quest_update(task_desc.reward_money)
 				end
 				
 				if task_desc.reward_item ~= nil then
+					local sim = alife()
 					for kk,vv in pairs(task_desc.reward_item) do
-						dialogs.relocate_item_section(npc, vv, "in", actor)
+						--dialogs.relocate_item_section(npc, vv, "in", actor)
+						sim:create(vv, db.actor:position(), db.actor:level_vertex_id(), db.actor:game_vertex_id(), db.actor:id())
 					end
 				end
 
@@ -887,6 +899,8 @@ function CRandomTask:task_reward(npc, actor, p1, p2)
 					actor_stats.add_points("quests", task_desc.name, 1, 1)--task_desc.reward_rank)
 					db.actor:change_character_rank(task_desc.reward_rank)--set_character_rank(db.actor:character_rank() + task_desc.reward_rank)
 				end
+				
+				self:ShowRewardMsg(task_desc)
 			end
 		end	
 	end

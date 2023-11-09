@@ -124,7 +124,7 @@ end
 
 function on_drop(obj)
 	if obj:get_flashlight() and is_glowstick(obj) then
-		if level.main_input_receiver() then
+		if has_alife_info("ui_inventory") then
 			obj:switch_power(true)
 		end
 	end
