@@ -76,6 +76,12 @@ function device_binder:net_spawn(data)
     local spawned = object_binder.net_spawn(self, data)
 
 	self:init_power_source()
+	if self.object:get_torch() then
+		torch.update_brightness(self.object)
+	end
+	if self.object:get_flashlight() then
+		flashlight.update_brightness(self.object)
+	end		
 
 	return spawned
 end
@@ -87,7 +93,9 @@ function device_binder:update(delta)
 		local item = self.object
 		--log3("~[%s]: device %s is working now (power %s)", script_name(), item:name(), self:get_power_level())
 		--якщо худ девайс не в худ-режимі - не витрачаємо батарейку
-		if item:is_hud_item() and ((not actor:active_item() or item:id() ~= actor:active_item():id()) and (not actor:active_device() or item:id() ~= actor:active_device():id())) then
+		if item:is_hud_item() and 
+			not flashlight.is_glowstick(item) and
+			((not actor:active_item() or item:id() ~= actor:active_item():id()) and (not actor:active_device() or item:id() ~= actor:active_device():id())) then
 			self.last_update_time = false
 		return end
 		self:decrease_power()

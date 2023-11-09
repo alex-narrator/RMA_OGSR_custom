@@ -42,7 +42,7 @@ end
 
 local tgt = level.get_target_obj()
 if tgt then
-	log3("~ target section: %s | id %s| story_id %s | name: %s | profile: %s | species %s | nonscript usable %s | position (%s, %s, %s)", 
+	log3("~ target section: %s | id %s| story_id %s | name: %s | profile: %s | species %s | nonscript usable %s | position (%s, %s, %s) | is power on %s", 
 		tgt:section(), 
 		tgt:id(), 
 		tgt:story_id(), 
@@ -50,7 +50,10 @@ if tgt then
 		tgt:profile_name() and tgt:profile_name() or "NO PROFILE", 
 		read_if_exists(sys_ini, "r_string", tgt:section(), "species", "NO SPECIES"),
 		tgt:is_nonscript_usable(),
-		tgt:position().x, tgt:position().y, tgt:position().z)
+		tgt:position().x, tgt:position().y, tgt:position().z,
+		tgt:is_power_on())
+		
+		tgt:switch_power(true)
 		
 	-- if tgt:is_stalker() or tgt:is_inventory_box() then
 		-- actor:start_carbody(tgt)
@@ -158,4 +161,4 @@ end
 	-- --torch:set_angle(math.rad(30))
 -- end
 
-log3("zoom_rotation_factor %s", actor:active_item():get_weapon().zoom_rotation_factor)
+--log3("zoom_rotation_factor %s", actor:active_item():get_weapon().zoom_rotation_factor)

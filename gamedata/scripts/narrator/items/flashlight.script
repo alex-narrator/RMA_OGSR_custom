@@ -1,12 +1,19 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
 	sm:subscribe({signal = "on_slot",   			fun = this.on_slot})
+	sm:subscribe({signal = "on_drop",   			fun = this.on_drop})
+	sm:subscribe({signal = "on_take",   			fun = this.on_take})
 	sm:subscribe({signal = "on_hud_state_switch",   fun = this.on_state_switch})
 	sm:subscribe({signal = "on_key_press",   		fun = this.on_key_press})	
 end
 
 function on_key_press(key, game_action)
 	local device = actor:active_device()
+	try_switch_mode(game_action, device)
+	try_glowstick_drop_enable(game_action, device)
+end
+
+function try_switch_mode(game_action, device)
 	if level.main_input_receiver() or 
 		game_action ~= key_bindings.kWPN_FUNC or
 		not actor_hands_free() or
@@ -19,8 +26,18 @@ function on_key_press(key, game_action)
 	switch_mode(device)
 end
 
+function try_glowstick_drop_enable(game_action, device)
+	if device and is_glowstick(device) and 
+		game_action == key_bindings.kDROP and level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) then
+		level.add_call(
+			function() return not device:parent() end,
+			function() device:switch_power(true) end
+		)
+	end
+end
+
 function is_glowstick(item)
-	return string.find(item:section(), "glowstick")
+	return item:get_flashlight() and string.find(item:section(), "glowstick")
 end
 
 function on_state_switch(item, state, old_state)
@@ -30,7 +47,6 @@ function on_state_switch(item, state, old_state)
 				add_time_delayed_action(0.75, 
 					function() 
 						if not is_power_device(item) or item:binded_object():get_power_level() > 0 then
-							update_brightness(item)
 							set_light_params(item)
 							item:switch_power(true)
 						end
@@ -71,6 +87,8 @@ function set_light_params(item)
 	flashlight_obj:set_range(range)
 	flashlight_obj:set_angle(math.rad(angle))
 	flashlight_obj:set_rgb(clr_rgba[1], clr_rgba[2], clr_rgba[3])
+	
+	update_brightness(item)	
 end
 
 function update_brightness(item)
@@ -94,7 +112,6 @@ function switch_mode(item)
 	set_light_params(item)
 	
 	if hud_anim_exists(item, "anm_switch") and not idle_zoom_states[item:get_hud_item_state()] then
-		--item:play_hud_motion("anm_switch")
 		game.play_hud_motion(1, get_hud_sect(item), "anm_switch", true, 2, false)
 	end
 end
@@ -102,5 +119,18 @@ end
 function on_slot(obj, prev_place)
 	if obj:get_flashlight() and get_light_sect(obj) then
 		set_light_params(obj)
+	end
+end
+
+function on_drop(obj)
+	if obj:get_flashlight() and is_glowstick(obj) then
+		if level.main_input_receiver() then
+			obj:switch_power(true)
+		end
+	end
+end
+function on_take(obj)
+	if obj:get_flashlight() then
+		obj:switch_power(false)
 	end
 end

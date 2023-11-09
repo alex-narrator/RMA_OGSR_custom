@@ -15,6 +15,7 @@ function can_switch(item)
 end
 
 function set_torch_params(item)
+	update_brightness(item)
 	local torch_sect = item:section()
 	local light_sect = alife():object(item:id()).is_second_mode and read_if_exists(sys_ini, "r_string", torch_sect, "light_definition_second", nil) or read_if_exists(sys_ini, "r_string", torch_sect, "light_definition", nil)
 
@@ -47,7 +48,6 @@ end
 
 function switch_torch(item)
 	set_torch_params(item)
-	update_brightness(item)
 	item:get_torch():switch()
 	xr_sound.get_safe_sound_object(item:is_power_on() and "torch\\snd_switch_on" or "torch\\snd_switch_off",sound_object.s2d):play_at_pos(actor,actor:position())
 end
