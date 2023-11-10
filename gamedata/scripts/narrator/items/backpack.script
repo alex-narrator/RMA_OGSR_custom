@@ -58,7 +58,8 @@ function try_drop()
 	if not has_quick_drop then
 	return end
 	
-	actor:drop_item(backpack)
+	drop_item_to_angle(actor, backpack, 180)
+	
 	xr_sound.get_safe_sound_object("interface\\inv_open", sound_object.s2d):play_at_pos(actor,actor:position())
 	hud_add_info_message("item_usage", "st_backpack_dropped")
 	level.map_add_object_spot_ser(backpack:id(), backpack_spot, game.translate_string("ui_st_dropped_backpack"))

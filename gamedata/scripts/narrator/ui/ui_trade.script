@@ -89,12 +89,15 @@ function TradeOverlay:InitControls()
 		["satiety_"] 	= { condition = function() return actor.satiety end },
 		["alcohol_"] 	= { condition = function() return actor.alcohol end },
 		["radiation_"] 	= { condition = function() return actor.radiation end },
+		["bleeding_"] 	= { condition = function() return actor:get_bleeding() end },
 	}
 	
 	for k, v in pairs(self.conditions) do
 		v.static = xml:InitStatic(k.."static", self.conditions_background)
 		v.icon = xml:InitStatic(k.."icon", v.static)
-		v.progress = xml:InitProgressBar(k.."progress", v.static)	
+		if k ~= "bleeding_" then
+			v.progress = xml:InitProgressBar(k.."progress", v.static)
+		end	
 		v.hint = xml:InitStatic("condition_hint", self.conditions_background)
 		v.hint:Show(false)
 
@@ -331,12 +334,16 @@ end
 
 function TradeOverlay:ConditionOnFocusReceived(cond_name)
 	self.conditions[cond_name].hint:Show(true)
-	self.conditions[cond_name].icon:SetColor(self.loadout_color_equiped)
+	if cond_name ~= "bleeding_" then
+		self.conditions[cond_name].icon:SetColor(self.loadout_color_equiped)
+	end
 end
 
 function TradeOverlay:ConditionOnFocusLost(cond_name)
 	self.conditions[cond_name].hint:Show(false)
-	self.conditions[cond_name].icon:SetColor(self.loadout_color_default)
+	if cond_name ~= "bleeding_" then
+		self.conditions[cond_name].icon:SetColor(self.loadout_color_default)
+	end
 end
 
 function TradeOverlay:LoadoutSlotOnFocusReceived(slot_name)
@@ -360,15 +367,24 @@ end
 function TradeOverlay:Update()
 	CUIScriptWnd.Update(self)
 	
-	local hint_text
-	local cond_descr
-	local cond_text
+	local hint_text, cond_descr, cond_text, val
 	for k,v in pairs(self.conditions) do
-		local val = v.condition() * 100
-		v.progress:SetProgressPos(val)
+		val = math.clamp(v.condition(), 0, 1)
+		if k ~= "bleeding_" then
+			v.progress:SetProgressPos(val)
+		else
+			v.static:Show(val>0)
+			if val>0 then
+				v.static:SetColor(GetARGB(255,val*255,(1-val)*255,0))
+			else
+				if self.conditions[k].hint:IsShown() then
+					self.conditions[k].hint:Show(false)
+				end
+			end
+		end
 		cond_descr = game.translate_string(string.format("%s%s%s","st_", k, "hint"))
 		cond_text = game.translate_string(string.format("%s%s%s","st_", k, "hint_text"))
-		hint_text = string.format("%s %.0f%s\\n%s", cond_descr, val, "%", cond_text)
+		hint_text = string.format("%s %.0f%s\\n%s", cond_descr, val*100, "%", cond_text)
 		v.hint:SetText(hint_text)
 	end
 	

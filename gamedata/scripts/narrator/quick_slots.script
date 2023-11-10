@@ -61,7 +61,7 @@ function use_quick_item(slot_num)
 		return
 	end
 	
-	if item:is_gasmask() then
+	if item:is_helmet() then
 		gasmask.wear_mask(item)
 		return
 	end
@@ -82,9 +82,9 @@ function get_item(slot_num)
 		return actor_get_backpack()
 	end
 	--шукаємо протигаз
-	if actor_get_gasmask() and actor_get_gasmask():section() == sect then
-		return actor_get_gasmask()
-	elseif actor:object(sect) and actor:object(sect):is_gasmask() then
+	if actor_get_helmet() and actor_get_helmet():section() == sect then
+		return actor_get_helmet()
+	elseif actor:object(sect) and actor:object(sect):is_helmet() then
 		return actor:object(sect)
 	end	
 	return nil
@@ -123,10 +123,10 @@ function get_item_count(slot_num)
 	if actor_get_backpack() and actor_get_backpack():section() == sect then
 		res = res + 1
 	end
-	--шукаємо протигаз
-	if actor_get_gasmask() and actor_get_gasmask():section() == sect then
+	--шукаємо шолом
+	if actor_get_helmet() and actor_get_helmet():section() == sect then
 		res = res + 1
-	elseif actor:object(sect) and actor:object(sect):is_gasmask() then
+	elseif actor:object(sect) and actor:object(sect):is_helmet() then
 		res = res + 1
 	end
 	return res

@@ -1621,11 +1621,11 @@ end
 function actor_get_artefact()
 	return actor:item_in_slot(10)
 end
+function actor_get_helmet()
+	return actor:item_in_slot(11)
+end
 function actor_get_backpack()
 	return actor:item_in_slot(13)
-end
-function actor_get_gasmask()
-	return actor:item_in_slot(15)
 end
 
 function actor_get_nvd()
@@ -1788,6 +1788,21 @@ end
 
 function wpn_IsRotatingToZoom( wpn )
   return wpn:get_weapon().zoom_rotation_factor < 1
+end
+
+--обертає вектор навколо осі Y проти годинникової стрілки
+function vector_rotate_y (v, angle)
+    angle = angle * 0.017453292519943295769236907684886
+    local c = math.cos(angle)
+    local s = math.sin(angle)
+    return vector():set (v.x * c - v.z * s, v.y, v.x * s + v.z * c)
+end
+
+function drop_item_to_angle(owner, item, angle)
+    local dir = vector_rotate_y(owner:direction(), angle)
+    if (dir.y < 0) then dir.y = -dir.y end
+    dir:normalize():mul(2)
+    owner:drop_item_and_throw(item, dir)	
 end
 
 function table.size(tbl)

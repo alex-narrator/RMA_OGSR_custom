@@ -213,7 +213,7 @@ function on_take(item)
 		if can_add(item) then
 			add(item)
 		elseif not has_drop_pouch() then
-			actor:drop_item(item)
+			drop_item_to_angle(actor, item, 90)
 		end
 	end
 end

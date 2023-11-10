@@ -4,16 +4,9 @@ local mask_texture = [[ui\dinamic_hud\hud_]]
 local breathe_texture = [[ui\dinamic_hud\breathe]]
 local brake_sound = xr_sound.get_safe_sound_object([[material\glass\glass_fall01hl]],sound_object.s2d)
 
-local hud_obj
-local hud_params
-local mask_static
-local breathe_static
-local last_cond_idx
-local last_power_idx
-local breathe_val
+local hud_obj, hud_params, mask_static, breathe_static, last_cond_idx, last_power_idx, last_power_idx, breathe_val
 
-local dec_breathe = false
-local show_minimap = false
+local dec_breathe, show_minimap = false, false
 
 function get_hud_params(sect)
 	hud_params = {}
@@ -74,7 +67,7 @@ function attach(sm)
 end
 
 function allowed_item(obj)
-	return obj:is_outfit() or obj:is_helmet() or obj:is_gasmask()
+	return obj:is_outfit() or obj:is_helmet()
 end
 
 local hud_snd = [[interface\item_usage\mask_clean]]
@@ -109,7 +102,7 @@ function on_slot(obj, prev_place)
 	if not allowed_item(obj) then
 	return end
 
-	if obj:is_gasmask() and not xr_conditions.black_screen() then
+	if obj:is_helmet() and not xr_conditions.black_screen() then
 		play_mask_anim(obj, prev_place, true)
 	return end
 	--//костиль для впадків коли предмет що вдягнули блокує слоти в яких вже є предмети
@@ -130,7 +123,7 @@ function on_non_slot(obj, prev_place)
 	if not allowed_item(obj) then
 	return end
 	
-	if obj:is_gasmask() and not level.is_removing_objects() then
+	if obj:is_helmet() and not level.is_removing_objects() then
 		play_mask_anim(obj, prev_place, false)
 	return end
 	

@@ -248,7 +248,7 @@ function RepairOverlay:HasMoneyToRepairItem(id)
 end
 
 function RepairOverlay:RepairAllowed(item)
-	local outfit_item = item:is_outfit() or item:is_helmet() or item:is_gasmask() or item:get_container()
+	local outfit_item = item:is_outfit() or item:is_helmet() or item:get_container()
 	local item_allowed = item:is_weapon() or (outfit_item and self.repair_armor)
 	return item_allowed and self:NeedRepairItem(item:id())
 end

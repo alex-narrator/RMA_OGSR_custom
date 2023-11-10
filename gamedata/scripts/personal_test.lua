@@ -53,7 +53,7 @@ if tgt then
 		tgt:position().x, tgt:position().y, tgt:position().z,
 		tgt:is_power_on())
 		
-		tgt:switch_power(true)
+		--tgt:switch_power(true)
 		
 	-- if tgt:is_stalker() or tgt:is_inventory_box() then
 		-- actor:start_carbody(tgt)
@@ -162,3 +162,13 @@ end
 -- end
 
 --log3("zoom_rotation_factor %s", actor:active_item():get_weapon().zoom_rotation_factor)
+
+-- local sobj
+-- local sim = alife()
+-- for i = 1, 65535 do
+	-- sobj = sim:object(i)
+	-- if sobj and (sobj:clsid() == clsid.obj_warbelt or sobj:clsid() == clsid.obj_vest) then
+		-- log3("~item %s was deleted", sobj:name())
+		-- sim:release(sobj, true)
+	-- end
+-- end

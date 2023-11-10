@@ -7,7 +7,7 @@ end
 local last_gasmask_sect = nil
 
 function on_slot(obj, prev_place)
-	if obj:is_gasmask() then
+	if obj:is_helmet() then
 		last_gasmask_sect = obj:section()
 	end
 end
@@ -17,7 +17,7 @@ function on_key_press(key, game_action)
 		game_action ~= key_bindings.kWEAR_MASK then
 	return end
 	
-	local mask = actor_get_gasmask()
+	local mask = actor_get_helmet()
 	if not mask then
 		mask = last_gasmask_sect and actor:object(last_gasmask_sect) or nil
 	end
@@ -62,9 +62,15 @@ function wear_mask(item)
 			-- actor:drop_item(item)
 			-- hud_add_info_message("item_usage", "st_gasmask_dropped")
 		-- end
-	elseif actor:can_put_in_slot(item, item:get_slot()) then
+	else
+		if actor:can_put_in_slot(item, item:get_slot()) then
 			actor:move_to_slot(item)
 			str = string.format("%s %s", game.translate_string("st_gasmask_on"), game.translate_string(get_inv_name(item:section())))
+		elseif actor_get_helmet() then
+			actor:move_to_ruck(actor_get_helmet())
+			actor:move_to_slot(item)
+			str = string.format("%s %s", game.translate_string("st_gasmask_on"), game.translate_string(get_inv_name(item:section())))
+		end
 	end
 	if str then
 		hud_add_info_message("item_usage", str)
