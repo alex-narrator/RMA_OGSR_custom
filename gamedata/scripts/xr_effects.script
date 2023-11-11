@@ -1861,7 +1861,7 @@ function cit_drop_actor_inventory(actor)
 end
 
 function cit_transfer_actor_inventory(actor)
-	local spawn_coord = vector():set(-28.789925537109, 11.235992431641, 28.981426239014)
+	local spawn_coord = vector():set(-28.789925537109, 11.229992431641, 29.251426239014)
 	
 	local inv_box = alife():create("inventory_box_deadcity", spawn_coord, actor:level_vertex_id(), actor:game_vertex_id())
 	alife():assign_story_id(inv_box.id, 1213)
@@ -1874,18 +1874,15 @@ function cit_transfer_actor_inventory(actor)
 		out_object = actor
 		in_object = inv_box_2
 		actor:inventory_for_each(transfer_object_item)
-		-- if actor_get_backpack() then
-			-- actor:transfer_item(actor_get_backpack(), obj)
-		-- end
-		-- add_update_delayed_action(10,
-		-- function()
-			-- actor:iterate_inventory(function(dummy, item) actor:transfer_item(item, obj) end, nil)
-		-- end)
 	end)
 	
 	local phys_box = alife():create("physical_box_deadcity", spawn_coord, actor:level_vertex_id(), actor:game_vertex_id())
 	level.client_spawn_manager():add(phys_box.id, -1, function(id, obj)
 		obj:get_physics_shell():get_element_by_order(0):fix()
+		phys_box.custom_data = [[
+			[physics_common]
+			fixed_bones = link
+			]]		
 	end)
 	
 end
