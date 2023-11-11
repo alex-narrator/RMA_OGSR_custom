@@ -1609,10 +1609,13 @@ end
 function actor_get_bolt()
 	return actor:item_in_slot(5)
 end
+function actor_get_outfit()
+	return actor:item_in_slot(6)
+end
 function actor_get_pda()
 	return actor:item_in_slot(7)
 end
-function actor_get_detector()
+function actor_get_device()
 	return actor:item_in_slot(8)
 end
 function actor_get_torch()
@@ -1625,7 +1628,7 @@ function actor_get_helmet()
 	return actor:item_in_slot(11)
 end
 function actor_get_backpack()
-	return actor:item_in_slot(13)
+	return actor:item_in_slot(12)
 end
 
 function actor_get_nvd()
@@ -1799,7 +1802,7 @@ function vector_rotate_y (v, angle)
 end
 
 function drop_item_to_angle(owner, item, angle)
-    local dir = vector_rotate_y(owner:direction(), angle)
+    local dir = vector_rotate_y(owner:is_actor() and device().cam_dir or owner:direction(), angle)
     if (dir.y < 0) then dir.y = -dir.y end
     dir:normalize():mul(2)
     owner:drop_item_and_throw(item, dir)	

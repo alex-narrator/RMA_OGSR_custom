@@ -195,17 +195,18 @@ local spot_type = {
 }
 
 function PDAOverlay:UpdateRelationSpotText()
-	for id,val in pairs(db.storage) do
-		for spot, v in pairs(spot_type) do
-			if level.map_has_object_spot(id, spot) then
-				npc = level.object_by_id(id)
-				if npc and not npc:is_actor() and (npc:is_stalker() or npc:is_trader()) then
-					local hint_text = string.format("%s%s\\n%s[%s]", color_by_relation[npc:relation(actor)], npc:character_name(), "%c[white]", game.translate_string(npc:character_community()))
-					level.map_change_spot_hint(id, spot, hint_text)
+	function perform_action(obj)
+		if not obj:is_actor() and (obj:is_stalker() or obj:is_trader()) then
+			for spot, v in pairs(spot_type) do
+				if level.map_has_object_spot(obj:id(), spot) then
+					local hint_text = string.format("%s%s\\n%s[%s]", color_by_relation[obj:relation(actor)], obj:character_name(), "%c[white]", game.translate_string(obj:character_community()))
+					level.map_change_spot_hint(obj:id(), spot, hint_text)
 				end
-			end
+			end			
 		end
-	end
+	end	
+	local detect_radius = read_if_exists(sys_ini, "r_float", actor_get_pda():section(), "radius", 50)
+	level.iterate_nearest(actor:position(), detect_radius, perform_action)
 end
 
 function PDAOverlay:UpdateTimer()

@@ -4,7 +4,6 @@ function attach(sm)
 	sm:subscribe({signal = "on_ruck",   fun = this.on_ruck})
 	sm:subscribe({signal = "on_take",   fun = this.on_take})
 	sm:subscribe({signal = "on_slot",   fun = this.on_slot})
-	sm:subscribe({signal = "on_vest",   fun = this.on_vest})
 	sm:subscribe({signal = "on_belt",   fun = this.on_belt})
 	sm:subscribe({signal = "on_grenade_type_switch",   fun = this.on_grenade_type_switch})
 	--sm:subscribe({signal = "on_cell_item_mouse",   	fun = this.try_set_item})
@@ -128,11 +127,6 @@ function has_drop_pouch()
 		item = actor:item_on_belt(i)
 		if read_if_exists(sys_ini, "r_bool", item:section(), "is_drop_pouch", false) then
 		return true end
-	end
-	for i = 0, actor:vest_count() - 1 do
-		item = actor:item_on_vest(i)
-		if read_if_exists(sys_ini, "r_bool", item:section(), "is_drop_pouch", false) then
-		return true end
 	end	
 	return false
 end
@@ -195,7 +189,7 @@ function on_drop(item, prev_place)
 		remove(item)
 		return
 	end
-	if is_module(item) and (prev_place == item_place.vest or prev_place == item_place.belt or prev_place == item_place.slot) then
+	if is_module(item) and (prev_place == item_place.belt or prev_place == item_place.slot) then
 		update_max_count(item, false)
 	end
 end
@@ -234,14 +228,8 @@ function on_belt(item, prev_place)
 	end
 end
 
-function on_vest(item, prev_place)
-	if is_module(item) then
-		update_max_count(item, true)
-	end
-end
-
 function on_ruck(item, prev_place)
-	if is_module(item) and (prev_place == item_place.vest or prev_place == item_place.belt or prev_place == item_place.slot) then
+	if is_module(item) and (prev_place == item_place.belt or prev_place == item_place.slot) then
 		update_max_count(item, false)
 	end
 end

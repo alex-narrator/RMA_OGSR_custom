@@ -21,24 +21,6 @@ function on_key_press(key, game_action)
 	if not mask then
 		mask = last_gasmask_sect and actor:object(last_gasmask_sect) or nil
 	end
-
-	-- if not mask then
-		-- for i = 0, actor:belt_count() - 1 do
-			-- local item = actor:item_on_belt(i)
-			-- if item and item:is_gasmask() then
-				-- mask = item
-			-- break end
-		-- end
-	-- end
-	
-	-- if not mask then
-		-- for i = 0, actor:vest_count() - 1 do
-			-- local item = actor:item_on_vest(i)
-			-- if item and item:is_gasmask() then
-				-- mask = item
-			-- break end
-		-- end
-	-- end
 	
 	if mask then
 		wear_mask(mask)
@@ -54,14 +36,6 @@ function wear_mask(item)
 	if actor:is_in_slot(item) then
 		actor:move_to_ruck(item)
 		str = string.format("%s %s", game.translate_string("st_gasmask_off"), game.translate_string(get_inv_name(item:section())))
-		-- if actor:can_put_in_belt(item) then
-			-- actor:move_to_belt(item)
-		-- elseif actor:can_put_in_vest(item) then
-			-- actor:move_to_vest(item)
-		-- else
-			-- actor:drop_item(item)
-			-- hud_add_info_message("item_usage", "st_gasmask_dropped")
-		-- end
 	else
 		if actor:can_put_in_slot(item, item:get_slot()) then
 			actor:move_to_slot(item)

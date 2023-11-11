@@ -73,11 +73,11 @@ function recharge_torch(obj)
 end
 
 function detector_tip(obj)
-	return string.format("%s %s", game.translate_string("st_attach_to"), game.translate_string(get_inv_name(actor_get_detector():section())))
+	return string.format("%s %s", game.translate_string("st_attach_to"), game.translate_string(get_inv_name(actor_get_device():section())))
 end
 function can_recharge_detector(obj)
-	return can_recharge(obj, actor_get_detector())
+	return can_recharge(obj, actor_get_device())
 end
 function recharge_detector(obj)
-	recharge(obj, actor_get_detector())
+	recharge(obj, actor_get_device())
 end

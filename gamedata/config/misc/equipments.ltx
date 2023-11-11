@@ -1,54 +1,54 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;WARBELT;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-[warbelt]:identity_immunities
-GroupControlSection	= spawn_group
-discovery_dependency =
-$spawn 				= "devices\detector_simple"
-$prefetch 			= 32
-class				= EQ_WRBLT
-cform				= skeleton
-visual				= dynamics\equipments\belt_2_art.ogf
-description			= warbelt_descr
-slot				= 12
+; [warbelt]:identity_immunities
+; GroupControlSection	= spawn_group
+; discovery_dependency =
+; $spawn 				= "devices\detector_simple"
+; $prefetch 			= 32
+; class				= EQ_WRBLT
+; cform				= skeleton
+; visual				= dynamics\equipments\belt_2_art.ogf
+; description			= warbelt_descr
+; slot				= 12
 
-belt_array 			= 4,1
+; belt_array 			= 4,1
 
-inv_name			= Warbelt
-inv_name_short		= Warbelt
-inv_weight			= 0.1
+; inv_name			= Warbelt
+; inv_name_short		= Warbelt
+; inv_weight			= 0.1
 
-inv_grid_width     = 2
-inv_grid_height    = 1
-inv_grid_x         = 20
-inv_grid_y         = 22
+; inv_grid_width     = 2
+; inv_grid_height    = 1
+; inv_grid_x         = 20
+; inv_grid_y         = 22
 
-cost				= 500	;30
-default_to_ruck		= false
+; cost				= 500	;30
+; default_to_ruck		= false
 
-[warbelt_adv]:warbelt
-visual				= dynamics\equipments\belt_3_art.ogf
-inv_grid_width     = 2
-inv_grid_height    = 1
-inv_grid_width     = 2
-inv_grid_height    = 1
-inv_grid_x         = 26
-inv_grid_y         = 22
+; [warbelt_adv]:warbelt
+; visual				= dynamics\equipments\belt_3_art.ogf
+; inv_grid_width     = 2
+; inv_grid_height    = 1
+; inv_grid_width     = 2
+; inv_grid_height    = 1
+; inv_grid_x         = 26
+; inv_grid_y         = 22
 
-inv_name			= Warbelt_adv
-inv_name_short		= Warbelt_adv
-inv_weight			= 0.1
+; inv_name			= Warbelt_adv
+; inv_name_short		= Warbelt_adv
+; inv_weight			= 0.1
 
-belt_array 			= 4,2
+; belt_array 			= 4,2
 
-[pouch]:warbelt
-description			= pouch_descr
-inv_name			= pouch
-inv_name_short		= pouch_short
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 31
-inv_grid_y         = 19
+; [pouch]:warbelt
+; description			= pouch_descr
+; inv_name			= pouch
+; inv_name_short		= pouch_short
+; inv_grid_width     = 1
+; inv_grid_height    = 1
+; inv_grid_x         = 31
+; inv_grid_y         = 19
 
-belt_array 			= 2,2
+; belt_array 			= 2,2
 
 [container_3]:identity_immunities
 GroupControlSection	= spawn_group
@@ -111,76 +111,76 @@ script_action_0 	= recharge.pda_tip, recharge.can_recharge_pda, recharge.recharg
 script_action_1 	= recharge.torch_tip, recharge.can_recharge_torch, recharge.recharge_torch
 script_action_2 	= recharge.detector_tip, recharge.can_recharge_detector, recharge.recharge_detector
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;vest;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-[vest_base]:identity_immunities
-GroupControlSection	= spawn_group
-discovery_dependency =
-$spawn 				= "devices\detector_simple"
-$prefetch 			= 32
-class				= EQ_TVEST
-cform				= skeleton
-visual				= equipments\item_datchik1.ogf
-slot				= 14
-inv_weight			= 0.1
-cost				= 500	;30
-default_to_ruck		= false
+; [vest_base]:identity_immunities
+; GroupControlSection	= spawn_group
+; discovery_dependency =
+; $spawn 				= "devices\detector_simple"
+; $prefetch 			= 32
+; class				= EQ_TVEST
+; cform				= skeleton
+; visual				= equipments\item_datchik1.ogf
+; slot				= 14
+; inv_weight			= 0.1
+; cost				= 500	;30
+; default_to_ruck		= false
 
-[vest_rps]:vest_base
-vest_array 			= 2,2
-vest_vertical 		= true
+; [vest_rps]:vest_base
+; vest_array 			= 2,2
+; vest_vertical 		= true
 
-inv_name			= vest_rps_short
-inv_name_short		= vest_rps_short
-description			= vest_rps_descr
+; inv_name			= vest_rps_short
+; inv_name_short		= vest_rps_short
+; description			= vest_rps_descr
 
-inv_grid_width     = 2
-inv_grid_height    = 2
-inv_grid_x         = 20
-inv_grid_y         = 18
+; inv_grid_width     = 2
+; inv_grid_height    = 2
+; inv_grid_x         = 20
+; inv_grid_y         = 18
 
-rifle_ammo 		= 2
+; rifle_ammo 		= 2
 
-;bones_koeff_protection = actor_vest_medium
+; ;bones_koeff_protection = actor_vest_medium
 
-[vest]:vest_base
-description			= vest_descr
-inv_name			= vest_name
-inv_name_short		= vest_short
-inv_grid_width     = 2
-inv_grid_height    = 2
-inv_grid_x         = 24
-inv_grid_y         = 18
-;vest_array 			= 4,2
-;plates 				= plate_class_3
+; [vest]:vest_base
+; description			= vest_descr
+; inv_name			= vest_name
+; inv_name_short		= vest_short
+; inv_grid_width     = 2
+; inv_grid_height    = 2
+; inv_grid_x         = 24
+; inv_grid_y         = 18
+; ;vest_array 			= 4,2
+; ;plates 				= plate_class_3
 
-rifle_ammo 		= 4
-grenade			= 2
-medicine 		= 2
+; rifle_ammo 		= 4
+; grenade			= 2
+; medicine 		= 2
 
-[vest_plate_carrier]:vest_base
-description			= vest_plate_carrier_descr
-inv_name			= vest_plate_carrier_name
-inv_name_short		= vest_plate_carrier_short
-inv_grid_width     = 2
-inv_grid_height    = 2
-inv_grid_x         = 20
-inv_grid_y         = 20
-vest_array 			= 4,2
+; [vest_plate_carrier]:vest_base
+; description			= vest_plate_carrier_descr
+; inv_name			= vest_plate_carrier_name
+; inv_name_short		= vest_plate_carrier_short
+; inv_grid_width     = 2
+; inv_grid_height    = 2
+; inv_grid_x         = 20
+; inv_grid_y         = 20
+; vest_array 			= 4,2
 
-bones_koeff_protection = actor_vest_medium
-plates 				= plate_class_2,plate_class_3
+; bones_koeff_protection = actor_vest_medium
+; plates 				= plate_class_2,plate_class_3
 
-[vest_plate_carrier_heavy]:vest_base
-description			= vest_plate_carrier_heavy_descr
-inv_name			= vest_plate_carrier_heavy_name
-inv_name_short		= vest_plate_carrier_heavy_short
-inv_grid_width     = 2
-inv_grid_height    = 2
-inv_grid_x         = 18
-inv_grid_y         = 20
-vest_array 			= 5,2
+; [vest_plate_carrier_heavy]:vest_base
+; description			= vest_plate_carrier_heavy_descr
+; inv_name			= vest_plate_carrier_heavy_name
+; inv_name_short		= vest_plate_carrier_heavy_short
+; inv_grid_width     = 2
+; inv_grid_height    = 2
+; inv_grid_x         = 18
+; inv_grid_y         = 20
+; vest_array 			= 5,2
 
-bones_koeff_protection = actor_vest_medium
-plates 				= plate_class_3,plate_class_4,plate_class_5
+; bones_koeff_protection = actor_vest_medium
+; plates 				= plate_class_3,plate_class_4,plate_class_5
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;EQUIPMENT MODULES;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

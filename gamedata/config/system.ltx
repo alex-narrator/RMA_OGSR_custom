@@ -118,16 +118,13 @@ files = game_tasks
 [inventory]
 take_dist		= 2
 max_weight		= 50
-;base_belt 		= 2,1
-;base_vest 		= 2,2
 max_ruck		= 56
-max_belt		= 8 //16
+max_belt		= 2;8 //16
 slots			= 15
 
 ;вишиковувати іконки та шукати вільне місце у відповідному масиві
 ;вертикально (по стовбцях) або горизонтально (по строках)
 belt_vertical = false
-vest_vertical = true
 
 ;слоти
 ;0 - knife
@@ -142,9 +139,7 @@ vest_vertical = true
 ;9 - torch
 ;10 - artefact
 ;11 - helmet
-;12 - warbelt
-;13 - backpack
-;14 - vest
+;12 - backpack
 
 ;чи заблоковано слот (не можна класти/зибирати предмет з нього і не видно у інвентарі) (false by default)
 ;slot_persistent_5   = true		;bolt
@@ -492,10 +487,10 @@ class                       = SCRPTOBJ										; AI class
 
 ;параметры показывани€ вход€щих сообщений PDA в главном меню
 [maingame_ui]
-pda_msgs_max_show_time = 20000
+pda_msgs_max_show_time 	= 20000
 info_msgs_max_show_time = 10000
-snd_new_contact					= detectors\contact_1
-snd_new_contact1				= detectors\contact_8
+snd_new_contact			= detectors\contact_1
+snd_new_contact1		= detectors\contact_8
 
 [attachable_item]
 GroupControlSection		= spawn_group

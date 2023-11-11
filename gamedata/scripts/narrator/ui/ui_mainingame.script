@@ -63,7 +63,6 @@ function MainIngameOverlay:Subscribe()
 			{signal = "on_slot", self = self, fun = self.UpdatePanelItems},
 			{signal = "on_ruck", self = self, fun = self.UpdatePanelItems},
 			{signal = "on_belt", self = self, fun = self.UpdatePanelItems},
-			{signal = "on_vest", self = self, fun = self.UpdatePanelItems},
 			{signal = "on_loadout_update_count", self = self, fun = self.UpdatePanelItems},
 		}
 		local sm = ogse_signals.get_mgr()
@@ -243,19 +242,13 @@ function MainIngameOverlay:UpdatePanelItems()
 			self.slot_panel:AttachChild(item_st)
 		end
 	end
-	--// belt & vest
+	--// belt
 	self.belt_panel:DetachAll()
 	self.belt_panel.items = {}
 	pos_x = 0
 	pos_y = 0
 	for i = 0, actor:belt_count() - 1 do
 		item = actor:item_on_belt(i)
-		if item then
-			self:TryAddToBeltList(item)
-		end
-	end
-	for i = 0, actor:vest_count() - 1 do
-		item = actor:item_on_vest(i)
 		if item then
 			self:TryAddToBeltList(item)
 		end

@@ -172,3 +172,9 @@ end
 		-- sim:release(sobj, true)
 	-- end
 -- end
+
+if actor_get_outfit() then
+	local outfit = actor_get_outfit():get_outfit()
+	outfit.belt_size = 6
+	log3("~belt size %s", outfit.belt_size)
+end

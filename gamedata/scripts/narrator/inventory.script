@@ -21,7 +21,6 @@ function set_equiped_items_visibility(visible)
 	--log3("set_equiped_items_visibility(%s) is called", visible)
 	function perform_action(dummy, item)
 		if actor:is_on_belt(item) or
-			actor:is_on_vest(item) or
 			actor:is_in_slot(item) or
 			item.marked
 		then
@@ -103,8 +102,7 @@ function show_ruck_items_outfit(inv_owner)
 		if not item.marked then
 			if item:is_outfit() or 
 				item:is_helmet() or 
-				get_clsid(item) == clsid.obj_warbelt or
-				get_clsid(item) == clsid.obj_vest
+				loadout.is_module(item)
 			then
 				set_item_inv_visible(item)
 			else

@@ -98,7 +98,6 @@ function actor_binder:net_destroy()
 	self.object:set_callback(callback.on_ruck, nil)
 	self.object:set_callback(callback.on_slot, nil)
 	self.object:set_callback(callback.on_belt, nil)
-	self.object:set_callback(callback.on_vest, nil)
 	--
 	self.object:set_callback(callback.on_cell_item_focus, nil)
 	self.object:set_callback(callback.on_cell_item_focus_lost, nil)
@@ -173,7 +172,6 @@ function actor_binder:reinit()
 	self.object:set_callback(callback.on_ruck, self.on_ruck, self)
 	self.object:set_callback(callback.on_slot, self.on_slot, self)
 	self.object:set_callback(callback.on_belt, self.on_belt, self)
-	self.object:set_callback(callback.on_vest, self.on_vest, self)
 	--
 	self.object:set_callback(callback.on_cell_item_focus, self.on_cell_item_focus, self)
 	self.object:set_callback(callback.on_cell_item_focus_lost, self.on_cell_item_focus_lost, self)
@@ -592,9 +590,6 @@ function actor_binder:on_slot(obj, prev_place)
 end
 function actor_binder:on_belt(obj, prev_place)
 	self.sm:call("on_belt", obj, prev_place)
-end
-function actor_binder:on_vest(obj, prev_place)
-	self.sm:call("on_vest", obj, prev_place)
 end
 
 function actor_binder:on_cell_item_focus(obj)
