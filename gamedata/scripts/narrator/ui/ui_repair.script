@@ -179,7 +179,7 @@ end
 
 function RepairOverlay:RepairListItemOnFocusLost(id)
 	self.focused_item_id = nil
-	log3("~RepairListItemOnFocusLost item %s | id %s", level.object_by_id(id):name(), id)
+	--log3("~RepairListItemOnFocusLost item %s | id %s", level.object_by_id(id):name(), id)
 	if not self.selected_item_id or id ~= self.selected_item_id then
 		self.items[id]:SetColor(self.color_default)
 	end

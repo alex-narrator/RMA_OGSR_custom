@@ -31,15 +31,3 @@ function give_ammo_box_to_actor(section, count, loaded_box, ammo_type)
 	end
 	news_manager.relocate_item(actor, "in", section)
 end
-
-function time_to_table(time_struct)
-	local Y, M, D, h, m, s, ms = time_struct:get(Y, M, D, h, m, s, ms)
-	local time_table = {Y, M, D, h, m, s, ms}
-	return time_table
-end
-
-function table_to_time(time_table)
-	local time_struct = game.CTime()
-	time_struct:set(time_table[1], time_table[2], time_table[3], time_table[4], time_table[5], time_table[5], time_table[7])
-	return time_struct
-end

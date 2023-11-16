@@ -113,7 +113,7 @@ function relocate_item_section(victim, section, type, receiver)
 				receiver = actor
 			end
 			--' Трансферить нужно только квестовые предметы.
-			if quest_section[section] == true and
+			if is_quest_item(section) == true and
 			   victim:object(section) ~= nil 
 			then
 				victim:transfer_item(victim:object(section), receiver)

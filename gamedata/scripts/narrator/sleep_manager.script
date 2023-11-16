@@ -1,0 +1,256 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+-----------------------------------------------------------
+-- С использованием наработок $DreamMod v0.2 by Ab@dDon ---
+-----------------------------------------------------------
+--edited by narrator @ 2023
+
+-- (s)talker, (d)olg, (f)reedom, (e)colog, (b)andit
+local sleep_spot = "spot_place_to_rest_cop"
+local sleep_h, sleep_m = 0, 0
+local dream_name = nil
+local ENEMY_CHECK_RADIUS = 50
+local SLEEP_COND_K = 0.5
+
+local DEBUG_SPOT = true
+
+local ADD_SPOT = false
+local PROP_SECT = 'mattress'
+
+--//пише координати спавну матрасу у файл sleeping_props.txt
+--//файл буде лежати у каталозі bin_x64
+function write_prop_pos_to_file()
+	local pos = actor:position()
+	local file = io.open("sleeping_props.txt", "a")
+	file:write(string.format("{level = '%s', pos = {%.2f, %.2f, %.2f}},\n", level.name(), pos.x, pos.y, pos.z))
+	file:close()
+end
+--//пише координати зони для сну у спальнику у файл sleeping_places.txt
+--//файл буде лежати у каталозі bin_x64
+function write_place_pos_to_file()
+	local radius = 3
+	local pos = actor:position()
+	local file = io.open("sleeping_places.txt", "a")
+	file:write(string.format("{level = '%s', pos = {%.2f, %.2f, %.2f}, radius = %s},\n", level.name(), pos.x, pos.y, pos.z, radius))
+	file:close()
+end
+
+--//TODO: зони в яких буде дозволено сон у спальному мішку
+local sleep_zones = {
+	--{level = 'l01_escape', 				pos = {-210.64, -22.88, -121.94}, radius = 3},
+}
+--//точки спавну матрасів юзабельних для сну
+local sleep_props = {
+	--//Кишка
+	{level = 'k01_darkscape', 			pos = {246.10, 1.02, -186.05}},
+	{level = 'k01_darkscape', 			pos = {254.61, 0.00, -195.32}},
+	{level = 'k01_darkscape', 			pos = {255.08, 0.05, -182.18}},
+	--//Кордон
+	{level = 'l01_escape', 				pos = {-210.64, -22.88, -121.94}},
+	{level = 'l01_escape', 				pos = {-210.41, -22.88, -125.62}},
+	{level = 'l01_escape', 				pos = {-185.35, -19.41, -134.87}},
+	{level = 'l01_escape', 				pos = {-222.52, -19.39, -161.27}},
+	{level = 'l01_escape', 				pos = {-223.61, -19.49, -168.07}},
+	{level = 'l01_escape', 				pos = {111.66, -2.30, 2.83}},
+	{level = 'l01_escape', 				pos = {139.60, 3.34, 337.03}},
+	--//Смітник
+	{level = 'l02_garbage', 			pos = {-223.77, -7.67, -129.68}},
+	{level = 'l02_garbage', 			pos = {-70.05, -1.98, 19.77}},
+	{level = 'l02_garbage', 			pos = {47.10, 1.48, 243.94}},
+	--//Агропром
+	{level = 'l03_agroprom', 			pos = {255.14, 0.03, 74.76}},
+	{level = 'l03_agroprom', 			pos = {33.39, 7.83, -17.80}},
+	{level = 'l03_agroprom', 			pos = {0.43, 7.84, 15.14}},
+	{level = 'l03_agroprom', 			pos = {-156.99, 1.67, -153.55}},
+	{level = 'l03_agroprom', 			pos = {-150.22, 1.63, -165.48}},
+	{level = 'l03_agroprom', 			pos = {-160.74, 1.63, -148.05}},	
+	--//Підземелля Агропрому
+	{level = 'l03u_agr_underground', 	pos = {-68.04, -6.37, -68.89}},
+	{level = 'l03u_agr_underground', 	pos = {-132.08, -3.63, -138.24}},
+	--Темна Долина
+	{level = 'l04_darkvalley', 			pos = {145.37, 0.76, -251.71}},
+	{level = 'l04_darkvalley', 			pos = {131.38, 0.31, -271.45}},
+	{level = 'l04_darkvalley', 			pos = {131.73, 0.31, -269.68}},
+	{level = 'l04_darkvalley', 			pos = {131.36, 0.31, -268.40}},	
+	--//Бар
+	{level = 'l05_bar', 				pos = {212.76, -1.45, -18.06}},
+	{level = 'l05_bar', 				pos = {95.76, 0.67, 87.08}},
+	{level = 'l05_bar', 				pos = {118.02, 0.21, 66.19}},
+	{level = 'l05_bar', 				pos = {117.91, 0.17, 130.38}},
+	{level = 'l05_bar', 				pos = {114.97, 0.17, 130.38}},
+	{level = 'l05_bar', 				pos = {232.03, -4.88, 131.53}},
+	--//Віськові склади
+	{level = 'l07_military', 			pos = {-187.51, -12.49, 37.32}},
+	{level = 'l07_military', 			pos = {-342.55, -13.57, 396.50}},
+	{level = 'l07_military', 			pos = {-190.85, -15.96, 373.65}},
+	{level = 'l07_military', 			pos = {-193.93, -15.96, 370.49}},
+	{level = 'l07_military', 			pos = {11.30, -6.74, 12.85}},
+	{level = 'l07_military', 			pos = {-39.74, -6.24, -25.78}},
+	{level = 'l07_military', 			pos = {-25.41, -6.83, -26.72}},
+	{level = 'l07_military', 			pos = {89.98, -0.22, 304.23}},
+	--//Янтар
+	{level = 'l08_yantar', 				pos = {30.38, -10.95, -280.71}},
+	{level = 'l08_yantar', 				pos = {27.67, -10.94, -280.37}},
+	--//Мертве місто
+	{level = 'l09_deadcity', 			pos = {-26.67, 7.47, 39.39}},
+	{level = 'l09_deadcity', 			pos = {-26.87, 7.47, 36.06}},
+	{level = 'l09_deadcity', 			pos = {-51.65, 7.84, 33.51}},
+	{level = 'l09_deadcity', 			pos = {-54.49, 7.80, 37.77}},
+	{level = 'l09_deadcity', 			pos = {-39.76, 7.95, -72.19}},
+	{level = 'l09_deadcity', 			pos = {-42.87, 7.92, -75.76}},	
+	--//Радар
+	{level = 'l10_radar', 				pos = {530.91, -49.35, -243.48}},
+	{level = 'l10_radar', 				pos = {530.75, -49.42, -241.53}},
+	{level = 'l10_radar', 				pos = {305.06, -38.68, -24.41}},
+	{level = 'l10_radar', 				pos = {60.42, -4.35, -39.98}},
+	{level = 'l10_radar', 				pos = {392.48, -34.14, 153.57}},
+	{level = 'l10_radar', 				pos = {391.89, -34.04, 155.49}},
+	--//Прип'ять
+	{level = 'l11_pripyat', 			pos = {102.84, 4.33, 123.89}},
+	{level = 'l11_pripyat', 			pos = {99.54, 4.34, 130.97}},
+	--//Болота
+	{level = 'l14_swamp', 				pos = {-73.35, 3.19, 268.69}},
+	{level = 'l14_swamp', 				pos = {-40.20, 6.28, 268.94}},
+	{level = 'l14_swamp', 				pos = {197.07, 3.52, -35.27}},
+	{level = 'l14_swamp',				pos = {190.18, 3.50, -40.80}},
+}
+
+function on_mattress_use(obj)
+	if ADD_SPOT and level.map_has_object_spot(obj:id(), sleep_spot) == 0 then
+		level.map_add_object_spot_ser(obj:id(), sleep_spot, game.translate_string("ui_st_place_to_rest"))
+	end
+	if can_sleep() then
+		ui_sleep.show_sleep_window()
+	else
+		show_cant_sleep_msg()
+	end
+end
+
+function create_mattresses()
+	local t = profile_timer()
+	t:start()
+	
+	local sim = alife()
+	local obj, pos
+	for k,v in pairs(sleep_props) do
+		pos = vector():set(v.pos[1], v.pos[2], v.pos[3])
+		obj = spawn_to_level(PROP_SECT, pos, v.level)
+		if DEBUG_SPOT then
+			local txt = string.format("{level = %s, pos = {%.2f, %.2f, %.2f}}",v.level, v.pos[1], v.pos[2], v.pos[3])
+			level.map_add_object_spot_ser(obj.id, sleep_spot, txt)
+		end
+	end
+	
+	t:stop()
+	log3("~create_mattresses profiled time %s micro-seconds | %s seconds", t:time(), t:time() * 0.000001)
+end
+
+function actor_in_sleep_zone()
+	local lvl_name = level.name()
+	local actor_pos = actor:position()
+	local zone_pos
+	for k,v in pairs(sleep_zones) do
+		zone_pos = vector():set(v.pos[1], v.pos[2], v.pos[3])
+		if v.level == lvl_name and actor_in_zone(zone_pos, actor_pos, v.radius) then
+			return true
+		end
+	end
+	return false
+end
+
+function actor_in_zone(pos1, pos2, r)
+	return (pos1.y <= pos2.y) and (pos2.y <= pos1.y + 2) and (math.pow(pos1.x - pos2.x, 2) + math.pow(pos1.z - pos2.z, 2) <= math.pow(r, 2))
+end
+
+function start_sleep(h, m)
+	sleep_h = h
+	sleep_m = m
+	
+	actor:stop_talk()
+	actor:hide_weapon()
+	level.disable_input()
+	level.add_pp_effector("sleep_fade.ppe", 11, false)
+	level.add_cam_effector("camera_effects\\sleep.anm", 10, false, "sleep_manager.play_start_sleep")
+	xr_sound.get_safe_sound_object([[actor\sleep]]):play_no_feedback(db.actor, sound_object.s2d, 0, vector(), 15.0)
+end
+
+function play_start_sleep()
+	game.start_tutorial("time_scaling")
+end
+
+function perform_sleep()
+	dream_name = dream.sleep_video_name_callback()
+	if dream_name ~= "" then 
+		game.start_tutorial(dream_name)
+	else 
+		game.start_tutorial("without_dream") 
+	end
+end
+
+function change_time()
+	if sleep_h == 0 and sleep_m == 0 then
+		log3("can`n perform sleep because sleep timer is %s:%s", sleep_h, sleep_m)
+	return end
+	level.change_game_time(0, sleep_h, sleep_m)
+	heal_actor(sleep_h, sleep_m)
+	sleep_h, sleep_m = 0, 0
+	play_awake_effects()
+end
+
+function heal_actor(h, m)
+	local res = (h * 60 * 60) + (m * 60)
+	local actor_cond = get_actor_obj().condition
+	--штатна регенерація здоров'я за час сну
+	local delta = res * actor_cond.health_restore_v
+	--додамо половину від штатного регену здоров'я
+	actor.health = delta * SLEEP_COND_K
+
+	--штатна регенерація псі-здоров'я за час сну
+	local delta = res * actor_cond.psy_health_v
+	--додамо половину від штатного регену псі-здоров'я
+	actor.psy_health = delta * SLEEP_COND_K
+	
+	--штатна регенерація витривалості за час сну
+	local delta = res * actor_cond.power_v
+	--додамо половину від штатного регену витривалості
+	actor.power = delta * SLEEP_COND_K
+	
+	--штатна зменшення рівня алкоголю за час сну
+	local delta = res * actor_cond.alcohol_v
+	--зменшимо рівень алкоголю на половину від штатного значення
+	actor.alcohol = delta * SLEEP_COND_K
+	
+	--штатне зменшення ситості за час сну
+	delta = res * actor_cond.satiety_v
+	--компенсуємо половину втрати ситості
+	actor.satiety = delta * SLEEP_COND_K
+end
+
+local nightmare = {
+	aes_sky_red = true,
+	dream_4 = true,
+	dream_5 = true,
+}
+function play_awake_effects()
+	level.add_cam_effector("camera_effects\\prison_1.anm", 25, false, "sleep_manager.restore_control")
+	level.add_pp_effector("yantar_underground_psi.ppe", 2007, false)
+	level.add_pp_effector("total_recall.ppe", 2008, false)
+	local snd_name = nightmare[dream_name] and [[characters_voice\human_01\stalker\states\breath\breath_1]] or [[actor\sleep]]
+	xr_sound.get_safe_sound_object(snd_name):play_no_feedback(db.actor, sound_object.s2d, 0, vector(), 15.0)
+	dream_name = nil
+end
+
+function restore_control()
+	actor:restore_weapon()
+	level.enable_input()
+end
+
+function can_sleep()
+	if has_enemy_near(actor, ENEMY_CHECK_RADIUS) then
+		return false
+	end
+	return true
+end
+
+function show_cant_sleep_msg()
+	hud_add_info_message("item_usage", "ui_st_cant_sleep")
+end

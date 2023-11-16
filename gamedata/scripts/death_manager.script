@@ -201,7 +201,7 @@ function create_items(npc, section, number, rnd)
 										npc:id())
 				if sobj:clsid() ~= clsid.artefact_s then
 					alife():object(sobj.id):get_inventory_item().item_radiation_restore_speed = math.clamp(npc.radiation,0,read_if_exists(sys_ini, "r_float", sobj:section_name(), "radiation_accum_limit", 0))
-					log3("~npc %s, radiation %s, spawn item %s", npc:name(), npc.radiation, sobj:section_name())
+					--log3("~npc %s, radiation %s, spawn item %s", npc:name(), npc.radiation, sobj:section_name())
 				end
 			end
         end

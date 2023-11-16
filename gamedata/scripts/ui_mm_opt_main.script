@@ -239,10 +239,5 @@ local control = {
 }
 
 function get_control(ctrl)
-	for key, value in pairs(control) do
-		if ctrl == key then
-			return value
-		end
-	end
-		return nil
+	return control[ctrl]
 end

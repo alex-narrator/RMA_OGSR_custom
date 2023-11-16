@@ -46,11 +46,7 @@ function on_key_press(key, game_action)
 	
 	add_time_delayed_action(
 		read_if_exists(sys_ini, "r_float", hud_sect, "use_delay", 1.5),
-		function()
-
-			if not torch.can_switch(curr_torch) then
-			return end
-			
+		function()			
 			if switch_mode then
 				torch.switch_mode(curr_torch)
 			else

@@ -1862,8 +1862,9 @@ end
 
 function cit_transfer_actor_inventory(actor)
 	local spawn_coord = vector():set(-28.789925537109, 11.229992431641, 29.251426239014)
+	local level = "l09_deadcity"
 	
-	local inv_box = alife():create("inventory_box_deadcity", spawn_coord, actor:level_vertex_id(), actor:game_vertex_id())
+	local inv_box = spawn_to_level("inventory_box_blue", spawn_coord, level)
 	alife():assign_story_id(inv_box.id, 1213)
 	inv_box.custom_data = [[
 			[logic]
@@ -1876,7 +1877,7 @@ function cit_transfer_actor_inventory(actor)
 		actor:inventory_for_each(transfer_object_item)
 	end)
 	
-	local phys_box = alife():create("physical_box_deadcity", spawn_coord, actor:level_vertex_id(), actor:game_vertex_id())
+	local phys_box = spawn_to_level("physical_box_blue", spawn_coord, level)
 	level.client_spawn_manager():add(phys_box.id, -1, function(id, obj)
 		obj:get_physics_shell():get_element_by_order(0):fix()
 		phys_box.custom_data = [[
@@ -2540,4 +2541,8 @@ end
 
 function unlock_box(actor, npc)
 	store_box.unlock(npc)
+end
+
+function use_mattress(actor, npc)
+	sleep_manager.on_mattress_use(npc)
 end

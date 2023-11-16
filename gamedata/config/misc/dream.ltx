@@ -3,38 +3,58 @@
 ;--------------------------------------------------------------------------------
 [dreams]
 regular_probability = 50
-scenario            = scenario1, scenario2, scenario3
-regular             = regular_dream1, regular_dream2, regular_dream3
+scenario            = scenario1, scenario2, scenario3, scenario3, scenario4, scenario6, scenario6, scenario7
+regular             = regular_dream1, regular_dream2, regular_dream3, regular_dream4, regular_dream5, regular_dream6, regular_dream7
 dream_types         = nightmare, normal, happy
 
 ;--------------------------------------------------------------------------------
 ;--- Regular dreams -------------------------------------------------------------
 ;--------------------------------------------------------------------------------
 [regular_dream1]
-dream       = sleep\aes_sky_red
-probability = 10
+dream       = aes_sky_red
+probability = 15
 type        = nightmare
 
 [regular_dream2]
-dream       = sleep\esc_sky_01
-probability = 5
+dream       = esc_sky_01
+probability = 15
 type        = normal
 
 [regular_dream3]
-dream       = sleep\Movie-003_Rats_OutPut-010
-probability = 8
+dream       = Movie-003_Rats_OutPut-010
+probability = 10
 type        = happy
+
+[regular_dream4]
+dream       = dream_4
+probability = 15
+type        = nightmare
+
+[regular_dream5]
+dream       = dream_5
+probability = 15
+type        = nightmare
+
+[regular_dream6]
+dream       = dream_6
+probability = 15
+type        = normal
+
+[regular_dream7]
+dream       = dream_7
+probability = 15
+type        = normal
 
 ;--------------------------------------------------------------------------------
 ;--- Scenario dreams ---------------------------------------------------------------
 ;--------------------------------------------------------------------------------
 [scenario1]
-dream       = sleep\Movie-003_Rats_OutPut-010
+dream       = sleep\aes_sky_red
 ;to_regular  = 3,normal
 cond        = {+agr_military_documents_done}
 
 [scenario2]
-dream       = sleep\Movie-003_Rats_OutPut-010
+dream       = sleep\esc_sky_01
 ;to_regular  = 3,normal
 cond        = {+agr_military_documents_done}
 
@@ -42,6 +62,27 @@ cond        = {+agr_military_documents_done}
 dream       = sleep\Movie-003_Rats_OutPut-010
 ;to_regular  = 3,normal
 cond        = {+agr_military_documents_done}
+
+[scenario4]
+dream       = sleep\dream_4
+;to_regular  = 3,normal
+cond        = {+agr_military_documents_done}
+
+[scenario5]
+dream       = sleep\dream_5
+;to_regular  = 3,normal
+cond        = {+agr_military_documents_done}
+
+[scenario6]
+dream       = sleep\dream_6
+;to_regular  = 3,normal
+cond        = {+agr_military_documents_done}
+
+[scenario7]
+dream       = sleep\dream_7
+;to_regular  = 3,normal
+cond        = {+agr_military_documents_done}
+
 
 ;--------------------------------------------------------------------------------
 ;--- Level specific -------------------------------------------------------------

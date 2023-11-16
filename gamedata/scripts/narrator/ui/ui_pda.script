@@ -1,5 +1,6 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 local overlay = nil
+local OVERLAY_XML = "script_overlays\\pda_overlay.xml"
 
 function attach(sm)
 	sm:subscribe({signal = "on_spawn",   fun = this.create_window})
@@ -102,7 +103,7 @@ function PDAOverlay:InitControls()
 	self:Show(true)
 	
 	local xml = CScriptXmlInit()
-	xml:ParseFile("script_overlays\\pda_overlay.xml")
+	xml:ParseFile(OVERLAY_XML)
 
 	--//date/time
 	self.date_time = xml:InitFrameLine("time_frame_line", self)

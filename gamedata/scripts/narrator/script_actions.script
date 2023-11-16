@@ -6,6 +6,6 @@ end
 function donate(item)
 	actor:transfer_item(item, level.get_second_talker())
 	local goodwill = item:cost() * 0.01
-	log3("~npc %s, goodwill %s - donate on %s", level.get_second_talker():name(), level.get_second_talker():goodwill(actor), goodwill)
+	--log3("~npc %s, goodwill %s - donate on %s", level.get_second_talker():name(), level.get_second_talker():goodwill(actor), goodwill)
 	level.get_second_talker():change_goodwill(goodwill, actor)
 end

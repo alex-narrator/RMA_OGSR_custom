@@ -41,8 +41,9 @@ end
 --db.actor.power = -10
 
 local tgt = level.get_target_obj()
-if tgt then
-	log3("~ target section: %s | id %s| story_id %s | name: %s | profile: %s | species %s | nonscript usable %s | position (%s, %s, %s) | is power on %s", 
+show_dbg_info = false
+if tgt and show_dbg_info then
+	log3("~ target section: %s | id %s| story_id %s | name: %s | profile: %s | species %s | nonscript usable %s | position (%s, %s, %s) | lvid %s | gvid %s", 
 		tgt:section(), 
 		tgt:id(), 
 		tgt:story_id(), 
@@ -51,7 +52,11 @@ if tgt then
 		read_if_exists(sys_ini, "r_string", tgt:section(), "species", "NO SPECIES"),
 		tgt:is_nonscript_usable(),
 		tgt:position().x, tgt:position().y, tgt:position().z,
-		tgt:is_power_on())
+		tgt:level_vertex_id(),
+		tgt:game_vertex_id())
+		
+		-- pos = tgt:position()
+		-- log3("{level = %s, pos = {%.2f, %.2f, %.2f}},", level.name(), pos.x, pos.y, pos.z)
 		
 		--tgt:switch_power(true)
 		
@@ -138,7 +143,7 @@ end
 
 --alife():teleport_object(16531, actor:position(), actor:level_vertex_id(), actor:game_vertex_id())
 
---log3("actor position (%s, %s, %s)", actor:position().x, actor:position().y, actor:position().z)
+--log3("actor position (%s, %s, %s), lvid %s, gvid %s", actor:position().x, actor:position().y, actor:position().z, actor:level_vertex_id(), actor:game_vertex_id())
 
 --dis_consciousness
 --dream
@@ -173,8 +178,18 @@ end
 	-- end
 -- end
 
-if actor_get_outfit() then
-	local outfit = actor_get_outfit():get_outfit()
-	outfit.belt_size = 6
-	log3("~belt size %s", outfit.belt_size)
-end
+-- if actor_get_outfit() then
+	-- local outfit = actor_get_outfit():get_outfit()
+	-- outfit.belt_size = 6
+	-- log3("~belt size %s", outfit.belt_size)
+-- 
+
+--xr_effects.cit_transfer_actor_inventory(actor)
+--sleep_manager.create_mattresses()
+
+--spawn_to_level("mattress", actor:position(), level.name())
+
+--local pos = actor:position()
+-- log3("{level = '%s', pos = {%.2f, %.2f, %.2f}, radius = 3},", level.name(), pos.x, pos.y, pos.z)
+
+sleep_manager.write_place_pos_to_file()

@@ -1,0 +1,115 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+local OVERLAY_XML = "script_overlays\\sleep_overlay.xml"
+
+local subscribed = false
+
+function show_sleep_window()
+	level.start_stop_menu(SleepOverlay(get_hud()),true)
+end
+
+class "SleepOverlay" (CUIScriptWnd)
+
+function SleepOverlay:__init(owner) super()
+	self.owner = owner
+	self:InitControls()
+	--self:Subscribe()
+	self.sleep_h = 0
+	self.sleep_m = 0
+end
+
+-- function SleepOverlay:Subscribe()
+	-- self.subscribed = false
+	-- if not self.subscribed then
+		-- self.subscribed = {
+			-- {signal = "on_update", self = self, fun = self.Update},
+		-- }
+		-- local sm = ogse_signals.get_mgr()
+		-- for _, s in ipairs( self.subscribed ) do
+			-- sm:subscribe( s )
+		-- end
+	-- end
+-- end
+
+-- function SleepOverlay:Unsubscribe()
+	-- if self.subscribed then
+		-- local sm = ogse_signals.get_mgr()
+		-- for _, s in ipairs( self.subscribed ) do
+			-- sm:unsubscribe( s )
+		-- end
+		-- self.subscribed = false
+	-- end
+-- end
+
+function SleepOverlay:InitControls()
+	--self.owner:AttachChild(self)
+	self:Init(0, 0, 1024, 768)
+	-- self:Enable(true)
+	-- self:Show(true)
+	
+	local xml = CScriptXmlInit()
+	xml:ParseFile(OVERLAY_XML)
+	
+	local name
+	--//background
+	self.back = xml:InitStatic("background", self)
+	xml:InitAutoStaticGroup("background:auto_static", self.back)
+
+	--//date/time
+	self.date_time = xml:InitFrameLine("time_frame_line", self.back)
+	self.date = xml:InitStatic("date", self.date_time)
+	self.time = xml:InitStatic("time", self.date_time)
+	
+	name = "sleep_track"
+	self.time_track = xml:InitTrackBar("time_track", self.back)
+	self:Register(self.time_track, name)
+	self:AddCallback(name, ui_events.TRACKBAR_CHANGED, self.ChangeTime, self)
+	
+	--//skip timer
+	self.timer_line = xml:InitFrameLine("timer_frame_line", self.back)
+	self.time_value = xml:InitStatic("time_value", self.timer_line)
+	
+	name = "sleep_button"
+	self.skip_time = xml:Init3tButton("sleep_button", self.back)
+	self:Register(self.skip_time, name)
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.StartSleep, self)
+		
+	--// quit button
+	name = "quit_button"
+	self.quit_button = xml:Init3tButton("quit_button", self.back)
+	self:Register(self.quit_button, name)
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.Hide, self)	
+end
+
+function SleepOverlay:Update()
+	CUIScriptWnd.Update(self)
+	local pda = actor_get_pda()
+	
+	local has_pda_power = pda and pda:is_power_on()
+	self.date_time:Show(has_pda_power)
+	
+	local _time = game.get_game_time()
+	self.date:SetText(_time:dateToString(game.CTime.DateToDay))
+	self.time:SetText(_time:timeToString(game.CTime.TimeToMinutes))
+end
+
+function SleepOverlay:ChangeTime()
+	self.sleep_h = math.floor(self.time_track:GetTrackValue()*24+0.1)
+	local tmp = string.format("%.0f %s", self.sleep_h, game.translate_string("ui_st_hours"))
+	self.time_value:SetText(tmp)
+end
+
+function SleepOverlay:StartSleep()
+	if not sleep_manager.can_sleep() then
+		sleep_manager.show_cant_sleep_msg()
+		self:Hide()
+	return end
+	if self.sleep_h == 0 and self.sleep_m == 0 then
+	return end
+	sleep_manager.start_sleep(self.sleep_h, self.sleep_m)
+	self:Hide()
+end
+
+function SleepOverlay:Hide()
+	self:ClearCallbacks()
+	self:GetHolder():start_stop_menu(self,true)
+end

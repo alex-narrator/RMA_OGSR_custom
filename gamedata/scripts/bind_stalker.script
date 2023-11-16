@@ -27,7 +27,6 @@ function actor_binder:__init (obj) super(obj)
 	self.sm:call("on_load_before_all")
 	self.sm:call("on_init", obj)
 	--
-	self.bCheckStart = false
 	self.weather_manager = level_weathers.WeatherManager()
 	self.actor_detector = xr_detector.actor_detector()
 end
@@ -50,6 +49,30 @@ function actor_binder:net_spawn(data)
 	if self.st.disable_input_time == nil then
 		level.enable_input()
 	end
+	
+	if not has_alife_info("storyline_actor_start") and
+	   (level.name() == "l01_escape")
+	then
+		self.object:give_info_portion("storyline_actor_start")
+		_G.g_start_avi = true
+		printf("*AVI* RUN START AVI")
+		--//спавнимо спальні місця
+		sleep_manager.create_mattresses()
+	end
+
+--		if not has_alife_info("encyclopedy") then
+--			self.object:give_info_portion("encyclopedy")
+--		end
+
+	if not has_alife_info("global_dialogs") then
+		self.object:give_info_portion("global_dialogs")
+	end
+
+	if not has_alife_info("level_changer_icons") then
+		self.object:give_info_portion("level_changer_icons")
+	end
+
+	level_tasks.add_lchanger_location()
 	
 	--на випадок якщо гравець перезавантажився
 	--у той час поки діяло блокування керування,
@@ -120,10 +143,7 @@ function actor_binder:net_destroy()
 	self.object:set_callback(callback.on_before_use_item, nil)
 	self.object:set_callback(callback.on_pickup_item_showing, nil)
 	
-	--self.object:set_callback(callback.on_group_items, nil)
 	self.object:set_callback(callback.on_grenade_type_switch, nil)
-	
-	--self.object:set_callback(callback.trade_perform_operation, nil)
 
 	if sr_psy_antenna.psy_antenna then
 		sr_psy_antenna.psy_antenna:destroy()
@@ -158,7 +178,6 @@ function actor_binder:reinit()
 	self.object:set_callback(callback.trade_sell_buy_item, self.on_trade, self) -- for game stats
 	--self.object:set_callback(callback.actor_sleep, self.sleep_callback, self)
 	self.object:set_callback(callback.task_state, self.task_callback, self)
-	--self.object:set_callback(callback.map_location_added, self.map_location_added_callback, self)
 	self.object:set_callback(callback.level_border_enter, self.level_border_enter, self)
 	self.object:set_callback(callback.level_border_exit, self.level_border_exit, self)
 	self.object:set_callback(callback.take_item_from_box, self.take_item_from_box, self)
@@ -194,10 +213,7 @@ function actor_binder:reinit()
 	self.object:set_callback(callback.on_before_use_item, self.on_before_use_item, self)
 	self.object:set_callback(callback.on_pickup_item_showing, self.on_pickup_item_showing, self)
 	
-	--self.object:set_callback(callback.on_group_items, self.on_group_items, self)
 	self.object:set_callback(callback.on_grenade_type_switch, self.on_grenade_type_switch, self)
-	
-	--self.object:set_callback(callback.trade_perform_operation, self.trade_perform_operation, self)
 	--
 	self.sm:call("on_reinit")
 end
@@ -402,7 +418,7 @@ function actor_binder:update(delta)
 
 	-- обновление постпроцессов
 	if post_process ~= 0 then
-		if post_process:update () == true then
+		if post_process:update() == true then
 		   post_process = 0
 		end
 	end
@@ -431,35 +447,6 @@ function actor_binder:update(delta)
 	--' Запускаем затычку от возможной потери содержимого тайников
 	treasure_manager.get_treasure_manager():loss_workaround()
 
-
- 	if self.bCheckStart then
-		printf("SET DEFAULT INFOS")		
-
-		if not has_alife_info("storyline_actor_start") and
-		   (level.name() == "l01_escape")
-		then
-			self.object:give_info_portion("storyline_actor_start")
-			_G.g_start_avi = true
-			printf("*AVI* RUN START AVI")
-		end
-
---		if not has_alife_info("encyclopedy") then
---			self.object:give_info_portion("encyclopedy")
---		end
-
-		if not has_alife_info("global_dialogs") then
-			self.object:give_info_portion("global_dialogs")
-		end
-
-		if not has_alife_info("level_changer_icons") then
-			self.object:give_info_portion("level_changer_icons")
-		end
-
-		level_tasks.add_lchanger_location()
-
-		self.bCheckStart = false		
-	end	
-	
 	--- Лагерь новичков, Волк:
 	-- Волк:
 	escape_tasks.wolf_message()
@@ -525,7 +512,6 @@ function actor_binder:load(reader)
 		load_treasure_manager = true           
 	end                                      
 
-	
 	get_console():execute("g_game_difficulty "..game_difficulty_by_num[game_difficulty])
 
 	if reader:r_eof() then
@@ -546,7 +532,6 @@ function actor_binder:load(reader)
 		treasure_manager.load(reader)      
 	end                                  
 
-	
 	task_manager.load(reader)
 	self.actor_detector:load(reader)	
 	self.sm:call("on_load", reader)
@@ -647,17 +632,9 @@ function actor_binder:on_pickup_item_showing(item, icon)
 	self.sm:call("on_pickup_item_showing", item, icon)
 end
 
--- function actor_binder:on_group_items(item1, item2)
-	-- self.sm:call("on_group_items", item1, item2)
--- end
-
 function actor_binder:on_grenade_type_switch(prev_grenade, next_grenade)
 	self.sm:call("on_grenade_type_switch", prev_grenade, next_grenade)
 end
-
--- function actor_binder:trade_perform_operation(trader, money_in, money_out)
-	-- self.sm:call("trade_perform_operation", trader, money_in, money_out)
--- end
 
 --старт префетча звуков
 --if string.find(command_line(), "-noprefetch") == nil then

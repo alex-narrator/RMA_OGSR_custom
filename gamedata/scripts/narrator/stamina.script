@@ -33,6 +33,8 @@ end
 
 function on_shell_drop(wpn, pos, vel)
 	local recoil = sys_ini:r_float(wpn:section(), "cam_dispersion") * RECOIL_K
+	if wpn:get_weapon().state == global_flags.eShutter then --//при смиканні затвору стаміну не витрачаємо
+	return end
 	change_stamina(-recoil)
 end
 

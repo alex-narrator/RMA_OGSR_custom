@@ -33,7 +33,7 @@ function init(obj)
 			end
 		end
 	end
-	
+		
 	db.storage[obj:id()] = { }
 	local new_binder = generic_physics_binder(obj)
 	obj:bind_object(new_binder)
@@ -42,6 +42,7 @@ end
 ---------------------------------------------------------------------------------------------
 class "generic_physics_binder" (object_binder)
 function generic_physics_binder:__init(obj) super(obj)
+	self.sm = ogse_signals.get_mgr()
 	self.initialized = false
 	self.loaded = false
 end 
@@ -93,6 +94,8 @@ function generic_physics_binder:update(delta)
 		self.object:set_callback(callback.death, generic_physics_binder.death_callback, self)
 		self.object:set_callback(callback.use_object, generic_physics_binder.use_callback, self)
 	end
+	
+	self.sm:call("on_update_physics", self.object)
 end
 
 function generic_physics_binder:net_spawn(data)
@@ -107,6 +110,8 @@ function generic_physics_binder:net_spawn(data)
 	if self.object:spawn_ini() ~= nil and self.object:spawn_ini():section_exist("drop_box") == true then
 		self.box_items = xr_box.ph_item_box(self.object)
 	end
+
+	self.sm:call("on_spawn_physics", self.object)
 
 	return true
 end
@@ -124,6 +129,8 @@ function generic_physics_binder:net_destroy()
 	db.del_sl(self.object)
 
 	db.storage[self.object:id()] = nil
+
+	self.sm:call("on_destroy_physics", self.object)
 
 	object_binder.net_destroy(self)
 end
@@ -154,6 +161,7 @@ function generic_physics_binder:use_callback(obj, who)
 	if self.st.active_section then
 		xr_logic.issue_event(self.object, self.st[self.st.active_scheme], "use_callback", obj, who)
 	end
+	self.sm:call("on_use_physics", obj, who)
 end
 
 function generic_physics_binder:hit_callback(obj, amount, local_direction, who, bone_index)

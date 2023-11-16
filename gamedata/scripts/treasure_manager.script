@@ -194,7 +194,7 @@ function CTreasure:give_treasure(k)
 		end
 
 		for kk,vv in pairs(v.items) do
-			if ammo_section[vv.section] == true then
+			if is_ammo(vv.section) == true then
 --[[				se_respawn.create_ammo(vv.section,	
 						obj.position,
 						obj.m_level_vertex_id,	
