@@ -4,12 +4,18 @@
 -----------------------------------------------------------
 --edited by narrator @ 2023
 
--- (s)talker, (d)olg, (f)reedom, (e)colog, (b)andit
+function attach(sm)
+	sm:subscribe({signal = "on_new_game_start",   fun = this.create_mattresses})
+end
+
 local sleep_spot = "spot_place_to_rest_cop"
 local sleep_h, sleep_m = 0, 0
 local dream_name = nil
 local ENEMY_CHECK_RADIUS = 50
 local SLEEP_COND_K = 0.5
+local SOMNOLENCE_K = 3
+
+local is_sleeping = false
 
 local DEBUG_SPOT = true
 
@@ -171,6 +177,7 @@ function start_sleep(h, m)
 	level.add_pp_effector("sleep_fade.ppe", 11, false)
 	level.add_cam_effector("camera_effects\\sleep.anm", 10, false, "sleep_manager.play_start_sleep")
 	xr_sound.get_safe_sound_object([[actor\sleep]]):play_no_feedback(db.actor, sound_object.s2d, 0, vector(), 15.0)
+	is_sleeping = true
 end
 
 function play_start_sleep()
@@ -187,42 +194,46 @@ function perform_sleep()
 end
 
 function change_time()
-	if sleep_h == 0 and sleep_m == 0 then
+	if sleep_h <= 0 and sleep_m <= 0 then
 		log3("can`n perform sleep because sleep timer is %s:%s", sleep_h, sleep_m)
 	return end
 	level.change_game_time(0, sleep_h, sleep_m)
-	heal_actor(sleep_h, sleep_m)
+	local sleep_time = (sleep_h * 60 * 60) + (sleep_m * 60)
+	heal_actor(sleep_time)
 	sleep_h, sleep_m = 0, 0
 	play_awake_effects()
 end
 
-function heal_actor(h, m)
-	local res = (h * 60 * 60) + (m * 60)
+function heal_actor(sleep_time)
 	local actor_cond = get_actor_obj().condition
 	--штатна регенерація здоров'я за час сну
-	local delta = res * actor_cond.health_restore_v
+	local delta = sleep_time * actor_cond.health_restore_v
 	--додамо половину від штатного регену здоров'я
 	actor.health = delta * SLEEP_COND_K
 
 	--штатна регенерація псі-здоров'я за час сну
-	local delta = res * actor_cond.psy_health_v
+	local delta = sleep_time * actor_cond.psy_health_v
 	--додамо половину від штатного регену псі-здоров'я
 	actor.psy_health = delta * SLEEP_COND_K
 	
 	--штатна регенерація витривалості за час сну
-	local delta = res * actor_cond.power_v
+	local delta = sleep_time * actor_cond.power_v
 	--додамо половину від штатного регену витривалості
 	actor.power = delta * SLEEP_COND_K
 	
 	--штатна зменшення рівня алкоголю за час сну
-	local delta = res * actor_cond.alcohol_v
+	local delta = sleep_time * actor_cond.alcohol_v
 	--зменшимо рівень алкоголю на половину від штатного значення
 	actor.alcohol = delta * SLEEP_COND_K
 	
 	--штатне зменшення ситості за час сну
-	delta = res * actor_cond.satiety_v
+	delta = sleep_time * actor_cond.satiety_v
 	--компенсуємо половину втрати ситості
 	actor.satiety = delta * SLEEP_COND_K
+	
+	delta = sleep_time * somnolence.get_v()
+	--компенсуємо надбаня сонливості та зменшуємо сонливість
+	somnolence.change_val(-delta * SOMNOLENCE_K)
 end
 
 local nightmare = {
@@ -242,6 +253,7 @@ end
 function restore_control()
 	actor:restore_weapon()
 	level.enable_input()
+	is_sleeping = false
 end
 
 function can_sleep()
@@ -253,4 +265,8 @@ end
 
 function show_cant_sleep_msg()
 	hud_add_info_message("item_usage", "ui_st_cant_sleep")
+end
+
+function is_sleeping_now()
+	return is_sleeping
 end

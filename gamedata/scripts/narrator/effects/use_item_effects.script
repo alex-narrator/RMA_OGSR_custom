@@ -1,9 +1,9 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
-	sm:subscribe({signal = "on_use",   fun = this.use_item_effects})
-	sm:subscribe({signal = "on_before_use_item",   fun = this.check_use_enabled})
-	sm:subscribe({signal = "on_booster_enable",   fun = this.enable_effect})
-	sm:subscribe({signal = "on_booster_disable",   fun = this.disable_effect})
+	sm:subscribe({signal = "on_use",   				fun = this.use_item_effects})
+	sm:subscribe({signal = "on_before_use_item",   	fun = this.check_use_enabled})
+	sm:subscribe({signal = "on_booster_enable",   	fun = this.enable_effect})
+	sm:subscribe({signal = "on_booster_disable",   	fun = this.disable_effect})
 end
 
 --ефекти використання предметів
@@ -72,6 +72,7 @@ function use_item_effects(obj, user)
 			level.remove_complex_effector(use_effector_id)
 			level.add_complex_effector(eff_name, use_effector_id)
 		end
+		somnolence.apply_influence(obj)
 	end
 end
 

@@ -10,7 +10,7 @@ local zoom_factor = false
 local subscribed = false
 
 local actor_obj = get_actor_obj()
-local ZOOM_POWER_K = read_if_exists(sys_ini, "r_float", "actor_condition", "power_to_zoom_effector_k", 10)
+local ZOOM_SOMNOLENCE_K = read_if_exists(sys_ini, "r_float", "actor_condition", "somnolence_zoom_effector_k", 10)
 local CROUCH_K = 0.25
 
 function can_set_hard_hold(game_action)
@@ -22,11 +22,11 @@ function get_zoom_effector_k()
 	if actor_obj:is_actor_crouch() then
 		crouch_k = CROUCH_K
 	end
-	return (1 + (ZOOM_POWER_K * (1 - actor.power)))/zoom_factor * crouch_k
+	return (1 + (ZOOM_SOMNOLENCE_K * somnolence.get_val()))/zoom_factor * crouch_k
 end
 
 function force_disable_hard_hold()
-	return stamina.get_stamina() == 0 or actor_obj.condition.cant_sprint or actor_obj.condition.limping
+	return stamina.get_val() == 0 or somnolence.get_val() == 0 or actor_obj.condition.cant_sprint or actor_obj.condition.limping
 end
 
 function is_hard_hold()

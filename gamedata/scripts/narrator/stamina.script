@@ -7,7 +7,7 @@ function attach(sm)
 end
 
 local stamina = 1
-local stamina_dec = 1 / (read_if_exists(sys_ini, "r_u32", "actor_condition", "stamina_dec_time", 2) * 1000)
+local stamina_dec = -1 / (read_if_exists(sys_ini, "r_u32", "actor_condition", "stamina_dec_time", 3) * 1000)
 local stamina_inc = 1 / (read_if_exists(sys_ini, "r_u32", "actor_condition", "stamina_inc_time", 6) * 1000)
 local RECOIL_K = 0.1
 
@@ -22,27 +22,22 @@ function on_load(reader)
 end
 
 function on_update(delta)
-	local diff = 0
-	if ezi_control.get_hard_hold() then
-		diff = -stamina_dec
-	else
-		diff = stamina_inc
-	end
-	change_stamina(diff * delta)
+	local diff = ezi_control.get_hard_hold() and stamina_dec or (stamina_inc / (1 + somnolence.get_val()))
+	change_val(diff * delta)
 end
 
 function on_shell_drop(wpn, pos, vel)
 	local recoil = sys_ini:r_float(wpn:section(), "cam_dispersion") * RECOIL_K
 	if wpn:get_weapon().state == global_flags.eShutter then --//при смиканні затвору стаміну не витрачаємо
 	return end
-	change_stamina(-recoil)
+	change_val(-recoil)
 end
 
-function change_stamina(val)
+function change_val(val)
 	stamina = stamina + val
 	stamina = math.clamp(stamina, 0, 1)
 end
 
-function get_stamina()
+function get_val()
 	return stamina
 end

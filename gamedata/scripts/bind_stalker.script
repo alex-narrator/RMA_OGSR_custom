@@ -55,9 +55,7 @@ function actor_binder:net_spawn(data)
 	then
 		self.object:give_info_portion("storyline_actor_start")
 		_G.g_start_avi = true
-		printf("*AVI* RUN START AVI")
-		--//спавнимо спальн≥ м≥сц€
-		sleep_manager.create_mattresses()
+		self.sm:call("on_new_game_start")
 	end
 
 --		if not has_alife_info("encyclopedy") then
@@ -131,8 +129,6 @@ function actor_binder:net_destroy()
 	self.object:set_callback(callback.on_key_hold, nil)
 	self.object:set_callback(callback.on_mouse_wheel, nil)
 	--
-	self.object:set_callback(callback.map_relation_location_added, nil)
-	--
 	self.object:set_callback(callback.on_hud_state_switch, nil)
 	self.object:set_callback(callback.on_actor_weapon_zoom_in, nil)
 	self.object:set_callback(callback.on_actor_weapon_zoom_out, nil)
@@ -200,8 +196,6 @@ function actor_binder:reinit()
 	self.object:set_callback(callback.on_key_release, self.on_key_release, self)
 	self.object:set_callback(callback.on_key_hold, self.on_key_hold, self)
 	self.object:set_callback(callback.on_mouse_wheel, self.on_mouse_wheel, self)
-	--
-	self.object:set_callback(callback.map_relation_location_added, self.on_map_relation_location_added, self)
 	--
 	self.object:set_callback(callback.on_hud_state_switch, self.on_hud_state_switch, self)
 	self.object:set_callback(callback.on_actor_weapon_zoom_in, self.on_actor_weapon_zoom_in, self)
@@ -598,10 +592,6 @@ function actor_binder:on_key_hold(key, game_action)
 end
 function actor_binder:on_mouse_wheel(direction)
 	self.sm:call("on_mouse_wheel", direction)
-end
-
-function actor_binder:on_map_relation_location_added(spot, id)
-	self.sm:call("on_map_relation_location_added", spot, id)
 end
 
 function actor_binder:on_hud_state_switch(item, state, old_state)

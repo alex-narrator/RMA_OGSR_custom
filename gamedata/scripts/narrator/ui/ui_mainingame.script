@@ -2,14 +2,9 @@
 local OVERLAY_XML = "script_overlays\\mainingame_overlay.xml"
 local overlay = nil
 
-local m_boosters = {}
-
 function attach(sm)
 	sm:subscribe({signal = "on_spawn",   			fun = this.create_window})
 	sm:subscribe({signal = "on_destroy",   			fun = this.destroy_window})
-	sm:subscribe({signal = "on_update",   			fun = this.on_update})
-	sm:subscribe({signal = "on_booster_enable",   	fun = this.on_booster_enable})
-	sm:subscribe({signal = "on_booster_disable",   	fun = this.on_booster_disable})
 end
 
 local subscribed = false
@@ -25,23 +20,6 @@ function destroy_window()
 		overlay:DetachWnd()
 		overlay = nil
 	end
-end
-
-function on_update()
-	local conds = actor.conditions
-	if not conds.has_valid_time then return end
-	local dt_minutes = conds:fdelta_time()/60
-	for b_sect,b_time in pairs(m_boosters) do
-		m_boosters[b_sect] = b_time - dt_minutes
-	end
-end
-
-function on_booster_enable(booster)
-	m_boosters[booster.section] = booster.time
-end
-
-function on_booster_disable(booster)
-	m_boosters[booster.section] = nil
 end
 
 class "MainIngameOverlay" (CUIScriptWnd)
@@ -312,7 +290,7 @@ function MainIngameOverlay:UpdatePanelBoosters()
 	self.booster_panel:DetachAll()
 	pos_x = 0
 	pos_y = 0
-	for b_sect,b_time in pairs(m_boosters) do
+	for b_sect,b_time in pairs(boosters.get_all()) do
 		params = CIconParams(b_sect)
 		item_st = CUIStatic()
 		params:set_shader(item_st)
@@ -362,8 +340,8 @@ function MainIngameOverlay:Update()
 	CUIScriptWnd.Update(self)
 	self.health_bar:SetProgressPos(actor.health)
 	self.power_bar:SetProgressPos(actor.power)
-	self.stamina_bar:SetProgressPos(stamina.get_stamina())
-	self.stamina:Show(stamina.get_stamina()<1)
+	self.stamina_bar:SetProgressPos(stamina.get_val())
+	self.stamina:Show(stamina.get_val()<0.95)
 	local car = actor:get_holder() and actor:get_holder():get_car()
 	self.car:Show(car)
 	if car then

@@ -192,4 +192,6 @@ end
 --local pos = actor:position()
 -- log3("{level = '%s', pos = {%.2f, %.2f, %.2f}, radius = 3},", level.name(), pos.x, pos.y, pos.z)
 
-sleep_manager.write_place_pos_to_file()
+--sleep_manager.write_place_pos_to_file()
+
+--somnolence.change_val(1)

@@ -1,0 +1,123 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_save",   				fun = this.on_save})
+	sm:subscribe({signal = "on_load",   				fun = this.on_load})
+	sm:subscribe({signal = "on_update",   				fun = this.on_update})
+end
+
+local somnolence = 0
+local max_time_awake = read_if_exists(sys_ini, "r_u32", "actor_condition", "max_time_awake", 24) --//максимальний час неспання (за скільки ігрових годин сонливість сягне максимуму)
+local somnolence_v = 1 / (3600 * max_time_awake)
+local add_v = 0
+local last_time_called = false
+local effects_interval = 30 * 60 --//півгодини
+local RND_SLEEP_PROB = 5
+local MIN_RND_SLEEP_H, MAX_RND_SLEEP_H = 8, 12
+
+local eff_name = "snd_shock.ppe"
+local eff_id = 3000
+
+function on_save(packet)
+	packet:w_float(somnolence)
+end
+
+function on_load(reader)
+	if reader:r_eof() then
+	return end
+	somnolence = reader:r_float()
+end
+
+function on_update()
+	local conds = actor.conditions
+	if not conds.has_valid_time or sleep_manager.is_sleeping_now() then 
+	return end
+	change_val(get_v() * conds:fdelta_time())
+	--log3("somnolence delta on update %s", get_v() * conds:fdelta_time())
+	add_v = 0
+	process_effects()
+end
+
+function change_val(val)
+	somnolence = somnolence + val
+	somnolence = math.clamp(somnolence, 0, 1)
+end
+
+function get_val()
+	return somnolence
+end
+
+function get_v()
+	return somnolence_v + somnolence_v * add_v
+end
+
+function change_v(val)
+	add_v = add_v + val
+end
+
+function process_effects()
+	if somnolence < 0.5 then
+		last_time_called = false
+	return end
+	
+	local game_time = game.get_game_time()
+	
+	if not last_time_called then
+		last_time_called = game_time
+	return end
+	
+	local delta_time = game_time:diffSec(last_time_called)
+	
+	if delta_time < effects_interval then
+	return end
+	
+	run_effects()
+	
+	last_time_called = game_time
+end
+
+function run_effects()
+	level.add_pp_effector(eff_name, eff_id, false)
+	level.set_pp_effector_factor(eff_id, somnolence * 0.1)
+	level.add_cam_effector("camera_effects\\sleep.anm", eff_id+2, false, "somnolence.proceed_effect")
+end
+
+function proceed_effect()
+	if somnolence < 1 or math.random(0, 10) < RND_SLEEP_PROB then
+		xr_sound.get_safe_sound_object([[actor\sleep]]):play_no_feedback(actor, sound_object.s2d, 0, vector(), 15.0)
+	return end
+	sleep_manager.start_sleep(math.random(MIN_RND_SLEEP_H, MAX_RND_SLEEP_H), math.random(0, 59))
+end
+
+function get_influence(item)
+	return read_if_exists(sys_ini, "r_float", item:section(), "eat_somnolence", 0)
+end
+
+function get_influence_sect(sect)
+	return read_if_exists(sys_ini, "r_float", sect, "eat_somnolence", 0)
+end
+
+function apply_influence(item)
+	if get_influence(item) == 0 then
+	return end
+	change_val(get_influence(item))
+end
+
+function get_boost(item)
+	return read_if_exists(sys_ini, "r_float", item:section(), "boost_somnolence", 0)
+end
+
+function get_boost_sect(sect)
+	return read_if_exists(sys_ini, "r_float", sect, "boost_somnolence", 0)
+end
+
+function apply_boost(item)
+	if get_boost(item) == 0 then
+	return end
+	change_v(get_boost(item))
+end
+
+function apply_boost_sect(sect, dt)
+	if get_boost_sect(sect) == 0 then
+	return end
+	change_v(get_boost_sect(sect))
+end

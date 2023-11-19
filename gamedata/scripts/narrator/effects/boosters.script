@@ -1,0 +1,31 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+
+function attach(sm)
+	sm:subscribe({signal = "on_update",   			fun = this.on_update})
+	sm:subscribe({signal = "on_booster_enable",   	fun = this.on_booster_enable})
+	sm:subscribe({signal = "on_booster_disable",   	fun = this.on_booster_disable})
+end
+
+local m_boosters = {}
+
+function on_update()
+	local conds = actor.conditions
+	if not conds.has_valid_time then return end
+	local f_dt = conds:fdelta_time()
+	for b_sect,b_time in pairs(m_boosters) do
+		m_boosters[b_sect] = b_time - f_dt/60 --//у ігрових хвилинах
+		somnolence.apply_boost_sect(b_sect)
+	end
+end
+
+function on_booster_enable(booster)
+	m_boosters[booster.section] = booster.time
+end
+
+function on_booster_disable(booster)
+	m_boosters[booster.section] = nil
+end
+
+function get_all()
+	return m_boosters
+end

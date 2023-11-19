@@ -14,30 +14,13 @@ function is_3d_pda()
 end
 
 function create_window()
-	-- if not subscribed then
-		-- subscribed = {
-			-- {signal = "on_map_relation_location_added", fun = this.customize_relation_spot},
-		-- }
-		-- local sm = ogse_signals.get_mgr()
-		-- for _, s in ipairs( subscribed ) do
-			-- sm:subscribe( s )
-		-- end
-	-- end
-	
+
 	if not overlay then
 		overlay = PDAOverlay(level.get_pda_wnd())
 	end
 end
 
 function destroy_window()
-	-- if subscribed then
-		-- local sm = ogse_signals.get_mgr()
-		-- for _, s in ipairs( subscribed ) do
-			-- sm:unsubscribe( s )
-		-- end
-		-- subscribed = false
-	-- end
-	
 	if overlay then
 		overlay:DetachWnd()
 		overlay = nil
@@ -49,12 +32,6 @@ function skip_time(h, m)
 	level.change_game_time(0, h, m)
 	xr_sound.get_safe_sound_object("device\\pda\\pda_alarm",sound_object.s2d):play_at_pos(actor,actor:position())
 end
-
--- function customize_relation_spot(spot, id)
-	-- local npc = level.object_by_id(id)
-	-- local hint_text = string.format("%s%s\\n%s[%s]", color_by_relation[npc:relation(actor)], npc:character_name(), "%c[white]", game.translate_string(npc:character_community()))
-	-- level.map_change_spot_hint(id, spot, hint_text)
--- end
 
 class "PDAOverlay" (CUIScriptWnd)
 

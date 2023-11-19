@@ -311,6 +311,7 @@ local eatable_params = {
 	{st_name = "psyhealth", 	param_name = "ui_inv_psy_health"},
 	{st_name = "alcohol", 		param_name = "ui_inv_alcohol"},
 	{st_name = "wounds_heal", 	param_name = "ui_inv_wounds_heal"},
+	{st_name = "somnolence", 	param_name = "ui_inv_somnolence"},
 }
 local eatable_st = {}
 function attach_eatable_params(UIDesc, item)
@@ -324,13 +325,13 @@ function attach_eatable_params(UIDesc, item)
 	eatable_st = {}
 	local params_list = xml:InitScrollView("params_list", UIDesc)
 	for k,v in ipairs(eatable_params) do
-		val = eatable:get_influence(k-1)
+		val = v.st_name == "somnolence" and somnolence.get_influence(item) or eatable:get_influence(k-1)
 		if val ~= 0 then
 			sn = "%"
 			val = val * 100
 			eatable_st[k] = xml:InitStatic(v.st_name, params_list)
 			color = val > 0 and "%c[green]" or "%c[red]"
-			if v.st_name == "max_power" or v.st_name == "radiation" then
+			if v.st_name == "max_power" or v.st_name == "radiation" or v.st_name == "somnolence" then
 				color = val > 0 and "%c[red]" or "%c[green]"
 			end
 			text = string.format("%s %s %+.1f %s", game.translate_string(v.param_name), color, val, sn)
@@ -366,6 +367,7 @@ local boost_params = {
 	{st_name = "chemical_burn_boost", 	param_name = "ui_inv_chemical_burn_protection"},
 	{st_name = "explosion_boost", 		param_name = "ui_inv_explosion_protection"},
 	{st_name = "fire_wound_boost", 		param_name = "ui_inv_fire_wound_protection"},
+	{st_name = "somnolence", 			param_name = "ui_inv_somnolence"},
 }
 local boost_st = {}
 function attach_booster_params(UIDesc, item)
@@ -379,14 +381,14 @@ function attach_booster_params(UIDesc, item)
 	boost_st = {}
 	local params_list = xml:InitScrollView("params_list", UIDesc)
 	for k,v in ipairs(boost_params) do
-		val = eatable:get_boost(k-1)
+		val = v.st_name == "somnolence" and somnolence.get_boost(item) or eatable:get_boost(k-1)
 		-- log3("item %s | boost val %s | boost type %s", item:name(), val, v.st_name)
 		if val ~= 0 then
 			sn = "%"
 			val = val * 100
 			boost_st[k] = xml:InitStatic(v.st_name, params_list)
 			color = val > 0 and "%c[green]" or "%c[red]"
-			if v.st_name == "max_power" or v.st_name == "radiation" then
+			if v.st_name == "max_power" or v.st_name == "radiation" or v.st_name == "somnolence" then
 				color = val > 0 and "%c[red]" or "%c[green]"
 			end
 			text = string.format("%s %s %+.1f %s", game.translate_string(v.param_name), color, val, sn)
@@ -690,6 +692,7 @@ local ammo_params = {
 function attach_ammo_params(UIDesc, item)
 	local xml = CScriptXmlInit()
 	xml:ParseFile("script_overlays\\ammo_params.xml")
+	local show = false
 	local params_list = xml:InitScrollView("params_list", UIDesc)
 	local sect = item:section()
 	local val, static, text, def_val
@@ -700,7 +703,11 @@ function attach_ammo_params(UIDesc, item)
 			static = xml:InitStatic(v, params_list)
 			text = string.format((v == "k_ap" or v == "buck_shot") and "%s %.0f" or "%s %.1f", game.translate_string("ui_st_"..v), val)
 			static:SetText(text)
+			show = true
 		end
 	end
 	params_list:SetHeight(params_list:GetPadSize().y)
+	if not show then
+		params_list:Show(false)
+	end	
 end
