@@ -1808,6 +1808,10 @@ function drop_item_to_angle(owner, item, angle)
     owner:drop_item_and_throw(item, dir)	
 end
 
+function is_actor_looking_to_pos(pos, radius)
+	return level.is_ray_intersect_sphere(device().cam_pos, device().cam_dir, pos, radius) >= 0
+end
+
 function get_custom_logic_ini(obj)
 	local custom_logic_ini = read_if_exists(sys_ini, "r_string", obj:section(), "logic_cfg", nil)
 	if custom_logic_ini then

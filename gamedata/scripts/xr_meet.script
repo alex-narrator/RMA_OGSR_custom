@@ -3,7 +3,9 @@
 --	автор: Диденко Руслан (Stohe)
 --	TODO:
 ----------------------------------------------------------------------------------------------------------------------
-
+local ignore_everything_states = {
+  ["wounded_heavy"] = true,
+}
 ---------------------------------------------------------------------------------------------------------------------
 --Evaluators
 ----------------------------------------------------------------------------------------------------------------------
@@ -20,7 +22,7 @@ function evaluator_contact:evaluate()
 			return false
 		end
 	
-		if xr_wounded.is_wounded(self.object) then
+		if xr_wounded.is_wounded(self.object) or ignore_everything_states[state_mgr.get_state(self.object)] then
 			return false
 		end
 
@@ -182,7 +184,13 @@ function Cmeet_manager:update()
 		self.sound = "nil"
 		return
 	end
-	if self.a.precond == "visibility" and not self.npc:see(db.actor) and not self.npc:is_talking() then
+	--if self.a.precond == "visibility" and not self.npc:see(db.actor) and not self.npc:is_talking() then
+	local dist = actor:position():distance_to(self.npc:position())
+	if self.a.precond == "visibility" and not (
+		(not level.main_input_receiver() and self.npc:see(actor) and actor:see(self.npc) and level.get_target_obj() and level.get_target_obj():id() == self.npc:id() and dist < get_actor_obj().inventory.take_dist) or 
+		self.npc:is_talking()
+	)
+	then
 		self.state = "nil"
 		self.sound = "nil"
 		return
@@ -191,7 +199,7 @@ function Cmeet_manager:update()
 	if self.npc:is_talking() then
 		self.dist = 0
 	else
-		self.dist = self.npc:position():distance_to(db.actor:position())
+		self.dist = dist--self.npc:position():distance_to(db.actor:position())
 	end
 	
 	self.victim = self:process_victim()
@@ -287,7 +295,7 @@ function Cmeet_manager:process_victim()
 end
 function Cmeet_manager:get_key_from_distance(t)
 	local key
-	for k,v in pairs(t) do
+	for k,v in ipairs(t) do
 		if v.dist >= self.dist then 
 			key = k 
 		else
