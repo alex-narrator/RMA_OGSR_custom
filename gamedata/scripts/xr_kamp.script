@@ -9,8 +9,65 @@
 kamps = {}
 kamp_stalkers = {} -- могут ли сталкеры в лагере юзаться игроком.
 
+--//візуали у шоломах/протигазах яким нема в куди їсти (і на губній гармошці дудіти)
+local helmet_visuals = {
+	--//stalker
+	["actors\\novice\\green_stalker_antigas"] 			= true,
+	["actors\\neytral\\stalker_neytral_hood_9"] 		= true,
+	["actors\\neytral\\stalker_neytral_nauchniy"] 		= true,
+	["actors\\neytral\\stalker_neytral_exoskeleton"] 	= true,
+	--//bandit
+	["actors\\bandit\\stalker_bandit_8"] 				= true,
+	--//killer
+	["actors\\killer\\stalker_ki_exoskeleton"] 			= true,
+	--//dolg
+	["actors\\dolg\\stalker_do_antigas"] 				= true,
+	["actors\\dolg\\stalker_do_nauchniy"] 				= true,
+	["actors\\dolg\\stalker_do_exoskeleton"] 			= true,
+	--//freedom
+	["actors\\svoboda\\stalker_sv_hood_9"] 				= true,
+	["actors\\svoboda\\stalker_sv_nauchniy"] 			= true,
+	["actors\\svoboda\\stalker_sv_exoskeleton"] 		= true,
+	--//ecolog
+	["actors\\ecolog\\stalker_ecolog"] 					= true,
+	["actors\\ecolog\\stalker_ecolog_military"] 		= true,
+	--//zombied
+	["actors\\stalker_zombi\\zombie_exoskeleton"] 		= true,
+	--//monolith
+	["actors\\monolit\\stalker_mo_hood_9"] 				= true,
+	["actors\\monolit\\stalker_mo_nauchniy"] 			= true,
+	["actors\\monolit\\stalker_mo_exo"] 				= true,
+	--//military
+	["actors\\militari\\stalker_militari_antigas_2"] 	= true,
+}
+
+local dont_check_community = {
+	["monolith"] = true,
+	["zombied"] = true,
+}
+
 -- Объявления итераторов
 local k,v,kk,vv = 0,0,0,0
+
+function attach( sm )
+  sm:subscribe({ signal = "on_spawn",         fun = this.on_spawn })
+end
+
+function on_spawn()
+	load_stories()
+end
+
+
+local known_stories = {}
+function load_stories()
+  local sect = "stories_known_info"
+  local n    = sys_ini:line_count( sect )
+    for i = 0, n - 1 do
+      local res, id, value = sys_ini:r_line( sect, i, "", "" )
+      table.insert( known_stories, id )
+	  log3("~add story named %s", id)
+    end
+end
 ---------------------------------------------------------------------------------------------------------------------
 --Evaluators
 ----------------------------------------------------------------------------------------------------------------------
@@ -405,12 +462,15 @@ function CKampManager:proceedRole(npc, director)
 		end
 		
 		-- Если мы решили говорить историю, надо выбрать какую именно говорить.
-		if sound == "play_story" and self.selected_story == nil and db.story_by_id[npc_id] ~= nil then
-			local story_num = table.getn(db.story_by_id[npc_id])
-			if story_num > 0 then
-				self.selected_story = db.story_by_id[npc_id][math.random(story_num)]
-			end			
+		if sound == "play_story" and not self.selected_story then
+			self:select_story(npc)
 		end
+		-- if sound == "play_story" and self.selected_story == nil and db.story_by_id[npc_id] ~= nil then
+			-- local story_num = table.getn(db.story_by_id[npc_id])
+			-- if story_num > 0 then
+				-- self.selected_story = db.story_by_id[npc_id][math.random(story_num)]
+			-- end			
+		-- end
 
 		self.npc[npc_id].begin = time_global()
 		state = temp[math.random(table.getn(temp))]
@@ -568,89 +628,47 @@ function CKampManager:updateNpc(npc)
 	return state, sound, substate
 end
 function CKampManager:checkNpcAbility(npc)
-	local npc_id = npc:id()
 	
-	if npc:character_community() ~= "monolith" and
-	   npc:character_community() ~= "zombied"
-	then
-		-- есть колбасу
-		if npc:object("kolbasa") then
-			self.npc[npc_id].states["eat_kolbasa"] = true
-		else
-			self.npc[npc_id].states["eat_kolbasa"] = false
-		end
-		-- пить водку
-		if npc:object("vodka") then
-			self.npc[npc_id].states["eat_vodka"] = true
-		else
-			self.npc[npc_id].states["eat_vodka"] = false
-		end
-		-- пить енергитический напиток
-		if npc:object("energy_drink") then
-			self.npc[npc_id].states["eat_energy"] = true
-		else
-			self.npc[npc_id].states["eat_energy"] = false
-		end
-		-- есть хлеб
-		if npc:object("bread") then
-			self.npc[npc_id].states["eat_bread"] = true
-		else
-			self.npc[npc_id].states["eat_bread"] = false
-		end
-		-- играть на гармошке
-		if npc:object("harmonica_a") then
-			self.npc[npc_id].states["play_harmonica"] = true
-			self.npc[npc_id].states["wait_harmonica"] = true
-			self.kamp_states["pre_harmonica"] = true
-			self.kamp_states["harmonica"] = true
-			self.kamp_states["post_harmonica"] = true
-		else
-			self.npc[npc_id].states["play_harmonica"] = false
-			self.npc[npc_id].states["wait_harmonica"] = false
-			self.kamp_states["pre_harmonica"] = false
-			self.kamp_states["harmonica"] = false
-			self.kamp_states["post_harmonica"] = false
-		end
-		-- играть на гитаре
-		if npc:object("guitar_a") then
-			self.npc[npc_id].states["play_guitar"] = true
-			self.npc[npc_id].states["wait_guitar"] = true
-			self.kamp_states["pre_guitar"] = true
-			self.kamp_states["guitar"] = true
-			self.kamp_states["post_guitar"] = true
-		else
-			self.npc[npc_id].states["play_guitar"] = false
-			self.npc[npc_id].states["wait_guitar"] = false
-			self.kamp_states["pre_guitar"] = false
-			self.kamp_states["guitar"] = false
-			self.kamp_states["post_guitar"] = false
-		end
-		-- анекдоты
-		if self.population > 1 then
-			self.kamp_states["pre_joke"] = true
-			self.kamp_states["joke"] = true
-			self.kamp_states["post_joke"] = true
-		else
-			self.kamp_states["pre_joke"] = false
-			self.kamp_states["joke"] = false
-			self.kamp_states["post_joke"] = false
-		end	
-		-- курить
-		if npc:object("sigaret") then
-			self.npc[npc_id].states["eat_sigaret"] = true
-		else
-			self.npc[npc_id].states["eat_sigaret"] = false
-		end 
-	end
+	if dont_check_community[npc:character_community()] then
+	return end
+	
+	local npc_id = npc:id()
+	local allowed = false
+	
+	-- есть колбасу
+	self.npc[npc_id].states["eat_kolbasa"] = npc:object("kolbasa") and self.npc[npc_id].can_eat
+	-- пить водку
+	self.npc[npc_id].states["eat_vodka"] = npc:object("vodka") and self.npc[npc_id].can_eat
+	-- пить енергитический напиток
+	self.npc[npc_id].states["eat_energy"] = npc:object("energy_drink") and self.npc[npc_id].can_eat
+	-- есть хлеб
+	self.npc[npc_id].states["eat_bread"] = npc:object("bread") and self.npc[npc_id].can_eat
+	-- курить
+	self.npc[npc_id].states["eat_sigaret"] = npc:object("sigaret") and self.npc[npc_id].can_eat		
+	-- играть на гармошке
+	allowed = npc:object("harmonica_a") and self.npc[npc_id].can_eat
+	self.npc[npc_id].states["play_harmonica"] = allowed
+	self.npc[npc_id].states["wait_harmonica"] = allowed
+	self.kamp_states["pre_harmonica"] = allowed
+	self.kamp_states["harmonica"] = allowed
+	self.kamp_states["post_harmonica"] = allowed
+	-- играть на гитаре
+	allowed = npc:object("guitar_a")
+	self.npc[npc_id].states["play_guitar"] = allowed
+	self.npc[npc_id].states["wait_guitar"] = allowed
+	self.kamp_states["pre_guitar"] = allowed
+	self.kamp_states["guitar"] = allowed
+	self.kamp_states["post_guitar"] = allowed
+	-- анекдоты
+	allowed = self.population > 1
+	self.kamp_states["pre_joke"] = allowed
+	self.kamp_states["joke"] = allowed
+	self.kamp_states["post_joke"] = allowed
 	
 	-- Если чувак знает истории, надо добавить их к лагерю
-	if self.population > 1 and db.story_by_id[npc:id()] ~= nil then
-		self.kamp_states["story"] = true
-		self.kamp_states["post_story"] = true
-	else
-		self.kamp_states["story"] = false
-		self.kamp_states["post_story"] = false	
-	end
+	allowed = self.population > 1 --and db.story_by_id[npc:id()]
+	self.kamp_states["story"] = allowed
+	self.kamp_states["post_story"] = allowed
 end
 function CKampManager:addNpc(npc)
 	printf("KAMP [%s] add npc", npc:name())
@@ -673,10 +691,11 @@ function CKampManager:addNpc(npc)
 								play_harmonica = false, play_guitar = false, play_joke = false, play_story = false}}
 	end
 	self:selectPosition(npc:id())	
-	if db.story_by_id[npc:id()] == nil then
-		local char_ini1 = ini_file("scripts\\stories.ltx")
-		xr_info.loadInfo(npc, char_ini1)
-    end
+	-- if db.story_by_id[npc:id()] == nil then
+		-- local char_ini1 = ini_file("scripts\\stories.ltx")
+		-- xr_info.loadInfo(npc, char_ini1)
+    -- end
+	self.npc[npc:id()].can_eat = not helmet_visuals[npc:get_visual_name()]
 end
 function CKampManager:removeNpc(npc)
 	printf("KAMP [%s] remove npc", npc:name())
@@ -705,6 +724,23 @@ function CKampManager:increasePops(npc)
 end
 function CKampManager:decreasePops(npc)
 	self.population = self.population - 1
+end
+
+function CKampManager:select_story(npc)
+  local t = known_stories
+  local story_by_id = db.story_by_id[npc:id()]
+  if story_by_id and table.getn(story_by_id) > 0 then
+    t = {}
+    for _, v in ipairs(known_stories) do
+      table.insert(t, v)
+    end
+    for _, v in ipairs(story_by_id) do
+      table.insert(t, v)
+    end
+  end
+  self.selected_story = t[ math.random(table.getn(t))]
+  log3("~give info %s to npc %s", self.selected_story, npc:character_name())
+  npc:give_info_portion( self.selected_story )
 end
 ----------------------------------------------------------------------------------------------------------------------
 --Kamp binder
