@@ -165,6 +165,7 @@ function motivator_binder:hit_callback(obj, amount, local_direction, who, bone_i
 		sr_territory.issue_event(self.object, "hit_callback", obj, amount, local_direction, who, bone_index)
 		xr_wounded.hit_callback(self.object:id())
 	end
+	self.sm:call("on_hit_npc", obj, amount, local_direction, who, bone_index)
 end
 
 function motivator_binder:death_callback(victim, who)

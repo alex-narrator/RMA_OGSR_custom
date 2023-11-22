@@ -498,39 +498,39 @@ function atach_wpn_params(UIDesc, obj)
 	xml:ParseFile("script_overlays\\weapon_params.xml")
 	local main = xml:InitStatic("wpn_params", UIDesc)
 	
-	local cap_accuracy 		= xml:InitStatic("wpn_params:cap_accuracy", main)
+	local cap_dispersion 	= xml:InitStatic("wpn_params:cap_dispersion", main)
 	local cap_damage 		= xml:InitStatic("wpn_params:cap_damage", main)
 	local cap_handling 		= xml:InitStatic("wpn_params:cap_handling", main)
 	local cap_rpm 			= xml:InitStatic("wpn_params:cap_rpm", main)
 	local cap_range 		= xml:InitStatic("wpn_params:cap_range", main)
 	local cap_reliability 	= xml:InitStatic("wpn_params:cap_reliability", main)
 		
-	local progress_accuracy 	= xml:InitProgressBar("wpn_params:progress_accuracy", main)
+	local progress_dispersion 	= xml:InitProgressBar("wpn_params:progress_dispersion", main)
 	local progress_damage 		= xml:InitProgressBar("wpn_params:progress_damage", main)
 	local progress_handling 	= xml:InitProgressBar("wpn_params:progress_handling", main)
 	local progress_rpm 			= xml:InitProgressBar("wpn_params:progress_rpm", main)
 	local progress_range 		= xml:InitProgressBar("wpn_params:progress_range", main)
 	local progress_reliability 	= xml:InitProgressBar("wpn_params:progress_reliability", main)
 	
-	local text = string.format("%s (%.2f)", cap_accuracy:GetText(), ui_wpn_params.GetAccuracy(obj))
-	cap_accuracy:SetText(text)
-	text = string.format("%s (%.1f)", cap_damage:GetText(), ui_wpn_params.GetDamage(obj))
+	local text = string.format("%s (%.2f)", cap_dispersion:GetText(), wpn_params.GetDispersion(obj))
+	cap_dispersion:SetText(text)
+	text = string.format("%s (%.1f)", cap_damage:GetText(), wpn_params.GetDamage(obj))
 	cap_damage:SetText(text)
-	text = string.format("%s (%.1f)", cap_handling:GetText(), ui_wpn_params.GetHandling(obj))
+	text = string.format("%s (%.1f)", cap_handling:GetText(), wpn_params.GetHandling(obj))
 	cap_handling:SetText(text)
-	text = string.format("%s (%.0f)", cap_rpm:GetText(), ui_wpn_params.GetRPM(obj))
+	text = string.format("%s (%.0f)", cap_rpm:GetText(), wpn_params.GetRPM(obj))
 	cap_rpm:SetText(text)	
-	text = string.format("%s (%.0f)", cap_range:GetText(), ui_wpn_params.GetRange(obj))
+	text = string.format("%s (%.0f)", cap_range:GetText(), wpn_params.GetRange(obj))
 	cap_range:SetText(text)	
-	text = string.format("%s (%.0f)", cap_reliability:GetText(), ui_wpn_params.GetReliability(obj))
+	text = string.format("%s (%.0f)", cap_reliability:GetText(), wpn_params.GetReliability(obj))
 	cap_reliability:SetText(text)		
 	
-	progress_accuracy:SetProgressPos(ui_wpn_params.GetAccuracy(obj))
-	progress_damage:SetProgressPos(ui_wpn_params.GetDamage(obj))
-	progress_handling:SetProgressPos(ui_wpn_params.GetHandling(obj))
-	progress_rpm:SetProgressPos(ui_wpn_params.GetRPM(obj))
-	progress_range:SetProgressPos(ui_wpn_params.GetRange(obj))
-	progress_reliability:SetProgressPos(ui_wpn_params.GetReliability(obj))
+	progress_dispersion:SetProgressPos(wpn_params.GetDispersion(obj))
+	progress_damage:SetProgressPos(wpn_params.GetDamage(obj))
+	progress_handling:SetProgressPos(wpn_params.GetHandling(obj))
+	progress_rpm:SetProgressPos(wpn_params.GetRPM(obj))
+	progress_range:SetProgressPos(wpn_params.GetRange(obj))
+	progress_reliability:SetProgressPos(wpn_params.GetReliability(obj))
 end
 
 ------------------------------------------LOADED WEAPON AMMO WND-----------------------------------------------------------------------------------------------------------------
@@ -678,16 +678,16 @@ end
 
 -----------------------------------------------------AMMO PARAMS------------------------------------------------------------------------------------------------------------------------
 local ammo_params = {
-		"k_dist",
-		"k_disp",
-		"k_hit",
-		"k_impulse",
-		"k_pierce",
-		"k_ap",
-		"k_speed",
-		"k_air_resistance",
-		"buck_shot",
-		"impair",
+		{name = "k_dist", 			unit = "%", 					default = 0, is_int = false},
+		{name = "k_disp", 			unit = "%", 					default = 0, is_int = false},
+		{name = "k_hit", 			unit = "%", 					default = 0, is_int = false},
+		{name = "k_impulse", 		unit = "%", 					default = 0, is_int = false},
+		{name = "k_pierce", 		unit = "", 						default = 1, is_int = false},
+		{name = "k_ap", 			unit = "st_armor_class", 		default = 0, is_int = true},
+		{name = "k_speed", 			unit = "%", 					default = 0, is_int = false},
+		{name = "k_air_resistance", unit = "%", 					default = 0, is_int = false},
+		{name = "buck_shot", 		unit = "", 						default = 1, is_int = true},
+		{name = "impair", 			unit = "%", 					default = 0, is_int = false},
 	}
 function attach_ammo_params(UIDesc, item)
 	local xml = CScriptXmlInit()
@@ -695,13 +695,12 @@ function attach_ammo_params(UIDesc, item)
 	local show = false
 	local params_list = xml:InitScrollView("params_list", UIDesc)
 	local sect = item:section()
-	local val, static, text, def_val
+	local val, static, text
 	for k,v in ipairs(ammo_params) do
-		def_val = (v == "k_pierce" or v == "buck_shot") and 1 or 0
-		val = read_if_exists(sys_ini, "r_float", sect, v, def_val)
-		if val ~= def_val then
-			static = xml:InitStatic(v, params_list)
-			text = string.format((v == "k_ap" or v == "buck_shot") and "%s %.0f" or "%s %.1f", game.translate_string("ui_st_"..v), val)
+		val = read_if_exists(sys_ini, "r_float", sect, v.name, v.default)
+		if val ~= v.default then
+			static = xml:InitStatic(v.name, params_list)
+			text = string.format(v.is_int and "%s %.0f %s" or "%s %+.1f %s", game.translate_string("ui_st_"..v.name), val, game.translate_string(v.unit))
 			static:SetText(text)
 			show = true
 		end
