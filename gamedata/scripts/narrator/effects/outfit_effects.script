@@ -84,7 +84,7 @@ function on_slot(obj, prev_place)
 	add_update_delayed_action(1,
 		function()
 			if not xr_conditions.black_screen() then
-				xr_sound.get_safe_sound_object(hud_snd,sound_object.s2d):play_at_pos(actor,actor:position())
+				xr_sound.get_safe_sound_object(hud_snd,sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
 				level.add_complex_effector(hud_effector_name, hud_effector_id)
 			end
 			enable_effects(obj)
@@ -99,7 +99,7 @@ function on_non_slot(obj, prev_place)
 	if not allowed_item(obj) then
 	return end
 	
-	xr_sound.get_safe_sound_object(hud_snd,sound_object.s2d):play_at_pos(actor,actor:position())
+	xr_sound.get_safe_sound_object(hud_snd,sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
 	level.add_complex_effector(hud_effector_name, hud_effector_id)	
 	disable_effects(obj, prev_place)
 end
@@ -219,7 +219,7 @@ function update_mask_texture()
 		last_cond_idx = cond_idx
 		
 		if last_cond_idx == 2 then
-			brake_sound:play_at_pos(actor, actor:position())
+			brake_sound:play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor, actor:position())
 		end
 	end
 end

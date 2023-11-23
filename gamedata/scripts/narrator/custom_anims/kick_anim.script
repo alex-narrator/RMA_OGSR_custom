@@ -57,7 +57,7 @@ function on_key_press(key, game_action)
 	-- level.add_complex_effector(eff_name, hud_effector_id)
 	
 	local sound_name = "interface\\kick\\swing\\swing_"..math.random(1,6)
-	xr_sound.get_safe_sound_object(sound_name,sound_object.s2d):play_at_pos(actor,actor:position())
+	xr_sound.get_safe_sound_object(sound_name,sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
 	
 	add_time_delayed_action(
 		read_if_exists(sys_ini, "r_float", hud_sect, "use_delay", 0.5),
@@ -130,5 +130,5 @@ function kick()
 			sound_name = "interface\\kick\\wood\\wood_"..math.random(1,4)
 		end
 	end
-	xr_sound.get_safe_sound_object(sound_name, sound_object.s2d):play_at_pos(target,target:position())
+	xr_sound.get_safe_sound_object(sound_name, sound_object.s2d):play_no_feedback(target, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(target,target:position())
 end

@@ -16,7 +16,7 @@ local snd
 function misfire()
 	snd = missfire_react[math.random(#missfire_react)]
 	if not snd:playing() and device():time_global() > last_time_played + delay then
-		snd:play_at_pos(actor,actor:position())
+		snd:play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
 		last_time_played = device():time_global()
 	end
 end
@@ -24,7 +24,7 @@ end
 function fatigue()
 	snd = fatigue_react[math.random(#fatigue_react)]
 	if not snd:playing() and device():time_global() > last_time_played + delay then
-		snd:play_at_pos(actor,actor:position())
+		snd:play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
 		last_time_played = device():time_global()
 	end
 end

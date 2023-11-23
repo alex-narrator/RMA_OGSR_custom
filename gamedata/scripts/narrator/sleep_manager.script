@@ -176,7 +176,7 @@ function start_sleep(h, m)
 	level.disable_input()
 	level.add_pp_effector("sleep_fade.ppe", 11, false)
 	level.add_cam_effector("camera_effects\\sleep.anm", 10, false, "sleep_manager.play_start_sleep")
-	xr_sound.get_safe_sound_object([[actor\sleep]]):play_no_feedback(db.actor, sound_object.s2d, 0, vector(), 15.0)
+	xr_sound.get_safe_sound_object([[actor\sleep]]):play_no_feedback(actor, sound_object.s2d, 0, vector(), 15.0)
 	is_sleeping = true
 end
 

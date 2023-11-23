@@ -24,7 +24,7 @@ function play_sound(anomaly, power, dt)
 	if snd_time > current_snd_time then
 		if not snd:playing() then
 			sound_time[anomaly:id()] = 0
-			snd:play_at_pos(actor,actor:position())
+			snd:play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
 		end
 	else
 		sound_time[anomaly:id()] = sound_time[anomaly:id()] + dt

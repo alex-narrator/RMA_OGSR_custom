@@ -1,7 +1,19 @@
 [logic]
-active = mob_walker@idle
+;active = mob_walker@idle
+active = mob_remark@idle
+
+[mob_remark@idle]
+anim = sit_idle
+on_info = {=is_rain} mob_walker@booth, {!is_rain is_day} mob_walker@idle
 
 [mob_walker@idle]
 path_walk = swm_doctors_dog_idle_walk
 path_look = swm_doctors_dog_idle_look
 friendly = true
+on_info = {=is_rain} mob_walker@booth, {!is_day} mob_walker@booth
+
+[mob_walker@booth]
+path_walk = swm_doctors_dog_rain_walk
+path_look = swm_doctors_dog_rain_look
+friendly = true
+on_info = {!is_rain =is_day} mob_walker@idle
