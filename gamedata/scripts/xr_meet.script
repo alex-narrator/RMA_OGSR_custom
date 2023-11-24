@@ -131,12 +131,12 @@ function action_meet_wait:execute ()
 	end
 
 	--' Туториал на спрятать оружие
-	if meet_manager.disable_talk_weapon == true and 
-       not has_alife_info("tutorial_part_15_hide_weapon") 
-	then
-		game.start_tutorial("part_15_hide_weapon")
-		db.actor:give_info_portion("tutorial_part_15_hide_weapon")		
-	end
+	-- if meet_manager.disable_talk_weapon == true and 
+       -- not has_alife_info("tutorial_part_15_hide_weapon") 
+	-- then
+		-- game.start_tutorial("part_15_hide_weapon")
+		-- db.actor:give_info_portion("tutorial_part_15_hide_weapon")		
+	-- end
 
 	local tt = db.storage[self.object:id()]
 	if tt.active_scheme then
@@ -184,12 +184,15 @@ function Cmeet_manager:update()
 		self.sound = "nil"
 		return
 	end
-	--if self.a.precond == "visibility" and not self.npc:see(db.actor) and not self.npc:is_talking() then
 	local dist = actor:position():distance_to(self.npc:position())
-	if self.a.precond == "visibility" and not (
-		(not level.main_input_receiver() and self.npc:see(actor) and actor:see(self.npc) and level.get_target_obj() and level.get_target_obj():id() == self.npc:id() and dist < get_actor_obj().inventory.take_dist) or 
-		self.npc:is_talking()
-	)
+	if self.a.precond == "visibility" and 
+		(
+			level.main_input_receiver() or 
+			not self.npc:see(actor) or 
+			not is_actor_looking_to_pos(self.npc:center(), self.npc:radius()) or 
+			self.npc:is_talking() or 
+			level.main_input_receiver()
+		)
 	then
 		self.state = "nil"
 		self.sound = "nil"

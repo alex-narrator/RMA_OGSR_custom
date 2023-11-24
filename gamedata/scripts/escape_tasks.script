@@ -1,6 +1,4 @@
 function proceed()
-    local actor = db.actor
-	
 	if has_alife_info("tutorial_artefact_start") and
 		not has_alife_info("tutorial_artefact_gain") and 
 		actor:object("af_blood_tutorial") ~= nil 
@@ -145,34 +143,15 @@ function proceed()
 end
 
 function task_lager_complete()
-	if has_alife_info("escape_lager_help") and
-		has_alife_info("escape_lager_killers_die") and
-	   (has_alife_info("esc_fanat_die") or
-	   has_alife_info("escape_lager_complete"))
-	then
-		return true
-	else
-		return false
-	end
+	return has_alife_info("escape_lager_help") and has_alife_info("escape_lager_killers_die") and (has_alife_info("esc_fanat_die") or has_alife_info("escape_lager_complete"))
 end	
 
 function kill_tutorial_bandits()
-	if has_alife_info("esc_first_novice_dead") and
-		has_alife_info("esc_second_novice_dead")
-	then
-		return true
-	else
-		return false
-	end
+	return has_alife_info("esc_first_novice_dead") and has_alife_info("esc_second_novice_dead")
 end
 
 function task_volk_fail()
-	if has_alife_info("esc_wolf_dead")
-	then
-		return true
-	else
-		return false
-	end
+	return has_alife_info("esc_wolf_dead")
 end	
 
 function petruha_talk()
@@ -231,10 +210,10 @@ function process_info_portion(info_id)
 	--' пометки на карте
 	
 	if info_id == "esc_tutorial_secret_place" then
-		level_tasks.add_location(025, "green_location", "tutorial_secret_place1")
+		level_tasks.add_location(025, "crlc_small", "tutorial_secret_place1")
 		
 	elseif info_id == "esc_tutorial_secret_place_found" then
-		level_tasks.remove_location(025, "green_location")
+		level_tasks.remove_location(025, "crlc_small")
 		
 	elseif info_id == "esc_kolyan_lost" then
 		level_tasks.add_location(028, "crlc_big", "esc_mill")
