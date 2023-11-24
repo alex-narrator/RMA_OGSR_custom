@@ -3,12 +3,21 @@
 -- здесь надо регистрировать модули, которые не будут подключаться автоматически
 -- например те, у которых имя модуля не начинается на ogse
 addons = {
+	"storyline",
 	"sound_theme",
 	"xr_kamp",
 	"treasure_manager",
 	"inventory",
+	
+	--//ПОЧАТОК - модулі що використовують on_save/on_load актора
+	--//порядок реєстрації важливий для консистентності даних у нетпакеті!
 	"quick_slots",
 	"loadout",
+	"stamina",
+	"nvd",
+	"somnolence",
+	--//КІНЕЦЬ - модулі що використовують on_save/on_load актора
+	
 	"boosters",
 	"mir_dof_effect",
 	"pda_effects",
@@ -26,9 +35,6 @@ addons = {
 	"harvest",
 	"artefact_activation",
 	"xr_statistic",
-	"stamina",
-	"nvd",
-	"somnolence",
 	"torch",
 	"ezi_control",
 	"ui_pda",

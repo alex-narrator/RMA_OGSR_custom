@@ -691,10 +691,7 @@ function CKampManager:addNpc(npc)
 								play_harmonica = false, play_guitar = false, play_joke = false, play_story = false}}
 	end
 	self:selectPosition(npc:id())	
-	-- if db.story_by_id[npc:id()] == nil then
-		-- local char_ini1 = ini_file("scripts\\stories.ltx")
-		-- xr_info.loadInfo(npc, char_ini1)
-    -- end
+
 	self.npc[npc:id()].can_eat = not helmet_visuals[npc:get_visual_name()]
 end
 function CKampManager:removeNpc(npc)

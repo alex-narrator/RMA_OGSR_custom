@@ -3230,9 +3230,9 @@ local function initialize()
 	if not sim then sim = alife() end
 	local sini = system_ini() --/ cache function 'system_ini'
 	--/ читаем конфиг-файл модуля
-	local ltx = ini_file("mods\\"..sModule..".ltx") --/ объект конфиг-файла (из папки мода)
+	local ltx = ini_file_cached("mods\\"..sModule..".ltx") --/ объект конфиг-файла (из папки мода)
 	if not ltx:section_exist("clsid_to_class") then
-		ltx = ini_file(sModule..".ltx") --/ проверяем в корневой папке конфиг-файлов
+		ltx = ini_file_cached(sModule..".ltx") --/ проверяем в корневой папке конфиг-файлов
 	end
 	if ltx:section_exist("clsid_to_class") then
 		--/ установка параметров (режимов) работы модуля

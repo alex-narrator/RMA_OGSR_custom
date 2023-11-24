@@ -15,11 +15,11 @@ local always_keep_item = {}
 --' Предметы, относящиеся к патронам. Их надо спаунить другим методом.
 local ammo_sections = {}
 
-local death_ini = ini_file("misc\\death_generic.ltx")
+local death_ini = ini_file_cached("misc\\death_generic.ltx")
 
 
 function init_drop_settings()
-  local community_list = { "stalker", "dolg", "freedom", "bandit", "military", "zombied", "ecolog", "killer", "monolith", "arena_enemy", "actor_dolg", "stranger" } 
+  local community_list = { "stalker", "dolg", "freedom", "bandit", "military", "zombied", "ecolog", "killer", "monolith", "arena_enemy", "stranger" } 
 
     for k,v in pairs(community_list) do
         --' Необходимо заполнить таблицу

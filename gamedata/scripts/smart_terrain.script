@@ -1040,7 +1040,7 @@ function se_smart_terrain:stat_get_accepted_communities()
 	local comms = {}
 
 	-- from preset
-	local ltx         = ini_file( "misc\\" .. self.gparams.type .. ".ltx" )
+	local ltx         = ini_file_cached( "misc\\" .. self.gparams.type .. ".ltx" )
 	local preset_name = self.gparams.preset_name
 
 	if ltx and ltx:section_exist( preset_name ) then

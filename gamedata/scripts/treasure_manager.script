@@ -45,7 +45,7 @@ end
 class "CTreasure"
 function CTreasure:__init()
 	--' На конструкторе вычитываем LTX и создаем заготовки квестов.
-	self.ini = ini_file("misc\\treasure_manager.ltx")
+	self.ini = ini_file_cached("misc\\treasure_manager.ltx")
 
 	--' Итерируемся по всем настройкам фраз
 	if not self.ini:section_exist("list") then
@@ -182,10 +182,10 @@ function CTreasure:give_treasure(k)
 		local pos, lvid, gvid, pid, new_obj
 		local need_workaround = level.object_by_id(obj.id) ~= nil
 		if need_workaround then
-			pos = db.actor:position()
-			lvid = db.actor:level_vertex_id()
-			gvid = db.actor:game_vertex_id()
-			pid = db.actor:id()
+			pos = actor:position()
+			lvid = actor:level_vertex_id()
+			gvid = actor:game_vertex_id()
+			pid = actor:id()
 		else
 			pos = obj.position
 			lvid = obj.m_level_vertex_id

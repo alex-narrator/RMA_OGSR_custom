@@ -11,16 +11,16 @@ reputation_names	= terrible, -1000, very_bad, -150, bad, -50, neutral, 50, good,
 goodwill_names      = enemy, -400, indifferent, 500, friendly
 
 ;пороговые значения для отношения персонажей
-attitude_neutal_threshold = -400		;когда attitude меньше значения, то выставляется ALife::eRelationEnemy
+attitude_neutral_threshold = -400		;когда attitude меньше значения, то выставляется ALife::eRelationEnemy
 attitude_friend_threshold =  500		;когда attitude меньше значения, то выставляется ALife::eRelationNeutral, иначе ALife::eRelationFriend
 
 ;константы, которые присвоят скриптовые функции set_relation для personal goodwill
 goodwill_enemy  = -1000
-goodwill_neutal = 0 
+goodwill_neutral = 0 
 goodwill_friend = 1000
 
 ;названия группировок
-communities		= actor, 0, actor_dolg, 1, actor_freedom, 2, stalker, 5, monolith, 6, military, 7, killer, 8, ecolog, 9, dolg, 10, freedom, 11, bandit, 12, zombied, 13, stranger, 14, trader, 15, arena_enemy, 16
+communities		= stalker, 0, monolith, 1, military, 2, killer, 3, ecolog, 4, dolg, 5, freedom, 6, bandit, 7, zombied, 8, stranger, 9, trader, 10, arena_enemy, 11
 
 
 ;	отношение персонажа к актеру (или другому NPC) вычисляется по формуле
@@ -31,24 +31,20 @@ communities		= actor, 0, actor_dolg, 1, actor_freedom, 2, stalker, 5, monolith, 
 ;			   rank_goodwill					//отношение ранга персонажа к рангу актера из [rank_relations]
 
 [communities_relations]
-;				|actor  |act_dol|act_fre|stalker|monolit|militar|killer |ecolog |dolg   |freedom|bandit |zombied|stranger|trader |arena_enemy|
+;				  |stalker|monolith|military|killer|ecolog|   dolg|freedom| bandit|zombied|stranger| trader|arena_enemy|
 ;=================================================================================================================================
-actor		=		   0,	   0,	   0,	   0,  -5000,  -5000,  -5000,      0,	   0,	   0,  -5000,  -5000,	   0,	  0,  -5000
-actor_dolg	=		   0,	   0,	   0,      0,  -5000,   -500,  -5000,   5000,    600,  -5000,  -5000,  -5000,	   0,	  0,  -5000
-actor_freedom =		   0,	   0,	   0,	   0,  -5000,  -5000,  -1000,  -1500,  -5000,   600,	   0,  -5000,	   0,	  0,  -5000
-
-stalker		=		   0,	   0,	   0,	   0,  -5000,  -5000,  -5000,      0,	   0,	   0,  -5000,  -5000,	   0,	  0,  -5000
-monolith	=	   -5000,  -5000,  -5000,  -5000,   5000,  -5000,  -5000,  -5000,  -5000,  -5000,   800,   5000,   -5000,	  0,  -5000
-military	=	   -5000,  -5000,  -5000,  -5000,  -5000,   5000,  -5000,      0,  -5000,  -5000,  -5000,  -5000, 	   0,	  0,  -5000
-killer		=	   -5000,  -5000,  -1000,  -5000,  -5000,  -5000,   5000,  -5000,  -5000,  -1000,	   0,  -5000,      0,	  0,  -5000
-ecolog		=		   0,	 600,  -5000,      0,  -5000,   1000,  -5000,   5000,    500,  -5000,   -500,  -5000,	   0,	  0,      0
-dolg		=		   0,    600,  -5000,      0,  -5000,   -500,  -5000,   5000,   5000,  -5000,  -5000,  -5000,	   0,	  0,      0
-freedom		=		   0,  -5000,	 600,	   0,  -5000,  -5000,  -1000,  -1500,  -5000,   5000,	   0,  -5000,	   0,	  0,      0
-bandit		=	   -5000,  -5000,	   0,  -5000,  	 800,   -500,      0,  -5000,  -5000,	   0,	   0,  -5000,      0,	  0,  -5000
-zombied		=	   -5000,  -5000,  -5000,  -5000,   5000,  -5000,  -5000,  -5000,  -5000,  -5000,  -5000,   5000,  -5000,	  0,  -5000
-stranger	=		   0,	   0,	   0,      0,  -5000,  -5000,      0,      0,	   0,	   0,      0,  -5000,	   0,	  0,      0
-trader		=		   0,	   0,	   0,	   0,	   0, 	   0,	   0,	   0,	   0,	   0,	   0,	   0,      0,	  0,      0
-arena_enemy =	   -5000,  -5000,  -5000,  -5000,  -5000,  -5000,      0,      0,      0,  -5000,  -5000,      0,      0,	  0,      0
+stalker		=		  	0,   -5000,   -100,  -5000,      0,	   	 0,	   	 0,  -5000,   	 0,	   	  0,	  0,  -5000
+monolith	=	  	-5000,    5000,  -5000,  -5000,  -5000,  -5000,  -5000,      0,   	 0,   -5000,	  0,  -5000
+military	=	  	 -100,   -5000,   5000,  -5000,   1000,   -100,   -100,  -5000,  	 0, 	  0,	  0,  -5000
+killer		=	  	-5000,   -5000,  -5000,   5000,  -5000,  -5000,  -1000,	   	 0,  	 0,       0,	  0,  -5000
+ecolog		=	      	0,   -5000,   1000,  -5000,   5000,    500,  -5000,   -100,  	 0,	   	  0,	  0,  -5000
+dolg		=	      	0,   -5000,   -100,  -5000,    500,   5000,   -100,  -5000,  	 0,	   	  0,	  0,  -5000
+freedom		=	   		0,   -5000,   -100,  -1000,  -1500,   -100,   5000,	   	 0,  	 0,	   	  0,	  0,  -5000
+bandit		=	  	-5000,       0,   -500,      0,   -100,  -5000,	     0,	   	 0,  	 0,       0,	  0,  -5000
+zombied		=	  	    0,       0,      0,      0,      0,      0,      0,      0,      0,       0,	  0,  -5000
+stranger	=	      	0,   -5000,  -5000,      0,      0,	   	 0,	     0,      0,  	 0,	   	  0,	  0,  -5000
+trader		=		  	0,	   	 0, 	 0,	   	 0,	   	 0,	   	 0,	     0,	   	 0,	   	 0,       0,	  0,      0
+arena_enemy =	  	-5000,   -5000,  -5000,  -5000,  -5000,  -5000,  -5000,  -5000,  -5000,   -5000,	  0,      0
 
 [rank_relations]
 ;			  	novice, experienced, veteran, master
@@ -81,9 +77,6 @@ excellent		=	0,		0,		0,	    0,	  0,	  0,	 0
 ;goodwill его распространится на остальных членов группировки
 ;с определенным коэффициентом
 [communities_sympathy]
-actor		=		0.0
-actor_dolg	=		0.0
-actor_freedom =		0.0
 stalker		=		0.0
 monolith	=		0.0
 military	=		0.0

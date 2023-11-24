@@ -225,7 +225,7 @@ end
 -----------------------------------------------------------------------------------
 function actor_in_dolg(actor, npc)
 	if db.actor then
-		return db.actor:character_community() == "actor_dolg"
+		return db.actor:character_community() == "dolg"
 	end
 	return false
 end
@@ -235,13 +235,13 @@ end
 function actor_set_dolg(actor, npc)
 	printf("ACTOR NOW IN [DOLG] COMMUNITY")
 	if db.actor then
-		db.actor:set_character_community("actor_dolg", 0, 0)
+		db.actor:set_character_community("dolg", 0, 0)
 	end
 	return true
 end
 function actor_in_freedom(actor, npc)
 	if db.actor then
-		return db.actor:character_community() == "actor_freedom"
+		return db.actor:character_community() == "freedom"
 	end
 	return false
 end
@@ -260,7 +260,7 @@ end
 function actor_clear_community(actor, npc)
 	printf("ACTOR NOW IN [NEUTRAL] COMMUNITY")
 	if db.actor then
-		db.actor:set_character_community("actor", 0, 0)
+		db.actor:set_character_community("stalker", 0, 0)
 	end
 	return true
 end

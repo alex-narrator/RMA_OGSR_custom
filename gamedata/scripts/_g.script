@@ -1369,7 +1369,7 @@ function id_by_sid( sid )
 end
 
 function set_postprocess(name_ini_file)
-	bind_stalker.post_process = postprocess.PostProcess(ini_file(name_ini_file))
+	bind_stalker.post_process = postprocess.PostProcess(ini_file_cached(name_ini_file))
 end
 function remove_postprocess()
 	bind_stalker.post_process = nil
@@ -1815,7 +1815,7 @@ end
 function get_custom_logic_ini(obj)
 	local custom_logic_ini = read_if_exists(sys_ini, "r_string", obj:section(), "logic_cfg", nil)
 	if custom_logic_ini then
-		return ini_file(custom_logic_ini)
+		return ini_file_cached(custom_logic_ini)
 	end
 	return nil
 end
@@ -1904,4 +1904,12 @@ function has_enemy_near(victim, radius)
 	end
 	level.iterate_nearest(victim:position(), radius, perform_action)
 	return enemy_near
+end
+
+local ini_file_cache = {}
+function ini_file_cached(fname)
+	if not ini_file_cache[fname] then
+		ini_file_cache[fname] = ini_file(fname)
+	end
+	return ini_file_cache[fname]
 end

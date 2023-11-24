@@ -22,14 +22,14 @@ news = {
     pass_to_2nd_door                = xr_sound.get_safe_sound_object([[characters_voice\scenario\val\door2_password]]),
 
 	
-	bar_arena_fight_10		= xr_sound.get_safe_sound_object([[characters_voice\scenario\bar\arena_megafon\mega_arena_10_sec]]),
-	bar_arena_fight_20		= xr_sound.get_safe_sound_object([[characters_voice\scenario\bar\arena_megafon\mega_arena_20_sec]]),
-	bar_arena_fight_30		= xr_sound.get_safe_sound_object([[characters_voice\scenario\bar\arena_megafon\mega_arena_30_sec]]),
-	bar_arena_fight_40		= xr_sound.get_safe_sound_object([[characters_voice\scenario\bar\arena_megafon\mega_arena_40_sec]]),
-	bar_arena_fight_50		= xr_sound.get_safe_sound_object([[characters_voice\scenario\bar\arena_megafon\mega_arena_50_sec]]),
-	bar_arena_fight_60		= xr_sound.get_safe_sound_object([[characters_voice\scenario\bar\arena_megafon\mega_arena_60_sec]]),
-	bar_arena_fight_timeout		= xr_sound.get_safe_sound_object([[characters_voice\scenario\bar\arena_megafon\mega_arena_out_of_time]]),
-	bar_arena_fight_dead		= xr_sound.get_safe_sound_object([[characters_voice\scenario\bar\arena_megafon\mega_arena_dead]]),
+	bar_arena_fight_10				= xr_sound.get_safe_sound_object([[characters_voice\scenario\bar\arena_megafon\mega_arena_10_sec]]),
+	bar_arena_fight_20				= xr_sound.get_safe_sound_object([[characters_voice\scenario\bar\arena_megafon\mega_arena_20_sec]]),
+	bar_arena_fight_30				= xr_sound.get_safe_sound_object([[characters_voice\scenario\bar\arena_megafon\mega_arena_30_sec]]),
+	bar_arena_fight_40				= xr_sound.get_safe_sound_object([[characters_voice\scenario\bar\arena_megafon\mega_arena_40_sec]]),
+	bar_arena_fight_50				= xr_sound.get_safe_sound_object([[characters_voice\scenario\bar\arena_megafon\mega_arena_50_sec]]),
+	bar_arena_fight_60				= xr_sound.get_safe_sound_object([[characters_voice\scenario\bar\arena_megafon\mega_arena_60_sec]]),
+	bar_arena_fight_timeout			= xr_sound.get_safe_sound_object([[characters_voice\scenario\bar\arena_megafon\mega_arena_out_of_time]]),
+	bar_arena_fight_dead			= xr_sound.get_safe_sound_object([[characters_voice\scenario\bar\arena_megafon\mega_arena_dead]]),
 
 	bar_ecolog_crush_heli_down		= xr_sound.get_safe_sound_object([[characters_voice\scenario\Rostok\Heli_crush\wolfhound_pda_1]]),
 	bar_freedom_attack_attract_actor= xr_sound.get_safe_sound_object([[characters_voice\scenario\Rostok\Heli_crush\wolfhound_pda_2]]),
@@ -61,7 +61,7 @@ news = {
 	yan_scientist_probe_3			= xr_sound.get_safe_sound_object([[characters_voice\scenario\yantar\kruglov_radiation_quest_6]]),
 	
 	rostok_kruglov_follow			= xr_sound.get_safe_sound_object([[characters_voice\scenario\Rostok\pda_kruglov_help_6]]),
-	bar_freedom_chase			= xr_sound.get_safe_sound_object([[characters_voice\scenario\Rostok\pda_kruglov_stop_enemy_1]]),
+	bar_freedom_chase				= xr_sound.get_safe_sound_object([[characters_voice\scenario\Rostok\pda_kruglov_stop_enemy_1]]),
 	rostok_kruglov_follow_2			= xr_sound.get_safe_sound_object([[characters_voice\scenario\Rostok\pda_kruglov_stop_enemy_2]]),
 	rostok_kruglov_follow_3			= xr_sound.get_safe_sound_object([[characters_voice\scenario\Rostok\pda_kruglov_help_5]]),
 		
@@ -86,7 +86,7 @@ news = {
 	gar_actor_winner				= xr_sound.get_safe_sound_object([[characters_voice\scenario\garbage\duty_after_rush_good]]),
 -- SOS
 	gar_wounded_help				= xr_sound.get_safe_sound_object([[device\pda\pda_sos]]),
-	val_sos_pda				= xr_sound.get_safe_sound_object([[device\pda\pda_sos]]),
+	val_sos_pda						= xr_sound.get_safe_sound_object([[device\pda\pda_sos]]),
 
 
 	esc_direction_fire				= xr_sound.get_safe_sound_object([[characters_voice\scenario\escape\lager_fanat_attack]]),
@@ -303,13 +303,13 @@ function send_encyclopedy(article_type, group, name)
 	-- end	
 end
 function send_treasure(name)
-	pda_news:play(db.actor, 0, sound_object.s2d)
+	pda_news:play(actor, 0, sound_object.s2d)
 	
 	local task_texture, task_rect = get_texture_info("ui_iconsTotal_treasure")
 	
 	local news_text = "%c[255,160,160,160]"..game.translate_string("st_found_new_treasure").."\\n".."%c[default]"..game.translate_string(name)
 	
-	db.actor:give_game_news(news_text, task_texture, task_rect, 0, 3000)
+	actor:give_game_news(news_text, task_texture, task_rect, 0, 3000)
 end
 
 function relocate_item(actor, type, item)
@@ -369,7 +369,7 @@ function custom_news(header_text, news_text, news_icon, news_sound)
 	local header_color = "%c[255,160,160,160]"
 	local text_color = "%c[default]"
 	local text = string.format("%s%s\\n%s%s", header_color, game.translate_string(header_text), text_color, game.translate_string(news_text))
-	db.actor:give_game_news(text, news_texture, news_rect, 0, 3000)
+	actor:give_game_news(text, news_texture, news_rect, 0, 3000)
 	xr_sound.get_safe_sound_object(news_sound):play(db.actor, 0, sound_object.s2d)
 end
 
