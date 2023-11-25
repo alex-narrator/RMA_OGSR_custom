@@ -136,6 +136,8 @@ function motivator_binder:net_destroy()
 	self:clear_callbacks()
 	self.object:set_callback(callback.use_object, nil)
 
+	self.sm:call("on_npc_destroy", self.object, self)
+
 	object_binder.net_destroy(self)
 end
 
@@ -195,8 +197,6 @@ function motivator_binder:death_callback(victim, who)
 	h.impulse = 5
 	self.object:hit(h)
 	
-	self.sm:call("on_death", victim, who)
-
 	if(actor_stats.remove_from_ranking~=nil)then
 		local community = self.object:character_community()
 		if community == "zombied" or
@@ -207,7 +207,7 @@ function motivator_binder:death_callback(victim, who)
 		end
 		actor_stats.remove_from_ranking(self.object:id())
 	end
-
+	self.sm:call("on_death", victim, who)
 end
 
 function motivator_binder:use_callback(obj, who)
@@ -223,6 +223,7 @@ function motivator_binder:use_callback(obj, who)
 		end]]
 		treasure_manager.get_treasure_manager():use(self.object)
 	end
+	self.sm:call("on_npc_use", obj, who)
 end
 
 function motivator_binder:update(delta)
@@ -245,11 +246,11 @@ function motivator_binder:update(delta)
 		if self.object:alive() then
 			self.st.state_mgr:update()
 			-- Апдейт торговли
-			if self.st.state_mgr.combat == false and
-			   self.st.state_mgr.alife == false
-			then
-				trade_manager.update(self.object)
-			end			
+			-- if self.st.state_mgr.combat == false and
+			   -- self.st.state_mgr.alife == false
+			-- then
+				-- trade_manager.update(self.object)
+			-- end			
 		else
 			self.st.state_mgr = nil
 		end

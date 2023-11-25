@@ -518,7 +518,6 @@ end
 
 function actor_binder:use_object(obj)
 	self.sm:call("on_use", obj, self.object)
---	log3("~ use object %s", obj:section())
 end
 
 function actor_binder:on_booster_enable(booster)
@@ -531,7 +530,6 @@ end
 
 function actor_binder:on_hit(victim, health_lost, direction, draftsman, bone_id)
 	self.sm:call("on_hit", victim, health_lost, direction, draftsman, bone_id)
-	--log3("on hit: victim %s health_lost %s, direction %s, draftsman %s, bone_id %s", victim:name(), health_lost, direction, draftsman:name(), bone_id)
 end
 
 function actor_binder:on_before_hit(hit)
