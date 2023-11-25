@@ -1,5 +1,7 @@
 function attach(sm)
 	sm:subscribe({signal = "on_take_from_box",   	fun = this.take_item_from_box})
+	sm:subscribe({signal = "on_npc_use",   			fun = this.on_npc_use})
+	sm:subscribe({signal = "on_update",   			fun = this.item_loss_workaround})
 end
 
 local treasure_manager = nil
@@ -312,4 +314,13 @@ function load(p)
 end
 function clear_treasure_manager()
 	treasure_manager = nil
+end
+
+function on_npc_use(npc)
+	if npc:alive() then return end
+	get_treasure_manager():use(npc)
+end
+
+function item_loss_workaround()
+	get_treasure_manager():loss_workaround()
 end
