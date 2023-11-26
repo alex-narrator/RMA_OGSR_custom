@@ -364,7 +364,9 @@ function action_car:at_target_walkpoint()
     printf("car <move>: action_car:at_target_walkpoint(%s)", utils.to_str(self.target_walk_pt))
     if self.target_walk_pt == -2 then return true end
 
-    local curVel = self.car:CurrentVel():magnitude()
+    --local curVel = self.car:CurrentVel():magnitude()
+	local Vel = self.car:CurrentVel()
+	local curVel = math.sqrt(Vel.x * Vel.x + Vel.y * Vel.y)	
 	local dist = self.object:position():distance_to(self.path_walk:point(self.target_walk_pt))
 
 	--local arrived = 2 * dist < def_update_time * (curVel.x + self.speed) --def_update_time > 2 * dist / (curVel.x + self.speed)
@@ -449,7 +451,9 @@ function action_car:go_to_walkpoint(pt)
 
     local diff_angle = angle_xz(self.object, self.path_walk:point(pt))
     local accel = move.none
-    local curVel = self.car:CurrentVel():magnitude()
+    --local curVel = self.car:CurrentVel():magnitude()
+	local Vel = self.car:CurrentVel()
+	local curVel = math.sqrt(Vel.x * Vel.x + Vel.y * Vel.y)
     printf("car <move>: curVel = %f, speed = %f", curVel, self.speed)
     if curVel < self.speed then
         accel = move.fwd

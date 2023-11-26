@@ -10,6 +10,43 @@ local OPEN_ANIM_STARTED = false
 local need_show_crosshair = false
 local console = get_console()
 
+local subscribed = false
+
+function subscribe()
+	if not subscribed then
+		subscribed = {
+			{signal = "on_slot", fun = this.on_to_slot},
+			{signal = "on_ruck", fun = this.on_from_slot},
+			{signal = "on_drop", fun = this.on_from_slot},
+		}
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs(subscribed) do
+			sm:subscribe(s)
+		end
+	end
+end
+
+function unsubscribe()
+	if subscribed then
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs(subscribed) do
+			sm:unsubscribe(s)
+		end
+		subscribed = false
+	end
+end
+
+function on_to_slot(item, prev_place)
+	if not item:is_outfit() then return end
+	add_update_delayed_action(1, function() backpack.play_anim(3) end)
+end
+
+function on_from_slot(item, prev_place)
+	if prev_place ~= item_place.slot then return end
+	if not item:is_outfit() then return end
+	add_update_delayed_action(1, function() backpack.play_anim(3) end)
+end
+
 function is_quick_info_shown()
 	return get_main_window() and get_main_window():FindChild("quick_info") and get_main_window():FindChild("quick_info"):IsShown()
 end
@@ -61,6 +98,7 @@ function on_show()
 	block_non_move_action(true)
 	actor:hide_weapon(backpack.play_fast())
 	OPEN_ANIM_STARTED = true
+	subscribe()
 	
 	level.add_call(
 		function() 
@@ -89,6 +127,7 @@ function on_hide()
 	OPEN_ANIM_STARTED = false
 	backpack.play_effects(false)
 	block_non_move_action(true)
+	unsubscribe()
 	
 	level.add_call(
 		function()

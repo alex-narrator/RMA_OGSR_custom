@@ -1700,7 +1700,7 @@ function add_update_delayed_action(updates_count, func)
 	local n = 0
 	function update_count_check()
 		n = n+1 
-		return n > updates_count 
+		return n >= updates_count 
 	end
 	level.add_call(update_count_check, func)
 end

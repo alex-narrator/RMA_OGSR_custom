@@ -1,0 +1,61 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_npc_spawn", 			fun = this.on_spawn})
+	sm:subscribe({signal = "on_npc_destroy", 		fun = this.on_death})
+	sm:subscribe({signal = "on_monster_spawn", 		fun = this.on_spawn})
+	sm:subscribe({signal = "on_monster_destroy", 	fun = this.on_death})
+	sm:subscribe({signal = "on_death", 				fun = this.on_death})	
+end
+
+local detector_enabled = {}
+
+--//community які НЕ детектують аномалії
+local disabled_communities = {
+	["zombied"] = true,
+}
+--//профілі які НЕ детектують аномалії
+local disabled_profiles = {
+	["esc_novice_fright"] = true,
+	["bar_ecolog_professor"] = true,
+}
+--//імена які НЕ детектують аномалії
+local disabled_names = {
+	["esc_suicidal_flesh"] = true,
+}
+
+function is_disabled(npc)
+	return (npc:is_stalker() and disabled_communities[npc:character_community()]) or disabled_profiles[npc:profile_name()] or disabled_names[npc:name()]
+end
+
+local rank_prob = {
+	--//stalker
+	["novice"] 		= 0.25,
+	["experienced"] = 0.5,
+	["veteran"] 	= 0.75,
+	["master"] 		= 0.95,
+	--//monster
+	["weak"] 		= 0.3,
+	["normal"] 		= 0.6,
+	["strong"] 		= 0.9,
+}
+
+function on_spawn(npc)
+	if not npc:alive() then return end
+	local anomaly_detector = npc:get_custom_monster():anomaly_detector()
+	if is_disabled(npc) then
+		anomaly_detector:deactivate(true)
+	return end
+	anomaly_detector:activate(true)
+	anomaly_detector.Anomaly_Detect_Probability = rank_prob[ranks.get_obj_rank_name(npc)]
+	detector_enabled[npc:id()] = true
+end
+
+function on_death(npc)
+	if not detector_enabled[npc:id()] then return end
+	local anomaly_detector = npc:get_custom_monster():anomaly_detector()
+	anomaly_detector:deactivate(true)
+    if alife():object(npc:id()) then
+		anomaly_detector:remove_all_restrictions()
+    end	
+	detector_enabled[npc:id()] = nil
+end

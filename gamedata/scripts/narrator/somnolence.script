@@ -6,7 +6,7 @@ function attach(sm)
 end
 
 local somnolence = 0
-local max_time_awake = read_if_exists(sys_ini, "r_u32", "actor_condition", "max_time_awake", 24) --//максимальний час неспання (за скільки ігрових годин сонливість сягне максимуму)
+local max_time_awake = read_if_exists(sys_ini, "r_u32", "actor_condition", "max_time_awake", 36) --//максимальний час неспання (за скільки ігрових годин сонливість сягне максимуму)
 local somnolence_v = 1 / (3600 * max_time_awake)
 local add_v = 0
 local last_time_called = false

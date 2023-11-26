@@ -198,7 +198,7 @@ function move_all_ruck(inv_owner)
 		log3("!%s : move_all_ruck - not valid inv_owner", script_name())
 	return end
 	function perform_action(dummy, item)
-		if LIMITED_BOLTS or get_clsid(item) ~= clsid.obj_bolt then
+		if (LIMITED_BOLTS or get_clsid(item) ~= clsid.obj_bolt) and not item.marked then
 			actor:transfer_item(item, inv_owner)
 		end
 	end	

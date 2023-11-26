@@ -9,6 +9,43 @@ local inv_wnd = level.get_inventory_wnd()
 local actor_obj = get_actor_obj()
 local OPEN_ANIM_STARTED = false
 
+local subscribed = false
+
+function subscribe()
+	if not subscribed then
+		subscribed = {
+			{signal = "on_slot", fun = this.on_to_slot},
+			{signal = "on_ruck", fun = this.on_from_slot},
+			{signal = "on_drop", fun = this.on_from_slot},
+		}
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs(subscribed) do
+			sm:subscribe(s)
+		end
+	end
+end
+
+function unsubscribe()
+	if subscribed then
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs(subscribed) do
+			sm:unsubscribe(s)
+		end
+		subscribed = false
+	end
+end
+
+function on_to_slot(item, prev_place)
+	if not item:is_outfit() then return end
+	add_update_delayed_action(1, function() backpack.play_anim(3) end)
+end
+
+function on_from_slot(item, prev_place)
+	if prev_place ~= item_place.slot then return end
+	if not item:is_outfit() then return end
+	add_update_delayed_action(1, function() backpack.play_anim(3) end)
+end
+
 function on_key_press(key, game_action)
 	if game_action ~= key_bindings.kINVENTORY or
 		OPEN_ANIM_STARTED
@@ -51,12 +88,13 @@ function on_show()
 	block_non_move_action(false)
 	backpack.play_anim(3)
 	OPEN_ANIM_STARTED = false
+	subscribe()
 end
 
 function on_hide()
 	backpack.play_effects(false)
 	block_non_move_action(true)
-		
+	unsubscribe()
 	level.add_call(
 		function()
 			return game.hud_motion_allowed()

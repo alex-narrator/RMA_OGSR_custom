@@ -12,9 +12,9 @@ local was_called = false
 -- парсит заданную строку репутацґй в заданную таблицу.
 -- возвращает название максимально» репутацґ»
 function parse_repts( s, tbl )
-	s = "-5000," .. s .. ",5000"
+	s = "-1000," .. s .. ",1000"
 
-	local t = parse_names( s )
+	local t = parse_names(s)
 	local i = 2
 
 	while i < table.getn( t ) do
@@ -28,20 +28,17 @@ end
 -- чита№мо дґапазони репутацґ» из game_relations.ltx
 function read_all_repts()
 	stalker_rept_intervals = {}
-
-	stalker_max_rept_name = parse_repts(sys_ini:r_string("game_relations", "reputation_names" ), stalker_rept_intervals )
-
+	stalker_max_rept_name = parse_repts(sys_ini:r_string("game_relations", "reputation_names"), stalker_rept_intervals)
 	was_called = true
 end
 
 -- 
-function get_rept_name( rept, tbl )
+function get_rept_name(rept, tbl)
 	for name, interval in pairs( tbl ) do
 		if rept >= interval[1] and rept < interval[2] then
 			return name
 		end
 	end
-
 	return nil
 end
 
@@ -50,18 +47,13 @@ function get_obj_reputation_name(obj)
 	if not was_called then
 		read_all_repts()
 	end
-
-	local obj_rept = obj:character_reputation()
-
-	return get_rept_name(obj_rept, stalker_rept_intervals) or stalker_max_rept_name
+	return get_rept_name(obj:character_reputation(), stalker_rept_intervals) or "neutral"--stalker_max_rept_name
 end
 
 function get_obj_reputation_color(obj)
 	local val = obj:character_reputation()
-	local rept
-	if val == 0 then
-		rept = "neutral"
-	elseif val > 50 then
+	local rept = "neutral"
+	if val > 50 then
 		rept = "good"
 	elseif val < -50 then
 		rept = "bad"
