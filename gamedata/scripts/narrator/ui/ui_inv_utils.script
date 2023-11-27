@@ -156,9 +156,9 @@ function UpdateConditionProgress(item, icon)
 	local pos = is_power_device(item) and item:binded_object():get_power_level() or item:condition()
 
 	local function update(progress_bar)
-		progress_bar:Show(actor:is_in_slot(item))
-		if not actor:is_in_slot(item) then
-		return end
+		-- progress_bar:Show(actor:is_in_slot(item))
+		-- if not actor:is_in_slot(item) then
+		-- return end
 		local offset = GetOffset("left_down", progress_bar, icon)
 		offset.y = offset.y - 1
 		progress_bar:SetWndPos(offset.x, offset.y)

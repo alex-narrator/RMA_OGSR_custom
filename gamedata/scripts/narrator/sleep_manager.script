@@ -254,17 +254,24 @@ function restore_control()
 	actor:restore_weapon()
 	level.enable_input()
 	is_sleeping = false
+	local save_cmd = string.format("save %s: %s", game.translate_string("ui_st_after_sleep"), game.translate_string(level.name()))
+	get_console():execute(save_cmd)
 end
 
+local reason
 function can_sleep()
 	if has_enemy_near(actor, ENEMY_CHECK_RADIUS) then
-		return false
-	end
+		reason = "st_enemies_nearby"
+	return false end
+	if somnolence.get_val() < 0.5 then
+		reason = "st_dont_want_sleep"
+	return false end
 	return true
 end
 
 function show_cant_sleep_msg()
-	hud_add_info_message("item_usage", "ui_st_cant_sleep")
+	local refuse_text = string.format("%s: %s", game.translate_string("ui_st_cant_sleep"), game.translate_string(reason))
+	hud_add_info_message("item_usage", refuse_text)
 end
 
 function is_sleeping_now()
