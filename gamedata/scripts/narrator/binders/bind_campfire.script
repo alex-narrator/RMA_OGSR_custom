@@ -1,0 +1,46 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+------------------------------------------------------------------------------------------
+--біндер багать
+------------------------------------------------------------------------------------------
+
+function init(obj)
+    local new_binder = campfire_binder(obj)
+    obj:bind_object(new_binder)
+end
+
+--послідовність викликів:
+--__init
+--reload
+--load (if save was called before)
+--net_spawn
+
+class "campfire_binder" (object_binder)
+function campfire_binder:__init(obj) super(obj)
+	self.sm = ogse_signals.get_mgr()
+end
+ 
+function campfire_binder:reload(section)
+end
+
+function campfire_binder:reinit()
+	object_binder.reinit(self)
+end
+
+function campfire_binder:net_spawn(data)
+	log3("%s net_spawn for object %s", script_name(), self.object:name())
+	--self.object:disable_anomaly()
+	self.sm:call("on_campfire_spawn", self.object)
+    local spawned = object_binder.net_spawn(self, data)	
+	return spawned
+end
+
+function campfire_binder:net_destroy()
+	log3("%s net_destroy for object %s", script_name(), self.object:name())
+	self.sm:call("on_campfire_destroy", self.object)
+	object_binder.net_destroy(self)
+end
+ 
+function campfire_binder:update(delta)
+    object_binder.update(self, delta)
+	self.sm:call("on_campfire_update", self.object, delta)
+end

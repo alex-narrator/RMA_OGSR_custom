@@ -18,13 +18,11 @@ local eff_name = "snd_shock.ppe"
 local eff_id = 3000
 
 function on_save(packet)
-	packet:w_float(somnolence)
+	xr_vars.save_var(script_name(), somnolence)
 end
 
 function on_load(reader)
-	if reader:r_eof() then
-	return end
-	somnolence = reader:r_float()
+	somnolence = xr_vars.load_var(script_name(), somnolence)
 end
 
 function on_update()

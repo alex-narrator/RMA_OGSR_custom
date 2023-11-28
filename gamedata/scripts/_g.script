@@ -1676,6 +1676,13 @@ function hud_add_info_message(static_id, text, ttl)
 	end
 	static:wnd():SetTextST(text)
 end
+function hud_remove_info_message(static_id)
+	local hud = get_hud()
+	local static = hud:GetCustomStatic(static_id)
+	if static then
+		hud:RemoveCustomStatic(static_id)
+	end
+end
 
 function split_string(inputstr, sep)
    if sep == nil then

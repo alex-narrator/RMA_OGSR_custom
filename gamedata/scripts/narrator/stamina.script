@@ -12,13 +12,11 @@ local stamina_inc = 1 / (read_if_exists(sys_ini, "r_u32", "actor_condition", "st
 local RECOIL_K = 0.1
 
 function on_save(packet)
-	packet:w_float(stamina)
+	xr_vars.save_var(script_name(), stamina)
 end
 
 function on_load(reader)
-	if reader:r_eof() then
-	return end
-	stamina = reader:r_float()
+	stamina = xr_vars.load_var(script_name(), stamina)
 end
 
 function on_update(delta)

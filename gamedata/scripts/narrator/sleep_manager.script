@@ -248,14 +248,13 @@ function play_awake_effects()
 	local snd_name = nightmare[dream_name] and [[characters_voice\human_01\stalker\states\breath\breath_1]] or [[actor\sleep]]
 	xr_sound.get_safe_sound_object(snd_name):play_no_feedback(db.actor, sound_object.s2d, 0, vector(), 15.0)
 	dream_name = nil
+	make_sleep_savegame()
 end
 
 function restore_control()
 	actor:restore_weapon()
 	level.enable_input()
 	is_sleeping = false
-	local save_cmd = string.format("save %s: %s", game.translate_string("ui_st_after_sleep"), game.translate_string(level.name()))
-	get_console():execute(save_cmd)
 end
 
 local reason
@@ -276,4 +275,9 @@ end
 
 function is_sleeping_now()
 	return is_sleeping
+end
+
+function make_sleep_savegame()
+	local save_cmd = string.format("save %s: %s", game.translate_string("ui_st_after_sleep"), game.translate_string(level.name()))
+	get_console():execute(save_cmd)
 end

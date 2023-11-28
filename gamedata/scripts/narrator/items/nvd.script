@@ -22,13 +22,11 @@ function can_switch(item)
 end
 
 function on_save(packet)
-	packet:w_bool(is_on)
+	xr_vars.save_var(script_name(), is_on)
 end
 
 function on_load(reader)
-	if reader:r_eof() then
-	return end
-	is_on = reader:r_bool()
+	is_on = xr_vars.load_var(script_name(), is_on)
 end
 
 function switch_nvd(item)

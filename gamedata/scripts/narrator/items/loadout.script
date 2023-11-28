@@ -58,31 +58,11 @@ function is_weapon_unloading()
 end
 
 function on_save(packet)
-	--log3("%s on save", script_name())
-	local size = table.size(loaded_items)
-	packet:w_u8(size)
-	--log3("~saving size %s", size)
-	for k, v in pairs(loaded_items) do
-		packet:w_stringZ(k)
-		--log3("~saving id %s", k)
-	end
+	xr_vars.save_var(script_name(), loaded_items)
 end
 
 function on_load(reader)
-	if reader:r_eof() then
-	return end
-	--log3("%s on load", script_name())
-	local size = reader:r_u8()
-	--log3("~loading size %s", size)
-	if size == 0 then
-	return end
-	loaded_items = {}
-	local id
-	for i=1, size do
-		id = tonumber(reader:r_stringZ())
-		--log3("~loading id %s", id)
-		loaded_items[id] = true
-	end
+	loaded_items = xr_vars.load_var(script_name(), loaded_items)
 end
 
 function on_first_update()

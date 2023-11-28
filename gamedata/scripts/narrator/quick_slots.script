@@ -137,19 +137,11 @@ function set_selected(val)
 end
 
 function on_save(packet)
-	--log3("%s on save", script_name())
-	for num, sect in pairs(quick_sect) do
-		packet:w_stringZ(sect)
-	end
+	xr_vars.save_var(script_name(), quick_sect)
 end
 
 function on_load(reader)
-	if reader:r_eof() then
-	return end
-	--log3("%s on load", script_name())
-	for num, sect in pairs(quick_sect) do
-		quick_sect[num] = reader:r_stringZ()
-	end
+	quick_sect = xr_vars.load_var(script_name(), quick_sect)
 end
 
 --//функції для скриптового пункту контекстного меню

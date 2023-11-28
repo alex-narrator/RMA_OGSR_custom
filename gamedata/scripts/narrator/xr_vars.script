@@ -2,12 +2,21 @@
 local s_vars = get_stored_vars()
 
 function load_var(var_name, def_val)
-	if not s_vars.var_name then
-		s_vars.var_name = def_val
+	local val = s_vars[var_name]
+	if not val then
+		save_var(var_name, def_val)
+		return def_val
 	end
-	return s_vars.var_name
+    if type(val) == "userdata" then
+        val = val(true)
+    end	
+	return val
 end
 
 function save_var(var_name, val)
-	s_vars.var_name = val
+	s_vars[var_name] = val
+end
+
+function delete_var(var_name, val)
+	s_vars[var_name] = nil
 end
