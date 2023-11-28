@@ -27,40 +27,15 @@
 	<char_info_text_npc x="115" y="0" width="115" height="110" stretch="1" complex_mode="1">
 		<text x="0" y="0" width="0" height="0" font="letterica16" align="r" vert_align="c"></text>
 	</char_info_text_npc>
-	
-	<!-- окремо для вікна діалогу -->
-	<char_info_back_talk x="10" y="10" width="135" height="200" stretch="1">
-		<texture a="175">character_info_back</texture>
-	</char_info_back_talk>
-    <char_info_icon_talk x="5" y="5" width="124" height="110" stretch="1"/>
-	<char_info_icon_comm_talk x="0" y="200" width="135" height="135" stretch="1">
-		<texture a="120"/>
-	</char_info_icon_comm_talk>
-	<char_info_text_header_talk x="5" y="100" width="110" height="110" stretch="1" complex_mode="1">
-		<text x="0" y="0" width="0" height="0" font="letterica16" align="l" vert_align="c"></text>
-	</char_info_text_header_talk>	
-	<char_info_text_talk x="20" y="100" width="110" height="110" stretch="1" complex_mode="1">
-		<text x="0" y="0" width="0" height="0" font="letterica16" align="r" vert_align="c"></text>
-	</char_info_text_talk>
-	
-    <char_info_back_npc_talk x="855" y="10" width="135" height="200" stretch="1">
-		<texture a="175">character_info_back</texture>
-	</char_info_back_npc_talk>
-    <char_info_icon_npc_talk x="6" y="5" width="124" height="110" stretch="1"/>
-	<char_info_icon_comm_npc_talk x="0" y="200" width="135" height="135" stretch="1">
-		<texture a="120"/>
-	</char_info_icon_comm_npc_talk>
-	<char_info_text_header_npc_talk x="5" y="100" width="110" height="110" stretch="1" complex_mode="1">
-		<text x="0" y="0" width="0" height="0" font="letterica16" align="l" vert_align="c"></text>
-	</char_info_text_header_npc_talk>	
-	<char_info_text_npc_talk x="20" y="100" width="110" height="110" stretch="1" complex_mode="1">
-		<text x="0" y="0" width="0" height="0" font="letterica16" align="r" vert_align="c"></text>
-	</char_info_text_npc_talk>
-	
+		
 	<weight_static x="260" y="700" width="110" height="20" stretch="1" complex_mode="1">		
-        <text x="0" y="0" font="graffiti19" r="231" g="153" b="22" align="l" vert_align="c"></text>
+        <text x="0" y="0" font="graffiti19" r="231" g="153" b="22" align="c" vert_align="c"></text>
 		<texture a="175">ui_inv_back_green</texture>
     </weight_static>
+	<time_static x="630" y="700" width="110" height="20" stretch="1" complex_mode="1">		
+        <text x="0" y="0" font="graffiti19" r="231" g="153" b="22" align="c" vert_align="c"></text>
+		<texture a="175">ui_inv_back_green</texture>
+    </time_static>	
 
     <conditions_background x="375" y="580" width="250" height="150" stretch="1">
 		<texture a="175">params_back</texture>
@@ -367,7 +342,7 @@
 		</text_color>
     </move_all_ruck_btn>
 	
-	<trade_button x="390" y="410" width="100" height="30"  hR="255" hB="83" hG="179" highlight_text="1" accel = "kT" stretch="1">
+	<trade_button x="392" y="410" width="100" height="30"  hR="255" hB="83" hG="179" highlight_text="1" accel = "kT" stretch="1">
 		<texture>ui_button_ordinary</texture>
 		<text font="graffiti22" r="238" g="153" b="26" align="c" v_align="c">ui_st_trade</text>
 	</trade_button>
@@ -375,11 +350,6 @@
 		<texture>ui_button_ordinary</texture>
 		<text font="graffiti22" r="238" g="153" b="26" align="c" v_align="c">ui_st_leave</text>
 	</to_talk_button>
-	
-	<to_trade_button x="437" y="726" width="130" height="35" stretch="1" hR="255" hB="83" hG="179" highlight_text="1" accel="kT">
-		<texture>ui_button_ordinary</texture>
-		<text font="graffiti22" r="238" g="153" b="26" align="c" v_align="c">ui_st_trade</text>
-	</to_trade_button>
 	
 	<!-- кастомний текст на інвентарних іконках -->
 	<cell_item_custom x="0" y="0" width="12" height="12" stretch="1">
@@ -401,41 +371,4 @@
 				<texture a="50" r="255" g="255" b="255">inv_progress_long</texture>
 			</background>
 	</condition_progess_bar>
-	
-	<!-- repair talk window -->
-	<repair_back x="218" y="42" width="600" height="460" stretch="1">
-		<text x="0" y="0" font="graffiti22" r="238" g="153" b="26" align="c" v_align="c">ui_inv_repair_header</text>
-		<texture>ui_inv_back_gray</texture>
-		
-		<!-- <auto_static x="5" y="20" width="120" height="20" stretch="1"> -->
-			<!-- <text font="graffiti19" color="UI_orange" complex_mode="1" align="c">ui_st_item_to_repair</text> -->
-		<!-- </auto_static>	 -->
-		
-		<scroll_view_weapon x="5" y="50" width="160" height="400" always_show_scroll="0" vert_interval="10" scale="0.6"/>
-		<scroll_view_armor x="170" y="50" width="80" height="400" always_show_scroll="0" vert_interval="10" scale="0.6"/>
-		
-		<selected_item_back x="380" y="100" width="200" height="200" stretch="1">
-			<texture a="175">slot_2_1_back</texture>
-			<text x="0" y="15" font="graffiti19" color="UI_orange" complex_mode="1" align="c"/>
-			
-			<repair_cost x="0" y="165" width="200" height="20" stretch="1">
-				<text font="graffiti19" color="UI_orange" complex_mode="1" align="c"/>
-			</repair_cost>
-			
-			<selected_item stretch="1" scale="0.8"/>
-		</selected_item_back>
-		
-		<actor_money x="475" y="350" width="100" height="20" stretch="1">
-			<text font="graffiti19" color="UI_orange" complex_mode="1" align="r"/>
-		</actor_money>
-		
-		<repair_button x="360" y="420" width="110" height="35" stretch="1" hR="255" hB="83" hG="179" highlight_text="1" accel="kR">
-			<texture>ui_button_ordinary</texture>
-			<text font="graffiti22" r="238" g="153" b="26" align="c" v_align="c">ui_inv_repair</text>
-		</repair_button>
-		<exit_button x="505" y="420" width="90" height="35" stretch="1" hR="255" hB="83" hG="179" highlight_text="1" accel="kQ">
-			<texture>ui_button_ordinary</texture>
-			<text font="graffiti22" r="238" g="153" b="26" align="c" v_align="c">ui_st_leave</text>
-		</exit_button>		
-	</repair_back>
 </w>

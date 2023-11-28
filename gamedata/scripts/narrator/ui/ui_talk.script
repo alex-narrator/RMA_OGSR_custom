@@ -1,6 +1,6 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 local overlay = nil
-local OVERLAY_XML = "script_overlays\\actor_menu_overlay.xml"
+local OVERLAY_XML = "script_overlays\\talk_overlay.xml"
 
 function attach(sm)
 	sm:subscribe({signal = "on_spawn",   fun = this.create_window})
@@ -102,25 +102,21 @@ function TalkOverlay:Update()
 end
 
 function TalkOverlay:OnShow()
-	add_update_delayed_action(1,
-		function()
-			self.target = level.get_second_talker()
-			if is_osoznanie_mode(self.target) then
-				self.char_info_back:Show(false)
-				self.char_info_back_npc:Show(false)
-				self.to_trade_button:Show(false)
-			return end
+	self.target = level.get_second_talker()
+	if is_osoznanie_mode(self.target) then
+		self.char_info_back:Show(false)
+		self.char_info_back_npc:Show(false)
+		self.to_trade_button:Show(false)
+	return end
 		
-			self.char_info_back:Show(true)
-			self.char_info_back_npc:Show(true)
-			self.to_trade_button:Show(self.target:is_trade_enabled())
+	self.char_info_back:Show(true)
+	self.char_info_back_npc:Show(true)
+	self.to_trade_button:Show(self.target:is_trade_enabled())
 	
-			self:OnActorIconUpdate()
-			self:OnNPCIconUpdate()
-			self:SetCharacterText()
-			self:SetCharacterTextNPC()
-		end
-	)
+	self:OnActorIconUpdate()
+	self:OnNPCIconUpdate()
+	self:SetCharacterText()
+	self:SetCharacterTextNPC()	
 end
 
 function TalkOverlay:OnHide()
@@ -182,11 +178,6 @@ function TalkOverlay:SetCharacterText()
 end
 
 function TalkOverlay:SetCharacterTextNPC()
-	if not self.target:is_stalker() and not self.target:is_trader() then
-		self.char_info_back_npc:Show(false)
-	return end
-	self.char_info_back_npc:Show(true)
-	
 	local name_header = game.translate_string("ui_st_name")
 	local name = game.translate_string(self.target:character_name())
 	
