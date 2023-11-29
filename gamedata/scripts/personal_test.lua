@@ -197,7 +197,10 @@ end
 
 --somnolence.change_val(1)
 
-local pos = actor:position()
-log3("position %s, %s, %s | lvid %s | gvid %s | is valid %s", pos.x, pos.y, pos.z, actor:level_vertex_id(), actor:game_vertex_id(), game_graph():valid_vertex_id(actor:level_vertex_id()))
+-- local pos = actor:position()
+-- log3("position %s, %s, %s | lvid %s | gvid %s | is valid %s", pos.x, pos.y, pos.z, actor:level_vertex_id(), actor:game_vertex_id(), game_graph():valid_vertex_id(actor:level_vertex_id()))
 
 --log3("rain factor %s",level.rain_factor())
+
+-- set_pnv_color(0.45, 0.6, 0.6, 5)
+-- set_pnv_params(0.1, 0.1, 0, 0)

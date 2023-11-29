@@ -1635,7 +1635,7 @@ function actor_get_nvd()
 	local item = nil
 	for i = 0, sys_ini:r_u32("inventory","slots") - 1 do
 		item = actor:item_in_slot(i)
-		if item and read_if_exists(sys_ini, "r_string", item:section(), "nightvision_sect", nil) then
+		if item and nvd.get_nvd_params(item) then
 			return item
 		end
 	end

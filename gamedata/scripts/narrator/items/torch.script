@@ -32,7 +32,7 @@ function set_torch_params(item)
 end
 
 function update_brightness(item)
-	if not is_power_device(item) then
+	if not is_power_device(item) or not get_light_sect(item) then 
 	return end
 	local brightness = item:binded_object():get_power_level()
 	local light_sect = read_if_exists(sys_ini, "r_string", item:section(), "light_definition", nil)

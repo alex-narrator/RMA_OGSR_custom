@@ -8,13 +8,26 @@ function attach(sm)
 end
 
 local is_on = false
-local nvd_effector_id = 7777
+--local nvd_effector_id = 7777
 
 local on_snd = [[device\torch\nv_start]]
 local off_snd = [[device\torch\nv_off]]
 
-function get_nvd_sect(item)
-	return read_if_exists(sys_ini, "r_string", item:section(), "nightvision_sect", nil) 
+function get_nvd_params(item)
+	local sect = item:section()
+	local _tmp = read_if_exists(sys_ini, "r_string", sect, "nv_color", nil)
+	if not _tmp then return nil end
+	_tmp = split_string(_tmp, ",")
+	local params = {
+		--//color and intensity
+		R = _tmp[1], G = _tmp[2], B = _tmp[3], INTENSITY = read_if_exists(sys_ini, "r_float", sect, "nv_intensity", 2),
+		--//effects
+		NOISE = read_if_exists(sys_ini, "r_float", sect, "nv_noise", 0),
+		SCANLINES = read_if_exists(sys_ini, "r_float", sect, "nv_scanlines", 0),
+		VIGNETTE = read_if_exists(sys_ini, "r_float", sect, "nv_vignette", 0),
+		FLICKERING = read_if_exists(sys_ini, "r_float", sect, "nv_flickering", 0),
+	}
+	return params
 end
 
 function can_switch(item)
@@ -46,14 +59,19 @@ end
 function set_nvd_effector(item, enable)
 	--log3("set_nvd_effector item %s, enable %s", item:name(), enable)
 	if not enable then
-		level.remove_complex_effector(nvd_effector_id)
+		--level.remove_complex_effector(nvd_effector_id)
+		set_pnv_color(0,0,0,0)
+		set_pnv_params(0,0,0,0)
 	else
-		level.add_complex_effector(get_nvd_sect(item), nvd_effector_id)
+		--level.add_complex_effector(get_nvd_params(item), nvd_effector_id)
+		local params = get_nvd_params(item)
+		set_pnv_color(params.R, params.G, params.B, params.INTENSITY)
+		set_pnv_params(params.NOISE, params.SCANLINES, params.VIGNETTE, params.FLICKERING)
 	end
 end
 
 function on_slot(obj, prev_place)
-	if get_nvd_sect(obj) then
+	if get_nvd_params(obj) then
 		if not xr_conditions.black_screen() then
 			is_on = false
 		end
@@ -64,7 +82,7 @@ function on_slot(obj, prev_place)
 end
 
 function on_ruck(obj, prev_place)
-	if get_nvd_sect(obj) and prev_place == item_place.slot then
+	if get_nvd_params(obj) and prev_place == item_place.slot then
 		if is_on then
 			enable_nvd(obj, false)
 		end
