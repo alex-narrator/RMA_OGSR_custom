@@ -1,19 +1,15 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
-	sm:subscribe({signal = "on_save",   			fun = this.on_save})
-	sm:subscribe({signal = "on_load",   			fun = this.on_load})
 	sm:subscribe({signal = "on_slot",   			fun = this.on_slot})
 	sm:subscribe({signal = "on_ruck",   			fun = this.on_ruck})
 	sm:subscribe({signal = "on_drop",   			fun = this.on_ruck})
 end
 
-local is_on = false
---local nvd_effector_id = 7777
-
 local on_snd = [[device\torch\nv_start]]
 local off_snd = [[device\torch\nv_off]]
 
 function get_nvd_params(item)
+	if not is_nvd(item) then return nil end
 	local sect = item:section()
 	local _tmp = read_if_exists(sys_ini, "r_string", sect, "nv_color", nil)
 	if not _tmp then return nil end
@@ -34,36 +30,28 @@ function can_switch(item)
 	return (not is_power_device(item) or item:binded_object():get_power_level() > 0) and item:condition() > 0
 end
 
-function on_save(packet)
-	xr_vars.save_var(script_name(), is_on)
-end
-
-function on_load(reader)
-	is_on = xr_vars.load_var(script_name(), is_on)
-end
-
 function switch_nvd(item)
-	is_on = not is_on
-	local snd_name = is_on and on_snd or off_snd
+	local sobj = alife():object(item:id())
+	sobj.is_nvd_on = not sobj.is_nvd_on
+	local snd_name = sobj.is_nvd_on and on_snd or off_snd
 	xr_sound.get_safe_sound_object(snd_name,sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
-	set_nvd_effector(item, is_on)
+	set_nvd_effector(item, sobj.is_nvd_on)
 end
 
 function enable_nvd(item, power_on)
-	is_on = power_on
-	local snd_name = is_on and on_snd or off_snd
+	local sobj = alife():object(item:id())
+	sobj.is_nvd_on = power_on
+	local snd_name = sobj.is_nvd_on and on_snd or off_snd
 	xr_sound.get_safe_sound_object(snd_name,sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
-	set_nvd_effector(item, is_on)
+	set_nvd_effector(item, sobj.is_nvd_on)
 end
 
 function set_nvd_effector(item, enable)
 	--log3("set_nvd_effector item %s, enable %s", item:name(), enable)
 	if not enable then
-		--level.remove_complex_effector(nvd_effector_id)
 		set_pnv_color(0,0,0,0)
 		set_pnv_params(0,0,0,0)
 	else
-		--level.add_complex_effector(get_nvd_params(item), nvd_effector_id)
 		local params = get_nvd_params(item)
 		set_pnv_color(params.R, params.G, params.B, params.INTENSITY)
 		set_pnv_params(params.NOISE, params.SCANLINES, params.VIGNETTE, params.FLICKERING)
@@ -71,24 +59,26 @@ function set_nvd_effector(item, enable)
 end
 
 function on_slot(obj, prev_place)
+	local sobj = alife():object(obj:id())
 	if get_nvd_params(obj) then
 		if not xr_conditions.black_screen() then
-			is_on = false
+			sobj.is_nvd_on = false
 		end
-		if is_on and can_switch(obj) then
+		if sobj.is_nvd_on and can_switch(obj) then
 			enable_nvd(obj, true)
 		end
 	end
 end
 
 function on_ruck(obj, prev_place)
+	local sobj = alife():object(obj:id())
 	if get_nvd_params(obj) and prev_place == item_place.slot then
-		if is_on then
+		if sobj.is_nvd_on then
 			enable_nvd(obj, false)
 		end
 	end
 end
 
 function is_nvd_on(item)
-	return actor_get_nvd() and item:id() == actor_get_nvd():id() and is_on
+	return actor_get_nvd() and item:id() == actor_get_nvd():id() and alife():object(item:id()).is_nvd_on
 end

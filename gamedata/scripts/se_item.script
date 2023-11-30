@@ -2,6 +2,7 @@ local registred_items = {}
 
 class "se_outfit" (cse_alife_item_custom_outfit)
 function se_outfit:__init (section) super (section)
+	self.is_nvd_on = false
 end
 function se_outfit:on_register()
 	cse_alife_item_custom_outfit.on_register( self )
@@ -18,6 +19,12 @@ end
 function se_outfit:on_unregister()
 	--' Отрегистрация в таскменеджере
 	task_manager.get_random_task():unregister_target(self)
+end
+function se_outfit:STATE_Write (packet)
+	packet:w_bool(self.is_nvd_on)
+end
+function se_outfit:STATE_Read (packet, size)
+	self.is_nvd_on = packet:r_bool()
 end
 
 class "se_weapon" (cse_alife_item_weapon)
@@ -107,6 +114,7 @@ function se_torch:__init (section) super (section)
 	self.power_level = 1
 	self.cur_power_sect = 1
 	self.is_second_mode = false
+	self.is_nvd_on = false
 end
 function se_torch:on_register()
 	cse_alife_item_torch.on_register( self )
@@ -129,6 +137,7 @@ function se_torch:STATE_Write (packet)
 	packet:w_float(self.power_level)
 	packet:w_u8(self.cur_power_sect)
 	packet:w_bool(self.is_second_mode)
+	packet:w_bool(self.is_nvd_on)
 end
 function se_torch:STATE_Read (packet, size)
 	cse_alife_item_torch.STATE_Read (self, packet, size)
@@ -137,6 +146,7 @@ function se_torch:STATE_Read (packet, size)
 	self.power_level = packet:r_float()
 	self.cur_power_sect = packet:r_u8()
 	self.is_second_mode = packet:r_bool()
+	self.is_nvd_on = packet:r_bool()
 end
 -- PDA -------------------------------------------------------------------------------------------------------------------------------
 class "se_pda" (cse_alife_item_pda)

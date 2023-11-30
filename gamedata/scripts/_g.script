@@ -1664,6 +1664,12 @@ function is_corruptible(obj)
 	local se_obj = alife():object(obj:id())
 	return se_obj and se_obj.last_time_called
 end
+function is_nvd(obj)
+	if not obj then
+	return false end
+	local se_obj = alife():object(obj:id())
+	return se_obj and se_obj.is_nvd_on ~= nil
+end
 --//інфоповідомлення на худі, у рушійному стилі
 function hud_add_info_message(static_id, text, ttl)
 	local hud = get_hud()
