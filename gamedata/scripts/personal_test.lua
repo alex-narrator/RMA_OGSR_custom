@@ -202,5 +202,5 @@ end
 
 --log3("rain factor %s",level.rain_factor())
 
--- set_pnv_color(0.45, 0.6, 0.6, 5)
--- set_pnv_params(0.1, 0.1, 0, 0)
+set_pnv_color(0.45, 0.6, 0.6, 5)
+set_pnv_params(0.1, 0.1, 0, 0)
