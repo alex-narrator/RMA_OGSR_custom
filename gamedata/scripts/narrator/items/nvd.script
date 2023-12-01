@@ -9,6 +9,24 @@ end
 local on_snd = [[device\torch\nv_start]]
 local off_snd = [[device\torch\nv_off]]
 
+--//слоти в яких можуть бути предмети з ПНБ
+local nvd_slots = {
+	9,
+	11,
+	12,
+}
+
+function get_current_nvd()
+	local item = nil
+	for k, v in ipairs(nvd_slots) do
+		item = actor:item_in_slot(v)
+		if item and nvd.get_nvd_params(item:section()) and alife():object(item:id()).is_nvd_on ~= nil then
+			return item
+		end
+	end
+	return item
+end
+
 function get_nvd_params(sect)
 	local _tmp = read_if_exists(sys_ini, "r_string", sect, "nv_color", nil)
 	if not _tmp then return nil end
@@ -58,6 +76,7 @@ function set_nvd_effector(sect, enable)
 end
 
 function on_slot(obj, prev_place)
+	if obj:is_weapon() then return end
 	local sobj = alife():object(obj:id())
 	if get_nvd_params(obj:section()) then
 		if not xr_conditions.black_screen() then
@@ -70,6 +89,7 @@ function on_slot(obj, prev_place)
 end
 
 function on_ruck(obj, prev_place)
+	if obj:is_weapon() then return end
 	local sobj = alife():object(obj:id())
 	if get_nvd_params(obj:section()) and prev_place == item_place.slot then
 		if sobj.is_nvd_on then
@@ -79,7 +99,7 @@ function on_ruck(obj, prev_place)
 end
 
 function is_nvd_on()
-	local nvd = actor_get_nvd()
+	local nvd = get_current_nvd()
 	return nvd and alife():object(nvd:id()).is_nvd_on
 end
 
@@ -110,7 +130,7 @@ function on_zoom_in(weapon)
 	local nv_sect = get_nv_sect(weapon)
 	if not nv_sect then return end
 	if is_nvd_on() then
-		enable_nvd(actor_get_nvd(), false)
+		enable_nvd(get_current_nvd(), false)
 	end
 	level.add_call(
 		function() 
@@ -151,4 +171,5 @@ function on_key_press(key, game_action)
 	if not nvd_action[game_action] then
 	return end
 	switch_nvd(actor:active_item())
+	level.add_complex_effector("fire_mode", 1918)
 end

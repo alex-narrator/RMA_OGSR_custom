@@ -11,7 +11,7 @@ local is_playing = false
 local hud_effector_id = 5558
 
 function on_key_press(key, game_action)
-	local curr_nvd = actor_get_nvd()
+	local curr_nvd = nvd.get_current_nvd()
 	if not nvd_action[game_action] or
 		not actor_hands_free() or
 		nvd.aim_nvd_weapon() or

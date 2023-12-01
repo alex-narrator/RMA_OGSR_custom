@@ -1631,17 +1631,6 @@ function actor_get_backpack()
 	return actor:item_in_slot(12)
 end
 
-function actor_get_nvd()
-	local item = nil
-	for i = 0, sys_ini:r_u32("inventory","slots") - 1 do
-		item = actor:item_in_slot(i)
-		if item and is_nvd(item) and nvd.get_nvd_params(item:section()) and not item:is_weapon() then
-			return item
-		end
-	end
-	return item
-end
-
 function actor_break_sprint()
 	local actor_obj = get_actor_obj()
 	if actor_obj:is_actor_sprinting() then
@@ -1663,12 +1652,6 @@ end
 function is_corruptible(obj)
 	local se_obj = alife():object(obj:id())
 	return se_obj and se_obj.last_time_called
-end
-function is_nvd(obj)
-	if not obj then
-	return false end
-	local se_obj = alife():object(obj:id())
-	return se_obj and se_obj.is_nvd_on ~= nil
 end
 --//інфоповідомлення на худі, у рушійному стилі
 function hud_add_info_message(static_id, text, ttl)
