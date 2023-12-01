@@ -14,7 +14,8 @@ function on_key_press(key, game_action)
 	local curr_nvd = actor_get_nvd()
 	if not nvd_action[game_action] or
 		not actor_hands_free() or
-		is_playing or --actor:get_holder() or
+		nvd.aim_nvd_weapon() or
+		is_playing or 
 		not curr_nvd
 	then
 	return end

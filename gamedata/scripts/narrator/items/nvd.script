@@ -1,16 +1,15 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
-	sm:subscribe({signal = "on_slot",   			fun = this.on_slot})
-	sm:subscribe({signal = "on_ruck",   			fun = this.on_ruck})
-	sm:subscribe({signal = "on_drop",   			fun = this.on_ruck})
+	sm:subscribe({signal = "on_slot",   				fun = this.on_slot})
+	sm:subscribe({signal = "on_ruck",   				fun = this.on_ruck})
+	sm:subscribe({signal = "on_drop",   				fun = this.on_ruck})
+	sm:subscribe({signal = "on_actor_weapon_zoom_in",   fun = this.on_zoom_in})
 end
 
 local on_snd = [[device\torch\nv_start]]
 local off_snd = [[device\torch\nv_off]]
 
-function get_nvd_params(item)
-	if not is_nvd(item) then return nil end
-	local sect = item:section()
+function get_nvd_params(sect)
 	local _tmp = read_if_exists(sys_ini, "r_string", sect, "nv_color", nil)
 	if not _tmp then return nil end
 	_tmp = split_string(_tmp, ",")
@@ -35,7 +34,7 @@ function switch_nvd(item)
 	sobj.is_nvd_on = not sobj.is_nvd_on
 	local snd_name = sobj.is_nvd_on and on_snd or off_snd
 	xr_sound.get_safe_sound_object(snd_name,sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
-	set_nvd_effector(item, sobj.is_nvd_on)
+	set_nvd_effector(item:section(), sobj.is_nvd_on)
 end
 
 function enable_nvd(item, power_on)
@@ -43,16 +42,16 @@ function enable_nvd(item, power_on)
 	sobj.is_nvd_on = power_on
 	local snd_name = sobj.is_nvd_on and on_snd or off_snd
 	xr_sound.get_safe_sound_object(snd_name,sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
-	set_nvd_effector(item, sobj.is_nvd_on)
+	set_nvd_effector(item:section(), sobj.is_nvd_on)
 end
 
-function set_nvd_effector(item, enable)
+function set_nvd_effector(sect, enable)
 	--log3("set_nvd_effector item %s, enable %s", item:name(), enable)
 	if not enable then
 		set_pnv_color(0,0,0,0)
 		set_pnv_params(0,0,0,0)
 	else
-		local params = get_nvd_params(item)
+		local params = get_nvd_params(sect)
 		set_pnv_color(params.R, params.G, params.B, params.INTENSITY)
 		set_pnv_params(params.NOISE, params.SCANLINES, params.VIGNETTE, params.FLICKERING)
 	end
@@ -60,7 +59,7 @@ end
 
 function on_slot(obj, prev_place)
 	local sobj = alife():object(obj:id())
-	if get_nvd_params(obj) then
+	if get_nvd_params(obj:section()) then
 		if not xr_conditions.black_screen() then
 			sobj.is_nvd_on = false
 		end
@@ -72,13 +71,84 @@ end
 
 function on_ruck(obj, prev_place)
 	local sobj = alife():object(obj:id())
-	if get_nvd_params(obj) and prev_place == item_place.slot then
+	if get_nvd_params(obj:section()) and prev_place == item_place.slot then
 		if sobj.is_nvd_on then
 			enable_nvd(obj, false)
 		end
 	end
 end
 
-function is_nvd_on(item)
-	return actor_get_nvd() and item:id() == actor_get_nvd():id() and alife():object(item:id()).is_nvd_on
+function is_nvd_on()
+	local nvd = actor_get_nvd()
+	return nvd and alife():object(nvd:id()).is_nvd_on
+end
+
+--//scope night vision
+
+local subscribed = false
+
+function aim_nvd_weapon()
+	local act_item = actor:active_item()
+	return act_item and act_item:get_weapon() and act_item:get_weapon().zoom_mode and get_nv_sect(act_item) 
+end
+
+function get_nv_sect(item)
+	local sect = item:section()
+	if read_if_exists(sys_ini, "r_u32", sect, "scope_status", 0) == 1 and get_nvd_params(sect) then
+		return sect
+	end	
+	local wpn = item:get_weapon_m()
+	if wpn then
+		if wpn:addon_attachable(addon.scope) and get_nvd_params(wpn:get_addon_name(addon.scope)) then
+			return wpn:get_addon_name(addon.scope)
+		end
+	end
+	return nil
+end
+
+function on_zoom_in(weapon)
+	local nv_sect = get_nv_sect(weapon)
+	if not nv_sect then return end
+	if is_nvd_on() then
+		enable_nvd(actor_get_nvd(), false)
+	end
+	level.add_call(
+		function() 
+			return weapon:get_weapon().zoom_rotation_factor == 1
+		end,
+		function() 
+			set_nvd_effector(nv_sect, alife():object(weapon:id()).is_nvd_on)
+		end
+	)
+	if not subscribed then
+		subscribed = {
+			{signal = "on_actor_weapon_zoom_out", 	fun = this.on_zoom_out},
+			{signal = "on_key_press", 				fun = this.on_key_press},
+		}
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs(subscribed) do
+			sm:subscribe(s)
+		end
+	end
+end
+
+function on_zoom_out(weapon)
+	set_nvd_effector(get_nv_sect(weapon), false)
+	if subscribed then
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs(subscribed) do
+			sm:unsubscribe(s)
+		end
+		subscribed = false
+	end
+end
+
+local nvd_action = {
+	[key_bindings.kNIGHT_VISION] = true,
+}
+
+function on_key_press(key, game_action)
+	if not nvd_action[game_action] then
+	return end
+	switch_nvd(actor:active_item())
 end

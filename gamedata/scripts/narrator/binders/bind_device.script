@@ -108,7 +108,7 @@ function device_binder:init_power_source()
 end
 
 function device_binder:is_working()
-	return parent_is_actor(self.object) and (self.object:is_power_on() or nvd.is_nvd_on(self.object))
+	return parent_is_actor(self.object) and (self.object:is_power_on() or self.se_obj.is_nvd_on)--nvd.is_nvd_on(self.object))
 end
 
 function device_binder:decrease_power()

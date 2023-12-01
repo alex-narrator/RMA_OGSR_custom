@@ -245,13 +245,6 @@ function on_hit(victim, health_lost, direction, draftsman, bone_id)
 		--log3("check_item %s", check_item:name())
 		return
 	end
-	
-	check_item = actor:item_in_slot(15)
-	if check_item and check_item:id() == check_id then
-		update_mask_texture()
-		--log3("check_item %s", check_item:name())
-		return
-	end
 end
 
 function on_update_mask(delta)

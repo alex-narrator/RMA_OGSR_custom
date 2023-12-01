@@ -27,7 +27,7 @@ function campfire_binder:reinit()
 end
 
 function campfire_binder:net_spawn(data)
-	log3("%s net_spawn for object %s", script_name(), self.object:name())
+	--log3("%s net_spawn for object %s", script_name(), self.object:name())
 	--self.object:disable_anomaly()
 	self.sm:call("on_campfire_spawn", self.object)
     local spawned = object_binder.net_spawn(self, data)	
@@ -35,7 +35,7 @@ function campfire_binder:net_spawn(data)
 end
 
 function campfire_binder:net_destroy()
-	log3("%s net_destroy for object %s", script_name(), self.object:name())
+	--log3("%s net_destroy for object %s", script_name(), self.object:name())
 	self.sm:call("on_campfire_destroy", self.object)
 	object_binder.net_destroy(self)
 end
