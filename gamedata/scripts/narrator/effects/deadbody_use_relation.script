@@ -1,0 +1,39 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+
+function attach(sm)
+	sm:subscribe({signal = "on_npc_use", fun = this.on_npc_use})
+end
+
+local CHECK_RADIUS = 50
+
+--//ком'юніті яким байдуже на обшук тіл товаришів
+local disabled_comms = {
+	stalker = true,
+	bandit = true,
+}
+
+function is_enemy_comm(target_comm)
+	return relation_registry.community_goodwill(target_comm, actor:id()) < -500 
+end
+
+function get_nearest_comm_member(npc)
+	local target_comm = npc:character_community()
+	function perform_action(obj)
+		if obj:is_stalker() and obj:alive() and obj:character_community() == target_comm then
+			return obj
+		end
+	end
+	level.iterate_nearest(npc:position(), CHECK_RADIUS, perform_action)
+	return nil
+end
+
+function on_npc_use(npc)
+	if npc:alive() then return end
+	local target_comm = npc:character_community()
+	if is_enemy_comm(target_comm) or actor:character_community() == target_comm then return end
+	if disabled_comms[target_comm] then return end
+	local nearest_comm_member = get_nearest_comm_member(npc)
+	if nearest_comm_member and nearest_comm_member:see(actor) then
+		log3("community member %s see actor searching corpse of %s", nearest_comm_member:character_name(), npc:character_name())
+	end
+end

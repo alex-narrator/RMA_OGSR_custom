@@ -187,7 +187,9 @@ function Cmeet_manager:update()
 	local dist = actor:position():distance_to(self.npc:position())
 	if self.a.precond == "visibility" and 
 		(
-			level.main_input_receiver() or 
+			has_alife_info("on_pda_show") or 
+			has_alife_info("on_inventory_show") or 
+			has_alife_info("on_carbody_show") or
 			not self.npc:see(actor) or 
 			not is_actor_looking_to_pos(self.npc:center(), self.npc:radius()) or 
 			self.npc:is_talking() or 

@@ -197,10 +197,29 @@ end
 
 --somnolence.change_val(1)
 
--- local pos = actor:position()
--- log3("position %s, %s, %s | lvid %s | gvid %s | is valid %s", pos.x, pos.y, pos.z, actor:level_vertex_id(), actor:game_vertex_id(), game_graph():valid_vertex_id(actor:level_vertex_id()))
+local pos = actor:position()
+log3("position %s, %s, %s | lvid %s | gvid %s | is valid %s", pos.x, pos.y, pos.z, actor:level_vertex_id(), actor:game_vertex_id(), game_graph():valid_vertex_id(actor:level_vertex_id()))
 
 --log3("rain factor %s",level.rain_factor())
 
-set_pnv_color(0.45, 0.6, 0.6, 5)
-set_pnv_params(0.1, 0.1, 0, 0)
+-- local patrol_blokpost = {
+	-- {-157.442291259766,-30.4027099609375,-338.658447265625},
+	-- {-158.017913818359,-30.1919269561768,-325.799224853516},
+	-- {-158.044097900391,-30.0590209960938,-301.854370117188},
+	-- {-157.319427490234,-31.4657669067383,-263.800872802734},
+	-- {-153.711944580078,-28.9144153594971,-226.384124755859},
+-- }
+
+-- local patrol_pos_alt = {
+	-- {65.8219909667969,2.04917430877686,174.64811706543},
+	-- {71.2241363525391,1.84532737731934,161.658843994141},
+	-- {70.5435791015625,2.17093467712402,134.596084594727},
+	-- {59.8727493286133,-0.219607830047607,155.653274536133},
+	-- {56.2842407226562,1.58990907669067,171.434295654297},
+	-- {62.3669395446777,0.432019233703613,141.998443603516},
+	-- {58.8273506164551,-0.358315467834473,144.334884643555},
+-- }
+
+-- for k,v in ipairs(patrol_blokpost) do
+	-- spawn_to_level("zone_flame_small", vector():set(v[1],v[2],v[3]), "l01_escape")
+-- end

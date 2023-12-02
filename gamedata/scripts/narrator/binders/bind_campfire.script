@@ -17,6 +17,7 @@ end
 class "campfire_binder" (object_binder)
 function campfire_binder:__init(obj) super(obj)
 	self.sm = ogse_signals.get_mgr()
+	self.is_active = false
 end
  
 function campfire_binder:reload(section)
@@ -43,4 +44,14 @@ end
 function campfire_binder:update(delta)
     object_binder.update(self, delta)
 	self.sm:call("on_campfire_update", self.object, delta)
+end
+
+function campfire_binder:save(packet)
+	object_binder.save(self, packet)
+	self.sm:call("on_campfire_save", packet)
+end
+----------------------------------------------------------------------------------------------------------------------
+function campfire_binder:load(reader)
+	object_binder.load(self, reader)
+	self.sm:call("on_campfire_load", reader)
 end
