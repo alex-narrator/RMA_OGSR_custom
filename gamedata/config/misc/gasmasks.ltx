@@ -1,7 +1,7 @@
 ;---------------------------------------------------------------------------------------------
 ;		ПРОТИГАЗИ
 ;---------------------------------------------------------------------------------------------
-[gasmask_base]:identity_immunities,quick_item
+[gasmask_base]:identity_immunities
 GroupControlSection	= spawn_group
 discovery_dependency =
 class 					= EQ_HELMT
@@ -24,6 +24,8 @@ attach_angle_offset 	= 1.500, 0.043, 1.650
 attach_position_offset 	= 0.064, 0.001, 0.099
 attach_bone_name		= bip01_head
 auto_attach				= false
+
+quick_slot 			= true
 
 [gasmask_cloth]:gasmask_base
 		visual                        = dynamics\outfit\cloth_mask
@@ -226,7 +228,6 @@ inv_grid_y         = 12
 		repair_type                   = helmet
 		;repair_part_bonus             = 0.14
 		hit_fraction_actor            = 0.9
-		bones_koeff_protection        = actor_helm_m40
 		control_inertion_factor       = 1
 		power_loss                    = 0.1
         

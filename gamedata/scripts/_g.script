@@ -1868,16 +1868,65 @@ end
 
 --//спавн по координатам та імені рівня
 --//ТІЛЬКИ для об'єктів яким НЕ ПОТРІБНА прив'язка до АІ-сітки
-function spawn_to_level(section, spawn_pos, level_name)
+function spawn_to_level(section, spawn_pos, level_name, spawn_dir)
 	local sim = alife()
+	spawn_dir = spawn_dir or vector()
 	local s_obj = sim:create(section, spawn_pos, -1, get_any_gvid_by_level(level_name))
+	s_obj.angle = spawn_dir
 	sim:object(s_obj.id):used_ai_locations(false)
 	return s_obj
+end
+
+function spawn_ammo_to_level(section, spawn_pos, level_name, count, ammo_type, spawn_dir)
+	ammo_type = ammo_type or 0
+	spawn_dir = spawn_dir or vector()
+	local sim = alife()	
+	local gvid = get_any_gvid_by_level(level_name)
+	local count_in_box = read_if_exists(sys_ini, "r_s32", section, "box_size", 1)
+	local s_obj
+	while count > count_in_box do
+		s_obj = sim:create_ammo(section, spawn_pos, -1,	gvid, -1, count_in_box, ammo_type)
+		s_obj.angle = spawn_dir
+		sim:object(s_obj.id):used_ai_locations(false)
+		count = count - count_in_box
+	end
+	s_obj = sim:create_ammo(section, spawn_pos, -1,	gvid, -1, count, ammo_type)	
+	s_obj.angle = spawn_dir
+	sim:object(s_obj.id):used_ai_locations(false)
 end
 
 --//спавн до inventory_owner'a
 function spawn_to_owner(section, owner_id)
 	return alife():create(section, vector(), -1, -1, owner_id)
+end
+
+function spawn_ammo_to_owner(section, owner_id, count, ammo_type)
+	ammo_type = ammo_type or 0
+	local sim = alife()	
+	local count_in_box = sys_ini:r_u32(section, "box_size")
+	while count > count_in_box do
+		sim:create_ammo(section, vector(), -1,	-1, owner_id, count_in_box, ammo_type)
+		count = count - count_in_box
+	end
+	sim:create_ammo(section, vector(), -1,	-1, owner_id, count, ammo_type)
+end
+
+--спеціально для видачі пачок набоїв враховуючи магазини
+--параметри count, loaded_box, ammo_type необов'язкові (одна повна пачка та перший з переліку тип за замовчуванням)
+--count - кількість пачок
+--loaded_box - повна чи порожня пачка
+--ammo_type - тип набою у пачці (для магазинів)
+--можна видавати порожні пачки (для магазинів)
+function give_ammo_box_to_actor(section, count, loaded_box, ammo_type)
+	count = count ~= nil and count or 1
+	loaded_box = loaded_box ~= nil and loaded_box or true
+	ammo_type = ammo_table ~= nil and ammo_type or 0
+	local count_in_box = loaded_box and sys_ini:r_u32(section, "box_size") or 0
+	while count > 0 do
+		spawn_ammo_to_owner(section, actor:id(), count_in_box, ammo_type)
+		count = count - 1
+		news_manager.relocate_item(actor, "in", section)
+	end
 end
 
 function time_to_table(time_struct)

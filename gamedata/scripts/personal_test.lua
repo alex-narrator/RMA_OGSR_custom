@@ -1,7 +1,7 @@
-local item = db.actor:item_in_slot(0)
-if item then
-	set_item_inv_hidden(item)
-end
+-- local item = db.actor:item_in_slot(0)
+-- if item then
+	-- set_item_inv_hidden(item)
+-- end
 
 -- local actor = db.actor
 
@@ -98,7 +98,7 @@ end
 --block_non_move_action(false)
 --get_actor_obj():block_action(key_bindings.kINVENTORY)
 
--- local item = db.actor:active_item()
+--local item = db.actor:active_item()
 -- if item then
 		-- local wpn = item:get_weapon()
 		-- if not wpn then
@@ -111,10 +111,10 @@ end
 		-- end
 	-- end
 -- end
--- item:dump_visual_to_log() --Распечатать в лог информацию о мешах и костях модели - мировой и худовой, если худовая доступна.
--- log3("--HUD Mesh count of [%s]: [%s]", item:name(), item:get_mesh_count_hud())
--- item:set_show_model_mesh_hud(3, false)
--- end
+--item:dump_visual_to_log() --Распечатать в лог информацию о мешах и костях модели - мировой и худовой, если худовая доступна.
+--log3("--HUD Mesh count of [%s]: [%s]", item:name(), item:get_mesh_count_hud())
+--item:set_show_model_mesh_hud(3, false)
+--end
 
 -- local item = level.get_target_obj()
 -- if item then

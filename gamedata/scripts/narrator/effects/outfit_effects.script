@@ -25,6 +25,10 @@ function get_hud_params(sect)
 	return hud_params
 end
 
+function has_hud(sect)
+	return hud_params.shader or hud_params.texture or hud_params.breathe > 0
+end
+
 function get_cond_idx()
 	local cond = hud_obj:condition()
 	--log3("hud_obj %s | cond %s", hud_obj:name(), cond)
@@ -118,7 +122,8 @@ function enable_effects(obj)
 		sm:subscribe({signal = "on_update", fun = this.on_update_minimap})
 	end
 	
-	if get_hud_params(obj:section()) then
+	get_hud_params(obj:section())
+	if has_hud(obj:section()) then
 		hud_obj = obj
 		try_switch_shader_effects(true) 
 		try_set_hud_mask(true)
@@ -139,7 +144,7 @@ function disable_effects(obj, prev_place)
 		sm:unsubscribe({signal = "on_update", fun = this.on_update_minimap})
 	end
 	
-	if get_hud_params(obj:section()) then
+	if has_hud(obj:section()) then
 		try_switch_shader_effects(false)
 		try_set_hud_mask(false)
 	end

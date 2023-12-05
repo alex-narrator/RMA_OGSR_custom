@@ -8,7 +8,9 @@ function on_drag_drop(obj, drop_on_obj)
 	local drop_on_iitem = drop_on_obj:get_inventory_item()
 	
 	if not drop_on_obj:get_weapon() or actor:is_in_slot(drop_on_obj) then
-		drop_on_obj:is_direct_reload(obj)
+		if drop_on_obj:is_direct_reload(obj) then
+			update_inventory_window()
+		end
 	end
 	
 	if drop_on_iitem:can_attach_addon(iitem) then

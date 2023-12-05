@@ -1857,35 +1857,14 @@ function cit_drop_actor_inventory(actor)
 	inv_box_2 = level_object_by_sid(1202)
 	out_object = actor
 	in_object = inv_box_2
-		actor:inventory_for_each(transfer_object_item)
+	actor:inventory_for_each(transfer_object_item)
 end
 
 function cit_transfer_actor_inventory(actor)
-	local spawn_coord = vector():set(-28.789925537109, 11.229992431641, 29.251426239014)
-	local level = "l09_deadcity"
-	
-	local inv_box = spawn_to_level("inventory_box_blue", spawn_coord, level)
-	alife():assign_story_id(inv_box.id, 1213)
-	inv_box.custom_data = [[
-			[logic]
-			cfg = scripts\cit\cit_actor_weapon_box.ltx
-			]]
-	level.client_spawn_manager():add(inv_box.id, -1, function(id, obj)
-		inv_box_2 = obj
-		out_object = actor
-		in_object = inv_box_2
-		actor:inventory_for_each(transfer_object_item)
-	end)
-	
-	local phys_box = spawn_to_level("physical_box_blue", spawn_coord, level)
-	level.client_spawn_manager():add(phys_box.id, -1, function(id, obj)
-		obj:get_physics_shell():get_element_by_order(0):fix()
-		phys_box.custom_data = [[
-			[physics_common]
-			fixed_bones = link
-			]]		
-	end)
-	
+	inv_box_2 = level_object_by_sid(story_ids.cit_actor_weapon_box)
+	out_object = actor
+	in_object = inv_box_2
+	actor:inventory_for_each(transfer_object_item)	
 end
 
 ---------------------------------------------------------

@@ -17,56 +17,67 @@ local ammo_sections = {}
 
 local death_ini = ini_file_cached("misc\\death_generic.ltx")
 
+local community_list = { 
+	"stalker", 
+	"dolg", 
+	"freedom", 
+	"bandit", 
+	"military", 
+	"zombied", 
+	"ecolog", 
+	"killer", 
+	"monolith", 
+	"arena_enemy", 
+	"stranger" 
+}
 
 function init_drop_settings()
-  local community_list = { "stalker", "dolg", "freedom", "bandit", "military", "zombied", "ecolog", "killer", "monolith", "arena_enemy", "stranger" } 
-
-    for k,v in pairs(community_list) do
+	for k,v in pairs(community_list) do
         --' Необходимо заполнить таблицу
         item_by_community[v] = {}
         if death_ini:section_exist(v) then
-        local n = death_ini:line_count(v)
-        local id, value = "", ""
-        for i=0,n-1 do
-          result, id, value = death_ini:r_line(v,i,"","")
-                item_by_community[v][id] = 1000*tonumber(value)
-        end
+			local n = death_ini:line_count(v)
+			local id, value = "", ""
+			for i=0,n-1 do
+				result, id, value = death_ini:r_line(v,i,"","")
+				item_by_community[v][id] = 1000*tonumber(value)
+			end
         end
     end
 
     --' Заполняем таблицу зависимостей
-  local n = death_ini:line_count("item_dependence")
-  local id, value = "", ""
-  for i=0,n-1 do
-    result, id, value = death_ini:r_line("item_dependence",i,"","")
-    item_dependence[id] = {}
-    local vvv = parse_names(value)
-    for k,v in pairs(vvv) do
-      item_dependence[id][v] = true
-    end
-  end
+	local n = death_ini:line_count("item_dependence")
+	local id, value = "", ""
+	for i=0,n-1 do
+		result, id, value = death_ini:r_line("item_dependence",i,"","")
+		item_dependence[id] = {}
+		local vvv = parse_names(value)
+		for k,v in pairs(vvv) do
+		item_dependence[id][v] = true
+		end
+	end
 
   --' Множители и минимаксы для выпадения вещей в зависимости от уровня
     local level_name = level.name()
   
-  if not death_ini:section_exist(level_name) then
-    level_name = "default"
-  end
+	if not death_ini:section_exist(level_name) then
+		level_name = "default"
+	end
 
     local n = death_ini:line_count(level_name)
-  local id, value = "", ""
-  for i=0,n-1 do
-    result, id, value = death_ini:r_line(level_name,i,"","")
+	local id, value = "", ""
+	for i=0,n-1 do
+		result, id, value = death_ini:r_line(level_name,i,"","")
         mul_by_level[id] = tonumber(value)
-  end        
+	end        
 
     local item_count_section = "item_count_" .. level.get_game_difficulty()
     local n = death_ini:line_count(item_count_section)
-  for i=0,n-1 do
-    result, id, value = death_ini:r_line(item_count_section,i,"","")
+	for i=0,n-1 do
+		result, id, value = death_ini:r_line(item_count_section,i,"","")
         --' Нужно распарсить value в два значения
         local t = parse_nums(value)
-    if t[1] == nil then
+		if t[1] == nil then
             abort("Error on [death_ini] declaration. Section [%s], line [%s]", item_count_section, tostring(id))
         end
         local min = t[1]
@@ -83,12 +94,12 @@ function init_drop_settings()
         max = tonumber(max) * mul_by_level[id]
 
         count_by_level[id] = {min = min, max = max}
-  end        
+	end        
 
   --' Предметы, которые нельзя удалять (квестовые например)
     local n = death_ini:line_count("keep_items")
-  for i=0,n-1 do
-    result, id, value = death_ini:r_line("keep_items",i,"","")
+	for i=0,n-1 do
+		result, id, value = death_ini:r_line("keep_items",i,"","")
         if value == "true" then
             always_keep_item[id] = true
         end
@@ -97,11 +108,11 @@ function init_drop_settings()
   --' Предметы, относящиеся к патронам. Их надо спаунить другим методом.
     ammo_sections = {}
     local n = death_ini:line_count("ammo_sections")
-  local id, value = "", ""
-  for i=0,n-1 do
-    result, id, value = death_ini:r_line("ammo_sections",i,"","")
+	local id, value = "", ""
+	for i=0,n-1 do
+		result, id, value = death_ini:r_line("ammo_sections",i,"","")
         ammo_sections[id] = true
-  end        
+	end        
 end
 
 
@@ -111,12 +122,10 @@ function drop_manager:__init(npc)
   self.npc = npc
 end
 function drop_manager:create_release_item()
-  --' Спрашиваем у серверного объекта генерились ли предметы
-  local se_obj = alife():object(self.npc:id())
-  if se_obj.death_droped == true then
-    return
-  end
-  se_obj.death_droped = true
+	--' Спрашиваем у серверного объекта генерились ли предметы
+	local se_obj = alife():object(self.npc:id())
+	if se_obj.death_droped == true then return end
+	se_obj.death_droped = true
 
     --' Запускаем итератор на удаление предметов
     self.npc:iterate_inventory(keep_item, self.npc)
@@ -150,10 +159,15 @@ function keep_item(npc, item)
     if section == "bolt" then
         return false
     end
+	
+	if read_if_exists(sys_ini, "r_bool", section, "quest_item", false) then
+	return true end
 
+	if read_if_exists(sys_ini, "r_bool", section, "unique_item", false) then
+	return true end	
+	
     if always_keep_item[section] == true then
-        return true
-    end
+    return true end
 
     local item_id = item:id()
     local item_in_slot = npc:item_in_slot(1)
@@ -183,22 +197,13 @@ function create_items(npc, section, number, rnd)
 	local sobj
     if ammo_sections[section] == true then
         if number > 0 then
-            se_respawn.create_ammo(section, 
-            npc:position(),
-            npc:level_vertex_id(),  
-            npc:game_vertex_id(),
-            npc:id(),
-                    number)
+			spawn_ammo_to_owner(section, npc:id(), number)
         end
     else
         for i=1,number do
       --' Проверяем вероятность появить каждый объект в отдельности
             if math.random(1000) <=  rnd then
-				sobj = alife():create(section, 
-										npc:position(),
-										npc:level_vertex_id(),  
-										npc:game_vertex_id(),
-										npc:id())
+				sobj = spawn_to_owner(section, npc:id())
 				if sobj:clsid() ~= clsid.artefact_s then
 					alife():object(sobj.id):get_inventory_item().item_radiation_restore_speed = math.clamp(npc.radiation,0,read_if_exists(sys_ini, "r_float", sobj:section_name(), "radiation_accum_limit", 0))
 					--log3("~npc %s, radiation %s, spawn item %s", npc:name(), npc.radiation, sobj:section_name())
