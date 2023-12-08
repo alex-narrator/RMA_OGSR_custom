@@ -132,6 +132,8 @@ function drop_manager:create_release_item()
 
     --' Проверка на отсутствие спауна лута
     local ini = self.npc:spawn_ini()
+	
+	spawn_pda(self.npc)
 
     if ini and ini:section_exist("dont_spawn_loot") then
         return
@@ -230,4 +232,39 @@ function check_item_dependence(npc, section)
     end
 
     return d_flag
+end
+
+
+local personal_pda_list = {
+	[87] 	= "esc_novice_pda",
+	[7] 	= "esc_tutorial_wounded_pda",
+	[33] 	= "esc_tutorial_dead_novice_pda",
+	[93] 	= "esc_fabrika_bandit_pda",
+	[94] 	= "esc_bandit_novice_pda",
+	[5] 	= "esc_fox_pda",
+	[92] 	= "esc_provodnik_pda",
+	[100] 	= "gar_seryi_pda",
+	[109] 	= "gar_wounded_pda",
+	[32] 	= "agr_krot_pda",
+	[351] 	= "agr_nii_commander_pda",
+	[450] 	= "dar_corpse_kalugin_pda",
+	[451] 	= "dar_corpse_ucheniy_pda",
+	[609] 	= "ros_freeman_pda",
+	[903] 	= "yan_vasilyev_pda",
+	[918] 	= "yan_ghost_pda",
+	[72] 	= "mil_max_pda",
+	[725] 	= "mil_ugrum_pda",
+	[710] 	= "mil_stukach_pda",
+	[775] 	= "mil_bandit_pda",
+	[1077] 	= "rad_dead_scientist_pda",
+	[1078] 	= "rad_monolith_master_pda",
+	[1125] 	= "aes_soldier_pda",
+}
+
+function spawn_pda(npc)
+	local personal_pda = personal_pda_list[npc:story_id()]
+	if personal_pda then
+		spawn_to_owner(personal_pda, npc:id())
+		log3("~spawn personal pda %s for npc %s", personal_pda, npc:name())
+	end
 end

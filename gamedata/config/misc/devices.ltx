@@ -34,7 +34,6 @@ script_binding      = bind_physic_object.init
 
 [inventory_box_blue]:inventory_box
 visual				= physics\equipment_cache\equipment_box_01_case
-;logic_cfg 			= scripts\cit\cit_actor_weapon_box.ltx
 
 [physical_box_blue]
 GroupControlSection	= spawn_group
@@ -44,6 +43,12 @@ class				= O_PHYS_S
 remove_time			= 60; after this time  unbreaked removable bone will be removed
 script_binding      = bind_physic_object.init
 visual				= equipments\item_box_01_visual
+
+[inventory_box_blue_deadcity]:inventory_box_blue
+custom_data = scripts\cit\cit_actor_weapon_box.ltx
+
+[physical_box_blue_deadcity]:physical_box_blue
+custom_data = scripts\cit\cit_actor_weapon_physical_box.ltx
 
 [store_box]:inventory_box
 class = S_INVBOX

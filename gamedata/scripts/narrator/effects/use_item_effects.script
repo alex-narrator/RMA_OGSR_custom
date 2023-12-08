@@ -17,21 +17,23 @@ function check_use_enabled(item, user)
 	if not eatable_item or not user:is_actor() then
 	return end
 	
+	local sect = item:section()
+	
 	if item:is_food_item() and not item:is_bottle_item() and actor.satiety > 0.95 then	
 		eatable_item.can_be_eaten = false
 		news_manager.item_tip(item, "satiety_block_eat")
 	return end
 	
-	if not read_if_exists(sys_ini, "r_bool", item:section(), "helmet_use", true) then
+	if not read_if_exists(sys_ini, "r_bool", sect, "helmet_use", true) then
 				
 		local check_item = actor:item_in_slot(6)
-		if check_item and not actor.inventory:is_slot_allowed(11) then
+		if check_item and outfit_effects.has_hud(sect) then
 			eatable_item.can_be_eaten = false
 			news_manager.item_tip(check_item, "outfit_block_eat")
 		return end
 	
 		check_item = actor:item_in_slot(11)
-		if check_item and outfit_effects.get_hud_params(check_item:section()) then
+		if check_item and outfit_effects.has_hud(sect) then
 			eatable_item.can_be_eaten = false
 			news_manager.item_tip(check_item, "outfit_block_eat")
 		return end
@@ -67,6 +69,16 @@ function use_item_effects(obj, user)
 			level.add_complex_effector(eff_name, use_effector_id)
 		end
 		somnolence.apply_influence(obj)
+		
+		local use_info = read_if_exists(sys_ini, "r_string", sect, "use_info", nil)
+		if use_info then
+			use_info = split_string(use_info, ",")
+			for _,infoportion in ipairs(use_info) do
+				if not has_alife_info(infoportion) then
+					user:give_info_portion(infoportion) 
+				end
+			end
+		end		
 	end
 end
 
