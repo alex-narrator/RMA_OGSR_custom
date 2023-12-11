@@ -256,7 +256,7 @@ function MainIngameOverlay:UpdatePanelItems()
 	self.loadout_panel.items = {}
 	pos_x = 0
 	pos_y = 0
-	for k,v in pairs(loadout.loaded_items) do
+	for k,v in pairs(loadout.get_loaded_items()) do
 		item = level.object_by_id(k)
 		if item then
 			self:TryAddToLoadoutList(item)

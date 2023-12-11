@@ -1334,7 +1334,8 @@ function bar_arena_teleport ( actor, npc)
 
 	out_object = actor
     in_object  = inv_box_1
-		actor:inventory_for_each(transfer_object_item) 
+	actor:inventory_for_each(transfer_object_item)
+	loadout.unpack_items(in_object)
 
 	local spawn_items = {}	
 
@@ -1392,16 +1393,9 @@ function bar_arena_teleport ( actor, npc)
 		table.insert(spawn_items, "wpn_knife")
 	end
 	
-	local k,v = 0,0
-	
 	for k,v in pairs(spawn_items) do
-		alife():create(v,	
-						db.actor:position(),
-						db.actor:level_vertex_id(),	
-						db.actor:game_vertex_id(), 
-						db.actor:id())
+		spawn_to_owner(v, actor:id())
 	end	
-	
 end
 
 function bar_arena_weapon_slot ()
@@ -1424,7 +1418,8 @@ function bar_arena_teleport_2 ( actor, npc)
 
 	out_object = actor
     in_object  = inv_box_2
-		actor:inventory_for_each(transfer_object_item) 
+	actor:inventory_for_each(transfer_object_item)
+	loadout.unpack_items(in_object)
 end
 
 function barman_give_extra_task (actor, npc)
@@ -1864,7 +1859,8 @@ function cit_transfer_actor_inventory(actor)
 	inv_box_2 = level_object_by_sid(story_ids.cit_actor_weapon_box)
 	out_object = actor
 	in_object = inv_box_2
-	actor:inventory_for_each(transfer_object_item)	
+	actor:inventory_for_each(transfer_object_item)
+	loadout.unpack_items(in_object)
 end
 
 ---------------------------------------------------------

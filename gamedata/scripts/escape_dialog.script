@@ -185,7 +185,7 @@ end
 function actor_has_weapon()
 	local has_wpn = false
 	function perform_check(dummy, item)
-		if item:is_weapon_magazined() then
+		if item:is_weapon_magazined() and not is_quest_item(item:section()) then
 			has_wpn = true
 		end
 	end	

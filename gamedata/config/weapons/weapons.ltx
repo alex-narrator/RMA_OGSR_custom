@@ -1757,3 +1757,52 @@ inv_grid_width     = 1
 inv_grid_height    = 1
 inv_grid_x         = 7
 inv_grid_y         = 38
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;SPECIAL BALLAST SECTIONS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+[ballast_ammo]:identity_immunities
+GroupControlSection	= spawn_group
+discovery_dependency = 
+$spawn				= "weapons\ammo\vallast" ; option for Level Editor
+class				= AMMO
+cform           	= skeleton
+visual          	= weapons\ammo\ammo_9x18_fmj.ogf
+description			= enc_weapons1_ammo_ammo-9x18-fmj
+$prefetch 			= 64
+
+cost				= 0
+
+box_size			= 1
+
+inv_name			= ballast_ammo
+inv_name_short		= ballast_ammo
+inv_weight			= 0.01
+
+inv_grid_width     	= 0
+inv_grid_height    	= 0
+inv_grid_x         	= 0
+inv_grid_y         	= 0
+
+quest_item 			= true
+default_to_ruck 	= true
+
+[ballast_weapon]:wpn_pm
+cost				= 0
+ammo_mag_size		= 0
+ammo_class		 	= ballast_ammo
+magazine_class 		=
+slot 				=
+
+inv_name			= ballast_weapon
+inv_name_short		= ballast_weapon
+inv_weight			= 0
+
+inv_grid_width     	= 0
+inv_grid_height    	= 0
+inv_grid_x         	= 0
+inv_grid_y         	= 0
+
+quest_item 			= true
+default_to_ruck 	= true

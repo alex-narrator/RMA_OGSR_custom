@@ -1,17 +1,22 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
-	sm:subscribe({signal = "on_drop",   fun = this.on_drop})
-	sm:subscribe({signal = "on_ruck",   fun = this.on_ruck})
-	sm:subscribe({signal = "on_take",   fun = this.on_take})
-	sm:subscribe({signal = "on_slot",   fun = this.on_slot})
-	sm:subscribe({signal = "on_belt",   fun = this.on_belt})
-	sm:subscribe({signal = "on_grenade_type_switch",   fun = this.on_grenade_type_switch})
-	--sm:subscribe({signal = "on_cell_item_mouse",   	fun = this.try_set_item})
-	sm:subscribe({signal = "on_save",   fun = this.on_save})
-	sm:subscribe({signal = "on_load",   fun = this.on_load})
-	sm:subscribe({signal = "on_first_update",   fun = this.on_first_update})
-	sm:subscribe({signal = "on_move_to_marked_list",   fun = this.on_move_to_marked_list})
-	sm:subscribe({signal = "on_move_from_marked_list",   fun = this.on_move_from_marked_list})
+	sm:subscribe({signal = "on_drop",   				fun = this.on_drop})
+	sm:subscribe({signal = "on_ruck",   				fun = this.on_ruck})
+	sm:subscribe({signal = "on_take",   				fun = this.on_take})
+	sm:subscribe({signal = "on_slot",   				fun = this.on_slot})
+	sm:subscribe({signal = "on_belt",   				fun = this.on_belt})
+	sm:subscribe({signal = "on_grenade_type_switch",   	fun = this.on_grenade_type_switch})
+	sm:subscribe({signal = "on_cell_item_mouse",   		fun = this.try_set_item})
+	sm:subscribe({signal = "on_save",   				fun = this.on_save})
+	sm:subscribe({signal = "on_load",   				fun = this.on_load})
+	sm:subscribe({signal = "on_first_update",   		fun = this.on_first_update})
+	
+	sm:subscribe({signal = "on_inventory_show",   		fun = this.unpack_items})
+	sm:subscribe({signal = "on_inventory_hide",   		fun = this.pack_items})
+	sm:subscribe({signal = "on_carbody_show",   		fun = this.unpack_items})
+	sm:subscribe({signal = "on_carbody_hide",   		fun = this.pack_items})
+	sm:subscribe({signal = "on_trade_show",   			fun = this.unpack_items})
+	sm:subscribe({signal = "on_trade_hide",   			fun = this.pack_items})	
 end
 
 --//loadout slot types and default capacities
@@ -34,19 +39,9 @@ function log_slots()
 	end
 end
 
-loaded_items = {}
+local loaded_items = {}
 
---//функції для рушійних колбеків переміщення в драгдроп-лист маркованих предметів
-function on_move_to_marked_list(item)
-	if can_add(item) then
-		add(item)
-	end
-end
-function on_move_from_marked_list(item)
-	if can_remove(item) then
-		remove(item)
-	end
-end
+local packed_items = {}
 
 local unload_states = {
 	[global_flags.eReload] = true,
@@ -57,22 +52,36 @@ function is_weapon_unloading()
 	return weapon and unload_states[weapon.state]
 end
 
+function get_loaded_items()
+	return loaded_items
+end
+
+function get_packed_items()
+	return packed_items
+end
+
 function on_save(packet)
-	xr_vars.save_var(script_name(), loaded_items)
+	xr_vars.save_var("loaded_items", loaded_items)
+	xr_vars.save_var("packed_items", packed_items)
 end
 
 function on_load(reader)
-	loaded_items = xr_vars.load_var(script_name(), loaded_items)
+	loaded_items = xr_vars.load_var("loaded_items", loaded_items)
+	packed_items = xr_vars.load_var("packed_items", packed_items)
 end
 
 function on_first_update()
-	local item
-	for i=0, actor:ruck_count()-1 do
-		item = actor:item_in_ruck(i)
-		if loaded_items[item:id()] then
-			add(item)
-		end			
-	end
+	-- local item
+	-- for i=0, actor:ruck_count()-1 do
+		-- item = actor:item_in_ruck(i)
+		-- if loaded_items[item:id()] then
+			-- add(item)
+		-- end			
+	-- end
+	if not actor:object("ballast_weapon") then
+		spawn_to_owner("ballast_weapon", actor:id())
+		log3("~CREATE BALLAST WEAPON")
+	end	
 end
 
 function get_max(slot)
@@ -189,6 +198,12 @@ function on_take(item)
 		elseif not has_drop_pouch() then
 			drop_item_to_angle(actor, item, 90)
 		end
+	elseif not level.main_input_receiver() then
+		if loaded_items[item:id()] then
+			add(item)
+		else	
+			pack_item(item)
+		end	
 	end
 end
 
@@ -281,18 +296,85 @@ function menu_tip_from(item)
 	return tip_text
 end
 
--- static_focused = false
--- function try_set_item(obj, x, y, action)
-	-- local action_allowed = can_add(obj) or can_remove(obj)
-	-- if action ~= ui_events.DRAG_DROP_ITEM_DROP or 
-		-- not static_focused or
-		-- not action_allowed
-	-- then 
-	-- return end
+function try_set_item(obj, x, y, action)
+	if not has_alife_info("ui_inventory") then return end
+	local action_allowed = can_add(obj) or can_remove(obj)
+	if action ~= ui_events.WINDOW_LBUTTON_DB_CLICK or 
+		not action_allowed
+	then 
+	return end
 	
-	-- if can_add(obj) then
-		-- add(obj)
-	-- elseif can_remove(obj) then
-		-- remove(obj)
-	-- end
--- end
+	if can_add(obj) then
+		add(obj)
+	elseif can_remove(obj) then
+		remove(obj)
+	end
+end
+
+
+function pack_item(item)
+	if item.marked or actor:is_in_slot(item) or actor:is_on_belt(item) then
+	return false end
+	
+	local sect = item:section()
+	
+	if sect == "ballast" then
+	return false end
+	
+	local class = read_if_exists(sys_ini, "r_string", sect, "class", nil)
+	if class ~= "AMMO" and class ~= "G_F1" and class ~= "G_RGD5" then
+	return false end
+	
+	packed_items[item:id()] = {}
+	
+	local data = packed_items[item:id()]
+	
+	data.sect = sect
+	
+	if class == "AMMO" then
+		local ammo = item:get_weapon_ammo()
+		data.count = ammo.box_curr
+		data.ammo_type = ammo.box_ammo_type
+	end	
+	
+	local sim = alife()
+	sim:release(sim:object(item:id()), true)
+	
+	--log3("~pack item: %s", item:name())
+	
+	add_ballast_weight(item:weight())
+	
+	return true
+end
+
+function unpack_items(owner)
+	local owner_id = owner and owner:id() or actor:id()
+	actor:object("ballast_weapon"):set_ammo_elapsed(0)
+	
+	for k,v in pairs (packed_items) do
+		if sys_ini:r_string(v.sect, "class") == "AMMO" then
+			spawn_ammo_to_owner(v.sect, owner_id, v.count, v.ammo_type)
+		else
+			spawn_to_owner(v.sect, owner_id)
+		end
+	end
+end
+
+function pack_items()
+	packed_items = {}
+		
+	function perform_action(dummy, item)
+		pack_item(item)
+	end	
+	actor:iterate_ruck(perform_action, nil)
+end
+
+function add_ballast_weight(weight)
+	local ballast_unit_weight = sys_ini:r_float("ballast_ammo", "inv_weight") / sys_ini:r_u32("ballast_ammo", "box_size")
+	--log3("~ballast_unit_weight: %s", ballast_unit_weight)
+	local add_count = math.floor(weight/ballast_unit_weight)
+	--log3("~add_count: %s", add_count)
+	local ballast_wpn = actor:object("ballast_weapon")
+	ballast_wpn:set_ammo_elapsed(ballast_wpn:get_ammo_in_magazine() + add_count)
+	--log3("~ballast weight %s | ballast box count %s", ballast_wpn:weight(), ballast_wpn:get_ammo_in_magazine())
+end

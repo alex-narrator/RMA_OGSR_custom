@@ -13,28 +13,6 @@ function on_cell_item_update(item, text_static, cell_item)
 	sm:call("on_cell_item_update", item, text_static, cell_item)
 end
 
-function ui_inventory_try_use_item(item)
-	-- if item and item:get_eatable_item() then
-		-- if not loadout.can_add(item) and not loadout.can_remove(item) then
-			-- actor:eat(item)
-			-- return true
-		-- end
-	-- end
-	return false
-end
-
-function can_move_to_marked_list(item)
-	return item and loadout.can_add(item)
-end
-
-function on_move_to_marked_list(item)
-	sm:call("on_move_to_marked_list", item)
-end
-
-function on_move_from_marked_list(item)
-	sm:call("on_move_from_marked_list", item)
-end
-
 function can_save_game()
 	return true
 end

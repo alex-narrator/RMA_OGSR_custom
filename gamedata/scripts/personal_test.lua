@@ -128,7 +128,7 @@ end
 	-- actor:active_item():stop_aim_inertion(false)
 -- end
 
--- for k,v in pairs(loadout.loaded_items) do
+-- for k,v in pairs(loadout.get_loaded_items()) do
 	-- log3("in table id %s | %s", k, level.object_by_id(k):name())
 -- end
 
@@ -223,3 +223,5 @@ log3("position %s, %s, %s | lvid %s | gvid %s | is valid %s", pos.x, pos.y, pos.
 -- for k,v in ipairs(patrol_blokpost) do
 	-- spawn_to_level("zone_flame_small", vector():set(v[1],v[2],v[3]), "l01_escape")
 -- end
+
+log3("~actor inv weight: %s", actor:get_inventory_weight())

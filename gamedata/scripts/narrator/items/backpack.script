@@ -33,6 +33,7 @@ function on_drop(obj, prev_place)
 				end
 			end	
 			actor:iterate_ruck(perform_action, nil)
+			loadout.unpack_items(obj)
 			
 			if idle_playing then
 				game.stop_hud_motion()
