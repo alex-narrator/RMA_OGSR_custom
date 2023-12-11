@@ -493,6 +493,10 @@ function actor_has_item(actor, npc, p)
 	return p[1] ~= nil and actor:object( p[1] ) ~= nil
 end
 
+function actor_has_item_in_slot(actor, npc, p)
+	xr_conditions_impl.actor_has_item_slot(actor, p[1], p[2])
+end
+
 -- возвращает true, если в текущей схеме персонажа взведён указанный сигнал.
 function signal(actor, npc, p)
 	if p[1] then

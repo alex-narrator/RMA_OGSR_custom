@@ -67,17 +67,22 @@ function PsyAntenna:update_psy_hit(dt)
 		local power						= self.hit_amplitude*self.hit_intensity
 --		printf("HIT: power = %s", tostring(power))
 		if power > 0.01 then
-			local psy_hit 				= hit()
-			psy_hit.power 				= power
-			psy_hit.direction 			= vector():set( 0, 0, 0 )
-			psy_hit.impulse 			= 0
-			psy_hit.draftsman 			= db.actor
-			psy_hit.type 				= hit.wound
-			db.actor:hit				(psy_hit)
-
-			if db.actor.health < 0.01 and db.actor:alive() then
-				db.actor:kill( db.actor )
+			if actor.psy_health > power then
+				actor.psy_health = -power
+			elseif actor:alive() then
+				actor:kill(actor)
 			end
+			-- local psy_hit 				= hit()
+			-- psy_hit.power 				= power
+			-- psy_hit.direction 			= vector():set( 0, 0, 0 )
+			-- psy_hit.impulse 			= 0
+			-- psy_hit.draftsman 			= db.actor
+			-- psy_hit.type 				= hit.wound
+			-- db.actor:hit				(psy_hit)
+
+			-- if db.actor.health < 0.01 and db.actor:alive() then
+				-- db.actor:kill( db.actor )
+			-- end
 		end
 	end
 end

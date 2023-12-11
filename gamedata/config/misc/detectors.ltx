@@ -168,163 +168,166 @@ auto_attach				= false
 ;;;;;;;DETECTORS COP;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [detector_cop_base]:identity_immunities
-GroupControlSection	= spawn_group
-$prefetch 		= 32
-cform			= skeleton
-animation_slot		= 7
-ef_detector_type	= 1
-slot			= 8
-belt = true
-vest = true
-night_vision_particle		= nature\flies_light
+GroupControlSection		= spawn_group
+$prefetch 				= 32
+cform					= skeleton
+animation_slot			= 7
+ef_detector_type		= 1
+slot					= 8
+belt 					= true
+vest 					= true
+night_vision_particle	= nature\flies_light
+
+detect_radius 			= 10
 
 attach_angle_offset		= -1.303,-1.493,-1.202
 attach_position_offset	= 0.110,-0.019,0.000
 
-attach_bone_name	= bip01_l_hand
-auto_attach		= false
+attach_bone_name		= bip01_l_hand
+auto_attach				= false
 
-snd_draw					= device\pda\pda_draw
-snd_holster					= device\pda\pda_holster
+snd_draw				= device\pda\pda_draw
+snd_holster				= device\pda\pda_holster
 
-power_source 		= battery
-script_binding      = bind_device.init
-script_action_0 	= recharge.detach_power_source_tip, recharge.can_detach_power_source, recharge.detach_power_source
-use_sound 			= interface\inv_detach_addon
-
-highlight_item = battery
+power_source 			= battery
+script_binding      	= bind_device.init
+script_action_0 		= recharge.detach_power_source_tip, recharge.can_detach_power_source, recharge.detach_power_source
+use_sound 				= interface\inv_detach_addon
+highlight_item 			= battery
 
 [detector_geiger_cop]:detector_cop_base
-
-$spawn 			= "devices\detector_simple"
-class			= S_DEV_CSTM
-visual			= dynamics\devices\dev_dosimeter\dosimeter.ogf
-hud				= detector_geiger_hud
-inv_name		= st_detector_geiger
-inv_name_short	= st_detector_geiger_short
-description		= st_detector_geiger_descr
-
-
-inv_weight		= 0.5
-
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 12
-inv_grid_y         = 25
-cost			= 500
-
-custom_ui_pos 	= -0.0281,-0.0101,0.0375
-custom_ui_rot 	= 0,63,0
-custom_ui_func 	= ui_dosimeter.get_UI
-custom_ui_bone 	= cover
-
-snd_draw        = weapons\detector\detector_8_draw
-snd_holster     = weapons\detector\detector_8_holster
-
-[detector_simple_cop]:detector_cop_base, detect_radiation
-
-$spawn 			= "devices\detector_simple"
-class			= S_DET_SIMP
-visual			= dynamics\devices\dev_detector_1\dev_detector_1.ogf
-hud				= detector_simple_hud
-inv_name		= st_detector1
-inv_name_short	= st_detector1
-description		= st_detector1_descr
+$spawn 					= "devices\detector_simple"
+class					= S_DEV_CSTM
+visual					= dynamics\devices\dev_dosimeter\dosimeter.ogf
+hud						= detector_geiger_hud
+inv_name				= st_detector_geiger
+inv_name_short			= st_detector_geiger_short
+description				= st_detector_geiger_descr
 
 
-inv_weight		= 0.5
+inv_weight				= 0.5
 
-inv_grid_width		= 1
-inv_grid_height		= 1
-inv_grid_x		= 12
-inv_grid_y		= 24
-cost			= 500
+inv_grid_width     		= 1
+inv_grid_height    		= 1
+inv_grid_x         		= 12
+inv_grid_y         		= 25
+cost					= 500
 
-af_radius		= 30
-af_vis_radius		= 3
+custom_ui_pos 			= -0.0281,-0.0101,0.0375
+custom_ui_rot 			= 0,63,0
+custom_ui_func 			= ui_dosimeter.get_UI
+custom_ui_bone 			= cover
 
-[detector_advanced_cop]:detector_simple_cop
-$spawn 			= "devices\detector_advanced"
-class			= S_DET_ADVA
-visual			= dynamics\devices\dev_detector_2\dev_detector_2.ogf
+snd_draw        		= weapons\detector\detector_8_draw
+snd_holster     		= weapons\detector\detector_8_holster
+
+[detector_simple_cop]:detector_cop_base,detect_non_radiation,detect_af_simple
+
+$spawn 					= "devices\detector_simple"
+class					= S_DET_SIMP
+visual					= dynamics\devices\dev_detector_1\dev_detector_1.ogf
+hud						= detector_simple_hud
+inv_name				= st_detector1
+inv_name_short			= st_detector1
+description				= st_detector1_descr
 
 
-inv_name		= st_detector2
-inv_name_short	= st_detector2
-description		= st_detector2_descr
+inv_weight				= 0.5
 
-inv_grid_width	= 1
-inv_grid_height	= 1
-inv_grid_x		= 13
-inv_grid_y		= 24
-cost			= 1000
+inv_grid_width			= 1
+inv_grid_height			= 1
+inv_grid_x				= 12
+inv_grid_y				= 24
+cost					= 500
 
-hud			= detector_advanced_hud
+detect_radius 			= 15
 
-af_radius		= 30
-af_vis_radius		= 4
+af_radius				= 30
+af_vis_radius			= 3
 
-[detector_elite_cop]:detector_advanced_cop
-$spawn 			= "devices\detector_elite"
-class			= S_DET_ELIT
-visual			= dynamics\devices\dev_detector_3\dev_detector_3.ogf
-inv_name		= st_detector3
-inv_name_short	= st_detector3
-description		= st_detector3_descr
-hud			= detector_elite_hud
+[detector_advanced_cop]:detector_simple_cop,detect_af_medium
+$spawn 					= "devices\detector_advanced"
+class					= S_DET_ADVA
+visual					= dynamics\devices\dev_detector_2\dev_detector_2.ogf
 
-inv_grid_width		= 1
-inv_grid_height		= 1
-inv_grid_x		= 14
-inv_grid_y		= 24
-cost			= 2000
+inv_name				= st_detector2
+inv_name_short			= st_detector2
+description				= st_detector2_descr
+
+inv_grid_width			= 1
+inv_grid_height			= 1
+inv_grid_x				= 13
+inv_grid_y				= 24
+cost					= 1000
+
+hud						= detector_advanced_hud
+
+detect_radius 			= 20
+
+af_radius				= 30
+af_vis_radius			= 4
+
+[detector_elite_cop]:detector_advanced_cop,detect_af_dummy,detect_all_anoms
+$spawn 					= "devices\detector_elite"
+class					= S_DET_ELIT
+visual					= dynamics\devices\dev_detector_3\dev_detector_3.ogf
+inv_name				= st_detector3
+inv_name_short			= st_detector3
+description				= st_detector3_descr
+hud						= detector_elite_hud
+
+inv_grid_width			= 1
+inv_grid_height			= 1
+inv_grid_x				= 14
+inv_grid_y				= 24
+cost					= 2000
 
 ; elite x="0.00096" y="0.0035"
-ui_p			= -0.02904,0.01,0.0364
-ui_r			= 0,90,0
+ui_p					= -0.02904,0.01,0.0364
+ui_r					= 0,90,0
 
-af_vis_radius		= 5
+af_vis_radius			= 5
 
 ;;;;біодетектор
-[detector_bio_cop]:detector_elite_cop
-$spawn 				= "devices\detector_scientific"
-class				= S_DET_SCIE
+[detector_bio_cop]:detector_cop_base
+$spawn 					= "devices\detector_scientific"
+class					= S_DET_SCIE
 
-visual			= dynamics\devices\dev_detector_4\dev_detector_4.ogf
+visual					= dynamics\devices\dev_detector_4\dev_detector_4.ogf
 
-inv_name		= st_detector4
-inv_name_short	= st_detector4
-description		= st_detector4_descr
-hud			= detector_bio_hud
+inv_name				= st_detector4
+inv_name_short			= st_detector4
+description				= st_detector4_descr
+hud						= detector_bio_hud
 
-inv_grid_width		= 1
-inv_grid_height		= 1
-inv_grid_x		= 15
-inv_grid_y		= 24
-cost			= 12500
+inv_grid_width			= 1
+inv_grid_height			= 1
+inv_grid_x				= 15
+inv_grid_y				= 24
+cost					= 12500
 
 ; elite x="0.00096" y="0.0035"
-ui_p			= -0.02904,0.01,0.0364
-ui_r			= 0,90,0
+ui_p					= -0.02904,0.01,0.0364
+ui_r					= 0,90,0
 
-detect_radius = 30
+detect_radius 			= 30
 
 ;creature_class_all = true
-creature_class_1 	= arena_monstr
-creature_class_2 	= bloodsucker
-creature_class_3 	= boar
-creature_class_4 	= burer
-creature_class_5 	= cat
-creature_class_6 	= chimera
-creature_class_7 	= controller
-creature_class_8 	= dog
-creature_class_9 	= flesh
-creature_class_10 	= fracture
-creature_class_11 	= giant
-creature_class_12 	= poltergeist
-creature_class_13 	= pseudodog
-creature_class_14 	= rat
-creature_class_15 	= snork
-creature_class_16 	= tushkano
-creature_class_17 	= zombie
-creature_class_18 	= human
+creature_class_1 		= arena_monstr
+creature_class_2 		= bloodsucker
+creature_class_3 		= boar
+creature_class_4 		= burer
+creature_class_5 		= cat
+creature_class_6 		= chimera
+creature_class_7 		= controller
+creature_class_8 		= dog
+creature_class_9 		= flesh
+creature_class_10 		= fracture
+creature_class_11 		= giant
+creature_class_12 		= poltergeist
+creature_class_13 		= pseudodog
+creature_class_14 		= rat
+creature_class_15 		= snork
+creature_class_16 		= tushkano
+creature_class_17 		= zombie
+creature_class_18 		= human
