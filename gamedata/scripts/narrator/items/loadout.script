@@ -71,13 +71,6 @@ function on_load(reader)
 end
 
 function on_first_update()
-	-- local item
-	-- for i=0, actor:ruck_count()-1 do
-		-- item = actor:item_in_ruck(i)
-		-- if loaded_items[item:id()] then
-			-- add(item)
-		-- end			
-	-- end
 	if not actor:object("ballast_weapon") then
 		spawn_to_owner("ballast_weapon", actor:id())
 		log3("~CREATE BALLAST WEAPON")
@@ -118,6 +111,10 @@ function has_drop_pouch()
 		return true end
 	end	
 	return false
+end
+
+function is_inv_wnd_open()
+	return has_alife_info("ui_inventory") or has_alife_info("ui_car_body") or has_alife_info("ui_trade")
 end
 
 function update_item_count(item, item_in)
@@ -198,7 +195,7 @@ function on_take(item)
 		elseif not has_drop_pouch() then
 			drop_item_to_angle(actor, item, 90)
 		end
-	elseif not level.main_input_receiver() then
+	elseif not is_inv_wnd_open() then
 		if loaded_items[item:id()] then
 			add(item)
 		else	
