@@ -71,10 +71,7 @@ function on_load(reader)
 end
 
 function on_first_update()
-	if not actor:object("ballast_weapon") then
-		spawn_to_owner("ballast_weapon", actor:id())
-		log3("~CREATE BALLAST WEAPON")
-	end	
+	update_ballast_weight()
 end
 
 function get_max(slot)
@@ -327,6 +324,7 @@ function pack_item(item)
 	local data = packed_items[item:id()]
 	
 	data.sect = sect
+	data.weight = item:weight()
 	
 	if class == "AMMO" then
 		local ammo = item:get_weapon_ammo()
@@ -339,14 +337,14 @@ function pack_item(item)
 	
 	--log3("~pack item: %s", item:name())
 	
-	add_ballast_weight(item:weight())
+	add_ballast_weght(data.weight)
 	
 	return true
 end
 
 function unpack_items(owner)
 	local owner_id = owner and owner:id() or actor:id()
-	actor:object("ballast_weapon"):set_ammo_elapsed(0)
+	actor:object("ballast"):get_inventory_item().inv_weight = 0
 	
 	for k,v in pairs (packed_items) do
 		if sys_ini:r_string(v.sect, "class") == "AMMO" then
@@ -359,19 +357,27 @@ end
 
 function pack_items()
 	packed_items = {}
-		
 	function perform_action(dummy, item)
 		pack_item(item)
 	end	
 	actor:iterate_ruck(perform_action, nil)
 end
 
-function add_ballast_weight(weight)
-	local ballast_unit_weight = sys_ini:r_float("ballast_ammo", "inv_weight") / sys_ini:r_u32("ballast_ammo", "box_size")
-	--log3("~ballast_unit_weight: %s", ballast_unit_weight)
-	local add_count = math.floor(weight/ballast_unit_weight)
-	--log3("~add_count: %s", add_count)
-	local ballast_wpn = actor:object("ballast_weapon")
-	ballast_wpn:set_ammo_elapsed(ballast_wpn:get_ammo_in_magazine() + add_count)
-	--log3("~ballast weight %s | ballast box count %s", ballast_wpn:weight(), ballast_wpn:get_ammo_in_magazine())
+function update_ballast_weight()
+	if not actor:object("ballast") then
+		spawn_to_owner("ballast", actor:id())
+		log3("~CREATING BALLAST")
+		return
+	end	
+	actor:object("ballast"):get_inventory_item().inv_weight = 0
+	for k,v in pairs (packed_items) do
+		add_ballast_weght(v.weight)
+	end
+end
+
+function add_ballast_weght(add_weight)
+	local ballast = actor:object("ballast")
+	if not ballast then return end
+	ballast = ballast:get_inventory_item()
+	ballast.inv_weight = ballast.inv_weight + add_weight
 end
