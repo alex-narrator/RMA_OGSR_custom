@@ -9,24 +9,25 @@ local hud_obj, hud_params, mask_static, breathe_static, last_cond_idx, last_powe
 local dec_breathe, show_minimap = false, false
 
 function get_hud_params(sect)
-	hud_params = {}
+	hud_data = {}
 	
-	hud_params.shader = read_if_exists(sys_ini, "r_bool", sect, "hud_shader", false)
+	hud_data.shader = read_if_exists(sys_ini, "r_bool", sect, "hud_shader", false)
 	
-	hud_params.texture = read_if_exists(sys_ini, "r_string", sect, "hud_texture", nil)
+	hud_data.texture = read_if_exists(sys_ini, "r_string", sect, "hud_texture", nil)
 	
-	if hud_params.texture then
-		hud_params.texture = mask_texture..hud_params.texture
-		hud_params.breakable = read_if_exists(sys_ini, "r_bool", sect, "hud_breakable", false)
+	if hud_data.texture then
+		hud_data.texture = mask_texture..hud_data.texture
+		hud_data.breakable = read_if_exists(sys_ini, "r_bool", sect, "hud_breakable", false)
 	end
 	
-	hud_params.breathe = read_if_exists(sys_ini, "r_float", sect, "hud_breathe", 0)
+	hud_data.breathe = read_if_exists(sys_ini, "r_float", sect, "hud_breathe", 0)
 	
-	return hud_params
+	return hud_data
 end
 
 function has_hud(sect)
-	return hud_params.shader or hud_params.texture or hud_params.breathe > 0
+	local params = get_hud_params(sect)
+	return params.shader or params.texture or params.breathe > 0
 end
 
 function get_cond_idx()
@@ -73,9 +74,10 @@ function allowed_item(obj)
 	return obj:is_outfit() or obj:is_helmet()
 end
 
-local hud_snd = [[interface\item_usage\mask_clean]]
-local hud_effector_name = "gasmask_on_off"
-local hud_effector_id = 5556
+local equip_outfit_snd = [[interface\item_usage\mask_clean]]
+local equip_outfit_effector = "outfit_on_off"
+local equip_outfit_effector_id = 5556
+local gasmask_effector_id = 5557
 
 function on_slot(obj, prev_place)
 	if not allowed_item(obj) then
@@ -87,13 +89,18 @@ function on_slot(obj, prev_place)
 	--//тож треба зачекати поки зніметься предмет та скинеться худ що був
 	add_update_delayed_action(1,
 		function()
-			if not xr_conditions.black_screen() then
-				xr_sound.get_safe_sound_object(hud_snd,sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
-				level.add_complex_effector(hud_effector_name, hud_effector_id)
+			if obj:is_outfit() or not get_hud_sect(obj) or xr_conditions.black_screen() then
+				enable_effects(obj)
+			else
+				play_gasmask_anim(obj, true)
 			end
-			enable_effects(obj)
 		end
 	)
+	
+	if obj:is_outfit() and not xr_conditions.black_screen() then
+		level.add_complex_effector(equip_outfit_effector, equip_outfit_effector_id)
+		xr_sound.get_safe_sound_object(equip_outfit_snd,sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
+	end
 end
 
 function on_non_slot(obj, prev_place)
@@ -103,27 +110,87 @@ function on_non_slot(obj, prev_place)
 	if not allowed_item(obj) then
 	return end
 	
-	xr_sound.get_safe_sound_object(hud_snd,sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
-	level.add_complex_effector(hud_effector_name, hud_effector_id)	
-	disable_effects(obj, prev_place)
+	disable_effects(obj)
+	
+	if get_hud_sect(obj) and not xr_conditions.black_screen() and not level.is_removing_objects() then
+		play_gasmask_anim(obj, false)
+	end	
+		
+	if obj:is_outfit() then
+		xr_sound.get_safe_sound_object(equip_outfit_snd,sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+		level.add_complex_effector(equip_outfit_effector, equip_outfit_effector_id)
+	end
+end
+
+function play_gasmask_anim(item, is_on)
+	local hud_sect = get_hud_sect(item)
+	
+	local already_blocked = actor.inventory:is_active_slot_blocked()
+	
+	if not already_blocked then
+		actor:hide_weapon(true)
+	end
+	
+	level.add_call(
+		function() 
+			return not actor:active_item() and not actor:active_device()
+		end,
+		function()
+			actor:hide_crosshair(true)
+			
+			game.play_hud_motion(2, hud_sect, is_on and "anm_equip" or "anm_takeoff", false, 1, true)
+
+			local snd_name = read_if_exists(sys_ini, "r_string", hud_sect, is_on and "sound_on" or "sound_off", nil)
+			if snd_name then
+				xr_sound.get_safe_sound_object(snd_name,sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+			end
+
+			local eff_name = read_if_exists(sys_ini, "r_string", hud_sect, is_on and "hud_effector_on" or "hud_effector_off", nil)
+			if eff_name then
+				level.remove_complex_effector(gasmask_effector_id)
+				level.add_complex_effector(eff_name, gasmask_effector_id)
+			end
+			
+			block_non_move_action(true)
+			level.add_call(
+				function()
+					return game.hud_motion_allowed()
+				end,
+				function()
+					block_non_move_action(false)
+					if not already_blocked then
+						actor:restore_weapon()
+					end
+					if has_alife_info("ui_inventory") or has_alife_info("ui_car_body") then
+						backpack.play_anim(3)
+					end
+					actor:hide_crosshair(false)
+					if is_on then 
+						enable_effects(item)
+					end
+				end
+			)
+		end
+	)	
 end
 
 function enable_effects(obj)
 	local sm = ogse_signals.get_mgr()
+	local sect = obj:section()
 	
-	local icon = read_if_exists(sys_ini, "r_string", obj:section(), "actor_icon", nil)
+	local icon = read_if_exists(sys_ini, "r_string", sect, "actor_icon", nil)
 	if obj:is_outfit() and icon then
 		actor:set_character_icon(icon)
 		sm:call("on_script_actor_icon_update", icon)
 	end
 	
-	show_minimap = read_if_exists(sys_ini, "r_bool", obj:section(), "show_minimap", nil)
+	show_minimap = read_if_exists(sys_ini, "r_bool", sect, "show_minimap", nil)
 	if show_minimap then
 		sm:subscribe({signal = "on_update", fun = this.on_update_minimap})
 	end
 	
-	get_hud_params(obj:section())
-	if has_hud(obj:section()) then
+	if has_hud(sect) then
+		hud_params = get_hud_params(sect)
 		hud_obj = obj
 		try_switch_shader_effects(true) 
 		try_set_hud_mask(true)
@@ -145,6 +212,7 @@ function disable_effects(obj, prev_place)
 	end
 	
 	if has_hud(obj:section()) then
+		hud_params = get_hud_params(obj:section())
 		try_switch_shader_effects(false)
 		try_set_hud_mask(false)
 	end
