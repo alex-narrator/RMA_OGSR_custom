@@ -319,9 +319,7 @@ function pack_item(item)
 	if class ~= "AMMO" and class ~= "G_F1" and class ~= "G_RGD5" then
 	return false end
 	
-	packed_items[item:id()] = {}
-	
-	local data = packed_items[item:id()]
+	local data = {}
 	
 	data.sect = sect
 	data.weight = item:weight()
@@ -330,7 +328,9 @@ function pack_item(item)
 		local ammo = item:get_weapon_ammo()
 		data.count = ammo.box_curr
 		data.ammo_type = ammo.box_ammo_type
-	end	
+	end
+	
+	table.insert(packed_items, data)
 	
 	local sim = alife()
 	sim:release(sim:object(item:id()), true)

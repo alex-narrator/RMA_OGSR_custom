@@ -162,6 +162,12 @@ function MainIngameOverlay:InitControls()
 	tmp_tbl = split_string(xml:ReadAttrib("booster_panel", 0, "text_offset", "0,0"), ",")
 	self.booster_panel.text_offset = {x = tmp_tbl[1], y = tmp_tbl[2]}
 	self:UpdatePanelItems()
+	
+	--//active item info
+	self.active_item = xml:InitStatic("active_item", self)
+	self.active_item_icon = xml:InitStatic("active_item:icon", self.active_item)
+	self.active_item_icon.scale = xml:ReadAttribFlt("active_item:icon", 0, "scale", 1)
+	self.ammo_counter = xml:InitStatic("active_item:ammo_counter", self.active_item)
 end
 
 function MainIngameOverlay:DrawSlotIcon(slot_num)
@@ -336,6 +342,104 @@ function MainIngameOverlay:TryAddToLoadoutList(item)
 	table.insert(self.loadout_panel.items, {item = item, count = 1})
 end
 
+function MainIngameOverlay:UpdateActiveItem()
+	local act_item = actor:active_item()
+	self.active_item:Show(act_item and (self.owner.show_active_item_info or self.owner.show_gear_info))
+	
+	if not self.active_item:IsShown() then
+	return end
+		
+	local params
+	local sect = act_item:section()
+	local scale = self.active_item_icon.scale
+	
+	local wpn = act_item:get_weapon_m()
+	self.active_item_icon:Show(true)
+	
+	local text, val = "", ""
+	
+	if wpn then
+		self.active_item_icon:Show(
+			(self.owner.show_active_item_info and act_item:get_ammo_in_magazine() > 0) or 
+			(self.owner.show_gear_info and (not wpn:addon_attachable(addon.magazine) or wpn:is_addon_attached(addon.magazine)))
+		)
+		local show_sect = get_cur_ammo_sect(act_item)
+		if self.owner.show_gear_info and wpn:addon_attachable(addon.magazine) and wpn:is_addon_attached(addon.magazine) then
+			show_sect = wpn:get_addon_name(addon.magazine)
+		end
+		params = CIconParams(show_sect)
+		val = game.translate_string(read_if_exists(sys_ini, "r_string", show_sect, "inv_name_short", get_inv_name(show_sect)))
+		if (self.owner.show_active_item_info and act_item:get_ammo_in_magazine() == 0) or
+			(self.owner.show_gear_info and wpn:addon_attachable(addon.magazine) and not wpn:is_addon_attached(addon.magazine)) then
+			val = game.translate_string("st_not_loaded")
+		end
+		text = string.format("%s", val)
+		if has_fire_modes(act_item) or act_item:get_gl_mode() then
+			text = string.format("%s%s", val, wpn:firemod_string())
+		end
+		self.active_item:SetText(text)
+		
+		val = act_item:get_ammo_in_magazine()
+		text = string.format("[%s]", val)
+		if self.owner.show_gear_info and wpn:addon_attachable(addon.magazine) then
+			local mags = split_string(sys_ini:r_string(sect, "magazine_class"), ",")
+			local mag_count = 0
+			function perform_action(dummy, item)
+				for k,v in pairs(mags) do
+					if v == item:section() and item:get_weapon_ammo().box_curr > 0 then
+						mag_count = mag_count + 1
+					end
+				end
+			end	
+			actor:iterate_ruck(perform_action, nil)			
+			val = mag_count
+			text = string.format("%s", val)
+		end
+		self.ammo_counter:SetText(text)
+	else
+		self.active_item_icon:Show(true)
+		
+		if act_item:is_grenade() then
+			local grenade_count = 0
+			function perform_action(dummy, item)
+				if item:is_grenade() then
+					grenade_count = grenade_count + 1
+				end
+			end	
+			actor:iterate_ruck(perform_action, nil)
+			if grenade_count > 0 then
+				val = grenade_count
+				text = string.format("%s", val)
+			end
+		end
+		
+		if get_clsid(act_item) == clsid.obj_bolt and read_if_exists(sys_ini, "r_bool", "features", "limited_bolts", false) then
+			local bolt_count = 0
+			function perform_action(dummy, item)
+				if get_clsid(item) == clsid.obj_bolt then
+					bolt_count = bolt_count + 1
+				end
+			end	
+			actor:iterate_ruck(perform_action, nil)
+			if bolt_count > 0 then
+				val = bolt_count
+				text = string.format("%s", val)
+			end
+		end		
+		
+		self.ammo_counter:SetText(text)
+		params = CIconParams(sect)
+		self.active_item:SetText(game.translate_string(read_if_exists(sys_ini, "r_string", sect, "inv_name_short", get_inv_name(sect))))
+	end
+	params:set_shader(self.active_item_icon)
+	if params.grid_height > 1 or params.grid_width > 2 then
+		scale = scale * 0.75
+	end
+	self.active_item_icon:SetWidth(params.grid_width * scale * CELL_W * get_current_kx())
+	self.active_item_icon:SetHeight(params.grid_height * scale * CELL_H)
+	self.ammo_counter:SetWndPos(self.active_item_icon:GetWidth() + 5,self.ammo_counter:GetWndPos().y)
+end
+
 function MainIngameOverlay:Update()
 	CUIScriptWnd.Update(self)
 	self.health_bar:SetProgressPos(actor.health)
@@ -353,4 +457,5 @@ function MainIngameOverlay:Update()
 	self.loadout_panel:Show(self.owner.show_gear_info)
 	self:UpdatePanelBoosters()
 	--setup_game_icon(7, GetARGB(255, 255, 255, 255), 0, 0)
+	self:UpdateActiveItem()
 end
