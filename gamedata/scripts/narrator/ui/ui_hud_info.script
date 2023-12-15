@@ -45,7 +45,7 @@ function on_state_switch(item, state, old_state)
 end
 
 function try_show_active_item_info()
-	if (not act_item and not act_item_2) or SHOW_ACTIVE_ITEM_INFO
+	if (not act_item and not act_item_2) --or SHOW_ACTIVE_ITEM_INFO
 	then return end
 			
 	if act_item_2 then
@@ -70,8 +70,8 @@ function hide_item_info()
 end
 
 function try_show_gear_info()
-	if SHOW_GEAR_INFO then
-	return end
+	-- if SHOW_GEAR_INFO then
+	-- return end
 	
 	_G.SHOW_GEAR_INFO = true
 	add_time_delayed_action(GEAR_INFO_TTL, hide_gear_info)
