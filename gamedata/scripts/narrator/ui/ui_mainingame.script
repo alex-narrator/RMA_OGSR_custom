@@ -344,8 +344,8 @@ end
 
 function MainIngameOverlay:UpdateActiveItem()
 	local act_item = actor:active_item()
-	self.active_item:Show(act_item and (self.owner.show_active_item_info or self.owner.show_gear_info))
-	
+	self.active_item:Show(act_item and (SHOW_ACTIVE_ITEM_INFO or SHOW_GEAR_INFO))
+
 	if not self.active_item:IsShown() then
 	return end
 		
@@ -360,17 +360,17 @@ function MainIngameOverlay:UpdateActiveItem()
 	
 	if wpn then
 		self.active_item_icon:Show(
-			(self.owner.show_active_item_info and act_item:get_ammo_in_magazine() > 0) or 
-			(self.owner.show_gear_info and (not wpn:addon_attachable(addon.magazine) or wpn:is_addon_attached(addon.magazine)))
+			(SHOW_ACTIVE_ITEM_INFO and act_item:get_ammo_in_magazine() > 0) or 
+			(SHOW_GEAR_INFO and (not wpn:addon_attachable(addon.magazine) or wpn:is_addon_attached(addon.magazine)))
 		)
 		local show_sect = get_cur_ammo_sect(act_item)
-		if self.owner.show_gear_info and wpn:addon_attachable(addon.magazine) and wpn:is_addon_attached(addon.magazine) then
+		if SHOW_GEAR_INFO and wpn:addon_attachable(addon.magazine) and wpn:is_addon_attached(addon.magazine) then
 			show_sect = wpn:get_addon_name(addon.magazine)
 		end
 		params = CIconParams(show_sect)
 		val = game.translate_string(read_if_exists(sys_ini, "r_string", show_sect, "inv_name_short", get_inv_name(show_sect)))
-		if (self.owner.show_active_item_info and act_item:get_ammo_in_magazine() == 0) or
-			(self.owner.show_gear_info and wpn:addon_attachable(addon.magazine) and not wpn:is_addon_attached(addon.magazine)) then
+		if (SHOW_ACTIVE_ITEM_INFO and act_item:get_ammo_in_magazine() == 0) or
+			(SHOW_GEAR_INFO and wpn:addon_attachable(addon.magazine) and not wpn:is_addon_attached(addon.magazine)) then
 			val = game.translate_string("st_not_loaded")
 		end
 		text = string.format("%s", val)
@@ -381,7 +381,7 @@ function MainIngameOverlay:UpdateActiveItem()
 		
 		val = act_item:get_ammo_in_magazine()
 		text = string.format("[%s]", val)
-		if self.owner.show_gear_info and wpn:addon_attachable(addon.magazine) then
+		if SHOW_GEAR_INFO and wpn:addon_attachable(addon.magazine) then
 			local mags = split_string(sys_ini:r_string(sect, "magazine_class"), ",")
 			local mag_count = 0
 			function perform_action(dummy, item)
@@ -452,9 +452,9 @@ function MainIngameOverlay:Update()
 		self.car_bar:SetProgressPos(car:GetfHealth())
 		self.car_static:SetColor(car:IsEngineOn() and self.car_color_engine_on or self.car_color_def)
 	end
-	self.slot_panel:Show(self.owner.show_gear_info)
-	self.belt_panel:Show(self.owner.show_gear_info)
-	self.loadout_panel:Show(self.owner.show_gear_info)
+	self.slot_panel:Show(SHOW_GEAR_INFO)
+	self.belt_panel:Show(SHOW_GEAR_INFO)
+	self.loadout_panel:Show(SHOW_GEAR_INFO)
 	self:UpdatePanelBoosters()
 	--setup_game_icon(7, GetARGB(255, 255, 255, 255), 0, 0)
 	self:UpdateActiveItem()

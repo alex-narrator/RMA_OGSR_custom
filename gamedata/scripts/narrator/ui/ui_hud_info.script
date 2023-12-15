@@ -2,7 +2,6 @@
 function attach(sm)
 	sm:subscribe({signal = "on_key_press",   	fun = this.on_key_press})
 	sm:subscribe({signal = "on_hud_state_switch",   fun = this.on_state_switch})
-	sm:subscribe({signal = "on_spawn",   		fun = this.on_spawn})
 end
 
 local info_action = {
@@ -21,11 +20,6 @@ local GEAR_INFO_TTL 		= read_if_exists(sys_ini, "r_u32", "actor", "gear_info_ttl
 
 local act_item = false
 local act_item_2 = false
-
-function on_spawn()
-	hide_item_info()
-	hide_gear_info()
-end
 
 function on_key_press(key, game_action)
 	if level.main_input_receiver() or 
@@ -51,16 +45,9 @@ function on_state_switch(item, state, old_state)
 end
 
 function try_show_active_item_info()
-	if (not act_item and not act_item_2) or get_main_window().show_active_item_info
+	if (not act_item and not act_item_2) or SHOW_ACTIVE_ITEM_INFO
 	then return end
-	
-	-- if act_item then
-		-- check_item_anim.play(act_item)
-	-- end
-	-- if act_item_2 then
-		-- check_item_anim.play(act_item_2)
-	-- end
-	
+			
 	if act_item_2 then
 		add_update_delayed_action(1,
 			function()
@@ -74,25 +61,22 @@ function try_show_active_item_info()
 			end
 		)
 	end
-	get_main_window().show_active_item_info = true
+	_G.SHOW_ACTIVE_ITEM_INFO = true
 	add_time_delayed_action(ACTIVE_ITEM_INFO_TTL, hide_item_info)
 end
 
 function hide_item_info()
-	get_main_window().show_active_item_info = false
+	_G.SHOW_ACTIVE_ITEM_INFO = false
 end
 
 function try_show_gear_info()
-	if get_main_window().show_gear_info then
+	if SHOW_GEAR_INFO then
 	return end
-
-	-- game.play_hud_motion(1, "bolt_hud", "anm_throw_idle", false, 1, true)
-	-- game.stop_hud_motion()
 	
-	get_main_window().show_gear_info = true
+	_G.SHOW_GEAR_INFO = true
 	add_time_delayed_action(GEAR_INFO_TTL, hide_gear_info)
 end
 
 function hide_gear_info()
-	get_main_window().show_gear_info = false
+	_G.SHOW_GEAR_INFO = false
 end
