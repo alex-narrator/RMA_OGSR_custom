@@ -228,6 +228,17 @@ slots_unlocked 		= 10
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;VEST PLATES;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+[plate_immunities]
+burn_immunity					= 0.01			;коэффициенты иммунитета самого костюма
+strike_immunity					= 0.01
+shock_immunity					= 0.00
+wound_immunity					= 0.01
+radiation_immunity				= 0.00
+telepatic_immunity				= 0.00
+chemical_burn_immunity			= 0.08
+explosion_immunity				= 0.04
+fire_wound_immunity				= 0.04
+
 [plate_base]:identity_immunities
 GroupControlSection	= spawn_group
 discovery_dependency = 
@@ -251,6 +262,8 @@ cost				= 4000
 
 breakable 			= true
 use_condition 		= true
+
+immunities_sect		= plate_immunities
 
 script_action_10 	= vest_plates.attach_plate_tip, vest_plates.can_attach_plate, vest_plates.attach_plate
 

@@ -161,18 +161,18 @@ function vest_binder:detach_plate()
 	end
 end
 
-local protection_type = {
-	"burn_protection",
-	"shock_protection",
-	"strike_protection",
-	"wound_protection",
-	"radiation_protection",
-	"telepatic_protection",
-	"chemical_burn_protection",
-	"explosion_protection",
-	"fire_wound_protection",
-	"wound_2_protection",
-	"physic_strike_protection",
+local immunity_type = {
+	"burn",
+	"shock",
+	"strike",
+	"wound",
+	"radiation",
+	"telepatic",
+	"chemical_burn",
+	"explosion",
+	"fire_wound",
+	"wound_2",
+	"physic_strike",
 }
 
 function vest_binder:is_plate_bone(bone_id)
@@ -194,10 +194,12 @@ function vest_binder:hit(victim, health_lost, direction, draftsman, bone_id, hit
 	if not self:is_plate_attached() or not self:is_plate_bone(bone_id) then
 	return end
 	
-	log3("~hit vest %s to plate %s | hitted bone %s protection type %s", self.object:section(), self:get_plate_sect(), actor:get_bone_name(bone_id), protection_type[hit_type+1])
+	log3("~hit vest %s to plate %s | hitted bone %s protection type %s", self.object:section(), self:get_plate_sect(), actor:get_bone_name(bone_id), immunity_type[hit_type+1])
 	
-	local val = -health_lost * (1 - read_if_exists(sys_ini, "r_float", self:get_plate_sect(), protection_type[hit_type+1], 0))
-	log3("~plate cond dec %s", val)
+	local immunity_sect = sys_ini:r_string(self:get_plate_sect(), "immunities_sect")
+	local immunity = read_if_exists(sys_ini, "r_float", immunity_sect, immunity_type[hit_type+1].."_immunity", 1)
+	local val = -health_lost * immunity
+	log3("~plate cond dec %s | hit power %s | hit type %s | immunity %s", val, health_lost, immunity_type[hit_type+1], immunity)
 	self:change_plate_condition(val)
 	if self:get_plate_condition() <= 0 then
 		hud_add_info_message("item_usage", game.translate_string("st_plate_was_destroyed"))
