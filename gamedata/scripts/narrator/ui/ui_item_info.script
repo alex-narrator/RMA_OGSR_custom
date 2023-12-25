@@ -191,6 +191,9 @@ function add_custom_info(UIDesc, obj)
 	if obj:get_weapon_ammo() and not obj:get_weapon_ammo():is_magazine() then
 		attach_ammo_params(UIDesc, obj)
 	end
+	if vest_plates.can_detach_plate(obj) then
+		attach_plate_condition(UIDesc, obj:binded_object())
+	end	
 end
 
 ------------------------------------------EFFECT PARAMS WND-----------------------------------------------------------------------------------------------------------------
@@ -428,7 +431,7 @@ local armor_params = {
 }
 local armor_st = {}
 function attach_armor_params(UIDesc, item)
-	local bones_protect_sect = read_if_exists(sys_ini, "r_string", item:section(), "bones_koeff_protection", nil)
+	local bones_protect_sect = item:get_inventory_item().bone_protection_sect
 	if not bones_protect_sect or item:condition() == 0 then
 	return end
 	
@@ -709,4 +712,18 @@ function attach_ammo_params(UIDesc, item)
 	if not show then
 		params_list:Show(false)
 	end	
+end
+
+------------------------------------------VEST ARMOR PLATE WND-----------------------------------------------------------------------------------------------------------------
+function attach_plate_condition(UIDesc, bind_obj)
+	local xml = CScriptXmlInit()
+	xml:ParseFile("script_overlays\\armor_plate.xml")
+	local plate_params = xml:InitStatic("plate_params", UIDesc)
+	
+	local cap_plate = xml:InitStatic("plate_params:cap_plate", plate_params)
+	local text = string.format("%s: %s", game.translate_string("st_attached_plate"), game.translate_string(get_inv_name(bind_obj:get_plate_sect())))
+	cap_plate:SetText(text)
+	
+	local condition_progress = xml:InitProgressBar("plate_params:progress_condition", plate_params)
+	condition_progress:SetProgressPos(bind_obj:get_plate_condition())
 end

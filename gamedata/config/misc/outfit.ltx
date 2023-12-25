@@ -17,7 +17,13 @@ additional_inventory_weight		= 0		; +max_walk_weight
 additional_inventory_weight2	= 0		;	+40 kg
 full_icon_name					= npc_icon_without_outfit
 
-use_condition = true
+use_condition 		= true
+
+slot				= 6
+
+icon_group 			= 9
+inv_grid_width     	= 2
+inv_grid_height    	= 3
 
 [without_outfit]:outfit_base
 ;базовый костюм сталкера - костюм новичка. Обычная одежда туриста - штормовка+сапоги
@@ -45,15 +51,13 @@ inv_name			= outfit_novice_name
 inv_name_short		= outfit_novice_name
 description			= outfit_novice_description
 inv_weight			= 3.0
-inv_grid_width     = 2
-inv_grid_height    = 3
+
 inv_grid_x         = 0
-inv_grid_y         = 21
+inv_grid_y         = 0
 
 full_icon_name		= npc_icon_novice_outfit
 
 cost				= 1000
-slot				= 6
 full_scale_icon		= 0,11		;иконка сталкера в костюме в полный рост
 actor_icon = ui_npc_u_green_stalker_4
 immunities_sect			= sect_novice_outfit_immunities
@@ -103,14 +107,14 @@ inv_name			= bandit_outfit_name
 inv_name_short		= bandit_outfit_name
 description			= bandit_outfit_description
 inv_weight			= 3.0
-inv_grid_width     = 2
-inv_grid_height    = 3
+
 inv_grid_x         = 0
-inv_grid_y         = 24
+inv_grid_y         = 3
+
 full_icon_name		= npc_icon_bandit_outfit
 
 cost				= 3000
-slot				= 6
+
 full_scale_icon		= 0,6			;иконка сталкера в костюме в полный рост
 actor_icon = ui_npc_u_stalker_bandit_5
 immunities_sect			= sect_bandit_outfit_immunities
@@ -161,11 +165,10 @@ inv_name			= killer_outfit_name
 inv_name_short		= killer_outfit_name
 description			= killer_outfit_description
 inv_weight			= 5.0
-slot				= 6
-inv_grid_width		= 2
-inv_grid_height		= 3
-inv_grid_x			= 4
-inv_grid_y			= 15
+
+inv_grid_x         = 0
+inv_grid_y         = 9
+
 full_icon_name		= npc_icon_killer_outfit
 
 cost				= 6000
@@ -221,14 +224,14 @@ inv_name			= monolit_outfit_name
 inv_name_short		= monolit_outfit_name
 description			= monolit_outfit_description
 inv_weight			= 5.0
-inv_grid_width     = 2
-inv_grid_height    = 3
-inv_grid_x         = 10
-inv_grid_y         = 16
+
+inv_grid_x         = 2
+inv_grid_y         = 9
+
 full_icon_name		= npc_icon_monolit_outfit
 
 cost				= 10000
-slot				= 6
+
 full_scale_icon		= 6,11			;иконка сталкера в костюме в полный рост
 actor_icon = ui_npc_u_stalker_mo_mask
 immunities_sect			= sect_monolit_outfit_immunities
@@ -280,14 +283,14 @@ inv_name			= specops_outfit_name
 inv_name_short		= specops_outfit_name
 description			= specops_outfit_description
 inv_weight			= 7.0
-inv_grid_width		= 2
-inv_grid_height		= 3
-inv_grid_x			= 10
-inv_grid_y			= 13
+
+inv_grid_x         = 4
+inv_grid_y         = 3
+
 full_icon_name		= npc_icon_specops_outfit
 
 cost				= 12000
-slot				= 6
+
 full_scale_icon		= 4,6			;иконка сталкера в костюме в полный рост
 actor_icon = ui_npc_u_soldier_antigas
 immunities_sect			= sect_specops_outfit_immunities
@@ -340,11 +343,10 @@ inv_name			= military_outfit_name
 inv_name_short		= military_outfit_name
 description			= military_outfit_description
 inv_weight			= 12.0
-slot				= 6
-inv_grid_width		= 2
-inv_grid_height		= 3
-inv_grid_x			= 18
-inv_grid_y			= 17
+
+inv_grid_x         = 4
+inv_grid_y         = 9
+
 full_icon_name		= npc_icon_military_outfit
 
 cost				= 40000
@@ -400,14 +402,14 @@ inv_name			= stalker_outfit_name
 inv_name_short		= stalker_outfit_name
 description			= stalker_outfit_description
 inv_weight			= 5.0
-inv_grid_width		= 2
-inv_grid_height		= 3
-inv_grid_x			= 6
-inv_grid_y			= 15
+
+inv_grid_x         = 2
+inv_grid_y         = 0
+
 full_icon_name		= npc_icon_stalker_outfit
 
 cost				= 15000
-slot				= 6
+
 full_scale_icon		= 14,11			;иконка сталкера в костюме в полный рост
 
 
@@ -462,11 +464,10 @@ inv_name			= scientific_outfit_name
 inv_name_short		= scientific_outfit_name
 description			= scientific_outfit_description
 inv_weight			= 9
-slot				= 6
-inv_grid_width		= 2
-inv_grid_height		= 3
-inv_grid_x			= 16
-inv_grid_y			= 13
+
+inv_grid_x         = 6
+inv_grid_y         = 0
+
 full_icon_name		= npc_icon_scientific_outfit
 
 cost				= 30000
@@ -524,11 +525,10 @@ inv_name			= exo_outfit_name
 inv_name_short		= exo_outfit_name
 description			= exo_outfit_description
 inv_weight			= 15.0
-slot				= 6
-inv_grid_width		= 2
-inv_grid_height		= 3
-inv_grid_x			= 14
-inv_grid_y			= 13
+
+inv_grid_x         = 8
+inv_grid_y         = 0
+
 full_icon_name		= npc_icon_exo_outfit
 
 cost				= 50000
@@ -602,14 +602,14 @@ inv_name			= svoboda_light_outfit_name
 inv_name_short		= svoboda_light_outfit_name
 description			= svoboda_light_outfit_description
 inv_weight			= 3.0
-inv_grid_width		= 2
-inv_grid_height		= 3
-inv_grid_x			= 12
-inv_grid_y			= 13
+
+inv_grid_x         = 4
+inv_grid_y         = 6
+
 full_icon_name		= npc_icon_svoboda_light_outfit
 
 cost				= 10000
-slot				= 6
+
 full_scale_icon		= 10,11			;иконка сталкера в костюме в полный рост
 actor_icon = ui_npc_u_stalker_sv_rukzak_1_1
 immunities_sect			= sect_svoboda_light_outfit_immunities
@@ -664,14 +664,14 @@ inv_name			= svoboda_heavy_outfit_name
 inv_name_short		= svoboda_heavy_outfit_name
 description			= svoboda_heavy_outfit_description
 inv_weight			= 6.0
-inv_grid_width		= 2
-inv_grid_height		= 3
-inv_grid_x			= 8
-inv_grid_y			= 15
+
+inv_grid_x         = 2
+inv_grid_y         = 3
+
 full_icon_name		= npc_icon_svoboda_heavy_outfit
 
 cost				= 12500
-slot				= 6
+
 full_scale_icon		= 2,6			;иконка сталкера в костюме в полный рост
 stalker_icon 		= ui_npc_u_stalker_sv_rukzak_2
 immunities_sect		= sect_svoboda_heavy_outfit_immunities
@@ -723,14 +723,14 @@ inv_name			= dolg_outfit_name
 inv_name_short		= dolg_outfit_name
 description			= dolg_outfit_description
 inv_weight			= 5.0
-inv_grid_width		= 2
-inv_grid_height		= 3
-inv_grid_x			= 12
-inv_grid_y			= 16
+
+inv_grid_x         = 2
+inv_grid_y         = 6
+
 full_icon_name		= npc_icon_dolg_outfit
 
 cost				= 14000
-slot				= 6
+
 full_scale_icon		= 8,11			;иконка сталкера в костюме в полный рост
 actor_icon 			= ui_npc_u_stalker_do_balon_8
 immunities_sect		= sect_dolg_outfit_immunities
@@ -783,11 +783,10 @@ inv_name			= dolg_scientific_outfit_name
 inv_name_short		= dolg_scientific_outfit_name
 description			= dolg_scientific_outfit_description
 inv_weight			= 9.0
-slot				= 6
-inv_grid_width		= 2
-inv_grid_height		= 3
-inv_grid_x			= 16
-inv_grid_y			= 16
+
+inv_grid_x         = 6
+inv_grid_y         = 3
+
 full_icon_name		= npc_icon_dolg_scientific_outfit
 
 cost				= 25000
@@ -844,11 +843,10 @@ inv_name			= ecolog_outfit_name
 inv_name_short		= ecolog_outfit_name
 description			= ecolog_outfit_description
 inv_weight			= 4.0
-slot				= 6
-inv_grid_width		= 2
-inv_grid_height		= 3
-inv_grid_x			= 18
-inv_grid_y			= 13
+
+inv_grid_x         = 6
+inv_grid_y         = 6
+
 full_icon_name		= npc_icon_ecolog_outfit
 
 cost				= 15000
@@ -906,11 +904,10 @@ inv_name			= protection_outfit_name
 inv_name_short		= protection_outfit_name
 description			= protection_outfit_description
 inv_weight			= 7.0
-slot				= 6
-inv_grid_width		= 2
-inv_grid_height		= 3
-inv_grid_x			= 14
-inv_grid_y			= 16
+
+inv_grid_x         = 6
+inv_grid_y         = 9
+
 full_icon_name		= npc_icon_protection_outfit
 cost				= 24000
 full_scale_icon		= 12,6			;иконка сталкера в костюме в полный рост
@@ -969,11 +966,10 @@ inv_name			= "SKAT-9"
 inv_name_short		= "SKAT-9"
 description			= outfit_military_stalker
 inv_weight			= 10.0
-slot				= 6
-inv_grid_width		= 2
-inv_grid_height		= 3
-inv_grid_x			= 18
-inv_grid_y			= 17
+
+inv_grid_x         = 4
+inv_grid_y         = 9
+
 cost				= 0
 full_scale_icon		= 10,6		;иконка сталкера в костюме в полный рост
 
@@ -1021,11 +1017,10 @@ inv_name			= "SKAT-9M"
 inv_name_short		= "SKAT-9M"
 description			= outfit_military_commander
 inv_weight			= 10.0
-slot				= 6
-inv_grid_width		= 2
-inv_grid_height		= 3
-inv_grid_x			= 18
-inv_grid_y			= 17
+
+inv_grid_x         = 4
+inv_grid_y         = 9
+
 cost				= 12000
 full_scale_icon		= 10,6		;иконка сталкера в костюме в полный рост
 
@@ -1073,12 +1068,12 @@ inv_name			= outfit_soldier_name
 inv_name_short		= outfit_soldier_name
 description			= outfit_soldier_description
 inv_weight			= 4.0
-inv_grid_width     	= 2
-inv_grid_height    	= 2
-inv_grid_x         	= 2
-inv_grid_y         	= 20
+
+inv_grid_x         = 4
+inv_grid_y         = 0
+
 cost				= 5000
-slot				= 6
+
 full_scale_icon		= 0,0		;иконка сталкера в костюме в полный рост
 full_icon_name		= npc_icon_soldier_outfit
 actor_icon = ui_npc_u_soldier_mask

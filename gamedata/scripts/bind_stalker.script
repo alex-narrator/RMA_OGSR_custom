@@ -528,8 +528,9 @@ function actor_binder:on_booster_disable(booster)
 	self.sm:call("on_booster_disable", booster)
 end
 
-function actor_binder:on_hit(victim, health_lost, direction, draftsman, bone_id)
-	self.sm:call("on_hit", victim, health_lost, direction, draftsman, bone_id)
+function actor_binder:on_hit(victim, health_lost, direction, draftsman, bone_id, hit_type)
+	self.sm:call("on_hit", victim, health_lost, direction, draftsman, bone_id, hit_type)
+	self.sm:call("on_hit_actor", victim, health_lost, direction, draftsman, bone_id, hit_type)
 end
 
 function actor_binder:on_before_hit(hit)

@@ -224,4 +224,12 @@ log3("position %s, %s, %s | lvid %s | gvid %s | is valid %s", pos.x, pos.y, pos.
 	-- spawn_to_level("zone_flame_small", vector():set(v[1],v[2],v[3]), "l01_escape")
 -- end
 
-log3("~actor inv weight: %s", actor:get_inventory_weight())
+--log3("~actor inv weight: %s", actor:get_inventory_weight())
+
+-- local vest = actor_get_vest()
+-- if vest then
+	-- vest:binded_object():set_plate_condition(0.1)
+-- end
+
+-- local obj = alife():object(17950)
+-- log3("obj name %s, section %s , parent id %s has id 17950", obj:name(), obj:section_name(), obj.parent_id)

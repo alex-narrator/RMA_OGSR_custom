@@ -1,0 +1,223 @@
+[vest_base]:identity_immunities
+GroupControlSection				= spawn_group
+discovery_dependency =
+$prefetch 						= 32
+class							= E_VEST
+cform           				= skeleton
+visual          				= equipments\stalker_comander_suit
+;ef_equipment_type				= 3
+;full_icon_name					= npc_icon_without_outfit
+slot							= 13
+default_to_ruck					= false
+
+inv_name            			= st_vest
+inv_name_short      			= st_vest_short
+description						= st_vest_descr
+inv_weight          			= 1
+inv_grid_width      			= 2
+inv_grid_height     			= 3
+cost							= 1000
+
+use_condition 					= true
+
+icon_group 						= 3
+
+[plate_carrier]:vest_base
+script_binding      			= bind_vest.init
+script_action_0 				= vest_plates.detach_plate_tip, vest_plates.can_detach_plate, vest_plates.detach_plate
+
+[vest_immunities]
+burn_immunity					= 0.04			;ÍÓ˝ÙÙËˆËÂÌÚ˚ ËÏÏÛÌËÚÂÚ‡ Ò‡ÏÓ„Ó ÍÓÒÚ˛Ï‡
+strike_immunity					= 0.01
+shock_immunity					= 0.04
+wound_immunity					= 0.025
+radiation_immunity				= 0.00
+telepatic_immunity				= 0.00
+chemical_burn_immunity			= 0.04
+explosion_immunity				= 0.04
+fire_wound_immunity				= 0.015
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;—”÷≤À‹Õ≤ ¡–ŒÕ≈∆»À≈“»;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+[vest_soft_armor]:vest_base
+inv_name            			= st_vest_soft_armor
+inv_name_short      			= st_vest_soft_armor_short
+description						= st_vest_soft_armor_descr
+
+inv_grid_x         				= 0
+inv_grid_y         				= 8
+
+belt_size 						= 3
+
+burn_protection 				= 0
+strike_protection 				= 0.10
+shock_protection 				= 0.10
+wound_protection				= 0.10
+radiation_protection 			= 0
+telepatic_protection 			= 0
+chemical_burn_protection 		= 0.10
+explosion_protection 			= 0.10
+fire_wound_protection  			= 0
+
+immunities_sect					= vest_immunities
+bones_koeff_protection 			= vest_soft_armor_protection
+
+[vest_bulletproof]:vest_base
+inv_name            			= st_vest_bulletproof
+inv_name_short      			= st_vest_bulletproof_short
+description						= st_vest_bulletproof_descr
+
+inv_grid_x         				= 0
+inv_grid_y         				= 0
+
+
+burn_protection 				= 0
+strike_protection 				= 0.10
+shock_protection 				= 0.10
+wound_protection				= 0.20
+radiation_protection 			= 0
+telepatic_protection 			= 0
+chemical_burn_protection 		= 0.10
+explosion_protection 			= 0.20
+fire_wound_protection  			= 0
+
+immunities_sect					= vest_immunities
+bones_koeff_protection 			= vest_bulletproof_protection
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;œÀ»“ŒÕŒ— »;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+[plate_carrier_sarmat]:plate_carrier
+inv_name            			= st_sarmat
+inv_name_short      			= st_sarmat_short
+description						= st_sarmat_descr
+
+inv_grid_x         				= 10
+inv_grid_y         				= 0
+
+belt_size 						= 5
+
+strike_protection 				= 0.2
+shock_protection 				= 0.2
+wound_protection				= 0.2
+chemical_burn_protection 		= 0.2
+explosion_protection 			= 0.2
+
+immunities_sect					= vest_immunities
+bones_koeff_protection 			= sarmat_protection
+
+covered_bones 					= bip01_spine, bip01_spine1, bip01_spine2, bip01_l_clavicle, bip01_r_clavicle
+
+plates 							= plate_class_3, sarmat_protection_class3, plate_class_4, sarmat_protection_class4, plate_class_6, sarmat_protection_class6, 
+
+[plate_carrier_assault_ukrtac]:plate_carrier
+inv_name            			= st_assault_ukrtac
+inv_name_short      			= st_assault_ukrtac_short
+description						= st_assault_ukrtac_descr
+
+inv_grid_x         				= 18
+inv_grid_y         				= 6
+
+belt_size 						= 5
+
+strike_protection 				= 0.4
+shock_protection 				= 0.4
+wound_protection				= 0.4
+chemical_burn_protection 		= 0.4
+explosion_protection 			= 0.4
+
+immunities_sect					= vest_immunities
+bones_koeff_protection 			= assault_ukrtac_protection
+
+[plate_carrier_iotv]:plate_carrier
+inv_name            			= st_iotv
+inv_name_short      			= st_iotv_short
+description						= st_iotv_descr
+
+inv_grid_x         				= 2
+inv_grid_y         				= 0
+
+belt_size 						= 5
+
+strike_protection 				= 0.2
+shock_protection 				= 0.2
+wound_protection				= 0.2
+chemical_burn_protection 		= 0.2
+explosion_protection 			= 0.2
+
+immunities_sect					= vest_immunities
+bones_koeff_protection 			= iotv_protection
+
+[plate_carrier_iotv_neck_arm]:plate_carrier_iotv
+inv_name            			= st_iotv_neck_arm
+inv_name_short      			= st_iotv_neck_arm_short
+description						= st_iotv_neck_arm_descr
+
+strike_protection 				= 0.4
+shock_protection 				= 0.4
+wound_protection				= 0.4
+chemical_burn_protection 		= 0.4
+explosion_protection 			= 0.4
+
+inv_grid_x         				= 16
+inv_grid_y         				= 0
+
+bones_koeff_protection 			= iotv_neck_arm_protection
+
+[plate_carrier_iotv_neck_arm_pelvis]:plate_carrier_iotv_neck_arm
+inv_name            			= st_iotv_neck_arm_pelvis
+inv_name_short      			= st_iotv_neck_arm_pelvis_short
+description						= st_iotv_neck_arm_pelvis_descr
+
+inv_grid_x         				= 6
+inv_grid_y         				= 0
+
+bones_koeff_protection 			= iotv_neck_arm_pelvis_protection
+
+[plate_carrier_warmor]:plate_carrier
+inv_name            			= st_warmor
+inv_name_short      			= st_warmor_short
+description						= st_warmor_descr
+
+inv_grid_x         				= 0
+inv_grid_y         				= 12
+
+belt_size 						= 5
+
+strike_protection 				= 0.2
+shock_protection 				= 0.2
+wound_protection				= 0.2
+chemical_burn_protection 		= 0.2
+explosion_protection 			= 0.2
+
+immunities_sect					= vest_immunities
+bones_koeff_protection 			= warmor_protection
+
+[plate_carrier_warmor_neck_arm]:plate_carrier_warmor
+inv_name            			= st_warmor_neck_arm
+inv_name_short      			= st_warmor_neck_arm_short
+description						= st_warmor_neck_arm_descr
+
+strike_protection 				= 0.4
+shock_protection 				= 0.4
+wound_protection				= 0.4
+chemical_burn_protection 		= 0.4
+explosion_protection 			= 0.4
+
+inv_grid_x         				= 2
+inv_grid_y         				= 12
+
+bones_koeff_protection 			= warmor_neck_arm_protection
+
+[plate_carrier_warmor_neck_arm_thigh]:plate_carrier_warmor_neck_arm
+inv_name            			= st_warmor_neck_arm_pelvis
+inv_name_short      			= st_warmor_neck_arm_pelvis_short
+description						= st_warmor_neck_arm_pelvis_descr
+
+inv_grid_x         				= 4
+inv_grid_y         				= 12
+
+bones_koeff_protection 			= warmor_neck_arm_thigh_protection

@@ -1,55 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;WARBELT;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; [warbelt]:identity_immunities
-; GroupControlSection	= spawn_group
-; discovery_dependency =
-; $spawn 				= "devices\detector_simple"
-; $prefetch 			= 32
-; class				= EQ_WRBLT
-; cform				= skeleton
-; visual				= dynamics\equipments\belt_2_art.ogf
-; description			= warbelt_descr
-; slot				= 12
-
-; belt_array 			= 4,1
-
-; inv_name			= Warbelt
-; inv_name_short		= Warbelt
-; inv_weight			= 0.1
-
-; inv_grid_width     = 2
-; inv_grid_height    = 1
-; inv_grid_x         = 20
-; inv_grid_y         = 22
-
-; cost				= 500	;30
-; default_to_ruck		= false
-
-; [warbelt_adv]:warbelt
-; visual				= dynamics\equipments\belt_3_art.ogf
-; inv_grid_width     = 2
-; inv_grid_height    = 1
-; inv_grid_width     = 2
-; inv_grid_height    = 1
-; inv_grid_x         = 26
-; inv_grid_y         = 22
-
-; inv_name			= Warbelt_adv
-; inv_name_short		= Warbelt_adv
-; inv_weight			= 0.1
-
-; belt_array 			= 4,2
-
-; [pouch]:warbelt
-; description			= pouch_descr
-; inv_name			= pouch
-; inv_name_short		= pouch_short
-; inv_grid_width     = 1
-; inv_grid_height    = 1
-; inv_grid_x         = 31
-; inv_grid_y         = 19
-
-; belt_array 			= 2,2
-
 [container_3]:identity_immunities
 GroupControlSection	= spawn_group
 discovery_dependency = 
@@ -110,77 +58,6 @@ work_time 			= 24
 script_action_0 	= recharge.pda_tip, recharge.can_recharge_pda, recharge.recharge_pda
 script_action_1 	= recharge.torch_tip, recharge.can_recharge_torch, recharge.recharge_torch
 script_action_2 	= recharge.detector_tip, recharge.can_recharge_detector, recharge.recharge_detector
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;vest;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; [vest_base]:identity_immunities
-; GroupControlSection	= spawn_group
-; discovery_dependency =
-; $spawn 				= "devices\detector_simple"
-; $prefetch 			= 32
-; class				= EQ_TVEST
-; cform				= skeleton
-; visual				= equipments\item_datchik1.ogf
-; slot				= 14
-; inv_weight			= 0.1
-; cost				= 500	;30
-; default_to_ruck		= false
-
-; [vest_rps]:vest_base
-; vest_array 			= 2,2
-; vest_vertical 		= true
-
-; inv_name			= vest_rps_short
-; inv_name_short		= vest_rps_short
-; description			= vest_rps_descr
-
-; inv_grid_width     = 2
-; inv_grid_height    = 2
-; inv_grid_x         = 20
-; inv_grid_y         = 18
-
-; rifle_ammo 		= 2
-
-; ;bones_koeff_protection = actor_vest_medium
-
-; [vest]:vest_base
-; description			= vest_descr
-; inv_name			= vest_name
-; inv_name_short		= vest_short
-; inv_grid_width     = 2
-; inv_grid_height    = 2
-; inv_grid_x         = 24
-; inv_grid_y         = 18
-; ;vest_array 			= 4,2
-; ;plates 				= plate_class_3
-
-; rifle_ammo 		= 4
-; grenade			= 2
-; medicine 		= 2
-
-; [vest_plate_carrier]:vest_base
-; description			= vest_plate_carrier_descr
-; inv_name			= vest_plate_carrier_name
-; inv_name_short		= vest_plate_carrier_short
-; inv_grid_width     = 2
-; inv_grid_height    = 2
-; inv_grid_x         = 20
-; inv_grid_y         = 20
-; vest_array 			= 4,2
-
-; bones_koeff_protection = actor_vest_medium
-; plates 				= plate_class_2,plate_class_3
-
-; [vest_plate_carrier_heavy]:vest_base
-; description			= vest_plate_carrier_heavy_descr
-; inv_name			= vest_plate_carrier_heavy_name
-; inv_name_short		= vest_plate_carrier_heavy_short
-; inv_grid_width     = 2
-; inv_grid_height    = 2
-; inv_grid_x         = 18
-; inv_grid_y         = 20
-; vest_array 			= 5,2
-
-; bones_koeff_protection = actor_vest_medium
-; plates 				= plate_class_3,plate_class_4,plate_class_5
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;EQUIPMENT MODULES;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -351,7 +228,7 @@ slots_unlocked 		= 10
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;VEST PLATES;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-[plate_class_2]:identity_immunities
+[plate_base]:identity_immunities
 GroupControlSection	= spawn_group
 discovery_dependency = 
 $spawn 				= "devices\quest_items\quest_case_02"
@@ -360,32 +237,102 @@ class				= II_ATTCH
 cform				= skeleton
 visual				= physics\anomaly\artefact_plenka.ogf
 
-description         = plate_class_2_desc
-inv_name			= plate_class_2_name
-inv_name_short		= plate_class_2_name_short
-inv_weight			= 4
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 26
-inv_grid_y         = 31
+description         = plate_base_desc
+inv_name			= plate_base_name
+inv_name_short		= plate_base_name_short
+inv_weight			= 2
+
+icon_group 			= 6
+inv_grid_width     	= 2
+inv_grid_height    	= 2
+inv_grid_x         	= 0
+inv_grid_y         	= 0
 cost				= 4000
 
-bones_koeff_protection = actor_plate_class_2
+breakable 			= true
+use_condition 		= true
 
-[plate_class_3]:plate_class_2
+script_action_10 	= vest_plates.attach_plate_tip, vest_plates.can_attach_plate, vest_plates.attach_plate
+
+[plate_class_3]:plate_base
 description         = plate_class_3_desc
 inv_name			= plate_class_3_name
 inv_name_short		= plate_class_3_name_short
 cost				= 6000
-bones_koeff_protection = actor_plate_class_3
 
-[plate_class_4]:plate_class_2
+inv_grid_x         	= 0
+inv_grid_y         	= 0
+
+bones_koeff_protection = plate_class_3_protection
+
+[plate_class_4]:plate_base
 description         = plate_class_4_desc
 inv_name			= plate_class_4_name
 inv_name_short		= plate_class_4_name_short
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 26
-inv_grid_y         = 32
+
 cost				= 8000
-bones_koeff_protection = actor_plate_class_4
+
+inv_grid_x         	= 2
+inv_grid_y         	= 2
+
+bones_koeff_protection = plate_class_4_protection
+
+[plate_class_6]:plate_base
+description         = plate_class_6_desc
+inv_name			= plate_class_6_name
+inv_name_short		= plate_class_6_name_short
+
+inv_grid_x         	= 0
+inv_grid_y         	= 2
+
+cost				= 8000
+bones_koeff_protection = plate_class_6_protection
+
+[neck_arm_module_iotv]:plate_base
+description         = neck_arm_module_iotv_desc
+inv_name			= neck_arm_module_iotv_name
+inv_name_short		= neck_arm_module_iotv_name_short
+
+inv_grid_x         	= 4
+inv_grid_y         	= 8
+
+strike_protection 				= 0.2
+shock_protection 				= 0.2
+wound_protection				= 0.2
+chemical_burn_protection 		= 0.2
+explosion_protection 			= 0.2
+
+cost				= 8000
+bones_koeff_protection = neck_arm_protection
+
+[neck_arm_module_warmor]:neck_arm_module_iotv
+description         = neck_arm_module_warmor_desc
+inv_name			= neck_arm_module_warmor_name
+inv_name_short		= neck_arm_module_warmor_name_short
+
+inv_grid_x         	= 0
+inv_grid_y         	= 8
+
+cost				= 8000
+
+[pelvis_module_iotv]:plate_base
+description         = pelvis_module_iotv_desc
+inv_name			= pelvis_module_iotv_name
+inv_name_short		= pelvis_module_iotv_name_short
+
+inv_grid_x         	= 6
+inv_grid_y         	= 8
+
+cost				= 8000
+bones_koeff_protection = pelvis_protection
+
+[pelvis_module_warmor]:plate_base
+description         = pelvis_module_warmor_desc
+inv_name			= pelvis_module_warmor_name
+inv_name_short		= pelvis_module_warmor_name_short
+
+inv_grid_x         	= 6
+inv_grid_y         	= 8
+
+cost				= 8000
+bones_koeff_protection = pelvis_thigh_protection

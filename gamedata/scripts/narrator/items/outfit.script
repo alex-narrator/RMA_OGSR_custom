@@ -1,0 +1,20 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_slot",   				fun = this.on_slot})
+	sm:subscribe({signal = "on_ruck",   				fun = this.on_ruck})
+	sm:subscribe({signal = "on_drop",   				fun = this.on_ruck})
+end
+
+function on_slot(obj, prev_place)
+	if not obj:is_vest() then
+	return end
+	actor.inventory.max_belt = read_if_exists(sys_ini, "r_u32", obj:section(), "belt_size", 0)
+end
+
+function on_ruck(obj, prev_place)
+	if obj:is_vest() then
+	return end
+	if prev_place ~= item_place.slot then
+	return end
+	actor.inventory.max_belt = read_if_exists(sys_ini, "r_u32", "inventory", "max_belt", 0)
+end
