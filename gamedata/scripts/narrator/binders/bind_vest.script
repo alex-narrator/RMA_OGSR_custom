@@ -176,10 +176,7 @@ local immunity_type = {
 }
 
 function vest_binder:is_plate_bone(bone_id)
-	local bones_protect_sect = read_if_exists(sys_ini, "r_string", self:get_plate_sect(), "bones_koeff_protection", nil)
-	if not bones_protect_sect then
-	return false end
-	local bone_protect_str = read_if_exists(sys_ini, "r_string", bones_protect_sect, actor:get_bone_name(bone_id), nil)
+	local bone_protect_str = read_if_exists(sys_ini, "r_string", get_bone_protection_sect(self:get_plate_sect()), actor:get_bone_name(bone_id), nil)
 	if not bone_protect_str then
 	return false end
 	local tmp_tbl = split_string(bone_protect_str, ",")
@@ -196,8 +193,7 @@ function vest_binder:hit(victim, health_lost, direction, draftsman, bone_id, hit
 	
 	log3("~hit vest %s to plate %s | hitted bone %s protection type %s", self.object:section(), self:get_plate_sect(), actor:get_bone_name(bone_id), immunity_type[hit_type+1])
 	
-	local immunity_sect = sys_ini:r_string(self:get_plate_sect(), "immunities_sect")
-	local immunity = read_if_exists(sys_ini, "r_float", immunity_sect, immunity_type[hit_type+1].."_immunity", 1)
+	local immunity = read_if_exists(sys_ini, "r_float", get_immunities_sect(self:get_plate_sect()), immunity_type[hit_type+1].."_immunity", 1)
 	local val = -health_lost * immunity
 	log3("~plate cond dec %s | hit power %s | hit type %s | immunity %s", val, health_lost, immunity_type[hit_type+1], immunity)
 	self:change_plate_condition(val)

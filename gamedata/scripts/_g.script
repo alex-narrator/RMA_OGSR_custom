@@ -1978,3 +1978,11 @@ function ini_file_cached(fname)
 	end
 	return ini_file_cache[fname]
 end
+
+function get_immunities_sect(section)
+	return read_if_exists(sys_ini, "r_string", section, "immunities_sect", nil)
+end
+
+function get_bone_protection_sect(section)
+	return read_if_exists(sys_ini, "r_string", section, "bones_koeff_protection", nil)
+end

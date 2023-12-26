@@ -21,7 +21,7 @@ function on_key_press(key, game_action)
 		level.add_complex_effector("lean_left", 1902)
 	end
 	if game_action == key_bindings.kCROUCH or 
-		game_action == key_bindings.kSPRINT_TOGGLE and not is_hold_to_crouch() and not actor_obj.clear_crouch 
+		game_action == key_bindings.kSPRINT and not is_hold_to_crouch() and not actor_obj.clear_crouch 
 		then
 		level.add_complex_effector("crouch", 1912)
 	end
