@@ -1,0 +1,50 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_actor_weapon_zoom_in",   fun = this.on_zoom_in})
+	sm:subscribe({signal = "on_actor_weapon_zoom_out",   fun = this.on_zoom_out})
+end
+
+local sg = false
+
+local AIM_DOF = read_if_exists(sys_ini, "r_string", "dof_effect", "dof_aim", nil)
+local DOF_INTENSITY = read_if_exists(sys_ini, "r_float", "dof_effect", "dof_aim_intensity", 0.5)
+
+function on_zoom_in(weapon)
+	local dof_params = read_if_exists(sys_ini, "r_string", weapon:section(), "dof_aim", AIM_DOF)
+	local dof = split_string(dof_params, ",")
+	if not dof then return end
+	
+	local dof_intensity = read_if_exists(sys_ini, "r_float", weapon:section(), "dof_aim_intensity", DOF_INTENSITY)
+	get_console():execute("ssfx_wpn_dof_2 "..dof_intensity)
+	
+	level.add_call(
+		function()
+			local zrt = weapon:get_weapon().zoom_rotation_factor
+			set_dof_params(dof[1]*zrt*DOF_INTENSITY, dof[2]*zrt, dof[3]*zrt, dof[4]*zrt)
+			log3("~on_zoom_in zrt %s", zrt)
+			return zrt == 1
+		end,
+		function()
+		end		
+	)
+end
+
+function on_zoom_out(weapon)
+	local dof_params = read_if_exists(sys_ini, "r_string", weapon:section(), "dof_aim", AIM_DOF)
+	local dof = split_string(dof_params, ",")
+	if not dof then return end
+	
+	level.add_call(
+		function()
+			local zrt = weapon:get_weapon().zoom_rotation_factor
+			if level.main_input_receiver() then
+				zrt = 0
+			end			
+			set_dof_params(dof[1]*zrt*DOF_INTENSITY, dof[2]*zrt, dof[3]*zrt, dof[4]*zrt)
+			log3("~on_zoom_out zrt %s", zrt)
+			return zrt == 0
+		end,
+		function()
+		end		
+	)
+end

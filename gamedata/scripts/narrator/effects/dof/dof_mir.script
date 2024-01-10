@@ -1,0 +1,44 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_inventory_show", fun = this.start_dof})
+	sm:subscribe({signal = "on_carbody_show", 	fun = this.start_dof})
+	sm:subscribe({signal = "on_dialog_show", 	fun = this.start_dof})
+	sm:subscribe({signal = "on_talk_show", 		fun = this.start_dof})
+	sm:subscribe({signal = "on_trade_show", 	fun = this.start_dof})
+	
+	sm:subscribe({signal = "on_inventory_hide", fun = this.stop_dof})
+	sm:subscribe({signal = "on_carbody_hide", 	fun = this.stop_dof})
+	sm:subscribe({signal = "on_dialog_hide", 	fun = this.stop_dof})
+	sm:subscribe({signal = "on_talk_hide", 		fun = this.stop_dof})
+	--sm:subscribe({signal = "on_trade_hide", 	fun = this.stop_dof})
+end
+
+local sm = ogse_signals.get_mgr()
+local sg = false
+
+local MIR_DOF = read_if_exists(sys_ini, "r_string", "dof_effect", "dof_mir", nil)
+
+function start_dof()
+	if not sg then
+		sg = {signal = "on_update", fun = this.update_dof}
+		sm:subscribe(sg)
+	end
+end
+
+function stop_dof()
+	if sg then
+		sm:unsubscribe(sg)
+		sg = false
+		set_dof_params(0, 0, 0, 0)
+	end
+end
+
+function update_dof()
+	if actor:is_talking() and is_osoznanie_mode(level.get_second_talker()) then
+		set_dof_params(0, 0, 0, 0)
+	return end
+	local dof = split_string(MIR_DOF, ",")
+	if not dof then
+	return end
+	set_dof_params(dof[1], dof[2], dof[3], dof[4])
+end

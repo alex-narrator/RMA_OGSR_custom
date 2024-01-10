@@ -233,3 +233,9 @@ log3("position %s, %s, %s | lvid %s | gvid %s | is valid %s", pos.x, pos.y, pos.
 
 -- local obj = alife():object(17950)
 -- log3("obj name %s, section %s , parent id %s has id 17950", obj:name(), obj:section_name(), obj.parent_id)
+
+local act_item = actor:active_item()
+if act_item then
+	local se_item = alife():object(act_item:id())
+	log3("~visual %s", se_item.visual_name)
+end

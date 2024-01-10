@@ -1,0 +1,53 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_hud_state_switch", fun = this.on_state_switch})
+end
+
+local sg = false
+
+local RELOAD_DOF = read_if_exists(sys_ini, "r_string", "dof_effect", "dof_reload", nil)
+local DOF_RELOAD_TIME = read_if_exists(sys_ini, "r_float", "dof_effect", "dor_reload_time", 0.25)
+local DOF_RELOAD_FACTOR = 0
+
+local reload_states = {
+	[global_flags.eReload] = true,
+	[global_flags.eShutter] = true,
+}
+
+function on_state_switch(item, state, old_state)
+	local change_dof = reload_states[state] or reload_states[old_state]
+	if not change_dof then return end
+	
+	local dof_params = read_if_exists(sys_ini, "r_string", item:section(), "dof_reload", RELOAD_DOF)
+	local dof = split_string(dof_params, ",")
+	if not dof then return end
+	
+	if reload_states[state] then
+		level.add_call(
+			function()
+				local delta = device().f_time_delta / DOF_RELOAD_TIME
+				DOF_RELOAD_FACTOR = math.clamp(DOF_RELOAD_FACTOR + delta, 0, 1)
+				set_dof_params(dof[1]*DOF_RELOAD_FACTOR, dof[2]*DOF_RELOAD_FACTOR, dof[3]*DOF_RELOAD_FACTOR, dof[4]*DOF_RELOAD_FACTOR)
+				log3("~DOF_RELOAD_FACTOR %s", DOF_RELOAD_FACTOR)			
+				return DOF_RELOAD_FACTOR == 1
+			end,
+			function()
+			end		
+		)
+	elseif reload_states[old_state] then
+		level.add_call(
+			function()
+				local delta = device().f_time_delta / DOF_RELOAD_TIME
+				DOF_RELOAD_FACTOR = math.clamp(DOF_RELOAD_FACTOR - delta, 0, 1)
+				set_dof_params(dof[1]*DOF_RELOAD_FACTOR, dof[2]*DOF_RELOAD_FACTOR, dof[3]*DOF_RELOAD_FACTOR, dof[4]*DOF_RELOAD_FACTOR)
+				if level.main_input_receiver() then
+					DOF_RELOAD_FACTOR = 0
+				end						
+				log3("~DOF_RELOAD_FACTOR %s", DOF_RELOAD_FACTOR)			
+				return DOF_RELOAD_FACTOR == 0
+			end,
+			function()
+			end		
+		)		
+	end
+end

@@ -1690,14 +1690,16 @@ function hud_remove_info_message(static_id)
 end
 
 function split_string(inputstr, sep)
-   if sep == nil then
-      sep = "%s"
-   end
-   local t={}
-   for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
-      table.insert(t, str)
-   end
-   return t
+	if not inputstr then
+	return nil end
+	if sep == nil then
+		sep = "%s"
+	end
+	local t={}
+	for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+		table.insert(t, str)
+	end
+	return t
 end
 
 function add_time_delayed_action(delay_time, func)
