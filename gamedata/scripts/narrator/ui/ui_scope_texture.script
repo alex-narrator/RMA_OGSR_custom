@@ -1,7 +1,8 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
-	sm:subscribe({signal = "on_actor_weapon_zoom_in",   fun = this.on_zoom_in})
-	sm:subscribe({signal = "on_actor_weapon_zoom_out",   fun = this.on_zoom_out})
+	sm:subscribe({signal = "on_actor_weapon_zoom_in",   	fun = this.on_zoom_in})
+	sm:subscribe({signal = "on_actor_weapon_zoom_out",   	fun = this.on_zoom_out})
+	sm:subscribe({signal = "on_death",   					fun = this.on_death})
 end
 
 local main_wnd = get_main_window()
@@ -49,4 +50,12 @@ function on_zoom_out(weapon)
 	level.show_item_hud(true)
 	main_wnd:DetachChild(scope_static)
 	scope_static = false
+end
+
+function on_death(victim, killer)
+	if victim:id() ~= actor:id() then
+	return end
+	if actor:active_item() then
+		actor:drop_item(actor:active_item())
+	end
 end

@@ -358,7 +358,7 @@ function MainIngameOverlay:UpdateActiveItem()
 	
 	local text, val = "", ""
 	
-	if wpn then
+	if wpn and get_clsid(act_item) ~= clsid.wpn_binocular_s then
 		self.active_item_icon:Show(
 			(SHOW_ACTIVE_ITEM_INFO and act_item:get_ammo_in_magazine() > 0) or 
 			(SHOW_GEAR_INFO and (not wpn:addon_attachable(addon.magazine) or wpn:is_addon_attached(addon.magazine)))
