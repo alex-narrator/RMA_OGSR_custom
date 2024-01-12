@@ -3,8 +3,6 @@ function attach(sm)
 	sm:subscribe({signal = "on_hud_state_switch", fun = this.on_state_switch})
 end
 
-local sg = false
-
 local RELOAD_DOF = read_if_exists(sys_ini, "r_string", "dof_effect", "dof_reload", nil)
 local DOF_RELOAD_TIME = read_if_exists(sys_ini, "r_float", "dof_effect", "dor_reload_time", 0.25)
 local DOF_RELOAD_FACTOR = 0
@@ -27,8 +25,7 @@ function on_state_switch(item, state, old_state)
 			function()
 				local delta = device().f_time_delta / DOF_RELOAD_TIME
 				DOF_RELOAD_FACTOR = math.clamp(DOF_RELOAD_FACTOR + delta, 0, 1)
-				set_dof_params(dof[1]*DOF_RELOAD_FACTOR, dof[2]*DOF_RELOAD_FACTOR, dof[3]*DOF_RELOAD_FACTOR, dof[4]*DOF_RELOAD_FACTOR)
-				log3("~DOF_RELOAD_FACTOR %s", DOF_RELOAD_FACTOR)			
+				set_dof_params(dof[1]*DOF_RELOAD_FACTOR, dof[2]*DOF_RELOAD_FACTOR, dof[3]*DOF_RELOAD_FACTOR, dof[4]*DOF_RELOAD_FACTOR)			
 				return DOF_RELOAD_FACTOR == 1
 			end,
 			function()
@@ -43,7 +40,6 @@ function on_state_switch(item, state, old_state)
 				if level.main_input_receiver() then
 					DOF_RELOAD_FACTOR = 0
 				end						
-				log3("~DOF_RELOAD_FACTOR %s", DOF_RELOAD_FACTOR)			
 				return DOF_RELOAD_FACTOR == 0
 			end,
 			function()

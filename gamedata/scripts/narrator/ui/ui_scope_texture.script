@@ -1,0 +1,52 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_actor_weapon_zoom_in",   fun = this.on_zoom_in})
+	sm:subscribe({signal = "on_actor_weapon_zoom_out",   fun = this.on_zoom_out})
+end
+
+local main_wnd = get_main_window()
+local scope_static = false
+
+function create_scope_static(weapon)
+	if weapon:get_gl_mode() then
+	return false end
+	local wpn = weapon:get_weapon()
+	if not wpn:is_addon_attached(addon.scope) then
+	return false end
+	if read_if_exists(sys_ini, "r_bool", weapon:section(), "ignore_scope_texture", false) then
+	return false end
+	local scope_tex_type = wpn:scope_mode_second() and "scope_texture_second" or "scope_texture"
+	local scope_tex_sect = wpn:addon_attachable(addon.scope) and wpn:get_addon_name(addon.scope) or weapon:section()
+	local texture_name = read_if_exists(sys_ini, "r_string", scope_tex_sect, scope_tex_type, nil)
+	if not texture_name then 
+	return false end
+	local static = CUIStatic()
+	static:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
+	static:InitTexture(texture_name)
+	static:SetStretchTexture(true)
+	return static
+end
+
+function on_zoom_in(weapon)
+	scope_static = create_scope_static(weapon)
+	if not scope_static then
+	return end
+	level.add_call(
+		function()
+			return not wpn_IsRotatingToZoom(weapon)
+		end,
+		function()
+			level.show_item_hud(false)
+			main_wnd:AttachChild(scope_static)
+			main_wnd:BringToBottom(scope_static)		
+		end		
+	)		
+end
+
+function on_zoom_out(weapon)
+	if not scope_static then
+	return end
+	level.show_item_hud(true)
+	main_wnd:DetachChild(scope_static)
+	scope_static = false
+end

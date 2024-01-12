@@ -4,8 +4,6 @@ function attach(sm)
 	sm:subscribe({signal = "on_actor_weapon_zoom_out",   fun = this.on_zoom_out})
 end
 
-local sg = false
-
 local AIM_DOF = read_if_exists(sys_ini, "r_string", "dof_effect", "dof_aim", nil)
 local DOF_INTENSITY = read_if_exists(sys_ini, "r_float", "dof_effect", "dof_aim_intensity", 0.5)
 
@@ -21,7 +19,6 @@ function on_zoom_in(weapon)
 		function()
 			local zrt = weapon:get_weapon().zoom_rotation_factor
 			set_dof_params(dof[1]*zrt*DOF_INTENSITY, dof[2]*zrt, dof[3]*zrt, dof[4]*zrt)
-			log3("~on_zoom_in zrt %s", zrt)
 			return zrt == 1
 		end,
 		function()
@@ -41,7 +38,6 @@ function on_zoom_out(weapon)
 				zrt = 0
 			end			
 			set_dof_params(dof[1]*zrt*DOF_INTENSITY, dof[2]*zrt, dof[3]*zrt, dof[4]*zrt)
-			log3("~on_zoom_out zrt %s", zrt)
 			return zrt == 0
 		end,
 		function()
