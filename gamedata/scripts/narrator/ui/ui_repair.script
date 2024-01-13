@@ -86,14 +86,14 @@ function RepairOverlay:InitControls()
 	xml:InitAutoStaticGroup("repair_back:auto_static", self.repair_back)
 	
 	self.items_scroll_view_weapon = xml:InitScrollView("repair_back:scroll_view_weapon", self.repair_back)
-	self.items_scroll_view_weapon.scale = xml:ReadAttribFlt("repair_back:scroll_view_weapon", 0, "scale", 1)
+	self.items_scroll_view_weapon.scale = xml:ReadAttribFlt("repair_back:scroll_view_weapon", "scale", 1)
 	
 	self.items_scroll_view_armor = xml:InitScrollView("repair_back:scroll_view_armor", self.repair_back)
-	self.items_scroll_view_armor.scale = xml:ReadAttribFlt("repair_back:scroll_view_armor", 0, "scale", 1)
+	self.items_scroll_view_armor.scale = xml:ReadAttribFlt("repair_back:scroll_view_armor", "scale", 1)
 	
 	self.selected_item_back = xml:InitStatic("repair_back:selected_item_back", self.repair_back)
 	self.selected_item_st 	= xml:InitStatic("repair_back:selected_item_back:selected_item", self.selected_item_back)
-	self.selected_item_st.scale = xml:ReadAttribFlt("repair_back:selected_item_back:selected_item", 0, "scale", 1)
+	self.selected_item_st.scale = xml:ReadAttribFlt("repair_back:selected_item_back:selected_item", "scale", 1)
 	self.repair_cost 		= xml:InitStatic("repair_back:selected_item_back:repair_cost", self.selected_item_back)
 	
 	self.actor_money = xml:InitStatic("repair_back:actor_money", self.repair_back)

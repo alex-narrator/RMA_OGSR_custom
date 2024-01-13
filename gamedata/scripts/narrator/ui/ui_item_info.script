@@ -77,10 +77,10 @@ function UIItemInfo:InitControls()
 	
 	local tmp_tbl, def_font, def_color = nil, "letterica16", "255, 255, 255, 255"
 	
-	tmp_tbl = split_string(self.xml:ReadAttrib("background_frame", 0, "offset", "0,0"), ",")
+	tmp_tbl = split_string(self.xml:ReadAttrib("background_frame", "offset", "0,0"), ",")
 	self.background_frame.offset = {x = tmp_tbl[1], y = tmp_tbl[2]}
 	
-	self.base_height = self.xml:ReadAttribFlt("background_frame", 0, "base_height", 0)
+	self.base_height = self.xml:ReadAttribFlt("background_frame", "base_height", 0)
 	if self.base_height > 0 then
 		self.background_frame:SetHeight(self.base_height)
 	end
@@ -90,8 +90,8 @@ function UIItemInfo:InitControls()
 	self.condition_pb = self.xml:InitProgressBar("background_frame:condition_progress", self.background_frame)
 	
 	self.descr_list = self.xml:InitScrollView("background_frame:descr_list", self.background_frame)
-	self.descr_list.font = self.xml:ReadAttrib("background_frame:descr_list:descr_text", 0, "font", def_font)
-	tmp_tbl = split_string(self.xml:ReadAttrib("background_frame:descr_list:descr_text", 0, "text_color", def_color), ",")
+	self.descr_list.font = self.xml:ReadAttrib("background_frame:descr_list:descr_text", "font", def_font)
+	tmp_tbl = split_string(self.xml:ReadAttrib("background_frame:descr_list:descr_text", "text_color", def_color), ",")
 	self.descr_list.text_color = GetARGB(tmp_tbl[1], tmp_tbl[2], tmp_tbl[3], tmp_tbl[4])
 	
 	local name
@@ -615,8 +615,8 @@ function attach_weapon_addons(UIDesc, obj)
 
 	local addons_list = xml:InitScrollView("addons_list", UIDesc)
 	
-	addons_list.font = xml:ReadAttrib("addons_list:descr_text", 0, "font", def_font)
-	tmp_tbl = split_string(xml:ReadAttrib("addons_list:descr_text", 0, "text_color", def_color), ",")
+	addons_list.font = xml:ReadAttrib("addons_list:descr_text", "font", def_font)
+	tmp_tbl = split_string(xml:ReadAttrib("addons_list:descr_text", "text_color", def_color), ",")
 	addons_list.text_color = GetARGB(tmp_tbl[1], tmp_tbl[2], tmp_tbl[3], tmp_tbl[4])
 	local addon_text_st = nil
 

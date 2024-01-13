@@ -26,7 +26,7 @@ function on_state_switch(item, state, old_state)
 				local delta = device().f_time_delta / DOF_RELOAD_TIME
 				DOF_RELOAD_FACTOR = math.clamp(DOF_RELOAD_FACTOR + delta, 0, 1)
 				set_dof_params(dof[1]*DOF_RELOAD_FACTOR, dof[2]*DOF_RELOAD_FACTOR, dof[3]*DOF_RELOAD_FACTOR, dof[4]*DOF_RELOAD_FACTOR)			
-				return DOF_RELOAD_FACTOR == 1
+				return DOF_RELOAD_FACTOR == 1 or not reload_states[item:get_hud_item_state()]
 			end,
 			function()
 			end		
