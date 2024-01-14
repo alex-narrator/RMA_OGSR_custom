@@ -12,7 +12,7 @@ function on_slot(obj, prev_place)
 end
 
 function on_ruck(obj, prev_place)
-	if obj:is_vest() then
+	if not obj:is_vest() then
 	return end
 	if prev_place ~= item_place.slot then
 	return end

@@ -1,13 +1,13 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 local OVERLAY_XML = "script_overlays\\mainingame_overlay.xml"
 local overlay = nil
+local subscribed = false
+local DYNAMIC_SHOW = true
 
 function attach(sm)
 	sm:subscribe({signal = "on_spawn",   			fun = this.create_window})
 	sm:subscribe({signal = "on_destroy",   			fun = this.destroy_window})
 end
-
-local subscribed = false
 
 function create_window()
 	if not overlay then
@@ -76,22 +76,20 @@ function MainIngameOverlay:InitControls()
 	xml:ParseFile(OVERLAY_XML)
 	
 	self.actor_params = xml:InitStatic("actor_params", self)
-	--//health bar
-	self.health = xml:InitStatic("health", self.actor_params)
-	self.health_static = xml:InitStatic("health:health_static", self.health)
-	self.health_bar = xml:InitProgressBar("health:health_progress", self.health)
-	--//power bar
-	self.power = xml:InitStatic("power", self.actor_params)
-	self.power_static = xml:InitStatic("power:power_static", self.power)
-	self.power_bar = xml:InitProgressBar("power:power_progress", self.power)
-	--//stamina bar
-	self.stamina = xml:InitStatic("stamina", self.actor_params)
-	self.stamina_static = xml:InitStatic("stamina:stamina_static", self.stamina)
-	self.stamina_bar = xml:InitProgressBar("stamina:stamina_progress", self.stamina)
+	self.conditions = {
+		["health"] 	= { condition = function() return actor.health end		, show_val = 0.95 },
+		["power"] 	= { condition = function() return actor.power end		, show_val = 0.95 },
+		["stamina"] = { condition = function() return stamina.get_val() end	, show_val = 0.95 },
+	}
+	for k,v in pairs(self.conditions) do
+		v.back = xml:InitStatic(k, self.actor_params)
+		v.static = xml:InitStatic(k..":static", v.back)
+		v.bar = xml:InitProgressBar(k..":progress", v.back)
+	end
 	--//car condition bar
 	self.car = xml:InitStatic("car", self.actor_params)
-	self.car_static = xml:InitStatic("car:car_static", self.car)
-	self.car_bar = xml:InitProgressBar("car:car_progress", self.car)
+	self.car_static = xml:InitStatic("car:static", self.car)
+	self.car_bar = xml:InitProgressBar("car:progress", self.car)
 	self.car_color_def = self.car_static:GetColor()
 	self.car_color_engine_on = GetARGB(255, 0, 255, 0)
 
@@ -173,6 +171,14 @@ function MainIngameOverlay:InitControls()
 	self.missile_throw = xml:InitProgressShape("throw_progress", self)
 	self.missile_text = xml:InitStatic("throw_text", self)
 	self.throw_force = 0
+end
+
+function MainIngameOverlay:UpdateConditions()
+	for k,v in pairs(self.conditions) do
+		v.bar:SetProgressPos(v.condition())
+		v.back:Show(v.condition() <= v.show_val or not DYNAMIC_SHOW)
+		log3("cond %s val %s", k, v.condition())
+	end
 end
 
 function MainIngameOverlay:DrawSlotIcon(slot_num)
@@ -467,10 +473,7 @@ end
 
 function MainIngameOverlay:Update()
 	CUIScriptWnd.Update(self)
-	self.health_bar:SetProgressPos(actor.health)
-	self.power_bar:SetProgressPos(actor.power)
-	self.stamina_bar:SetProgressPos(stamina.get_val())
-	self.stamina:Show(stamina.get_val()<0.95)
+	self:UpdateConditions()
 	local car = actor:get_holder() and actor:get_holder():get_car()
 	self.car:Show(car)
 	if car then
