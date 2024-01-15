@@ -3,6 +3,12 @@ local OVERLAY_XML = "script_overlays\\mainingame_overlay.xml"
 local overlay = nil
 local subscribed = false
 local DYNAMIC_SHOW = true
+local USE_LUMINOCITY = false --read_if_exists(sys_ini, "r_bool", "features", "use_luminicity")
+local actor_obj = get_actor_obj()
+
+function visibility()
+	return USE_LUMINOCITY and actor:get_luminocity() or actor_obj:get_visibility()
+end
 
 function attach(sm)
 	sm:subscribe({signal = "on_spawn",   			fun = this.create_window})
@@ -77,14 +83,16 @@ function MainIngameOverlay:InitControls()
 	
 	self.actor_params = xml:InitStatic("actor_params", self)
 	self.conditions = {
-		["health"] 	= { condition = function() return actor.health end		, show_val = 0.95 },
-		["power"] 	= { condition = function() return actor.power end		, show_val = 0.95 },
-		["stamina"] = { condition = function() return stamina.get_val() end	, show_val = 0.95 },
+		["health"] 		= { condition = function() return actor.health end, 			show_val = 0.95 },
+		["power"] 		= { condition = function() return actor.power end, 				show_val = 0.95 },
+		["stamina"] 	= { condition = function() return stamina.get_val() end, 		show_val = 0.95 },
+		["visibility"] 	= { condition = function() return visibility() end, 			show_val = 3 },
+		["noise"] 		= { condition = function() return actor_obj.sound_noise end, 	show_val = 3 },
 	}
 	for k,v in pairs(self.conditions) do
 		v.back = xml:InitStatic(k, self.actor_params)
 		v.static = xml:InitStatic(k..":static", v.back)
-		v.bar = xml:InitProgressBar(k..":progress", v.back)
+		v.bar = xml:InitProgressBar(k..":progress_bar", v.back)
 	end
 	--//car condition bar
 	self.car = xml:InitStatic("car", self.actor_params)
@@ -92,6 +100,18 @@ function MainIngameOverlay:InitControls()
 	self.car_bar = xml:InitProgressBar("car:progress", self.car)
 	self.car_color_def = self.car_static:GetColor()
 	self.car_color_engine_on = GetARGB(255, 0, 255, 0)
+	
+	--//motion icon
+	self.motion_icon = xml:InitStatic("motion_icon", self)
+	self.current_motion_texture = false
+	self.motion_state_textures = {
+		["normal"] 	= "ui_hud_soldier_normal_warning",
+		["crouch"] 	= "ui_hud_soldier_crouch_warning",
+		["creep"] 	= "ui_hud_soldier_creep_warning",
+		["climb"] 	= "ui_hud_soldier_climb_warning",
+		["run"] 	= "ui_hud_soldier_run_warning",
+		["sprint"] 	= "ui_hud_soldier_sprint_warning",
+	}
 
 	--// quick slots
 	self.quick_slots_back = xml:InitStatic("quick_slots_back", self)
@@ -177,7 +197,29 @@ function MainIngameOverlay:UpdateConditions()
 	for k,v in pairs(self.conditions) do
 		v.bar:SetProgressPos(v.condition())
 		v.back:Show(v.condition() <= v.show_val or not DYNAMIC_SHOW)
-		log3("cond %s val %s", k, v.condition())
+		--log3("cond %s val %s", k, v.condition())
+	end
+end
+
+function MainIngameOverlay:UpdateMotionIcon()
+	self.motion_icon:Show(not actor:get_holder())
+	local state = "normal"
+	if actor_obj:is_actor_climb() or actor_obj:is_actor_climbing() then
+		state = "climb"
+	elseif actor_obj:is_actor_crouch() or actor_obj:is_actor_crouching() then
+		state = "crouch"
+	elseif actor_obj:is_actor_creep() or actor_obj:is_actor_creeping() then
+		state = "creep"
+	elseif actor_obj:is_actor_sprinting() then
+		state = "sprint"		
+	elseif (actor_obj:is_actor_moving() and not actor_obj:is_actor_running()) or actor_obj:is_zoom_aiming_mode() then
+		state = "run"
+	end
+	local texture = self.motion_state_textures[state]
+	if self.current_motion_texture ~= texture then
+		self.motion_icon:InitTexture(texture)
+		self.current_motion_texture = texture
+		--log3("~current state %s", state)
 	end
 end
 
@@ -474,6 +516,7 @@ end
 function MainIngameOverlay:Update()
 	CUIScriptWnd.Update(self)
 	self:UpdateConditions()
+	self:UpdateMotionIcon()
 	local car = actor:get_holder() and actor:get_holder():get_car()
 	self.car:Show(car)
 	if car then
