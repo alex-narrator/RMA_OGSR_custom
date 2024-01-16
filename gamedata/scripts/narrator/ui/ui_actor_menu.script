@@ -150,23 +150,31 @@ function ActorMenuOverlay:InitControls()
 	end
 	
 	--// quick slots
-	self.quick_slots_back = xml:InitStatic("quick_slots_back", self)
+	self.quick_slots = xml:InitStatic("quick_slots", self)
 	
-	--//slot colors
-	self.quick_color_default 	= GetARGB(0, 255, 255, 255)
-	self.quick_color_highlight 	= GetARGB(45, 255, 255, 255)
+	--//quick item icon colors
 	self.quick_color_has_item 	= GetARGB(255, 255, 255, 255)
 	self.quick_color_no_item 	= GetARGB(120, 255, 255, 255)
 	
+	local pos_x, pos_y = 0, 0
+	local horz = (xml:ReadAttribInt("quick_slots", "horz", 1) > 0) and true or false
+	local indent = xml:ReadAttribFlt("quick_slots", "indent", 0)
+	
 	self.slots = {}
 	for i=0,3 do
-		local s = xml:InitStatic("quick_slot_"..i, self.quick_slots_back)
+		local s = xml:InitStatic("quick_slots:slot", self.quick_slots)
 		self.slots[i] = s
-		s:SetColor(self.quick_color_default)	
-		local key_text = "ui_quick_slot_"..i
-		s:SetText(game.translate_string(key_text))	
-		s.icon = xml:InitStatic("slot_icon", s)	
-		s.count = xml:InitStatic("slot_count", s)	
+		s:SetText(game.translate_string("ui_quick_slot_"..i))
+		s:SetWndPos(pos_x, pos_y)
+		if horz then
+			pos_x = pos_x + s:GetWidth() + indent
+		else
+			pos_y = pos_y + s:GetHeight() + indent
+		end
+		s.highlight = xml:InitStatic("quick_slots:slot:highlight", s)
+		s.highlight:Show(false)
+		s.icon = xml:InitStatic("quick_slots:slot:icon", s)
+		s.count = xml:InitStatic("quick_slots:slot:count", s)
 		name = "quick_"..i
 		self:Register(s, name)
 		self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:QuickOnFocusReceived(i) end, self)
@@ -333,19 +341,19 @@ end
 
 function ActorMenuOverlay:QuickOnFocusReceived(slot_num)
 	quick_slots.set_selected(slot_num)
-	self.slots[slot_num]:SetColor(self.quick_color_highlight)
+	self.slots[slot_num].highlight:Show(true)--SetColor(self.quick_color_highlight)
 end
 
 function ActorMenuOverlay:QuickOnFocusLost(slot_num)
 	quick_slots.set_selected(nil)
-	self.slots[slot_num]:SetColor(self.quick_color_default)
+	self.slots[slot_num].highlight:Show(false)--SetColor(self.quick_color_default)
 end
 
 function ActorMenuOverlay:OnCellItemFocus(obj)
 	local highlight_quick_slots = read_if_exists(sys_ini, "r_bool", obj:section(), "quick_slot", false)
 	if highlight_quick_slots then
 		for i=0,3 do
-			self.slots[i]:SetColor(self.quick_color_highlight)
+			self.slots[i].highlight:Show(true)--.back:SetColor(self.quick_color_highlight)
 		end
 	end
 	local slot_type = loadout.get_slot_type(obj)
@@ -368,7 +376,7 @@ end
 
 function ActorMenuOverlay:OnCellItemFocusLost(obj)
 	for i=0,3 do
-		self.slots[i]:SetColor(self.quick_color_default)
+		self.slots[i].highlight:Show(false)--.back:SetColor(self.quick_color_default)
 	end
 	for k,v in pairs(self.loadout) do
 		v.static:SetTextColor(self.loadout_color_default)

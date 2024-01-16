@@ -3,6 +3,7 @@ local OVERLAY_XML = "script_overlays\\mainingame_overlay.xml"
 local overlay = nil
 local subscribed = false
 local DYNAMIC_SHOW = true
+local DEBUG_WARNING_SHOW = false
 local USE_LUMINOCITY = false --read_if_exists(sys_ini, "r_bool", "features", "use_luminicity")
 local actor_obj = get_actor_obj()
 
@@ -93,14 +94,14 @@ function MainIngameOverlay:InitControls()
 		["noise"] 		= { condition = function() return actor_obj.sound_noise end, 	show_val = 3 },
 	}
 	for k,v in pairs(self.conditions) do
-		v.back = xml:InitStatic(k, self.actor_params)
-		v.static = xml:InitStatic(k..":static", v.back)
-		v.bar = xml:InitProgressBar(k..":progress_bar", v.back)
+		v.back = xml:InitStatic("actor_params:"..k, self.actor_params)
+		v.static = xml:InitStatic("actor_params:"..k..":static", v.back)
+		v.bar = xml:InitProgressBar("actor_params:"..k..":progress_bar", v.back)
 	end
 	--//car condition bar
-	self.car = xml:InitStatic("car", self.actor_params)
-	self.car_static = xml:InitStatic("car:static", self.car)
-	self.car_bar = xml:InitProgressBar("car:progress", self.car)
+	self.car = xml:InitStatic("actor_params:car", self.actor_params)
+	self.car_static = xml:InitStatic("actor_params:car:static", self.car)
+	self.car_bar = xml:InitProgressBar("actor_params:car:progress_bar", self.car)
 	self.car_color_def = self.car_static:GetColor()
 	self.car_color_engine_on = GetARGB(255, 0, 255, 0)
 	
@@ -109,22 +110,29 @@ function MainIngameOverlay:InitControls()
 	self.current_motion_texture = false
 
 	--// quick slots
-	self.quick_slots_back = xml:InitStatic("quick_slots_back", self)
+	self.quick_slots = xml:InitStatic("quick_slots", self)
 
 	--//slot colors
-	self.quick_color_default 	= GetARGB(0, 255, 255, 255)
 	self.quick_color_has_item 	= GetARGB(255, 255, 255, 255)
 	self.quick_color_no_item 	= GetARGB(120, 255, 255, 255)
 
+	local pos_x, pos_y = 0, 0
+	local horz = (xml:ReadAttribInt("quick_slots", "horz", 1) > 0) and true or false
+	local indent = xml:ReadAttribFlt("quick_slots", "indent", 0)
+
 	self.slots = {}
 	for i=0,3 do
-		local s = xml:InitStatic("quick_slots_back:quick_slot_"..i, self.quick_slots_back)
+		local s = xml:InitStatic("quick_slots:slot", self.quick_slots)
 		self.slots[i] = s
-		s:SetColor(self.quick_color_default)
-		local key_text = "ui_quick_slot_"..i
-		s:SetText(game.translate_string(key_text))		
-		s.icon = xml:InitStatic("quick_slots_back:slot_icon", s)			
-		s.count = xml:InitStatic("quick_slots_back:slot_count", s)
+		s:SetText(game.translate_string("ui_quick_slot_"..i))
+		s:SetWndPos(pos_x, pos_y)
+		if horz then
+			pos_x = pos_x + s:GetWidth() + indent
+		else
+			pos_y = pos_y + s:GetHeight() + indent
+		end
+		s.icon = xml:InitStatic("quick_slots:slot:icon", s)
+		s.count = xml:InitStatic("quick_slots:slot:count", s)
 		self:DrawSlotIcon(i)
 	end
 	
@@ -241,7 +249,9 @@ function MainIngameOverlay:UpdateWarningIcons()
 	local color, val, _v, _min, _max, size
 	local pos_x, pos_y = 0, 0
 	for k,v in ipairs(self.warning_icons) do
-		if not v.threshold then
+		if DEBUG_WARNING_SHOW then
+			v.icon:Show(true)
+		elseif not v.threshold then
 			v.icon:Show(v.val())
 		else
 			size = table.size(v.threshold)
