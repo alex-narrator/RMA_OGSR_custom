@@ -6,6 +6,9 @@ local DYNAMIC_SHOW = true
 local USE_LUMINOCITY = false --read_if_exists(sys_ini, "r_bool", "features", "use_luminicity")
 local actor_obj = get_actor_obj()
 
+local MOTION_TEXTURE_PREFIX = "ui_hud_soldier_"
+local MOTION_TEXTURE_POSTFIX = "_warning"
+
 function visibility()
 	return USE_LUMINOCITY and actor:get_luminocity() or actor_obj:get_visibility()
 end
@@ -104,14 +107,6 @@ function MainIngameOverlay:InitControls()
 	--//motion icon
 	self.motion_icon = xml:InitStatic("motion_icon", self)
 	self.current_motion_texture = false
-	self.motion_state_textures = {
-		["normal"] 	= "ui_hud_soldier_normal_warning",
-		["crouch"] 	= "ui_hud_soldier_crouch_warning",
-		["creep"] 	= "ui_hud_soldier_creep_warning",
-		["climb"] 	= "ui_hud_soldier_climb_warning",
-		["run"] 	= "ui_hud_soldier_run_warning",
-		["sprint"] 	= "ui_hud_soldier_sprint_warning",
-	}
 
 	--// quick slots
 	self.quick_slots_back = xml:InitStatic("quick_slots_back", self)
@@ -123,13 +118,13 @@ function MainIngameOverlay:InitControls()
 
 	self.slots = {}
 	for i=0,3 do
-		local s = xml:InitStatic("quick_slot_"..i, self.quick_slots_back)
+		local s = xml:InitStatic("quick_slots_back:quick_slot_"..i, self.quick_slots_back)
 		self.slots[i] = s
 		s:SetColor(self.quick_color_default)
 		local key_text = "ui_quick_slot_"..i
 		s:SetText(game.translate_string(key_text))		
-		s.icon = xml:InitStatic("slot_icon", s)			
-		s.count = xml:InitStatic("slot_count", s)
+		s.icon = xml:InitStatic("quick_slots_back:slot_icon", s)			
+		s.count = xml:InitStatic("quick_slots_back:slot_count", s)
 		self:DrawSlotIcon(i)
 	end
 	
@@ -191,6 +186,25 @@ function MainIngameOverlay:InitControls()
 	self.missile_throw = xml:InitProgressShape("throw_progress", self)
 	self.missile_text = xml:InitStatic("throw_text", self)
 	self.throw_force = 0
+	
+	self.warning_icons_back = xml:InitStatic("icons_back", self)
+	self.warning_icons_horz = (xml:ReadAttribInt("icons_back", "horz", 0) > 0) and true or false
+	self.warning_icons = {
+		{ name = "armor", 		val = function() return actor_get_outfit() and 1 - actor_get_outfit():condition() or 0 end },
+		{ name = "weapon", 		val = function() return actor:active_item() and 1 - actor:active_item():condition() or 0 end },
+		{ name = "radiation", 	val = function() return actor.radiation end },
+		{ name = "bleeding", 	val = function() return actor:get_bleeding() end },
+		{ name = "starvation", 	val = function() return 1 - actor.satiety end },
+		{ name = "psy_health", 	val = function() return 1 - actor.psy_health end },
+		{ name = "overweight", 	val = function() return actor:get_inventory_weight() / actor:get_max_weight() end },
+		{ name = "godmode", 	val = function() return get_console():get_string("g_god") == "on" end },
+		{ name = "safehouse", 	val = function() return actor:has_info("safehouse") end },
+	}
+	for k,v in ipairs(self.warning_icons) do
+		v.icon = xml:InitStatic("icons_back:"..v.name, self.warning_icons_back)
+		v.icon:Show(false)
+		v.threshold = split_string(xml:ReadAttrib("icons_back:"..v.name, "threshold", nil), ",", true)
+	end
 end
 
 function MainIngameOverlay:UpdateConditions()
@@ -215,11 +229,64 @@ function MainIngameOverlay:UpdateMotionIcon()
 	elseif (actor_obj:is_actor_moving() and not actor_obj:is_actor_running()) or actor_obj:is_zoom_aiming_mode() then
 		state = "run"
 	end
-	local texture = self.motion_state_textures[state]
+	local texture = MOTION_TEXTURE_PREFIX..state
 	if self.current_motion_texture ~= texture then
 		self.motion_icon:InitTexture(texture)
 		self.current_motion_texture = texture
 		--log3("~current state %s", state)
+	end
+end
+
+function MainIngameOverlay:UpdateWarningIcons()
+	local color, val, _v, _min, _max, size
+	local pos_x, pos_y = 0, 0
+	for k,v in ipairs(self.warning_icons) do
+		if not v.threshold then
+			v.icon:Show(v.val())
+		else
+			size = table.size(v.threshold)
+			_min = v.threshold[1]
+			if size > 1 then
+				val = v.val()
+				if val < _min then
+					v.icon:Show(false)
+				else
+					_max = v.threshold[size]
+					for i=1, size do
+						if (val >= v.threshold[i]) and (not v.threshold[i+1] or val < v.threshold[i+1]) then
+							val = v.threshold[i]
+							break
+						end
+					end
+					_v = (val - _min) / (_max - _min) * 2
+					color = GetARGB(255, math.clamp(255 * _v, 0, 255), math.clamp(255 * (2 - _v), 0, 255), 0)
+					v.icon:SetColor(color)
+					v.icon:Show(true)
+				end
+			else
+				val = 1 - v.val();
+				local threshold = 1 - _min
+				threshold = math.clamp(threshold, 0.01, 1)
+				if val <= threshold then
+					_v = val / threshold
+					_v = math.clamp(_v, 0, 1)
+					color = GetARGB(255, 255, 255 * _v, 0)
+					v.icon:SetColor(color)
+					v.icon:Show(true)
+				else
+					v.icon:Show(false)
+				end
+			end
+		end
+		
+		if v.icon:IsShown() then
+			v.icon:SetWndPos(pos_x, pos_y)
+			if self.warning_icons_horz then
+				pos_x = pos_x + v.icon:GetWidth()
+			else
+				pos_y = pos_y + v.icon:GetHeight()
+			end
+		end
 	end
 end
 
@@ -493,6 +560,15 @@ function MainIngameOverlay:UpdateActiveItem()
 	self.ammo_counter:SetWndPos(self.active_item_icon:GetWidth() + 5,self.ammo_counter:GetWndPos().y)
 end
 
+function MainIngameOverlay:UpdateCarPanel()
+	local car = actor:get_holder() and actor:get_holder():get_car()
+	self.car:Show(car)
+	if car then
+		self.car_bar:SetProgressPos(car:GetfHealth())
+		self.car_static:SetColor(car:IsEngineOn() and self.car_color_engine_on or self.car_color_def)
+	end
+end
+
 function MainIngameOverlay:UpdateMissileThrow()
 	local val = 0
 	local act_item = actor:active_item()
@@ -517,17 +593,12 @@ function MainIngameOverlay:Update()
 	CUIScriptWnd.Update(self)
 	self:UpdateConditions()
 	self:UpdateMotionIcon()
-	local car = actor:get_holder() and actor:get_holder():get_car()
-	self.car:Show(car)
-	if car then
-		self.car_bar:SetProgressPos(car:GetfHealth())
-		self.car_static:SetColor(car:IsEngineOn() and self.car_color_engine_on or self.car_color_def)
-	end
+	self:UpdateCarPanel()
 	self.slot_panel:Show(SHOW_GEAR_INFO)
 	self.belt_panel:Show(SHOW_GEAR_INFO)
 	self.loadout_panel:Show(SHOW_GEAR_INFO)
 	self:UpdatePanelBoosters()
-	--setup_game_icon(7, GetARGB(255, 255, 255, 255), 0, 0)
 	self:UpdateActiveItem()
 	self:UpdateMissileThrow()
+	self:UpdateWarningIcons()
 end

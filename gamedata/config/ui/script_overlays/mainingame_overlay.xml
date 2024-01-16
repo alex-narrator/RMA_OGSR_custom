@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <w>
-	<actor_params x="50" y="730"/>
+	<actor_params x="50" y="730">
+	</actor_params>
 
 	<health x="0" y="0" width="82" height="12" stretch="1">
 		<static width="8" height="10" stretch="1">
@@ -106,30 +107,30 @@
 	<!-- quick slots -->
 	<quick_slots_back x="10" y="625" width="150" height="50" stretch="1">
 		<texture a="175">quick_slots_back</texture>
+		
+		<slot_icon x="0" y="0" width="34" height="46" stretch="1"/>
+		<slot_count x="0" y="0" width="0" height="0" stretch="1"/>
+		
+		<quick_slot_0 x="2" y="3" width="34" height="46" stretch="1">
+			<texture>ui_grid_gray_smooth</texture>
+			<text x="9" y="2" width="0" height="0" font="letterica16" color="UI_orange" align="c" vert_align="b">ui_quick_slot_0</text>
+		</quick_slot_0>
+
+		<quick_slot_1 x="39" y="3" width="34" height="46" stretch="1">
+			<texture>ui_grid_gray_smooth</texture>
+			<text x="9" y="2" width="0" height="0" font="letterica16" color="UI_orange" align="c" vert_align="b">ui_quick_slot_1</text>
+		</quick_slot_1>	
+
+		<quick_slot_2 x="77" y="3" width="34" height="46" stretch="1">
+			<texture>ui_grid_gray_smooth</texture>
+			<text x="9" y="2" width="0" height="0" font="letterica16" color="UI_orange" align="c" vert_align="b">ui_quick_slot_2</text>
+		</quick_slot_2>	
+
+		<quick_slot_3 x="114" y="3" width="34" height="46" stretch="1">
+			<texture>ui_grid_gray_smooth</texture>
+			<text x="9" y="2" width="0" height="0" font="letterica16" color="UI_orange" align="c" vert_align="b">ui_quick_slot_3</text>
+		</quick_slot_3>
 	</quick_slots_back>
-	
-	<slot_icon x="0" y="0" width="34" height="46" stretch="1"/>
-	<slot_count x="0" y="0" width="0" height="0" stretch="1"/>
-	
-	<quick_slot_0 x="2" y="3" width="34" height="46" stretch="1">
-		<texture>ui_grid_gray_smooth</texture>
-		<text x="9" y="2" width="0" height="0" font="letterica16" color="UI_orange" align="c" vert_align="b">ui_quick_slot_0</text>
-	</quick_slot_0>
-
-	<quick_slot_1 x="39" y="3" width="34" height="46" stretch="1">
-		<texture>ui_grid_gray_smooth</texture>
-		<text x="9" y="2" width="0" height="0" font="letterica16" color="UI_orange" align="c" vert_align="b">ui_quick_slot_1</text>
-	</quick_slot_1>	
-
-	<quick_slot_2 x="77" y="3" width="34" height="46" stretch="1">
-		<texture>ui_grid_gray_smooth</texture>
-		<text x="9" y="2" width="0" height="0" font="letterica16" color="UI_orange" align="c" vert_align="b">ui_quick_slot_2</text>
-	</quick_slot_2>	
-
-	<quick_slot_3 x="114" y="3" width="34" height="46" stretch="1">
-		<texture>ui_grid_gray_smooth</texture>
-		<text x="9" y="2" width="0" height="0" font="letterica16" color="UI_orange" align="c" vert_align="b">ui_quick_slot_3</text>
-	</quick_slot_3>
 	
 	<!-- панелі слотів/поясу/бустерів -->
 	<slot_panel 	x="230" y="620" scale="0.65" indent="1" text_color="255,238,153,26" text_offset="0,0"  font="letterica16" slots="0,1,2,3,4,5,8,9"/>
@@ -156,4 +157,35 @@
 	<throw_text x="467" y="338" width="91" height="92" complex_mode="1">
 		<text x="1" y="30" width="91" height="92" font="letterica16" color="UI_orange" align="c" vert_align="c"></text>
 	</throw_text>
+	
+	<!-- warning icons -->
+	<icons_back  x="50" y="695" horz="1">
+		<weapon x="0" y="0" width="24" height="32" stretch="1" threshold="0.5,0.6,0.7,0.8,0.9">
+			<texture>ui_hud_icon_weapon</texture>
+		</weapon>
+		<armor x="0" y="0" width="24" height="32" stretch="1" threshold="0.1,0.3,0.5,0.7,0.9">
+			<texture>ui_hud_icon_armor_warning</texture>
+		</armor>		
+		<radiation x="0" y="0" width="24" height="32" stretch="1" threshold="0.1,0.25,0.4,0.55,0.7">
+			<texture>ui_hud_icon_radiation</texture>
+		</radiation>
+		<bleeding x="0" y="0" width="24" height="32" stretch="1" threshold="0.01,0.2,0.4,0.6,0.8">
+			<texture>ui_hud_icon_drop</texture>
+		</bleeding>
+		<starvation x="0" y="0" width="24" height="32" stretch="1" threshold="0.1,0.25,0.4,0.55,0.7">
+			<texture>ui_hud_icon_eat</texture>
+		</starvation>
+		<psy_health x="0" y="0" width="24" height="32" stretch="1" threshold="0.3,0.6,0.7,0.8,0.9">
+			<texture>ui_hud_icon_psycho</texture>
+		</psy_health>
+		<overweight x="0" y="0" width="24" height="32" stretch="1" threshold="1,1.3,1.5,1.7,1.9">
+			<texture>ui_hud_icon_overweight</texture>
+		</overweight>			
+		<godmode x="0" y="0" width="24" height="32" stretch="1">
+			<texture>ui_hud_icon_goodmode</texture>
+		</godmode>
+		<safehouse x="0" y="0" width="24" height="32" stretch="1">
+			<texture>ui_hud_icon_sleep</texture>
+		</safehouse>
+	</icons_back>
 </w>

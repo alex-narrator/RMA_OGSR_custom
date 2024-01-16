@@ -1689,7 +1689,7 @@ function hud_remove_info_message(static_id)
 	end
 end
 
-function split_string(inputstr, sep)
+function split_string(inputstr, sep, tonum)
 	if not inputstr then
 	return nil end
 	if sep == nil then
@@ -1697,7 +1697,7 @@ function split_string(inputstr, sep)
 	end
 	local t={}
 	for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
-		table.insert(t, str)
+		table.insert(t, tonum and tonumber(str) or str)
 	end
 	return t
 end
