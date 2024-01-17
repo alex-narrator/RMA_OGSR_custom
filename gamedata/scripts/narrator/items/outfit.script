@@ -9,6 +9,7 @@ function on_slot(obj, prev_place)
 	if not obj:is_vest() then
 	return end
 	actor.inventory.max_belt = read_if_exists(sys_ini, "r_u32", obj:section(), "belt_size", 0)
+	actor:iterate_belt(function(dummy, item) actor:move_to_ruck(item) end, nil)
 end
 
 function on_ruck(obj, prev_place)
@@ -17,4 +18,5 @@ function on_ruck(obj, prev_place)
 	if prev_place ~= item_place.slot then
 	return end
 	actor.inventory.max_belt = read_if_exists(sys_ini, "r_u32", "inventory", "max_belt", 0)
+	actor:iterate_belt(function(dummy, item) actor:move_to_ruck(item) end, nil)
 end

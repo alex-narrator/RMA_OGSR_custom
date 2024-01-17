@@ -8,11 +8,13 @@ local AIM_DOF = read_if_exists(sys_ini, "r_string", "dof_effect", "dof_aim", nil
 local DOF_INTENSITY = read_if_exists(sys_ini, "r_float", "dof_effect", "dof_aim_intensity", 0.5)
 
 function on_zoom_in(weapon)
-	local dof_params = read_if_exists(sys_ini, "r_string", weapon:section(), "dof_aim", AIM_DOF)
+	local wpn = weapon:get_weapon()
+	local dof_sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or weapon:section()
+	local dof_params = read_if_exists(sys_ini, "r_string", dof_sect, "dof_aim", AIM_DOF)
 	local dof = split_string(dof_params, ",")
 	if not dof then return end
 	
-	local dof_intensity = read_if_exists(sys_ini, "r_float", weapon:section(), "dof_aim_intensity", DOF_INTENSITY)
+	local dof_intensity = read_if_exists(sys_ini, "r_float", dof_sect, "dof_aim_intensity", DOF_INTENSITY)
 	get_console():execute("ssfx_wpn_dof_2 "..dof_intensity)
 	
 	level.add_call(

@@ -116,7 +116,8 @@ function MainIngameOverlay:InitControls()
 	self.quick_color_has_item 	= GetARGB(255, 255, 255, 255)
 	self.quick_color_no_item 	= GetARGB(120, 255, 255, 255)
 
-	local pos_x, pos_y = 0, 0
+	local pos_x = xml:ReadAttribFlt("quick_slots:slot", "x", 0)
+	local pos_y = xml:ReadAttribFlt("quick_slots:slot", "y", 0)	
 	local horz = (xml:ReadAttribInt("quick_slots", "horz", 1) > 0) and true or false
 	local indent = xml:ReadAttribFlt("quick_slots", "indent", 0)
 
