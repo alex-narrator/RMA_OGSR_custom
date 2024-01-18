@@ -1,18 +1,22 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 local sm = ogse_signals.get_mgr()
 
--- function ui_item_info_callback(UIDesc, obj)
-	-- sm:call("ui_item_info_callback", UIDesc, obj)
--- end
-
 function ui_actor_info_callback(list, obj)
 	sm:call("ui_actor_info_callback", list, obj)
 end
 
-function on_cell_item_update(item, text_static, cell_item)
-	sm:call("on_cell_item_update", item, text_static, cell_item)
+function on_cell_item_update(item, cell_item)
+	sm:call("on_cell_item_update", item, cell_item)
 end
 
 function can_save_game()
 	return true
+end
+
+function is_cell_items_equal(item1, item2)
+	local res = true
+	if is_power_device(item1) and is_power_device(item2) then
+		res = math.fsimilar(item1:binded_object():get_power_level(), item2:binded_object():get_power_level(), 0.01)
+	end
+	return res
 end

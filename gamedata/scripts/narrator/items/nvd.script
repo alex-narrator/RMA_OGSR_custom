@@ -11,16 +11,16 @@ local off_snd = [[device\torch\nv_off]]
 
 --//слоти в яких можуть бути предмети з ПНБ
 local nvd_slots = {
+	6,
 	9,
 	11,
-	12,
 }
 
 function get_current_nvd()
 	local item = nil
 	for k, v in ipairs(nvd_slots) do
 		item = actor:item_in_slot(v)
-		if item and nvd.get_nvd_params(item:section()) and alife():object(item:id()).is_nvd_on ~= nil then
+		if item and get_nvd_params(item:section()) and alife():object(item:id()).is_nvd_on ~= nil then
 			return item
 		end
 	end

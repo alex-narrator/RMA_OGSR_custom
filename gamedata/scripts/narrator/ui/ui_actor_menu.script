@@ -283,22 +283,24 @@ function ActorMenuOverlay:InitControls()
 	--//inventory mode
 	--//slot keys
 	self.slot_keys = {
-		[0] = {parent = self.owner:FindChild("dragdrop_knife")},
-		[1] = {parent = self.owner:FindChild("dragdrop_first_weapon")},
-		[2] = {parent = self.owner:FindChild("dragdrop_second_weapon")},
-		[3] = {parent = self.owner:FindChild("dragdrop_grenade")},
-		[4] = {parent = self.owner:FindChild("dragdrop_binocular")},
-		[5] = {parent = self.owner:FindChild("dragdrop_bolt")},
-		[8] = {parent = self.owner:FindChild("dragdrop_detector")},
-		[10] = {parent = self.owner:FindChild("dragdrop_artefact")},
+		[0] = {},
+		[1] = {},
+		[2] = {},
+		[3] = {},
+		[4] = {},
+		[5] = {},
+		[8] = {},
+		[10] = {},
 	}
 	for k, v in pairs(self.slot_keys) do
+		v.parent = self.owner:FindChild("dragdrop_slot_"..k)
 		if v.parent then
 			v.static = xml:InitStatic("slot_key", v.parent)
 			local key_text = "ui_use_slot_"..k
 			v.static:SetText(game.translate_string(key_text))
 		end
-	end	
+	end
+	
 	--//organize button
 	self.organize_button = xml:Init3tButton("organize_button", self)
 	name = "organize_button"
@@ -500,7 +502,7 @@ function ActorMenuOverlay:Update()
 	end
 
 	self:UpdateWeightText()
-	self:UpdateDateTimeText()	
+	self:UpdateDateTimeText()
 end
 
 function ActorMenuOverlay:ClearLoadout()

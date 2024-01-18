@@ -240,4 +240,5 @@ log3("position %s, %s, %s | lvid %s | gvid %s | is valid %s", pos.x, pos.y, pos.
 	-- log3("~visual %s", se_item.visual_name)
 -- end
 
-level.show_item_hud(true)
+local rq = level.get_current_ray_query()
+log3("rq.range %s", rq.range)

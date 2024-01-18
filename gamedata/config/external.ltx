@@ -160,11 +160,6 @@ scope_zoom_k = 0.1
 
 
 [engine_callbacks]
-; ui_item_info_callback( UIDesc, obj ) вызывается перед заполнением статика
-; описания предмета в инвентаре. UIDesc - это SCrollView, в который
-; можно добавлять свои статики.
-;ui_item_info_callback = engine_callbacks.ui_item_info_callback
-
 ; ui_actor_info_callback( list, obj ) вызывается при обновлении
 ; outfit_info в инвентаре ГГ. list - CUIScrollView (xml
 ; outfit_info:scroll_view in inventory_new.xml). obj - текущий костюм
@@ -175,6 +170,8 @@ ui_actor_info_callback = engine_callbacks.ui_actor_info_callback
 on_cell_item_update = engine_callbacks.on_cell_item_update
 
 can_save_game = engine_callbacks.can_save_game
+
+is_cell_items_equal = engine_callbacks.is_cell_items_equal
 
 ; trade_purchase_item_process( npc, sobj ) вызывается для каждого
 ; созданного предмета при обновлении ассортимента торговца. npc -
@@ -253,4 +250,3 @@ movement_layer_2        = movement\newwalk.anm,      1,      0.1
 movement_layer_3        = movement\newwalk.anm,      1,      0.1
 movement_layer_4        = movement\newwalk.anm,      1.25,     0.125
 movement_layer_5        = movement\newrunreload.anm, 1,      0.15
-

@@ -7,8 +7,11 @@ end
 
 local main_wnd = get_main_window()
 local scope_static = false
+local DEBUG_DISABLE = false
 
 function create_scope_static(weapon)
+	if DEBUG_DISABLE then
+	return end
 	if weapon:get_gl_mode() then
 	return false end
 	local wpn = weapon:get_weapon()
