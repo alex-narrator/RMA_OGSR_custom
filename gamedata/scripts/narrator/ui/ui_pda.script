@@ -30,7 +30,7 @@ end
 function skip_time(h, m)
 	level.add_pp_effector("blink.ppe", 999, false)
 	level.change_game_time(0, h, m)
-	xr_sound.get_safe_sound_object("device\\pda\\pda_alarm",sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
+	xr_sound.get_safe_sound_object("device\\pda\\pda_alarm",sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 end
 
 class "PDAOverlay" (CUIScriptWnd)
@@ -142,7 +142,7 @@ function PDAOverlay:Update()
 	self.btn_off:Show(has_pda_power)
 	self.date_time:Show(has_pda_power)
 	
-	local show = has_pda_power and self.owner:FindChild("detail_days_in_game")
+	local show = has_pda_power and actor:has_info("ui_pda_actor_info")--self.owner:FindChild("detail_days_in_game")
 	self.skip_time_frame:Show(show)
 
 	local power = is_power_device(pda) and pda:binded_object():get_power_level() or 1

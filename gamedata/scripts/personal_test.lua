@@ -43,7 +43,7 @@
 local tgt = level.get_target_obj()
 show_dbg_info = true
 if tgt and show_dbg_info then
-	log3("~ target section: %s | id %s| story_id %s | name: %s | profile: %s | species %s | nonscript usable %s | position (%s, %s, %s) | lvid %s | gvid %s | visual %s", 
+	log3("~ target section: %s | id %s| story_id %s | name: %s | profile: %s | species %s | nonscript usable %s | position (%s, %s, %s) | lvid %s | gvid %s | visual %s | gulag %s", 
 		tgt:section(), 
 		tgt:id(), 
 		tgt:story_id(), 
@@ -54,7 +54,9 @@ if tgt and show_dbg_info then
 		tgt:position().x, tgt:position().y, tgt:position().z,
 		tgt:level_vertex_id(),
 		tgt:game_vertex_id(),
-		tgt:get_visual_name() or "NO VISUAL")
+		tgt:get_visual_name() or "NO VISUAL",
+		xr_gulag.get_npc_gulag(tgt) and xr_gulag.get_npc_gulag(tgt).name or "NONE"
+		)
 		
 		-- pos = tgt:position()
 		-- log3("{level = %s, pos = {%.2f, %.2f, %.2f}},", level.name(), pos.x, pos.y, pos.z)
@@ -197,8 +199,8 @@ end
 
 --somnolence.change_val(1)
 
-local pos = actor:position()
-log3("position %s, %s, %s | lvid %s | gvid %s | is valid %s", pos.x, pos.y, pos.z, actor:level_vertex_id(), actor:game_vertex_id(), game_graph():valid_vertex_id(actor:level_vertex_id()))
+-- local pos = actor:position()
+-- log3("position %s, %s, %s | lvid %s | gvid %s | is valid %s", pos.x, pos.y, pos.z, actor:level_vertex_id(), actor:game_vertex_id(), game_graph():valid_vertex_id(actor:level_vertex_id()))
 
 --log3("rain factor %s",level.rain_factor())
 
@@ -239,6 +241,3 @@ log3("position %s, %s, %s | lvid %s | gvid %s | is valid %s", pos.x, pos.y, pos.
 	-- local se_item = alife():object(act_item:id())
 	-- log3("~visual %s", se_item.visual_name)
 -- end
-
-local rq = level.get_current_ray_query()
-log3("rq.range %s", rq.range)

@@ -1,0 +1,44 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	--sm:subscribe({signal = "on_hit", fun = this.on_hit})
+	--sm:subscribe({signal = "on_actor_before_hit", fun = this.on_before_hit})
+	--sm:subscribe({signal = "on_hit_npc", fun = this.on_hit})
+	--sm:subscribe({signal = "on_info_portion", fun = this.on_info_portion})
+	sm:subscribe({signal = "on_key_press", fun = this.on_key_press})
+end
+
+function on_hit(victim, health_lost, direction, draftsman, bone_id)
+	if not draftsman:is_actor() or health_lost == 0 then return end
+	log3("~on_hit: victim %s | health_lost %s | draftsman %s | bone %s",	victim:name(),  health_lost, draftsman:name(), victim:get_bone_name(bone_id))
+end
+
+function on_before_hit(hit)
+	log3("~actor on_before_hit: power %s | full power %s | type %s | draftsman %s | bone %s | ap %s", hit.power, hit.full_power, hit.hit_type, hit.who:name(), actor:get_bone_name(hit.bone_id), hit.ap)
+end
+
+function on_info_portion(npc, info_id)
+	log3("~received infoportion %s", info_id)
+end
+
+function on_key_press(key, game_action)
+	local show_tgt_info = (game_action == key_bindings.kCHECKACTIVEITEM) and level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION))
+	local tgt = level.get_target_obj()
+	if show_tgt_info and tgt then
+		local tgt_info = string.format("section: %s\\n id: %s\\n story_id: %s\\n name: %s\\n profile: %s\\n species: %s\\n nonscript usable: %s\\n position: (%s, %s, %s) lvid: %s gvid: %s\\n visual: %s\\n gulag: %s",
+				tgt:section(), 
+				tgt:id(), 
+				tgt:story_id(), 
+				tgt:name(), 
+				tgt:profile_name() and tgt:profile_name() or "NO PROFILE", 
+				read_if_exists(sys_ini, "r_string", tgt:section(), "species", "NO SPECIES"),
+				tgt:is_nonscript_usable(),
+				tgt:position().x, tgt:position().y, tgt:position().z,
+				tgt:level_vertex_id(),
+				tgt:game_vertex_id(),
+				tgt:get_visual_name() or "NO VISUAL",
+				(tgt:is_stalker() or tgt:is_monster() or tgt:is_trader()) and xr_gulag.get_npc_gulag(tgt) and xr_gulag.get_npc_gulag(tgt).name or "NONE"
+			)
+		log3("~%s", tgt_info)
+		hud_add_info_message("debug_msg", tgt_info, 10)
+	end
+end

@@ -176,7 +176,7 @@ function add_custom_info(UIDesc, obj)
 		attach_booster_params(UIDesc, obj)
 	end
 	if is_power_device(obj) then
-		attach_power_params(UIDesc, obj:binded_object())
+		attach_power_params(UIDesc, obj)
 	end
 	if obj:is_weapon() then
 		atach_wpn_params(UIDesc, obj)
@@ -472,13 +472,14 @@ function attach_armor_params(UIDesc, item)
 end
 
 ------------------------------------------BATTERY POWER WND-----------------------------------------------------------------------------------------------------------------
-function attach_power_params(UIDesc, bind_obj)
+function attach_power_params(UIDesc, obj)
+	local bind_obj = obj:binded_object()
 	local xml = CScriptXmlInit()
 	xml:ParseFile("script_overlays\\power_params.xml")
 	local power_params = xml:InitStatic("power_params", UIDesc)
 	
 	local cap_power = xml:InitStatic("power_params:cap_power", power_params)
-	cap_power:SetText(game.translate_string("st_power_level"))
+	cap_power:SetText(game.translate_string(read_if_exists(sys_ini, "r_string", obj:section(), "power_level_name", "st_power_level")))
 	
 	local cap_work_time = xml:InitStatic("power_params:cap_work_time", power_params)
 	local worktime_text = string.format("%s %s %s", game.translate_string("st_work_time"), bind_obj:get_work_time(), game.translate_string("st_time_hour"))

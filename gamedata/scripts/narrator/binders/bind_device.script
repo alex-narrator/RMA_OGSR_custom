@@ -156,7 +156,7 @@ function device_binder:decrease_power()
 end
 
 function device_binder:power_source_detachable()
-	return self.t_power_sources[1] ~= self.object:section()
+	return self.t_power_sources[1].section ~= self.object:section()
 end
 
 function device_binder:can_attach(obj)
