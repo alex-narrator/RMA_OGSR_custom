@@ -17,6 +17,15 @@ function on_first_update()
 	end
 end
 
+function drop_belt_to_ruck()
+	actor:iterate_belt(function(dummy, item) actor:move_to_ruck(item) end, nil)
+end
+
+function set_max_belt(item)
+	actor.inventory.max_belt = item and read_if_exists(sys_ini, "r_u32", item:section(), "belt_size", 0) or read_if_exists(sys_ini, "r_u32", "inventory", "max_belt", 0)
+	drop_belt_to_ruck()
+end
+
 function set_equiped_items_visibility(visible)
 	--log3("set_equiped_items_visibility(%s) is called", visible)
 	function perform_action(dummy, item)

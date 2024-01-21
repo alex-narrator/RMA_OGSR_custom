@@ -45,6 +45,8 @@ function MainIngameOverlay:Subscribe()
 	if not self.subscribed then
 		self.subscribed = {
 			{signal = "on_quick_item_set", self = self, fun = self.UpdateSlots},
+			{signal = "on_quick_item_use", self = self, fun = self.UpdateSlots},
+			{signal = "on_drop", self = self, fun = self.UpdateSlots},
 			{signal = "on_use", self = self, fun = self.UpdateSlots},
 			{signal = "on_item_to_loadout", self = self, fun = self.UpdateSlots},
 			{signal = "on_item_from_loadout", self = self, fun = self.UpdateSlots},

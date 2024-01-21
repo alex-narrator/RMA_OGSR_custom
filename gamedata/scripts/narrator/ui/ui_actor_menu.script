@@ -74,7 +74,10 @@ function ActorMenuOverlay:Subscribe()
 		self.subscribed = {
 			{signal = "on_cell_item_focus", self = self, fun = self.OnCellItemFocus},
 			{signal = "on_cell_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
-			{signal = "on_quick_item_set", self = self, fun = self.OnQuickItemSet},
+			{signal = "on_quick_item_set", self = self, fun = self.UpdateSlots},
+			{signal = "on_quick_item_use", self = self, fun = self.UpdateSlots},
+			{signal = "on_ruck", self = self, fun = self.UpdateSlots},
+			{signal = "on_drop", self = self, fun = self.UpdateSlots},
 			{signal = "on_use", self = self, fun = self.UpdateSlots},
 			{signal = "on_loadout_update_count", self = self, fun = self.UpdateSlots},
 			{signal = "on_loadout_update_max_count", self = self, fun = self.UpdateSlots},
@@ -407,10 +410,6 @@ function ActorMenuOverlay:DrawSlotIcon(slot_num)
 	else
 		s.icon:SetColor(self.quick_color_no_item)
 	end
-end
-
-function ActorMenuOverlay:OnQuickItemSet(section, slot_num)
-	self:UpdateSlots()
 end
 
 function ActorMenuOverlay:QuickOnDbClick(slot_num)

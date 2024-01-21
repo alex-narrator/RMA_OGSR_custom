@@ -192,7 +192,7 @@ function add_custom_info(UIDesc, obj)
 		attach_ammo_params(UIDesc, obj)
 	end
 	if vest_plates.can_detach_plate(obj) then
-		attach_plate_condition(UIDesc, obj:binded_object())
+		attach_plate_condition(UIDesc, obj)
 	end	
 end
 
@@ -716,7 +716,8 @@ function attach_ammo_params(UIDesc, item)
 end
 
 ------------------------------------------VEST ARMOR PLATE WND-----------------------------------------------------------------------------------------------------------------
-function attach_plate_condition(UIDesc, bind_obj)
+function attach_plate_condition(UIDesc, obj)
+	local bind_obj = obj:binded_object()
 	local xml = CScriptXmlInit()
 	xml:ParseFile("script_overlays\\armor_plate.xml")
 	local plate_params = xml:InitStatic("plate_params", UIDesc)

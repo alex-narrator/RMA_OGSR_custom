@@ -344,7 +344,8 @@ end
 
 function unpack_items(owner)
 	local owner_id = owner and owner:id() or actor:id()
-	actor:object("ballast"):get_inventory_item().inv_weight = 0
+	
+	--actor:object("ballast"):get_inventory_item().inv_weight = 0
 	
 	for k,v in pairs (packed_items) do
 		if sys_ini:r_string(v.sect, "class") == "AMMO" then
@@ -352,6 +353,8 @@ function unpack_items(owner)
 		else
 			spawn_to_owner(v.sect, owner_id)
 		end
+		actor:object("ballast"):get_inventory_item().inv_weight = actor:object("ballast"):get_inventory_item().inv_weight - v.weight
+		table.remove(packed_items, k)
 	end
 end
 
@@ -380,4 +383,9 @@ function add_ballast_weght(add_weight)
 	if not ballast then return end
 	ballast = ballast:get_inventory_item()
 	ballast.inv_weight = ballast.inv_weight + add_weight
+end
+
+function clearr_all_packed()
+	packed_items = {}
+	actor:object("ballast"):get_inventory_item().inv_weight = 0
 end

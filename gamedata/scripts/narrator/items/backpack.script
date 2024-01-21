@@ -25,10 +25,10 @@ function on_slot(obj, prev_place)
 end
 
 function on_drop(obj, prev_place)
-	if prev_place == item_place.slot then
+	if prev_place == item_place.slot and not level.is_removing_objects() then
 		if obj:get_container() then
 			function perform_action(dummy, item)
-				if not loadout.can_remove(item) then
+				if not loadout.can_remove(item) and item:section() ~= "ballast" then
 					actor:transfer_item(item, obj)
 				end
 			end	

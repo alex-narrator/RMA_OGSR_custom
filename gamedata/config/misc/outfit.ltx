@@ -1,4 +1,24 @@
+[outfit_base]
+class			= E_STLK
+cform           = skeleton
+
+use_condition 		= true
+
+slot				= 6
+
+icon_group 			= 9
+inv_grid_width     	= 2
+inv_grid_height    	= 3
+
+covered_bones_sect 	= body_cover
+
+[plate_carrier]
+script_binding      			= bind_vest.init
+script_action_0 				= vest_plates.detach_plate_tip, vest_plates.can_detach_plate, vest_plates.detach_plate
+
 [scientific_common]
+covered_bones_sect 	=
+
 hud_shader 			= true
 ;hud_texture 		= sci
 ;hud_breakable 		= true
@@ -10,21 +30,6 @@ nv_color 			= 0.3, 0.4, 0.3
 nv_intensity 		= 10
 nv_vignette 		= 0.65
 
-[outfit_base]
-; delete full_scale_icon	next update- obsolete, use  full_icon_name instead !!!
-
-additional_inventory_weight		= 0		; +max_walk_weight
-additional_inventory_weight2	= 0		;	+40 kg
-full_icon_name					= npc_icon_without_outfit
-
-use_condition 		= true
-
-slot				= 6
-
-icon_group 			= 9
-inv_grid_width     	= 2
-inv_grid_height    	= 3
-
 [without_outfit]:outfit_base
 ;·‡ÁÓ‚˚È ÍÓÒÚ˛Ï ÒÚ‡ÎÍÂ‡ - ÍÓÒÚ˛Ï ÌÓ‚Ë˜Í‡. Œ·˚˜Ì‡ˇ Ó‰ÂÊ‰‡ ÚÛËÒÚ‡ - ¯ÚÓÏÓ‚Í‡+Ò‡ÔÓ„Ë
 full_scale_icon		= 6,6
@@ -34,12 +39,8 @@ full_scale_icon		= 6,6
 ;		 Œ—“ﬁÃ ÕŒ¬»◊ ¿
 ;---------------------------------------------------------------------------------------------
 [novice_outfit]:outfit_base
-GroupControlSection	= spawn_group
-discovery_dependency = 
 $spawn 			= "outfit\novice_outfit"
 ;$prefetch 		= 32
-class			= E_STLK
-cform           = skeleton
 visual          = equipments\novice_suit
 actor_visual	= actors\hero\stalker_novice.ogf
 
@@ -90,12 +91,8 @@ fire_wound_immunity			= 0.015
 ;		 Œ—“ﬁÃ ¡¿Õƒ»“¿
 ;---------------------------------------------------------------------------------------------
 [bandit_outfit]:outfit_base
-GroupControlSection	= spawn_group
-discovery_dependency = 
 $spawn 			= "outfit\bandit_outfit"
 ;$prefetch 		= 32
-class			= E_STLK
-cform           = skeleton
 visual          = equipments\bandit_suit
 actor_visual	= actors\hero\stalker_bandit.ogf
 
@@ -148,12 +145,8 @@ fire_wound_immunity			= 0.015
 ;		 Œ—“ﬁÃ Õ¿≈ÃÕ» ¿
 ;---------------------------------------------------------------------------------------------
 [killer_outfit]:outfit_base
-GroupControlSection	= spawn_group
-discovery_dependency = 
 $spawn 			= "outfit\killer_outfit"
 ;$prefetch 		= 32
-class			= E_STLK
-cform           = skeleton
 visual          = equipments\stalker_killer_suit
 actor_visual	= actors\hero\stalker_killer.ogf	
 
@@ -207,12 +200,8 @@ fire_wound_immunity			= 0.012
 ;		 Œ—“ﬁÃ ÃŒÕŒÀ»“Œ¬÷¿
 ;---------------------------------------------------------------------------------------------
 [monolit_outfit]:outfit_base
-GroupControlSection	= spawn_group
-discovery_dependency = 
 $spawn 			= "outfit\monolit_outfit"
 ;$prefetch 		= 32
-class			= E_STLK
-cform           = skeleton
 visual          = equipments\monolit_suit
 actor_visual	= actors\hero\stalker_monolit.ogf
 
@@ -266,12 +255,8 @@ fire_wound_immunity			= 0.01
 ;		 Œ—“ﬁÃ ¬Œ≈ÕÕŒ√Œ —œ≈÷Õ¿«¿
 ;---------------------------------------------------------------------------------------------
 [specops_outfit]:outfit_base
-GroupControlSection	= spawn_group
-discovery_dependency = 
 $spawn 			= "outfit\specops_outfit"
 ;$prefetch 		= 32
-class			= E_STLK
-cform           = skeleton
 visual          = equipments\specnaz_suit
 actor_visual	= actors\hero\stalker_specops.ogf
 
@@ -326,12 +311,8 @@ fire_wound_immunity			= 0.01
 ;		 Œ—“ﬁÃ Ã»À»“¿–»
 ;---------------------------------------------------------------------------------------------
 [military_outfit]:outfit_base
-GroupControlSection	= spawn_group
-discovery_dependency = 
 $spawn 			= "outfit\military_outfit"
 ;$prefetch 		= 32
-class			= E_STLK
-cform           = skeleton
 visual          = equipments\stalker_comander_suit
 actor_visual	= actors\hero\stalker_commander.ogf	
 
@@ -384,13 +365,9 @@ fire_wound_immunity			= 0.005
 ;---------------------------------------------------------------------------------------------
 ;		 Œ—“ﬁÃ Õ≈…“–¿À‹ÕŒ√Œ —“¿À ≈–¿
 ;---------------------------------------------------------------------------------------------
-[stalker_outfit]:outfit_base
-GroupControlSection	= spawn_group
-discovery_dependency = 
+[stalker_outfit]:outfit_base,plate_carrier
 $spawn 			= "outfit\stalker_outfit"
 ;$prefetch 		= 32
-class			= E_STLK
-cform           = skeleton
 visual          = equipments\stalker_suit
 actor_visual	= actors\hero\stalker_hood.ogf
 
@@ -428,7 +405,9 @@ explosion_protection 			= 0.3
 fire_wound_protection  			= 0.3
 
 power_loss = -0.13
-bones_koeff_protection = gilet_antigas_damage
+;bones_koeff_protection = gilet_antigas_damage
+
+plates 							= plate_class_2, damage_plate_class_2, plate_class_3, damage_plate_class_3, plate_class_4, damage_plate_class_4, plate_class_6, damage_plate_class_6
 
 [sect_stalker_outfit_immunities]
 burn_immunity				= 0.03			;ÍÓ˝ÙÙËˆËÂÌÚ˚ ËÏÏÛÌËÚÂÚ‡ Ò‡ÏÓ„Ó ÍÓÒÚ˛Ï‡
@@ -447,12 +426,7 @@ fire_wound_immunity			= 0.01
 ;		Õ¿”◊Õ€…  Œ—“ﬁÃ Õ≈…“–¿À‹ÕŒ√Œ —“¿À ≈–¿
 ;---------------------------------------------------------------------------------------------
 [scientific_outfit]:outfit_base,scientific_common
-GroupControlSection	= spawn_group
-discovery_dependency = 
 $spawn 			= "outfit\scientific_outfit"
-$prefetch 		= 32
-class			= E_STLK
-cform           = skeleton
 visual          = equipments\stalker_scient_suit	
 actor_visual	= actors\hero\stalker_scien.ogf
 
@@ -507,12 +481,7 @@ fire_wound_immunity			= 0.01
 ;		› «Œ— ≈À≈“ Õ≈…“–¿À‹ÕŒ√Œ —“¿À ≈–¿
 ;---------------------------------------------------------------------------------------------
 [exo_outfit]:outfit_base
-GroupControlSection	= spawn_group
-discovery_dependency = 
 $spawn 			= "outfit\exo_outfit"
-$prefetch 		= 32
-class			= E_STLK;EQU_EXO
-cform           = skeleton
 visual          = equipments\exoskelet	
 actor_visual	= actors\hero\stalker_exoskeleton.ogf
 
@@ -584,13 +553,8 @@ fire_wound_immunity			= 0.005
 ;---------------------------------------------------------------------------------------------
 ;		À≈√ »…  Œ—“ﬁÃ —¬Œ¡Œƒ€
 ;---------------------------------------------------------------------------------------------
-[svoboda_light_outfit]:outfit_base
-GroupControlSection	= spawn_group
-discovery_dependency = 
+[svoboda_light_outfit]:outfit_base 
 $spawn 			= "outfit\svoboda_light_outfit"
-;$prefetch 		= 32
-class			= E_STLK
-cform           = skeleton
 visual          = equipments\svoboda_light_suit
 actor_visual	= actors\hero\stalker_svoboda_light.ogf
 
@@ -646,12 +610,7 @@ fire_wound_immunity			= 0.012
 ;		“ﬂ∆≈À€…  Œ—“ﬁÃ —¬Œ¡Œƒ€
 ;---------------------------------------------------------------------------------------------
 [svoboda_heavy_outfit]:outfit_base
-GroupControlSection	= spawn_group
-discovery_dependency = 
 $spawn 			= "outfit\svoboda_heavy_outfit"
-;$prefetch 		= 32
-class			= E_STLK
-cform           = skeleton
 visual          = equipments\svoboda_heavy_suit
 actor_visual	= actors\hero\stalker_svoboda_heavy.ogf
 
@@ -706,12 +665,7 @@ fire_wound_immunity			= 0.01
 ;		Œ¡€◊Õ€…  Œ—“ﬁÃ ƒŒÀ√¿
 ;---------------------------------------------------------------------------------------------
 [dolg_outfit]:outfit_base
-GroupControlSection	= spawn_group
-discovery_dependency = 
 $spawn 			= "outfit\dolg_outfit"
-;$prefetch 		= 32
-class			= E_STLK
-cform           = skeleton
 visual          = equipments\dolg_suit
 actor_visual	= actors\hero\stalker_dolg.ogf
 
@@ -766,12 +720,7 @@ fire_wound_immunity			= 0.01
 ;		Õ¿”◊Õ€…  Œ—“ﬁÃ ƒŒÀ√¿
 ;---------------------------------------------------------------------------------------------
 [dolg_scientific_outfit]:outfit_base,scientific_common
-GroupControlSection	= spawn_group
-discovery_dependency = 
 $spawn 			= "outfit\dolg_scientific_outfit"
-$prefetch 		= 32
-class			= E_STLK
-cform           = skeleton
 visual          = equipments\stalker_dolg_nauchniy_suit
 actor_visual	= actors\dolg\stalker_do_nauchniy.ogf	
 
@@ -826,12 +775,7 @@ fire_wound_immunity			= 0.01
 ;		Œ¡€◊Õ€…  Œ—“ﬁÃ ”◊≈ÕÕŒ√Œ
 ;---------------------------------------------------------------------------------------------
 [ecolog_outfit]:outfit_base,scientific_common
-GroupControlSection	= spawn_group
-discovery_dependency = 
 $spawn 			= "outfit\ecolog_outfit"
-$prefetch 		= 32
-class			= E_STLK
-cform           = skeleton
 visual          = equipments\ecolog_suit.ogf	
 actor_visual	= actors\hero\stalker_ecolog.ogf
 
@@ -887,12 +831,7 @@ fire_wound_immunity			= 0.015
 ;		” –≈œÀ≈ÕÕ€…  Œ—“ﬁÃ ”◊≈ÕÕŒ√Œ
 ;---------------------------------------------------------------------------------------------
 [protection_outfit]:outfit_base,scientific_common
-GroupControlSection	= spawn_group
-discovery_dependency = 
 $spawn 			= "outfit\protection_outfit"
-$prefetch 		= 32
-class			= E_STLK
-cform           = skeleton
 visual          = equipments\scientist_suit.ogf	
 actor_visual	= actors\hero\stalker_chemical.ogf
 
@@ -951,12 +890,7 @@ fire_wound_immunity			= 0.01
 ;		”—“¿–≈¬ÿ»≈  Œ—“ﬁÃ€! Õ≈ ﬁ«¿“‹
 ;---------------------------------------------------------------------------------------------
 [military_stalker_outfit]:outfit_base
-GroupControlSection	= spawn_group
-discovery_dependency = 
 $spawn 			= "outfit\obsolete\military_stalker"
-$prefetch 		= 32
-class			= EQU_MLTR
-cform           = skeleton
 visual          = equipments\stalker_military_suit
 actor_visual	= actors\hero\stalker_military.ogf	
 
@@ -1002,12 +936,7 @@ fire_wound_immunity			= 1.00
 
 
 [military_commander_outfit]:outfit_base
-GroupControlSection	= spawn_group
-discovery_dependency = 
 $spawn 			= "outfit\obsolete\commander"
-;$prefetch 		= 32
-class			= EQU_MLTR
-cform           = skeleton
 visual          = equipments\stalker_comander_suit
 actor_visual	= actors\hero\stalker_commander.ogf	
 
@@ -1053,12 +982,7 @@ fire_wound_immunity			= 1.00
 
 
 [soldier_outfit]:outfit_base
-GroupControlSection	= spawn_group
-discovery_dependency = 
 $spawn 			= "outfit\obsolete\soldier_outfit"
-;$prefetch 		= 32
-class			= E_STLK
-cform           = skeleton
 visual          = equipments\soldier_suit
 actor_visual	= actors\hero\stalker_soldier.ogf
 

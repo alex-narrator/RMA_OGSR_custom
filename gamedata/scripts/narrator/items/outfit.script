@@ -6,17 +6,15 @@ function attach(sm)
 end
 
 function on_slot(obj, prev_place)
-	if not obj:is_vest() then
+	if not obj:is_outfit() then
 	return end
-	actor.inventory.max_belt = read_if_exists(sys_ini, "r_u32", obj:section(), "belt_size", 0)
-	actor:iterate_belt(function(dummy, item) actor:move_to_ruck(item) end, nil)
+	inventory.set_max_belt(obj)
 end
 
 function on_ruck(obj, prev_place)
-	if not obj:is_vest() then
+	if not obj:is_outfit() then
 	return end
 	if prev_place ~= item_place.slot then
 	return end
-	actor.inventory.max_belt = read_if_exists(sys_ini, "r_u32", "inventory", "max_belt", 0)
-	actor:iterate_belt(function(dummy, item) actor:move_to_ruck(item) end, nil)
+	inventory.set_max_belt()
 end

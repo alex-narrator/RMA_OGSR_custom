@@ -175,7 +175,7 @@ end
 -- local sim = alife()
 -- for i = 1, 65535 do
 	-- sobj = sim:object(i)
-	-- if sobj and (sobj:clsid() == clsid.obj_warbelt or sobj:clsid() == clsid.obj_vest) then
+	-- if sobj and (sobj:clsid() == clsid.equ_vest_s) then
 		-- log3("~item %s was deleted", sobj:name())
 		-- sim:release(sobj, true)
 	-- end
@@ -241,3 +241,5 @@ end
 	-- local se_item = alife():object(act_item:id())
 	-- log3("~visual %s", se_item.visual_name)
 -- end
+
+loadout.clearr_all_packed()

@@ -85,7 +85,7 @@ function vest_binder:init_plate()
 end
 
 function vest_binder:can_attach(obj)
-	return self:get_plate_sect_num(obj:section()) > 0
+	return self:get_plate_sect_num(obj:section())
 end
 
 function vest_binder:is_plate_attached()
@@ -114,7 +114,7 @@ function vest_binder:get_plate_sect_num(section)
 			return k
 		end
 	end
-	return false
+	return nil
 end
 
 function vest_binder:get_plate_condition()
@@ -144,6 +144,10 @@ function vest_binder:attach_plate(plate)
 	self:set_plate_sect(self:get_plate_sect_num(plate:section()))
 	self:init_plate()
 	
+	if actor:is_in_slot(self.object) then
+		ballistic_plate_anim.play(plate)
+	end	
+	
 	alife():release(alife():object(plate:id()), true)
 end
 
@@ -157,7 +161,7 @@ function vest_binder:detach_plate()
 	self:init_plate()
 	local detach_sound = read_if_exists(sys_ini, "r_string", self.object:section(), "use_sound", nil)
 	if detach_sound then
-		xr_sound.get_safe_sound_object(detach_sound,sound_object.s2d):play_no_feedback(parent, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(parent,parent:position())
+		xr_sound.get_safe_sound_object(detach_sound,sound_object.s2d):play_no_feedback(parent, sound_object.s2d, 0, vector(), 1.0)
 	end
 end
 
@@ -184,14 +188,14 @@ function vest_binder:is_plate_bone(bone_id)
 end
 
 function vest_binder:hit(victim, health_lost, direction, draftsman, bone_id, hit_type)
-	log3("~hit vest %s actor hitted in bone %s", self.object:name(), actor:get_bone_name(bone_id))
-	if not actor_get_vest() or actor_get_vest():id() ~= self.object:id() then
+	log3("~hit outfit %s actor hitted in bone %s", self.object:name(), actor:get_bone_name(bone_id))
+	if not actor_get_outfit() or actor_get_outfit():id() ~= self.object:id() then
 	return end
 	
 	if not self:is_plate_attached() or not self:is_plate_bone(bone_id) then
 	return end
 	
-	log3("~hit vest %s to plate %s | hitted bone %s protection type %s", self.object:section(), self:get_plate_sect(), actor:get_bone_name(bone_id), immunity_type[hit_type+1])
+	log3("~hit outfit %s to plate %s | hitted bone %s protection type %s", self.object:section(), self:get_plate_sect(), actor:get_bone_name(bone_id), immunity_type[hit_type+1])
 	
 	local immunity = read_if_exists(sys_ini, "r_float", get_immunities_sect(self:get_plate_sect()), immunity_type[hit_type+1].."_immunity", 1)
 	local val = -health_lost * immunity

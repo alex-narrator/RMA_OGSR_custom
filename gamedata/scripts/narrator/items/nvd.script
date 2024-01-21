@@ -4,6 +4,7 @@ function attach(sm)
 	sm:subscribe({signal = "on_ruck",   				fun = this.on_ruck})
 	sm:subscribe({signal = "on_drop",   				fun = this.on_ruck})
 	sm:subscribe({signal = "on_actor_weapon_zoom_in",   fun = this.on_zoom_in})
+	sm:subscribe({signal = "on_death",   				fun = this.on_death})
 end
 
 local on_snd = [[device\torch\nv_start]]
@@ -172,4 +173,12 @@ function on_key_press(key, game_action)
 	return end
 	switch_nvd(actor:active_item())
 	level.add_complex_effector("fire_mode", 1918)
+end
+
+function on_death(victim, killer)
+	if victim:id() ~= actor:id() then
+	return end
+	if get_current_nvd() then
+		on_ruck(get_current_nvd(), item_place.slot)
+	end
 end

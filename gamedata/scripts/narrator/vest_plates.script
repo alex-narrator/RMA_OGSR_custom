@@ -6,11 +6,11 @@ end
 
 function on_hit(victim, health_lost, direction, draftsman, bone_id, hit_type)
 	log3("~actor hitted to bone %s", actor:get_bone_name(bone_id))
-	local vest = actor_get_vest()
-	if vest and is_plate_carrier(vest) then
-		local binded_vest = vest:binded_object()
-		if binded_vest then
-			binded_vest:try_hit_plate(health_lost, bone_id, hit_type)
+	local outfit = actor_get_outfit()
+	if outfit and is_plate_carrier(outfit) then
+		local binded_outfit = outfit:binded_object()
+		if binded_outfit then
+			binded_outfit:try_hit_plate(health_lost, bone_id, hit_type)
 		end
 	end	
 end
@@ -45,10 +45,10 @@ function change_plate(obj, drop_on_obj)
 	if recharge_sound then
 		xr_sound.get_safe_sound_object(recharge_sound,sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
 	end
-	local recharge_effector = read_if_exists(sys_ini, "r_string", plate_sect, "use_effector", nil)
-	if recharge_effector then
+	local effector = read_if_exists(sys_ini, "r_string", plate_sect, "use_effector", nil)
+	if effector then
 		level.remove_complex_effector(recharge_effector_id)
-		level.add_complex_effector(recharge_effector, recharge_effector_id)
+		level.add_complex_effector(effector, recharge_effector_id)
 	end
 end
 
@@ -65,11 +65,11 @@ function detach_plate(obj)
 end
 
 function attach_plate_tip(obj)
-	return string.format("%s %s", game.translate_string("st_attach_to"), game.translate_string(get_inv_name(actor_get_vest():section())))
+	return string.format("%s %s", game.translate_string("st_attach_to"), game.translate_string(get_inv_name(actor_get_outfit():section())))
 end
 function can_attach_plate(obj)
-	return can_change_plate(obj, actor_get_vest())--is_plate_carrier(actor_get_vest()) and actor_get_vest():binded_object() and actor_get_vest():binded_object():can_attach(obj)
+	return can_change_plate(obj, actor_get_outfit())
 end
 function attach_plate(obj)
-	change_plate(obj, actor_get_vest())--actor_get_vest():binded_object():attach_plate(obj)
+	change_plate(obj, actor_get_outfit())
 end

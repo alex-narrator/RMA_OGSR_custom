@@ -147,7 +147,7 @@ function motivator_binder:clear_callbacks()
 	self.object:set_callback(callback.death, nil)
 end
 
-function motivator_binder:hit_callback(obj, amount, local_direction, who, bone_index)
+function motivator_binder:hit_callback(obj, amount, local_direction, who, bone_index, hit_type)
 	-- FIXME: коллбеки неплохо было бы регистрировать в общем storage, а не посхемно...
 	-- просто всегда ставить их при включении схемы и снимать при отключении.
 	if self.st.active_section then
@@ -167,7 +167,8 @@ function motivator_binder:hit_callback(obj, amount, local_direction, who, bone_i
 		sr_territory.issue_event(self.object, "hit_callback", obj, amount, local_direction, who, bone_index)
 		xr_wounded.hit_callback(self.object:id())
 	end
-	self.sm:call("on_hit_npc", obj, amount, local_direction, who, bone_index)
+	self.sm:call("on_hit", obj, amount, local_direction, who, bone_index, hit_type)
+	self.sm:call("on_hit_npc", obj, amount, local_direction, who, bone_index, hit_type)
 end
 
 function motivator_binder:death_callback(victim, who)

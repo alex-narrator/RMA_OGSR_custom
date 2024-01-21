@@ -8,7 +8,6 @@ function attach(sm)
 end
 
 function on_hit(victim, health_lost, direction, draftsman, bone_id)
-	if not draftsman:is_actor() or health_lost == 0 then return end
 	log3("~on_hit: victim %s | health_lost %s | draftsman %s | bone %s",	victim:name(),  health_lost, draftsman:name(), victim:get_bone_name(bone_id))
 end
 

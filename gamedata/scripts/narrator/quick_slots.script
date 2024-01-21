@@ -50,20 +50,30 @@ function use_quick_item(slot_num)
 	if not item then
 	return end
 	
-	if item:is_eatable_item() then
+	local sect = false
+	
+	if item:is_eatable_item() and not sect then
 		actor:eat(item)
-		return
+		sect = item:section()
 	end
 	
-	if actor_get_backpack() and 
-		item:id() == actor_get_backpack():id() then
-		backpack.try_drop()
-		return
-	end
-	
-	if item:is_helmet() then
+	if item:is_helmet() and not sect then
 		gasmask.wear_mask(item)
-		return
+		sect = item:section()
+	end
+	
+	if vest_plates.can_attach_plate(item) and not sect then
+		vest_plates.attach_plate(item)
+		sect = item:section()
+	end
+
+	if actor_get_backpack() and item:id() == actor_get_backpack():id() and not sect then
+		backpack.try_drop()
+		sect = item:section()
+	end
+	
+	if sect then
+		ogse_signals.get_mgr():call("on_quick_item_use", sect, slot_num)
 	end
 end
 
@@ -86,7 +96,10 @@ function get_item(slot_num)
 		return actor_get_helmet()
 	elseif actor:object(sect) and actor:object(sect):is_helmet() then
 		return actor:object(sect)
-	end	
+	end
+	if string.find(sect, "plate_class_") then
+		return actor:object(sect)
+	end
 	return nil
 end
 
@@ -97,7 +110,7 @@ function set_item(item_sect, slot_num)
 			quick_sect[num] = ""
 		end
 	end
-	xr_sound.get_safe_sound_object("interface\\inv_slot", sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
+	xr_sound.get_safe_sound_object("interface\\inv_slot", sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 	ogse_signals.get_mgr():call("on_quick_item_set", item_sect, slot_num)
 end
 
@@ -129,6 +142,14 @@ function get_item_count(slot_num)
 	elseif actor:object(sect) and actor:object(sect):is_helmet() then
 		res = res + 1
 	end
+	if string.find(sect, "plate_class_") then
+		function perform_action(dummy, item)
+			if item:section() == sect then
+				res = res + 1
+			end
+		end	
+		actor:iterate_inventory(perform_action, nil)
+	end	
 	return res
 end
 

@@ -1640,9 +1640,6 @@ end
 function actor_get_backpack()
 	return actor:item_in_slot(12)
 end
-function actor_get_vest()
-	return actor:item_in_slot(13)
-end
 
 function actor_break_sprint()
 	local actor_obj = get_actor_obj()
@@ -1669,8 +1666,8 @@ end
 function is_plate_carrier(obj)
 	if not obj then
 	return false end
-	if get_clsid(obj) ~= clsid.equ_vest_s then
-	return false end
+	-- if get_clsid(obj) ~= clsid.equ_stalker_s then
+	-- return false end
 	local se_obj = alife():object(obj:id())
 	return se_obj and se_obj.plate_condition and se_obj.cur_plate_num
 end

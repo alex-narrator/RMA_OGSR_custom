@@ -267,6 +267,22 @@ immunities_sect		= plate_immunities
 
 script_action_10 	= vest_plates.attach_plate_tip, vest_plates.can_attach_plate, vest_plates.attach_plate
 
+quick_slot 			= true
+script_action_2 	= quick_slots.menu_tip_set, quick_slots.can_set, quick_slots.set
+
+[plate_class_2]:plate_base
+description         = plate_class_2_desc
+inv_name			= plate_class_2_name
+inv_name_short		= plate_class_2_name_short
+cost				= 4000
+
+inv_grid_x         	= 4
+inv_grid_y         	= 2
+
+hud 				= plate_a_hud
+
+bones_koeff_protection = damage_plate_class_2
+
 [plate_class_3]:plate_base
 description         = plate_class_3_desc
 inv_name			= plate_class_3_name
@@ -276,7 +292,9 @@ cost				= 6000
 inv_grid_x         	= 0
 inv_grid_y         	= 0
 
-bones_koeff_protection = plate_class_3_protection
+hud 				= plate_a_hud
+
+bones_koeff_protection = damage_plate_class_3
 
 [plate_class_4]:plate_base
 description         = plate_class_4_desc
@@ -288,7 +306,9 @@ cost				= 8000
 inv_grid_x         	= 2
 inv_grid_y         	= 2
 
-bones_koeff_protection = plate_class_4_protection
+hud 				= plate_b_hud
+
+bones_koeff_protection = damage_plate_class_4
 
 [plate_class_6]:plate_base
 description         = plate_class_6_desc
@@ -299,7 +319,10 @@ inv_grid_x         	= 0
 inv_grid_y         	= 2
 
 cost				= 8000
-bones_koeff_protection = plate_class_6_protection
+
+hud 				= plate_b_hud
+
+bones_koeff_protection = damage_plate_class_6
 
 [neck_arm_module_iotv]:plate_base
 description         = neck_arm_module_iotv_desc
