@@ -491,6 +491,7 @@ function attach_power_params(UIDesc, obj)
 	local power_progress = xml:InitProgressBar("power_params:progress_power", power_params)
 	local power_level = bind_obj:get_power_level()
 	power_progress:SetProgressPos(power_level)
+	power_progress:Show(not read_if_exists(sys_ini, "r_bool", obj:section(), "condition_as_power", false))
 end
 
 ------------------------------------------WEAPON PARAMS WND-----------------------------------------------------------------------------------------------------------------

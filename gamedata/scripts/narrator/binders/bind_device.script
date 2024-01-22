@@ -29,6 +29,7 @@ function device_binder:__init(obj) super(obj)
 	self.t_power_sources = {}
 	self.se_obj = alife():object(self.object:id())
 	self.b_was_sended = false
+	self.b_condition_as_power = false
 end
  
 function device_binder:reload(section)
@@ -37,6 +38,8 @@ function device_binder:reload(section)
 	
 	local power_str = read_if_exists(sys_ini, "r_string", self.object:section(), "power_source", self.object:section())
 	self.t_power_sources = self:parse_sorces(power_str)
+	
+	self.b_condition_as_power = read_if_exists(sys_ini, "r_bool", self.object:section(), "condition_as_power", false)
 	
 	-- for k,v in pairs(self.t_power_sources) do
 		-- log3("device %s power section %s, work_time %s", self.object:section(), v.section, v.work_time )
@@ -90,14 +93,14 @@ function device_binder:update(delta)
     object_binder.update(self, delta)
 	
 	if self:is_working() then
-		local item = self.object
+		--local item = self.object
 		--log3("~[%s]: device %s is working now (power %s)", script_name(), item:name(), self:get_power_level())
 		--якщо худ девайс не в худ-режимі - не витрачаємо батарейку
-		if item:is_hud_item() and 
-			not flashlight.is_glowstick(item) and
-			((not actor:active_item() or item:id() ~= actor:active_item():id()) and (not actor:active_device() or item:id() ~= actor:active_device():id())) then
-			self.last_update_time = false
-		return end
+		-- if item:is_hud_item() and 
+			-- not flashlight.is_glowstick(item) and
+			-- ((not actor:active_item() or item:id() ~= actor:active_item():id()) and (not actor:active_device() or item:id() ~= actor:active_device():id())) then
+			-- self.last_update_time = false
+		-- return end
 		self:decrease_power()
 	end
 end
@@ -108,7 +111,7 @@ function device_binder:init_power_source()
 end
 
 function device_binder:is_working()
-	return parent_is_actor(self.object) and (self.object:is_power_on() or self.se_obj.is_nvd_on)--nvd.is_nvd_on(self.object))
+	return parent_is_actor(self.object) and (self.object:is_power_on() or self.se_obj.is_nvd_on)
 end
 
 function device_binder:decrease_power()
@@ -192,19 +195,27 @@ function device_binder:get_power_sect_num(section)
 end
 
 function device_binder:get_power_level()
-	return self.se_obj.power_level or 0
+	return self.b_condition_as_power and self.object:condition() or self.se_obj.power_level
 end
 
 function device_binder:set_power_level(val)
-	if not self.se_obj.power_level then return end
-	self.se_obj.power_level = val
-	self.se_obj.power_level = math.clamp(self.se_obj.power_level,0,1)
+	--if not self.se_obj.power_level then return end
+	if self.b_condition_as_power then
+		self.object:set_condition(val)
+	else
+		self.se_obj.power_level = val
+		self.se_obj.power_level = math.clamp(self.se_obj.power_level,0,1)
+	end
 end
 
 function device_binder:change_power_level(val)
-	if not self.se_obj.power_level then return end
-	self.se_obj.power_level = self.se_obj.power_level + val
-	self.se_obj.power_level = math.clamp(self.se_obj.power_level,0,1)
+	--if not self.se_obj.power_level then return end
+	if self.b_condition_as_power then
+		self.object:change_condition(val)
+	else
+		self.se_obj.power_level = self.se_obj.power_level + val
+		self.se_obj.power_level = math.clamp(self.se_obj.power_level,0,1)
+	end
 end
 
 function device_binder:recharge(obj_battery)

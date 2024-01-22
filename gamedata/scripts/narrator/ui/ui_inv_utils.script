@@ -140,7 +140,7 @@ function UpdateConditionProgress(item, icon)
 	return end
 	if not read_if_exists(sys_ini, "r_bool", item:section(), "use_condition", false) and not is_power_device(item) then
 	return end
-	local pos = is_power_device(item) and item:binded_object():get_power_level() or item:condition()
+	local pos = (is_power_device(item) and not read_if_exists(sys_ini, "r_bool", item:section(), "condition_as_power", false)) and item:binded_object():get_power_level() or item:condition()
 
 	local function update(progress_bar)
 		-- progress_bar:Show(actor:is_in_slot(item))

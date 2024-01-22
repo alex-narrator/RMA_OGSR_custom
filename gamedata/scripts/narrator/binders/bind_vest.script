@@ -85,7 +85,7 @@ function vest_binder:init_plate()
 end
 
 function vest_binder:can_attach(obj)
-	return self:get_plate_sect_num(obj:section())
+	return self:get_plate_sect_num(obj:section()) and self.object:condition() > 0 and obj:condition() > 0
 end
 
 function vest_binder:is_plate_attached()
