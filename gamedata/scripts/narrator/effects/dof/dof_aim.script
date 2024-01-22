@@ -19,9 +19,10 @@ function on_zoom_in(weapon)
 	
 	level.add_call(
 		function()
+			--log3("~zoom_inc called for weapon %s", weapon:section())
 			local zrt = weapon:get_weapon().zoom_rotation_factor
 			set_dof_params(dof[1]*zrt*DOF_INTENSITY, dof[2]*zrt, dof[3]*zrt, dof[4]*zrt)
-			return zrt == 1
+			return zrt == 1 or zrt == 0
 		end,
 		function()
 		end		
@@ -35,6 +36,7 @@ function on_zoom_out(weapon)
 	
 	level.add_call(
 		function()
+			--log3("~zoom_dec called for weapon %s", weapon:section())
 			local zrt = weapon:get_weapon().zoom_rotation_factor
 			if level.main_input_receiver() then
 				zrt = 0
