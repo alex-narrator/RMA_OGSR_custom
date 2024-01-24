@@ -188,8 +188,12 @@ function add_custom_info(UIDesc, obj)
 	if loadout.is_module(obj) then
 		attach_loadout_slots(UIDesc, obj)
 	end
-	if obj:get_weapon_ammo() and not obj:get_weapon_ammo():is_magazine() then
-		attach_ammo_params(UIDesc, obj)
+	if obj:get_weapon_ammo() then
+		if obj:get_weapon_ammo():is_magazine() then
+			attach_magazin_ammo(UIDesc, obj)
+		else
+			attach_ammo_params(UIDesc, obj)
+		end
 	end
 	if vest_plates.can_detach_plate(obj) then
 		attach_plate_condition(UIDesc, obj)
@@ -600,6 +604,26 @@ function set_ammo_icon(icon, sect)
 	icon:Show(true)
 	icon:SetWndPos(pos_x, icon:GetWndPos().y)
 	pos_x = pos_x + icon:GetWidth()
+end
+
+------------------------------------------LOADED WEAPON AMMO WND-----------------------------------------------------------------------------------------------------------------
+
+function attach_magazin_ammo(UIDesc, obj)
+	local ammo = obj:get_weapon_ammo()
+	if ammo.box_curr == 0 then
+	return end
+	
+	local xml = CScriptXmlInit()
+	xml:ParseFile("script_overlays\\loaded_ammo.xml")
+	local main = xml:InitStatic("loaded_ammo", UIDesc)
+	local ammo_icon = xml:InitStatic("loaded_ammo:ammo_icon", main) 
+	
+	pos_x = 0
+	
+	local sect = ammo:ammo_sect()
+	set_ammo_icon(ammo_icon, sect)
+	ammo_icon:SetText(game.translate_string(read_if_exists(sys_ini, "r_string", sect, "inv_name_short", get_inv_name(sect))))
+	ammo_icon:SetTextPos(ammo_icon:GetWidth(), ammo_icon:GetHeight()/2)
 end
 
 ------------------------------------------COMPATIBLE WEAPON ADDONS WND-----------------------------------------------------------------------------------------------------------------
