@@ -515,18 +515,21 @@ function MainIngameOverlay:UpdateActiveItem()
 		
 		val = act_item:get_ammo_in_magazine()
 		text = string.format("[%s]", val)
-		if SHOW_GEAR_INFO and wpn:addon_attachable(addon.magazine) then
-			local mags = split_string(sys_ini:r_string(sect, "magazine_class"), ",")
-			local mag_count = 0
+		if SHOW_GEAR_INFO then
+			local mag_weapon = wpn:addon_attachable(addon.magazine)
+			local ammos = split_string(sys_ini:r_string(sect, mag_weapon and "magazine_class" or "ammo_class"), ",")
+			local ammo_count = 0
+			local inc
 			function perform_action(dummy, item)
-				for k,v in pairs(mags) do
-					if v == item:section() and item:get_weapon_ammo().box_curr > 0 then
-						mag_count = mag_count + 1
+				for k,v in pairs(ammos) do
+					if v == item:section() and item:get_weapon_ammo().box_curr > 0 and loadout.can_remove(item) then
+						inc = mag_weapon and 1 or item:get_weapon_ammo().box_curr
+						ammo_count = ammo_count + inc
 					end
 				end
 			end	
 			actor:iterate_ruck(perform_action, nil)			
-			val = mag_count
+			val = ammo_count
 			text = string.format("%s", val)
 		end
 		self.ammo_counter:SetText(text)
@@ -536,7 +539,7 @@ function MainIngameOverlay:UpdateActiveItem()
 		if act_item:is_grenade() then
 			local grenade_count = 0
 			function perform_action(dummy, item)
-				if item:is_grenade() then
+				if item:is_grenade() and loadout.can_remove(item) then
 					grenade_count = grenade_count + 1
 				end
 			end	

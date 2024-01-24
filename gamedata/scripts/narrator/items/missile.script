@@ -1,0 +1,136 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_spawn",   			fun = this.on_spawn})
+	sm:subscribe({signal = "on_first_update",   	fun = this.on_first_update})
+	sm:subscribe({signal = "on_take",   			fun = this.on_take})
+	sm:subscribe({signal = "on_drop",   			fun = this.on_drop})
+	sm:subscribe({signal = "on_hud_state_switch",   fun = this.on_state_switch})
+	sm:subscribe({signal = "on_key_press",   		fun = this.on_key_press})
+end
+
+local LIMITED_BOLTS = read_if_exists(sys_ini, "r_bool", "features", "limited_bolts", false)
+
+local bolts = {}
+local grenades = {}
+
+function on_spawn()
+	bolts = {}
+	grenades = {}
+end
+
+function on_first_update()
+	if not LIMITED_BOLTS and not actor_get_bolt() then
+		alife():create("bolt", actor:position(), actor:level_vertex_id(), actor:game_vertex_id(), actor:id())
+	end
+end
+
+function on_take(item)
+	if get_clsid(item) == clsid.obj_bolt then
+		bolts[item:id()] = true
+	elseif item:is_grenade() then
+		grenades[item:id()] = true
+	end
+end
+
+function on_drop(item, prev_place)
+	if bolts[item:id()] then
+		bolts[item:id()] = nil
+	elseif grenades[item:id()] then
+		grenades[item:id()] = nil
+	end
+end
+
+function on_state_switch(item, state, old_state)
+	if not item:is_missile() or
+		(not LIMITED_BOLTS and get_clsid(item) == clsid.obj_bolt) or
+		state ~= global_flags.eThrowEnd
+		then
+	return end
+	
+	local missile = get_same_missile(item)
+	if not missile then
+		missile = get_next_missile(item)
+	end
+	if not missile then
+	return end
+	actor:move_to_ruck(item)
+	actor:move_to_slot(missile)
+	add_update_delayed_action(1,
+		function()
+			actor:activate_slot(item:is_grenade() and GRENADE_SLOT or BOLT_SLOT)
+		end
+	)
+end
+
+function on_key_press(key, game_action)
+	local act_item = actor:active_item()
+	if level.main_input_receiver() or 
+		game_action ~= key_bindings.kWPN_NEXT or
+		not actor_hands_free() or
+		not act_item or
+		not act_item:is_missile()
+	then
+	return end
+	
+	local new_missile = get_other_missile(act_item)
+	if new_missile then
+		actor:move_to_ruck(act_item)
+		actor:move_to_slot(new_missile)
+		if new_missile:is_grenade() then
+			ogse_signals.get_mgr():call("on_grenade_type_switch", act_item, new_missile)
+		end
+		log3("get_other_missile %s",new_missile:section())
+	end
+end
+
+function get_next_missile(item)
+	local missile
+	local for_grenade = item:is_grenade()
+	local tbl = for_grenade and grenades or bolts
+	for k,v in pairs(tbl) do
+		missile = level.object_by_id(k)
+		if missile and (not for_grenade or loadout.can_remove(missile)) then
+			log3("get_next_missile return %s", missile:section())
+			return missile
+		end
+	end
+	return nil
+end
+
+function get_same_missile(item)
+	local missile
+	local for_grenade = item:is_grenade()
+	local tbl = for_grenade and grenades or bolts
+	for k,v in pairs(tbl) do
+		missile = level.object_by_id(k)
+		if missile:section() == item:section() and missile:id() ~= item:id() and (not for_grenade or loadout.can_remove(missile)) then
+			log3("get_same_missile return %s", missile:section())
+			return missile
+		end
+	end
+	return nil
+end
+
+function get_other_missile(item)
+	local missile
+	local for_grenade = item:is_grenade()
+	local tbl = for_grenade and grenades or bolts
+	local sects = { [1] = {sect = item:section(), missile = item} }
+	
+	local function find_sect(section)
+		for k,v in pairs(sects) do
+			if v.sect == section then
+				return true
+			end
+		end
+		return false
+	end
+	
+	for k,v in pairs(tbl) do
+		missile = level.object_by_id(k)
+		if (not for_grenade or loadout.can_remove(missile)) and not find_sect(missile:section()) then
+			table.insert(sects, {sect = missile:section(), missile = missile})
+		end
+	end
+	return sects[2] and sects[2].missile or nil--sects[1].missile
+end

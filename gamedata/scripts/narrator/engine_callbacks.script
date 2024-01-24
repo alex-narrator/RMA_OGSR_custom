@@ -20,3 +20,7 @@ function is_cell_items_equal(item1, item2)
 	end
 	return res
 end
+
+function is_ammo_for_reload(item)
+	return loadout.can_remove(item) or level.main_input_receiver()
+end

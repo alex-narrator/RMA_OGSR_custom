@@ -241,5 +241,3 @@ end
 	-- local se_item = alife():object(act_item:id())
 	-- log3("~visual %s", se_item.visual_name)
 -- end
-
-loadout.clearr_all_packed()

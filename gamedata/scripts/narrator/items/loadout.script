@@ -9,14 +9,6 @@ function attach(sm)
 	sm:subscribe({signal = "on_cell_item_mouse",   		fun = this.try_set_item})
 	sm:subscribe({signal = "on_save",   				fun = this.on_save})
 	sm:subscribe({signal = "on_load",   				fun = this.on_load})
-	sm:subscribe({signal = "on_first_update",   		fun = this.on_first_update})
-	
-	sm:subscribe({signal = "on_inventory_show",   		fun = this.unpack_items})
-	sm:subscribe({signal = "on_inventory_hide",   		fun = this.pack_items})
-	sm:subscribe({signal = "on_carbody_show",   		fun = this.unpack_items})
-	sm:subscribe({signal = "on_carbody_hide",   		fun = this.pack_items})
-	sm:subscribe({signal = "on_trade_show",   			fun = this.unpack_items})
-	sm:subscribe({signal = "on_trade_hide",   			fun = this.pack_items})	
 end
 
 --//loadout slot types and default capacities
@@ -41,8 +33,6 @@ end
 
 local loaded_items = {}
 
-local packed_items = {}
-
 local unload_states = {
 	[global_flags.eReload] = true,
 	[global_flags.eShutter] = true,
@@ -56,22 +46,12 @@ function get_loaded_items()
 	return loaded_items
 end
 
-function get_packed_items()
-	return packed_items
-end
-
 function on_save(packet)
 	xr_vars.save_var("loaded_items", loaded_items)
-	xr_vars.save_var("packed_items", packed_items)
 end
 
 function on_load(reader)
 	loaded_items = xr_vars.load_var("loaded_items", loaded_items)
-	packed_items = xr_vars.load_var("packed_items", packed_items)
-end
-
-function on_first_update()
-	update_ballast_weight()
 end
 
 function get_max(slot)
@@ -192,12 +172,8 @@ function on_take(item)
 		elseif not has_drop_pouch() then
 			drop_item_to_angle(actor, item, 90)
 		end
-	elseif not is_inv_wnd_open() then
-		if loaded_items[item:id()] then
-			add(item)
-		else	
-			pack_item(item)
-		end	
+	elseif loaded_items[item:id()] then
+		add(item)
 	end
 end
 
@@ -303,89 +279,4 @@ function try_set_item(obj, x, y, action)
 	elseif can_remove(obj) then
 		remove(obj)
 	end
-end
-
-
-function pack_item(item)
-	if item.marked or actor:is_in_slot(item) or actor:is_on_belt(item) then
-	return false end
-	
-	local sect = item:section()
-	
-	if sect == "ballast" then
-	return false end
-	
-	local class = read_if_exists(sys_ini, "r_string", sect, "class", nil)
-	if class ~= "AMMO" and class ~= "G_F1" and class ~= "G_RGD5" then
-	return false end
-	
-	local data = {}
-	
-	data.sect = sect
-	data.weight = item:weight()
-	
-	if class == "AMMO" then
-		local ammo = item:get_weapon_ammo()
-		data.count = ammo.box_curr
-		data.ammo_type = ammo.box_ammo_type
-	end
-	
-	table.insert(packed_items, data)
-	
-	local sim = alife()
-	sim:release(sim:object(item:id()), true)
-	
-	--log3("~pack item: %s", item:name())
-	
-	add_ballast_weght(data.weight)
-	
-	return true
-end
-
-function unpack_items(owner)
-	local owner_id = owner and owner:id() or actor:id()
-	
-	--actor:object("ballast"):get_inventory_item().inv_weight = 0
-	
-	for k,v in pairs (packed_items) do
-		if sys_ini:r_string(v.sect, "class") == "AMMO" then
-			spawn_ammo_to_owner(v.sect, owner_id, v.count, v.ammo_type)
-		else
-			spawn_to_owner(v.sect, owner_id)
-		end
-		actor:object("ballast"):get_inventory_item().inv_weight = actor:object("ballast"):get_inventory_item().inv_weight - v.weight
-		table.remove(packed_items, k)
-	end
-end
-
-function pack_items()
-	packed_items = {}
-	function perform_action(dummy, item)
-		pack_item(item)
-	end	
-	actor:iterate_ruck(perform_action, nil)
-end
-
-function update_ballast_weight()
-	if not actor:object("ballast") then
-		spawn_to_owner("ballast", actor:id())
-		log3("~CREATING BALLAST")
-		return
-	end	
-	actor:object("ballast"):get_inventory_item().inv_weight = 0
-	for k,v in pairs (packed_items) do
-		add_ballast_weght(v.weight)
-	end
-end
-
-function add_ballast_weght(add_weight)
-	local ballast = actor:object("ballast")
-	if not ballast then return end
-	ballast = ballast:get_inventory_item()
-	ballast.inv_weight = ballast.inv_weight + add_weight
-end
-
-function clearr_all_packed()
-	packed_items = {}
-	actor:object("ballast"):get_inventory_item().inv_weight = 0
 end

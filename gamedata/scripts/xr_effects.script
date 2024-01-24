@@ -1335,7 +1335,6 @@ function bar_arena_teleport ( actor, npc)
 	out_object = actor
     in_object  = inv_box_1
 	actor:inventory_for_each(transfer_object_item)
-	loadout.unpack_items(in_object)
 
 	local spawn_items = {}	
 
@@ -1419,7 +1418,6 @@ function bar_arena_teleport_2 ( actor, npc)
 	out_object = actor
     in_object  = inv_box_2
 	actor:inventory_for_each(transfer_object_item)
-	loadout.unpack_items(in_object)
 end
 
 function barman_give_extra_task (actor, npc)
@@ -1860,7 +1858,6 @@ function cit_transfer_actor_inventory(actor)
 	out_object = actor
 	in_object = inv_box_2
 	actor:inventory_for_each(transfer_object_item)
-	loadout.unpack_items(in_object)
 end
 
 ---------------------------------------------------------

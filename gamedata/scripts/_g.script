@@ -1729,7 +1729,10 @@ end
 function get_cur_ammo_sect(obj)
 	local ammo_sect = read_if_exists(sys_ini, "r_string", obj:section(), obj:get_gl_mode() and "grenade_class" or "ammo_class", nil)
 	local ammo_table = split_string(ammo_sect, ",")
-	return ammo_table[obj:get_ammo_type()+1]
+	--return ammo_table[obj:get_ammo_type()+1]
+	
+	local wpn = obj:get_weapon()
+	return wpn and wpn:get_ammo_sect() or ammo_table[1]
 end
 
 function get_cur_ammo2_sect(obj)
