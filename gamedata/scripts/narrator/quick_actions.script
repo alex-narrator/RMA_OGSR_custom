@@ -6,8 +6,8 @@ function attach(sm)
 end
 
 local prev_active_slot = NO_ACTIVE_SLOT
-local quick_grenade = false
-local quick_knife = false
+local quick_grenade_id = nil
+local quick_knife_id = nil
 
 local quick_action = {
 	[key_bindings.kQUICK_GRENADE] = true,
@@ -15,11 +15,11 @@ local quick_action = {
 }
 
 function on_take(item)
-	if item:is_grenade() and quick_grenade then
-		quick_grenade = false
+	if item:is_grenade() and quick_grenade_id then
+		quick_grenade_id = nil
 	return end
-	if item:is_knife() and quick_knife then
-		quick_knife = false
+	if item:is_knife() and quick_knife_id then
+		quick_knife_id = nil
 	return end
 end
 
@@ -33,9 +33,9 @@ function on_key_press(key, game_action)
 	if game_action == key_bindings.kQUICK_GRENADE then
 		if actor:active_slot() == GRENADE_SLOT then
 		return end
-		quick_grenade = actor_get_grenade()
-		if not quick_grenade then
+		if not actor_get_grenade() then
 		return end
+		quick_grenade_id = actor_get_grenade():id()
 		prev_active_slot = actor:active_slot()
 		actor:activate_slot(GRENADE_SLOT, true)
 	end
@@ -43,36 +43,42 @@ function on_key_press(key, game_action)
 	if game_action == key_bindings.kQUICK_KNIFE then
 		if actor:active_slot() == KNIFE_SLOT then
 		return end
-		quick_knife = actor_get_knife()
-		if not quick_knife then
+		if not actor_get_knife() then
 		return end
+		quick_knife_id = actor_get_knife():id()
 		prev_active_slot = actor:active_slot()
 		actor:activate_slot(KNIFE_SLOT, true)
 	end
 end
 
 function on_state_switch(item, state, old_state)
-	if not quick_grenade and not quick_knife then
+	if not quick_grenade_id and not quick_knife_id then
 	return end
 	
-	--log3("state %s | old_state %s | item:is_pending() %s", state, old_state, item:is_pending())
+	--log3("~item %s | state %s | old_state %s | item:is_pending() %s", item:section(), state, old_state, item:is_pending())
 	
-	if quick_grenade and item:id() == quick_grenade:id() then
+	if quick_grenade_id == item:id() then
+		--log3("~item %s | state %s | old_state %s | item:is_pending() %s", item:section(), state, old_state, item:is_pending())
 		if state == global_flags.eIdle then
 			level.send_event_key_press(bind_to_dik(key_bindings.kWPN_FIRE))
 		return end
-		if old_state == global_flags.eHidden then
-			actor:activate_slot(prev_active_slot, true)
-			quick_grenade = false
+		if old_state == global_flags.eHidden or state == global_flags.eThrowEnd then
+			quick_grenade_id = nil
+			add_update_delayed_action(1,
+				function()
+					--log3("~activating slot after missile quick throw")
+					actor:activate_slot(prev_active_slot, true)					
+				end
+			)
 		return end
 	end
-	if quick_knife and item:id() == quick_knife:id() then
+	if quick_knife_id == item:id() then
 		if state == global_flags.eShowing then
 			level.add_call(
 				function() 
 					return actor_hands_free() 
 				end,
-				function() 
+				function()
 					level.send_event_key_press(bind_to_dik(key_bindings.kWPN_FIRE)) 
 				end
 			)
@@ -84,7 +90,7 @@ function on_state_switch(item, state, old_state)
 				end,
 				function() 
 					actor:activate_slot(prev_active_slot, true)
-					quick_knife = false
+					quick_knife_id = nil
 				end
 			)
 		return end

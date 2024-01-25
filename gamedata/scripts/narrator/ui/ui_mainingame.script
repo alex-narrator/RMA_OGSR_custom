@@ -46,7 +46,7 @@ function MainIngameOverlay:Subscribe()
 		self.subscribed = {
 			{signal = "on_quick_item_set", self = self, fun = self.UpdateSlots},
 			{signal = "on_quick_item_use", self = self, fun = self.UpdateSlots},
-			{signal = "on_drop", self = self, fun = self.UpdateSlots},
+			{signal = "on_drop", self = self, fun = self.UpdateSlotsAndPanels},
 			{signal = "on_use", self = self, fun = self.UpdateSlots},
 			{signal = "on_item_to_loadout", self = self, fun = self.UpdateSlots},
 			{signal = "on_item_from_loadout", self = self, fun = self.UpdateSlots},
@@ -302,6 +302,11 @@ function MainIngameOverlay:UpdateWarningIcons()
 			end
 		end
 	end
+end
+
+function MainIngameOverlay:UpdateSlotsAndPanels()
+	self:UpdateSlots()
+	self:UpdatePanelItems()
 end
 
 function MainIngameOverlay:DrawSlotIcon(slot_num)

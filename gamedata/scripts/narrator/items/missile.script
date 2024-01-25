@@ -55,11 +55,6 @@ function on_state_switch(item, state, old_state)
 	return end
 	actor:move_to_ruck(item)
 	actor:move_to_slot(missile)
-	add_update_delayed_action(1,
-		function()
-			actor:activate_slot(item:is_grenade() and GRENADE_SLOT or BOLT_SLOT)
-		end
-	)
 end
 
 function on_key_press(key, game_action)
@@ -79,7 +74,7 @@ function on_key_press(key, game_action)
 		if new_missile:is_grenade() then
 			ogse_signals.get_mgr():call("on_grenade_type_switch", act_item, new_missile)
 		end
-		log3("get_other_missile %s",new_missile:section())
+		--log3("get_other_missile %s",new_missile:section())
 	end
 end
 
@@ -90,7 +85,7 @@ function get_next_missile(item)
 	for k,v in pairs(tbl) do
 		missile = level.object_by_id(k)
 		if missile and (not for_grenade or loadout.can_remove(missile)) then
-			log3("get_next_missile return %s", missile:section())
+			--log3("get_next_missile return %s", missile:section())
 			return missile
 		end
 	end
@@ -104,7 +99,7 @@ function get_same_missile(item)
 	for k,v in pairs(tbl) do
 		missile = level.object_by_id(k)
 		if missile:section() == item:section() and missile:id() ~= item:id() and (not for_grenade or loadout.can_remove(missile)) then
-			log3("get_same_missile return %s", missile:section())
+			--log3("get_same_missile return %s", missile:section())
 			return missile
 		end
 	end
