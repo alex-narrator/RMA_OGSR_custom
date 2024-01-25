@@ -38,34 +38,33 @@ end
 
 local OVERLAY_XML = "script_overlays\\actor_menu_overlay.xml"
 local addon_name = {
-	[0]="silencer",
-	[1]="scope",
-	[2]="grenade_launcher",
-	[3]="laser",
-	[4]="flashlight",
-	[5]="stock",
-	[6]="extender",
-	[7]="forend",
-	[8]="magazine",
+	"silencer",
+	"scope",
+	"grenade_launcher",
+	"laser",
+	"flashlight",
+	"stock",
+	"extender",
+	"forend",
+	"magazine",
 }
 function AttachWpnIcons(item, icon)
 	local wpn = item:get_weapon_m()
 	if not wpn then
 	return end
 	
-	local addon_st, addon_sect, offset, icon_sect, params, wpn_params, width, height, cell_w, cell_h
+	local addon_st, offset, icon_sect, params, wpn_params, width, height, cell_w, cell_h
 	
 	local sect = item:section()
-	
-	for i=0,#addon_name do
+	local i
+	for k,v in ipairs(addon_name) do
+		i = k-1
 		if wpn:addon_attachable(i) and wpn:is_addon_attached(i) then
 			icon_sect = wpn:get_addon_name(i)
-			addon_sect = wpn:get_addon_name(i)
 			offset = wpn:get_addon_offset(i)
 			--log3("wpn %s, addon %s, offset.x %s, offset.y %s", item:name(),addon_name[i], offset.x, offset.y)
-			icon_sect = addon_sect
-			if addon_name[i] == "magazine" then
-				icon_sect = read_if_exists(sys_ini, "r_string", addon_sect, "mag_icon_sect", nil)
+			if v == "magazine" then
+				icon_sect = read_if_exists(sys_ini, "r_string", icon_sect, "mag_icon_sect", nil)
 			end
 			if icon_sect then
 				addon_st = CUIStatic()
@@ -85,6 +84,28 @@ function AttachWpnIcons(item, icon)
 				icon:AttachChild(addon_st)
 			end
 		end
+	end
+	
+	if get_clsid(item) == clsid.wpn_rpg7_s and item:get_ammo_in_magazine() > 0 then
+		icon_sect = get_cur_ammo_sect(item)
+		offset = vector():set(read_if_exists(sys_ini, "r_float", sect, "grenade_x", 0), read_if_exists(sys_ini, "r_float", sect, "grenade_y", 0),0)
+		if icon_sect then
+			addon_st = CUIStatic()
+			params = CIconParams(icon_sect)
+			wpn_params = CIconParams(sect)
+				
+			params:set_shader(addon_st)
+				
+			cell_w = icon:GetWidth() / wpn_params.grid_width
+			cell_h = icon:GetHeight() / wpn_params.grid_height
+			width = params.grid_width * cell_w
+			height = params.grid_height * cell_h
+			addon_st:SetWidth(width)
+			addon_st:SetHeight(height)
+				
+			addon_st:SetWndPos(offset.x * (cell_w/CELL_W), offset.y * (cell_h/CELL_H))
+			icon:AttachChild(addon_st)
+		end		
 	end
 end
 

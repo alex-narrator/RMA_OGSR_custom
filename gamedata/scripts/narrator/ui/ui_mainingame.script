@@ -44,16 +44,17 @@ function MainIngameOverlay:Subscribe()
 	self.subscribed = false
 	if not self.subscribed then
 		self.subscribed = {
-			{signal = "on_quick_item_set", self = self, fun = self.UpdateSlots},
-			{signal = "on_quick_item_use", self = self, fun = self.UpdateSlots},
-			{signal = "on_drop", self = self, fun = self.UpdateSlotsAndPanels},
-			{signal = "on_use", self = self, fun = self.UpdateSlots},
-			{signal = "on_item_to_loadout", self = self, fun = self.UpdateSlots},
-			{signal = "on_item_from_loadout", self = self, fun = self.UpdateSlots},
+			{signal = "on_quick_item_set", self = self, fun = self.UpdateQuickSlots},
+			{signal = "on_quick_item_use", self = self, fun = self.UpdateQuickSlots},
+			{signal = "on_drop", self = self, fun = self.UpdateQuickSlotsAndPanels},
+			{signal = "on_use", self = self, fun = self.UpdateQuickSlots},
+			{signal = "on_item_to_loadout", self = self, fun = self.UpdateQuickSlots},
+			{signal = "on_item_from_loadout", self = self, fun = self.UpdateQuickSlots},
 			{signal = "on_slot", self = self, fun = self.UpdatePanelItems},
 			{signal = "on_ruck", self = self, fun = self.UpdatePanelItems},
 			{signal = "on_belt", self = self, fun = self.UpdatePanelItems},
 			{signal = "on_loadout_update_count", self = self, fun = self.UpdatePanelItems},
+			{signal = "on_hud_state_switch", self = self, fun = self.OnHudStateSwitch},
 		}
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
@@ -304,8 +305,8 @@ function MainIngameOverlay:UpdateWarningIcons()
 	end
 end
 
-function MainIngameOverlay:UpdateSlotsAndPanels()
-	self:UpdateSlots()
+function MainIngameOverlay:UpdateQuickSlotsAndPanels()
+	self:UpdateQuickSlots()
 	self:UpdatePanelItems()
 end
 
@@ -330,7 +331,7 @@ function MainIngameOverlay:DrawSlotIcon(slot_num)
 	end
 end
 
-function MainIngameOverlay:UpdateSlots()
+function MainIngameOverlay:UpdateQuickSlots()
 	for i=0,3 do
 		self:DrawSlotIcon(i)
 	end
@@ -609,6 +610,16 @@ function MainIngameOverlay:UpdateMissileThrow()
 	self.missile_throw:SetPos(val)
 	self.missile_text:Show(val>0)
 	self.missile_text:SetText(string.format("[%.0f%s]", val*100, "%"))
+end
+
+local update_states = {
+	[global_flags.eFire] = true,
+	[global_flags.eReload] = true,
+}
+function MainIngameOverlay:OnHudStateSwitch(item, state, old_state)
+	if update_states[old_state] then
+		self:UpdatePanelItems()
+	end
 end
 
 function MainIngameOverlay:Update()
