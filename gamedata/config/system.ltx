@@ -174,6 +174,30 @@ wear_mask 			= kWEAR_MASK
 kick 				= kKICK
 night_vision 		= kNIGHT_VISION
 
+[custom_properties_box_action]
+;any unique action name = propbox tip text (translation string or function), action precondition function (game obj in args), action function (game obj in args)
+;donate item in trade
+donate_item 		= ui_st_donate, script_actions.can_donate, script_actions.donate
+;power devices
+detach_power_source = recharge.detach_power_source_tip, recharge.can_detach_power_source, recharge.detach_power_source
+recharge_pda 		= recharge.pda_tip, recharge.can_recharge_pda, recharge.recharge_pda
+recharge_torch 		= recharge.torch_tip, recharge.can_recharge_torch, recharge.recharge_torch
+recharge_detector 	= recharge.detector_tip, recharge.can_recharge_detector, recharge.recharge_detector
+;armor plates
+attach_armor_plate 	= vest_plates.attach_plate_tip, vest_plates.can_attach_plate, vest_plates.attach_plate
+detach_armor_plate 	= vest_plates.detach_plate_tip, vest_plates.can_detach_plate, vest_plates.detach_plate
+;put item to quick slot
+quick_slot_set 		= quick_slots.menu_tip_set, quick_slots.can_set, quick_slots.set
+;move item to/from loadout
+to_loadout 			= loadout.menu_tip_to, loadout.can_add, loadout.add
+from_loadout 		= loadout.menu_tip_from, loadout.can_remove, loadout.remove
+;repair items in slots
+repair_slot_0 		= repair_kit.repair_0_tip, repair_kit.can_repair_0, repair_kit.repair_0
+repair_slot_1 		= repair_kit.repair_1_tip, repair_kit.can_repair_1, repair_kit.repair_1
+repair_slot_2 		= repair_kit.repair_2_tip, repair_kit.can_repair_2, repair_kit.repair_2
+repair_slot_4 		= repair_kit.repair_4_tip, repair_kit.can_repair_4, repair_kit.repair_4
+repair_slot_6 		= repair_kit.repair_6_tip, repair_kit.can_repair_6, repair_kit.repair_6
+
 [loadout]
 pistol_ammo 		= 2
 medicine 			= 2

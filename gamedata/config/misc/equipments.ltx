@@ -44,10 +44,6 @@ cost				= 500	;30
 
 use_sound 			= interface\inv_detach_addon
 
-script_action_0 	= recharge.pda_tip, recharge.can_recharge_pda, recharge.recharge_pda
-script_action_1 	= recharge.torch_tip, recharge.can_recharge_torch, recharge.recharge_torch
-script_action_2 	= recharge.detector_tip, recharge.can_recharge_detector, recharge.recharge_detector
-
 [pda_battery]:battery
 visual				= equipments\item_battery_02.ogf
 inv_grid_x         = 8
@@ -58,9 +54,6 @@ inv_name_short		= pda_battery
 inv_weight			= 0.3
 
 work_time 			= 24
-script_action_0 	= recharge.pda_tip, recharge.can_recharge_pda, recharge.recharge_pda
-script_action_1 	= recharge.torch_tip, recharge.can_recharge_torch, recharge.recharge_torch
-script_action_2 	= recharge.detector_tip, recharge.can_recharge_detector, recharge.recharge_detector
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;EQUIPMENT MODULES;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -249,8 +242,6 @@ breakable 			= true
 use_condition 		= true
 
 immunities_sect		= plate_immunities
-
-script_action_10 	= vest_plates.attach_plate_tip, vest_plates.can_attach_plate, vest_plates.attach_plate
 
 quick_slot 			= true
 script_action_2 	= quick_slots.menu_tip_set, quick_slots.can_set, quick_slots.set
