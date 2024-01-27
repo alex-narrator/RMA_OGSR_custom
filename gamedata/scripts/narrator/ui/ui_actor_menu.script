@@ -15,11 +15,11 @@ local subscribed = false
 
 function get_current_owner()
 	if level.get_inventory_wnd():IsShown() then
-		log3("~get_inventory_wnd")
+		--log3("~get_inventory_wnd")
 		return level.get_inventory_wnd()
 	end
 	if level.get_car_body_wnd():IsShown() then
-		log3("~get_car_body_wnd")
+		--log3("~get_car_body_wnd")
 		return level.get_car_body_wnd()
 	end
 	return level.get_trade_wnd()
@@ -74,6 +74,7 @@ function ActorMenuOverlay:Subscribe()
 		self.subscribed = {
 			{signal = "on_cell_item_focus", self = self, fun = self.OnCellItemFocus},
 			{signal = "on_cell_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
+			{signal = "on_cell_item_mouse", self = self, fun = self.OnCellItemMouse},
 			{signal = "on_quick_item_set", self = self, fun = self.UpdateSlots},
 			{signal = "on_quick_item_use", self = self, fun = self.UpdateSlots},
 			{signal = "on_ruck", self = self, fun = self.UpdateSlots},
@@ -81,7 +82,7 @@ function ActorMenuOverlay:Subscribe()
 			{signal = "on_use", self = self, fun = self.UpdateSlots},
 			{signal = "on_loadout_update_count", self = self, fun = self.UpdateSlots},
 			{signal = "on_loadout_update_max_count", self = self, fun = self.UpdateSlots},
-			{signal = "on_script_actor_icon_update", self = self, fun = self.OnActorIconUpdate},
+			{signal = "on_actor_icon_update", self = self, fun = self.OnActorIconUpdate},
 		}
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
@@ -390,6 +391,11 @@ function ActorMenuOverlay:OnCellItemFocusLost(obj)
 	end
 end
 
+function ActorMenuOverlay:OnCellItemMouse(obj, x, y, action)
+	if action == ui_events.WINDOW_RBUTTON_DOWN then
+		log3("~RB clicked item %s", obj:section())
+	end
+end
 
 function ActorMenuOverlay:DrawSlotIcon(slot_num)
 	local s = self.slots[slot_num]

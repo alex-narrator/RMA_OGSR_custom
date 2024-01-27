@@ -181,7 +181,7 @@ function enable_effects(obj)
 	local icon = read_if_exists(sys_ini, "r_string", sect, "actor_icon", nil)
 	if obj:is_outfit() and icon then
 		actor:set_character_icon(icon)
-		sm:call("on_script_actor_icon_update", icon)
+		sm:call("on_actor_icon_update", icon)
 	end
 	
 	show_minimap = read_if_exists(sys_ini, "r_bool", sect, "show_minimap", nil)
@@ -203,7 +203,7 @@ function disable_effects(obj, prev_place)
 	local default_icon = actor:get_default_character_icon()
 	if obj:is_outfit() and default_icon ~= actor:get_character_icon() then
 		actor:set_character_icon(default_icon)
-		sm:call("on_script_actor_icon_update", default_icon)
+		sm:call("on_actor_icon_update", default_icon)
 	end
 	
 	if show_minimap and get_main_window().show_zone_map then

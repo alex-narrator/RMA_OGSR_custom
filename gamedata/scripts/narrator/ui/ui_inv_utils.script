@@ -48,40 +48,66 @@ local addon_name = {
 	"forend",
 	"magazine",
 }
-function AttachWpnIcons(item, icon)
+function UpdateWpnIcons(item, icon)
 	local wpn = item:get_weapon_m()
 	if not wpn then
 	return end
 	
-	local addon_st, offset, icon_sect, params, wpn_params, width, height, cell_w, cell_h
-	
+	local addon_st, offset, icon_sect, params, width, height, cell_w, cell_h
+	local heading = icon:GetCUIStatic():GetHeading()
+	local rotate = heading > 0
 	local sect = item:section()
+	--log3("~heading %s for item %s", heading, sect)	
+	local wpn_params = CIconParams(sect)			
 	local i
 	for k,v in ipairs(addon_name) do
 		i = k-1
 		if wpn:addon_attachable(i) and wpn:is_addon_attached(i) then
 			icon_sect = wpn:get_addon_name(i)
 			offset = wpn:get_addon_offset(i)
-			--log3("wpn %s, addon %s, offset.x %s, offset.y %s", item:name(),addon_name[i], offset.x, offset.y)
+			--log3("wpn %s, addon %s, offset.x %s, offset.y %s", item:name(), v, offset.x, offset.y)
 			if v == "magazine" then
 				icon_sect = read_if_exists(sys_ini, "r_string", icon_sect, "mag_icon_sect", nil)
 			end
 			if icon_sect then
-				addon_st = CUIStatic()
 				params = CIconParams(icon_sect)
-				wpn_params = CIconParams(sect)
+				addon_st = icon:FindChild(v)
+				if addon_st then
+					addon_st = addon_st:GetCUIStatic()
+				else
+					addon_st = CUIStatic()
+					params:set_shader(addon_st)
+					addon_st:SetWindowName(v)
+					icon:AttachChild(addon_st)
+				end
+
+				addon_st:EnableHeading(rotate)
 				
-				params:set_shader(addon_st)
-				
-				cell_w = icon:GetWidth() / wpn_params.grid_width
-				cell_h = icon:GetHeight() / wpn_params.grid_height
-				width = params.grid_width * cell_w
-				height = params.grid_height * cell_h
-				addon_st:SetWidth(width)
-				addon_st:SetHeight(height)
-				
-				addon_st:SetWndPos(offset.x * (cell_w/CELL_W), offset.y * (cell_h/CELL_H))
-				icon:AttachChild(addon_st)
+				if rotate then
+					cell_w = icon:GetHeight() / wpn_params.grid_width
+					cell_h = icon:GetWidth() / wpn_params.grid_height
+					width = params.grid_width * cell_w
+					height = params.grid_height * cell_h
+					addon_st:SetWidth(width)
+					addon_st:SetHeight(height)
+					
+					--//це костиль для іконок пістолетів висотою (шириною при Heading) в 1 клітинку, але мені ліньки розібратись та уніфікувати алгоритм
+					local k = wpn_params.grid_height < 2 and 0 or cell_h
+					addon_st:SetWndPos(offset.y * (cell_w/CELL_W) * get_current_kx(), icon:GetHeight() - offset.x * (cell_h/CELL_H) - k)
+					
+					addon_st:SetHeading(heading)
+					addon_st:SetHeadingPivot(vector2():set(0,0), vector2():set(0,icon:GetWidth() - cell_h), false)
+					
+					log3("~item %s | width %s | height %s | params.grid_width %s | params.grid_height %s | wpn_params.grid_width %s | wpn_params.grid_height %s", item:section(), width, height, params.grid_width, params.grid_height, wpn_params.grid_width, wpn_params.grid_height)
+				else
+					cell_w = icon:GetWidth() / wpn_params.grid_width
+					cell_h = icon:GetHeight() / wpn_params.grid_height
+					width = params.grid_width * cell_w
+					height = params.grid_height * cell_h
+					addon_st:SetWidth(width)
+					addon_st:SetHeight(height)
+					addon_st:SetWndPos(offset.x * (cell_w/CELL_W), offset.y * (cell_h/CELL_H))
+				end
 			end
 		end
 	end
@@ -90,21 +116,39 @@ function AttachWpnIcons(item, icon)
 		icon_sect = get_cur_ammo_sect(item)
 		offset = vector():set(read_if_exists(sys_ini, "r_float", sect, "grenade_x", 0), read_if_exists(sys_ini, "r_float", sect, "grenade_y", 0),0)
 		if icon_sect then
-			addon_st = CUIStatic()
 			params = CIconParams(icon_sect)
-			wpn_params = CIconParams(sect)
+			addon_st = icon:FindChild("grenade")
+			if addon_st then
+				addon_st = addon_st:GetCUIStatic()
+			else
+				addon_st = CUIStatic()
+				params:set_shader(addon_st)
+				addon_st:SetWindowName("grenade")
+				icon:AttachChild(addon_st)
+			end
+
+			addon_st:EnableHeading(rotate)
 				
-			params:set_shader(addon_st)
-				
-			cell_w = icon:GetWidth() / wpn_params.grid_width
-			cell_h = icon:GetHeight() / wpn_params.grid_height
-			width = params.grid_width * cell_w
-			height = params.grid_height * cell_h
-			addon_st:SetWidth(width)
-			addon_st:SetHeight(height)
-				
-			addon_st:SetWndPos(offset.x * (cell_w/CELL_W), offset.y * (cell_h/CELL_H))
-			icon:AttachChild(addon_st)
+			if rotate then
+				cell_w = icon:GetHeight() / wpn_params.grid_width
+				cell_h = icon:GetWidth() / wpn_params.grid_height
+				width = params.grid_width * cell_w
+				height = params.grid_height * cell_h
+				addon_st:SetWidth(width)
+				addon_st:SetHeight(height)
+				addon_st:SetWndPos(offset.y * (cell_w/CELL_W) * get_current_kx(), icon:GetHeight() - offset.x * (cell_h/CELL_H) - cell_w)
+					
+				addon_st:SetHeading(heading)
+				addon_st:SetHeadingPivot(vector2():set(0,0), vector2():set(0,icon:GetWidth() - cell_w), false)
+			else
+				cell_w = icon:GetWidth() / wpn_params.grid_width
+				cell_h = icon:GetHeight() / wpn_params.grid_height
+				width = params.grid_width * cell_w
+				height = params.grid_height * cell_h
+				addon_st:SetWidth(width)
+				addon_st:SetHeight(height)
+				addon_st:SetWndPos(offset.x * (cell_w/CELL_W), offset.y * (cell_h/CELL_H))
+			end
 		end		
 	end
 end
@@ -170,7 +214,7 @@ function UpdateConditionProgress(item, icon)
 		local offset = GetOffset("left_down", progress_bar, icon)
 		offset.y = offset.y - 1
 		progress_bar:SetWndPos(offset.x, offset.y)
-		progress_bar:SetWidth(icon:GetWidth() - 3)
+		progress_bar:SetWidth(icon:GetWidth() - 1)
 		icon:BringToTop(progress_bar)
 		progress_bar:SetProgressPos(pos)
 	end
@@ -268,12 +312,14 @@ function UpdateUpgrageIcon(item, icon)
 	local params = CIconParams(upgrade_icon_sect)
 	local icon_params = CIconParams(sect)
 	
+	local heading = icon:GetCUIStatic():GetHeading()
+	
 	local offset_type = read_if_exists(sys_ini, "r_string", sect, "upgrade_icon_offset", "left_down")
 	local function update(static)
 		local cell_w = icon:GetWidth() / icon_params.grid_width
 		local cell_h = icon:GetHeight() / icon_params.grid_height
-		if cell_h/cell_w > 1.4 then
-			cell_h = icon:GetWidth() / icon_params.grid_height * 1.3
+		if heading > 0 then
+			cell_h = icon:GetWidth() / icon_params.grid_height * get_current_kx()
 			cell_w = icon:GetHeight() / icon_params.grid_width
 		end		
 		local width = params.grid_width * cell_w
@@ -313,12 +359,14 @@ function UpdateQuestIcon(item, icon)
 	local params = CIconParams(quest_icon_sect)
 	local icon_params = CIconParams(sect)
 	
+	local heading = icon:GetCUIStatic():GetHeading()
+	
 	local offset_type = read_if_exists(sys_ini, "r_string", sect, "quest_icon_sect", "right_top")
 	local function update(static)
 		local cell_w = icon:GetWidth() / icon_params.grid_width
 		local cell_h = icon:GetHeight() / icon_params.grid_height
-		if cell_h/cell_w > 1.4 then
-			cell_h = icon:GetWidth() / icon_params.grid_height * 1.3
+		if heading > 0 then
+			cell_h = icon:GetWidth() / icon_params.grid_height * get_current_kx()
 			cell_w = icon:GetHeight() / icon_params.grid_width
 		end		
 		local width = params.grid_width * cell_w
@@ -378,7 +426,7 @@ end
 
 function AttachAdditionalIcons(item, icon)
 	icon:DetachAll()
-	AttachWpnIcons(item, icon)
+	UpdateWpnIcons(item, icon)
 	UpdateAmmoInBoxIcon(item, icon)
 	UpdateMarkedIcon(item, icon)
 	UpdateUpgrageIcon(item, icon)
@@ -390,7 +438,7 @@ end
 
 function AttachPanelIcons(item, icon)
 	icon:DetachAll()
-	AttachWpnIcons(item, icon)
+	UpdateWpnIcons(item, icon)
 	UpdateAmmoInBoxIcon(item, icon)
 	--UpdateMarkedIcon(item, icon)
 	UpdateUpgrageIcon(item, icon)
