@@ -1,16 +1,20 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
-	sm:subscribe({signal = "on_item_info_init",   fun = this.add_custom_info})
-	sm:subscribe({signal = "on_inventory_show",   fun = this.create_window})
-	sm:subscribe({signal = "on_inventory_hide",   fun = this.destroy_window})
-	sm:subscribe({signal = "on_carbody_show",   fun = this.create_window})
-	sm:subscribe({signal = "on_carbody_hide",   fun = this.destroy_window})
-	sm:subscribe({signal = "on_trade_show",   fun = this.create_window})
-	sm:subscribe({signal = "on_trade_hide",   fun = this.destroy_window})
+	sm:subscribe({signal = "on_item_info_init",   	fun = this.add_custom_info})
+	sm:subscribe({signal = "on_inventory_show",   	fun = this.create_window})
+	sm:subscribe({signal = "on_inventory_hide",   	fun = this.destroy_window})
+	sm:subscribe({signal = "on_carbody_show",   	fun = this.create_window})
+	sm:subscribe({signal = "on_carbody_hide",   	fun = this.destroy_window})
+	sm:subscribe({signal = "on_trade_show",   		fun = this.create_window})
+	sm:subscribe({signal = "on_trade_hide",   		fun = this.destroy_window})
+	sm:subscribe({signal = "on_talk_show",   		fun = this.destroy_window})
+	sm:subscribe({signal = "on_talk_hide",   		fun = this.destroy_window})
 end
 
 local overlay = nil
 local OVERLAY_XML = "script_overlays\\ui_item_info.xml"
+local INFO_SHOW_DELAY_TIME = 1
+
 
 function create_window()
 	if not overlay then
@@ -32,6 +36,7 @@ function UIItemInfo:__init(owner) super()
 	self.owner = owner
 	self:InitControls()
 	self:Subscribe()
+	self.delay = false
 end
 
 function UIItemInfo:Subscribe()
@@ -99,10 +104,12 @@ end
 
 function UIItemInfo:OnCellItemFocus(item)
 	self:InitItemInfo(item)
+	self.delay = time_global() + INFO_SHOW_DELAY_TIME * 1000
 end
 
 function UIItemInfo:OnCellItemFocusLost(item)
 	self.background_frame:Show(false)
+	self.delay = false
 end
 
 function UIItemInfo:InitItemInfo(item)
@@ -142,6 +149,10 @@ function UIItemInfo:InitItemInfo(item)
 end
 
 function UIItemInfo:UpdateWndPos()
+	local property_box = self.owner:FindChild("property_box")
+	local b_show = self.delay and time_global() >= self.delay and not level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) and (not property_box or not property_box:IsShown())
+	self.background_frame:Show(b_show)
+
 	if not self.background_frame:IsShown() then
 	return end
 	
