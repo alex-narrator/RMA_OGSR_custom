@@ -13,7 +13,6 @@ end
 
 local overlay = nil
 local OVERLAY_XML = "script_overlays\\ui_item_info.xml"
-local INFO_SHOW_DELAY_TIME = 1
 
 
 function create_window()
@@ -99,12 +98,14 @@ function UIItemInfo:InitControls()
 	tmp_tbl = split_string(self.xml:ReadAttrib("background_frame:descr_list:descr_text", "text_color", def_color), ",")
 	self.descr_list.text_color = GetARGB(tmp_tbl[1], tmp_tbl[2], tmp_tbl[3], tmp_tbl[4])
 	
+	self.show_delay_time = self.xml:ReadAttribFlt("background_frame", "show_delay", 1)
+	
 	local name
 end
 
 function UIItemInfo:OnCellItemFocus(item)
 	self:InitItemInfo(item)
-	self.delay = time_global() + INFO_SHOW_DELAY_TIME * 1000
+	self.delay = time_global() + self.show_delay_time * 1000
 end
 
 function UIItemInfo:OnCellItemFocusLost(item)
