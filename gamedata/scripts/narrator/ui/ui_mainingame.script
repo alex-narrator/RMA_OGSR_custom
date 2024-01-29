@@ -348,7 +348,7 @@ function MainIngameOverlay:UpdatePanelItems()
 	pos_y = 0
 	for _,i in pairs(self.slot_panel.slots) do
 		item = actor:item_in_slot(i)
-		if item and (i ~= 13 or read_if_exists(sys_ini, "r_bool", item:section(), "quick_drop", false)) then
+		if item and (tonumber(i) ~= BACKPACK_SLOT or read_if_exists(sys_ini, "r_bool", item:section(), "quick_drop", false)) then
 			params = CIconParams(item:section())
 			item_st = CUIStatic()
 			params:set_shader(item_st)
@@ -357,6 +357,17 @@ function MainIngameOverlay:UpdatePanelItems()
 			ui_inv_utils.AttachPanelIcons(item, item_st)
 			item_st:SetWndPos(pos_x, pos_y)
 			text = "ui_use_slot_"..i
+			if tonumber(i) == TORCH_SLOT then
+				local torch = torch.get_light_sect(item)
+				local nvd = nvd.get_nvd_params(item:section())
+				if not (torch and nvd) then
+					if torch then
+						text = "ui_switch_torch"
+					elseif nvd then
+						text = "ui_switch_night_vision"
+					end
+				end
+			end
 			item_st:SetText(game.translate_string(text))
 			item_st:SetFont(GetFontCustom(self.slot_panel.font))
 			item_st:SetTextColor(self.slot_panel.text_color)
