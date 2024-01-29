@@ -1812,6 +1812,15 @@ function wpn_IsRotatingToZoom( wpn )
   return wpn:get_weapon().zoom_rotation_factor < 1
 end
 
+function get_wpn_scope_zoom_params(item)
+	local wpn = item:get_weapon_m()
+	if not wpn or not wpn:is_addon_attached(addon.scope) then
+	return nil end
+	local sect = wpn:addon_attachable(addon.scope) and wpn:get_addon_name(addon.scope) or item:section()
+	local zoom_params = split_string(read_if_exists(sys_ini, "r_string", sect, "scope_zoom_factor", nil), ",")
+	return zoom_params
+end
+
 --обертає вектор навколо осі Y проти годинникової стрілки
 function vector_rotate_y (v, angle)
     angle = angle * 0.017453292519943295769236907684886
