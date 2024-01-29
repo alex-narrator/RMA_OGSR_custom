@@ -91,12 +91,11 @@ function UpdateWpnIcons(item, icon)
 					addon_st:SetWidth(width)
 					addon_st:SetHeight(height)
 					
-					--//це костиль для іконок пістолетів висотою (шириною при Heading) в 1 клітинку, але мені ліньки розібратись та уніфікувати алгоритм
-					local k = wpn_params.grid_height < 2 and 0 or cell_h
-					addon_st:SetWndPos(offset.y * (cell_w/CELL_W) * get_current_kx(), icon:GetHeight() - offset.x * (cell_h/CELL_H) - k)
+					addon_st:SetWndPos(offset.y * (cell_w/CELL_W) * get_current_kx(), icon:GetHeight() - offset.x * (cell_h/CELL_H))
 					
 					addon_st:SetHeading(heading)
-					addon_st:SetHeadingPivot(vector2():set(0,0), vector2():set(0,icon:GetWidth() - cell_h), false)
+					local zero_vec = vector2():set(0,0)
+					addon_st:SetHeadingPivot(zero_vec, zero_vec, false)
 					
 					--log3("~item %s | width %s | height %s | params.grid_width %s | params.grid_height %s | wpn_params.grid_width %s | wpn_params.grid_height %s", item:section(), width, height, params.grid_width, params.grid_height, wpn_params.grid_width, wpn_params.grid_height)
 				else
