@@ -13,6 +13,8 @@ local reload_states = {
 }
 
 function on_state_switch(item, state, old_state)
+	if level.main_input_receiver() then
+	return end
 	local change_dof = reload_states[state] or reload_states[old_state]
 	if not change_dof then return end
 	

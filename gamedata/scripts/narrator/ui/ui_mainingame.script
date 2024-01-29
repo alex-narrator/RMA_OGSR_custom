@@ -193,6 +193,7 @@ function MainIngameOverlay:InitControls()
 	self.active_item_icon = xml:InitStatic("active_item:icon", self.active_item)
 	self.active_item_icon.scale = xml:ReadAttribFlt("active_item:icon", "scale", 1)
 	self.ammo_counter = xml:InitStatic("active_item:ammo_counter", self.active_item)
+	self.zoom_counter = xml:InitStatic("active_item:zoom_counter", self.active_item)
 	
 	--//missile throw progressshape
 	self.missile_throw = xml:InitProgressShape("throw_progress", self)
@@ -581,6 +582,16 @@ function MainIngameOverlay:UpdateActiveItem()
 	self.active_item_icon:SetWidth(params.grid_width * scale * CELL_W * get_current_kx())
 	self.active_item_icon:SetHeight(params.grid_height * scale * CELL_H)
 	self.ammo_counter:SetWndPos(self.active_item_icon:GetWidth() + 5,self.ammo_counter:GetWndPos().y)
+	
+	self.zoom_counter:Show(wpn and wpn:is_addon_attached(addon.scope) and wpn.zoom_mode and not wpn_IsRotatingToZoom(act_item))
+	if self.zoom_counter:IsShown() then
+		local fov = get_console():get_float("fov")
+		local cur_fov = device().fov
+		local zoom = fov / cur_fov
+		zoom = math.floor(zoom+0.1)
+		text = string.format("%s %.0fx", game.translate_string("st_zoom"), zoom)
+		self.zoom_counter:SetText(text)
+	end
 end
 
 function MainIngameOverlay:UpdateCarPanel()

@@ -241,3 +241,8 @@ end
 	-- local se_item = alife():object(act_item:id())
 	-- log3("~visual %s", se_item.visual_name)
 -- end
+
+local fov = get_console():get_float("fov")
+local cur_fov = device().fov
+local zoom = fov / cur_fov
+log3("zoom %s | fov %s | cur fov %s", zoom, fov, cur_fov)
