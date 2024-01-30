@@ -269,11 +269,7 @@ function ActorMenuOverlay:InitControls()
 	self.tooltip = xml:InitStatic("tooltip_frame:tooltip", self.tooltip_frame)
 	local tmp_tbl = split_string(xml:ReadAttrib("tooltip_frame", "offset", "0,0"), ",")
 	self.tooltip_frame.offset = {x = tmp_tbl[1], y = tmp_tbl[2]}
-	self.tooltip_frame_base_height = xml:ReadAttribFlt("tooltip_frame", "base_height", 0)
-	if self.tooltip_frame_base_height > 0 then
-		self.tooltip_frame:SetHeight(self.tooltip_frame_base_height)
-	end
-	
+	self.tooltip_frame_base_height = self.tooltip_frame:GetHeight()	
 	
 	--//character info
 	self.char_info_back = xml:InitStatic("char_info_back", self)

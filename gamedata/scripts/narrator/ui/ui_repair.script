@@ -32,6 +32,7 @@ function RepairOverlay:__init(owner) super()
 	self.owner = level.main_input_receiver()
 	self:InitControls()
 	self:Subscribe()
+	ogse_signals.get_mgr():call("on_repair_show")
 end
 
 function RepairOverlay:Subscribe()
@@ -68,6 +69,7 @@ function RepairOverlay:DetachWnd()
 	self:ClearCallbacks()
 	self.owner:DetachChild(self)
 	overlay = nil
+	ogse_signals.get_mgr():call("on_repair_hide")
 end
 
 function RepairOverlay:InitControls()
@@ -175,6 +177,7 @@ function RepairOverlay:RepairListItemOnFocusReceived(id)
 	if not self.selected_item_id or id ~= self.selected_item_id then
 		self.items[self.focused_item_id]:SetColor(self.color_highlight)
 	end
+	ogse_signals.get_mgr():call("on_repair_list_item_focus", level.object_by_id(id))
 end
 
 function RepairOverlay:RepairListItemOnFocusLost(id)
@@ -183,6 +186,7 @@ function RepairOverlay:RepairListItemOnFocusLost(id)
 	if not self.selected_item_id or id ~= self.selected_item_id then
 		self.items[id]:SetColor(self.color_default)
 	end
+	ogse_signals.get_mgr():call("on_repair_list_item_focus_lost", level.object_by_id(id))
 end
 
 function RepairOverlay:OnKeyPress(key, game_action)

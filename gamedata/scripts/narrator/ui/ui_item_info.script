@@ -9,6 +9,8 @@ function attach(sm)
 	sm:subscribe({signal = "on_trade_hide",   		fun = this.destroy_window})
 	sm:subscribe({signal = "on_talk_show",   		fun = this.destroy_window})
 	sm:subscribe({signal = "on_talk_hide",   		fun = this.destroy_window})
+	sm:subscribe({signal = "on_repair_show",   		fun = this.create_window})
+	sm:subscribe({signal = "on_repair_hide",   		fun = this.destroy_window})
 end
 
 local overlay = nil
@@ -47,6 +49,8 @@ function UIItemInfo:Subscribe()
 			{signal = "on_cell_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
 			{signal = "on_quick_item_focus", self = self, fun = self.OnCellItemFocus},
 			{signal = "on_quick_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
+			{signal = "on_repair_list_item_focus", self = self, fun = self.OnCellItemFocus},
+			{signal = "on_repair_list_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
 		}
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
