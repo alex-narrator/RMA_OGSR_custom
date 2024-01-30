@@ -36,6 +36,7 @@ function UIItemInfo:__init(owner) super()
 	self:InitControls()
 	self:Subscribe()
 	self.delay = false
+	self.item = false
 end
 
 function UIItemInfo:Subscribe()
@@ -44,6 +45,8 @@ function UIItemInfo:Subscribe()
 		self.subscribed = {
 			{signal = "on_cell_item_focus", self = self, fun = self.OnCellItemFocus},
 			{signal = "on_cell_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
+			{signal = "on_quick_item_focus", self = self, fun = self.OnCellItemFocus},
+			{signal = "on_quick_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
 		}
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
@@ -99,23 +102,24 @@ function UIItemInfo:InitControls()
 	self.descr_list.text_color = GetARGB(tmp_tbl[1], tmp_tbl[2], tmp_tbl[3], tmp_tbl[4])
 	
 	self.show_delay_time = self.xml:ReadAttribFlt("background_frame", "show_delay", 1)
-	
-	local name
 end
 
 function UIItemInfo:OnCellItemFocus(item)
 	self:InitItemInfo(item)
 	self.delay = time_global() + self.show_delay_time * 1000
+	self.item = item
 end
 
 function UIItemInfo:OnCellItemFocusLost(item)
 	self.background_frame:Show(false)
 	self.delay = false
+	self.item = false
 end
 
 function UIItemInfo:InitItemInfo(item)
+	log3("~item %s", item and item:section() or "NONE")
 	if not item then
-		self.background_frame:Show(false)
+		self:OnCellItemFocusLost(item)
 	return end
 	
 	self.background_frame:Show(true)
@@ -151,7 +155,7 @@ end
 
 function UIItemInfo:UpdateWndPos()
 	local property_box = self.owner:FindChild("property_box")
-	local b_show = self.delay and time_global() >= self.delay and not level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) and (not property_box or not property_box:IsShown())
+	local b_show = self.item and self.delay and time_global() >= self.delay and not level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) and (not property_box or not property_box:IsShown())
 	self.background_frame:Show(b_show)
 
 	if not self.background_frame:IsShown() then

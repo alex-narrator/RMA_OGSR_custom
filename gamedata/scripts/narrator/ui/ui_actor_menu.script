@@ -138,15 +138,15 @@ function ActorMenuOverlay:InitControls()
 		["somnolence_"] = { condition = function() return somnolence.get_val() end },
 		["bleeding_"] 	= { condition = function() return actor:get_bleeding() end },
 	}
-	
+	local prefix = "conditions_background:"
 	for k, v in pairs(self.conditions) do
-		v.static = xml:InitStatic(k.."static", self.conditions_background)
-		v.icon = xml:InitStatic(k.."icon", v.static)
+		v.static = xml:InitStatic(prefix..k.."static", self.conditions_background)
+		v.icon = xml:InitStatic(prefix..k.."icon", v.static)
 		if k ~= "bleeding_" then
-			v.progress = xml:InitProgressBar(k.."progress", v.static)
+			v.progress = xml:InitProgressBar(prefix..k.."progress", v.static)
 		end	
-		v.hint = xml:InitStatic("condition_hint", self.conditions_background)
-		v.hint:Show(false)
+		v.percent = xml:InitStatic(prefix.."condition_percent", v.static)
+		v.percent:Show(false)
 
 		self:Register(v.static, k)
 		self:AddCallback(k, ui_events.STATIC_FOCUS_RECEIVED, function() self:ConditionOnFocusReceived(k) end)
@@ -198,12 +198,13 @@ function ActorMenuOverlay:InitControls()
 	self.loadout_color_hidden 		= GetARGB(0, 255, 255, 255)
 	
 	self.loadout_back = xml:InitStatic("loadout_back", self)
+	prefix = "loadout_back:"
 	-- name = "loadout_back"
 	-- self:Register(self.loadout_back, name)
 	-- self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, self.LoadoutBackOnFocusReceived)
 	-- self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, self.LoadoutBackOnFocusLost)
 	
-	self.clear_loadout = xml:Init3tButton("clear_loadout_button", self.loadout_back)
+	self.clear_loadout = xml:Init3tButton(prefix.."clear_loadout_button", self.loadout_back)
 	name = "clear_loadout"
 	self:Register(self.clear_loadout, name)
 	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.ClearLoadout, self)
@@ -218,14 +219,10 @@ function ActorMenuOverlay:InitControls()
 	}
 	for k,v in pairs(self.loadout) do
 		--log3("~%s init loadout slot %s", script_name(), k)
-		v.static = xml:InitStatic(k.."_static", self.loadout_back)
+		v.static = xml:InitStatic(prefix..k.."_static", self.loadout_back)
 		v.static:SetTextColor(self.loadout_color_default)
-		v.icon = xml:InitStatic(k.."_icon", v.static)
+		v.icon = xml:InitStatic(prefix..k.."_icon", v.static)
 		--v.icon:SetColor(self.loadout_color_default)
-		
-		v.hint = xml:InitStatic("loadout_hint", self.loadout_back)--v.static)
-		v.hint:SetText(game.translate_string(string.format("%s%s%s","st_", k, "_hint")))
-		v.hint:Show(false)
 		self:Register(v.static, k)
 		self:AddCallback(k, ui_events.STATIC_FOCUS_RECEIVED, function() self:LoadoutSlotOnFocusReceived(k) end)
 		self:AddCallback(k, ui_events.STATIC_FOCUS_LOST, function() self:LoadoutSlotOnFocusLost(k) end)		
@@ -241,6 +238,7 @@ function ActorMenuOverlay:InitControls()
 	
 	--//show types buttons back
 	self.show_buttons_back = xml:InitStatic("show_buttons_back", self)
+	prefix = "show_buttons_back:"
 	self.show_buttons = {
 		["all"] = {},
 		["weapon"] = {},
@@ -251,11 +249,31 @@ function ActorMenuOverlay:InitControls()
 		["device"] = {},
 	}
 	for k,v in pairs(self.show_buttons) do
-		v.button = xml:InitCheck("show_"..k.."_button", self.show_buttons_back)
+		v.button = xml:InitCheck(prefix.."show_"..k.."_button", self.show_buttons_back)
+		v.accel = xml:ReadAttrib(prefix.."show_"..k.."_button", "accel", nil)
+		if v.accel then
+			v.button:SetAccelerator(keyname_to_dik(v.accel), 0)
+		end
+		v.hint = xml:ReadAttrib(prefix.."show_"..k.."_button", "hint", "")
+		v.st = xml:InitStatic(prefix.."show_"..k.."_button:static", v.button)
 		name = "show_"..k
 		self:Register(v.button, name)
 		self:AddCallback(name, ui_events.BUTTON_CLICKED, function() self:OnShowButtonClick(k) end, self)
+		self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnShowButtonFocusReceived(k) end)
+		self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnShowButtonFocusLost(k) end)	
 	end
+	
+	--//floating tooltip
+	self.tooltip_frame = xml:InitFrame("tooltip_frame", self)
+	self.tooltip_frame:Show(false)
+	self.tooltip = xml:InitStatic("tooltip_frame:tooltip", self.tooltip_frame)
+	local tmp_tbl = split_string(xml:ReadAttrib("tooltip_frame", "offset", "0,0"), ",")
+	self.tooltip_frame.offset = {x = tmp_tbl[1], y = tmp_tbl[2]}
+	self.tooltip_frame_base_height = xml:ReadAttribFlt("tooltip_frame", "base_height", 0)
+	if self.tooltip_frame_base_height > 0 then
+		self.tooltip_frame:SetHeight(self.tooltip_frame_base_height)
+	end
+	
 	
 	--//character info
 	self.char_info_back = xml:InitStatic("char_info_back", self)
@@ -349,11 +367,13 @@ end
 function ActorMenuOverlay:QuickOnFocusReceived(slot_num)
 	quick_slots.set_selected(slot_num)
 	self.slots[slot_num].highlight:Show(true)--SetColor(self.quick_color_highlight)
+	ogse_signals.get_mgr():call("on_quick_item_focus", quick_slots.get_item(slot_num))
 end
 
 function ActorMenuOverlay:QuickOnFocusLost(slot_num)
 	quick_slots.set_selected(nil)
 	self.slots[slot_num].highlight:Show(false)--SetColor(self.quick_color_default)
+	ogse_signals.get_mgr():call("on_quick_item_focus_lost", quick_slots.get_item(slot_num))
 end
 
 function ActorMenuOverlay:OnCellItemFocus(obj)
@@ -444,27 +464,34 @@ function ActorMenuOverlay:CheckNeedUpdate(obj, prev_place)
 end
 
 function ActorMenuOverlay:ConditionOnFocusReceived(cond_name)
-	self.conditions[cond_name].hint:Show(true)
+	self.conditions[cond_name].percent:Show(true)
 	if cond_name ~= "bleeding_" then
 		self.conditions[cond_name].icon:SetColor(self.loadout_color_equiped)
 	end
+	local cond_descr = game.translate_string(string.format("%s%s%s","st_", cond_name, "hint"))
+	local cond_text = game.translate_string(string.format("%s%s%s","st_", cond_name, "hint_text"))
+	local tip_text = string.format("%s\\n%s", cond_descr, cond_text)	
+	self:SetTooltip(tip_text)
 end
 
 function ActorMenuOverlay:ConditionOnFocusLost(cond_name)
-	self.conditions[cond_name].hint:Show(false)
+	self.conditions[cond_name].percent:Show(false)
 	if cond_name ~= "bleeding_" then
 		self.conditions[cond_name].icon:SetColor(self.loadout_color_default)
 	end
+	self:SetTooltip(nil)
 end
 
 function ActorMenuOverlay:LoadoutSlotOnFocusReceived(slot_name)
-	self.loadout[slot_name].hint:Show(true)
 	self.loadout[slot_name].static:SetTextColor(self.loadout_color_equiped)
+	local tip_text = string.format("%s%s%s","st_", slot_name, "_hint")
+	tip_text = game.translate_string(tip_text)
+	self:SetTooltip(tip_text)
 end
 
 function ActorMenuOverlay:LoadoutSlotOnFocusLost(slot_name)
-	self.loadout[slot_name].hint:Show(false)
 	self.loadout[slot_name].static:SetTextColor(self.loadout_color_default)
+	self:SetTooltip(nil)
 end
 
 -- function ActorMenuOverlay:LoadoutBackOnFocusReceived(slot_name)
@@ -475,10 +502,41 @@ end
 	-- loadout.static_focused = false
 -- end
 
+function ActorMenuOverlay:SetTooltip(text)
+	self.tooltip_frame:Show(not not text)
+	if text then
+		self.tooltip:SetText(text)
+		self.tooltip:AdjustHeightToText()
+		self:BringToTop(self.tooltip_frame)
+		local diff = self.tooltip:GetHeight() - self.tooltip_frame:GetHeight()
+		if diff > 0 then
+			self.tooltip_frame:SetHeight(self.tooltip_frame_base_height+diff)
+		end
+	end
+end
+
+function ActorMenuOverlay:UpdateTooltip()
+	if not self.tooltip_frame:IsShown() then
+	return end
+	
+	local pos = level.get_cursor_pos()
+	pos.x = pos.x + self.tooltip_frame.offset.x
+	pos.y = pos.y + self.tooltip_frame.offset.y
+	local wnd_size = {x = self.tooltip_frame:GetWidth(), y = self.tooltip_frame:GetHeight()}
+	local delta = {x = pos.x + wnd_size.x - UI_BASE_WIDTH, y = pos.y + wnd_size.y - UI_BASE_HEIGHT}
+    if delta.x > 0 then
+        pos.x = pos.x - delta.x
+	end		
+    if delta.y > 0 then
+        pos.y = pos.y - delta.y
+	end		
+	self.tooltip_frame:SetWndPos(pos.x, pos.y)	
+end
+
 function ActorMenuOverlay:Update()
 	CUIScriptWnd.Update(self)
 	
-	local hint_text, cond_descr, cond_text, val
+	local val
 	for k,v in pairs(self.conditions) do
 		val = math.clamp(v.condition(), 0, 1)
 		if k ~= "bleeding_" then
@@ -488,15 +546,12 @@ function ActorMenuOverlay:Update()
 			if val>0 then
 				v.static:SetColor(GetARGB(255,val*255,(1-val)*255,0))
 			else
-				if self.conditions[k].hint:IsShown() then
-					self.conditions[k].hint:Show(false)
+				if self.conditions[k].percent:IsShown() then
+					self.conditions[k].percent:Show(false)
 				end
 			end
 		end
-		cond_descr = game.translate_string(string.format("%s%s%s","st_", k, "hint"))
-		cond_text = game.translate_string(string.format("%s%s%s","st_", k, "hint_text"))
-		hint_text = string.format("%s %.0f%s\\n%s", cond_descr, val*100, "%", cond_text)
-		v.hint:SetText(hint_text)
+		v.percent:SetText(string.format("%.0f%s", val*100, "%"))
 	end
 	
 	local inv = actor.inventory
@@ -508,6 +563,7 @@ function ActorMenuOverlay:Update()
 
 	self:UpdateWeightText()
 	self:UpdateDateTimeText()
+	self:UpdateTooltip()
 end
 
 function ActorMenuOverlay:ClearLoadout()
@@ -580,6 +636,14 @@ function ActorMenuOverlay:OnShowButtonClick(show_type)
 		v.button:SetCheck(k == show_type)
 	end
 	update_inventory_window()
+end
+
+function ActorMenuOverlay:OnShowButtonFocusReceived(show_type)
+	self:SetTooltip(game.translate_string(self.show_buttons[show_type].hint))
+end
+
+function ActorMenuOverlay:OnShowButtonFocusLost(show_type)
+	self:SetTooltip(nil)
 end
 
 function ActorMenuOverlay:OnActorIconUpdate(icon)
