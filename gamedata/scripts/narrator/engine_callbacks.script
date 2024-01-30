@@ -24,3 +24,7 @@ end
 function is_ammo_for_reload(item)
 	return loadout.can_remove(item) or level.main_input_receiver()
 end
+
+function on_pickup_item_set(item)
+	sm:call("on_pickup_item_set", item)
+end

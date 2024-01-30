@@ -38,6 +38,7 @@ function MainIngameOverlay:__init(owner) super()
 	self.owner = owner
 	self:InitControls()
 	self:Subscribe()
+	self.pickup_item = nil
 end
 
 function MainIngameOverlay:Subscribe()
@@ -55,6 +56,7 @@ function MainIngameOverlay:Subscribe()
 			{signal = "on_belt", self = self, fun = self.UpdatePanelItems},
 			{signal = "on_loadout_update_count", self = self, fun = self.UpdatePanelItems},
 			{signal = "on_hud_state_switch", self = self, fun = self.OnHudStateSwitch},
+			{signal = "on_pickup_item_set", self = self, fun = self.OnPickUpItemSet},
 		}
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
@@ -201,6 +203,12 @@ function MainIngameOverlay:InitControls()
 	self.missile_throw = xml:InitProgressShape("throw_progress", self)
 	self.missile_text = xml:InitStatic("throw_text", self)
 	self.throw_force = 0
+	
+	--//pickup item icon
+	self.pickup_item_icon = xml:InitStatic("pick_up_item", self)
+	self.pickup_item_icon_scale = xml:ReadAttribFlt("pick_up_item", "scale", 1)
+	tmp_tbl = split_string(xml:ReadAttrib("pick_up_item", "offset", "0,0"), ",")
+	self.pickup_item_icon_offset = vector2():set(tonumber(tmp_tbl[1]), tonumber(tmp_tbl[2]))
 	
 	self.warning_icons_back = xml:InitStatic("icons_back", self)
 	self.warning_icons_horz = (xml:ReadAttribInt("icons_back", "horz", 0) > 0) and true or false
@@ -656,6 +664,34 @@ function MainIngameOverlay:OnHudStateSwitch(item, state, old_state)
 	end
 end
 
+function MainIngameOverlay:OnPickUpItemSet(item)
+	if not item or not self.pickup_item or item:id() ~= self.pickup_item:id() then
+		self.pickup_item = item
+		self.pickup_item_icon:Show(false)
+		self.pickup_item_icon:DetachAll()
+	end
+end
+
+function MainIngameOverlay:UpdatePickupItem()
+	if not self.pickup_item then
+		if self.pickup_item_icon:IsShown() then
+			self.pickup_item_icon:Show(false)
+		end
+		return
+	end
+	if self.pickup_item_icon:IsShown() then
+	return end
+	
+	local params = CIconParams(self.pickup_item:section())
+	params:set_shader(self.pickup_item_icon)
+	self.pickup_item_icon:SetWidth(params.grid_width * self.pickup_item_icon_scale * CELL_W * get_current_kx())
+	self.pickup_item_icon:SetHeight(params.grid_height * self.pickup_item_icon_scale * CELL_H)
+	local pos = vector2():set(self.owner:GetWidth()/2-self.pickup_item_icon:GetWidth()/2, self.owner:GetHeight()/2-self.pickup_item_icon:GetHeight()/2)
+	self.pickup_item_icon:SetWndPos(pos.x + self.pickup_item_icon_offset.x, pos.y + self.pickup_item_icon_offset.y)
+	ogse_signals.get_mgr():call("on_pickup_item_showing", self.pickup_item, self.pickup_item_icon)
+	self.pickup_item_icon:Show(true)
+end
+
 function MainIngameOverlay:Update()
 	CUIScriptWnd.Update(self)
 	self:UpdateConditions()
@@ -668,4 +704,5 @@ function MainIngameOverlay:Update()
 	self:UpdateActiveItem()
 	self:UpdateMissileThrow()
 	self:UpdateWarningIcons()
+	self:UpdatePickupItem()
 end
