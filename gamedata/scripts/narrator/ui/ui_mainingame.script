@@ -206,9 +206,7 @@ function MainIngameOverlay:InitControls()
 	
 	--//pickup item icon
 	self.pickup_item_icon = xml:InitStatic("pick_up_item", self)
-	self.pickup_item_icon_scale = xml:ReadAttribFlt("pick_up_item", "scale", 1)
-	tmp_tbl = split_string(xml:ReadAttrib("pick_up_item", "offset", "0,0"), ",")
-	self.pickup_item_icon_offset = vector2():set(tonumber(tmp_tbl[1]), tonumber(tmp_tbl[2]))
+	self.pickup_item_icon.size = vector2():set(self.pickup_item_icon:GetWidth(), self.pickup_item_icon:GetHeight())
 	
 	self.warning_icons_back = xml:InitStatic("icons_back", self)
 	self.warning_icons_horz = (xml:ReadAttribInt("icons_back", "horz", 0) > 0) and true or false
@@ -684,10 +682,18 @@ function MainIngameOverlay:UpdatePickupItem()
 	
 	local params = CIconParams(self.pickup_item:section())
 	params:set_shader(self.pickup_item_icon)
-	self.pickup_item_icon:SetWidth(params.grid_width * self.pickup_item_icon_scale * CELL_W * get_current_kx())
-	self.pickup_item_icon:SetHeight(params.grid_height * self.pickup_item_icon_scale * CELL_H)
+	local icon_size = vector2():set(params.grid_width * CELL_W * get_current_kx(), params.grid_height * CELL_H)
+	local static_size = self.pickup_item_icon.size
+	
+	local scale_x = static_size.x / icon_size.x
+	scale_x = scale_x > 1 and 1 or scale_x
+	local scale_y = static_size.y / icon_size.y
+	scale_y = scale_y > 1 and 1 or scale_y
+	local scale = math.min(scale_x, scale_y)
+	self.pickup_item_icon:SetWidth(icon_size.x * scale)
+	self.pickup_item_icon:SetHeight(icon_size.y * scale)
 	local pos = vector2():set(self.owner:GetWidth()/2-self.pickup_item_icon:GetWidth()/2, self.owner:GetHeight()/2-self.pickup_item_icon:GetHeight()/2)
-	self.pickup_item_icon:SetWndPos(pos.x + self.pickup_item_icon_offset.x, pos.y + self.pickup_item_icon_offset.y)
+	self.pickup_item_icon:SetWndPos(pos.x, pos.y)
 	ogse_signals.get_mgr():call("on_pickup_item_showing", self.pickup_item, self.pickup_item_icon)
 	self.pickup_item_icon:Show(true)
 end

@@ -1,28 +1,24 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function GetOffset(offset_type, icon, parent_icon)
-	local offset = vector()
+	local offset = vector2():set(0,0)
 	if offset_type == "center" then
 		return offset:set(
 			(parent_icon:GetWidth() / 2) - (icon:GetWidth() / 2), 
-			(parent_icon:GetHeight() / 2) - (icon:GetHeight() / 2), 
-			0)
+			(parent_icon:GetHeight() / 2) - (icon:GetHeight() / 2))
 	elseif offset_type == "left_down" then
 		return offset:set(
 			0, 
-			parent_icon:GetHeight() - icon:GetHeight(), 
-			0)
+			parent_icon:GetHeight() - icon:GetHeight())
 	elseif offset_type == "left_top" then
 		return offset
 	elseif offset_type == "right_top" then
 		return offset:set(
 			parent_icon:GetWidth() - icon:GetWidth(),
-			0, 
 			0)
 	elseif offset_type == "right_down" then
 		return offset:set(
 			parent_icon:GetWidth() - icon:GetWidth(),
-			parent_icon:GetHeight() - icon:GetHeight(), 
-			0)				
+			parent_icon:GetHeight() - icon:GetHeight())				
 	end
 end
 
@@ -402,7 +398,7 @@ function UpdateInSlotIcon(item, icon)
 	if not actor:is_in_slot(item) then
 	return end
 	
-	local params = CIconParams("icon_loadout")
+	local params = CIconParams("icon_in_slot")
 	local icon_params = CIconParams(sect)
 
 	local cell_w = icon:GetWidth() / icon_params.grid_width
@@ -416,7 +412,7 @@ function UpdateInSlotIcon(item, icon)
 	in_slot_icon:SetWidth(width)
 	in_slot_icon:SetHeight(height)
 	
-	local offset = GetOffset("right_top", in_slot_icon, icon)
+	local offset = GetOffset("left_top", in_slot_icon, icon)
 	
 	in_slot_icon:SetWndPos(offset.x, offset.y)
 	in_slot_icon:SetWindowName("in_slot_icon")
