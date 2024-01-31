@@ -1,0 +1,28 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+local ENEMY_CHECK_RADIUS = 50
+local fast_travel_types = {
+}
+
+function fast_travel_allowed()
+	return not has_enemy_near(actor, ENEMY_CHECK_RADIUS) and actor:get_inventory_weight() < actor:get_max_weight() and actor:get_bleeding() < 0.1
+end
+
+function action_tip(id, spot_type, location_name, position)
+	--log3("~action_tip id %s, spot_type %s, location_name %s, position (%s %s %s)", id, spot_type, location_name, position.x, position.y, position.z)
+	return game.translate_string("st_fast_travel")
+end
+function action_check(id, spot_type, location_name, position)
+	--log3("~action_check id %s, spot_type %s, location_name %s, position (%s %s %s)", id, spot_type, location_name, position.x, position.y, position.z)
+	return fast_travel_allowed()
+end
+function action(id, spot_type, location_name, position)
+	--log3("~action id %s, spot_type %s, location_name %s, position (%s %s %s)", id, spot_type, location_name, position.x, position.y, position.z)
+	local obj = level.object_by_id(id)
+	if obj then
+		actor:set_actor_position(obj:position())
+		actor:set_actor_direction(obj:direction())
+	else
+		local sobj = alife():object(id)
+		level.change_level(get_any_gvid_by_level(location_name), -1, position, sobj.angle)
+	end
+end
