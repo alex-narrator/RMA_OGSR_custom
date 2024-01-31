@@ -480,8 +480,9 @@ end
 
 function ActorMenuOverlay:LoadoutSlotOnFocusReceived(slot_name)
 	self.loadout[slot_name].static:SetTextColor(self.loadout_color_equiped)
-	local tip_text = string.format("%s%s%s","st_", slot_name, "_hint")
-	tip_text = game.translate_string(tip_text)
+	local type_descr = game.translate_string(slot_name)
+	local type_text = game.translate_string(string.format("%s%s%s","st_", slot_name, "_hint_text"))	
+	local tip_text = string.format("%s\\n%s", type_descr, type_text)	
 	self:SetTooltip(tip_text)
 end
 
@@ -500,13 +501,14 @@ end
 
 function ActorMenuOverlay:SetTooltip(text)
 	self.tooltip_frame:Show(not not text)
+	self.tooltip_frame:SetHeight(self.tooltip_frame_base_height)
+	self.tooltip:SetHeight(0)
 	if text then
 		self.tooltip:SetText(text)
 		self.tooltip:AdjustHeightToText()
 		self:BringToTop(self.tooltip_frame)
-		local diff = self.tooltip:GetHeight() - self.tooltip_frame:GetHeight()
-		if diff > 0 then
-			self.tooltip_frame:SetHeight(self.tooltip_frame_base_height+diff)
+		if self.tooltip:GetHeight() > self.tooltip_frame_base_height - 10 then
+			self.tooltip_frame:SetHeight(self.tooltip:GetHeight() + 15)
 		end
 	end
 end
