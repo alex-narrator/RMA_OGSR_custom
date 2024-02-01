@@ -74,6 +74,7 @@ function ActorMenuOverlay:Subscribe()
 		self.subscribed = {
 			{signal = "on_cell_item_focus", self = self, fun = self.OnCellItemFocus},
 			{signal = "on_cell_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
+			{signal = "on_cell_item_select", self = self, fun = self.OnCellItemSelect},
 			{signal = "on_cell_item_mouse", self = self, fun = self.OnCellItemMouse},
 			{signal = "on_quick_item_set", self = self, fun = self.UpdateSlots},
 			{signal = "on_quick_item_use", self = self, fun = self.UpdateSlots},
@@ -358,7 +359,7 @@ function ActorMenuOverlay:InitControls()
 	self:Register(self.to_talk_button, name)
 	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.SwitchToTalk, self)
 	self.to_talk_button:Show(self:GetMode() == "trade")
-	self.to_talk_button:Enable(self:GetMode() == "trade")		
+	self.to_talk_button:Enable(self:GetMode() == "trade")
 end
 
 function ActorMenuOverlay:QuickOnFocusReceived(slot_num)
@@ -406,6 +407,9 @@ function ActorMenuOverlay:OnCellItemFocusLost(obj)
 		v.static:SetTextColor(self.loadout_color_default)
 		--v.icon:SetColor(self.loadout_color_default)
 	end
+end
+
+function ActorMenuOverlay:OnCellItemSelect(obj)
 end
 
 function ActorMenuOverlay:OnCellItemMouse(obj, x, y, action)

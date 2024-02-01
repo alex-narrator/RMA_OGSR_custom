@@ -50,7 +50,7 @@ function check_items_to_show(inv_owner, show_mode)
 		-- return true end
 		
 		if show_mode == "all" then
-			return get_clsid(item) ~= clsid.obj_bolt or LIMITED_BOLTS
+			return get_clsid(item) ~= clsid.obj_bolt or (LIMITED_BOLTS or inv_owner:id() == actor:id())
 		elseif show_mode == "weapon" then
 			return item:is_weapon() or string.find(item:section(), "wp_") or string.find(item:section(), "wpn_")
 		elseif show_mode == "ammo" then
@@ -64,7 +64,14 @@ function check_items_to_show(inv_owner, show_mode)
 		elseif show_mode == "device" then
 			return item:is_torch() or item:get_pda() or item:get_detector() or is_power_device(item) or string.find(item:section(), "pda")
 		elseif show_mode == "misc" then
-			return not (check_by_mode(item, "weapon") or check_by_mode(item, "ammo") or check_by_mode(item, "outfit") or check_by_mode(item, "eatable") or check_by_mode(item, "artefact") or check_by_mode(item, "device"))
+			return check_by_mode(item, "all") and not (
+				check_by_mode(item, "weapon") or
+				check_by_mode(item, "ammo") or 
+				check_by_mode(item, "outfit") or 
+				check_by_mode(item, "eatable") or 
+				check_by_mode(item, "artefact") or 
+				check_by_mode(item, "device")
+				)
 		else
 			log3("!check_items_to_show - try to check item %s for non-descriptet show_mode %s", item:section(), show_mode)
 			return false

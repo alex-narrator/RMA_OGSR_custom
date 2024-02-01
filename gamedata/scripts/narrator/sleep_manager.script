@@ -262,7 +262,7 @@ function can_sleep()
 	if has_enemy_near(actor, ENEMY_CHECK_RADIUS) then
 		reason = "st_enemies_nearby"
 	return false end
-	if somnolence.get_val() < 0.5 then
+	if somnolence.dont_want_to_sleep() then
 		reason = "st_dont_want_sleep"
 	return false end
 	return true

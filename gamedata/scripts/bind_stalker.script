@@ -103,6 +103,7 @@ function actor_binder:net_destroy()
 	--
 	self.object:set_callback(callback.on_cell_item_focus, nil)
 	self.object:set_callback(callback.on_cell_item_focus_lost, nil)
+	self.object:set_callback(callback.on_cell_item_select, nil)
 	self.object:set_callback(callback.on_cell_item_mouse, nil)
 	--
 	self.object:set_callback(callback.on_key_press, nil)
@@ -168,6 +169,7 @@ function actor_binder:reinit()
 	--
 	self.object:set_callback(callback.on_cell_item_focus, self.on_cell_item_focus, self)
 	self.object:set_callback(callback.on_cell_item_focus_lost, self.on_cell_item_focus_lost, self)
+	self.object:set_callback(callback.on_cell_item_select, self.on_cell_item_select, self)	
 	self.object:set_callback(callback.on_cell_item_mouse, self.on_cell_item_mouse, self)
 	--
 	self.object:set_callback(callback.on_key_press, self.on_key_press, self)
@@ -550,6 +552,9 @@ function actor_binder:on_cell_item_focus(obj)
 end
 function actor_binder:on_cell_item_focus_lost(obj)
 	self.sm:call("on_cell_item_focus_lost", obj)
+end
+function actor_binder:on_cell_item_select(obj)
+	self.sm:call("on_cell_item_select", obj)
 end
 function actor_binder:on_cell_item_mouse(obj, x, y, action)
 	self.sm:call("on_cell_item_mouse", obj, x, y, action)

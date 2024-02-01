@@ -33,6 +33,8 @@ function RepairOverlay:__init(owner) super()
 	self:InitControls()
 	self:Subscribe()
 	ogse_signals.get_mgr():call("on_repair_show")
+	self.owner:FindChild("---UIQuestionsList"):Show(false)
+	self.owner:FindChild("---UIAnswersList"):Show(false)
 end
 
 function RepairOverlay:Subscribe()
@@ -70,6 +72,8 @@ function RepairOverlay:DetachWnd()
 	self.owner:DetachChild(self)
 	overlay = nil
 	ogse_signals.get_mgr():call("on_repair_hide")
+	self.owner:FindChild("---UIQuestionsList"):Show(true)
+	self.owner:FindChild("---UIAnswersList"):Show(true)	
 end
 
 function RepairOverlay:InitControls()
@@ -94,9 +98,10 @@ function RepairOverlay:InitControls()
 	self.items_scroll_view_armor.scale = xml:ReadAttribFlt("repair_back:scroll_view_armor", "scale", 1)
 	
 	self.selected_item_back = xml:InitStatic("repair_back:selected_item_back", self.repair_back)
-	self.selected_item_st 	= xml:InitStatic("repair_back:selected_item_back:selected_item", self.selected_item_back)
-	self.selected_item_st.scale = xml:ReadAttribFlt("repair_back:selected_item_back:selected_item", "scale", 1)
-	self.repair_cost 		= xml:InitStatic("repair_back:selected_item_back:repair_cost", self.selected_item_back)
+	self.selected_item_st 	= CUIStatic()
+	self.selected_item_st:SetStretchTexture(true)
+	self.selected_item_back:AttachChild(self.selected_item_st)	
+	self.repair_cost 		= xml:InitStatic("repair_back:repair_cost", self.repair_back)
 	
 	self.actor_money = xml:InitStatic("repair_back:actor_money", self.repair_back)
 	
@@ -159,7 +164,7 @@ function RepairOverlay:InitItemsList()
 			item_st:SetWidth(params.grid_width * parent.scale * CELL_W * get_current_kx())
 			item_st:SetHeight(params.grid_height * parent.scale * CELL_H)
 			
-			ui_inv_utils.AttachAdditionalIcons(item, item_st)
+			ui_inv_utils.AttachRepairMenuIcons(item, item_st)
 			parent:AddWindow(item_st)
 						
 			name = "repair_list_"..item:id()
@@ -202,8 +207,18 @@ function RepairOverlay:OnKeyPress(key, game_action)
 		params = CIconParams(sect)
 		self.selected_item_st:Show(true)
 		params:set_shader(self.selected_item_st)
-		self.selected_item_st:SetWidth(params.grid_width * CELL_W * self.selected_item_st.scale * get_current_kx())
-		self.selected_item_st:SetHeight(params.grid_height * CELL_H * self.selected_item_st.scale)
+		
+		local icon_size = vector2():set(params.grid_width * CELL_W * get_current_kx(), params.grid_height * CELL_H)
+		local static_size = vector2():set(self.selected_item_back:GetWidth(), self.selected_item_back:GetHeight())
+		local scale_x = static_size.x / icon_size.x
+		scale_x = scale_x > 1 and 1 or scale_x
+		local scale_y = static_size.y / icon_size.y
+		scale_y = scale_y > 1 and 1 or scale_y
+		local scale = math.min(scale_x, scale_y)	
+		self.selected_item_st:SetWidth(icon_size.x * scale)
+		self.selected_item_st:SetHeight(icon_size.y * scale)
+		
+		
 		local offset = ui_inv_utils.GetOffset("center", self.selected_item_st, self.selected_item_back)
 		self.selected_item_st:SetWndPos(offset.x, offset.y)
 		self.selected_item_back:SetText(game.translate_string(get_inv_name(sect)))
@@ -215,22 +230,18 @@ end
 function RepairOverlay:UpdateRepairInfo()
 	local cost_text
 	local color = self:HasMoneyToRepairItem(self.selected_item_id) and "%c[default]" or "%c[red]"
-	if self:NeedRepairItem(self.selected_item_id) then
-		cost_text = string.format("%s%s %s %s", 
-									color,
-									game.translate_string("ui_inv_repair_cost"), 
-									self:GetRepairCost(self.selected_item_id), 
-									game.translate_string("ui_st_money_regional"))
-	else
-		cost_text = game.translate_string("ui_st_dont_need_repair")
-	end
+	cost_text = string.format("%s%s %s %s", 
+								color,
+								game.translate_string("ui_inv_repair_cost"), 
+								self:GetRepairCost(self.selected_item_id), 
+								game.translate_string("ui_st_money_regional"))
 	self.repair_cost:SetText(cost_text)
 	self.repair_cost:Show(true)
 	self.repair_button:Enable(self:CanRepairItem(self.selected_item_id))
 	
-	ui_inv_utils.AttachAdditionalIcons(level.object_by_id(self.selected_item_id), self.selected_item_st)
+	ui_inv_utils.AttachRepairMenuIcons(level.object_by_id(self.selected_item_id), self.selected_item_st)
 	for id,item_icon in pairs(self.items) do
-		ui_inv_utils.AttachAdditionalIcons(level.object_by_id(id), item_icon)
+		ui_inv_utils.AttachRepairMenuIcons(level.object_by_id(id), item_icon)
 	end
 end
 

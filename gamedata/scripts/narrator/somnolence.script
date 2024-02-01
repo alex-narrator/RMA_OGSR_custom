@@ -13,6 +13,7 @@ local last_time_called = false
 local effects_interval = 30 * 60 --//півгодини
 local RND_SLEEP_PROB = 11--5
 local MIN_RND_SLEEP_H, MAX_RND_SLEEP_H = 8, 12
+local START_YAWN_VAL = 0.5
 
 local eff_name = "snd_shock.ppe"
 local eff_id = 3000
@@ -52,8 +53,12 @@ function change_v(val)
 	add_v = add_v + val
 end
 
+function dont_want_to_sleep()
+	return somnolence < START_YAWN_VAL
+end
+
 function process_effects()
-	if somnolence < 0.5 then
+	if dont_want_to_sleep() then
 		last_time_called = false
 	return end
 	
