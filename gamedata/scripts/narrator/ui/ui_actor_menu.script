@@ -247,6 +247,7 @@ function ActorMenuOverlay:InitControls()
 		["eatable"] = {},
 		["artefact"] = {},
 		["device"] = {},
+		["misc"] = {},
 	}
 	for k,v in pairs(self.show_buttons) do
 		v.button = xml:InitCheck(prefix.."show_"..k.."_button", self.show_buttons_back)
@@ -466,7 +467,7 @@ function ActorMenuOverlay:ConditionOnFocusReceived(cond_name)
 	end
 	local cond_descr = game.translate_string(string.format("%s%s%s","st_", cond_name, "hint"))
 	local cond_text = game.translate_string(string.format("%s%s%s","st_", cond_name, "hint_text"))
-	local tip_text = string.format("%s\\n%s", cond_descr, cond_text)	
+	local tip_text = string.format("%s\\n---------------------------------\\n%s", cond_descr, cond_text)	
 	self:SetTooltip(tip_text)
 end
 
@@ -482,7 +483,7 @@ function ActorMenuOverlay:LoadoutSlotOnFocusReceived(slot_name)
 	self.loadout[slot_name].static:SetTextColor(self.loadout_color_equiped)
 	local type_descr = game.translate_string(slot_name)
 	local type_text = game.translate_string(string.format("%s%s%s","st_", slot_name, "_hint_text"))	
-	local tip_text = string.format("%s\\n%s", type_descr, type_text)	
+	local tip_text = string.format("%s\\n---------------------------------\\n%s", type_descr, type_text)	
 	self:SetTooltip(tip_text)
 end
 
@@ -597,8 +598,8 @@ function ActorMenuOverlay:OnHide()
 	self:OnShowButtonClick("all")	
 	self.equiped_item_visible = true
 	self:UpdateEquipedItemVisibility()
-	inventory.show_ruck_items_all(actor)
-	inventory.show_ruck_items_all(self.target)
+	inventory.check_items_to_show(actor, "all")
+	inventory.check_items_to_show(self.target, "all")
 	self.target = nil
 end
 
@@ -608,28 +609,8 @@ end
 
 --//switching of item visibility functions
 function ActorMenuOverlay:OnShowButtonClick(show_type)
-	if show_type == "all" then
-		inventory.show_ruck_items_all(actor)
-		inventory.show_ruck_items_all(self.target)
-	elseif show_type == "weapon" then
-		inventory.show_ruck_items_weapon(actor)
-		inventory.show_ruck_items_weapon(self.target)
-	elseif show_type == "ammo" then
-		inventory.show_ruck_items_ammo(actor)
-		inventory.show_ruck_items_ammo(self.target)
-	elseif show_type == "outfit" then
-		inventory.show_ruck_items_outfit(actor)
-		inventory.show_ruck_items_outfit(self.target)
-	elseif show_type == "eatable" then
-		inventory.show_ruck_items_eatable(actor)
-		inventory.show_ruck_items_eatable(self.target)
-	elseif show_type == "artefact" then
-		inventory.show_ruck_items_artefact(actor)
-		inventory.show_ruck_items_artefact(self.target)
-	elseif show_type == "device" then
-		inventory.show_ruck_items_device(actor)
-		inventory.show_ruck_items_device(self.target)
-	end
+	inventory.check_items_to_show(actor, show_type)
+	inventory.check_items_to_show(self.target, show_type)
 	for k,v in pairs(self.show_buttons) do
 		v.button:SetCheck(k == show_type)
 	end

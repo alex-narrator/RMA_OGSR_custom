@@ -370,7 +370,7 @@ function custom_news(header_text, news_text, news_icon, news_sound)
 	local text_color = "%c[default]"
 	local text = string.format("%s%s\\n%s%s", header_color, game.translate_string(header_text), text_color, game.translate_string(news_text))
 	actor:give_game_news(text, news_texture, news_rect, 0, 3000)
-	xr_sound.get_safe_sound_object(news_sound):play(db.actor, 0, sound_object.s2d)
+	xr_sound.get_safe_sound_object(news_sound):play(actor, 0, sound_object.s2d)
 end
 
 local tip_by_type = {

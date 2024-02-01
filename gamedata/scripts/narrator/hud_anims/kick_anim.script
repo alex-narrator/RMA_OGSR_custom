@@ -7,6 +7,7 @@ local KICK_IMPULSE = 250
 local KICK_POWER = 0.5
 local KICK_DIST = actor.inventory.take_dist
 local POWER_DEC_K = 0.001
+local ANM_SPEED = 2
 
 local is_playing = false
 local hud_effector_id = 5560
@@ -52,17 +53,18 @@ function on_key_press(key, game_action)
 		end
 	end
 	
-	game.play_hud_motion(2, hud_sect, "anm_use", true, 1, false)
+	game.play_hud_motion(2, hud_sect, "anm_use", true, ANM_SPEED, false)
 	-- local eff_name = read_if_exists(sys_ini, "r_string", hud_sect, "hud_effector", nil)
 	-- level.add_complex_effector(eff_name, hud_effector_id)
 	
 	local sound_name = "interface\\kick\\swing\\swing_"..math.random(1,6)
 	xr_sound.get_safe_sound_object(sound_name,sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
+	local kick_forward = level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION))
 	
 	add_time_delayed_action(
-		read_if_exists(sys_ini, "r_float", hud_sect, "use_delay", 0.5),
+		read_if_exists(sys_ini, "r_float", hud_sect, "use_delay", 0.5) / ANM_SPEED,
 		function()
-			kick()
+			kick(kick_forward)
 			if act_item and act_item:is_knife() then
 				game.stop_hud_motion()
 			end
@@ -70,7 +72,7 @@ function on_key_press(key, game_action)
 		end
 	)
 	add_time_delayed_action(
-		game.get_motion_length(hud_sect, "anm_use", 1) * 0.001,
+		game.get_motion_length(hud_sect, "anm_use", ANM_SPEED) * 0.001,
 		function()
 			block_non_move_action(false)
 			actor:hard_crosshair(true)
@@ -78,18 +80,23 @@ function on_key_press(key, game_action)
 	)
 end
 
-function kick()
+function kick(forward_dir)
 	local target = level.get_target_obj()
 	if not target or 
 		level.get_target_dist() > KICK_DIST
 	then
 	return end
 	
-	local dir = actor:direction()--device().cam_dir --//саме direction актора а не камери, щоб можна було пинати предмети нижче рівня зору
+	log3("~forward_dir %s", forward_dir)
+	local act_item = actor:active_item()
+	local act_item_add = act_item and math.sqrt(act_item:weight()) or 1
+	act_item_add = math.clamp(act_item_add, 1, act_item_add)
+	
+	local dir = forward_dir and actor:direction() or device().cam_dir --//копняк або уперед або у напрямку камери
 	local rq = level.get_current_ray_query()
 	local bone_id = rq and rq.element or 0
-	local impulse = KICK_IMPULSE * actor.power
-	local power = KICK_POWER * actor.power
+	local impulse = KICK_IMPULSE * actor.power * act_item_add
+	local power = KICK_POWER * actor.power * act_item_add
 	
 	local h = hit()
 	h.power = power
@@ -117,6 +124,7 @@ function kick()
 	end
 	
 	local power_dec = mass * POWER_DEC_K
+	power_dec = power_dec + power_dec * act_item_add
 	actor.power = - power_dec
 	
 	--log3("~kick object %s | mass %s | power_dec %s", target:name(), mass, power_dec)
