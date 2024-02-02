@@ -46,7 +46,8 @@ function RepairOverlay:Subscribe()
 			{signal = "on_talk_show", self = self, fun = self.DetachWnd},
 			{signal = "on_talk_hide", self = self, fun = self.DetachWnd},
 			{signal = "on_trade_show", self = self, fun = self.DetachWnd},
-			{signal = "on_key_press", self = self, fun = self.OnKeyPress},
+			{signal = "on_cell_item_select", self = self, fun = self.SetSelectedItem},
+			{signal = "on_cell_item_dbclick", self = self, fun = self.ShowRepairRequest},
 		}
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
@@ -98,9 +99,6 @@ function RepairOverlay:InitControls()
 	self.items_scroll_view_armor.scale = xml:ReadAttribFlt("repair_back:scroll_view_armor", "scale", 1)
 	
 	self.selected_item_back = xml:InitStatic("repair_back:selected_item_back", self.repair_back)
-	self.selected_item_st 	= CUIStatic()
-	self.selected_item_st:SetStretchTexture(true)
-	self.selected_item_back:AttachChild(self.selected_item_st)	
 	self.repair_cost 		= xml:InitStatic("repair_back:repair_cost", self.repair_back)
 	
 	self.actor_money = xml:InitStatic("repair_back:actor_money", self.repair_back)
@@ -114,11 +112,6 @@ function RepairOverlay:InitControls()
 	name = "exit_button"
 	self:Register(self.exit_button, name)
 	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.DetachWnd, self)
-	
-	--//list item colors
-	self.color_default 		= GetARGB(255, 255, 255, 255)
-	self.color_highlight 	= GetARGB(255, 238, 153, 26)
-	self.color_selected 	= GetARGB(255, 0, 255, 0)
 	
 	--self:InitItemsList()
 end
@@ -135,7 +128,7 @@ end
 
 function RepairOverlay:Reinit()
 	self.selected_item_back:SetText("")
-	self.selected_item_st:Show(false)
+	self.selected_item_back:DetachAll()
 	self.repair_cost:Show(false)
 	self.repair_button:Enable(false)
 	self:InitItemsList()
@@ -143,7 +136,7 @@ function RepairOverlay:Reinit()
 end
 
 function RepairOverlay:InitItemsList()
-	local item_st, params, name
+	local cell_item, params, name
 	
 	self.selected_item_id = nil
 	self.focused_item_id = nil
@@ -154,77 +147,34 @@ function RepairOverlay:InitItemsList()
 	local parent
 	function perform_action(dummy, item)
 		if self:RepairAllowed(item) then
-			params = CIconParams(item:section())
-			item_st = CUIStatic()
-			self.items[item:id()] = item_st
-			params:set_shader(item_st)
-			
 			parent = item:is_weapon() and self.items_scroll_view_weapon or self.items_scroll_view_armor
-			
-			item_st:SetWidth(params.grid_width * parent.scale * CELL_W * get_current_kx())
-			item_st:SetHeight(params.grid_height * parent.scale * CELL_H)
-			
-			ui_inv_utils.AttachRepairMenuIcons(item, item_st)
-			parent:AddWindow(item_st)
 						
-			name = "repair_list_"..item:id()
-			self:Register(item_st, name)
-			self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:RepairListItemOnFocusReceived(item:id()) end, self)
-			self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:RepairListItemOnFocusLost(item:id()) end, self)
+			cell_item = ui_cell_item.UICellItem(item, parent.scale)
+			cell_item:SetUpdatable(false)
+			self.items[item:id()] = cell_item
+			ui_inv_utils.AttachRepairMenuIcons(item, cell_item:GetIcon())
+			parent:AddWindow(cell_item)
 		end
 	end
 	actor:iterate_inventory(perform_action, nil)
 end
 
-function RepairOverlay:RepairListItemOnFocusReceived(id)
-	self.focused_item_id = id
-	--log3("~RepairListItemOnFocusReceived item %s | id %s", level.object_by_id(id):name(), id)
-	if not self.selected_item_id or id ~= self.selected_item_id then
-		self.items[self.focused_item_id]:SetColor(self.color_highlight)
+function RepairOverlay:SetSelectedItem(item)
+	for k,v in pairs(self.items) do
+		v:ClearHighlight()
 	end
-	ogse_signals.get_mgr():call("on_repair_list_item_focus", level.object_by_id(id))
-end
-
-function RepairOverlay:RepairListItemOnFocusLost(id)
-	self.focused_item_id = nil
-	--log3("~RepairListItemOnFocusLost item %s | id %s", level.object_by_id(id):name(), id)
-	if not self.selected_item_id or id ~= self.selected_item_id then
-		self.items[id]:SetColor(self.color_default)
-	end
-	ogse_signals.get_mgr():call("on_repair_list_item_focus_lost", level.object_by_id(id))
-end
-
-function RepairOverlay:OnKeyPress(key, game_action)
-	if key == DIK_keys.MOUSE_1 and self.focused_item_id then
-		if self.selected_item_id then
-			self.items[self.selected_item_id]:SetColor(self.color_default)
-		end
-		self.selected_item_id = self.focused_item_id
-		--log3("selected_item_id item %s | id %s", level.object_by_id(self.selected_item_id):name(), self.selected_item_id)
-		self.items[self.selected_item_id]:SetColor(self.color_selected)
-		
-		local sect = level.object_by_id(self.selected_item_id):section()
-		params = CIconParams(sect)
-		self.selected_item_st:Show(true)
-		params:set_shader(self.selected_item_st)
-		
-		local icon_size = vector2():set(params.grid_width * CELL_W * get_current_kx(), params.grid_height * CELL_H)
-		local static_size = vector2():set(self.selected_item_back:GetWidth(), self.selected_item_back:GetHeight())
-		local scale_x = static_size.x / icon_size.x
-		scale_x = scale_x > 1 and 1 or scale_x
-		local scale_y = static_size.y / icon_size.y
-		scale_y = scale_y > 1 and 1 or scale_y
-		local scale = math.min(scale_x, scale_y)	
-		self.selected_item_st:SetWidth(icon_size.x * scale)
-		self.selected_item_st:SetHeight(icon_size.y * scale)
-		
-		
-		local offset = ui_inv_utils.GetOffset("center", self.selected_item_st, self.selected_item_back)
-		self.selected_item_st:SetWndPos(offset.x, offset.y)
-		self.selected_item_back:SetText(game.translate_string(get_inv_name(sect)))
-		
-		self:UpdateRepairInfo()
-	end
+	self.selected_item_id = item:id()
+	local icon = ui_cell_item.UICellItem(item)
+	icon:SetScaleToWnd(self.selected_item_back)
+	icon:SetOffsetToWnd(self.selected_item_back, "center")
+	icon:EnableHighlight(false)
+	icon:SetSelectable(false)
+	icon:SetUpdatable(false)
+	self.selected_item_back:DetachAll()
+	self.selected_item_back:AttachChild(icon)
+	ui_inv_utils.AttachRepairMenuIcons(item, icon:GetIcon())
+	self.selected_item_back:SetText(game.translate_string(get_inv_name(item:section())))
+	self:UpdateRepairInfo()
 end
 
 function RepairOverlay:UpdateRepairInfo()
@@ -239,10 +189,6 @@ function RepairOverlay:UpdateRepairInfo()
 	self.repair_cost:Show(true)
 	self.repair_button:Enable(self:CanRepairItem(self.selected_item_id))
 	
-	ui_inv_utils.AttachRepairMenuIcons(level.object_by_id(self.selected_item_id), self.selected_item_st)
-	for id,item_icon in pairs(self.items) do
-		ui_inv_utils.AttachRepairMenuIcons(level.object_by_id(id), item_icon)
-	end
 end
 
 function RepairOverlay:SetRepairParams(condition_limit, cost_k, uniquie_k, armor_repair_infop)
@@ -281,6 +227,8 @@ function RepairOverlay:GetRepairCost(id)
 end
 
 function RepairOverlay:ShowRepairRequest()
+	if not self:CanRepairItem(self.selected_item_id) then
+	return end
 	local repair_msg_box = ui_message_box.MessageBoxWnd()
 	local msg_text = string.format(
 		"%s %s\\n%s %s %s ?", 

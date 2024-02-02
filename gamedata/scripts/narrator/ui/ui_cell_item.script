@@ -1,0 +1,196 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+local color_default 	= GetARGB(0, 255, 255, 255)
+local color_highlight 	= GetARGB(70, 200, 200, 200)
+local color_selected 	= GetARGB(170, 35, 200, 35)
+local cell_texture 		= "ui_inv_back_gray"
+
+class "UICellItem" (CUIScriptWnd)
+
+function UICellItem:__init(item, scale) super()
+	self.sm = ogse_signals.get_mgr()
+	self.item = type(item) == "string" and nil or item
+	self.item_sect = type(item) == "string" and item or item:section()
+	self.scale = scale or 1
+	self.in_focus = false
+	self.is_selected = false
+	self.highlight_enabled = true
+	self.is_selectable = true
+	self.is_updatable = true
+	self:InitWnd()
+	self:Subscribe()
+end
+
+-- function UICellItem:__finalize()
+	-- self:ClearCallbacks()
+-- end
+
+function UICellItem:DetachWnd()
+	self:ClearCallbacks()
+	self:Unsubscribe()
+end
+
+function UICellItem:Subscribe()
+	self.subscribed = false
+	if not self.subscribed then
+		self.subscribed = {
+			{signal = "on_key_press", self = self, fun = self.OnKeyPress},
+		}
+		for _, s in ipairs( self.subscribed ) do
+			self.sm:subscribe( s )
+		end
+	end
+end
+
+function UICellItem:Unsubscribe()
+	if self.subscribed then
+		for _, s in ipairs( self.subscribed ) do
+			self.sm:unsubscribe( s )
+		end
+		self.subscribed = false
+	end
+end
+
+function UICellItem:InitWnd()
+	-- local xml = CScriptXmlInit()
+	-- xml:ParseFile(OVERLAY_XML)
+	
+	self.params = CIconParams(self.item_sect)
+	self.icon_size = vector2():set(self.params.grid_width * self.scale * CELL_W * get_current_kx(), self.params.grid_height * self.scale * CELL_H)
+	
+	self:Init(0, 0, self.icon_size.x, self.icon_size.y)
+	self:Enable(true)
+	self:Show(true)	
+	
+	self.icon_back = CUIStatic()--xml:InitStatic("icon_back", self)
+	self:AttachChild(self.icon_back)
+	self.icon_back:SetStretchTexture(true)
+	self.icon_back:InitTexture(cell_texture)
+	self.icon_back:SetWidth(self.icon_size.x)
+	self.icon_back:SetHeight(self.icon_size.y)
+	self.icon_back:SetColor(color_default)
+	
+	self.icon = CUIStatic()
+	self.icon:SetStretchTexture(true)
+	self.icon:SetWidth(self.icon_size.x)
+	self.icon:SetHeight(self.icon_size.y)
+	self.icon_back:AttachChild(self.icon)
+	self.params:set_shader(self.icon)
+	
+	local name = "cellitem"
+	self:Register(self.icon_back, name)
+	self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnFocusReceived() end, self)
+	self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnFocusLost() end, self)
+	self:AddCallback(name, ui_events.WINDOW_LBUTTON_DB_CLICK, function() self:OnDbClick() end, self)
+	self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnLButtonClick() end, self)
+	self:AddCallback(name, ui_events.WINDOW_RBUTTON_DOWN, function() self:OnRButtonClick() end, self)
+end
+
+function UICellItem:Update()
+	CUIScriptWnd.Update(self)
+	if self.is_updatable and self.item then
+		self.sm:call("on_cell_item_update", self.item, self.icon)
+	end
+end
+
+function UICellItem:OnFocusReceived()
+	if not self.item then return end
+	self.in_focus = true
+	self.sm:call("on_cell_item_focus", self.item)
+	log3("~%s: on_cell_item_focus_script item %s", script_name(), self.item:name())
+	if self.highlight_enabled then
+		if not self.is_selected then
+			self.icon_back:SetColor(color_highlight)
+		end
+	end
+end
+
+function UICellItem:OnFocusLost()
+	if not self.item then return end
+	self.in_focus = false
+	self.sm:call("on_cell_item_focus_lost", self.item)
+	log3("~%s: on_cell_item_focus_lost_script item %s", script_name(), self.item:name())
+	if self.highlight_enabled then
+		if not self.is_selected then
+			self.icon_back:SetColor(color_default)
+		end
+	end
+end
+
+function UICellItem:OnDbClick()
+	if not self.item then return end
+	self.sm:call("on_cell_item_dbclick", self.item)
+	log3("~%s: on_cell_item_dbclick_script item %s", script_name(), self.item:name())
+end
+
+function UICellItem:OnLButtonClick()
+	if not self.item then return end
+	self.sm:call("on_cell_item_lb_click", self.item)
+	log3("~%s: on_cell_item_lb_click_script item %s", script_name(), self.item:name())
+	self:OnSelect()
+end
+
+function UICellItem:OnRButtonClick()
+	if not self.item then return end
+	self.sm:call("on_cell_item_rb_click", self.item)
+	log3("~%s: on_cell_item_rb_click_script item %s", script_name(), self.item:name())
+	self:OnSelect()
+end
+
+function UICellItem:OnSelect()
+	if self.is_selectable then
+		self.is_selected = true
+		self.sm:call("on_cell_item_select", self.item)
+		if self.highlight_enabled then
+			self.icon_back:SetColor(color_selected)
+		end
+	end
+end
+
+function UICellItem:GetIcon()
+	return self.icon--:GetCUIStatic()
+end
+
+function UICellItem:OnKeyPress(key, game_action)
+	if self.in_focus then
+		if key == DIK_keys.MOUSE_1 then
+			self:OnLButtonClick()
+		elseif key == DIK_keys.MOUSE_2 then
+			self:OnRButtonClick()
+		end
+	end
+end
+
+function UICellItem:SetScaleToWnd(wnd)
+	local wnd_size = vector2():set(wnd:GetWidth(), wnd:GetHeight())
+	local scale_x = wnd_size.x / self.icon_size.x
+	scale_x = scale_x > 1 and 1 or scale_x
+	local scale_y = wnd_size.y / self.icon_size.y
+	scale_y = scale_y > 1 and 1 or scale_y
+	local scale = math.min(scale_x, scale_y)
+	
+	self.icon_back:SetWidth(self.icon_size.x * scale)
+	self.icon_back:SetHeight(self.icon_size.y * scale)
+	self.icon:SetWidth(self.icon_size.x * scale)
+	self.icon:SetHeight(self.icon_size.y * scale)	
+end
+
+function UICellItem:SetOffsetToWnd(wnd, offset_type)
+	local offset = ui_inv_utils.GetOffset(offset_type, self.icon_back, wnd)
+	self.icon_back:SetWndPos(offset.x, offset.y)	
+end
+
+function UICellItem:EnableHighlight(enable)
+	self.highlight_enabled = enable
+end
+
+function UICellItem:SetSelectable(enable)
+	self.is_selectable = enable
+end
+
+function UICellItem:SetUpdatable(enable)
+	self.is_updatable = enable
+end
+
+function UICellItem:ClearHighlight()
+	self.icon_back:SetColor(color_default)
+end

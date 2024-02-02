@@ -1,4 +1,6 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
+local OVERLAY_XML = "message_box.xml"
+
 class "MessageBoxWnd" (CUIScriptWnd)
 
 function MessageBoxWnd:__init(owner) super()
@@ -14,7 +16,7 @@ end
 
 function MessageBoxWnd:InitWnd()	
 	local xml = CScriptXmlInit()
-	xml:ParseFile("message_box.xml")
+	xml:ParseFile(OVERLAY_XML)
 
 	self.message_box = CUIMessageBox()
 	self.message_box:Init("message_box_accept_decline")

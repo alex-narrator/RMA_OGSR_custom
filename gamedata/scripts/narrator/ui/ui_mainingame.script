@@ -347,7 +347,7 @@ function MainIngameOverlay:UpdateQuickSlots()
 end
 
 function MainIngameOverlay:UpdatePanelItems()
-	local item, params, item_st, add_st, pos_x, pos_y, text
+	local item, params, cell_item, icon, add_st, pos_x, pos_y, text
 	--// slots
 	self.slot_panel:DetachAll()
 	pos_x = 0
@@ -355,13 +355,11 @@ function MainIngameOverlay:UpdatePanelItems()
 	for _,i in pairs(self.slot_panel.slots) do
 		item = actor:item_in_slot(i)
 		if item and (tonumber(i) ~= BACKPACK_SLOT or read_if_exists(sys_ini, "r_bool", item:section(), "quick_drop", false)) then
-			params = CIconParams(item:section())
-			item_st = CUIStatic()
-			params:set_shader(item_st)
-			item_st:SetWidth(params.grid_width * CELL_W * self.slot_panel.scale * get_current_kx())
-			item_st:SetHeight(params.grid_height * CELL_H * self.slot_panel.scale)
-			ui_inv_utils.AttachPanelIcons(item, item_st)
-			item_st:SetWndPos(pos_x, pos_y)
+			cell_item = ui_cell_item.UICellItem(item, self.slot_panel.scale)
+			cell_item:SetUpdatable(false)			
+			icon = cell_item:GetIcon()
+			ui_inv_utils.AttachPanelIcons(item, icon)
+			icon:SetWndPos(pos_x, pos_y)
 			text = "ui_use_slot_"..i
 			if tonumber(i) == TORCH_SLOT then
 				local torch = torch.get_light_sect(item)
@@ -374,16 +372,16 @@ function MainIngameOverlay:UpdatePanelItems()
 					end
 				end
 			end
-			item_st:SetText(game.translate_string(text))
-			item_st:SetFont(GetFontCustom(self.slot_panel.font))
-			item_st:SetTextColor(self.slot_panel.text_color)
-			item_st:SetTextPos(self.slot_panel.text_offset.x, self.slot_panel.text_offset.y)
+			icon:SetText(game.translate_string(text))
+			icon:SetFont(GetFontCustom(self.slot_panel.font))
+			icon:SetTextColor(self.slot_panel.text_color)
+			icon:SetTextPos(self.slot_panel.text_offset.x, self.slot_panel.text_offset.y)
 			if self.slot_panel.vertical > 0 then
-				pos_y = pos_y + item_st:GetHeight() + self.slot_panel.indent
+				pos_y = pos_y + icon:GetHeight() + self.slot_panel.indent
 			else
-				pos_x = pos_x + item_st:GetWidth() + self.slot_panel.indent
+				pos_x = pos_x + icon:GetWidth() + self.slot_panel.indent
 			end
-			self.slot_panel:AttachChild(item_st)
+			self.slot_panel:AttachChild(cell_item)
 		end
 	end
 	--// belt
@@ -398,24 +396,22 @@ function MainIngameOverlay:UpdatePanelItems()
 		end
 	end
 	for k, v in pairs(self.belt_panel.items) do
-		params = CIconParams(v.item:section())
-		item_st = CUIStatic()
-		params:set_shader(item_st)
-		item_st:SetWidth(params.grid_width * CELL_W * self.belt_panel.scale * get_current_kx())
-		item_st:SetHeight(params.grid_height * CELL_H * self.belt_panel.scale)
-		ui_inv_utils.AttachPanelIcons(v.item, item_st)
-		item_st:SetWndPos(pos_x, pos_y)
+		cell_item = ui_cell_item.UICellItem(v.item, self.slot_panel.scale)
+		cell_item:SetUpdatable(false)			
+		icon = cell_item:GetIcon()
+		ui_inv_utils.AttachPanelIcons(v.item, icon)
+		icon:SetWndPos(pos_x, pos_y)
 		text = v.count > 1 and string.format("x%s", v.count) or ""
-		item_st:SetText(game.translate_string(text))
-		item_st:SetFont(GetFontCustom(self.belt_panel.font))
-		item_st:SetTextColor(self.belt_panel.text_color)
-		item_st:SetTextPos(self.belt_panel.text_offset.x, self.belt_panel.text_offset.y)
+		icon:SetText(game.translate_string(text))
+		icon:SetFont(GetFontCustom(self.belt_panel.font))
+		icon:SetTextColor(self.belt_panel.text_color)
+		icon:SetTextPos(self.belt_panel.text_offset.x, self.belt_panel.text_offset.y)
 		if self.belt_panel.vertical > 0 then
-			pos_y = pos_y + item_st:GetHeight() + self.belt_panel.indent
+			pos_y = pos_y + icon:GetHeight() + self.belt_panel.indent
 		else
-			pos_x = pos_x + item_st:GetWidth() + self.belt_panel.indent
+			pos_x = pos_x + icon:GetWidth() + self.belt_panel.indent
 		end
-		self.belt_panel:AttachChild(item_st)
+		self.belt_panel:AttachChild(cell_item)
 	end
 	--// loadout
 	self.loadout_panel:DetachAll()
@@ -429,52 +425,48 @@ function MainIngameOverlay:UpdatePanelItems()
 		end
 	end
 	for k, v in pairs(self.loadout_panel.items) do
-		params = CIconParams(v.item:section())
-		item_st = CUIStatic()
-		params:set_shader(item_st)
-		item_st:SetWidth(params.grid_width * CELL_W * self.loadout_panel.scale * get_current_kx())
-		item_st:SetHeight(params.grid_height * CELL_H * self.loadout_panel.scale)
-		ui_inv_utils.AttachPanelIcons(v.item, item_st)
-		item_st:SetWndPos(pos_x, pos_y)
+		cell_item = ui_cell_item.UICellItem(v.item, self.slot_panel.scale)
+		cell_item:SetUpdatable(false)			
+		icon = cell_item:GetIcon()
+		ui_inv_utils.AttachPanelIcons(v.item, icon)
+		icon:SetWndPos(pos_x, pos_y)
 		text = v.count > 1 and string.format("x%s", v.count) or ""
-		item_st:SetText(game.translate_string(text))
-		item_st:SetFont(GetFontCustom(self.loadout_panel.font))
-		item_st:SetTextColor(self.loadout_panel.text_color)
-		item_st:SetTextPos(self.loadout_panel.text_offset.x, self.loadout_panel.text_offset.y)
+		icon:SetText(game.translate_string(text))
+		icon:SetFont(GetFontCustom(self.loadout_panel.font))
+		icon:SetTextColor(self.loadout_panel.text_color)
+		icon:SetTextPos(self.loadout_panel.text_offset.x, self.loadout_panel.text_offset.y)
 		if self.loadout_panel.vertical > 0 then
-			pos_y = pos_y + item_st:GetHeight() + self.loadout_panel.indent
+			pos_y = pos_y + icon:GetHeight() + self.loadout_panel.indent
 		else
-			pos_x = pos_x + item_st:GetWidth() + self.loadout_panel.indent
+			pos_x = pos_x + icon:GetWidth() + self.loadout_panel.indent
 		end
-		self.loadout_panel:AttachChild(item_st)
+		self.loadout_panel:AttachChild(cell_item)
 	end	
 end
 
 function MainIngameOverlay:UpdatePanelBoosters()
-	local item, params, item_st, add_st, pos_x, pos_y, text
+	local item, params, cell_item, icon, add_st, pos_x, pos_y, text
 	--// boosters
 	self.booster_panel:DetachAll()
 	pos_x = 0
 	pos_y = 0
 	for b_sect,b_time in pairs(boosters.get_all()) do
-		params = CIconParams(b_sect)
-		item_st = CUIStatic()
-		params:set_shader(item_st)
-		item_st:SetWidth(params.grid_width * CELL_W * self.booster_panel.scale * get_current_kx())
-		item_st:SetHeight(params.grid_height * CELL_H * self.booster_panel.scale)
+		cell_item = ui_cell_item.UICellItem(b_sect, self.booster_panel.scale)
+		cell_item:SetUpdatable(false)			
+		icon = cell_item:GetIcon()
 		--ui_inv_utils.AttachPanelIcons(item, item_st)
-		item_st:SetWndPos(pos_x, pos_y)
+		icon:SetWndPos(pos_x, pos_y)
 		text = string.format("%.f %s", b_time, game.translate_string("st_time_minute"))
-		item_st:SetText(game.translate_string(text))
-		item_st:SetFont(GetFontCustom(self.booster_panel.font))
-		item_st:SetTextColor(self.booster_panel.text_color)
-		item_st:SetTextPos(self.booster_panel.text_offset.x, self.booster_panel.text_offset.y)
+		icon:SetText(game.translate_string(text))
+		icon:SetFont(GetFontCustom(self.booster_panel.font))
+		icon:SetTextColor(self.booster_panel.text_color)
+		icon:SetTextPos(self.booster_panel.text_offset.x, self.booster_panel.text_offset.y)
 		if self.booster_panel.vertical > 0 then
-			pos_y = pos_y + item_st:GetHeight() + self.booster_panel.indent
+			pos_y = pos_y + icon:GetHeight() + self.booster_panel.indent
 		else
-			pos_x = pos_x + item_st:GetWidth() + self.booster_panel.indent
+			pos_x = pos_x + icon:GetWidth() + self.booster_panel.indent
 		end
-		self.booster_panel:AttachChild(item_st)
+		self.booster_panel:AttachChild(cell_item)
 	end
 end
 
