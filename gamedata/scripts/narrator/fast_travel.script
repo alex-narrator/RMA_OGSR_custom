@@ -16,13 +16,9 @@ function action_check(id, spot_type, location_name, position)
 	return fast_travel_allowed()
 end
 function action(id, spot_type, location_name, position)
-	--log3("~action id %s, spot_type %s, location_name %s, position (%s %s %s)", id, spot_type, location_name, position.x, position.y, position.z)
-	local obj = level.object_by_id(id)
-	if obj then
-		actor:set_actor_position(obj:position())
-		actor:set_actor_direction(obj:direction())
+	if level.name() == location_name then
+		actor:set_actor_position(position)
 	else
-		local sobj = alife():object(id)
-		level.change_level(get_any_gvid_by_level(location_name), -1, position, sobj.angle)
+		level.change_level(get_any_gvid_by_level(location_name), -1, position, actor:direction())
 	end
 end

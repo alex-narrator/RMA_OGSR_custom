@@ -159,25 +159,23 @@ function MainIngameOverlay:InitControls()
 	self.belt_panel.scale = xml:ReadAttribFlt("belt_panel", "scale", 1)
 	self.belt_panel.indent = xml:ReadAttribFlt("belt_panel", "indent", 0)
 	self.belt_panel.vertical = xml:ReadAttribInt("belt_panel", "vertical", 0)
-	self.belt_panel.group_similar = xml:ReadAttribInt("belt_panel", "group_similar", 0)
+	self.belt_panel.group_similar = xml:ReadAttribInt("belt_panel", "group_similar", 0) > 0 and true or false
 	self.belt_panel.font = xml:ReadAttrib("belt_panel", "font", def_font)
 	tmp_tbl = split_string(xml:ReadAttrib("belt_panel", "text_color", def_color), ",")
 	self.belt_panel.text_color = GetARGB(tmp_tbl[1], tmp_tbl[2], tmp_tbl[3], tmp_tbl[4])
 	tmp_tbl = split_string(xml:ReadAttrib("belt_panel", "text_offset", "0,0"), ",")
 	self.belt_panel.text_offset = {x = tmp_tbl[1], y = tmp_tbl[2]}
-	self.belt_panel.items = {}
 	--// loadout panel
 	self.loadout_panel = xml:InitStatic("loadout_panel", self)
 	self.loadout_panel.scale = xml:ReadAttribFlt("loadout_panel", "scale", 1)
 	self.loadout_panel.indent = xml:ReadAttribFlt("loadout_panel", "indent", 0)
 	self.loadout_panel.vertical = xml:ReadAttribInt("loadout_panel", "vertical", 0)
-	self.loadout_panel.group_similar = xml:ReadAttribInt("loadout_panel", "group_similar", 0)
+	self.loadout_panel.group_similar = xml:ReadAttribInt("loadout_panel", "group_similar", 0) > 0 and true or false
 	self.loadout_panel.font = xml:ReadAttrib("loadout_panel", "font", def_font)
 	tmp_tbl = split_string(xml:ReadAttrib("loadout_panel", "text_color", def_color), ",")
 	self.loadout_panel.text_color = GetARGB(tmp_tbl[1], tmp_tbl[2], tmp_tbl[3], tmp_tbl[4])
 	tmp_tbl = split_string(xml:ReadAttrib("loadout_panel", "text_offset", "0,0"), ",")
 	self.loadout_panel.text_offset = {x = tmp_tbl[1], y = tmp_tbl[2]}
-	self.loadout_panel.items = {}	
 	--// booster panel
 	self.booster_panel = xml:InitStatic("booster_panel", self)
 	self.booster_panel.scale = xml:ReadAttribFlt("booster_panel", "scale", 1)
@@ -347,19 +345,18 @@ function MainIngameOverlay:UpdateQuickSlots()
 end
 
 function MainIngameOverlay:UpdatePanelItems()
-	local item, params, cell_item, icon, add_st, pos_x, pos_y, text
+	local item, params, cell_item, icon, text
 	--// slots
+	local pos = vector2():set(0,0)
 	self.slot_panel:DetachAll()
-	pos_x = 0
-	pos_y = 0
-	for _,i in pairs(self.slot_panel.slots) do
+	for _,i in ipairs(self.slot_panel.slots) do
 		item = actor:item_in_slot(i)
 		if item and (tonumber(i) ~= BACKPACK_SLOT or read_if_exists(sys_ini, "r_bool", item:section(), "quick_drop", false)) then
 			cell_item = ui_cell_item.UICellItem(item, self.slot_panel.scale)
 			cell_item:SetUpdatable(false)			
 			icon = cell_item:GetIcon()
 			ui_inv_utils.AttachPanelIcons(item, icon)
-			icon:SetWndPos(pos_x, pos_y)
+			icon:SetWndPos(pos.x, pos.y)
 			text = "ui_use_slot_"..i
 			if tonumber(i) == TORCH_SLOT then
 				local torch = torch.get_light_sect(item)
@@ -377,121 +374,110 @@ function MainIngameOverlay:UpdatePanelItems()
 			icon:SetTextColor(self.slot_panel.text_color)
 			icon:SetTextPos(self.slot_panel.text_offset.x, self.slot_panel.text_offset.y)
 			if self.slot_panel.vertical > 0 then
-				pos_y = pos_y + icon:GetHeight() + self.slot_panel.indent
+				pos.y = pos.y + icon:GetHeight() + self.slot_panel.indent
 			else
-				pos_x = pos_x + icon:GetWidth() + self.slot_panel.indent
+				pos.x = pos.x + icon:GetWidth() + self.slot_panel.indent
 			end
 			self.slot_panel:AttachChild(cell_item)
 		end
 	end
 	--// belt
+	pos = vector2():set(0,0)
 	self.belt_panel:DetachAll()
-	self.belt_panel.items = {}
-	pos_x = 0
-	pos_y = 0
+	local items = {}
 	for i = 0, actor:belt_count() - 1 do
 		item = actor:item_on_belt(i)
 		if item then
-			self:TryAddToBeltList(item)
+			self:TryAddToList(item, items, self.belt_panel.group_similar)
 		end
 	end
-	for k, v in pairs(self.belt_panel.items) do
+	table.sort(items,ui_inv_utils.sort_ui_panel_item)
+	for k, v in ipairs(items) do
+		--log3("set to belt panel item %s", v.item:section())
 		cell_item = ui_cell_item.UICellItem(v.item, self.slot_panel.scale)
 		cell_item:SetUpdatable(false)			
 		icon = cell_item:GetIcon()
 		ui_inv_utils.AttachPanelIcons(v.item, icon)
-		icon:SetWndPos(pos_x, pos_y)
+		icon:SetWndPos(pos.x, pos.y)
 		text = v.count > 1 and string.format("x%s", v.count) or ""
 		icon:SetText(game.translate_string(text))
 		icon:SetFont(GetFontCustom(self.belt_panel.font))
 		icon:SetTextColor(self.belt_panel.text_color)
 		icon:SetTextPos(self.belt_panel.text_offset.x, self.belt_panel.text_offset.y)
 		if self.belt_panel.vertical > 0 then
-			pos_y = pos_y + icon:GetHeight() + self.belt_panel.indent
+			pos.y = pos.y + icon:GetHeight() + self.belt_panel.indent
 		else
-			pos_x = pos_x + icon:GetWidth() + self.belt_panel.indent
+			pos.x = pos.x + icon:GetWidth() + self.belt_panel.indent
 		end
 		self.belt_panel:AttachChild(cell_item)
 	end
 	--// loadout
+	pos = vector2():set(0,0)
 	self.loadout_panel:DetachAll()
-	self.loadout_panel.items = {}
-	pos_x = 0
-	pos_y = 0
+	items = {}
 	for k,v in pairs(loadout.get_loaded_items()) do
 		item = level.object_by_id(k)
 		if item then
-			self:TryAddToLoadoutList(item)
+			self:TryAddToList(item, items, self.loadout_panel.group_similar)
 		end
 	end
-	for k, v in pairs(self.loadout_panel.items) do
+	table.sort(items,ui_inv_utils.sort_ui_panel_item)
+	for k, v in ipairs(items) do
+		--log3("set to loadout panel item %s", v.item:section())
 		cell_item = ui_cell_item.UICellItem(v.item, self.slot_panel.scale)
 		cell_item:SetUpdatable(false)			
 		icon = cell_item:GetIcon()
 		ui_inv_utils.AttachPanelIcons(v.item, icon)
-		icon:SetWndPos(pos_x, pos_y)
+		icon:SetWndPos(pos.x, pos.y)
 		text = v.count > 1 and string.format("x%s", v.count) or ""
 		icon:SetText(game.translate_string(text))
 		icon:SetFont(GetFontCustom(self.loadout_panel.font))
 		icon:SetTextColor(self.loadout_panel.text_color)
 		icon:SetTextPos(self.loadout_panel.text_offset.x, self.loadout_panel.text_offset.y)
 		if self.loadout_panel.vertical > 0 then
-			pos_y = pos_y + icon:GetHeight() + self.loadout_panel.indent
+			pos.y = pos.y + icon:GetHeight() + self.loadout_panel.indent
 		else
-			pos_x = pos_x + icon:GetWidth() + self.loadout_panel.indent
+			pos.x = pos.x + icon:GetWidth() + self.loadout_panel.indent
 		end
 		self.loadout_panel:AttachChild(cell_item)
 	end	
 end
 
 function MainIngameOverlay:UpdatePanelBoosters()
-	local item, params, cell_item, icon, add_st, pos_x, pos_y, text
+	local item, params, cell_item, icon, pos_x, pos_y, text
 	--// boosters
 	self.booster_panel:DetachAll()
-	pos_x = 0
-	pos_y = 0
+	local pos = vector2():set(0,0)
 	for b_sect,b_time in pairs(boosters.get_all()) do
 		cell_item = ui_cell_item.UICellItem(b_sect, self.booster_panel.scale)
 		cell_item:SetUpdatable(false)			
 		icon = cell_item:GetIcon()
 		--ui_inv_utils.AttachPanelIcons(item, item_st)
-		icon:SetWndPos(pos_x, pos_y)
+		icon:SetWndPos(pos.x, pos.y)
 		text = string.format("%.f %s", b_time, game.translate_string("st_time_minute"))
 		icon:SetText(game.translate_string(text))
 		icon:SetFont(GetFontCustom(self.booster_panel.font))
 		icon:SetTextColor(self.booster_panel.text_color)
 		icon:SetTextPos(self.booster_panel.text_offset.x, self.booster_panel.text_offset.y)
 		if self.booster_panel.vertical > 0 then
-			pos_y = pos_y + icon:GetHeight() + self.booster_panel.indent
+			pos.y = pos.y + icon:GetHeight() + self.booster_panel.indent
 		else
-			pos_x = pos_x + icon:GetWidth() + self.booster_panel.indent
+			pos.x = pos.x + icon:GetWidth() + self.booster_panel.indent
 		end
 		self.booster_panel:AttachChild(cell_item)
 	end
 end
 
-function MainIngameOverlay:TryAddToBeltList(item)
-	if self.belt_panel.group_similar < 1 then
-		table.insert(self.belt_panel.items, {item = item, count = 1})
+function MainIngameOverlay:TryAddToList(item, tbl, group_similar)
+	if not group_similar then
+		table.insert(tbl, {item = item, count = 1})
 	return end
-	for k, v in pairs(self.belt_panel.items) do
-		if v.item:section() == item:section() then
-			v.count = v.count + 1
-		return end
-	end
-	table.insert(self.belt_panel.items, {item = item, count = 1})
-end
-
-function MainIngameOverlay:TryAddToLoadoutList(item)
-	if self.loadout_panel.group_similar < 1 then
-		table.insert(self.loadout_panel.items, {item = item, count = 1})
-	return end
-	for k, v in pairs(self.loadout_panel.items) do
+	for k, v in pairs(tbl) do
 		if ui_inv_utils.similar_item(v.item, item) then
 			v.count = v.count + 1
 		return end
 	end
-	table.insert(self.loadout_panel.items, {item = item, count = 1})
+	table.insert(tbl, {item = item, count = 1})
 end
 
 function MainIngameOverlay:UpdateActiveItem()
