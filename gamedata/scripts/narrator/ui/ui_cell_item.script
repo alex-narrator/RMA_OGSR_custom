@@ -61,23 +61,23 @@ function UICellItem:InitWnd()
 	self:Enable(true)
 	self:Show(true)	
 	
-	self.icon_back = CUIStatic()--xml:InitStatic("icon_back", self)
-	self:AttachChild(self.icon_back)
-	self.icon_back:SetStretchTexture(true)
-	self.icon_back:InitTexture(cell_texture)
-	self.icon_back:SetWidth(self.icon_size.x)
-	self.icon_back:SetHeight(self.icon_size.y)
-	self.icon_back:SetColor(color_default)
+	self.back = CUIStatic()
+	self:AttachChild(self.back)
+	self.back:SetStretchTexture(true)
+	self.back:InitTexture(cell_texture)
+	self.back:SetWidth(self.icon_size.x)
+	self.back:SetHeight(self.icon_size.y)
+	self.back:SetColor(color_default)
 	
 	self.icon = CUIStatic()
 	self.icon:SetStretchTexture(true)
 	self.icon:SetWidth(self.icon_size.x)
 	self.icon:SetHeight(self.icon_size.y)
-	self.icon_back:AttachChild(self.icon)
+	self.back:AttachChild(self.icon)
 	self.params:set_shader(self.icon)
 	
 	local name = "cellitem"
-	self:Register(self.icon_back, name)
+	self:Register(self.back, name)
 	self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnFocusReceived() end, self)
 	self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnFocusLost() end, self)
 	self:AddCallback(name, ui_events.WINDOW_LBUTTON_DB_CLICK, function() self:OnDbClick() end, self)
@@ -96,10 +96,10 @@ function UICellItem:OnFocusReceived()
 	if not self.item then return end
 	self.in_focus = true
 	self.sm:call("on_cell_item_focus", self.item)
-	log3("~%s: on_cell_item_focus_script item %s", script_name(), self.item:name())
+	--log3("~%s: on_cell_item_focus_script item %s", script_name(), self.item:name())
 	if self.highlight_enabled then
 		if not self.is_selected then
-			self.icon_back:SetColor(color_highlight)
+			self.back:SetColor(color_highlight)
 		end
 	end
 end
@@ -108,10 +108,10 @@ function UICellItem:OnFocusLost()
 	if not self.item then return end
 	self.in_focus = false
 	self.sm:call("on_cell_item_focus_lost", self.item)
-	log3("~%s: on_cell_item_focus_lost_script item %s", script_name(), self.item:name())
+	--log3("~%s: on_cell_item_focus_lost_script item %s", script_name(), self.item:name())
 	if self.highlight_enabled then
 		if not self.is_selected then
-			self.icon_back:SetColor(color_default)
+			self.back:SetColor(color_default)
 		end
 	end
 end
@@ -119,20 +119,20 @@ end
 function UICellItem:OnDbClick()
 	if not self.item then return end
 	self.sm:call("on_cell_item_dbclick", self.item)
-	log3("~%s: on_cell_item_dbclick_script item %s", script_name(), self.item:name())
+	--log3("~%s: on_cell_item_dbclick_script item %s", script_name(), self.item:name())
 end
 
 function UICellItem:OnLButtonClick()
 	if not self.item then return end
 	self.sm:call("on_cell_item_lb_click", self.item)
-	log3("~%s: on_cell_item_lb_click_script item %s", script_name(), self.item:name())
+	--log3("~%s: on_cell_item_lb_click_script item %s", script_name(), self.item:name())
 	self:OnSelect()
 end
 
 function UICellItem:OnRButtonClick()
 	if not self.item then return end
 	self.sm:call("on_cell_item_rb_click", self.item)
-	log3("~%s: on_cell_item_rb_click_script item %s", script_name(), self.item:name())
+	--log3("~%s: on_cell_item_rb_click_script item %s", script_name(), self.item:name())
 	self:OnSelect()
 end
 
@@ -141,13 +141,13 @@ function UICellItem:OnSelect()
 		self.is_selected = true
 		self.sm:call("on_cell_item_select", self.item)
 		if self.highlight_enabled then
-			self.icon_back:SetColor(color_selected)
+			self.back:SetColor(color_selected)
 		end
 	end
 end
 
 function UICellItem:GetIcon()
-	return self.icon--:GetCUIStatic()
+	return self.icon
 end
 
 function UICellItem:OnKeyPress(key, game_action)
@@ -168,15 +168,13 @@ function UICellItem:SetScaleToWnd(wnd)
 	scale_y = scale_y > 1 and 1 or scale_y
 	local scale = math.min(scale_x, scale_y)
 	
-	self.icon_back:SetWidth(self.icon_size.x * scale)
-	self.icon_back:SetHeight(self.icon_size.y * scale)
-	self.icon:SetWidth(self.icon_size.x * scale)
-	self.icon:SetHeight(self.icon_size.y * scale)	
+	self:SetWidth(self.icon_size.x * scale)
+	self:SetHeight(self.icon_size.y * scale)	
 end
 
 function UICellItem:SetOffsetToWnd(wnd, offset_type)
-	local offset = ui_inv_utils.GetOffset(offset_type, self.icon_back, wnd)
-	self.icon_back:SetWndPos(offset.x, offset.y)	
+	local offset = ui_inv_utils.GetOffset(offset_type, self.back, wnd)
+	self.back:SetWndPos(offset.x, offset.y)	
 end
 
 function UICellItem:EnableHighlight(enable)
@@ -192,5 +190,44 @@ function UICellItem:SetUpdatable(enable)
 end
 
 function UICellItem:ClearHighlight()
-	self.icon_back:SetColor(color_default)
+	self.back:SetColor(color_default)
+end
+
+--//redefined functions
+function UICellItem:SetWndPos(x, y)
+	self.back:SetWndPos(x, y)
+end
+
+function UICellItem:SetWidth(width)
+	self.back:SetWidth(width)
+	self.icon:SetWidth(width)
+end
+
+function UICellItem:SetHeight(height)
+	self.back:SetHeight(height)
+	self.icon:SetHeight(height)
+end
+
+function UICellItem:GetWidth()
+	return self.back:GetWidth()
+end
+
+function UICellItem:GetHeight()
+	return self.back:GetHeight()
+end
+
+function UICellItem:SetText(text)
+	self.icon:SetText(text)
+end
+
+function UICellItem:SetFont(font)
+	self.icon:SetFont(font)
+end
+
+function UICellItem:SetTextColor(color)
+	self.icon:SetTextColor(color)
+end
+
+function UICellItem:SetTextPos(x, y)
+	self.icon:SetTextPos(x, y)
 end
