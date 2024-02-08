@@ -1,0 +1,153 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+local OVERLAY_XML = "script_overlays\\properties_box.xml"
+
+local color_default 	= GetARGB(0, 255, 255, 255)
+local color_focused 	= GetARGB(70, 200, 200, 200)
+local text_color_default 	= GetARGB(255, 131, 131, 131)
+local text_color_focused 	= GetARGB(255, 255, 255, 255)
+
+class "UIPropertiesBox" (CUIScriptWnd)
+
+function UIPropertiesBox:__init(owner) super()
+	self.owner = owner
+	self:InitControls()
+	self.sm = ogse_signals.get_mgr()
+	self:Subscribe()
+end
+
+function UIPropertiesBox:DetachWnd()
+	self:ClearCallbacks()
+	self.owner:DetachChild(self)
+	self:Unsubscribe()
+end
+
+function UIPropertiesBox:Subscribe()
+	self.subscribed = false
+	if not self.subscribed then
+		self.subscribed = {
+			-- {signal = "on_cell_item_select", self = self, fun = self.OnCellItemSelect},
+			-- {signal = "on_cell_item_focus", self = self, fun = self.OnCellItemFocus},
+			-- {signal = "on_cell_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
+		}
+		for _, s in ipairs( self.subscribed ) do
+			self.sm:subscribe( s )
+		end
+	end
+end
+
+function UIPropertiesBox:Unsubscribe()
+	if self.subscribed then
+		for _, s in ipairs( self.subscribed ) do
+			self.sm:unsubscribe( s )
+		end
+		self.subscribed = false
+	end
+end
+
+function UIPropertiesBox:InitControls()
+	self.owner:AttachChild(self)
+	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
+	--self:Enable(true)
+	self:Show(false)
+	
+	self.xml = CScriptXmlInit()
+	self.xml:ParseFile(OVERLAY_XML)
+
+	self.back = self.xml:InitStatic("properties_box", self)
+	self.scroll_view = self.xml:InitScrollView("properties_box:list", self.back)
+	self.scroll_view.indent = {
+		r = self.xml:ReadAttribInt("properties_box:list", "right_ident", 0),
+		t = self.xml:ReadAttribInt("properties_box:list", "top_ident", 0),
+		l = self.xml:ReadAttribInt("properties_box:list", "left_ident", 0),
+		b = self.xml:ReadAttribInt("properties_box:list", "bottom_indent", 0),
+	}
+	self.actions = {}
+	
+	-- local name = "cell_container"
+	-- self:Register(self.cell_container, name)
+	-- self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnFocusReceived() end, self)
+	-- self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnFocusLost() end, self)
+	-- self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnLButtonDown() end, self)
+end
+
+function UIPropertiesBox:Update()
+	CUIScriptWnd.Update(self)
+end
+
+function UIPropertiesBox:Activate()
+	self.back:SetWndPos(self.owner:GetMousePosX(), self.owner:GetMousePosY())
+	
+	local name
+	for k, v in ipairs(self.actions) do
+		v.list_item = self.xml:InitStatic("properties_box:list:list_item", self.scroll_view)
+		v.list_item:SetText(v.name)
+		v.list_item:AdjustHeightToText()
+		v.list_item:AdjustWidthToText()
+		
+		v.list_item:SetColor(color_default)
+		v.list_item:SetTextColor(text_color_default)
+		
+		name = "list_item_"..k
+		self:Register(v.list_item, name)
+		self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnLButtonDown(k) end, self)
+		self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnFocusReceived(k) end, self)
+		self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnFocusLost(k) end, self)
+		
+		--self.scroll_view:AddWindow(v.list_item)
+		log3("~list item w %s | h %s", v.list_item:GetWidth(), v.list_item:GetHeight())
+		local indent = self.scroll_view.indent
+		if v.list_item:GetWidth() > self.scroll_view:GetPadSize().x then
+			self.scroll_view:SetWidth(v.list_item:GetWidth() + indent.r + indent.l)
+		end
+		self.scroll_view:SetWidth(self.scroll_view:GetPadSize().x + indent.r + indent.l)
+		self.scroll_view:SetHeight(self.scroll_view:GetPadSize().y)
+		self.back:SetWidth(self.scroll_view:GetWidth())
+		self.back:SetHeight(self.scroll_view:GetHeight())		
+	end
+	--log3("self.actions: %s", self.actions)
+	
+	self:Show(table.size(self.actions) > 0)
+end
+
+function UIPropertiesBox:OnFocusReceived(i)
+	self.actions[i].list_item:SetColor(color_focused)
+	self.actions[i].list_item:SetTextColor(text_color_focused)
+	--log3("~UIPropertiesBox:OnFocusReceived(%s)", i)
+end
+
+function UIPropertiesBox:OnFocusLost(i)
+	self.actions[i].list_item:SetColor(color_default)
+	self.actions[i].list_item:SetTextColor(text_color_default)
+	--log3("~UIPropertiesBox:OnFocusLost(%s)", i)
+end
+
+function UIPropertiesBox:Clear()
+	self.scroll_view:Clear()
+	self.actions = {}
+end
+
+function UIPropertiesBox:OnLButtonDown(i)
+	local v = self.actions[i]
+	v.action(unpack(v.args))
+	self:Show(false)
+end
+
+function UIPropertiesBox:AddItem(name, precondition, action, ...)
+	local args = {...}
+	if not precondition(unpack(args)) then
+	return end
+	
+	local name = type(name) == "string" and game.translate_string(name) or name(unpack(args))
+	local action_data = {
+		name = name,
+		action = action,
+		args = args,
+	}
+	table.insert(self.actions, action_data)
+end
+
+function UIPropertiesBox:AddCustomAction(item)
+	for k,v in ipairs(ui_properties_box_data.actions) do
+		self:AddItem(v[1], v[2], v[3], item)
+	end	
+end

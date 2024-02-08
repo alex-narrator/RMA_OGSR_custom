@@ -67,6 +67,8 @@ function UICellItemContainer:InitWnd(xml, path)
 	
 	self:ReinitCellsArray()
 	
+	self.properties_box = ui_properties_box.UIPropertiesBox(self.owner)
+	
 	--log3("~table.size(self.cells_array) %s", table.size(self.cells_array))
 	
 	local name = "cell_container"
@@ -98,6 +100,7 @@ function UICellItemContainer:Reinit()
 	self.lmb_hold = false
 	self:DestroyDragItem()
 	self:ReinitCellsArray()
+	self.properties_box:Show(false)
 end
 
 function UICellItemContainer:ReinitCellsArray()
@@ -284,7 +287,6 @@ end
 function UICellItemContainer:OnCellItemSelect(item)
 	if self:IsSelected(item) then
 	return end
-	
 	self.selected_item = item
 	for id,cell_item in pairs(self.cell_items) do
 		if id ~= item:id() then
@@ -327,6 +329,7 @@ end
 function UICellItemContainer:OnLButtonDown()
 	self.lmb_hold = true
 	self.scroll_pos = self.scroll_view:GetCurrentScrollPos()
+	self.properties_box:Show(false)
 	--log3("~self.scroll_pos %s", self.scroll_pos)
 end
 
@@ -337,6 +340,7 @@ end
 
 function UICellItemContainer:OnRButtonDown()
 	self:DestroyDragItem()
+	self:TryShowPropertiesBox()
 end
 
 function UICellItemContainer:OnRButtonUp()
@@ -371,4 +375,15 @@ function UICellItemContainer:UpdateDragItemPos()
 	self.drag_cell_item:SetWndPos(pos.x, pos.y)
 	
 	self.scroll_view:SetScrollPos(self.scroll_pos)
+end
+
+function UICellItemContainer:TryShowPropertiesBox()
+	local item = self.focused_item
+	if item then
+		self.properties_box:Clear()
+		self.properties_box:AddCustomAction(item)
+		self.properties_box:Activate()
+	else
+		self.properties_box:Show(false)
+	end
 end
