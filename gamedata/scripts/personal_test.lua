@@ -246,3 +246,17 @@ log3("position %s, %s, %s | lvid %s | gvid %s | is valid %s", pos.x, pos.y, pos.
 -- local cur_fov = device().fov
 -- local zoom = fov / cur_fov
 -- log3("zoom %s | fov %s | cur fov %s", zoom, fov, cur_fov)
+
+local rows = 10
+local cols = 10
+local cells_array = {}
+for row_n=1, rows do
+	for col_n=1, cols do
+		if not cells_array[row_n] then
+			cells_array[row_n] = {}
+		end
+		cells_array[row_n][col_n] = true
+	end
+end
+
+log3("~ cells_array %s", cells_array)

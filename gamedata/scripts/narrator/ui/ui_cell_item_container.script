@@ -1,0 +1,374 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+class "UICellItemContainer" (CUIScriptWnd)
+
+function UICellItemContainer:__init(xml, path, owner) super()
+	self.owner = owner
+	self.cell_items = {}
+	self.row_end = 0
+	self.col_end = 0
+	self.selected_item = nil
+	self.focused_item = nil
+	self.drag_cell_item = false
+	self.lmb_hold = false
+	self:InitWnd(xml, path)
+	self.sm = ogse_signals.get_mgr()
+	self:Subscribe()
+end
+
+function UICellItemContainer:DetachWnd()
+	self:ClearCallbacks()
+	self.owner:DetachChild(self)
+	self:Unsubscribe()
+end
+
+function UICellItemContainer:Subscribe()
+	self.subscribed = false
+	if not self.subscribed then
+		self.subscribed = {
+			{signal = "on_cell_item_select", self = self, fun = self.OnCellItemSelect},
+			{signal = "on_cell_item_focus", self = self, fun = self.OnCellItemFocus},
+			{signal = "on_cell_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
+		}
+		for _, s in ipairs( self.subscribed ) do
+			self.sm:subscribe( s )
+		end
+	end
+end
+
+function UICellItemContainer:Unsubscribe()
+	if self.subscribed then
+		for _, s in ipairs( self.subscribed ) do
+			self.sm:unsubscribe( s )
+		end
+		self.subscribed = false
+	end
+end
+
+function UICellItemContainer:InitWnd(xml, path)
+	self.owner:AttachChild(self)
+	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
+	self:Enable(true)
+	self:Show(true)	
+	
+	self.scroll_view = xml:InitScrollView(path, self)
+		
+	self.cell_w = xml:ReadAttribFlt(path, "cell_width", CELL_W)
+	self.cell_h = xml:ReadAttribFlt(path, "cell_height", CELL_H)
+	self.scale = xml:ReadAttribFlt(path, "cell_scale", 1)
+	self.cols = xml:ReadAttribInt(path, "cols_num", 1)
+	self.rows = xml:ReadAttribInt(path, "rows_num", 1)
+	
+	self.ui_cell_size = vector2():set(self.cell_w * self.scale * get_current_kx(), self.cell_h * self.scale)	
+	
+	self.dragdrop_enabled = xml:ReadAttribInt(path, "dragdrop_enabled", 1) > 0 and true or false
+	self.unlimited = xml:ReadAttribInt(path, "unlimited", 1) > 0 and true or false
+	self.group_similar = xml:ReadAttribInt(path, "group_similar", 1) > 0 and true or false
+	--log3("~cols %s rows %s", self.cols, self.rows)
+	
+	self:ReinitCellsArray()
+	
+	--log3("~table.size(self.cells_array) %s", table.size(self.cells_array))
+	
+	local name = "cell_container"
+	self:Register(self.cell_container, name)
+	self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnFocusReceived() end, self)
+	self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnFocusLost() end, self)
+	self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnLButtonDown() end, self)
+	self:AddCallback(name, ui_events.WINDOW_LBUTTON_UP, function() self:OnLButtonUp() end, self)
+	self:AddCallback(name, ui_events.WINDOW_RBUTTON_DOWN, function() self:OnRButtonDown() end, self)
+	self:AddCallback(name, ui_events.WINDOW_RBUTTON_UP, function() self:OnRButtonUp() end, self)
+	self:AddCallback(name, ui_events.WINDOW_MOUSE_MOVE, function() self:OnMouseMove() end, self)
+end
+
+function UICellItemContainer:OnFocusReceived()
+	self.sm:call("on_cell_container_focus", self)
+	--log3("~on_cell_container_focus")
+end
+
+function UICellItemContainer:OnFocusLost()
+	self.sm:call("on_cell_container_focus_lost", self)
+	--log3("~on_cell_container_focus_lost")
+end
+
+function UICellItemContainer:Reinit()
+	self.cell_container:DetachAll()
+	self.cell_items = {}
+	self.selected_item = nil
+	self.focused_item = nil
+	self.lmb_hold = false
+	self:DestroyDragItem()
+	self:ReinitCellsArray()
+end
+
+function UICellItemContainer:ReinitCellsArray()
+	self.cells_array = {}
+	while table.size(self.cells_array) < self.rows do
+		self:Grow()
+	end	
+end
+
+function UICellItemContainer:UpdateContainerSize()
+	--//detach -> set new size -> attach
+	--//для того щоб масив cell_container не вилазив за межі scroll_view
+	if not self.cell_container then
+		self.cell_container = CUIStatic()
+		self.cell_container:SetWidth(self.ui_cell_size.x * self.cols)
+	end
+	self.scroll_view:Clear()
+	self.cell_container:SetHeight(self.ui_cell_size.y * table.size(self.cells_array))
+	self.scroll_view:AddWindow(self.cell_container)
+end
+
+function UICellItemContainer:Update()
+	CUIScriptWnd.Update(self)
+	self:UpdateDragItemPos()
+end
+
+function UICellItemContainer:AddItem(item)
+	if self.cell_items[item:id()] then
+	return false end
+	
+	if self:AddSimilar(item) then
+	return false end
+	
+	local params = CIconParams(item:section())
+	local grid_size = vector2():set(params.grid_width, params.grid_height)
+	
+	if grid_size.x > self.cols then
+	return false end
+		
+	local rows = table.size(self.cells_array)
+	local cols = self.cols + 1 - grid_size.x
+	for r=1, rows do
+		for c=1,cols do
+			if self:IsFreeRoom(r,c,grid_size.x,grid_size.y) then
+				--log3("~item %s room free %sx%s", item:name(), r, c)
+				local grid_pos = self:TakeRoom(r,c,grid_size.x,grid_size.y)
+				self:CreateCellItem(grid_pos,item)
+				return true
+			end
+		end
+	end
+	
+	if not self.unlimited then
+		--log3("~table.size(self.cells_array) %s", table.size(self.cells_array))
+	return false end
+	
+	self:Grow()
+	
+	return self:AddItem(item)	
+end
+
+function UICellItemContainer:AddSimilar(item)
+	if not self.group_similar then
+	return false end
+	
+	local cell_item = self:FindSimilar(item)
+	if cell_item then
+		cell_item:AddChild(item:id())
+		return true
+	end
+	
+	return false
+end
+
+function UICellItemContainer:FindSimilar(item)
+	for id, cell_item in pairs(self.cell_items) do
+		if cell_item:IsEqualTo(item) then
+			return cell_item
+		end
+	end
+	return nil
+end
+
+function UICellItemContainer:RemoveItem(item)
+	local ID = item:id()
+	if not self.cell_items[ID] then
+		for id, cell_item in pairs(self.cell_items) do
+			if cell_item:RemoveChild(ID) then
+				return false 
+			end
+		end
+	return false end
+	
+	local params = CIconParams(item:section())
+	local grid_size = vector2():set(params.grid_width, params.grid_height)
+	local cell_item = self.cells_array[ID]
+	local gris_pos = cell_item.grid_pos
+	cell_item:DetachWnd()
+	self.cells_array[ID] = nil
+	
+	return self:FreeRoom(gris_pos.x,gris_pos.y,params.grid_width,params.grid_height)
+end
+
+function UICellItemContainer:IsFreeRoom(r,c,w,h)
+	for row = r, r+(h-1) do
+		for col = c, c+(w-1) do
+			if (not self.cells_array[row]) then
+				return false
+			end
+			if self.cells_array[row][col] == false then
+				return false
+			end
+		end
+	end
+	return true
+end
+
+function UICellItemContainer:TakeRoom(r,c,w,h)
+	local r_end = r+(h-1)
+	local c_end = c+(w-1)
+	for row = r, r_end do -- -1 because starting row/coloumn cell should be counted
+		for col = c, c_end do
+			self.cells_array[row][col] = false
+			--log3("~set room occupied %sx%s", row, col)
+		end
+	end
+	
+	if (r_end > self.row_end) then
+		self.row_end = r_end
+	end
+	if (c_end > self.col_end) then
+		self.col_end = c_end
+	end
+	
+	return vector2():set(r,c)--{ y=r , x=c , w=w , h=h } -- rows are Y, coloumns are X
+end
+
+function UICellItemContainer:FreeRoom(r,c,w,h)
+	local r_end = r+(h-1)
+	local c_end = c+(w-1)
+	for row = r, r_end do -- -1 because starting row/coloumn cell should be counted
+		for col = c, c_end do
+			self.cells_array[row][col] = true
+			--log3("~set room free %sx%s", row, col)
+		end
+	end
+		
+	return vector2():set(r,c)--{ y=r , x=c , w=w , h=h } -- rows are Y, coloumns are X
+end
+
+function UICellItemContainer:CreateCellItem(grid_pos, item)
+	local cell_item = ui_cell_item.UICellItem(item, self.scale, self.cell_container)
+	self.cell_items[item:id()] = cell_item
+	--cell_item.childs = {}
+	local pos = vector2():set((grid_pos.y - 1) * self.ui_cell_size.x , (grid_pos.x - 1) * self.ui_cell_size.y)
+	cell_item.pos = pos
+	cell_item.grid_pos = grid_pos
+	cell_item:SetWndPos(pos.x, pos.y)
+	--log3("~create cell item for %s", item:name())
+end
+
+function UICellItemContainer:Grow()
+	local row = table.size(self.cells_array)
+	row = row+1
+	self.cells_array[row] = {}
+	for col_n=1, self.cols do
+		self.cells_array[row][col_n] = true
+	end
+	self:UpdateContainerSize()
+end
+
+function UICellItemContainer:GetSelected()
+	return self.selected_item
+end
+
+function UICellItemContainer:GetCellItems()
+	return self.cell_items
+end
+
+function UICellItemContainer:IsSelected(item)
+	return self.selected_item and self.selected_item:id() == item:id()
+end
+
+function UICellItemContainer:OnCellItemSelect(item)
+	if self:IsSelected(item) then
+	return end
+	
+	self.selected_item = item
+	for id,cell_item in pairs(self.cell_items) do
+		if id ~= item:id() then
+			cell_item:ClearHighlight()
+		else
+			cell_item:HighlightSelected()
+		end		
+	end
+end
+
+function UICellItemContainer:OnCellItemFocus(item)
+	self.focused_item = item
+	if not self:IsSelected(item) then
+		if not self.cell_items[item:id()] then
+			log3("!%s OnCellItemFocus(item) called for item %s that not in cell_container", script_name(), item:name())
+		return end	
+		self.cell_items[item:id()]:HighlightFocused()
+	end
+end
+
+function UICellItemContainer:OnCellItemFocusLost(item)
+	self.focused_item = false
+	if not self:IsSelected(item) then
+		if not self.cell_items[item:id()] then
+			log3("!%s OnCellItemFocusLost(item) called for item %s that not in cell_container", script_name(), item:name())
+		return end
+		self.cell_items[item:id()]:ClearHighlight()
+	end
+end
+
+function UICellItemContainer:OnMouseMove()
+	--log3("~OnMouseMove")
+	local create_drag_item = self.dragdrop_enabled and self.lmb_hold and self.selected_item and self.focused_item and self.selected_item:id() == self.focused_item:id() and not self.drag_cell_item
+	--log3("~create_drag_item %s", create_drag_item)
+	if create_drag_item then
+		self:CreateDragItem()
+	end
+end
+
+function UICellItemContainer:OnLButtonDown()
+	self.lmb_hold = true
+	self.scroll_pos = self.scroll_view:GetCurrentScrollPos()
+	--log3("~self.scroll_pos %s", self.scroll_pos)
+end
+
+function UICellItemContainer:OnLButtonUp()
+	self.lmb_hold = false
+	self:DestroyDragItem()
+end
+
+function UICellItemContainer:OnRButtonDown()
+	self:DestroyDragItem()
+end
+
+function UICellItemContainer:OnRButtonUp()
+	self:DestroyDragItem()
+end
+
+function UICellItemContainer:CreateDragItem()
+	--log3("~create drag item")
+	self.drag_cell_item = ui_cell_item.UICellItem(self.selected_item, self.scale, self.cell_container)
+	local pos = self.cell_items[self.selected_item:id()].pos
+	local offset = vector2():set(self.cell_container:GetMousePosX() - pos.x, self.cell_container:GetMousePosY() - pos.y)
+	self.drag_cell_item.offset = offset
+	self:UpdateDragItemPos()
+end
+
+function UICellItemContainer:DestroyDragItem()
+	if not self.drag_cell_item then
+	return end
+	self.drag_cell_item:DetachWnd()
+	self.drag_cell_item = false
+	self.sm:call("on_dragdrop_drop", self, self.selected_item)
+	if self.focused_item and self.focused_item:id() ~=  self.selected_item:id() then
+		self.sm:call( "inv_drag_drop", self.selected_item, self.focused_item )
+	end
+	self.scroll_pos = nil
+end
+
+function UICellItemContainer:UpdateDragItemPos()
+	if not self.drag_cell_item then return end
+	local offset = self.drag_cell_item.offset
+	local pos = vector2():set(self.cell_container:GetMousePosX() - offset.x, self.cell_container:GetMousePosY() - offset.y)
+	self.drag_cell_item:SetWndPos(pos.x, pos.y)
+	
+	self.scroll_view:SetScrollPos(self.scroll_pos)
+end

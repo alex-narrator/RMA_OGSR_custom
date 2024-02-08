@@ -330,12 +330,7 @@ function MainIngameOverlay:DrawSlotIcon(slot_num)
 	local count_text = string.format("x%s", count)
 	s.count:SetText(count_text)
 	s.count:Show(count > 0)
-
-	if count > 0 then
-		s.icon:SetColor(self.quick_color_has_item)
-	else
-		s.icon:SetColor(self.quick_color_no_item)
-	end
+	s.icon:SetColor(count > 0 and self.quick_color_has_item or self.quick_color_no_item)
 end
 
 function MainIngameOverlay:UpdateQuickSlots()
@@ -352,7 +347,7 @@ function MainIngameOverlay:UpdatePanelItems()
 	for _,i in ipairs(self.slot_panel.slots) do
 		item = actor:item_in_slot(i)
 		if item and (tonumber(i) ~= BACKPACK_SLOT or read_if_exists(sys_ini, "r_bool", item:section(), "quick_drop", false)) then
-			cell_item = ui_cell_item.UICellItem(item, self.slot_panel.scale)
+			cell_item = ui_cell_item.UICellItem(item, self.slot_panel.scale, self.slot_panel)
 			cell_item:SetUpdatable(false)			
 			ui_inv_utils.AttachPanelIcons(item, cell_item:GetIcon())
 			cell_item:SetWndPos(pos.x, pos.y)
@@ -377,7 +372,6 @@ function MainIngameOverlay:UpdatePanelItems()
 			else
 				pos.x = pos.x + cell_item:GetWidth() + self.slot_panel.indent
 			end
-			self.slot_panel:AttachChild(cell_item)
 		end
 	end
 	--// belt
@@ -393,7 +387,7 @@ function MainIngameOverlay:UpdatePanelItems()
 	table.sort(items,ui_inv_utils.sort_ui_panel_item)
 	for k, v in ipairs(items) do
 		--log3("set to belt panel item %s", v.item:section())
-		cell_item = ui_cell_item.UICellItem(v.item, self.slot_panel.scale)
+		cell_item = ui_cell_item.UICellItem(v.item, self.slot_panel.scale, self.belt_panel)
 		cell_item:SetUpdatable(false)			
 		ui_inv_utils.AttachPanelIcons(v.item, cell_item:GetIcon())
 		cell_item:SetWndPos(pos.x, pos.y)
@@ -407,7 +401,6 @@ function MainIngameOverlay:UpdatePanelItems()
 		else
 			pos.x = pos.x + cell_item:GetWidth() + self.belt_panel.indent
 		end
-		self.belt_panel:AttachChild(cell_item)
 	end
 	--// loadout
 	pos = vector2():set(0,0)
@@ -422,7 +415,7 @@ function MainIngameOverlay:UpdatePanelItems()
 	table.sort(items,ui_inv_utils.sort_ui_panel_item)
 	for k, v in ipairs(items) do
 		--log3("set to loadout panel item %s", v.item:section())
-		cell_item = ui_cell_item.UICellItem(v.item, self.slot_panel.scale)
+		cell_item = ui_cell_item.UICellItem(v.item, self.slot_panel.scale, self.loadout_panel)
 		cell_item:SetUpdatable(false)			
 		ui_inv_utils.AttachPanelIcons(v.item, cell_item:GetIcon())
 		cell_item:SetWndPos(pos.x, pos.y)
@@ -436,7 +429,6 @@ function MainIngameOverlay:UpdatePanelItems()
 		else
 			pos.x = pos.x + cell_item:GetWidth() + self.loadout_panel.indent
 		end
-		self.loadout_panel:AttachChild(cell_item)
 	end	
 end
 
@@ -446,7 +438,7 @@ function MainIngameOverlay:UpdatePanelBoosters()
 	self.booster_panel:DetachAll()
 	local pos = vector2():set(0,0)
 	for b_sect,b_time in pairs(boosters.get_all()) do
-		cell_item = ui_cell_item.UICellItem(b_sect, self.booster_panel.scale)
+		cell_item = ui_cell_item.UICellItem(b_sect, self.booster_panel.scale, self.booster_panel)
 		cell_item:SetUpdatable(false)			
 		--ui_inv_utils.AttachPanelIcons(item, item_st)
 		cell_item:SetWndPos(pos.x, pos.y)
@@ -460,7 +452,6 @@ function MainIngameOverlay:UpdatePanelBoosters()
 		else
 			pos.x = pos.x + cell_item:GetWidth() + self.booster_panel.indent
 		end
-		self.booster_panel:AttachChild(cell_item)
 	end
 end
 

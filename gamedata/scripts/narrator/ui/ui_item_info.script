@@ -164,7 +164,7 @@ function UIItemInfo:UpdateWndPos()
 	if not self.background_frame:IsShown() then
 	return end
 	
-	local pos = level.get_cursor_pos()
+	local pos = vector2():set(self.owner:GetMousePosX(), self.owner:GetMousePosY())
 	pos.x = pos.x + self.background_frame.offset.x
 	pos.y = pos.y + self.background_frame.offset.y
 	local wnd_size = {x = self.background_frame:GetWidth(), y = self.background_frame:GetHeight()}

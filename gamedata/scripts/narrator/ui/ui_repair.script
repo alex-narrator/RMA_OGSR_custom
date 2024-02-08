@@ -46,6 +46,7 @@ function RepairOverlay:Subscribe()
 			{signal = "on_talk_show", self = self, fun = self.DetachWnd},
 			{signal = "on_talk_hide", self = self, fun = self.DetachWnd},
 			{signal = "on_trade_show", self = self, fun = self.DetachWnd},
+			{signal = "on_trade_hide", self = self, fun = self.DetachWnd},
 			{signal = "on_cell_item_select", self = self, fun = self.SetSelectedItem},
 			{signal = "on_cell_item_dbclick", self = self, fun = self.ShowRepairRequest},
 		}
@@ -71,10 +72,11 @@ function RepairOverlay:DetachWnd()
 	self:Unsubscribe()
 	self:ClearCallbacks()
 	self.owner:DetachChild(self)
+	self.cell_container:DetachWnd()
 	overlay = nil
 	ogse_signals.get_mgr():call("on_repair_hide")
 	self.owner:FindChild("---UIQuestionsList"):Show(true)
-	self.owner:FindChild("---UIAnswersList"):Show(true)	
+	self.owner:FindChild("---UIAnswersList"):Show(true)
 end
 
 function RepairOverlay:InitControls()
@@ -92,12 +94,6 @@ function RepairOverlay:InitControls()
 	
 	xml:InitAutoStaticGroup("repair_back:auto_static", self.repair_back)
 	
-	self.items_scroll_view_weapon = xml:InitScrollView("repair_back:scroll_view_weapon", self.repair_back)
-	self.items_scroll_view_weapon.scale = xml:ReadAttribFlt("repair_back:scroll_view_weapon", "scale", 1)
-	
-	self.items_scroll_view_armor = xml:InitScrollView("repair_back:scroll_view_armor", self.repair_back)
-	self.items_scroll_view_armor.scale = xml:ReadAttribFlt("repair_back:scroll_view_armor", "scale", 1)
-	
 	self.selected_item_back = xml:InitStatic("repair_back:selected_item_back", self.repair_back)
 	self.repair_cost 		= xml:InitStatic("repair_back:repair_cost", self.repair_back)
 	
@@ -113,17 +109,11 @@ function RepairOverlay:InitControls()
 	self:Register(self.exit_button, name)
 	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.DetachWnd, self)
 	
-	--self:InitItemsList()
+	self.cell_container = ui_cell_item_container.UICellItemContainer(xml, "repair_back:cell_container_repair", self.repair_back)
 end
 
 function RepairOverlay:Update()
 	CUIScriptWnd.Update(self)
-	
-	for k,v in pairs (self.items) do
-		if not v:IsShown() then
-			v:Show(true)
-		end
-	end
 end
 
 function RepairOverlay:Reinit()
@@ -139,39 +129,31 @@ function RepairOverlay:InitItemsList()
 	local cell_item, params, name
 	
 	self.selected_item_id = nil
-	self.focused_item_id = nil
-	self.items_scroll_view_weapon:Clear()
-	self.items_scroll_view_armor:Clear()
 	
-	self.items = {}
-	local parent
+	local items = {}
 	function perform_action(dummy, item)
 		if self:RepairAllowed(item) then
-			parent = item:is_weapon() and self.items_scroll_view_weapon or self.items_scroll_view_armor
-						
-			cell_item = ui_cell_item.UICellItem(item, parent.scale)
-			cell_item:SetUpdatable(false)
-			self.items[item:id()] = cell_item
-			ui_inv_utils.AttachRepairMenuIcons(item, cell_item:GetIcon())
-			parent:AddWindow(cell_item)
+			table.insert(items, item)
 		end
 	end
 	actor:iterate_inventory(perform_action, nil)
+	
+	self.cell_container:Reinit()
+	table.sort(items, ui_inv_utils.sort_items)
+	for k,item in ipairs(items) do
+		self.cell_container:AddItem(item)
+	end
 end
 
 function RepairOverlay:SetSelectedItem(item)
-	for k,v in pairs(self.items) do
-		v:ClearHighlight()
-	end
+	if item:id() == self.selected_item_id then
+	return end
 	self.selected_item_id = item:id()
-	local icon = ui_cell_item.UICellItem(item)
+	self.selected_item_back:DetachAll()
+	local icon = ui_cell_item.UICellItem(item,1,self.selected_item_back)
 	icon:SetScaleToWnd(self.selected_item_back)
 	icon:SetOffsetToWnd(self.selected_item_back, "center")
-	icon:EnableHighlight(false)
-	icon:SetSelectable(false)
 	icon:SetUpdatable(false)
-	self.selected_item_back:DetachAll()
-	self.selected_item_back:AttachChild(icon)
 	ui_inv_utils.AttachRepairMenuIcons(item, icon:GetIcon())
 	self.selected_item_back:SetText(game.translate_string(get_inv_name(item:section())))
 	self:UpdateRepairInfo()

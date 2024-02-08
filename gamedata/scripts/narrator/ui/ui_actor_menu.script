@@ -522,7 +522,7 @@ function ActorMenuOverlay:UpdateTooltip()
 	if not self.tooltip_frame:IsShown() then
 	return end
 	
-	local pos = level.get_cursor_pos()
+	local pos = vector2():set(self.owner:GetMousePosX(), self.owner:GetMousePosY())
 	pos.x = pos.x + self.tooltip_frame.offset.x
 	pos.y = pos.y + self.tooltip_frame.offset.y
 	local wnd_size = {x = self.tooltip_frame:GetWidth(), y = self.tooltip_frame:GetHeight()}

@@ -23,13 +23,42 @@ function GetOffset(offset_type, icon, parent_icon)
 end
 
 function similar_item(item1, item2)
-	local base_similar = item1:section() == item2:section()
+	local fsim = math.fsimilar
+	local cmp = 0.01
+	local iitem1, iitem2 = item1:get_inventory_item(), item2:get_inventory_item()
+	
+	local function same_effect(item1, item2)
+		for i=0,10 do
+			if not fsim(iitem1:item_effect(i), iitem2:item_effect(i), cmp) then
+				return false 
+			end
+		end
+		return true
+	end
+
+	local similar = fsim(item1:condition(), item2:condition(), cmp) and
+		fsim(item1:weight(), item2:weight(), cmp) and
+		fsim(item1:cost(), item2:cost(), cmp) and
+		item1:section() == item2:section() and
+		item1.marked == item2.marked and
+		same_effect(item1, item2) and
+		--iitem1:item_effect(effect.radiation_restore) == iitem2:item_effect(effect.radiation_restore) and
+		iitem1.item_place == iitem2.item_place
+	
 	local ammo1, ammo2 = item1:get_weapon_ammo(), item2:get_weapon_ammo()
 	if ammo1 and ammo2 and ammo1:is_magazine() and ammo2:is_magazine() then
 		local similar_magazine = (ammo1:ammo_sect() == ammo2:ammo_sect() and ammo1.box_curr > 0 and ammo2.box_curr > 0) or (ammo1.box_curr == 0 and ammo2.box_curr == 0)
-		return base_similar and similar_magazine
+		return similar and similar_magazine
 	end
-	return base_similar
+	
+	local eatable1, eatable2 = item1:get_eatable_item(), item2:get_eatable_item()
+	if eatable1 and eatable2 then
+		return similar and eatable1.eat_portions_num == eatable2.eat_portions_num
+	end
+	
+	
+	
+	return similar
 end
 
 local OVERLAY_XML = "script_overlays\\actor_menu_overlay.xml"
@@ -169,6 +198,29 @@ function UpdateAdditionalStatic(icon, text)
 	icon_custom = xml:InitStatic("cell_item_custom", icon)
 	icon_custom:SetWindowName("icon_custom")
 	update(icon_custom)
+end
+
+function UpdateCellItemCount(icon, count)
+	if not count or count <= 1 then
+	return end
+
+	local function update(static)
+		local offset = GetOffset("left_top", static, icon)
+		static:SetText(string.format("x%s", count))
+		static:SetWndPos(offset.x, offset.y)
+		icon:BringToTop(static)
+	end
+	
+	local cell_item_count = icon:FindChild("cell_item_count")
+	if cell_item_count then
+		cell_item_count = cell_item_count:GetCUIStatic()
+		update(cell_item_count)
+	return end
+	local xml = CScriptXmlInit()
+	xml:ParseFile(OVERLAY_XML)
+	cell_item_count = xml:InitStatic("cell_item_count", icon)
+	cell_item_count:SetWindowName("cell_item_count")
+	update(cell_item_count)
 end
 
 function UpdateConditionStatic(item, icon)
@@ -460,6 +512,31 @@ function sort_ui_panel_item(a, b)
 		
 		if size1.y == size2.y then
 			local ammo1, ammo2 = a.item:get_weapon_ammo(), b.item:get_weapon_ammo()
+			
+			if ammo1 and ammo2 then						
+				return ammo1.box_size > ammo2.box_size 
+			end
+		end
+	end
+	
+	return false
+end
+
+function sort_items(a, b)
+	local params1, params2 = CIconParams(a:section()), CIconParams(b:section())
+	local size1, size2 = vector2():set(params1.grid_width, params1.grid_height), vector2():set(params2.grid_width, params2.grid_height)
+	
+	if size1.x > size2.x then
+		return true 
+	end
+	
+	if size1.x == size2.x then
+		if size1.y > size2.y then
+			return true 
+		end
+		
+		if size1.y == size2.y then
+			local ammo1, ammo2 = a:get_weapon_ammo(), b:get_weapon_ammo()
 			
 			if ammo1 and ammo2 then						
 				return ammo1.box_size > ammo2.box_size 

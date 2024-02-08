@@ -110,6 +110,7 @@ function actor_binder:net_destroy()
 	self.object:set_callback(callback.on_key_release, nil)
 	self.object:set_callback(callback.on_key_hold, nil)
 	self.object:set_callback(callback.on_mouse_wheel, nil)
+	--self.object:set_callback(callback.on_mouse_move, nil)
 	--
 	self.object:set_callback(callback.on_hud_state_switch, nil)
 	self.object:set_callback(callback.on_actor_weapon_zoom_in, nil)
@@ -171,6 +172,7 @@ function actor_binder:reinit()
 	self.object:set_callback(callback.on_cell_item_focus_lost, self.on_cell_item_focus_lost, self)
 	self.object:set_callback(callback.on_cell_item_select, self.on_cell_item_select, self)	
 	self.object:set_callback(callback.on_cell_item_mouse, self.on_cell_item_mouse, self)
+	--self.object:set_callback(callback.on_mouse_move, self.on_mouse_move, self)
 	--
 	self.object:set_callback(callback.on_key_press, self.on_key_press, self)
 	self.object:set_callback(callback.on_key_release, self.on_key_release, self)
@@ -572,6 +574,9 @@ end
 function actor_binder:on_mouse_wheel(direction)
 	self.sm:call("on_mouse_wheel", direction)
 end
+-- function actor_binder:on_mouse_move(x, y)
+	-- self.sm:call("on_mouse_move", x, y)
+-- end
 
 function actor_binder:on_hud_state_switch(item, state, old_state)
 	self.sm:call("on_hud_state_switch", item, state, old_state)

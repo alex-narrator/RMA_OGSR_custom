@@ -4,7 +4,7 @@ function attach(sm)
 	sm:subscribe({signal = "on_pickup_item_showing", 	fun = this.update_custom_icons})
 end
 
-function update_custom_icons(item, cell_item)
+function update_custom_icons(item, cell_item, count)
 	local text = nil
 	
 	local ammo = item:get_weapon_ammo()
@@ -33,5 +33,6 @@ function update_custom_icons(item, cell_item)
 	ui_inv_utils.UpdateQuestIcon(item, cell_item)
 	--ui_inv_utils.UpdateConditionStatic(item, cell_item)
 	ui_inv_utils.UpdateAdditionalStatic(cell_item, text)
+	ui_inv_utils.UpdateCellItemCount(cell_item, count)
 	ui_inv_utils.UpdateConditionProgress(item, cell_item)
 end
