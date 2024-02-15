@@ -41,7 +41,9 @@ function on_zoom_in(weapon)
 		end,
 		function()
 			level.show_item_hud(false)
-			main_wnd:AttachChild(scope_static)
+			if not main_wnd:IsChild(scope_static) then
+				main_wnd:AttachChild(scope_static)
+			end
 			main_wnd:BringToBottom(scope_static)		
 		end		
 	)		

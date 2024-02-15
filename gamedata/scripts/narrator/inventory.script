@@ -56,7 +56,7 @@ function check_items_to_show(inv_owner, show_mode)
 		elseif show_mode == "ammo" then
 			return item:is_ammo() or item:is_grenade()
 		elseif show_mode == "outfit" then
-			return item:is_outfit() or item:is_helmet() or loadout.is_module(item)
+			return item:is_outfit() or item:is_helmet() or loadout.is_module(item) or item:get_container()
 		elseif show_mode == "eatable" then
 			return item:is_eatable_item() and not string.find(item:section(), "pda")
 		elseif show_mode == "artefact" then
@@ -90,6 +90,23 @@ function check_items_to_show(inv_owner, show_mode)
 	else
 		inv_owner:iterate_inventory(perform_action, nil)
 	end
+end
+
+function set_item_visibility(inv_owner, show_mode)
+	if not inv_owner then return end
+	local item_type = ui_inv_utils.get_type
+	function perform_action(dummy, item)
+		if show_mode == 0 or (item_type(item) == show_mode or item_type(item) == 0) then
+			set_item_inv_visible(item)
+		else
+			set_item_inv_hidden(item)
+		end
+	end
+	if inv_owner:is_actor() and actor:has_info("ui_inventory") then
+		inv_owner:iterate_ruck(perform_action, nil)
+	else
+		inv_owner:iterate_inventory(perform_action, nil)
+	end	
 end
 
 function take_all(inv_owner)

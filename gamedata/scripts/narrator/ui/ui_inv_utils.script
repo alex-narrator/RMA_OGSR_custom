@@ -522,7 +522,13 @@ function sort_ui_panel_item(a, b)
 	return false
 end
 
-function sort_items(a, b)
+function sort_by_size(a, b)
+	if type(a) == "table" then
+		a = a.item
+	end
+	if type(b) == "table" then
+		b = b.item
+	end	
 	local params1, params2 = CIconParams(a:section()), CIconParams(b:section())
 	local size1, size2 = vector2():set(params1.grid_width, params1.grid_height), vector2():set(params2.grid_width, params2.grid_height)
 	
@@ -547,5 +553,38 @@ function sort_items(a, b)
 	return false
 end
 
-function sort_section(item1, item2)
+function get_type(item)
+	if item.marked then
+		return 0
+	end
+	if item:is_weapon() or string.find(item:section(), "wp_") or string.find(item:section(), "wpn_") then
+		return 1
+	end
+	if item:is_ammo() or item:is_grenade() then
+		return 2
+	end
+	if item:is_outfit() or item:is_helmet() or loadout.is_module(item) or item:get_container() then
+		return 3
+	end
+	if item:is_eatable_item() and not string.find(item:section(), "pda") then
+		return 4
+	end
+	if item:is_artefact() then
+		return 5
+	end
+	if item:is_torch() or item:get_pda() or item:get_detector() or is_power_device(item) or string.find(item:section(), "pda") then
+		return 6
+	end
+	return 7
+end
+
+function sort_by_type(a, b)
+	return get_type(a) > get_type(b)
+end
+
+function sort_by_size_type(a, b)
+	if get_type(a) == get_type(b) then
+		return sort_by_size(a, b)
+	end
+	return not sort_by_type(a, b)
 end

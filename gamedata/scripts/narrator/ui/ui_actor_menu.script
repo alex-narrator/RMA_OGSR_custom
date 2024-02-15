@@ -117,7 +117,7 @@ end
 
 function ActorMenuOverlay:InitControls()
 	self.owner:AttachChild(self)
-	self:Init(0, 0, 1024, 768)
+	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
 	self:Enable(true)
 	self:Show(true)
 	
@@ -230,35 +230,28 @@ function ActorMenuOverlay:InitControls()
 	end
 	self:UpdateSlots()
 	
-	self.switch_equiped_item_visibility = xml:Init3tButton("switch_equiped_item_visibility_button", self)
-	name = "switch_equiped_item_visibility"
-	self:Register(self.switch_equiped_item_visibility, name)
-	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.SwitchEquipedItemVisibility, self)
-	self.switch_equiped_item_visibility:Show(self:GetMode() ~= "inventory")
-	self.switch_equiped_item_visibility:Enable(self:GetMode() ~= "inventory")	
-	
 	--//show types buttons back
 	self.show_buttons_back = xml:InitStatic("show_buttons_back", self)
 	prefix = "show_buttons_back:"
 	self.show_buttons = {
-		["all"] = {},
-		["weapon"] = {},
-		["ammo"] = {},
-		["outfit"] = {},
-		["eatable"] = {},
-		["artefact"] = {},
-		["device"] = {},
-		["misc"] = {},
+		[0] = {name = "all"},
+		[1] = {name = "weapon"},
+		[2] = {name = "ammo"},
+		[3] = {name = "outfit"},
+		[4] = {name = "eatable"},
+		[5] = {name = "artefact"},
+		[6] = {name = "device"},
+		[7] = {name = "misc"},
 	}
 	for k,v in pairs(self.show_buttons) do
-		v.button = xml:InitCheck(prefix.."show_"..k.."_button", self.show_buttons_back)
-		v.accel = xml:ReadAttrib(prefix.."show_"..k.."_button", "accel", nil)
+		v.button = xml:InitCheck(prefix.."show_"..v.name.."_button", self.show_buttons_back)
+		v.accel = xml:ReadAttrib(prefix.."show_"..v.name.."_button", "accel", nil)
 		if v.accel then
 			v.button:SetAccelerator(keyname_to_dik(v.accel), 0)
 		end
-		v.hint = xml:ReadAttrib(prefix.."show_"..k.."_button", "hint", "")
-		v.st = xml:InitStatic(prefix.."show_"..k.."_button:static", v.button)
-		name = "show_"..k
+		v.hint = xml:ReadAttrib(prefix.."show_"..v.name.."_button", "hint", "")
+		v.st = xml:InitStatic(prefix.."show_"..v.name.."_button:static", v.button)
+		name = "show_"..v.name
 		self:Register(v.button, name)
 		self:AddCallback(name, ui_events.BUTTON_CLICKED, function() self:OnShowButtonClick(k) end, self)
 		self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnShowButtonFocusReceived(k) end)
@@ -286,12 +279,6 @@ function ActorMenuOverlay:InitControls()
 	self.char_info_icon_comm_npc = xml:InitStatic("char_info_icon_comm_npc", self.char_info_back_npc)
 	self.char_info_text_npc = xml:InitStatic("char_info_text_npc", self.char_info_back_npc)
 	self.char_info_text_header_npc = xml:InitStatic("char_info_text_header_npc", self.char_info_back_npc)	
-	
-	--//exit button
-	self.exit_button = xml:Init3tButton("exit_button", self)
-	name = "exit_button"
-	self:Register(self.exit_button, name)
-	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.Exit, self)
 	
 	--//weight static
 	self.inv_weight = xml:InitStatic("weight_static", self)
@@ -321,13 +308,19 @@ function ActorMenuOverlay:InitControls()
 		end
 	end
 	
+	--//exit button
+	self.exit_button = xml:Init3tButton("exit_button", self)
+	name = "exit_button"
+	self:Register(self.exit_button, name)
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.Exit, self)	
+	
 	--//organize button
 	self.organize_button = xml:Init3tButton("organize_button", self)
 	name = "organize_button"
 	self:Register(self.organize_button, name)
 	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.Organize, self)
-	self.organize_button:Show(self:GetMode() == "inventory")
-	self.organize_button:Enable(self:GetMode() == "inventory")
+	-- self.organize_button:Show(self:GetMode() == "inventory")
+	-- self.organize_button:Enable(self:GetMode() == "inventory")
 	
 	--//carbody mode
 	--//take all button
@@ -360,6 +353,13 @@ function ActorMenuOverlay:InitControls()
 	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.SwitchToTalk, self)
 	self.to_talk_button:Show(self:GetMode() == "trade")
 	self.to_talk_button:Enable(self:GetMode() == "trade")
+	
+	-- self.switch_equiped_item_visibility = xml:Init3tButton("switch_equiped_item_visibility_button", self)
+	-- name = "switch_equiped_item_visibility"
+	-- self:Register(self.switch_equiped_item_visibility, name)
+	-- self:AddCallback(name, ui_events.BUTTON_CLICKED, self.SwitchEquipedItemVisibility, self)
+	-- self.switch_equiped_item_visibility:Show(self:GetMode() ~= "inventory")
+	-- self.switch_equiped_item_visibility:Enable(self:GetMode() ~= "inventory")	
 end
 
 function ActorMenuOverlay:QuickOnFocusReceived(slot_num)
@@ -573,25 +573,25 @@ function ActorMenuOverlay:ClearLoadout()
 	loadout.clear_all()
 end
 
-function ActorMenuOverlay:SwitchEquipedItemVisibility()
-	self.equiped_item_visible = not self.equiped_item_visible
-	self:UpdateEquipedItemVisibility()
-end
+-- function ActorMenuOverlay:SwitchEquipedItemVisibility()
+	-- self.equiped_item_visible = not self.equiped_item_visible
+	-- self:UpdateEquipedItemVisibility()
+-- end
 
-function ActorMenuOverlay:UpdateEquipedItemVisibility()
-	inventory.set_equiped_items_visibility(self.equiped_item_visible)
-	update_inventory_window()
+-- function ActorMenuOverlay:UpdateEquipedItemVisibility()
+	-- inventory.set_equiped_items_visibility(self.equiped_item_visible)
+	-- update_inventory_window()
 	
-	local button_text = self.equiped_item_visible and "st_hide_equiped_item" or "st_show_equiped_item"
-	button_text = game.translate_string(button_text)
-	self.switch_equiped_item_visibility:SetText(button_text)
-end
+	-- local button_text = self.equiped_item_visible and "st_hide_equiped_item" or "st_show_equiped_item"
+	-- button_text = game.translate_string(button_text)
+	-- self.switch_equiped_item_visibility:SetText(button_text)
+-- end
 
 function ActorMenuOverlay:OnShow()
 	self.target = self:GetTarget()
-	self.equiped_item_visible = self:GetMode() == "inventory"
-	self:UpdateEquipedItemVisibility()
-	self:OnShowButtonClick("all")
+	--self.equiped_item_visible = self:GetMode() == "inventory"
+	--self:UpdateEquipedItemVisibility()
+	self:OnShowButtonClick(0)
 	self:OnActorIconUpdate()
 	self:OnNPCIconUpdate()
 	self:SetCharacterText()	
@@ -599,11 +599,13 @@ function ActorMenuOverlay:OnShow()
 end
 
 function ActorMenuOverlay:OnHide()
-	self:OnShowButtonClick("all")	
-	self.equiped_item_visible = true
-	self:UpdateEquipedItemVisibility()
-	inventory.check_items_to_show(actor, "all")
-	inventory.check_items_to_show(self.target, "all")
+	self:OnShowButtonClick(0)	
+	--self.equiped_item_visible = true
+	--self:UpdateEquipedItemVisibility()
+	-- inventory.check_items_to_show(actor, "all")
+	-- inventory.check_items_to_show(self.target, "all")
+	inventory.set_item_visibility(actor, 0)
+	inventory.set_item_visibility(self.target, 0)
 	self.target = nil
 end
 
@@ -613,8 +615,10 @@ end
 
 --//switching of item visibility functions
 function ActorMenuOverlay:OnShowButtonClick(show_type)
-	inventory.check_items_to_show(actor, show_type)
-	inventory.check_items_to_show(self.target, show_type)
+	-- inventory.check_items_to_show(actor, show_type)
+	-- inventory.check_items_to_show(self.target, show_type)
+	inventory.set_item_visibility(actor, show_type)
+	inventory.set_item_visibility(self.target, show_type)	
 	for k,v in pairs(self.show_buttons) do
 		v.button:SetCheck(k == show_type)
 	end
