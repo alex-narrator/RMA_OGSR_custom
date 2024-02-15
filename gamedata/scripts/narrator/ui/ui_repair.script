@@ -1,6 +1,11 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 local OVERLAY_XML = "script_overlays\\repair_overlay.xml"
 
+local back_texture 		= "square_light_grey"
+local color_default 	= GetARGB(0, 255, 255, 255)
+local color_focused 	= GetARGB(70, 200, 200, 200)
+local color_selected 	= GetARGB(170, 35, 200, 35)
+
 class "RepairOverlay" (CUIScriptWnd)
 
 local overlay = nil
@@ -46,7 +51,7 @@ function RepairOverlay:Subscribe()
 			{signal = "on_talk_show", self = self, fun = self.DetachWnd},
 			{signal = "on_talk_hide", self = self, fun = self.DetachWnd},
 			{signal = "on_trade_show", self = self, fun = self.DetachWnd},
-			{signal = "on_key_press", self = self, fun = self.OnKeyPress},
+			--{signal = "on_key_press", self = self, fun = self.OnKeyPress},
 		}
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
@@ -116,9 +121,9 @@ function RepairOverlay:InitControls()
 	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.DetachWnd, self)
 	
 	--//list item colors
-	self.color_default 		= GetARGB(255, 255, 255, 255)
-	self.color_highlight 	= GetARGB(255, 238, 153, 26)
-	self.color_selected 	= GetARGB(255, 0, 255, 0)
+	-- self.color_default 		= GetARGB(255, 255, 255, 255)
+	-- self.color_highlight 	= GetARGB(255, 238, 153, 26)
+	-- self.color_selected 	= GetARGB(255, 0, 255, 0)
 	
 	--self:InitItemsList()
 end
@@ -143,38 +148,13 @@ function RepairOverlay:Reinit()
 end
 
 function RepairOverlay:InitItemsList()
-	local item_st, params, name
+	local item_st, back_st, params, name
 	
 	self.selected_item_id = nil
 	self.focused_item_id = nil
 	self.items_scroll_view_weapon:Clear()
 	self.items_scroll_view_armor:Clear()
-	
-	-- self.items = {}
-	-- local parent
-	-- function perform_action(dummy, item)
-		-- if self:RepairAllowed(item) then
-			-- params = CIconParams(item:section())
-			-- item_st = CUIStatic()
-			-- self.items[item:id()] = item_st
-			-- params:set_shader(item_st)
-			
-			-- parent = item:is_weapon() and self.items_scroll_view_weapon or self.items_scroll_view_armor
-			
-			-- item_st:SetWidth(params.grid_width * parent.scale * CELL_W * get_current_kx())
-			-- item_st:SetHeight(params.grid_height * parent.scale * CELL_H)
-			
-			-- ui_inv_utils.AttachRepairMenuIcons(item, item_st)
-			-- parent:AddWindow(item_st)
-						
-			-- name = "repair_list_"..item:id()
-			-- self:Register(item_st, name)
-			-- self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:RepairListItemOnFocusReceived(item:id()) end, self)
-			-- self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:RepairListItemOnFocusLost(item:id()) end, self)
-			-- self:AddCallback(name, ui_events.WINDOW_LBUTTON_DB_CLICK, function() self:ShowRepairRequest() end, self)
-		-- end
-	-- end
-	
+		
 	local items = {}
 	function fill_list(dummy, item)
 		if self:RepairAllowed(item) then
@@ -195,15 +175,27 @@ function RepairOverlay:InitItemsList()
 			
 		item_st:SetWidth(params.grid_width * parent.scale * CELL_W * get_current_kx())
 		item_st:SetHeight(params.grid_height * parent.scale * CELL_H)
+		
+		back_st = CUIStatic()
+		back_st:InitTexture(back_texture)
+		back_st:SetStretchTexture(true)
+		back_st:SetColor(color_default)
+		back_st:SetWidth(item_st:GetWidth())
+		back_st:SetHeight(item_st:GetHeight())
+		
+		back_st:AttachChild(item_st)
+		self.items[item:id()].back = back_st
+		
 			
 		ui_inv_utils.AttachRepairMenuIcons(item, item_st)
-		parent:AddWindow(item_st)
+		parent:AddWindow(back_st)
 						
 		name = "repair_list_"..item:id()
 		self:Register(item_st, name)
 		self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:RepairListItemOnFocusReceived(item:id()) end, self)
 		self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:RepairListItemOnFocusLost(item:id()) end, self)
 		self:AddCallback(name, ui_events.WINDOW_LBUTTON_DB_CLICK, function() self:ShowRepairRequest() end, self)
+		self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnLButtonDown() end, self)
 	end
 end
 
@@ -211,7 +203,7 @@ function RepairOverlay:RepairListItemOnFocusReceived(id)
 	self.focused_item_id = id
 	--log3("~RepairListItemOnFocusReceived item %s | id %s", level.object_by_id(id):name(), id)
 	if not self.selected_item_id or id ~= self.selected_item_id then
-		self.items[self.focused_item_id]:SetColor(self.color_highlight)
+		self.items[self.focused_item_id].back:SetColor(color_focused)
 	end
 	ogse_signals.get_mgr():call("on_repair_list_item_focus", level.object_by_id(id))
 end
@@ -220,19 +212,19 @@ function RepairOverlay:RepairListItemOnFocusLost(id)
 	self.focused_item_id = nil
 	--log3("~RepairListItemOnFocusLost item %s | id %s", level.object_by_id(id):name(), id)
 	if not self.selected_item_id or id ~= self.selected_item_id then
-		self.items[id]:SetColor(self.color_default)
+		self.items[id].back:SetColor(color_default)
 	end
 	ogse_signals.get_mgr():call("on_repair_list_item_focus_lost", level.object_by_id(id))
 end
 
-function RepairOverlay:OnKeyPress(key, game_action)
-	if key == DIK_keys.MOUSE_1 and self.focused_item_id then
+function RepairOverlay:OnLButtonDown()
+	if self.focused_item_id then
 		if self.selected_item_id then
-			self.items[self.selected_item_id]:SetColor(self.color_default)
+			self.items[self.selected_item_id].back:SetColor(color_default)
 		end
 		self.selected_item_id = self.focused_item_id
 		--log3("selected_item_id item %s | id %s", level.object_by_id(self.selected_item_id):name(), self.selected_item_id)
-		self.items[self.selected_item_id]:SetColor(self.color_selected)
+		self.items[self.selected_item_id].back:SetColor(color_selected)
 		
 		local sect = level.object_by_id(self.selected_item_id):section()
 		params = CIconParams(sect)
