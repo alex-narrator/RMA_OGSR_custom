@@ -495,33 +495,6 @@ function AttachPanelIcons(item, icon)
 	--UpdateConditionStatic(item, icon)
 end
 
-function sort_ui_panel_item(a, b)
-	--log3("~a.item:section() %s", a.item:section())
-	--log3("~b.item:section() %s", b.item:section())
-	local params1, params2 = CIconParams(a.item:section()), CIconParams(b.item:section())
-	local size1, size2 = vector2():set(params1.grid_width, params1.grid_height), vector2():set(params2.grid_width, params2.grid_height)
-	
-	if size1.x > size2.x then
-		return true 
-	end
-	
-	if size1.x == size2.x then
-		if size1.y > size2.y then
-			return true 
-		end
-		
-		if size1.y == size2.y then
-			local ammo1, ammo2 = a.item:get_weapon_ammo(), b.item:get_weapon_ammo()
-			
-			if ammo1 and ammo2 then						
-				return ammo1.box_size > ammo2.box_size 
-			end
-		end
-	end
-	
-	return false
-end
-
 function sort_by_size(a, b)
 	if type(a) == "table" then
 		a = a.item
@@ -579,12 +552,12 @@ function get_type(item)
 end
 
 function sort_by_type(a, b)
-	return get_type(a) > get_type(b)
+	return get_type(a) < get_type(b)
 end
 
 function sort_by_size_type(a, b)
 	if get_type(a) == get_type(b) then
 		return sort_by_size(a, b)
 	end
-	return not sort_by_type(a, b)
+	return sort_by_type(a, b)
 end
