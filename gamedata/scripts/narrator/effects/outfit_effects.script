@@ -110,8 +110,6 @@ function on_slot(obj, prev_place)
 	)
 	
 	if obj:is_outfit() and not xr_conditions.black_screen() then
-		-- level.add_complex_effector(equip_outfit_effector, equip_outfit_effector_id)
-		-- xr_sound.get_safe_sound_object(equip_outfit_snd,sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
 		if known_outfits[obj:section()] then
 			outfit_anim.play("outfit_equip_fast_hud")
 		else
@@ -135,8 +133,6 @@ function on_non_slot(obj, prev_place)
 	end	
 		
 	if obj:is_outfit() and actor:alive() and level.main_input_receiver() then
-		-- xr_sound.get_safe_sound_object(equip_outfit_snd,sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
-		-- level.add_complex_effector(equip_outfit_effector, equip_outfit_effector_id)
 		add_update_delayed_action(1, function() backpack.play_anim(3) end)
 	end
 end

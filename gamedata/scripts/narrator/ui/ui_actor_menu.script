@@ -3,12 +3,8 @@ local overlay = nil
 local OVERLAY_XML = "script_overlays\\actor_menu_overlay.xml"
 
 function attach(sm)
-	sm:subscribe({signal = "on_inventory_show",   	fun = this.create_window})
-	sm:subscribe({signal = "on_inventory_hide",   	fun = this.destroy_window})
-	sm:subscribe({signal = "on_carbody_show",   	fun = this.create_window})
-	sm:subscribe({signal = "on_carbody_hide",   	fun = this.destroy_window})
-	sm:subscribe({signal = "on_trade_show",   		fun = this.create_window})
-	sm:subscribe({signal = "on_trade_hide",   		fun = this.destroy_window})	
+	sm:subscribe({signal = "on_spawn",   			fun = this.create_window})
+	sm:subscribe({signal = "on_destroy",   			fun = this.destroy_window})	
 end
 
 local subscribed = false
@@ -29,7 +25,7 @@ function create_window()
 	if overlay then
 		destroy_window()
 	end
-	overlay = ActorMenuOverlay(get_current_owner())
+	overlay = ActorMenuOverlay()
 end
 
 function destroy_window()
@@ -41,11 +37,9 @@ end
 
 class "ActorMenuOverlay" (CUIScriptWnd)
 
-function ActorMenuOverlay:__init(owner) super()
-	self.owner = owner
+function ActorMenuOverlay:__init() super()
 	self:InitControls()
 	self:Subscribe()
-	self:OnShow()
 end
 
 function ActorMenuOverlay:GetMode()
@@ -72,6 +66,13 @@ function ActorMenuOverlay:Subscribe()
 	self.subscribed = false
 	if not self.subscribed then
 		self.subscribed = {
+			{signal = "on_inventory_show", self = self, fun = self.OnShow},
+			{signal = "on_inventory_hide", self = self, fun = self.OnHide},
+			{signal = "on_carbody_show", self = self, fun = self.OnShow},
+			{signal = "on_carbody_hide", self = self, fun = self.OnHide},
+			{signal = "on_trade_show", self = self, fun = self.OnShow},
+			{signal = "on_trade_hide", self = self, fun = self.OnHide},			
+		
 			{signal = "on_cell_item_focus", self = self, fun = self.OnCellItemFocus},
 			{signal = "on_cell_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
 			{signal = "on_cell_item_select", self = self, fun = self.OnCellItemSelect},
@@ -103,23 +104,15 @@ function ActorMenuOverlay:Unsubscribe()
 end
 
 function ActorMenuOverlay:DetachWnd()
-	self:OnHide()
 	quick_slots.set_selected(nil)
 	self:Unsubscribe()
 	self:ClearCallbacks()
-	for k, v in pairs(self.slot_keys) do
-		if v.parent then
-			v.parent:DetachChild(v.static)
-		end
-	end	
-	self.owner:DetachChild(self)
 end
 
 function ActorMenuOverlay:InitControls()
-	self.owner:AttachChild(self)
+	self.owner = nil
+	
 	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
-	self:Enable(true)
-	self:Show(true)
 	
 	local xml = CScriptXmlInit()
 	xml:ParseFile(OVERLAY_XML)
@@ -287,27 +280,6 @@ function ActorMenuOverlay:InitControls()
 	--//date/time static
 	self.time_static = xml:InitStatic("time_static", self)
 	
-	--//inventory mode
-	--//slot keys
-	self.slot_keys = {
-		[0] = {},
-		[1] = {},
-		[2] = {},
-		[3] = {},
-		[4] = {},
-		[5] = {},
-		[8] = {},
-		[10] = {},
-	}
-	for k, v in pairs(self.slot_keys) do
-		v.parent = self.owner:FindChild("dragdrop_slot_"..k)
-		if v.parent then
-			v.static = xml:InitStatic("slot_key", v.parent)
-			local key_text = "ui_use_slot_"..k
-			v.static:SetText(game.translate_string(key_text))
-		end
-	end
-	
 	--//exit button
 	self.exit_button = xml:Init3tButton("exit_button", self)
 	name = "exit_button"
@@ -319,47 +291,30 @@ function ActorMenuOverlay:InitControls()
 	name = "organize_button"
 	self:Register(self.organize_button, name)
 	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.Organize, self)
-	-- self.organize_button:Show(self:GetMode() == "inventory")
-	-- self.organize_button:Enable(self:GetMode() == "inventory")
 	
 	--//carbody mode
 	--//take all button
 	self.take_all_button = xml:Init3tButton("take_all_btn", self)
 	name = "take_all_button"
 	self:Register(self.take_all_button, name)
-	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.TakeAll, self)
-	self.take_all_button:Show(self:GetMode() == "carbody")
-	self.take_all_button:Enable(self:GetMode() == "carbody")	
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.TakeAll, self)	
 	--//move all ruck button
 	self.move_all_ruck_button = xml:Init3tButton("move_all_ruck_btn", self)
 	name = "move_all_ruck_button"
 	self:Register(self.move_all_ruck_button, name)
-	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.MoveAllRuck, self)
-	self.move_all_ruck_button:Show(self:GetMode() == "carbody")
-	self.move_all_ruck_button:Enable(self:GetMode() == "carbody")	
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.MoveAllRuck, self)	
 	
 	--//trade mode
 	--//trade button
 	self.trade_button = xml:Init3tButton("trade_button", self)
 	name = "trade_button"
 	self:Register(self.trade_button, name)
-	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.PerformTrade, self)
-	self.trade_button:Show(self:GetMode() == "trade")
-	self.trade_button:Enable(self:GetMode() == "trade")		
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.PerformTrade, self)	
 	--//to talk button
 	self.to_talk_button = xml:Init3tButton("to_talk_button", self)
 	name = "to_talk_button"
 	self:Register(self.to_talk_button, name)
 	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.SwitchToTalk, self)
-	self.to_talk_button:Show(self:GetMode() == "trade")
-	self.to_talk_button:Enable(self:GetMode() == "trade")
-	
-	-- self.switch_equiped_item_visibility = xml:Init3tButton("switch_equiped_item_visibility_button", self)
-	-- name = "switch_equiped_item_visibility"
-	-- self:Register(self.switch_equiped_item_visibility, name)
-	-- self:AddCallback(name, ui_events.BUTTON_CLICKED, self.SwitchEquipedItemVisibility, self)
-	-- self.switch_equiped_item_visibility:Show(self:GetMode() ~= "inventory")
-	-- self.switch_equiped_item_visibility:Enable(self:GetMode() ~= "inventory")	
 end
 
 function ActorMenuOverlay:QuickOnFocusReceived(slot_num)
@@ -496,14 +451,6 @@ function ActorMenuOverlay:LoadoutSlotOnFocusLost(slot_name)
 	self:SetTooltip(nil)
 end
 
--- function ActorMenuOverlay:LoadoutBackOnFocusReceived(slot_name)
-	-- loadout.static_focused = true
--- end
-
--- function ActorMenuOverlay:LoadoutBackOnFocusLost(slot_name)
-	-- loadout.static_focused = false
--- end
-
 function ActorMenuOverlay:SetTooltip(text)
 	self.tooltip_frame:Show(not not text)
 	self.tooltip_frame:SetHeight(self.tooltip_frame_base_height)
@@ -557,13 +504,6 @@ function ActorMenuOverlay:Update()
 		v.percent:SetText(string.format("%.0f%s", val*100, "%"))
 	end
 	
-	local inv = actor.inventory
-	for k, v in pairs(self.slot_keys) do
-		if v.static then
-			v.static:Show(inv:is_slot_allowed(k))
-		end
-	end
-
 	self:UpdateWeightText()
 	self:UpdateDateTimeText()
 	self:UpdateTooltip()
@@ -573,24 +513,16 @@ function ActorMenuOverlay:ClearLoadout()
 	loadout.clear_all()
 end
 
--- function ActorMenuOverlay:SwitchEquipedItemVisibility()
-	-- self.equiped_item_visible = not self.equiped_item_visible
-	-- self:UpdateEquipedItemVisibility()
--- end
-
--- function ActorMenuOverlay:UpdateEquipedItemVisibility()
-	-- inventory.set_equiped_items_visibility(self.equiped_item_visible)
-	-- update_inventory_window()
-	
-	-- local button_text = self.equiped_item_visible and "st_hide_equiped_item" or "st_show_equiped_item"
-	-- button_text = game.translate_string(button_text)
-	-- self.switch_equiped_item_visibility:SetText(button_text)
--- end
-
 function ActorMenuOverlay:OnShow()
+	self.owner = get_current_owner()
+	self.owner:AttachChild(self)
+	self:Show(true)
+	
 	self.target = self:GetTarget()
-	--self.equiped_item_visible = self:GetMode() == "inventory"
-	--self:UpdateEquipedItemVisibility()
+	self.take_all_button:Show(self:GetMode() == "carbody")
+	self.move_all_ruck_button:Show(self:GetMode() == "carbody")	
+	self.trade_button:Show(self:GetMode() == "trade")
+	self.to_talk_button:Show(self:GetMode() == "trade")	
 	self:OnShowButtonClick(0)
 	self:OnActorIconUpdate()
 	self:OnNPCIconUpdate()
@@ -599,14 +531,14 @@ function ActorMenuOverlay:OnShow()
 end
 
 function ActorMenuOverlay:OnHide()
-	self:OnShowButtonClick(0)	
-	--self.equiped_item_visible = true
-	--self:UpdateEquipedItemVisibility()
-	-- inventory.check_items_to_show(actor, "all")
-	-- inventory.check_items_to_show(self.target, "all")
+	self:OnShowButtonClick(0)
 	inventory.set_item_visibility(actor, 0)
 	inventory.set_item_visibility(self.target, 0)
 	self.target = nil
+	
+	self:Show(false)
+	self.owner:DetachChild(self)
+	self.owner = nil
 end
 
 function ActorMenuOverlay:Exit()
@@ -615,8 +547,6 @@ end
 
 --//switching of item visibility functions
 function ActorMenuOverlay:OnShowButtonClick(show_type)
-	-- inventory.check_items_to_show(actor, show_type)
-	-- inventory.check_items_to_show(self.target, show_type)
 	inventory.set_item_visibility(actor, show_type)
 	inventory.set_item_visibility(self.target, show_type)	
 	for k,v in pairs(self.show_buttons) do
@@ -754,12 +684,6 @@ function ActorMenuOverlay:SwitchToTalk()
 end
 
 function ActorMenuOverlay:UpdateCharInfos()
-	-- add_update_delayed_action(1,
-	-- function()
-		-- self:SetCharacterText()
-		-- self:SetCharacterTextNPC()	
-	-- end
-	-- )
 	self:SetCharacterText()
 	self:SetCharacterTextNPC()		
 end

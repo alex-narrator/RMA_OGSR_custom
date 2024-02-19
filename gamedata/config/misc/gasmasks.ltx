@@ -1,7 +1,7 @@
 ;---------------------------------------------------------------------------------------------
 ;		ПРОТИГАЗИ
 ;---------------------------------------------------------------------------------------------
-[gasmask_base]:identity_immunities,head_cover
+[gasmask_base]:identity_immunities
 class 					= EQ_HELMT
 $spawn 					= "outfit\helm_respirator"
 cform           		= skeleton
@@ -19,7 +19,14 @@ attach_position_offset 	= 0.064, 0.001, 0.099
 attach_bone_name		= bip01_head
 auto_attach				= false
 
+inv_grid_width       	= 2
+inv_grid_height      	= 2
+
 quick_slot 				= true
+
+covered_bones_sect 		= head_cover
+
+icon_group 				= 8
 
 [gasmask_cloth]:gasmask_base
 visual                        = dynamics\outfit\cloth_mask
@@ -28,10 +35,8 @@ inv_name                      = gasmask_cloth_name
 inv_name_short                = gasmask_cloth_short
 description                   = gasmask_cloth_descr
 		
-inv_grid_width     = 2
-inv_grid_height    = 2
-inv_grid_x         = 37
-inv_grid_y         = 0
+inv_grid_x         				= 0
+inv_grid_y         				= 0
 
 immunities_sect               = sect_gasmask_cloth_immunities
 
@@ -67,9 +72,7 @@ inv_name                      = gasmask_balaklava_name
 inv_name_short                = gasmask_balaklava_short
 description                   = gasmask_balaklava_descr
 		
-inv_grid_width     				= 2
-inv_grid_height    				= 2
-inv_grid_x         				= 37
+inv_grid_x         				= 0
 inv_grid_y         				= 2
 
 immunities_sect               = sect_gasmask_cloth_immunities
@@ -92,10 +95,10 @@ inv_name                      = gasmask_respirator_name
 inv_name_short                = gasmask_respirator_short
 description                   = gasmask_respirator_descr
 		
-inv_grid_width     = 2
-inv_grid_height    = 2
-inv_grid_x         = 37
-inv_grid_y         = 4
+inv_grid_x         				= 0
+inv_grid_y         				= 4
+
+hud 							= respirator_hud
 
 immunities_sect               = sect_gasmask_gp5_immunities
         
@@ -115,10 +118,12 @@ inv_name                      = gasmask_name
 inv_name_short                = gasmask_short
 description                   = gasmask_descr
 
-inv_grid_width     = 2
-inv_grid_height    = 2
-inv_grid_x         = 37
-inv_grid_y         = 6
+inv_grid_x         				= 0
+inv_grid_y         				= 6
+
+hud_shader 						= true
+hud_breathe 					= 0.2
+hud 							= gasmask_hud
 
 immunities_sect               = sect_gasmask_immunities
         
@@ -150,10 +155,12 @@ inv_name                      = gasmask_old_name
 inv_name_short                = gasmask_old_short
 description                   = gasmask_old_descr
 		
-inv_grid_width     = 2
-inv_grid_height    = 2
-inv_grid_x         = 37
-inv_grid_y         = 8
+inv_grid_x         				= 0
+inv_grid_y         				= 8
+
+hud_shader 						= true
+hud_breathe 					= 0.2
+hud 							= gasmask_hud
 
 immunities_sect               = sect_gasmask_immunities
         
@@ -172,16 +179,12 @@ inv_name             			= gasmask_gp5_name
 inv_name_short       			= gasmask_gp5_short
 description						= gasmask_gp5_descr
 
-inv_grid_width     				= 2
-inv_grid_height    				= 2
-inv_grid_x         				= 37
-inv_grid_y         				= 10
+inv_grid_x         				= 2
+inv_grid_y         				= 0
 
 power_loss                    	= 0.2
 
 hud_shader 						= true
-;hud_texture 					= gas
-;hud_breakable 					= true
 hud_breathe 					= 0.2
 hud 							= gasmask_hud
 
@@ -214,10 +217,13 @@ visual                        = dynamics\outfit\helm_m40
 inv_name                      = gasmask_m40_name
 inv_name_short                = gasmask_m40_short
 description                   = gasmask_m40_descr
-inv_grid_width     = 2
-inv_grid_height    = 2
-inv_grid_x         = 37
-inv_grid_y         = 12
+
+inv_grid_x         				= 2
+inv_grid_y         				= 2
+
+hud_shader 						= true
+hud_breathe 					= 0.2
+hud 							= ppm88_hud
 
 immunities_sect               = sect_gasmask_m40_immunities
 
@@ -251,14 +257,10 @@ inv_name                      = gasmask_ppm88_name
 inv_name_short                = gasmask_ppm88_short
 description                   = gasmask_ppm88_descr
 		
-inv_grid_width     = 2
-inv_grid_height    = 2
-inv_grid_x         = 37
-inv_grid_y         = 16
+inv_grid_x         				= 2
+inv_grid_y         				= 6
 
 hud_shader 						= true
-;hud_texture 					= sci
-;hud_breakable 					= true
 hud_breathe 					= 0.2
 hud 							= ppm88_hud
 
@@ -291,10 +293,13 @@ visual                        = dynamics\outfit\helm_m40
 inv_name                      = gasmask_m50_name
 inv_name_short                = gasmask_m50_short
 description                   = gasmask_m50_descr
-inv_grid_width     = 2
-inv_grid_height    = 2
-inv_grid_x         = 37
-inv_grid_y         = 18
+
+inv_grid_x         				= 2
+inv_grid_y         				= 8
+
+hud_shader 						= true
+hud_breathe 					= 0.2
+hud 							= ppm88_hud
 
 immunities_sect               = sect_gasmask_m50_immunities
         
@@ -326,10 +331,12 @@ inv_name                      = gasmask_ranger_name
 inv_name_short                = gasmask_ranger_short
 description                   = gasmask_ranger_descr
 		
-inv_grid_width     = 2
-inv_grid_height    = 2
-inv_grid_x         = 37
-inv_grid_y         = 20
+inv_grid_x         				= 4
+inv_grid_y         				= 0
+
+hud_shader 						= true
+hud_breathe 					= 0.2
+hud 							= ppm88_hud
 
 immunities_sect               = sect_gasmask_ranger_immunities
         
