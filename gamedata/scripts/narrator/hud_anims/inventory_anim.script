@@ -14,9 +14,9 @@ local subscribed = false
 function subscribe()
 	if not subscribed then
 		subscribed = {
-			{signal = "on_slot", fun = this.on_to_slot},
-			{signal = "on_ruck", fun = this.on_from_slot},
-			{signal = "on_drop", fun = this.on_from_slot},
+			--{signal = "on_slot", fun = this.on_to_slot},
+			-- {signal = "on_ruck", fun = this.on_from_slot},
+			-- {signal = "on_drop", fun = this.on_from_slot},
 		}
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs(subscribed) do

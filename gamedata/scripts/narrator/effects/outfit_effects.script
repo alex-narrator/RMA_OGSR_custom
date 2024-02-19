@@ -68,6 +68,18 @@ function attach(sm)
 	sm:subscribe({signal = "on_ruck",   fun = this.on_non_slot})
 	sm:subscribe({signal = "on_belt",   fun = this.on_non_slot})
 	sm:subscribe({signal = "on_slot",   fun = this.on_slot})
+	sm:subscribe({signal = "on_save",   fun = this.on_save})
+	sm:subscribe({signal = "on_load",   fun = this.on_load})	
+end
+
+local known_outfits = {}
+
+function on_save(packet)
+	xr_vars.save_var("known_outfits", known_outfits)
+end
+
+function on_load(reader)
+	known_outfits = xr_vars.load_var("known_outfits", known_outfits)
 end
 
 function allowed_item(obj)
@@ -98,8 +110,14 @@ function on_slot(obj, prev_place)
 	)
 	
 	if obj:is_outfit() and not xr_conditions.black_screen() then
-		level.add_complex_effector(equip_outfit_effector, equip_outfit_effector_id)
-		xr_sound.get_safe_sound_object(equip_outfit_snd,sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
+		-- level.add_complex_effector(equip_outfit_effector, equip_outfit_effector_id)
+		-- xr_sound.get_safe_sound_object(equip_outfit_snd,sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
+		if known_outfits[obj:section()] then
+			outfit_anim.play("outfit_equip_fast_hud")
+		else
+			outfit_anim.play("outfit_equip_hud")
+			known_outfits[obj:section()] = true
+		end
 	end
 end
 
@@ -116,9 +134,10 @@ function on_non_slot(obj, prev_place)
 		play_gasmask_anim(obj, false)
 	end	
 		
-	if obj:is_outfit() and actor:alive() then
-		xr_sound.get_safe_sound_object(equip_outfit_snd,sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
-		level.add_complex_effector(equip_outfit_effector, equip_outfit_effector_id)
+	if obj:is_outfit() and actor:alive() and level.main_input_receiver() then
+		-- xr_sound.get_safe_sound_object(equip_outfit_snd,sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+		-- level.add_complex_effector(equip_outfit_effector, equip_outfit_effector_id)
+		add_update_delayed_action(1, function() backpack.play_anim(3) end)
 	end
 end
 
