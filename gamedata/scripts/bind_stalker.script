@@ -55,7 +55,9 @@ function actor_binder:net_spawn(data)
 	--на випадок якщо гравець перезавантажився
 	--у той час поки діяло блокування керування,
 	--наприклад від скриптових анімацій
+	game.stop_hud_motion()
 	block_non_move_action(false)
+	
 	actor:set_character_icon(actor:get_default_character_icon())
 
 	self.weather_manager:reset()

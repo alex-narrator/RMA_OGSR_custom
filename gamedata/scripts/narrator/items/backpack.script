@@ -3,6 +3,7 @@ function attach(sm)
 	sm:subscribe({signal = "on_key_press",   fun = this.on_key_press})
 	sm:subscribe({signal = "on_slot",   fun = this.on_slot})
 	sm:subscribe({signal = "on_drop",   fun = this.on_drop})
+	sm:subscribe({signal = "on_ruck",   fun = this.on_ruck})
 	sm:subscribe({signal = "on_take",   fun = this.on_take})
 end
 
@@ -37,6 +38,14 @@ function on_drop(obj, prev_place)
 			if idle_playing then
 				game.stop_hud_motion()
 			end
+		end
+	end
+end
+
+function on_ruck(obj, prev_place)
+	if prev_place == item_place.slot and obj:get_container() then
+		if idle_playing then
+			game.stop_hud_motion()
 		end
 	end
 end
