@@ -41,7 +41,7 @@ inv_weight					= 1.7
 inv_grid_width				= 2
 inv_grid_height				= 1
 inv_grid_x         			= 2
-inv_grid_y         			= 11
+inv_grid_y         			= 12
 
 control_inertion_factor = 1.3
 
@@ -99,7 +99,8 @@ silencer_hit_impulse	 	= 10
 silencer_fire_distance   	= 100
 silencer_bullet_speed	 	= 250
 
-hud                      	= wpn_desert_eagle_hud
+;hud                      	= wpn_desert_eagle_hud
+hud                         = wpn_desert_eagle_nimble_hud
 normal                   	= 0, 1, 0
 position                 	= -0.021, -0.09, 0.0
 orientation              	= 0, 0, 0
@@ -111,7 +112,8 @@ orientation              	= 0, 0, 0
 ;strap_bone1					= bip01_spine1
 
 startup_ammo             	= 90
-visual                   	= dynamics\weapons\wpn_desert_eagle\wpn_desert_eagle
+;visual                   	= dynamics\weapons\wpn_desert_eagle\wpn_desert_eagle
+visual                      = dynamics\weapons\wpn_desert_eagle\wpn_desert_eagle_nimble
 
 light_color		 			= 0.6,0.5,0.3
 light_range		 			= 3.0
@@ -123,7 +125,14 @@ ph_mass			 			= 1
 ;cost			 			= 350
 
 ;addons
-scope_status				= 0
+script_binding      		= bind_weapon.init
+scope_status				= 2
+scope_name 					= wpn_addon_scope_d_pro
+scope_x                     = 42		; offset in inventory icon
+scope_y                     = -17
+scope_mesh 					= 0
+use_scope_zoom 				= true
+
 silencer_status				= 0
 grenade_launcher_status		= 0
 
@@ -137,8 +146,6 @@ scope_zoom_factor	   		= 55
 silencer_name  				= wpn_addon_silencer		; section name for the attachable silencer
 silencer_x 					= 77						; offset in inventory icon
 silencer_y 					= -17		
-
-scope_name 					= wpn_addon_scope_eot			
 
 ;params when silencer is attached 
 ;similar to corresponding params without prefix silencer_
