@@ -685,7 +685,7 @@ function attach_weapon_addons(UIDesc, obj)
 				addons_st[addon_sect] = CUIStatic()
 				local _st = addons_st[addon_sect]
 				_st:SetWidth(addons_list:GetDesiredChildWidth())
-				addons_txt = string.format("%s%s", "*", game.translate_string(get_inv_name(addon_sect)))
+				addons_txt = string.format("%s%s", game.translate_string("st_list_mark"), game.translate_string(get_inv_name(addon_sect)))
 				_st:SetText(addons_txt)
 				_st:SetTextComplexMode(true)
 				_st:SetTextColor(addons_list.text_color)
