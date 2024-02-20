@@ -246,5 +246,3 @@ log3("position %s, %s, %s | lvid %s | gvid %s | is valid %s", pos.x, pos.y, pos.
 -- local cur_fov = device().fov
 -- local zoom = fov / cur_fov
 -- log3("zoom %s | fov %s | cur fov %s", zoom, fov, cur_fov)
-
-outfit_anim.play("outfit_inspect_hud")

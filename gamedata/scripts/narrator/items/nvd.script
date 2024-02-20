@@ -127,12 +127,18 @@ function get_nv_sect(item)
 	return nil
 end
 
+function wpn_scope_allow_nvd(weapon)
+	local wpn = weapon:get_weapon()
+	local sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or weapon:section()
+	return read_if_exists(sys_ini, "r_bool", sect, "scope_allow_nvd", false)
+end
+
 function on_zoom_in(weapon)
 	local wpn = weapon:get_weapon()
 	
 	local head_on_nvd = actor_get_torch()
 	if head_on_nvd and get_current_nvd() and head_on_nvd:id() == get_current_nvd():id() and is_nvd_on() then
-		if wpn:is_addon_attached(addon.scope) then
+		if wpn:is_addon_attached(addon.scope) and not wpn_scope_allow_nvd(weapon) then
 			wpn:zoom_out()
 			hud_add_info_message("item_usage", game.translate_string("st_nvd_block_scope_aim"), 2)
 			return
