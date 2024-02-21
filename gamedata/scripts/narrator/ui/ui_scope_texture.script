@@ -10,8 +10,12 @@ local scope_static = false
 local DEBUG_DISABLE = false
 
 function create_scope_static(weapon)
+	if scope_static and main_wnd:IsChild(scope_static) then
+		main_wnd:DetachChild(scope_static)
+	end
+	scope_static = false
 	if DEBUG_DISABLE then
-	return end
+	return false end
 	if weapon:get_gl_mode() then
 	return false end
 	local wpn = weapon:get_weapon()
@@ -37,9 +41,11 @@ function on_zoom_in(weapon)
 	return end
 	level.add_call(
 		function()
-			return not wpn_IsRotatingToZoom(weapon)
+			return not wpn_IsRotatingToZoom(weapon) or not scope_static
 		end,
 		function()
+			if not scope_static then
+			return end
 			level.show_item_hud(false)
 			if not main_wnd:IsChild(scope_static) then
 				main_wnd:AttachChild(scope_static)
@@ -50,10 +56,10 @@ function on_zoom_in(weapon)
 end
 
 function on_zoom_out(weapon)
-	if not scope_static then
-	return end
 	level.show_item_hud(true)
-	main_wnd:DetachChild(scope_static)
+	if scope_static and main_wnd:IsChild(scope_static) then
+		main_wnd:DetachChild(scope_static)
+	end
 	scope_static = false
 end
 
