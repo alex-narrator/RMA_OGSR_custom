@@ -205,6 +205,7 @@ function MainIngameOverlay:InitControls()
 	--//pickup item icon
 	self.pickup_item_icon = xml:InitStatic("pick_up_item", self)
 	self.pickup_item_icon.size = vector2():set(self.pickup_item_icon:GetWidth(), self.pickup_item_icon:GetHeight())
+	self.pickup_item_icon.offset = vector2():set(xml:ReadAttribInt("pick_up_item", "x", 0), xml:ReadAttribInt("pick_up_item", "y", 0))
 	
 	self.warning_icons_back = xml:InitStatic("icons_back", self)
 	self.warning_icons_horz = (xml:ReadAttribInt("icons_back", "horz", 0) > 0) and true or false
@@ -590,9 +591,11 @@ function MainIngameOverlay:UpdateActiveItem()
 		local fov = get_console():get_float("fov")
 		local cur_fov = device().fov
 		local zoom = fov / cur_fov
-		zoom = math.floor(zoom+0.1)
+		if zoom > 2 then
+			zoom = math.floor(zoom+0.1)
+		end
 		self.zoom_counter:Show(zoom > 1)
-		text = string.format("%s %.0fx", game.translate_string("st_zoom"), zoom)
+		text = string.format(zoom > 2 and "%s %.0fx" or "%s %.1fx", game.translate_string("st_zoom"), zoom)
 		self.zoom_counter:SetText(text)
 		local zoom_params = get_wpn_scope_zoom_params(act_item)
 		self.zoom_progress:Show(zoom_params and #zoom_params>1)
@@ -676,7 +679,8 @@ function MainIngameOverlay:UpdatePickupItem()
 	self.pickup_item_icon:SetWidth(icon_size.x * scale)
 	self.pickup_item_icon:SetHeight(icon_size.y * scale)
 	local offset = ui_inv_utils.GetOffset("center", self.pickup_item_icon, self.owner)
-	self.pickup_item_icon:SetWndPos(offset.x, offset.y)
+	local icon_offset = self.pickup_item_icon.offset
+	self.pickup_item_icon:SetWndPos(offset.x + icon_offset.x, offset.y + icon_offset.y)
 	ogse_signals.get_mgr():call("on_pickup_item_showing", self.pickup_item, self.pickup_item_icon)
 	self.pickup_item_icon:Show(true)
 end
