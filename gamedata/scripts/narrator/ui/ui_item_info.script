@@ -737,12 +737,12 @@ local ammo_params = {
 		{name = "k_disp", 			unit = "%", 					default = 0, is_int = false},
 		{name = "k_hit", 			unit = "%", 					default = 0, is_int = false},
 		{name = "k_impulse", 		unit = "%", 					default = 0, is_int = false},
-		{name = "k_pierce", 		unit = "", 						default = 1, is_int = false},
-		{name = "k_ap", 			unit = "st_armor_class", 		default = 0, is_int = true},
 		{name = "k_speed", 			unit = "%", 					default = 0, is_int = false},
 		{name = "k_air_resistance", unit = "%", 					default = 0, is_int = false},
-		{name = "buck_shot", 		unit = "", 						default = 1, is_int = true},
 		{name = "impair", 			unit = "%", 					default = 0, is_int = false},
+		{name = "k_pierce", 		unit = "", 						default = 1, is_int = false},		
+		{name = "buck_shot", 		unit = "", 						default = 1, is_int = true},		
+		{name = "k_ap", 			unit = "st_armor_class", 		default = 0, is_int = true},		
 	}
 function attach_ammo_params(UIDesc, item)
 	local xml = CScriptXmlInit()
@@ -755,7 +755,10 @@ function attach_ammo_params(UIDesc, item)
 		val = read_if_exists(sys_ini, "r_float", sect, v.name, v.default)
 		if val ~= v.default then
 			static = xml:InitStatic(v.name, params_list)
-			text = string.format(v.is_int and "%s %.0f %s" or "%s %+.1f %s", game.translate_string("ui_st_"..v.name), val, game.translate_string(v.unit))
+			if v.unit == "%" then
+				val = val * 100
+			end
+			text = string.format(v.is_int and "%s%s %.0f %s" or v.name == "k_pierce" and "%s%s %.1f %s" or "%s%s %+.1f %s", game.translate_string("st_list_mark"), game.translate_string("ui_st_"..v.name), val, game.translate_string(v.unit))
 			static:SetText(text)
 			show = true
 		end
