@@ -475,15 +475,17 @@ function MainIngameOverlay:UpdatePanelBoosters()
 end
 
 function MainIngameOverlay:TryAddToList(item, tbl, group_similar)
+	local ammo = item:get_weapon_ammo()
+	local item_count = (not ammo or ammo:is_magazine()) and 1 or ammo.box_curr
 	if not group_similar then
-		table.insert(tbl, {item = item, count = 1})
+		table.insert(tbl, {item = item, count = item_count})
 	return end
 	for k, v in pairs(tbl) do
 		if ui_inv_utils.similar_item(v.item, item) then
-			v.count = v.count + 1
+			v.count = v.count + item_count
 		return end
 	end
-	table.insert(tbl, {item = item, count = 1})
+	table.insert(tbl, {item = item, count = item_count})
 end
 
 function MainIngameOverlay:UpdateActiveItem()
