@@ -25,6 +25,8 @@ end
 
 function on_campfire_spawn(campfire)
 	campfires[campfire:id()] = true
+	-- campfire:disable_anomaly()
+	-- add_time_delayed_action(10, function() campfire:enable_anomaly() end)
 end
 
 function on_campfire_destroy(campfire)
