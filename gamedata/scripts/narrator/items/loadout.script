@@ -221,7 +221,6 @@ function can_remove(item)
 end
 
 function add(item)
-	item.marked = true
 	--log3("~add item %s | %s", item:name(), item:id())
 	update_item_count(item, true)
 	
@@ -235,8 +234,6 @@ function add(item)
 end
 
 function remove(item)
-	item.marked = false
-	
 	update_item_count(item, false)
 	
 	--set_item_default_grouping(item)

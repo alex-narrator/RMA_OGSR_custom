@@ -14,11 +14,12 @@ function can_save_game()
 end
 
 function is_cell_items_equal(item1, item2)
-	local res = true
-	if is_power_device(item1) and is_power_device(item2) then
-		res = math.fsimilar(item1:binded_object():get_power_level(), item2:binded_object():get_power_level(), 0.01)
-	end
-	return res
+	-- local res = loadout.can_remove(item1) == loadout.can_remove(item2)
+	-- if is_power_device(item1) and is_power_device(item2) then
+		-- res = res and math.fsimilar(item1:binded_object():get_power_level(), item2:binded_object():get_power_level(), 0.01)
+	-- end
+	-- return res
+	return ui_inv_utils.similar_item(item1, item2)
 end
 
 function is_ammo_for_reload(item)

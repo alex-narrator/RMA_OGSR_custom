@@ -23,6 +23,9 @@ function GetOffset(offset_type, icon, parent_icon)
 end
 
 function similar_item(item1, item2)
+	-- local t = profile_timer()
+	-- t:start()
+	
 	local fsim = math.fsimilar
 	local cmp = 0.01
 	local iitem1, iitem2 = item1:get_inventory_item(), item2:get_inventory_item()
@@ -40,7 +43,7 @@ function similar_item(item1, item2)
 		fsim(item1:weight(), item2:weight(), cmp) and
 		fsim(item1:cost(), item2:cost(), cmp) and
 		item1:section() == item2:section() and
-		item1.marked == item2.marked and
+		loadout.can_remove(item1) == loadout.can_remove(item2) and
 		same_effect(item1, item2) and
 		--iitem1:item_effect(effect.radiation_restore) == iitem2:item_effect(effect.radiation_restore) and
 		iitem1.item_place == iitem2.item_place
@@ -48,15 +51,20 @@ function similar_item(item1, item2)
 	local ammo1, ammo2 = item1:get_weapon_ammo(), item2:get_weapon_ammo()
 	if ammo1 and ammo2 and ammo1:is_magazine() and ammo2:is_magazine() then
 		local similar_magazine = (ammo1:ammo_sect() == ammo2:ammo_sect() and ammo1.box_curr > 0 and ammo2.box_curr > 0) or (ammo1.box_curr == 0 and ammo2.box_curr == 0)
-		return similar and similar_magazine
+		similar = similar and similar_magazine
 	end
 	
 	local eatable1, eatable2 = item1:get_eatable_item(), item2:get_eatable_item()
 	if eatable1 and eatable2 then
-		return similar and eatable1.eat_portions_num == eatable2.eat_portions_num
+		similar = similar and eatable1.eat_portions_num == eatable2.eat_portions_num
 	end
 	
+	if item1:is_weapon() and item2:is_weapon() then
+		similar = similar and item1:get_addon_flags() == item2:get_addon_flags()
+	end
 	
+	-- t:stop()
+	-- log3("~similar_item profiled time %s micro-seconds | %s seconds", t:time(), t:time() * 0.000001)	
 	
 	return similar
 end
@@ -318,10 +326,10 @@ function UpdateMarkedIcon(item, icon)
 	local sect = item:section()
 	local marked_icon = icon:FindChild("marked_icon")
 	if marked_icon then
-		marked_icon:Show(item.marked)
+		marked_icon:Show(loadout.can_remove(item))
 		return
 	end
-	if not item.marked then
+	if not loadout.can_remove(item) then
 	return end
 	
 	local marked_icon_sect = read_if_exists(sys_ini, "r_string", sect, "marked_icon_sect", nil)
@@ -527,7 +535,7 @@ function sort_by_size(a, b)
 end
 
 function get_type(item)
-	if item.marked then
+	if loadout.can_remove(item) then
 		return 0
 	end
 	if item:is_weapon() or string.find(item:section(), "wp_") or string.find(item:section(), "wpn_") then

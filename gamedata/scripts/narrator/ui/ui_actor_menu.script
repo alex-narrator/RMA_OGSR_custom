@@ -343,7 +343,7 @@ function ActorMenuOverlay:OnCellItemFocus(obj)
 		for k,v in pairs(self.loadout) do
 			if slot_type == k then
 				local color = self.loadout_color_blocked
-				if obj.marked then
+				if loadout.can_remove(obj) then
 					color = self.loadout_color_equiped
 				end
 				if loadout.can_add(obj) then

@@ -30,8 +30,7 @@ function set_equiped_items_visibility(visible)
 	--log3("set_equiped_items_visibility(%s) is called", visible)
 	function perform_action(dummy, item)
 		if actor:is_on_belt(item) or
-			actor:is_in_slot(item) or
-			item.marked
+			actor:is_in_slot(item)
 		then
 			if visible then
 				set_item_inv_visible(item)
@@ -46,9 +45,6 @@ end
 function check_items_to_show(inv_owner, show_mode)
 	if not inv_owner then return end
 	local function check_by_mode(item, show_mode)
-		-- if item.marked then
-		-- return true end
-		
 		if show_mode == "all" then
 			return get_clsid(item) ~= clsid.obj_bolt or (LIMITED_BOLTS or inv_owner:id() == actor:id())
 		elseif show_mode == "weapon" then
@@ -122,7 +118,7 @@ end
 function move_all_ruck(inv_owner)
 	if not inv_owner then return end
 	function perform_action(dummy, item)
-		if (LIMITED_BOLTS or get_clsid(item) ~= clsid.obj_bolt) and not item.marked then
+		if (LIMITED_BOLTS or get_clsid(item) ~= clsid.obj_bolt) and not loadout.can_remove(item) then
 			actor:transfer_item(item, inv_owner)
 		end
 	end	
