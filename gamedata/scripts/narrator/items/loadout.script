@@ -19,6 +19,8 @@ local slots = {
 	heavy_ammo 		= {},
 	grenade			= {},
 	medicine 		= {},
+	scope 			= {},
+	silencer 		= {},
 }
 for k,v in pairs(slots) do
 	v.max_count = read_if_exists(sys_ini, "r_u32", "loadout", k, 0)
@@ -62,7 +64,8 @@ function get_current(slot)
 end
 
 function get_slot_type(item)
-	return read_if_exists(sys_ini, "r_string", item:section(), "loadout_type", nil)
+	local sect = type(item) == "userdata" and item:section() or item
+	return read_if_exists(sys_ini, "r_string", sect, "loadout_type", nil)
 end
 
 function is_module(item)
@@ -90,8 +93,9 @@ function has_drop_pouch()
 	return false
 end
 
-function is_inv_wnd_open()
-	return has_alife_info("ui_inventory") or has_alife_info("ui_car_body") or has_alife_info("ui_trade")
+function is_loadout_item(item)
+	local slot_type = get_slot_type(item)	
+	return slot_type and slots[slot_type]
 end
 
 function update_item_count(item, item_in)
@@ -200,14 +204,14 @@ function on_ruck(item, prev_place)
 end
 
 function can_add(item)
-	local slot_type = get_slot_type(item)
-	if not slot_type or not slots[slot_type] then
+	if not is_loadout_item(item) then
 	return false end
 	
 	--local ammo = item:get_weapon_ammo()
 	if can_remove(item) or (item:is_grenade() and actor:is_in_slot(item)) then --or (ammo and ammo.box_curr == 0) then
 	return false end
 	
+	local slot_type = get_slot_type(item)
 	--log3("~can_add item %s [%s] slot_type %s, slots[slot_type].current_count %s, slots[slot_type].max_count %s",item:name(), item:id(), slot_type, slots[slot_type].current_count, slots[slot_type].max_count)
 	return slots[slot_type].current_count + 1 <= slots[slot_type].max_count
 end
