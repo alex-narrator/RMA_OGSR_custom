@@ -64,17 +64,35 @@ function on_key_press(key, game_action)
 		if not loadout.is_loadout_item(addon_sect) then
 			return
 		end
-		act_wpn_m:detach_addon(addon_sect, true)
-		xr_sound.get_safe_sound_object([[interface\inv_detach_addon]],sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
-		remember_sect(addon_sect)
+		actor:hide_weapon()
+		level.add_call(
+			function()
+				return not actor:active_item()
+			end,
+			function()
+				act_wpn_m:detach_addon(addon_sect, true)
+				xr_sound.get_safe_sound_object([[interface\inv_detach_addon]],sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+				remember_sect(addon_sect)
+				actor:restore_weapon()
+			end
+		)
 	else
 		if act_wpn:addon_attachable(addon_type) and not act_wpn:is_addon_attached(addon_type) then
 			for k,v in pairs(loadout.get_loaded_items()) do
 				local item = level.object_by_id(k)
 				local iitem = item:get_inventory_item()
 				if check_type(item) and act_wpn_m:can_attach_addon(iitem) then
-					act_wpn_m:attach_addon(iitem, true)
-					xr_sound.get_safe_sound_object([[interface\inv_detach_addon]],sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+					actor:hide_weapon()
+					level.add_call(
+						function()
+							return not actor:active_item()
+						end,
+						function()
+							act_wpn_m:attach_addon(iitem, true)
+							xr_sound.get_safe_sound_object([[interface\inv_detach_addon]],sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+							actor:restore_weapon()
+						end
+					)
 					break
 				end
 			end
