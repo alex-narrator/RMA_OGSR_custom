@@ -46,11 +46,6 @@ function on_key_press(key, game_action)
 	if not quick_addon_action[game_action] then
 	return end
 	
-	if act_wpn.zoom_mode then
-		act_wpn:zoom_out()
-		return
-	end
-	
 	local act_wpn_m = act_item:get_weapon_m()	
 	
 	local for_scope = game_action == key_bindings.kQUICK_SCOPE
