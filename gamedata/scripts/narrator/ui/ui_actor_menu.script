@@ -574,7 +574,13 @@ function ActorMenuOverlay:OnActorIconUpdate(icon)
 end
 
 function ActorMenuOverlay:OnNPCIconUpdate()
-	if not self.target or self.target:get_inventory_box() then return end
+	local show = self.target and not self.target:get_inventory_box()
+	
+	self.char_info_icon_npc:Show(show)
+	self.char_info_icon_comm_npc:Show(show)
+	
+	if not show then return end
+	
 	local npc_icon = self.target:get_character_icon()
 	local icon = npc_icon and npc_icon or read_if_exists(sys_ini, "r_string", self.target:section(), "icon", nil)
 	self.char_info_icon_npc:Show(icon)
@@ -621,8 +627,12 @@ function ActorMenuOverlay:SetCharacterText()
 end
 
 function ActorMenuOverlay:SetCharacterTextNPC()
-	if not self.target or self.target:get_inventory_box() then
-	return end
+	local show = self.target and not self.target:get_inventory_box()
+	
+	self.char_info_text_header_npc:Show(show)
+	self.char_info_text_npc:Show(show)
+	
+	if not show then return end
 	
 	local name_header = game.translate_string("ui_st_name")
 	local name = game.translate_string(self.target:character_name())
