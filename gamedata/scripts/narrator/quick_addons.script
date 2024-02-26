@@ -66,6 +66,7 @@ function on_key_press(key, game_action)
 			end,
 			function()
 				act_wpn_m:detach_addon(addon_sect, true)
+				actor_break_sprint()
 				xr_sound.get_safe_sound_object([[interface\inv_detach_addon]],sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 				remember_sect(addon_sect)
 				actor:restore_weapon()
@@ -84,6 +85,7 @@ function on_key_press(key, game_action)
 						end,
 						function()
 							act_wpn_m:attach_addon(iitem, true)
+							actor_break_sprint()
 							xr_sound.get_safe_sound_object([[interface\inv_detach_addon]],sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 							actor:restore_weapon()
 						end

@@ -3,6 +3,12 @@ local hud_effector_id = 5555
 
 local ANIM_FAST = false
 
+local playing = false
+
+function is_playing()
+	return playing
+end
+
 function play(item)
 	local hud_sect = get_hud_sect(item)
 	if not hud_sect then
@@ -22,6 +28,7 @@ function play(item)
 			actor:hide_crosshair(true)
 			
 			game.play_hud_motion(2, hud_sect, "anm_use", false, 1, true)
+			playing = true
 			play_hud_sound(hud_sect)
 			play_hud_effector(hud_sect)
 			set_use_delay(hud_sect, item)
@@ -32,6 +39,7 @@ function play(item)
 				end,
 				function()
 					block_non_move_action(false)
+					playing = false
 					if not already_blocked then
 						actor:restore_weapon(ANIM_FAST)
 					end

@@ -87,7 +87,7 @@ local anims = {
 	"anm_idle",
 }
 function play_anim(state)
-	if not actor_get_backpack() then
+	if not actor_get_backpack() or eatable_item_anim.is_playing() then
 		idle_playing = false
 	return end
 	local community_hud_sect = DEF_HUD_SECT.."_"..actor:character_community()
@@ -120,6 +120,9 @@ end
 function play_effects(enable)
 	force_crouch(enable)
 	play_anim(enable and 1 or 2)
+	
+	if eatable_item_anim.is_playing() then
+	return end
 	
 	if actor_get_backpack() then
 		local snd_name = enable and "interface\\item_usage\\backpack_open" or "interface\\item_usage\\backpack_close"

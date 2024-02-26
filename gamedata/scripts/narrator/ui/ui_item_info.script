@@ -191,6 +191,7 @@ function add_custom_info(UIDesc, obj)
 	attach_effect_params(UIDesc, obj)
 	attach_protection_params(UIDesc, obj)
 	attach_armor_params(UIDesc, obj)
+	attach_addon_params(UIDesc, obj)
 	
 	if obj:is_eatable_item() then
 		attach_eatable_params(UIDesc, obj)
@@ -756,13 +757,50 @@ function attach_ammo_params(UIDesc, item)
 	for k,v in ipairs(ammo_params) do
 		val = read_if_exists(sys_ini, "r_float", sect, v.name, v.default)
 		if val ~= v.default then
-			static = xml:InitStatic(v.name, params_list)
+			v.static = CUIStatic()
 			if v.unit == "%" then
 				val = val * 100
 			end
 			text = string.format(v.is_int and "%s%s %.0f %s" or v.name == "k_pierce" and "%s%s %.1f %s" or "%s%s %+.1f %s", game.translate_string("st_list_mark"), game.translate_string("ui_st_"..v.name), val, game.translate_string(v.unit))
-			static:SetText(text)
+			v.static:SetText(text)
+			v.static:AdjustHeightToText()
 			show = true
+			params_list:AddWindow(v.static)
+		end
+	end
+	params_list:SetHeight(params_list:GetPadSize().y)
+	if not show then
+		params_list:Show(false)
+	end	
+end
+
+-----------------------------------------------------ADDON PARAMS------------------------------------------------------------------------------------------------------------------------
+local addon_params = {
+		{name = "bullet_hit_power_k", 			unit = "%", 	default = 0, is_int = false},
+		{name = "bullet_speed_k", 				unit = "%", 	default = 0, is_int = false},
+		{name = "fire_dispersion_base_k", 		unit = "%", 	default = 0, is_int = false},
+		{name = "cam_dispersion_k", 			unit = "%", 	default = 0, is_int = false},
+		{name = "condition_shot_dec_silencer", 	unit = "%", 	default = 0, is_int = false},	
+	}
+function attach_addon_params(UIDesc, item)
+	local xml = CScriptXmlInit()
+	xml:ParseFile("script_overlays\\addon_params.xml")
+	local show = false
+	local params_list = xml:InitScrollView("params_list", UIDesc)
+	local sect = item:section()
+	local val, static, text
+	for k,v in ipairs(addon_params) do
+		val = read_if_exists(sys_ini, "r_float", sect, v.name, v.default)
+		if val ~= v.default then
+			v.static = CUIStatic()
+			if v.unit == "%" then
+				val = val * 100
+			end
+			text = string.format(v.is_int and "%s%s %.0f %s" or v.name == "k_pierce" and "%s%s %.1f %s" or "%s%s %+.1f %s", game.translate_string("st_list_mark"), game.translate_string("ui_st_"..v.name), val, game.translate_string(v.unit))
+			v.static:SetText(text)
+			v.static:AdjustHeightToText()
+			show = true
+			params_list:AddWindow(v.static)
 		end
 	end
 	params_list:SetHeight(params_list:GetPadSize().y)
