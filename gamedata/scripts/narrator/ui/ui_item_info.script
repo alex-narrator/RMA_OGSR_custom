@@ -259,13 +259,17 @@ function attach_effect_params(UIDesc, item)
 			if v.st_name == "alcohol_restore_speed" then
 				val = val * -1
 			end
-			effect_st[k] = xml:InitStatic(v.st_name, params_list)
+			effect_st[k] = CUIStatic()--xml:InitStatic(v.st_name, params_list)
+			effect_st[k]:SetTextComplexMode(true)
+			effect_st[k]:SetWidth(params_list:GetDesiredChildWidth())
 			color = val > 0 and "%c[green]" or "%c[red]"
 			if v.st_name == "max_power_restore_speed" or v.st_name == "radiation_restore_speed" or v.st_name == "alcohol_restore_speed" then
 				color = val > 0 and "%c[red]" or "%c[green]"
 			end
-			text = string.format("%s %s %+.1f %s", game.translate_string(v.param_name), color, val, sn)
+			text = string.format("%s%s %s %+.1f %s", game.translate_string("st_list_mark"), game.translate_string(v.param_name), color, val, sn)
 			effect_st[k]:SetText(text)
+			effect_st[k]:AdjustHeightToText()
+			params_list:AddWindow(effect_st[k])
 			show = true
 		end
 	end
@@ -275,10 +279,14 @@ function attach_effect_params(UIDesc, item)
 		if val < 0 and item:condition() > 0 or val > 0 then
 			val = val * 100
 			sn = "%"
-			effect_st["power_loss"] = xml:InitStatic("power_loss", params_list)
+			effect_st["power_loss"] = CUIStatic()--xml:InitStatic("power_loss", params_list)
+			effect_st["power_loss"]:SetTextComplexMode(true)
+			effect_st["power_loss"]:SetWidth(params_list:GetDesiredChildWidth())
 			color = val > 0 and "%c[red]" or "%c[green]"
-			text = string.format("%s %s %+.1f %s", game.translate_string("st_power_loss"), color, val, sn)
+			text = string.format("%s%s %s %+.1f %s",game.translate_string("st_list_mark"),  game.translate_string("st_power_loss"), color, val, sn)
 			effect_st["power_loss"]:SetText(text)
+			effect_st["power_loss"]:AdjustHeightToText()
+			params_list:AddWindow(effect_st["power_loss"])
 			show = true
 		end
 	end
@@ -317,10 +325,14 @@ function attach_protection_params(UIDesc, item)
 		if val ~= 0 then
 			sn = "%"
 			val = val * 100
-			protection_st[k] = xml:InitStatic(v.st_name, params_list)
+			protection_st[k] = CUIStatic()--xml:InitStatic(v.st_name, params_list)
+			protection_st[k]:SetTextComplexMode(true)
+			protection_st[k]:SetWidth(params_list:GetDesiredChildWidth())
 			color = val > 0 and "%c[green]" or "%c[red]"
-			text = string.format("%s %s %+.1f %s", game.translate_string(v.param_name), color, val, sn)
+			text = string.format("%s%s %s %+.1f %s",game.translate_string("st_list_mark"),  game.translate_string(v.param_name), color, val, sn)
 			protection_st[k]:SetText(text)
+			protection_st[k]:AdjustHeightToText()
+			params_list:AddWindow(protection_st[k])
 			show = true
 		end
 	end
@@ -358,13 +370,17 @@ function attach_eatable_params(UIDesc, item)
 		if val ~= 0 then
 			sn = "%"
 			val = val * 100
-			eatable_st[k] = xml:InitStatic(v.st_name, params_list)
+			eatable_st[k] = CUIStatic()--xml:InitStatic(v.st_name, params_list)
+			eatable_st[k]:SetTextComplexMode(true)
+			eatable_st[k]:SetWidth(params_list:GetDesiredChildWidth())
 			color = val > 0 and "%c[green]" or "%c[red]"
 			if v.st_name == "max_power" or v.st_name == "radiation" or v.st_name == "somnolence" then
 				color = val > 0 and "%c[red]" or "%c[green]"
 			end
-			text = string.format("%s %s %+.1f %s", game.translate_string(v.param_name), color, val, sn)
+			text = string.format("%s%s %s %+.1f %s",game.translate_string("st_list_mark"),  game.translate_string(v.param_name), color, val, sn)
 			eatable_st[k]:SetText(text)
+			eatable_st[k]:AdjustHeightToText()
+			params_list:AddWindow(eatable_st[k])
 			show = true
 		end
 	end
@@ -415,21 +431,29 @@ function attach_booster_params(UIDesc, item)
 		if val ~= 0 then
 			sn = "%"
 			val = val * 100
-			boost_st[k] = xml:InitStatic(v.st_name, params_list)
+			boost_st[k] = CUIStatic()--xml:InitStatic(v.st_name, params_list)
+			boost_st[k]:SetTextComplexMode(true)
+			boost_st[k]:SetWidth(params_list:GetDesiredChildWidth())
 			color = val > 0 and "%c[green]" or "%c[red]"
 			if v.st_name == "max_power" or v.st_name == "radiation" or v.st_name == "somnolence" then
 				color = val > 0 and "%c[red]" or "%c[green]"
 			end
-			text = string.format("%s %s %+.1f %s", game.translate_string(v.param_name), color, val, sn)
+			text = string.format("%s%s %s %+.1f %s",game.translate_string("st_list_mark"), game.translate_string(v.param_name), color, val, sn)
 			boost_st[k]:SetText(text)
+			boost_st[k]:AdjustHeightToText()
+			params_list:AddWindow(boost_st[k])
 			show = true
 		end
 	end
 	--boost time
-	boost_st["boost_time"] = xml:InitStatic("boost_time", params_list)
+	boost_st["boost_time"] = CUIStatic()--xml:InitStatic("boost_time", params_list)
+	boost_st["boost_time"]:SetTextComplexMode(true)
+	boost_st["boost_time"]:SetWidth(params_list:GetDesiredChildWidth())
 	val = read_if_exists(sys_ini, "r_float", item:section(), "boost_time", 0)
-	text = string.format("%s %.1f %s", game.translate_string("ui_inv_boost_time"), val, game.translate_string("st_time_minute"))
+	text = string.format("%s%s %.1f %s", game.translate_string("st_list_mark"), game.translate_string("ui_inv_boost_time"), val, game.translate_string("st_time_minute"))
 	boost_st["boost_time"]:SetText(text)
+	boost_st["boost_time"]:AdjustHeightToText()
+	params_list:AddWindow(boost_st["boost_time"])
 	--
 	params_list:SetHeight(params_list:GetPadSize().y)
 	if not show then
@@ -540,37 +564,39 @@ function atach_wpn_params(UIDesc, obj)
 	
 	local cap_dispersion 	= xml:InitStatic("wpn_params:cap_dispersion", main)
 	local cap_damage 		= xml:InitStatic("wpn_params:cap_damage", main)
-	local cap_handling 		= xml:InitStatic("wpn_params:cap_handling", main)
+	local cap_speed 		= xml:InitStatic("wpn_params:cap_speed", main)
 	local cap_rpm 			= xml:InitStatic("wpn_params:cap_rpm", main)
 	local cap_range 		= xml:InitStatic("wpn_params:cap_range", main)
 	local cap_reliability 	= xml:InitStatic("wpn_params:cap_reliability", main)
 		
 	local progress_dispersion 	= xml:InitProgressBar("wpn_params:progress_dispersion", main)
 	local progress_damage 		= xml:InitProgressBar("wpn_params:progress_damage", main)
-	local progress_handling 	= xml:InitProgressBar("wpn_params:progress_handling", main)
+	local progress_speed 		= xml:InitProgressBar("wpn_params:progress_speed", main)
 	local progress_rpm 			= xml:InitProgressBar("wpn_params:progress_rpm", main)
 	local progress_range 		= xml:InitProgressBar("wpn_params:progress_range", main)
 	local progress_reliability 	= xml:InitProgressBar("wpn_params:progress_reliability", main)
 	
-	local text = string.format("%s (%.2f)", cap_dispersion:GetText(), wpn_params.GetDispersion(obj))
+	local params = ui_wpn_params
+	
+	local text = string.format("%s (%.2f)", cap_dispersion:GetText(), params.GetDispersion(obj))
 	cap_dispersion:SetText(text)
-	text = string.format("%s (%.1f)", cap_damage:GetText(), wpn_params.GetDamage(obj))
+	text = string.format("%s (%.1f)", cap_damage:GetText(), params.GetDamage(obj))
 	cap_damage:SetText(text)
-	text = string.format("%s (%.1f)", cap_handling:GetText(), wpn_params.GetHandling(obj))
-	cap_handling:SetText(text)
-	text = string.format("%s (%.0f)", cap_rpm:GetText(), wpn_params.GetRPM(obj))
+	text = string.format("%s (%.0f)", cap_speed:GetText(), params.GetSpeed(obj))
+	cap_speed:SetText(text)
+	text = string.format("%s (%.0f)", cap_rpm:GetText(), params.GetRPM(obj))
 	cap_rpm:SetText(text)	
-	text = string.format("%s (%.0f)", cap_range:GetText(), wpn_params.GetRange(obj))
+	text = string.format("%s (%.0f)", cap_range:GetText(), params.GetRange(obj))
 	cap_range:SetText(text)	
-	text = string.format("%s (%.0f)", cap_reliability:GetText(), wpn_params.GetReliability(obj))
+	text = string.format("%s (%.0f)", cap_reliability:GetText(), params.GetReliability(obj))
 	cap_reliability:SetText(text)		
 	
-	progress_dispersion:SetProgressPos(wpn_params.GetDispersion(obj))
-	progress_damage:SetProgressPos(wpn_params.GetDamage(obj))
-	progress_handling:SetProgressPos(wpn_params.GetHandling(obj))
-	progress_rpm:SetProgressPos(wpn_params.GetRPM(obj))
-	progress_range:SetProgressPos(wpn_params.GetRange(obj))
-	progress_reliability:SetProgressPos(wpn_params.GetReliability(obj))
+	progress_dispersion:SetProgressPos(params.GetDispersion(obj))
+	progress_damage:SetProgressPos(params.GetDamage(obj))
+	progress_speed:SetProgressPos(params.GetSpeed(obj))
+	progress_rpm:SetProgressPos(params.GetRPM(obj))
+	progress_range:SetProgressPos(params.GetRange(obj))
+	progress_reliability:SetProgressPos(params.GetReliability(obj))
 end
 
 ------------------------------------------LOADED WEAPON AMMO WND-----------------------------------------------------------------------------------------------------------------
@@ -740,16 +766,16 @@ end
 
 -----------------------------------------------------AMMO PARAMS------------------------------------------------------------------------------------------------------------------------
 local ammo_params = {
-		{name = "k_dist", 			unit = "%", 					default = 0, is_int = false},
-		{name = "k_disp", 			unit = "%", 					default = 0, is_int = false},
-		{name = "k_hit", 			unit = "%", 					default = 0, is_int = false},
-		{name = "k_impulse", 		unit = "%", 					default = 0, is_int = false},
-		{name = "k_speed", 			unit = "%", 					default = 0, is_int = false},
-		{name = "k_air_resistance", unit = "%", 					default = 0, is_int = false},
-		{name = "impair", 			unit = "%", 					default = 0, is_int = false},
-		{name = "k_pierce", 		unit = "", 						default = 1, is_int = false},		
-		{name = "buck_shot", 		unit = "", 						default = 1, is_int = true},		
-		{name = "k_ap", 			unit = "st_armor_class", 		default = 0, is_int = true},		
+		{name = "k_dist", 			unit = "%", 					default = 0, is_int = false, invert = false},
+		{name = "k_disp", 			unit = "%", 					default = 0, is_int = false, invert = true},
+		{name = "k_hit", 			unit = "%", 					default = 0, is_int = false, invert = false},
+		{name = "k_impulse", 		unit = "%", 					default = 0, is_int = false, invert = false},
+		{name = "k_speed", 			unit = "%", 					default = 0, is_int = false, invert = false},
+		{name = "k_air_resistance", unit = "%", 					default = 0, is_int = false, invert = false},
+		{name = "impair", 			unit = "%", 					default = 0, is_int = false, invert = true},
+		{name = "k_pierce", 		unit = "", 						default = 1, is_int = false, invert = false},		
+		{name = "buck_shot", 		unit = "", 						default = 1, is_int = true, invert = false},		
+		{name = "k_ap", 			unit = "st_armor_class", 		default = 0, is_int = true, invert = false},		
 	}
 function attach_ammo_params(UIDesc, item)
 	local xml = CScriptXmlInit()
@@ -757,15 +783,21 @@ function attach_ammo_params(UIDesc, item)
 	local show = false
 	local params_list = xml:InitScrollView("params_list", UIDesc)
 	local sect = item:section()
-	local val, static, text
+	local val, static, text, color
 	for k,v in ipairs(ammo_params) do
 		val = read_if_exists(sys_ini, "r_float", sect, v.name, v.default)
 		if val ~= v.default then
 			v.static = CUIStatic()
+			v.static:SetTextComplexMode(true)
+			v.static:SetWidth(params_list:GetDesiredChildWidth())			
 			if v.unit == "%" then
 				val = val * 100
 			end
-			text = string.format(v.is_int and "%s%s %.0f %s" or v.name == "k_pierce" and "%s%s %.1f %s" or "%s%s %+.1f %s", game.translate_string("st_list_mark"), game.translate_string("ui_st_"..v.name), val, game.translate_string(v.unit))
+			color = (v.unit ~= "%") and "%c[default]" or val > 0 and "%c[green]" or "%c[red]"
+			if v.invert then
+				color = val > 0 and "%c[red]" or "%c[green]"
+			end
+			text = string.format(v.is_int and "%s%s %s%.0f %s" or v.name == "k_pierce" and "%s%s %s%.1f %s" or "%s%s %s%+.1f %s", game.translate_string("st_list_mark"), game.translate_string("ui_st_"..v.name), color, val, game.translate_string(v.unit))
 			v.static:SetText(text)
 			v.static:AdjustHeightToText()
 			show = true
@@ -780,11 +812,11 @@ end
 
 -----------------------------------------------------ADDON PARAMS------------------------------------------------------------------------------------------------------------------------
 local addon_params = {
-		{name = "bullet_hit_power_k", 			unit = "%", 	default = 0, is_int = false},
-		{name = "bullet_speed_k", 				unit = "%", 	default = 0, is_int = false},
-		{name = "fire_dispersion_base_k", 		unit = "%", 	default = 0, is_int = false},
-		{name = "cam_dispersion_k", 			unit = "%", 	default = 0, is_int = false},
-		{name = "condition_shot_dec_silencer", 	unit = "%", 	default = 0, is_int = false},	
+		{name = "bullet_hit_power_k", 			unit = "%", default = 0, invert = false},
+		{name = "bullet_speed_k", 				unit = "%", default = 0, invert = false},
+		{name = "fire_dispersion_base_k", 		unit = "%", default = 0, invert = true},
+		{name = "cam_dispersion_k", 			unit = "%", default = 0, invert = true},
+		{name = "condition_shot_dec_silencer", 	unit = "%", default = 0, invert = true},	
 	}
 function attach_addon_params(UIDesc, item)
 	local xml = CScriptXmlInit()
@@ -792,15 +824,21 @@ function attach_addon_params(UIDesc, item)
 	local show = false
 	local params_list = xml:InitScrollView("params_list", UIDesc)
 	local sect = item:section()
-	local val, static, text
+	local val, static, text, color
 	for k,v in ipairs(addon_params) do
 		val = read_if_exists(sys_ini, "r_float", sect, v.name, v.default)
 		if val ~= v.default then
 			v.static = CUIStatic()
+			v.static:SetTextComplexMode(true)
+			v.static:SetWidth(params_list:GetDesiredChildWidth())
 			if v.unit == "%" then
 				val = val * 100
 			end
-			text = string.format(v.is_int and "%s%s %.0f %s" or v.name == "k_pierce" and "%s%s %.1f %s" or "%s%s %+.1f %s", game.translate_string("st_list_mark"), game.translate_string("ui_st_"..v.name), val, game.translate_string(v.unit))
+			color = (val > 0 ) and "%c[green]" or "%c[red]"
+			if v.invert then
+				color = val > 0 and "%c[red]" or "%c[green]"
+			end			
+			text = string.format(v.is_int and "%s%s %s%.0f %s" or "%s%s %s%+.1f %s", game.translate_string("st_list_mark"), game.translate_string("ui_st_"..v.name), color, val, game.translate_string(v.unit))
 			v.static:SetText(text)
 			v.static:AdjustHeightToText()
 			show = true

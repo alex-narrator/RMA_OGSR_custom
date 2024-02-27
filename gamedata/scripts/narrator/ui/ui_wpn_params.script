@@ -13,7 +13,7 @@ function GetDamage(obj)
 		res = cur_gd_hit_power
 	end
 	
-	local ammo_damage = read_if_exists(sys_ini, "r_float", get_cur_ammo_sect(obj), "k_hit", 0)
+	local ammo_damage = obj:get_ammo_in_magazine() > 0 and read_if_exists(sys_ini, "r_float", get_cur_ammo_sect(obj), "k_hit", 0) or 0
 	--log3("game_difficulty %s | res %s", level.get_game_difficulty(), res)
 	return res + res * ammo_damage
 end
@@ -39,7 +39,7 @@ end
 
 function GetDispersion(obj)
 	local fire_dispersion_base	= read_if_exists(sys_ini, "r_float", obj:section(), "fire_dispersion_base", 0)
-	local ammo_disp = read_if_exists(sys_ini, "r_float", get_cur_ammo_sect(obj), "k_disp", 0)
+	local ammo_disp = obj:get_ammo_in_magazine() > 0 and read_if_exists(sys_ini, "r_float", get_cur_ammo_sect(obj), "k_disp", 0) or 0
 	fire_dispersion_base = fire_dispersion_base + fire_dispersion_base * ammo_disp
 	local disp_in_moa = fire_dispersion_base * 60
 	--local res = 1 / disp_in_moa
@@ -53,7 +53,7 @@ function GetRange(obj)
 	if obj:is_knife() then
 		return weapon_dist
 	end
-	local ammo_dist = read_if_exists(sys_ini, "r_float", get_cur_ammo_sect(obj), "k_dist", 0)
+	local ammo_dist = obj:get_ammo_in_magazine() > 0 and read_if_exists(sys_ini, "r_float", get_cur_ammo_sect(obj), "k_dist", 0) or 0
 	return weapon_dist + weapon_dist * ammo_dist
 end
 
@@ -62,4 +62,10 @@ function GetReliability(obj)
 	local resource = 1 / shot_dec
 	-- log3("resource %s for weapon %s", resource, obj:section())
 	return resource
+end
+
+function GetSpeed(obj)
+	local res = read_if_exists(sys_ini, "r_float", obj:section(), "bullet_speed", 0)
+	local ammo_speed = obj:get_ammo_in_magazine() > 0 and read_if_exists(sys_ini, "r_float", get_cur_ammo_sect(obj), "k_speed", 0) or 0
+	return res + res * ammo_speed
 end
