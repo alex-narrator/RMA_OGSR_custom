@@ -86,6 +86,10 @@ function PDAOverlay:InitControls()
 	self.date_time = xml:InitFrameLine("time_frame_line", self)
 	self.date = xml:InitStatic("date", self.date_time)
 	self.time = xml:InitStatic("time", self.date_time)
+	self:Register(self.date, "date")
+	self:AddCallback("date", ui_events.WINDOW_LBUTTON_DOWN, self.ShowSkipTimer, self)
+	self:Register(self.time, "date")
+	self:AddCallback("time", ui_events.WINDOW_LBUTTON_DOWN, self.ShowSkipTimer, self)	
 	
 	--//power level
 	self.power_static = xml:InitStatic("power_level", self.date_time)
@@ -142,8 +146,8 @@ function PDAOverlay:Update()
 	self.btn_off:Show(has_pda_power)
 	self.date_time:Show(has_pda_power)
 	
-	local show = has_pda_power and actor:has_info("ui_pda_actor_info")--self.owner:FindChild("detail_days_in_game")
-	self.skip_time_frame:Show(show)
+	-- local show = has_pda_power and actor:has_info("ui_pda_actor_info")--self.owner:FindChild("detail_days_in_game")
+	-- self.skip_time_frame:Show(show)
 
 	local power = is_power_device(pda) and pda:binded_object():get_power_level() or 1
 	local text = string.format("%.0f%s", power * 100, "%")	
@@ -230,12 +234,18 @@ function PDAOverlay:SkipTime()
 	
 	skip_time(self.wait_h, self.wait_m)
 	self:ClearTime()
+	self:ShowSkipTimer()
 end
 
 function PDAOverlay:ClearTime()
 	self.wait_h = 0
 	self.wait_m = 0
 	self:UpdateTimer()
+end
+
+function PDAOverlay:ShowSkipTimer()
+	local is_shown = self.skip_time_frame:IsShown()
+	self.skip_time_frame:Show(not is_shown)
 end
 
 function PDAOverlay:HidePda()
