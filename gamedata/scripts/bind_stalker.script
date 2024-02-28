@@ -69,7 +69,6 @@ function actor_binder:net_spawn(data)
 
 	--' Загружаем настройки дропа
 	death_manager.init_drop_settings()
-	--weather_init.on_game_load(obj) --здається це більш не потрібно + конфліктує з реалізаціями викидів
 	self.sm:call("on_spawn", data)
 	return true
 end
