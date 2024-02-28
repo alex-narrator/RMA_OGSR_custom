@@ -539,7 +539,9 @@ function ActorMenuOverlay:OnHide()
 	self.target = nil
 	
 	self:Show(false)
-	self.owner:DetachChild(self)
+	if self.owner then
+		self.owner:DetachChild(self)
+	end
 	self.owner = nil
 end
 

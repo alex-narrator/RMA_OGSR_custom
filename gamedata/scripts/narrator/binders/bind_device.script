@@ -25,7 +25,7 @@ class "device_binder" (object_binder)
 function device_binder:__init(obj) super(obj)
 	--log3("%s __init for object %s", script_name(), self.object:name())
 	self.power_consumption = false
-	self.last_update_time = false
+	self.last_update_time = nil
 	self.t_power_sources = {}
 	self.se_obj = alife():object(self.object:id())
 	self.b_was_sended = false
@@ -102,6 +102,8 @@ function device_binder:update(delta)
 			-- self.last_update_time = false
 		-- return end
 		self:decrease_power()
+	elseif self.last_update_time then
+		self.last_update_time = nil
 	end
 end
  
