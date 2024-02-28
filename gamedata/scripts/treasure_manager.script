@@ -169,6 +169,7 @@ function CTreasure:give_treasure(k)
 		--' Пометить на карте		
 		local text = "%c[255,238,155,23]"..game.translate_string(v.name).."\\n".."%c[default]"..game.translate_string(v.description)
 		level.map_add_object_spot_ser(obj.id, "treasure", text)
+		ogse_signals.get_mgr():call("on_give_treasure", obj.id, v.name)
 
 		--' Сгенерить вещи
 		--'

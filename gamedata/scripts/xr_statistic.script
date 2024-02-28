@@ -67,6 +67,8 @@ function attach(sm)
 	sm:subscribe({signal = "on_take", 			fun = this.try_add_item})
 	sm:subscribe({signal = "on_pda_actor_info", fun = this.on_info_tab})
 	sm:subscribe({signal = "on_death", 			fun = this.addKillCount})
+	sm:subscribe({signal = "on_heal_wounded", 	fun = this.add_npc_healed})
+	sm:subscribe({signal = "on_give_treasure", 	fun = this.add_treasure})
 end
 
 function addKillCount(victim, killer)
@@ -137,7 +139,26 @@ function already_counted(item)
 end
 
 function on_info_tab()
-	while level.get_time_days() > actor_stats.get_points("days_in_game") do
-		actor_stats.add_points("days_in_game", game.translate_string("st_days_in_zone"), 1, 1)
+	update_day_in_zone()
+end
+
+function update_day_in_zone()
+	local stat_sect = "life_in_game"
+	local days_in_zone = game.translate_string("st_days_in_zone")
+	while level.get_time_days() > actor_stats.get_points_key(stat_sect, days_in_zone) do
+		actor_stats.add_points(stat_sect, days_in_zone, 1, 1)
 	end
+end
+
+function add_npc_healed(npc)
+	local stat_sect = "npc_healed"
+	local dummy, sect = getNpcType(npc)
+	actor_stats.add_points(stat_sect, sect, 1, 1)
+	actor:change_character_reputation(10)
+end
+
+function add_treasure(id, name)
+	local stat_sect = "treasures"
+	local sect = game.translate_string(name)
+	actor_stats.add_points(stat_sect, sect, 1, 1)	
 end

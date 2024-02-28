@@ -83,7 +83,7 @@ function transfer_medkit(first_speaker, second_speaker)
 			end
 		end
 	end
-	first_speaker:change_character_reputation(10);
+	ogse_signals.get_mgr():call("on_heal_wounded", second_speaker)
 end
 function transfer_bandage(first_speaker, second_speaker)
 	dialogs.relocate_item_section(second_speaker, "bandage", "out")
