@@ -69,6 +69,7 @@ function attach(sm)
 	sm:subscribe({signal = "on_death", 			fun = this.addKillCount})
 	sm:subscribe({signal = "on_heal_wounded", 	fun = this.add_npc_healed})
 	sm:subscribe({signal = "on_give_treasure", 	fun = this.add_treasure})
+	sm:subscribe({signal = "on_death_physics", 	fun = this.add_killed_obj})
 end
 
 function addKillCount(victim, killer)
@@ -161,4 +162,12 @@ function add_treasure(id, name)
 	local stat_sect = "treasures"
 	local sect = game.translate_string(name)
 	actor_stats.add_points(stat_sect, sect, 1, 1)	
+end
+
+function add_killed_obj(victim, killer)
+	if killer and not killer:is_actor() then
+	return end
+	if not victim:is_car() then
+	return end
+	--log3("~killed physics object %s with visual %s", victim:name(), victim:get_visual_name())
 end
