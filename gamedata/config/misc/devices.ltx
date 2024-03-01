@@ -57,6 +57,11 @@ unlock_snd = device\door_servomotor
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;	DEVICES
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+[device_base]:identity_immunities
+inv_grid_width			= 1
+inv_grid_height			= 1
+icon_group 				= 6
+
 [binocular_a]:identity_immunities
 GroupControlSection		= spawn_group
 discovery_dependency	=
@@ -77,7 +82,7 @@ attach_position_offset	= 0.080000,0.021273,0.100000
 attach_bone_name		= bip01_r_hand
 auto_attach				= false
 
-[device_pda]:identity_immunities
+[device_pda]:device_base
 GroupControlSection	= spawn_group
 discovery_dependency=
 $spawn 				= "devices\pda"
@@ -100,10 +105,8 @@ inv_name			= PDA
 inv_name_short		= PDA
 inv_weight			= 0.3	;0.2
 
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 13
-inv_grid_y         = 23
+inv_grid_x         = 1
+inv_grid_y         = 0
 cost				= 20
 
 attach_angle_offset		= 3.080506,-1.493053,-1.202040   ;устанавливается в радианах Angle*PI/180
@@ -130,7 +133,7 @@ screen_off_delay						 		   = 0.5
 thumb_rot_x										   = 1
 thumb_rot_y										   = -0.1
 
-[device_torch]:identity_immunities
+[device_torch]:device_base
 GroupControlSection	= spawn_group
 discovery_dependency =
 $spawn				= "devices\torch"
@@ -143,10 +146,9 @@ cost				= 100
 inv_name			= device-torch
 inv_name_short		= device-torch
 inv_weight			= 0
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 12
-inv_grid_y         = 30
+
+inv_grid_x         = 0
+inv_grid_y         = 6
 
 slot				= 9
 
@@ -174,7 +176,7 @@ snd_torch_off 			= device\torch\switch_torch
 light_definition 		= torch_definition
 light_definition_second = torch_definition_long_range
 
-[device_night_vision]:identity_immunities
+[device_night_vision]:device_base
 GroupControlSection	= spawn_group
 discovery_dependency =
 $spawn				= "devices\torch"
@@ -187,10 +189,9 @@ cost				= 100
 inv_name			= device-night_vision
 inv_name_short		= device-night_vision
 inv_weight			= 0
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 13
-inv_grid_y         = 29
+
+inv_grid_x         = 1
+inv_grid_y         = 5
 
 slot				= 9
 
@@ -227,7 +228,7 @@ night_vision_recharge_time_min		= 2		;(c) мин. время зарядки ак
 night_vision_discharge_time			= 20	;(c) время разрядки (работы) устройства после полной зарядки
 
 ;;--==========================< Flashlight >=============================
-[device_flashlight]:identity_immunities
+[device_flashlight]:device_base
 GroupControlSection										= spawn_group
 discovery_dependency =
 $spawn													= "devices\flashlight"
@@ -240,10 +241,9 @@ slot                                                   = 8
 animation_slot                                         = 7
 cost                                                   = 2440
 inv_weight                                             = 0.484
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 12
-inv_grid_y         = 28
+
+inv_grid_x         										= 0
+inv_grid_y         										= 4
 description			                                   = st_device_flashlight_descr
 inv_name			                                   = st_device_flashlight
 inv_name_short		                                   = st_device_flashlight
@@ -304,7 +304,7 @@ range                                                  = 30 ; range             
 range_r2                                               = 30 ; range                 <in meters>
 
 ;;;;;;;;;;;;;;;;;;;;;GLOWSTICK;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-[device_glowstick]:identity_immunities
+[device_glowstick]:device_base
 GroupControlSection						= spawn_group
 discovery_dependency =
 $spawn									= "devices\glow_stick"
@@ -317,10 +317,9 @@ animation_slot							= 7
 description								= st_device_glowstick_descr
 inv_name								= st_device_glowstick
 inv_name_short							= st_device_glowstick
-inv_grid_width     						= 1
-inv_grid_height    						= 1
-inv_grid_x         						= 12
-inv_grid_y         						= 26
+
+inv_grid_x         						= 0
+inv_grid_y         						= 3
 cost									= 1800
 inv_weight								= 0.084
 hud										= device_glowstick_hud
@@ -365,7 +364,7 @@ hud										= device_glowstick_hud_orange
 inv_name								= st_device_glowstick_orange
 inv_name_short							= st_device_glowstick_orange
 description								= st_device_glowstick_orange_descr													 
-inv_grid_x         						= 13
+inv_grid_x         						= 1
 cost									= 2000
 
 [glowstick_definition_orange]:glowstick_definition
@@ -384,7 +383,7 @@ hud										= device_glowstick_hud_red
 inv_name								= st_device_glowstick_red
 inv_name_short							= st_device_glowstick_red
 description								= st_device_glowstick_red_descr												  
-inv_grid_x         						= 14
+inv_grid_x         						= 2
 cost									= 2400
 
 [glowstick_definition_red]:glowstick_definition
@@ -403,7 +402,7 @@ hud										= device_glowstick_hud_blue
 inv_name								= st_device_glowstick_blue
 inv_name_short							= st_device_glowstick_blue
 description								= st_device_glowstick_blue_descr												   
-inv_grid_x         						= 15
+inv_grid_x         						= 3
 cost									= 1600
 
 [glowstick_definition_blue]:glowstick_definition

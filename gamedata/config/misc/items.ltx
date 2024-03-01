@@ -161,56 +161,6 @@ animation_slot		= 4
 ;hud item
 hud = wpn_sigaret_hud
 
-
-[item_foto1]:identity_immunities
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn 				= "devices\quest_items\item_foto1"
-;$prefetch 			= 32
-class				= II_ATTCH
-cform				= skeleton
-visual				= equipments\item_foto1
-radius				= 1
-
-;can_take			= false
-
-description			= item_foto1_desc
-
-inv_name			= item_foto_name
-inv_name_short		= item_foto_name
-inv_weight			= 0
-
-inv_grid_width		= 2
-inv_grid_height		= 1
-inv_grid_x			= 18
-inv_grid_y			= 39
-cost				= 0
-
-
-[item_foto2]:identity_immunities
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn 				= "devices\quest_items\item_foto2"
-;$prefetch 			= 32
-class				= II_ATTCH
-cform				= skeleton
-visual				= equipments\item_foto2
-radius				= 1
-
-;can_take			= false
-
-description			= item_foto2_desc
-
-inv_name			= item_foto_name
-inv_name_short		= item_foto_name
-inv_weight			= 0
-
-inv_grid_width		= 2
-inv_grid_height		= 1
-inv_grid_x			= 20
-inv_grid_y			= 39
-cost				= 0
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;	OTHERS
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -276,62 +226,48 @@ marked_icon_sect 	= icon_scope
 loadout_type 		= silencer
 marked_icon_sect 	= icon_silencer
 
-[icon_loadout]
+[icon_base]
 inv_grid_width     = 1
 inv_grid_height    = 1
-inv_grid_x         = 13
-inv_grid_y         = 38
+inv_grid_x         = 0
+inv_grid_y         = 0
 
-[icon_rifle_ammo]
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 14
-inv_grid_y         = 38
+[icon_loadout]:icon_base
 
-[icon_pistol_ammo]
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 15
-inv_grid_y         = 38
+[icon_rifle_ammo]:icon_base
+inv_grid_x         = 1
 
-[icon_shotgun_ammo]
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 16
-inv_grid_y         = 38
+[icon_pistol_ammo]:icon_base
+inv_grid_x         = 2
 
-[icon_heavy_ammo]
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 17
-inv_grid_y         = 38
+[icon_shotgun_ammo]:icon_base
+inv_grid_x         = 3
 
-[icon_grenade]
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 19
-inv_grid_y         = 38
+[icon_heavy_ammo]:icon_base
+inv_grid_x         = 4
 
-[icon_medicine]
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 18
-inv_grid_y         = 38
+[icon_medicine]:icon_base
+inv_grid_x         = 5
 
-[icon_scope]
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 20
-inv_grid_y         = 38
+[icon_grenade]:icon_base
+inv_grid_x         = 6
 
-[icon_silencer]
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 21
-inv_grid_y         = 38
+[icon_scope]:icon_base
+inv_grid_x         = 7
 
-[icon_in_slot]
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 25
-inv_grid_y         = 38
+[icon_silencer]:icon_base
+inv_grid_x         = 8
+
+[icon_in_slot]:icon_base
+
+[quest_icon]:icon_base
+inv_grid_x         = 4
+inv_grid_y         = 1
+
+[upgrade_icon]:icon_base
+inv_grid_x         = 0
+inv_grid_y         = 1
+
+[upgrade_icon_small]:icon_base
+inv_grid_x         = 1
+inv_grid_y         = 1
