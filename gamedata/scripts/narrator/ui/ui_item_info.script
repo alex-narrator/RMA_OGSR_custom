@@ -452,7 +452,7 @@ function attach_booster_params(UIDesc, item)
 	boost_st["boost_time"]:SetWidth(params_list:GetDesiredChildWidth())
 	val = read_if_exists(sys_ini, "r_float", item:section(), "boost_time", 0)
 	color = "%c[UI_orange]"
-	text = string.format("%s%s %s%.1f %s", game.translate_string("st_list_mark"), game.translate_string("ui_inv_boost_time"), color, val, game.translate_string("st_time_minute"))
+	text = string.format("%s%s %s%.f %s", game.translate_string("st_list_mark"), game.translate_string("ui_inv_boost_time"), color, val, game.translate_string("st_time_minute"))
 	boost_st["boost_time"]:SetText(text)
 	boost_st["boost_time"]:AdjustHeightToText()
 	params_list:AddWindow(boost_st["boost_time"])
