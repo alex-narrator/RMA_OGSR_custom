@@ -192,6 +192,7 @@ function add_custom_info(UIDesc, obj)
 	attach_protection_params(UIDesc, obj)
 	attach_armor_params(UIDesc, obj)
 	attach_addon_params(UIDesc, obj)
+	attach_belt_params(UIDesc, obj)
 	
 	if obj:is_eatable_item() then
 		attach_eatable_params(UIDesc, obj)
@@ -450,7 +451,8 @@ function attach_booster_params(UIDesc, item)
 	boost_st["boost_time"]:SetTextComplexMode(true)
 	boost_st["boost_time"]:SetWidth(params_list:GetDesiredChildWidth())
 	val = read_if_exists(sys_ini, "r_float", item:section(), "boost_time", 0)
-	text = string.format("%s%s %.1f %s", game.translate_string("st_list_mark"), game.translate_string("ui_inv_boost_time"), val, game.translate_string("st_time_minute"))
+	color = "%c[UI_orange]"
+	text = string.format("%s%s %s%.1f %s", game.translate_string("st_list_mark"), game.translate_string("ui_inv_boost_time"), color, val, game.translate_string("st_time_minute"))
 	boost_st["boost_time"]:SetText(text)
 	boost_st["boost_time"]:AdjustHeightToText()
 	params_list:AddWindow(boost_st["boost_time"])
@@ -864,4 +866,24 @@ function attach_plate_condition(UIDesc, obj)
 	
 	local condition_progress = xml:InitProgressBar("plate_params:progress_condition", plate_params)
 	condition_progress:SetProgressPos(bind_obj:get_plate_condition())
+end
+
+-----------------------------------------------------BELT SLOTS PARAMS-----------------------------------------------------------------------------------------------------------
+local belt_slots_st
+function attach_belt_params(UIDesc, item)
+	local belt_size = read_if_exists(sys_ini, "r_u32", item:section(), "belt_size", 0)
+	if belt_size <= 0 then return end
+	
+	local xml = CScriptXmlInit()
+	xml:ParseFile("script_overlays\\belt_params.xml")
+	local params_list = xml:InitScrollView("params_list", UIDesc)
+	belt_slots_st = CUIStatic()
+	belt_slots_st:SetTextComplexMode(true)
+	belt_slots_st:SetWidth(params_list:GetDesiredChildWidth())
+	local color = "%c[UI_orange]"
+	local text = string.format("%s%s %s%s", game.translate_string("st_list_mark"), game.translate_string("ui_st_belt_slots"), color, belt_size)
+	belt_slots_st:SetText(text)
+	belt_slots_st:AdjustHeightToText()
+	params_list:AddWindow(belt_slots_st)
+	params_list:SetHeight(params_list:GetPadSize().y)
 end
