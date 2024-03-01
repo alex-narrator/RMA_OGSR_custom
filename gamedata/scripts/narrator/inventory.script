@@ -23,6 +23,8 @@ end
 
 function set_max_belt(item)
 	actor.inventory.max_belt = item and read_if_exists(sys_ini, "r_u32", item:section(), "belt_size", 0) or read_if_exists(sys_ini, "r_u32", "inventory", "max_belt", 0)
+	if level.is_removing_objects() or xr_conditions.black_screen() then
+	return end	
 	drop_belt_to_ruck()
 end
 

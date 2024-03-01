@@ -650,7 +650,7 @@ function ActorMenuOverlay:SetCharacterTextNPC()
 	local rel = game.translate_string(name_by_relation[self.target:relation(actor)])
 	
 	local money_header = game.translate_string("ui_inv_money")
-	local money = self.target:infinitive_money() and "---" or self.target:money()
+	local money = (self.target:infinitive_money() or not self.target:alive()) and "---" or self.target:money()
 	local money_unit = game.translate_string("ui_st_money_regional")
 	
 	local char_text_header = string.format("%s:\\n%s:\\n%s:\\n%s:\\n%s:", 
