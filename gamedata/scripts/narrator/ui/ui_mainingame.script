@@ -147,45 +147,49 @@ function MainIngameOverlay:InitControls()
 	self.slot_panel = xml:InitStatic("slot_panel", self)
 	self.slot_panel.scale = xml:ReadAttribFlt("slot_panel", "scale", 1)
 	self.slot_panel.indent = xml:ReadAttribFlt("slot_panel", "indent", 0)
-	self.slot_panel.vertical = xml:ReadAttribInt("slot_panel", "vertical", 0)
+	self.slot_panel.vertical = xml:ReadAttribInt("slot_panel", "vertical", 0) > 0 and true or false
 	self.slot_panel.font = xml:ReadAttrib("slot_panel", "font", def_font)
 	tmp_tbl = split_string(xml:ReadAttrib("slot_panel", "text_color", def_color), ",")
 	self.slot_panel.text_color = GetARGB(tmp_tbl[1], tmp_tbl[2], tmp_tbl[3], tmp_tbl[4])
 	tmp_tbl = split_string(xml:ReadAttrib("slot_panel", "text_offset", "0,0"), ",")
 	self.slot_panel.text_offset = {x = tmp_tbl[1], y = tmp_tbl[2]}
 	self.slot_panel.slots = split_string(xml:ReadAttrib("slot_panel", "slots", ""), ",")
+	self.slot_panel.align_center = xml:ReadAttribInt("slot_panel", "center", 0) > 0 and true or false
 	--// belt panel
 	self.belt_panel = xml:InitStatic("belt_panel", self)
 	self.belt_panel.scale = xml:ReadAttribFlt("belt_panel", "scale", 1)
 	self.belt_panel.indent = xml:ReadAttribFlt("belt_panel", "indent", 0)
-	self.belt_panel.vertical = xml:ReadAttribInt("belt_panel", "vertical", 0)
+	self.belt_panel.vertical = xml:ReadAttribInt("belt_panel", "vertical", 0) > 0 and true or false
 	self.belt_panel.group_similar = xml:ReadAttribInt("belt_panel", "group_similar", 0) > 0 and true or false
 	self.belt_panel.font = xml:ReadAttrib("belt_panel", "font", def_font)
 	tmp_tbl = split_string(xml:ReadAttrib("belt_panel", "text_color", def_color), ",")
 	self.belt_panel.text_color = GetARGB(tmp_tbl[1], tmp_tbl[2], tmp_tbl[3], tmp_tbl[4])
 	tmp_tbl = split_string(xml:ReadAttrib("belt_panel", "text_offset", "0,0"), ",")
 	self.belt_panel.text_offset = {x = tmp_tbl[1], y = tmp_tbl[2]}
+	self.belt_panel.align_center = xml:ReadAttribInt("belt_panel", "center", 0) > 0 and true or false
 	--// loadout panel
-	self.loadout_panel = xml:InitStatic("loadout_panel", self)
-	self.loadout_panel.scale = xml:ReadAttribFlt("loadout_panel", "scale", 1)
-	self.loadout_panel.indent = xml:ReadAttribFlt("loadout_panel", "indent", 0)
-	self.loadout_panel.vertical = xml:ReadAttribInt("loadout_panel", "vertical", 0)
-	self.loadout_panel.group_similar = xml:ReadAttribInt("loadout_panel", "group_similar", 0) > 0 and true or false
-	self.loadout_panel.font = xml:ReadAttrib("loadout_panel", "font", def_font)
-	tmp_tbl = split_string(xml:ReadAttrib("loadout_panel", "text_color", def_color), ",")
-	self.loadout_panel.text_color = GetARGB(tmp_tbl[1], tmp_tbl[2], tmp_tbl[3], tmp_tbl[4])
-	tmp_tbl = split_string(xml:ReadAttrib("loadout_panel", "text_offset", "0,0"), ",")
-	self.loadout_panel.text_offset = {x = tmp_tbl[1], y = tmp_tbl[2]}
+	-- self.loadout_panel = xml:InitStatic("loadout_panel", self)
+	-- self.loadout_panel.scale = xml:ReadAttribFlt("loadout_panel", "scale", 1)
+	-- self.loadout_panel.indent = xml:ReadAttribFlt("loadout_panel", "indent", 0)
+	-- self.loadout_panel.vertical = xml:ReadAttribInt("loadout_panel", "vertical", 0) > 0 and true or false
+	-- self.loadout_panel.group_similar = xml:ReadAttribInt("loadout_panel", "group_similar", 0) > 0 and true or false
+	-- self.loadout_panel.font = xml:ReadAttrib("loadout_panel", "font", def_font)
+	-- tmp_tbl = split_string(xml:ReadAttrib("loadout_panel", "text_color", def_color), ",")
+	-- self.loadout_panel.text_color = GetARGB(tmp_tbl[1], tmp_tbl[2], tmp_tbl[3], tmp_tbl[4])
+	-- tmp_tbl = split_string(xml:ReadAttrib("loadout_panel", "text_offset", "0,0"), ",")
+	-- self.loadout_panel.text_offset = {x = tmp_tbl[1], y = tmp_tbl[2]}
+	-- self.loadout_panel.align_center = xml:ReadAttribInt("loadout_panel", "center", 0) > 0 and true or false
 	--// booster panel
 	self.booster_panel = xml:InitStatic("booster_panel", self)
 	self.booster_panel.scale = xml:ReadAttribFlt("booster_panel", "scale", 1)
 	self.booster_panel.indent = xml:ReadAttribFlt("booster_panel", "indent", 0)
-	self.booster_panel.vertical = xml:ReadAttribInt("booster_panel", "vertical", 0)
+	self.booster_panel.vertical = xml:ReadAttribInt("booster_panel", "vertical", 0) > 0 and true or false
 	self.booster_panel.font = xml:ReadAttrib("booster_panel", "font", def_font)
 	tmp_tbl = split_string(xml:ReadAttrib("booster_panel", "text_color", def_color), ",")
 	self.booster_panel.text_color = GetARGB(tmp_tbl[1], tmp_tbl[2], tmp_tbl[3], tmp_tbl[4])
 	tmp_tbl = split_string(xml:ReadAttrib("booster_panel", "text_offset", "0,0"), ",")
 	self.booster_panel.text_offset = {x = tmp_tbl[1], y = tmp_tbl[2]}
+	self.booster_panel.align_center = xml:ReadAttribInt("booster_panel", "center", 0) > 0 and true or false
 	self:UpdatePanelItems()
 	
 	--//active item info
@@ -375,12 +379,22 @@ function MainIngameOverlay:UpdatePanelItems()
 			item_st:SetFont(GetFontCustom(self.slot_panel.font))
 			item_st:SetTextColor(self.slot_panel.text_color)
 			item_st:SetTextPos(self.slot_panel.text_offset.x, self.slot_panel.text_offset.y)
-			if self.slot_panel.vertical > 0 then
+			if self.slot_panel.vertical then
 				pos.y = pos.y + item_st:GetHeight() + self.slot_panel.indent
 			else
 				pos.x = pos.x + item_st:GetWidth() + self.slot_panel.indent
 			end
 			self.slot_panel:AttachChild(item_st)
+		end
+	end
+	if self.slot_panel.align_center then
+		local orig_pos = self.slot_panel:GetWndPos()
+		if self.slot_panel.vertical then
+			self.slot_panel:SetHeight(pos.y)
+			self.slot_panel:SetWndPos(orig_pos.x, UI_BASE_HEIGHT / 2 - self.slot_panel:GetHeight() / 2)
+		else
+			self.slot_panel:SetWidth(pos.x)
+			self.slot_panel:SetWndPos(UI_BASE_WIDTH / 2 - self.slot_panel:GetWidth() / 2, orig_pos.y)
 		end
 	end
 	--// belt
@@ -393,7 +407,14 @@ function MainIngameOverlay:UpdatePanelItems()
 			self:TryAddToList(item, items, self.belt_panel.group_similar)
 		end
 	end
-	table.sort(items,ui_inv_utils.sort_by_size)
+	for k,v in pairs(loadout.get_loaded_items()) do
+		item = level.object_by_id(k)
+		if item then
+			self:TryAddToList(item, items, self.belt_panel.group_similar)
+		end
+	end	
+	--table.sort(items,ui_inv_utils.sort_by_size)
+	table.sort(items,ui_inv_utils.sort_by_size_type)
 	for k, v in pairs(items) do
 		params = CIconParams(v.item:section())
 		item_st = CUIStatic()
@@ -407,44 +428,64 @@ function MainIngameOverlay:UpdatePanelItems()
 		item_st:SetFont(GetFontCustom(self.belt_panel.font))
 		item_st:SetTextColor(self.belt_panel.text_color)
 		item_st:SetTextPos(self.belt_panel.text_offset.x, self.belt_panel.text_offset.y)
-		if self.belt_panel.vertical > 0 then
+		if self.belt_panel.vertical then
 			pos.y = pos.y + item_st:GetHeight() + self.belt_panel.indent
 		else
 			pos.x = pos.x + item_st:GetWidth() + self.belt_panel.indent
 		end
 		self.belt_panel:AttachChild(item_st)
 	end
-	--// loadout
-	self.loadout_panel:DetachAll()
-	items = {}
-	pos = vector2():set(0,0)
-	for k,v in pairs(loadout.get_loaded_items()) do
-		item = level.object_by_id(k)
-		if item then
-			self:TryAddToList(item, items, self.loadout_panel.group_similar)
-		end
-	end
-	table.sort(items,ui_inv_utils.sort_by_size)
-	for k, v in pairs(items) do
-		params = CIconParams(v.item:section())
-		item_st = CUIStatic()
-		params:set_shader(item_st)
-		item_st:SetWidth(params.grid_width * CELL_W * self.loadout_panel.scale * get_current_kx())
-		item_st:SetHeight(params.grid_height * CELL_H * self.loadout_panel.scale)
-		ui_inv_utils.AttachPanelIcons(v.item, item_st)
-		item_st:SetWndPos(pos.x, pos.y)
-		text = v.count > 1 and string.format("x%s", v.count) or ""
-		item_st:SetText(game.translate_string(text))
-		item_st:SetFont(GetFontCustom(self.loadout_panel.font))
-		item_st:SetTextColor(self.loadout_panel.text_color)
-		item_st:SetTextPos(self.loadout_panel.text_offset.x, self.loadout_panel.text_offset.y)
-		if self.loadout_panel.vertical > 0 then
-			pos.y = pos.y + item_st:GetHeight() + self.loadout_panel.indent
+	if self.belt_panel.align_center then
+		local orig_pos = self.belt_panel:GetWndPos()
+		if self.belt_panel.vertical then
+			self.belt_panel:SetHeight(pos.y)
+			self.belt_panel:SetWndPos(orig_pos.x, UI_BASE_HEIGHT / 2 - self.belt_panel:GetHeight() / 2)
 		else
-			pos.x = pos.x + item_st:GetWidth() + self.loadout_panel.indent
+			self.belt_panel:SetWidth(pos.x)
+			self.belt_panel:SetWndPos(UI_BASE_WIDTH / 2 - self.belt_panel:GetWidth() / 2, orig_pos.y)
 		end
-		self.loadout_panel:AttachChild(item_st)
 	end	
+	--// loadout
+	-- self.loadout_panel:DetachAll()
+	-- items = {}
+	-- pos = vector2():set(0,0)
+	-- for k,v in pairs(loadout.get_loaded_items()) do
+		-- item = level.object_by_id(k)
+		-- if item then
+			-- self:TryAddToList(item, items, self.loadout_panel.group_similar)
+		-- end
+	-- end
+	-- table.sort(items,ui_inv_utils.sort_by_size)
+	-- for k, v in pairs(items) do
+		-- params = CIconParams(v.item:section())
+		-- item_st = CUIStatic()
+		-- params:set_shader(item_st)
+		-- item_st:SetWidth(params.grid_width * CELL_W * self.loadout_panel.scale * get_current_kx())
+		-- item_st:SetHeight(params.grid_height * CELL_H * self.loadout_panel.scale)
+		-- ui_inv_utils.AttachPanelIcons(v.item, item_st)
+		-- item_st:SetWndPos(pos.x, pos.y)
+		-- text = v.count > 1 and string.format("x%s", v.count) or ""
+		-- item_st:SetText(game.translate_string(text))
+		-- item_st:SetFont(GetFontCustom(self.loadout_panel.font))
+		-- item_st:SetTextColor(self.loadout_panel.text_color)
+		-- item_st:SetTextPos(self.loadout_panel.text_offset.x, self.loadout_panel.text_offset.y)
+		-- if self.loadout_panel.vertical then
+			-- pos.y = pos.y + item_st:GetHeight() + self.loadout_panel.indent
+		-- else
+			-- pos.x = pos.x + item_st:GetWidth() + self.loadout_panel.indent
+		-- end
+		-- self.loadout_panel:AttachChild(item_st)
+	-- end
+	-- if self.loadout_panel.align_center then
+		-- local orig_pos = self.loadout_panel:GetWndPos()
+		-- if self.loadout_panel.vertical then
+			-- self.loadout_panel:SetHeight(pos.y)
+			-- self.loadout_panel:SetWndPos(orig_pos.x, UI_BASE_HEIGHT / 2 - self.loadout_panel:GetHeight() / 2)
+		-- else
+			-- self.loadout_panel:SetWidth(pos.x)
+			-- self.loadout_panel:SetWndPos(UI_BASE_WIDTH / 2 - self.loadout_panel:GetWidth() / 2, orig_pos.y)
+		-- end
+	-- end		
 end
 
 function MainIngameOverlay:UpdatePanelBoosters()
@@ -465,13 +506,23 @@ function MainIngameOverlay:UpdatePanelBoosters()
 		item_st:SetFont(GetFontCustom(self.booster_panel.font))
 		item_st:SetTextColor(self.booster_panel.text_color)
 		item_st:SetTextPos(self.booster_panel.text_offset.x, self.booster_panel.text_offset.y)
-		if self.booster_panel.vertical > 0 then
+		if self.booster_panel.vertical then
 			pos.y = pos.y + item_st:GetHeight() + self.booster_panel.indent
 		else
 			pos.x = pos.x + item_st:GetWidth() + self.booster_panel.indent
 		end
 		self.booster_panel:AttachChild(item_st)
 	end
+	if self.booster_panel.align_center then
+		local orig_pos = self.booster_panel:GetWndPos()
+		if self.booster_panel.vertical then
+			self.booster_panel:SetHeight(pos.y)
+			self.booster_panel:SetWndPos(orig_pos.x, UI_BASE_HEIGHT / 2 - self.booster_panel:GetHeight() / 2)
+		else
+			self.booster_panel:SetWidth(pos.x)
+			self.booster_panel:SetWndPos(UI_BASE_WIDTH / 2 - self.booster_panel:GetWidth() / 2, orig_pos.y)
+		end
+	end	
 end
 
 function MainIngameOverlay:TryAddToList(item, tbl, group_similar)
@@ -694,7 +745,7 @@ function MainIngameOverlay:Update()
 	self:UpdateCarPanel()
 	self.slot_panel:Show(SHOW_GEAR_INFO)
 	self.belt_panel:Show(SHOW_GEAR_INFO)
-	self.loadout_panel:Show(SHOW_GEAR_INFO)
+	--self.loadout_panel:Show(SHOW_GEAR_INFO)
 	self:UpdatePanelBoosters()
 	self:UpdateActiveItem()
 	self:UpdateMissileThrow()

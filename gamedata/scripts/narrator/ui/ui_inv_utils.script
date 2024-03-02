@@ -504,12 +504,8 @@ function AttachPanelIcons(item, icon)
 end
 
 function sort_by_size(a, b)
-	if type(a) == "table" then
-		a = a.item
-	end
-	if type(b) == "table" then
-		b = b.item
-	end	
+	a = type(a) == "table" and a.item or a
+	b = type(b) == "table" and b.item or b
 	local params1, params2 = CIconParams(a:section()), CIconParams(b:section())
 	local size1, size2 = vector2():set(params1.grid_width, params1.grid_height), vector2():set(params2.grid_width, params2.grid_height)
 	
@@ -560,10 +556,14 @@ function get_type(item)
 end
 
 function sort_by_type(a, b)
+	a = type(a) == "table" and a.item or a
+	b = type(b) == "table" and b.item or b
 	return get_type(a) < get_type(b)
 end
 
 function sort_by_size_type(a, b)
+	a = type(a) == "table" and a.item or a
+	b = type(b) == "table" and b.item or b
 	if get_type(a) == get_type(b) then
 		return sort_by_size(a, b)
 	end
