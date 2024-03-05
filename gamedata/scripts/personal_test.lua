@@ -41,7 +41,7 @@
 --db.actor.power = -10
 
 local tgt = level.get_target_obj()
-show_dbg_info = true
+show_dbg_info = false
 if tgt and show_dbg_info then
 	log3("~ target section: %s | id %s| story_id %s | name: %s | profile: %s | species %s | nonscript usable %s | position (%s, %s, %s) | lvid %s | gvid %s | visual %s | gulag %s", 
 		tgt:section(), 
@@ -246,3 +246,17 @@ log3("position %s, %s, %s | lvid %s | gvid %s | is valid %s", pos.x, pos.y, pos.
 -- local cur_fov = device().fov
 -- local zoom = fov / cur_fov
 -- log3("zoom %s | fov %s | cur fov %s", zoom, fov, cur_fov)
+
+local target = level.get_target_obj()--actor:object("wpn_ak74")
+local visual = [[dynamics\weapons\wpn_aks74\wpn_aks74_kobra]]
+if target then
+	log3("~item %s with visual %s", target:name(), target:get_visual_name())
+	target:set_visual_name(visual)
+	log3("~item %s set visual %s", target:name(), target:get_visual_name())
+end
+local hud_sect = [[wpn_ak74_kobra_hud]]
+if target then
+	log3("~item %s with hud sect %s", target:name(), target:get_hud_sect())
+	target:set_hud_sect(hud_sect)
+	log3("~item %s set hud sect %s", target:name(), target:get_hud_sect())
+end

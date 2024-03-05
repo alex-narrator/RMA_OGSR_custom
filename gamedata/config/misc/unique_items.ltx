@@ -115,16 +115,6 @@ description						= monolit_outfit_description_m
 ; Защита от пси-излучения
 telepatic_protection 			= 0.3
 
-;-----------Weapons-----------
-
-[wpn_rg6_m1]:wpn_rg-6,unique_base	;РГ-6 м209
-$spawn             				= "weapons\uniq\wpn_rg6_m1"	
-description						= enc_weapons1_wpn-rg6_m1
-inv_name						= wpn-rg6_m1
-inv_name_short					= wpn-rg6_m1
-ammo_class		 				= ammo_m209
-condition_shot_dec 				= 0.00001
-
 ;-----------Arena-----------
 [wpn_pm_arena]:wpn_pm;
 $spawn             		= "weapons\arena\wpn_pm_arena"
@@ -160,6 +150,34 @@ $spawn             		= "weapons\arena\wpn_fn2000_arena"
 $spawn             		= "weapons\arena\wpn_g36_arena"
 
 
+;-----------Weapons-----------
+
+[wpn_rg6_m1]:wpn_rg-6,unique_base	;РГ-6 м209
+$spawn             				= "weapons\uniq\wpn_rg6_m1"	
+description						= enc_weapons1_wpn-rg6_m1
+inv_name						= wpn-rg6_m1
+inv_name_short					= wpn-rg6_m1
+ammo_class		 				= ammo_m209
+condition_shot_dec 				= 0.00001
+
+[wpn_abakan_brom]:wpn_abakan
+inv_name	        	= wpn-abakan_brom					; name in inventory	
+inv_name_short			= wpn-abakan_brom
+description				= enc_weapons1_wpn-abakan_brom
+upgrade_icon_sect 		= upgrade_icon
+unique_item 			= true
+
+[wpn_vintorez_coll]:wpn_vintorez
+condition_shot_dec 		= 0.0001										;увеличение износа при каждом выстреле
+description				= enc_weapons1_wpn-vintorez_coll
+inv_name	        	= wpn-vintorez_coll
+inv_name_short			= wpn-vintorez_coll
+
+upgrade_icon_sect 		= upgrade_icon
+unique_item 			= true
+
+scope_installed 		= 2
+magazine_installed 		= 1
 
 [hunters_toz]:wpn_toz34_decor,unique_base
 $spawn                  = "devices\uniq\hunters_toz"					; option for Level Editor
@@ -171,13 +189,13 @@ $spawn                  = "devices\uniq\wpn_deserteagle_coll"			; option for Lev
 condition_shot_dec 		= 0.0002										;увеличение износа при каждом выстреле
 description				= enc_weapons1_wpn-deserteagle_coll
 
-[wpn_ak74_gunslinger_hideout]:wpn_ak74_kobra
+[wpn_ak74_gunslinger_hideout]:wpn_ak74
 scope_installed 		= 2
 silencer_installed 		= 0
 
-[wpn_mp5_garbage_tunnel]:wpn_mp5_ac10632
+[wpn_mp5_garbage_tunnel]:wpn_mp5
 scope_installed 		= 2
 silencer_installed 		= 0
 
-[wpn_lr300_dmr_merc]:wpn_lr300_dmr_acog
+[wpn_lr300_dmr_merc]:wpn_lr300_dmr
 scope_installed 		= 0
