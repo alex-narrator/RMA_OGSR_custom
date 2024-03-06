@@ -113,9 +113,11 @@ news = {
     pri_followers_leader_phrase1_3  = xr_sound.get_safe_sound_object([[characters_voice\scenario\pri\followers_leader_phrase1_3_p]]),
 }
 
-pda_news = xr_sound.get_safe_sound_object([[device\pda\pda_news]])
-pda_tips = xr_sound.get_safe_sound_object([[device\pda\pda_tip]])
-pda_task = xr_sound.get_safe_sound_object([[device\pda\pda_objective]])
+local pda_prefix = [[device\pda\pda_]]
+
+pda_news = xr_sound.get_safe_sound_object(pda_prefix.."news")
+pda_tips = xr_sound.get_safe_sound_object(pda_prefix.."tip")
+pda_task = xr_sound.get_safe_sound_object(pda_prefix.."objective")
 
 tips_icons = {
 	default  = { 0, 658},
@@ -148,6 +150,13 @@ tips_icons = {
 	prapor = { 415, 47}
 }
 
+function attach(sm)
+	sm:subscribe({signal = "on_spawn", fun = this.on_spawn})
+end
+
+function on_spawn()
+	level.prefetch_many_sounds(pda_prefix)
+end
 
 function send_tip(actor, news_id, timeout, sender, showtime, sender_id)
 	if news_id == nil then return false end
