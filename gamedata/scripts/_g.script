@@ -1577,7 +1577,7 @@ function hud_anim_exists(item, anim_name)
 end
 
 function get_hud_sect(item)
-	return item:get_hud_sect()--read_if_exists(sys_ini, "r_string", item:section(), "hud", nil)
+	return read_if_exists(sys_ini, "r_string", item:section(), "hud", nil)
 end
 
 function math.clamp(val, _min, _max)
