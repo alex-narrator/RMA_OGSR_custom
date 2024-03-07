@@ -100,8 +100,8 @@ end
 --block_non_move_action(false)
 --get_actor_obj():block_action(key_bindings.kINVENTORY)
 
---local item = actor:active_item()
---if item then
+local item = actor:active_item()
+if item then
 		-- local wpn = item:get_weapon()
 		-- if not wpn then
 		-- return end
@@ -114,17 +114,24 @@ end
 	-- end
 -- end
 --item:dump_visual_to_log() --Распечатать в лог информацию о мешах и костях модели - мировой и худовой, если худовая доступна.
-	--log3("--HUD Mesh count of [%s]: [%s]", item:name(), item:get_mesh_count_hud())
-	--item:set_show_model_mesh_hud(8, false)
---end
+	log3("--HUD Mesh count of [%s]: [%s]", item:name(), item:get_mesh_count_hud())
+	-- item:set_show_model_mesh_hud(0, false)
+	-- item:set_show_model_mesh_hud(1, false)
+	-- item:set_show_model_mesh_hud(2, false)
+	-- item:set_show_model_mesh_hud(3, false)
+	-- item:set_show_model_mesh_hud(4, false)
+	-- item:set_show_model_mesh_hud(5, false)
+	item:set_show_model_mesh_hud(6, false)
+	item:set_show_model_mesh_hud(7, false)
+end
 
-local item = level.get_target_obj()
-if item then
+--local item = level.get_target_obj()
+--if item then
 --item:dump_visual_to_log() --Распечатать в лог информацию о мешах и костях модели - мировой и худовой, если худовая доступна.
 	--log3("--Mesh count of [%s]: [%s]", item:name(), item:get_mesh_count()) --вывести кол-во мешей в худовой модели.
-	--item:set_show_model_mesh(1, true) --Установить видимость меша для худовой модели
+	--item:set_show_model_mesh(0, false) --Установить видимость меша для худовой модели
 -- --local shown = item:get_show_model_mesh_hud(0) --узнать показан ли меш
-end
+--end
 
 -- if actor:active_item() then
 	-- actor:active_item():stop_aim_inertion(false)

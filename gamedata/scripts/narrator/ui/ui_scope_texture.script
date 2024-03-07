@@ -21,10 +21,10 @@ function create_scope_static(weapon)
 	local wpn = weapon:get_weapon()
 	if not wpn:is_addon_attached(addon.scope) then
 	return false end
-	if read_if_exists(sys_ini, "r_bool", weapon:section(), "ignore_scope_texture", false) then
-	return false end
-	local scope_tex_type = wpn:scope_mode_second() and "scope_texture_second" or "scope_texture"
 	local scope_tex_sect = wpn:addon_attachable(addon.scope) and wpn:get_addon_name(addon.scope) or weapon:section()
+	if read_if_exists(sys_ini, "r_bool", scope_tex_sect, "ignore_scope_texture", false) then
+	return false end
+	local scope_tex_type = wpn:scope_mode_second() and "scope_texture_second" or "scope_texture"	
 	local texture_name = read_if_exists(sys_ini, "r_string", scope_tex_sect, scope_tex_type, nil)
 	if not texture_name then 
 	return false end
