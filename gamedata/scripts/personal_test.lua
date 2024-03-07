@@ -100,8 +100,8 @@ end
 --block_non_move_action(false)
 --get_actor_obj():block_action(key_bindings.kINVENTORY)
 
---local item = db.actor:active_item()
--- if item then
+--local item = actor:active_item()
+--if item then
 		-- local wpn = item:get_weapon()
 		-- if not wpn then
 		-- return end
@@ -114,17 +114,17 @@ end
 	-- end
 -- end
 --item:dump_visual_to_log() --Распечатать в лог информацию о мешах и костях модели - мировой и худовой, если худовая доступна.
---log3("--HUD Mesh count of [%s]: [%s]", item:name(), item:get_mesh_count_hud())
---item:set_show_model_mesh_hud(3, false)
+	--log3("--HUD Mesh count of [%s]: [%s]", item:name(), item:get_mesh_count_hud())
+	--item:set_show_model_mesh_hud(8, false)
 --end
 
--- local item = level.get_target_obj()
--- if item then
--- item:dump_visual_to_log() --Распечатать в лог информацию о мешах и костях модели - мировой и худовой, если худовая доступна.
--- log3("--Mesh count of [%s]: [%s]", item:name(), item:get_mesh_count()) --вывести кол-во мешей в худовой модели.
--- item:set_show_model_mesh(1, false) --Установить видимость меша для худовой модели
--- -- --local shown = item:get_show_model_mesh_hud(0) --узнать показан ли меш
--- end
+local item = level.get_target_obj()
+if item then
+--item:dump_visual_to_log() --Распечатать в лог информацию о мешах и костях модели - мировой и худовой, если худовая доступна.
+	--log3("--Mesh count of [%s]: [%s]", item:name(), item:get_mesh_count()) --вывести кол-во мешей в худовой модели.
+	--item:set_show_model_mesh(1, true) --Установить видимость меша для худовой модели
+-- --local shown = item:get_show_model_mesh_hud(0) --узнать показан ли меш
+end
 
 -- if actor:active_item() then
 	-- actor:active_item():stop_aim_inertion(false)
@@ -199,8 +199,8 @@ end
 
 --somnolence.change_val(1)
 
-local pos = actor:position()
-log3("position %s, %s, %s | lvid %s | gvid %s | is valid %s", pos.x, pos.y, pos.z, actor:level_vertex_id(), actor:game_vertex_id(), game_graph():valid_vertex_id(actor:level_vertex_id()))
+-- local pos = actor:position()
+-- log3("position %s, %s, %s | lvid %s | gvid %s | is valid %s", pos.x, pos.y, pos.z, actor:level_vertex_id(), actor:game_vertex_id(), game_graph():valid_vertex_id(actor:level_vertex_id()))
 
 --log3("rain factor %s",level.rain_factor())
 
@@ -260,4 +260,4 @@ log3("position %s, %s, %s | lvid %s | gvid %s | is valid %s", pos.x, pos.y, pos.
 	-- target:set_hud_sect(hud_sect)
 	-- log3("~item %s set hud sect %s", target:name(), target:get_hud_sect())
 -- end
-actor:give_info_portion("encyclopedy_zone_locations_garbage")
+--actor:give_info_portion("encyclopedy_zone_locations_garbage")
