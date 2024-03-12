@@ -202,10 +202,9 @@ function npc_rank(actor, npc, p)
 		abort("Wrong number of params in npc_rank")
 	end
 
-	if ranks.get_obj_rank_name(npc) == p[1] then
-		return true
-	end
-	return false
+	local rank_name = type(npc) == "table" and ranks.get_val_rank_name(npc.rank) or ranks.get_obj_rank_name(npc)
+	--log3("~check rank_name %s", rank_name)
+	return rank_name == p[1]
 end
 
 function npc_profile(actor, npc, p)
@@ -213,11 +212,9 @@ function npc_profile(actor, npc, p)
 		abort("Wrong number of params in npc_profile")
 	end
 	
-	if npc:profile_name() == p[1] then
-		return true
-	end
-	return false
-	
+	local profile = type(npc) == "table" and npc.profile or npc:profile_name()
+	--log3("~check profile %s", profile)
+	return profile == p[1]	
 end
 
 

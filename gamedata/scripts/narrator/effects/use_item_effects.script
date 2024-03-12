@@ -68,17 +68,7 @@ function use_item_effects(obj, user)
 			level.remove_complex_effector(use_effector_id)
 			level.add_complex_effector(eff_name, use_effector_id)
 		end
-		somnolence.apply_influence(obj)
-		
-		local use_info = read_if_exists(sys_ini, "r_string", sect, "use_info", nil)
-		if use_info then
-			use_info = split_string(use_info, ",")
-			for _,infoportion in ipairs(use_info) do
-				if not has_alife_info(infoportion) then
-					user:give_info_portion(infoportion) 
-				end
-			end
-		end		
+		somnolence.apply_influence(obj)	
 	end
 end
 

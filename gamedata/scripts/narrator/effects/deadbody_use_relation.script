@@ -34,6 +34,6 @@ function on_npc_use(npc)
 	if disabled_comms[target_comm] then return end
 	local nearest_comm_member = get_nearest_comm_member(npc)
 	if nearest_comm_member and nearest_comm_member:see(actor) then
-		log3("community member %s see actor searching corpse of %s", nearest_comm_member:character_name(), npc:character_name())
+		log3("~community member %s see actor searching corpse of %s", nearest_comm_member:character_name(), npc:character_name())
 	end
 end

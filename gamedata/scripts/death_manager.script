@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 
 --' Ключем является группировка персонажа. Значением является таблица, содержашая имена секций предметов.
 local item_by_community = {}
@@ -30,6 +31,44 @@ local community_list = {
 	"arena_enemy", 
 	"stranger" 
 }
+
+local WEAPON_MAX_COND = 90
+local WEAPON_RANDOM_COND_PART = 50
+local WEAPON_STABLE_COND_PART = WEAPON_MAX_COND - WEAPON_RANDOM_COND_PART
+
+function attach(sm)
+	sm:subscribe({signal = "on_death",   			fun = this.on_death})
+	sm:subscribe({signal = "on_npc_first_update", 	fun = this.on_npc_first_update})
+	sm:subscribe({signal = "on_spawn",   			fun = this.init_drop_settings})
+end
+
+function on_npc_first_update(npc)
+	if not npc:alive() then
+		on_death(npc, nil)
+	end
+end
+
+function on_death(victim, killer)
+	if victim:is_monster() then
+		spawn_monster_loot(victim)
+	elseif victim:is_stalker() then
+		spawn_npc_loot(victim)
+	end
+end
+
+function spawn_monster_loot(monster)
+	local sect = monster:section()
+	local spawn_sect = read_if_exists(sys_ini, "r_string", sect, "Spawn_Inventory_Item_Section", nil)
+	if not spawn_sect then return end
+	local spawn_prob = read_if_exists(sys_ini, "r_float", sect, "Spawn_Inventory_Item_Probability", 0)
+	
+	local prob = math.random()
+	-- if prob < spawn_prob or  math.fsimilar(spawn_prob, 1) then
+	-- end
+	if prob > spawn_prob then return end
+	spawn_to_owner(spawn_sect, monster:id())
+	--log3("~monster %s - spawn part %s with probability %s | spawn_prob %s", monster:name(), spawn_sect, prob, spawn_prob)
+end
 
 function init_drop_settings()
 	for k,v in pairs(community_list) do
@@ -116,24 +155,19 @@ function init_drop_settings()
 end
 
 
-
-class "drop_manager"
-function drop_manager:__init(npc)
-  self.npc = npc
-end
-function drop_manager:create_release_item()
+function spawn_npc_loot(npc)
 	--' Спрашиваем у серверного объекта генерились ли предметы
-	local se_obj = alife():object(self.npc:id())
+	local se_obj = alife():object(npc:id())
 	if se_obj.death_droped == true then return end
 	se_obj.death_droped = true
 
     --' Запускаем итератор на удаление предметов
-    self.npc:iterate_inventory(keep_item, self.npc)
+    npc:iterate_inventory(keep_item, npc)
 
     --' Проверка на отсутствие спауна лута
-    local ini = self.npc:spawn_ini()
+    local ini = npc:spawn_ini()
 	
-	spawn_pda(self.npc)
+	spawn_pda(npc)
 
     if ini and ini:section_exist("dont_spawn_loot") then
         return
@@ -142,14 +176,14 @@ function drop_manager:create_release_item()
     --' Доспавниваем необходимое количество итемов:
     --' Необходимо составить список объектов которые могут быть заспавнены для персонажа
 
-    local spawn_items = item_by_community[self.npc:character_community()]    
+    local spawn_items = item_by_community[npc:character_community()]    
     for k,v in pairs(spawn_items) do
         --' По каждому объекту необходимо получить зависимости    
-        if check_item_dependence(self.npc, k) == true then
+        if check_item_dependence(npc, k) == true then
             --' По каждому объекту необходимо получить количество
             local number = math.ceil(math.random(count_by_level[k].min, count_by_level[k].max))
             --' Необходимо заспавнить нужное количество.
-            create_items(self.npc, k, number, v)
+            create_items(npc, k, number, v)
         end
     end
 end
@@ -178,7 +212,7 @@ function keep_item(npc, item)
     then
         --item:unload_magazine()
     --' Тут надо уменьшить кондишн оружия
-		item:set_condition((math.random(15)+75)*item:condition()/100)
+		item:set_condition((math.random(WEAPON_RANDOM_COND_PART)+WEAPON_STABLE_COND_PART)*item:condition()/100)
         return true
     end
     item_in_slot = npc:item_in_slot(2)
@@ -187,7 +221,7 @@ function keep_item(npc, item)
     then
         --item:unload_magazine()
     --' Тут надо уменьшить кондишн оружия
-		item:set_condition((math.random(15)+75)*item:condition()/100)
+		item:set_condition((math.random(WEAPON_RANDOM_COND_PART)+WEAPON_STABLE_COND_PART)*item:condition()/100)
         return true
     end
     alife():release(alife():object(item:id()), true)
@@ -235,36 +269,14 @@ function check_item_dependence(npc, section)
 end
 
 
-local personal_pda_list = {
-	[87] 	= "esc_novice_pda",
-	[7] 	= "esc_tutorial_wounded_pda",
-	[33] 	= "esc_tutorial_dead_novice_pda",
-	[93] 	= "esc_fabrika_bandit_pda",
-	[94] 	= "esc_bandit_novice_pda",
-	[5] 	= "esc_fox_pda",
-	[92] 	= "esc_provodnik_pda",
-	[100] 	= "gar_seryi_pda",
-	[109] 	= "gar_wounded_pda",
-	[32] 	= "agr_krot_pda",
-	[351] 	= "agr_nii_commander_pda",
-	[450] 	= "dar_corpse_kalugin_pda",
-	[451] 	= "dar_corpse_ucheniy_pda",
-	[609] 	= "ros_freeman_pda",
-	[903] 	= "yan_vasilyev_pda",
-	[918] 	= "yan_ghost_pda",
-	[72] 	= "mil_max_pda",
-	[725] 	= "mil_ugrum_pda",
-	[710] 	= "mil_stukach_pda",
-	[775] 	= "mil_bandit_pda",
-	[1077] 	= "rad_dead_scientist_pda",
-	[1078] 	= "rad_monolith_master_pda",
-	[1125] 	= "aes_soldier_pda",
-}
+local lootable_pda_sect = "device_pda_lootable"
+local PDA_MAX_PWR = 50
+local PDA_RANDOM_PWR_PART = 25
+local PDA_STABLE_PWR_PART = PDA_MAX_PWR - PDA_RANDOM_PWR_PART
 
 function spawn_pda(npc)
-	local personal_pda = personal_pda_list[npc:story_id()]
-	if personal_pda then
-		spawn_to_owner(personal_pda, npc:id())
-		log3("~spawn personal pda %s for npc %s", personal_pda, npc:name())
-	end
+	local se_abstract = spawn_to_owner(lootable_pda_sect, npc:id())
+	local se_obj = alife():object(se_abstract.id)
+	se_obj.power_level = (math.random(PDA_RANDOM_PWR_PART)+PDA_STABLE_PWR_PART)/100
+	pda.fill_owner_info(se_abstract.id)
 end

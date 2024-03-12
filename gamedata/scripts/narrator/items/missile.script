@@ -6,9 +6,11 @@ function attach(sm)
 	sm:subscribe({signal = "on_drop",   			fun = this.on_drop})
 	sm:subscribe({signal = "on_hud_state_switch",   fun = this.on_state_switch})
 	sm:subscribe({signal = "on_key_press",   		fun = this.on_key_press})
+	sm:subscribe({signal = "on_npc_first_update", 	fun = this.on_npc_first_update})
 end
 
 local LIMITED_BOLTS = read_if_exists(sys_ini, "r_bool", "features", "limited_bolts", false)
+local bolt_sect = "bolt"
 
 local bolts = {}
 local grenades = {}
@@ -19,8 +21,15 @@ function on_spawn()
 end
 
 function on_first_update()
-	if not LIMITED_BOLTS and not actor_get_bolt() then
-		alife():create("bolt", actor:position(), actor:level_vertex_id(), actor:game_vertex_id(), actor:id())
+	if not LIMITED_BOLTS and not actor:object(bolt_sect) then
+		spawn_to_owner(bolt_sect, actor:id())
+	end
+end
+
+function on_npc_first_update(npc)
+	if npc:alive() and not npc:object(bolt_sect) then
+		spawn_to_owner(bolt_sect, npc:id())
+		--log3("~give default bolt to NPC %s", npc:name())
 	end
 end
 

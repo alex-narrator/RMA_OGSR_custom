@@ -184,7 +184,7 @@ function motivator_binder:death_callback(victim, who)
 
 	smart_terrain.on_death( self.object:id() )
 	
-	death_manager.drop_manager(self.object):create_release_item()
+	--death_manager.drop_manager(self.object):create_release_item()
 
 	self:clear_callbacks()
 
@@ -226,8 +226,9 @@ function motivator_binder:update(delta)
 
     if self.first_update == false then
         if self.object:alive() == false then
-			death_manager.drop_manager(self.object):create_release_item()
-        end        
+			--death_manager.drop_manager(self.object):create_release_item()
+        end
+		self.sm:call("on_npc_first_update", self.object)
         self.first_update = true
     end
 

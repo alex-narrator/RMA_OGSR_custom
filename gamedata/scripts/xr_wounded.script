@@ -60,6 +60,8 @@ function action_wounded:initialize ()
 	end
 	self.object:wounded(true)
 	self.object:disable_trade()
+	
+	ogse_signals.get_mgr():call("on_npc_wounded", self.object)
 end
 function action_wounded:execute ()
     action_base.execute (self)
@@ -155,6 +157,7 @@ function action_wounded:finalize ()
     xr_sound.set_sound(self.object, nil)
     self.object:wounded(false)
 	self.object:enable_trade()
+	ogse_signals.get_mgr():call("on_npc_not_wounded", self.object)
 end    
 
 ----------------------------------------------------------------------------------------------------------------------

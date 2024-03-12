@@ -111,8 +111,10 @@ function on_slot(obj, prev_place)
 	
 	if obj:is_outfit() and not xr_conditions.black_screen() then
 		if known_outfits[obj:section()] then
+			log3("~outfit_anim.play for item %s | %s", obj:section(), obj:name())
 			outfit_anim.play("outfit_equip_fast_hud")
 		else
+			log3("~outfit_anim.play for item %s | %s", obj:section(), obj:name())
 			outfit_anim.play("outfit_equip_hud")
 			known_outfits[obj:section()] = true
 		end

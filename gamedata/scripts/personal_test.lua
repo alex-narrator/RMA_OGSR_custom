@@ -100,8 +100,8 @@ end
 --block_non_move_action(false)
 --get_actor_obj():block_action(key_bindings.kINVENTORY)
 
-local item = actor:active_item()
-if item then
+--local item = actor:active_item()
+--if item then
 		-- local wpn = item:get_weapon()
 		-- if not wpn then
 		-- return end
@@ -114,16 +114,16 @@ if item then
 	-- end
 -- end
 --item:dump_visual_to_log() --Распечатать в лог информацию о мешах и костях модели - мировой и худовой, если худовая доступна.
-	log3("--HUD Mesh count of [%s]: [%s]", item:name(), item:get_mesh_count_hud())
+	--log3("--HUD Mesh count of [%s]: [%s]", item:name(), item:get_mesh_count_hud())
 	-- item:set_show_model_mesh_hud(0, false)
 	-- item:set_show_model_mesh_hud(1, false)
 	-- item:set_show_model_mesh_hud(2, false)
 	-- item:set_show_model_mesh_hud(3, false)
 	-- item:set_show_model_mesh_hud(4, false)
 	-- item:set_show_model_mesh_hud(5, false)
-	item:set_show_model_mesh_hud(6, false)
-	item:set_show_model_mesh_hud(7, false)
-end
+	--item:set_show_model_mesh_hud(6, false)
+	--item:set_show_model_mesh_hud(7, false)
+--end
 
 --local item = level.get_target_obj()
 --if item then
@@ -268,3 +268,12 @@ end
 	-- log3("~item %s set hud sect %s", target:name(), target:get_hud_sect())
 -- end
 --actor:give_info_portion("encyclopedy_zone_locations_garbage")
+
+--log3("~current k_x %s", get_current_kx())
+local tgt = level.get_target_obj()
+if tgt then
+	local known_info = tgt:get_known_info()
+	if known_info then
+		log3("~object %s know info %s", tgt:name(), known_info)
+	end
+end

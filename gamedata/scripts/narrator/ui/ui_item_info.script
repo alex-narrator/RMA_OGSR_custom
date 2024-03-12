@@ -201,6 +201,9 @@ function add_custom_info(UIDesc, obj)
 	if is_power_device(obj) then
 		attach_power_params(UIDesc, obj)
 	end
+	if obj:get_pda() then
+		attach_pda_owner_info(UIDesc, obj)
+	end	
 	if obj:is_weapon() then
 		atach_wpn_params(UIDesc, obj)
 	end
@@ -220,7 +223,7 @@ function add_custom_info(UIDesc, obj)
 	end
 	if vest_plates.can_detach_plate(obj) then
 		attach_plate_condition(UIDesc, obj)
-	end	
+	end
 end
 
 ------------------------------------------EFFECT PARAMS WND-----------------------------------------------------------------------------------------------------------------
@@ -827,7 +830,7 @@ function attach_addon_params(UIDesc, item)
 	local show = false
 	local params_list = xml:InitScrollView("params_list", UIDesc)
 	local sect = item:section()
-	local val, static, text, color
+	local val, text, color
 	for k,v in ipairs(addon_params) do
 		val = read_if_exists(sys_ini, "r_float", sect, v.name, v.default)
 		if val ~= v.default then
@@ -887,4 +890,58 @@ function attach_belt_params(UIDesc, item)
 	belt_slots_st:AdjustHeightToText()
 	params_list:AddWindow(belt_slots_st)
 	params_list:SetHeight(params_list:GetPadSize().y)
+end
+
+
+-----------------------------------------------------PDA OWNER INFO------------------------------------------------------------------------------------------------------------------------
+local ui_owner_data = {}
+function attach_pda_owner_info(UIDesc, item)
+	local se_obj = alife():object(item:id())
+	
+	local owner_data = se_obj.owner_data
+	if not owner_data then
+	return end
+	
+	if actor_get_pda() and actor_get_pda():id() == item:id() then
+		pda.fill_owner_info(item:id())
+	end
+	
+	if owner_data.name == "" then
+	return end
+	
+	local xml = CScriptXmlInit()
+	xml:ParseFile("script_overlays\\pda_owner.xml")
+
+	local data_list = xml:InitScrollView("data_list", UIDesc)
+
+	local color = "%c[UI_orange]"
+	
+	local name_st = CUIStatic()
+	ui_owner_data.name_st = name_st
+	name_st:SetTextComplexMode(true)
+	name_st:SetWidth(data_list:GetDesiredChildWidth())
+	local text = string.format("%s%s: %s%s", game.translate_string("st_list_mark"), game.translate_string("ui_st_name"), color, game.translate_string(owner_data.name))
+	name_st:SetText(text)
+	name_st:AdjustHeightToText()
+	data_list:AddWindow(name_st)
+	
+	local comm_st = CUIStatic()
+	ui_owner_data.comm_st = comm_st
+	comm_st:SetTextComplexMode(true)
+	comm_st:SetWidth(data_list:GetDesiredChildWidth())
+	text = string.format("%s%s: %s%s", game.translate_string("st_list_mark"), game.translate_string("ui_st_community"), color, game.translate_string(owner_data.comm))
+	comm_st:SetText(text)
+	comm_st:AdjustHeightToText()
+	data_list:AddWindow(comm_st)
+	
+	local rank_st = CUIStatic()
+	ui_owner_data.rank_st = rank_st
+	rank_st:SetTextComplexMode(true)
+	rank_st:SetWidth(data_list:GetDesiredChildWidth())
+	text = string.format("%s%s: %s%s", game.translate_string("st_list_mark"), game.translate_string("ui_st_rank"), color, game.translate_string(ranks.get_val_rank_name(owner_data.rank)))
+	rank_st:SetText(text)
+	rank_st:AdjustHeightToText()
+	data_list:AddWindow(rank_st)	
+	
+	data_list:SetHeight(data_list:GetPadSize().y)
 end

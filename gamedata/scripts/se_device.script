@@ -46,6 +46,15 @@ class "se_pda" (cse_alife_item_pda)
 function se_pda:__init (section) super (section)
 	self.power_level = 1
 	self.cur_power_sect = 1
+	
+	self.owner_data = {
+		name = "",
+		comm = "",
+		profile = "",
+		rank = 0,
+		info = "",
+	}
+	self.was_hacked = false
 end
 function se_pda:on_register()
 	cse_alife_item_pda.on_register( self )
@@ -57,6 +66,14 @@ function se_pda:STATE_Write (packet)
 	cse_alife_item_pda.STATE_Write (self, packet)
 	packet:w_float(self.power_level)
 	packet:w_u8(self.cur_power_sect)
+	
+	local od = self.owner_data	
+	packet:w_stringZ(od.name)
+	packet:w_stringZ(od.comm)
+	packet:w_stringZ(od.profile)
+	packet:w_u8(od.rank)
+	packet:w_stringZ(od.info)
+	packet:w_bool(self.was_hacked)
 end
 function se_pda:STATE_Read (packet, size)
 	cse_alife_item_pda.STATE_Read (self, packet, size)
@@ -64,6 +81,14 @@ function se_pda:STATE_Read (packet, size)
 	return end	
 	self.power_level = packet:r_float()
 	self.cur_power_sect = packet:r_u8()
+	
+	local od = self.owner_data
+	od.name = packet:r_stringZ()
+	od.comm = packet:r_stringZ()
+	od.profile = packet:r_stringZ()
+	od.rank = packet:r_u8()
+	od.info = packet:r_stringZ()
+	self.was_hacked = packet:r_bool()
 end
 
 ---DETECTOR-------------------------------------------------------------------------------------

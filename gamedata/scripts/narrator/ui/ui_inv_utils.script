@@ -63,6 +63,15 @@ function similar_item(item1, item2)
 		similar = similar and item1:get_addon_flags() == item2:get_addon_flags()
 	end
 	
+	if is_power_device(item1) and is_power_device(item2) then
+		similar = similar and fsim(item1:binded_object():get_power_level(), item2:binded_object():get_power_level(), cmp)
+	end
+	
+	if item1:get_pda() and item2:get_pda() then
+		local se_item1, se_item2 = alife():object(item1:id()), alife():object(item2:id())
+		similar = similar and (not (se_item1.owner_data and se_item2.owner_data) or (se_item1.was_hacked and se_item2.was_hacked))
+	end
+	
 	-- t:stop()
 	-- log3("~similar_item profiled time %s micro-seconds | %s seconds", t:time(), t:time() * 0.000001)	
 	
