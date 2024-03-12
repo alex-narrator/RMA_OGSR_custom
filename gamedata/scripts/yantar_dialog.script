@@ -19,11 +19,11 @@ function show_repair_ecolog()
 end
 
 function unlock_storage_ecolog()
-	store_box.unlock_by_name("yantar_sakharov_box")
+	store_box.unlock_by_name(story_ids.yan_sakharov_store_box)
 end
 
 function storage_locked_ecolog()
- 	return not store_box.is_opened(cobj_by_name("yantar_sakharov_box"))
+ 	return not store_box.is_opened(level_object_by_sid(story_ids.yan_sakharov_store_box))
 end
 
 function can_open_storage_ecolog()

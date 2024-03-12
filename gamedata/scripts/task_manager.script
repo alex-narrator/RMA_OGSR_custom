@@ -61,6 +61,13 @@ local mob_lagers = {
 	["mil_village_lair"] = true,
 }	
 
+local receiver_sid_by_alias = {
+	sidor_box 		= 2004,
+	barman_box 		= 2040,
+	sakharov_box 	= 2041,
+	voronin_box 	= 2020,
+	max_box 		= 2015,
+}
 
 
 class "CRandomTask"
@@ -916,14 +923,14 @@ function CRandomTask:task_reward_remote(task_desc)
 	end
 				
 	if task_desc.reward_item ~= nil then
-		local receiver = task_desc.reward_item_receiver and sobj_by_name(task_desc.reward_item_receiver) or sim:actor()
+		local receiver = task_desc.reward_item_receiver and alife():story_object(receiver_sid_by_alias[task_desc.reward_item_receiver]) or sim:actor()
 		for k,v in pairs(task_desc.reward_item) do
 			--log3("~reward item %s", v)
 			spawn_to_owner(v, receiver.id)
 			--news_manager.relocate_item(actor, "in", v)
 		end
 		if task_desc.reward_item_receiver then
-			store_box.unlock_by_name(task_desc.reward_item_receiver, "ui_st_reward_to_box")
+			store_box.unlock_by_sid(task_desc.reward_item_receiver, "ui_st_reward_to_box")
 		end
 	end
 

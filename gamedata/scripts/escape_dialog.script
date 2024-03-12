@@ -493,10 +493,10 @@ end
 
 -- сховище сидора
 function unlock_storage_trader()
-	store_box.unlock_by_name("escape_sidor_box")
+	store_box.unlock_by_sid(story_ids.esc_sidor_store_box)
 end
 function storage_locked_trader()
- 	return not store_box.is_opened(cobj_by_name("escape_sidor_box"))
+ 	return not store_box.is_opened(level_object_by_sid(story_ids.esc_sidor_store_box))
 end
 function storage_open_price_trader()
 	return 500

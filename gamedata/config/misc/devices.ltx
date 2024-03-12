@@ -27,10 +27,11 @@ cost				= 5000
 GroupControlSection	= spawn_group
 discovery_dependency = 
 $spawn 				= "devices\inventory box"
-class				= O_INVBOX
+class				= S_INVBOX
 cform				= skeleton
 visual				= physics\box\expl_dinamit
 script_binding      = bind_physic_object.init
+unlock_snd 			= device\door_servomotor
 
 [inventory_box_blue]:inventory_box
 visual				= physics\equipment_cache\equipment_box_01_case
@@ -49,10 +50,6 @@ custom_data = scripts\cit\cit_actor_weapon_box.ltx
 
 [physical_box_blue_deadcity]:physical_box_blue
 custom_data = scripts\cit\cit_actor_weapon_physical_box.ltx
-
-[store_box]:inventory_box
-class = S_INVBOX
-unlock_snd = device\door_servomotor
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;	DEVICES

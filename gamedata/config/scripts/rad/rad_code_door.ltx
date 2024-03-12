@@ -1,15 +1,15 @@
-[physics_common]
-fixed_bones = link
+; [physics_common]
+; fixed_bones = link
 
-[collide]
-ignore_static
+; [collide]
+; ignore_static
 
 [logic]
 active = {+rad_code_door_unlocked} ph_door@close, ph_door@locked
 
 [ph_door@locked]
 locked = true
-on_info = {+rad_code_door_unlocked} ph_door@open
+on_info = {+rad_code_door_unlocked} ph_door@close
 snd_open_start = trader_door_locked
 [ph_door@close]
 locked = false

@@ -231,18 +231,6 @@ end
 
 --db.actor:set_character_community("actor_dolg", 0, 0)
 
---Шуруп не має власного sid тож шукаємо його перебором
-function get_screw()
-	local npc
-	for id,val in pairs(db.storage) do
-		npc = level.object_by_id(id)
-		if npc:profile_name() and npc:profile_name() == "mil_Svoboda_engineer" then
-			return npc
-		end
-	end
-	return nil
-end
-
 --ремонт у Шурупа
 --condition_limit, cost_k, uniquie_k, armor_repair_infop
 function show_repair_screw()
@@ -258,14 +246,14 @@ function can_not_open_storage_freedom()
 end
 
 function storage_locked_freedom()
- 	return not store_box.is_opened(cobj_by_name("military_volya_max_box"))
+ 	return not store_box.is_opened(level_object_by_sid(story_ids.mil_volya_max_box))
 end
 function unlock_storage_freedom()
-	store_box.unlock_by_name("military_volya_max_box")
+	store_box.unlock_by_sid(story_ids.mil_volya_max_box)
 end
 
 function screw_dead()
-	local screw = get_screw()
+	local screw = level_object_by_sid(story_ids.mil_Svoboda_engineer)
 	return not screw or not screw:alive()
 end
 

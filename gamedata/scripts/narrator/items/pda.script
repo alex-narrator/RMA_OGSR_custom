@@ -4,32 +4,6 @@ function attach(sm)
 	sm:subscribe({signal = "on_pda_hack",   	fun = this.on_pda_hack})
 end
 
-local storyline_pda_infop = {
-	[87] 	= "esc_tutorial_secret",
-	[7] 	= "tutorial_wounded_give_info",
-	[33] 	= "esc_tutorial_dead_novice,esc_find_railroad_passage_find_stalker",
-	[93] 	= "esc_kolyan_lost",
-	[94] 	= "esc_tutorial_secret_place",
-	[5] 	= "escape_stalker_give,escape_stalker_done,garbage_meetstalker_start",
-	[92] 	= "esc_find_doctor_start",
-	[100] 	= "agr_can_ask_krot_about_gunslinger,gar_actor_found_seryi_pda",
-	[109] 	= "gar_wounded_pda",
-	[32] 	= "agr_krot_secret_info,agr_krot_pda",
-	[351] 	= "agr_nii_security_plan_flash_have",
-	[450] 	= "dar_door1_closed,dar_password_info1",
-	[451] 	= "dar_door2_closed,dar_password_info2",
-	[609] 	= "rostok_tunel_gordon_diary",
-	[903] 	= "yan_find_vasilyev_end",
-	[918] 	= "yan_has_ghost_pda",
-	[72] 	= "mil_max_owner_flash_get",
-	[725] 	= "mil_ugrum_flash_get",
-	[710] 	= "mil_courier_doc",
-	[775] 	= "mil_bandit_flash_get",
-	[1077] 	= "rad_code_door",
-	[1078] 	= "bun_ptr1",
-	[1125] 	= "aes_desant_go,aes_get_soldier_map",
-}
-
 function on_first_update()
 	if actor_get_pda() then
 		fill_owner_info(actor_get_pda():id())
@@ -57,10 +31,6 @@ function fill_owner_info(id)
 		--log3("~parent %s - removing infoportion %s", parent:name(), infoportion)
 		known_info = known_info..infoportion..","
 		parent:disable_info_portion(infoportion)
-	end
-	local storyline_info = storyline_pda_infop[parent:story_id()]
-	if storyline_info then
-		known_info = known_info..storyline_info
 	end
 	--log3("~parent %s - pda has info line %s", parent:name(), known_info)
 	od.info = known_info

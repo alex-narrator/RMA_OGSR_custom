@@ -231,10 +231,10 @@ end
 
 -- сховище бармена
 function unlock_storage_barman()
-	store_box.unlock_by_name("bar_barman_box")
+	store_box.unlock_by_sid(story_ids.bar_barman_store_box)
 end
 function storage_locked_barman()
- 	return not store_box.is_opened(cobj_by_name("bar_barman_box"))
+ 	return not store_box.is_opened(level_object_by_sid(story_ids.bar_barman_store_box))
 end
 function storage_open_price_barman()
 	return 1000
@@ -892,10 +892,10 @@ function show_repair_petrenko()
 end
 
 function unlock_storage_dolg()
-	store_box.unlock_by_name("bar_voronin_dolg_box")
+	store_box.unlock_by_sid(story_ids.bar_voronin_store_box)
 end
 function storage_locked_dolg()
- 	return not store_box.is_opened(cobj_by_name("bar_voronin_dolg_box"))
+ 	return not store_box.is_opened(level_object_by_sid(story_ids.bar_voronin_store_box))
 end
 function can_open_storage_dolg()
 	return dialogs.actor_in_dolg() or relation_registry.community_goodwill("dolg", actor:id()) >= 500

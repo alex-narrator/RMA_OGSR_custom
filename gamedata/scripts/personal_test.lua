@@ -270,10 +270,14 @@ end
 --actor:give_info_portion("encyclopedy_zone_locations_garbage")
 
 --log3("~current k_x %s", get_current_kx())
-local tgt = level.get_target_obj()
-if tgt then
-	local known_info = tgt:get_known_info()
-	if known_info then
-		log3("~object %s know info %s", tgt:name(), known_info)
-	end
+-- local tgt = level.get_target_obj()
+-- if tgt then
+	-- local known_info = tgt:get_known_info()
+	-- if known_info then
+		-- log3("~object %s know info %s", tgt:name(), known_info)
+	-- end
+-- end
+local item = alife():object(26625)
+if item then
+	level.map_add_object_spot_ser(26625, backpack_spot, "strange outfit item")
 end

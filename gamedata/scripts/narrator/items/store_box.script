@@ -12,14 +12,22 @@ local locked_box_names = {
 	yantar_sakharov_box = true,
 }
 
+local locked_box_sid = {
+	[story_ids.esc_sidor_store_box] = true, --ящик в бункері Сидоровича
+	[story_ids.bar_barman_store_box] = true, --ящик у Бармена
+	[story_ids.bar_voronin_store_box] = true, --ящик у Вороніна
+	[story_ids.mil_volya_max_box] = true, --ящик у Макса на Складах
+	[story_ids.yan_sakharov_store_box] = true, --ящик в бункері Сахарова
+}
+
 local store_box_spot = "spot_storebox_cop"
 
 function is_opened(box)
-	return alife():object(box:id()).is_opened or not locked_box_names[box:name()]
+	return alife():object(box:id()).is_opened or not locked_box_sid[box:story_id()]--locked_box_names[box:name()]
 end
 
 function unlock(box, custom_text)
-	alife():object(box.id).is_opened = true
+	box.is_opened = true
 	--map spot
 	local header_color = "%c[255,160,160,160]"
 	local news_text = custom_text and custom_text or "st_storebox_opened"
@@ -48,4 +56,10 @@ function unlock_by_name(name, custom_text)
 	if not locked_box_names[name] then
 	return end
 	unlock(sobj_by_name(name), custom_text)
+end
+
+function unlock_by_sid(sid, custom_text)
+	if not locked_box_sid[sid] then
+	return end
+	unlock(alife():story_object( sid ), custom_text)
 end
