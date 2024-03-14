@@ -277,3 +277,11 @@ end
 		-- log3("~object %s know info %s", tgt:name(), known_info)
 	-- end
 -- end
+
+-- local item = level.object_by_id(26377)
+-- if item then
+	-- level.map_add_object_spot_ser(26377, "personal_location", "THAT STRANGE OUTFIT")
+	-- log3("~STRANGE ITEM MARKED")
+-- end
+
+-- treasure_manager.get_treasure_manager():give_treasure("esc_secret_village_rucksack")
