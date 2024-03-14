@@ -5,6 +5,7 @@ function attach(sm)
 	--sm:subscribe({signal = "on_actor_before_hit", fun = this.on_before_hit})
 	--sm:subscribe({signal = "on_hit_npc", fun = this.on_hit})
 	--sm:subscribe({signal = "on_info_portion", fun = this.on_info_portion})
+	sm:subscribe({signal = "on_task", fun = this.on_task})
 	sm:subscribe({signal = "on_key_press", fun = this.on_key_press})
 end
 
@@ -18,6 +19,10 @@ end
 
 function on_info_portion(npc, info_id)
 	log3("~received infoportion %s", info_id)
+end
+
+function on_task(_task, _objective, _state)
+	log3("~task %s | _objective %s | _state %s", _task:get_id(), _objective:get_idx(), _state)
 end
 
 function on_key_press(key, game_action)

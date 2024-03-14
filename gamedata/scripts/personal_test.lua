@@ -277,7 +277,3 @@ end
 		-- log3("~object %s know info %s", tgt:name(), known_info)
 	-- end
 -- end
-local item = alife():object(26625)
-if item then
-	level.map_add_object_spot_ser(26625, backpack_spot, "strange outfit item")
-end

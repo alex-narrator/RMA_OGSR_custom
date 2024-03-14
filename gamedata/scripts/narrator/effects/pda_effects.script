@@ -12,7 +12,7 @@ function on_swow()
 	if is_3d_pda() then
 	return end
 	
-	mir_dof_effect.start_dof()
+	dof_mir.start_dof()
 	actor:hide_weapon(true)
 	if actor_get_pda() then
 		try_play_pda_sound(read_if_exists(sys_ini, "r_string", actor_get_pda():section(), "snd_draw", nil))
@@ -23,7 +23,7 @@ function on_hide()
 	if is_3d_pda() then
 	return end
 	
-	mir_dof_effect.stop_dof()
+	dof_mir.stop_dof()
 	actor:restore_weapon(true)
 	if actor_get_pda() then
 		try_play_pda_sound(read_if_exists(sys_ini, "r_string", actor_get_pda():section(), "snd_holster", nil))
