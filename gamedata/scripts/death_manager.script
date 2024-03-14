@@ -274,7 +274,16 @@ local PDA_MAX_PWR = 50
 local PDA_RANDOM_PWR_PART = 25
 local PDA_STABLE_PWR_PART = PDA_MAX_PWR - PDA_RANDOM_PWR_PART
 
+local SPAWN_PDA_PROB = 0.25
+
 function spawn_pda(npc)
+	if npc:story_id() == NO_STORY_ID and math.random() > SPAWN_PDA_PROB then
+		--log3("~NPC %s (%s) has no story_id and has no luck to spawn PDA", npc:profile_name(), npc:name())
+		for k,infoportion in pairs(npc:get_known_info()) do
+			npc:disable_info_portion(infoportion)
+		end
+	return end
+	
 	local se_abstract = spawn_to_owner(lootable_pda_sect, npc:id())
 	local se_obj = alife():object(se_abstract.id)
 	se_obj.power_level = (math.random(PDA_RANDOM_PWR_PART)+PDA_STABLE_PWR_PART)/100

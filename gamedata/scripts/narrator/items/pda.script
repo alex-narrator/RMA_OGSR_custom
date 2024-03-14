@@ -25,9 +25,8 @@ function fill_owner_info(id)
 	return end
 	
 	local known_info = ""
-	local info_tbl = parent:get_known_info()
 	--видаляємо всі відомі NPC інфопорції та переносимо їх у ПДА
-	for k, infoportion in pairs(info_tbl) do
+	for k, infoportion in pairs(parent:get_known_info()) do
 		--log3("~parent %s - removing infoportion %s", parent:name(), infoportion)
 		known_info = known_info..infoportion..","
 		parent:disable_info_portion(infoportion)
