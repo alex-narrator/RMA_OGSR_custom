@@ -94,7 +94,7 @@ function UIPropertiesBox:Activate()
 		self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnFocusLost(k) end, self)
 		
 		--self.scroll_view:AddWindow(v.list_item)
-		log3("~list item w %s | h %s", v.list_item:GetWidth(), v.list_item:GetHeight())
+		--log3("~list item w %s | h %s", v.list_item:GetWidth(), v.list_item:GetHeight())
 		local indent = self.scroll_view.indent
 		if v.list_item:GetWidth() > self.scroll_view:GetPadSize().x then
 			self.scroll_view:SetWidth(v.list_item:GetWidth() + indent.r + indent.l)

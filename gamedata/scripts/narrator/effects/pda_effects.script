@@ -4,10 +4,6 @@ function attach(sm)
 	sm:subscribe({signal = "on_pda_hide", 		fun = this.on_hide})
 end
 
-function is_3d_pda()
-	return actor_get_pda() and actor_get_pda():is_hud_item() and get_console():get_string("g_3d_pda") == "on"
-end
-
 function on_swow()
 	if is_3d_pda() then
 	return end

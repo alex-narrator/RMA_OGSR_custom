@@ -125,14 +125,14 @@ function vest_binder:set_plate_condition(val)
 	if not self.se_obj.plate_condition then return end
 	self.se_obj.plate_condition = val
 	self.se_obj.plate_condition = math.clamp(self.se_obj.plate_condition,0,1)
-	log3("~plate cond %.2f on set", self.se_obj.plate_condition)
+	--log3("~plate cond %.2f on set", self.se_obj.plate_condition)
 end
 
 function vest_binder:change_plate_condition(val)
 	if not self.se_obj.plate_condition then return end
 	self.se_obj.plate_condition = self.se_obj.plate_condition + val
 	self.se_obj.plate_condition = math.clamp(self.se_obj.plate_condition,0,1)
-	log3("~plate cond %.2f on change", self.se_obj.plate_condition)
+	--log3("~plate cond %.2f on change", self.se_obj.plate_condition)
 end
 
 function vest_binder:attach_plate(plate)
@@ -156,7 +156,7 @@ function vest_binder:detach_plate()
 	local sobj = alife():create(self:get_plate_sect(), parent:position(), parent:level_vertex_id(), parent:game_vertex_id(), parent:id())
 	local sobj_iitem = alife():object(sobj.id):get_inventory_item()
 	sobj_iitem.item_condition = self:get_plate_condition()
-	log3("~plate cond %.2f on detach", self:get_plate_condition())
+	--log3("~plate cond %.2f on detach", self:get_plate_condition())
 	self.se_obj.cur_plate_num = 0
 	self:init_plate()
 	local detach_sound = read_if_exists(sys_ini, "r_string", self.object:section(), "use_sound", nil)
@@ -188,18 +188,18 @@ function vest_binder:is_plate_bone(bone_id)
 end
 
 function vest_binder:hit(victim, health_lost, direction, draftsman, bone_id, hit_type)
-	log3("~hit outfit %s actor hitted in bone %s", self.object:name(), actor:get_bone_name(bone_id))
+	--log3("~hit outfit %s actor hitted in bone %s", self.object:name(), actor:get_bone_name(bone_id))
 	if not actor_get_outfit() or actor_get_outfit():id() ~= self.object:id() then
 	return end
 	
 	if not self:is_plate_attached() or not self:is_plate_bone(bone_id) then
 	return end
 	
-	log3("~hit outfit %s to plate %s | hitted bone %s protection type %s", self.object:section(), self:get_plate_sect(), actor:get_bone_name(bone_id), immunity_type[hit_type+1])
+	--log3("~hit outfit %s to plate %s | hitted bone %s protection type %s", self.object:section(), self:get_plate_sect(), actor:get_bone_name(bone_id), immunity_type[hit_type+1])
 	
 	local immunity = read_if_exists(sys_ini, "r_float", get_immunities_sect(self:get_plate_sect()), immunity_type[hit_type+1].."_immunity", 1)
 	local val = -health_lost * immunity
-	log3("~plate cond dec %s | hit power %s | hit type %s | immunity %s", val, health_lost, immunity_type[hit_type+1], immunity)
+	--log3("~plate cond dec %s | hit power %s | hit type %s | immunity %s", val, health_lost, immunity_type[hit_type+1], immunity)
 	self:change_plate_condition(val)
 	if self:get_plate_condition() <= 0 then
 		hud_add_info_message("item_usage", game.translate_string("st_plate_was_destroyed"))

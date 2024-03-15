@@ -8,7 +8,7 @@ local wounded_spot = "general_wounded_location"
 local sos_snd = [[device\pda\pda_sos]]
 
 function on_wounded(npc)
-	log3("~NPC %s is wounded", npc:character_name())
+	--log3("~NPC %s is wounded", npc:character_name())
 	if npc:relation(actor) == game_object.enemy then
 	return end
 	if not level.map_has_object_spot(npc:id(), wounded_spot) then

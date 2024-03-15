@@ -2007,3 +2007,7 @@ end
 function get_bone_protection_sect(section)
 	return read_if_exists(sys_ini, "r_string", section, "bones_koeff_protection", nil)
 end
+
+function is_3d_pda()
+	return actor_get_pda() and actor_get_pda():is_hud_item() and get_console():get_string("g_3d_pda") == "on"
+end

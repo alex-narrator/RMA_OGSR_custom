@@ -5,7 +5,7 @@ function attach(sm)
 end
 
 function on_hit(victim, health_lost, direction, draftsman, bone_id, hit_type)
-	log3("~actor hitted to bone %s", actor:get_bone_name(bone_id))
+	--log3("~actor hitted to bone %s", actor:get_bone_name(bone_id))
 	local outfit = actor_get_outfit()
 	if outfit and is_plate_carrier(outfit) then
 		local binded_outfit = outfit:binded_object()

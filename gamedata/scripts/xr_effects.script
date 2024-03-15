@@ -2435,12 +2435,6 @@ function pri_game_over(actor, npc)
 	c:execute("main_menu on")
 end
 
-function hide_3d_pda()	
-	if actor_get_pda() and actor_get_pda():is_hud_item() and get_console():get_string("g_3d_pda") == "on" then
-		level.send_event_key_press(bind_to_dik(key_bindings.kACTIVE_JOBS))
-	end
-end
-
 function oso_init_dialod ()
 	-- local oso = level_object_by_sid(1307)
 	-- db.actor:run_talk_dialog(oso)

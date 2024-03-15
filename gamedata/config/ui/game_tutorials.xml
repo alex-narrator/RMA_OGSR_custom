@@ -12,6 +12,24 @@
 			</auto_static>
 		</global_wnd>
 -->	
+		<item> <!-- Це - костиль для цього туторіалу у випадку 3D PDA.
+					Справа в тому що туторіал запускається з діалогу із Сидоровичем і закриває вікно діалогу.
+					При закритті вікна діалогу буде стандартна поведінка Hide() - активовація останнього активного слоту або NO_ACTIVE_SLOT.
+					Ця поведінка має пріоритет перед активацією ПДА з туторіалу.
+					Тобто слот ПДА тут буде активовано ТІЛЬКИ якщо ПДА був активним перед початком діалогу.
+					Щоб це обійти будемо давати порожній тутор, 
+					який дасть відпрацювати поведінці закриття діалогового вікна і дозволить активувати ПДА в наступному туторіалі
+					-->
+			<length_sec>0.1</length_sec>
+			<pause_state>off</pause_state>
+			<guard_key/>
+			<cursor_pos/>
+			<grab_input>1</grab_input>
+			<pda_section>pda_quests</pda_section>
+			<zoom_3d_pda>0</zoom_3d_pda>
+			<main_wnd/>
+		</item>
+
 
 		<item> <!--Это	твой личный ПДА- полезная хреновина,
 					которая будет помогать тебе не сдохнуть в Зоне. Ну а если и сдохнешь, то хоть
@@ -20,12 +38,11 @@
 			<length_sec>17</length_sec>
 			<pause_state>off</pause_state>
 			<guard_key/>
-			
-			
 			<sound>characters_voice\scenario\trader\trader_tutorial_pda_1</sound>
 			<cursor_pos/>
 			<grab_input>1</grab_input>
 			<pda_section>pda_quests</pda_section>
+			<zoom_3d_pda>0</zoom_3d_pda>
 			<main_wnd/>
 		</item>
 
@@ -39,7 +56,7 @@
 			<pda_section>pda_quests</pda_section>
 
 			<main_wnd>
-				<auto_static start_time="0" length_sec="4" x="156" y="608" width="50" height="50"  stretch="1" light_anim="tutor_rad_sign_clr" light_anim_cyclic="1" la_alpha="0" la_texture="1" xform_anim="tutor_rad_sign_xform" xform_anim_cyclic="1" alignment="c">
+				<auto_static start_time="1" length_sec="4" x="180" y="113" width="37.5" height="50"  stretch="1" light_anim="tutor_rad_sign_clr" light_anim_cyclic="1" la_alpha="0" la_texture="1" xform_anim="tutor_rad_sign_xform" xform_anim_cyclic="1" alignment="c">
 					<window_name>w2</window_name>
 					<texture>ui_highlight</texture>
 				</auto_static>
@@ -56,7 +73,7 @@
 			<pda_section>pda_quests</pda_section>
 
 			<main_wnd>
-				<auto_static start_time="0" length_sec="6" x="404" y="186" width="50" height="50"  stretch="1" light_anim="tutor_rad_sign_clr" light_anim_cyclic="1" la_alpha="0" la_texture="1" xform_anim="tutor_rad_sign_xform" xform_anim_cyclic="1" alignment="c">
+				<auto_static start_time="0" length_sec="6" x="385" y="192" width="37.5" height="50"  stretch="1" light_anim="tutor_rad_sign_clr" light_anim_cyclic="1" la_alpha="0" la_texture="1" xform_anim="tutor_rad_sign_xform" xform_anim_cyclic="1" alignment="c">
 					<window_name>w2</window_name>
 					<texture>ui_highlight</texture>
 				</auto_static>
@@ -71,7 +88,12 @@
 			<cursor_pos/>
 			<grab_input>1</grab_input>
 			<pda_section>pda_quests</pda_section>
-			<main_wnd/>
+			<main_wnd>
+				<auto_static start_time="1" length_sec="8" x="365" y="235" width="37.5" height="50"  stretch="1" light_anim="tutor_rad_sign_clr" light_anim_cyclic="1" la_alpha="0" la_texture="1" xform_anim="tutor_rad_sign_xform" xform_anim_cyclic="1" alignment="c">
+					<window_name>w2</window_name>
+					<texture>ui_highlight</texture>
+				</auto_static>
+			</main_wnd>
 		</item>
 
 		<item><!--Дальше: Второй раздел ПДА - это Карта.-->
@@ -83,7 +105,7 @@
 			<grab_input>1</grab_input>
 			<pda_section>pda_map</pda_section>
 			<main_wnd>
-				<auto_static start_time="0" length_sec="4" x="216" y="608" width="50" height="50"  stretch="1" light_anim="tutor_rad_sign_clr" light_anim_cyclic="1" la_alpha="0" la_texture="1" xform_anim="tutor_rad_sign_xform" xform_anim_cyclic="1" alignment="c">
+				<auto_static start_time="0" length_sec="4" x="218" y="113" width="37.5" height="50"  stretch="1" light_anim="tutor_rad_sign_clr" light_anim_cyclic="1" la_alpha="0" la_texture="1" xform_anim="tutor_rad_sign_xform" xform_anim_cyclic="1" alignment="c">
 					<window_name>w1</window_name>
 					<texture>ui_highlight</texture>
 				</auto_static>
@@ -99,12 +121,12 @@
 			<grab_input>1</grab_input>
 			<pda_section>pda_map</pda_section>
 			<main_wnd>
-				<auto_static start_time="2" length_sec="4" x="248" y="135" width="30" height="30" stretch="1" light_anim="tutor_rad_sign_clr" light_anim_cyclic="1" la_alpha="0" la_texture="1" xform_anim="tutor_rad_sign_xform" xform_anim_cyclic="1" alignment="c">
+				<auto_static start_time="1" length_sec="4" x="253" y="152" width="22.5" height="30" stretch="1" light_anim="tutor_rad_sign_clr" light_anim_cyclic="1" la_alpha="0" la_texture="1" xform_anim="tutor_rad_sign_xform" xform_anim_cyclic="1" alignment="c">
 					<window_name>w1</window_name>
 					<texture>ui_highlight</texture>
 				</auto_static>
 				
-				<auto_static start_time="2" length_sec="4" x="269" y="135" width="30" height="30" stretch="1" light_anim="tutor_rad_sign_clr" light_anim_cyclic="1" la_alpha="0" la_texture="1" xform_anim="tutor_rad_sign_xform" xform_anim_cyclic="1" alignment="c">
+				<auto_static start_time="1" length_sec="4" x="273" y="152" width="22.5" height="30" stretch="1" light_anim="tutor_rad_sign_clr" light_anim_cyclic="1" la_alpha="0" la_texture="1" xform_anim="tutor_rad_sign_xform" xform_anim_cyclic="1" alignment="c">
 					<window_name>w2</window_name>
 					<texture>ui_highlight</texture>
 				</auto_static>
@@ -120,34 +142,28 @@
 			<grab_input>1</grab_input>
 			<pda_section>pda_map</pda_section>
 			<main_wnd>
-				<auto_static start_time="4" length_sec="2" x="154" y="135" width="30" height="30" stretch="1" light_anim="tutor_rad_sign_clr" light_anim_cyclic="1" la_alpha="0" la_texture="1" xform_anim="tutor_rad_sign_xform" xform_anim_cyclic="1" alignment="c">
+				<auto_static start_time="1" length_sec="4" x="178" y="154" width="22.5" height="30" stretch="1" light_anim="tutor_rad_sign_clr" light_anim_cyclic="1" la_alpha="0" la_texture="1" xform_anim="tutor_rad_sign_xform" xform_anim_cyclic="1" alignment="c">
 					<window_name>w1</window_name>
 					<texture>ui_highlight</texture>
 				</auto_static>
 			</main_wnd>
 		</item>
 
-		<delme_item><!--…Еще сможешь добавлять или убирать собственные пометки на карте... -->
+		<item><!--…Еще сможешь добавлять или убирать собственные пометки на карте... -->
 			<length_sec>6</length_sec>
 			<pause_state>off</pause_state>
 			<guard_key/>
 			<sound>characters_voice\scenario\trader\trader_tutorial_pda_8</sound>
 			<cursor_pos/>
 			<grab_input>1</grab_input>
-			<pda_section>pda_quests</pda_section>
+			<pda_section>pda_map</pda_section>
 			<main_wnd>
-				<auto_static start_time="1" length_sec="4" x="819" y="135" width="30" height="30" alignment="c" stretch="1"
-							light_anim="ui_pda_contacts" la_cyclic="1" la_texture="1" la_alpha="1">
+				<auto_static start_time="0" length_sec="6" x="360" y="535" width="410" height="300" alignment="c" stretch="1">
 					<window_name>w1</window_name>
-					<texture>ui_icons_newPDA_CrclMiddle_h</texture>
-				</auto_static>
-				<auto_static start_time="1" length_sec="4" x="839" y="135" width="30" height="30" alignment="c" stretch="1"
-							light_anim="ui_pda_contacts" la_cyclic="1" la_texture="1" la_alpha="1">
-					<window_name>w2</window_name>
-					<texture>ui_icons_newPDA_CrclMiddle_h</texture>
+					<text font="graffiti22" r="225" g="225" b="250" a="255">user_map_spots_tutorial</text>
 				</auto_static>
 			</main_wnd>
-		</delme_item>
+		</item>
 
 		<item><!--вобщем разберешься…там не сложно…В ПДА есть раздел Контакты -->
 			<length_sec>8</length_sec>
@@ -156,8 +172,14 @@
 			<sound>characters_voice\scenario\trader\trader_tutorial_pda_9</sound>
 			<cursor_pos/>
 			<grab_input>1</grab_input>
-			<pda_section>pda_quests</pda_section>
-			<main_wnd/>
+			<pda_section>pda_map</pda_section>
+			<!-- продублюємо текст туторіалу по власним міткам, щоб показувати його поки Сидорович переходить до розділу Контакти -->
+			<main_wnd>
+				<auto_static start_time="0" length_sec="8" x="360" y="535" width="410" height="300" alignment="c" stretch="1">
+					<window_name>w1</window_name>
+					<text font="graffiti22" r="225" g="225" b="250" a="255">user_map_spots_tutorial</text>
+				</auto_static>
+			</main_wnd>
 		</item>
 
 		<item><!--В контактах список сталкеров, которые находятся в радиусе 50 метров. 
@@ -172,15 +194,20 @@
 			<grab_input>1</grab_input>
 			<pda_section>pda_contacts</pda_section>
 			<main_wnd>
-				<auto_static start_time="0" length_sec="4" x="357" y="608" width="50" height="50" stretch="1" light_anim="tutor_rad_sign_clr" light_anim_cyclic="1" la_alpha="0" la_texture="1" xform_anim="tutor_rad_sign_xform" xform_anim_cyclic="1" alignment="c">
+				<auto_static start_time="0" length_sec="4" x="305" y="113" width="37.5" height="50" stretch="1" light_anim="tutor_rad_sign_clr" light_anim_cyclic="1" la_alpha="0" la_texture="1" xform_anim="tutor_rad_sign_xform" xform_anim_cyclic="1" alignment="c">
 					<window_name>w1</window_name>
 					<texture>ui_highlight</texture>
 				</auto_static>
 				
-				<auto_static start_time="4" length_sec="19" x="202" y="211" width="50" height="50" stretch="1" light_anim="tutor_rad_sign_clr" light_anim_cyclic="1" la_alpha="0" la_texture="1" xform_anim="tutor_rad_sign_xform" xform_anim_cyclic="1" alignment="c">
+				<auto_static start_time="4" length_sec="23" x="320" y="210" width="37.5" height="50" stretch="1" light_anim="tutor_rad_sign_clr" light_anim_cyclic="1" la_alpha="0" la_texture="1" xform_anim="tutor_rad_sign_xform" xform_anim_cyclic="1" alignment="c">
 					<window_name>w2</window_name>
 					<texture>ui_highlight</texture>
 				</auto_static>
+				
+				<auto_static start_time="4" length_sec="23" x="645" y="495" width="200" height="630" alignment="c" stretch="1">
+					<window_name>w3</window_name>
+					<text font="graffiti22" r="225" g="225" b="250" a="255">contacts_info_tutorial</text>
+				</auto_static>				
 			</main_wnd>
 		</item>
 
@@ -190,20 +217,40 @@
 			<length_sec>22</length_sec>
 			<pause_state>off</pause_state>
 			<guard_key/>
-			<function_on_start>mob_trader.on_start_tutorial_item_1</function_on_start>
+			<function_on_start>mob_trader.on_start_tutorial_item_12</function_on_start>
 			<function_on_stop>mob_trader.on_stop_tutorial_item</function_on_stop>
 			<sound>characters_voice\scenario\trader\trader_tutorial_pda_12</sound>
 			<cursor_pos/>
 			<grab_input>1</grab_input>
 			<pda_section>pda_closed</pda_section>
+			<zoom_3d_pda>0</zoom_3d_pda>
 			<main_wnd>
-				<auto_static start_time="0" length_sec="18" x="100" y="100" width="150" height="150" stretch="1" light_anim="tutor_rad_sign_clr" light_anim_cyclic="1" la_alpha="0" la_texture="1" xform_anim="tutor_rad_sign_xform" xform_anim_cyclic="1" alignment="c">
+				<auto_static start_time="0" length_sec="18" x="75" y="100" width="112.5" height="150" stretch="1" light_anim="tutor_rad_sign_clr" light_anim_cyclic="1" la_alpha="0" la_texture="1" xform_anim="tutor_rad_sign_xform" xform_anim_cyclic="1" alignment="c">
 					<window_name>w1</window_name>
 					<texture>ui_highlight</texture>
 				</auto_static>
+				<auto_static start_time="0" length_sec="22" x="350" y="170" width="410" height="300" alignment="c" stretch="1">
+					<window_name>w2</window_name>
+					<text font="graffiti22" r="225" g="225" b="250" a="255">minimap_tutorial</text>
+				</auto_static>				
 			</main_wnd>
 		</item>
-		
+
+		<item> <!-- Це - костиль для цього туторіалу у випадку 3D PDA.
+					Для того щоб ПДА, який було приховано у попередньому розділі туторіалу 
+					(бо якщо не приховати то мінімапу ми не побачимо)
+					не з'являвся одразу у наближеному стані - це виглядає негарно.
+					-->
+			<length_sec>1.5</length_sec>
+			<pause_state>off</pause_state>
+			<guard_key/>
+			<cursor_pos/>
+			<grab_input>1</grab_input>
+			<pda_section>pda_diary</pda_section>
+			<zoom_3d_pda>0</zoom_3d_pda>
+			<main_wnd/>
+		</item>
+
 		<item><!--.. ну тут и говорить нечего - там записывается вся информация, которая тебе нужна, 
 					плюс новости…даже то, что я тебе сейчас втолковываю, ты там найдешь…Потом…В разделе ПДА 
 					под названием Рейтинг…кх-хх-->
@@ -214,8 +261,9 @@
 			<cursor_pos/>
 			<grab_input>1</grab_input>
 			<pda_section>pda_diary</pda_section>
+			<zoom_3d_pda>1</zoom_3d_pda>
 			<main_wnd>
-				<auto_static start_time="0" length_sec="4" x="275" y="608" width="50" height="50" stretch="1" light_anim="tutor_rad_sign_clr" light_anim_cyclic="1" la_alpha="0" la_texture="1" xform_anim="tutor_rad_sign_xform" xform_anim_cyclic="1" alignment="c">
+				<auto_static start_time="0" length_sec="4" x="255" y="113" width="37.5" height="50" stretch="1" light_anim="tutor_rad_sign_clr" light_anim_cyclic="1" la_alpha="0" la_texture="1" xform_anim="tutor_rad_sign_xform" xform_anim_cyclic="1" alignment="c">
 					<window_name>w1</window_name>
 					<texture>ui_highlight</texture>
 				</auto_static>
@@ -233,7 +281,7 @@
 			<grab_input>1</grab_input>
 			<pda_section>pda_ranking</pda_section>
 			<main_wnd>
-				<auto_static start_time="0" length_sec="4" x="437" y="608" width="50" height="50" stretch="1" light_anim="tutor_rad_sign_clr" light_anim_cyclic="1" la_alpha="0" la_texture="1" xform_anim="tutor_rad_sign_xform" xform_anim_cyclic="1" alignment="c">
+				<auto_static start_time="0" length_sec="4" x="350" y="113" width="37.5" height="50" stretch="1" light_anim="tutor_rad_sign_clr" light_anim_cyclic="1" la_alpha="0" la_texture="1" xform_anim="tutor_rad_sign_xform" xform_anim_cyclic="1" alignment="c">
 					<window_name>w1</window_name>
 					<texture>ui_highlight</texture>
 				</auto_static>
@@ -249,7 +297,7 @@
 			<grab_input>1</grab_input>
 			<pda_section>pda_statistics</pda_section>
 			<main_wnd>
-				<auto_static start_time="0" length_sec="4" x="515" y="608" width="50" height="50" stretch="1" light_anim="tutor_rad_sign_clr" light_anim_cyclic="1" la_alpha="0" la_texture="1" xform_anim="tutor_rad_sign_xform" xform_anim_cyclic="1" alignment="c">
+				<auto_static start_time="0" length_sec="5" x="385" y="113" width="37.5" height="50" stretch="1" light_anim="tutor_rad_sign_clr" light_anim_cyclic="1" la_alpha="0" la_texture="1" xform_anim="tutor_rad_sign_xform" xform_anim_cyclic="1" alignment="c">
 					<window_name>w1</window_name>
 					<texture>ui_highlight</texture>
 				</auto_static>
@@ -265,9 +313,8 @@
 			<cursor_pos/>
 			<grab_input>1</grab_input>
 			<pda_section>pda_encyclopedia</pda_section>
-			<function_on_stop>xr_effects.hide_3d_pda</function_on_stop>
 			<main_wnd>
-				<auto_static start_time="0" length_sec="6" x="622" y="608" width="50" height="50" stretch="1" light_anim="tutor_rad_sign_clr" light_anim_cyclic="1" la_alpha="0" la_texture="1" xform_anim="tutor_rad_sign_xform" xform_anim_cyclic="1" alignment="c">
+				<auto_static start_time="0" length_sec="6" x="425" y="113" width="37.5" height="50" stretch="1" light_anim="tutor_rad_sign_clr" light_anim_cyclic="1" la_alpha="0" la_texture="1" xform_anim="tutor_rad_sign_xform" xform_anim_cyclic="1" alignment="c">
 					<window_name>w1</window_name>
 					<texture>ui_highlight</texture>
 				</auto_static>

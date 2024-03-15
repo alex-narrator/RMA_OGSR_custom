@@ -285,3 +285,5 @@ end
 -- end
 
 -- treasure_manager.get_treasure_manager():give_treasure("esc_secret_village_rucksack")
+
+get_main_window().show_zone_map = not get_main_window().show_zone_map

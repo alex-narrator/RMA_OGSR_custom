@@ -111,10 +111,8 @@ function on_slot(obj, prev_place)
 	
 	if obj:is_outfit() and not xr_conditions.black_screen() then
 		if known_outfits[obj:section()] then
-			log3("~outfit_anim.play for item %s | %s", obj:section(), obj:name())
 			outfit_anim.play("outfit_equip_fast_hud")
 		else
-			log3("~outfit_anim.play for item %s | %s", obj:section(), obj:name())
 			outfit_anim.play("outfit_equip_hud")
 			known_outfits[obj:section()] = true
 		end
@@ -201,7 +199,7 @@ function enable_effects(obj)
 		sm:call("on_actor_icon_update", icon)
 	end
 	
-	show_minimap = read_if_exists(sys_ini, "r_bool", sect, "show_minimap", nil)
+	show_minimap = read_if_exists(sys_ini, "r_bool", sect, "show_minimap", false)
 	if show_minimap then
 		sm:subscribe({signal = "on_update", fun = this.on_update_minimap})
 	end

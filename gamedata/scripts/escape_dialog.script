@@ -448,27 +448,7 @@ end
 function run_tutorial_pda(first_speaker, second_speaker)
 	printf("!-!-!")
 	first_speaker:stop_talk()
-    second_speaker:stop_talk()
-	
-	if actor_get_pda() and actor_get_pda():is_hud_item() and get_console():get_string("g_3d_pda") == "on" then
-		add_update_delayed_action(2, 
-			function() 
-				--actor:activate_slot(actor_get_pda():get_slot())
-				level.send_event_key_press(bind_to_dik(key_bindings.kACTIVE_JOBS))
-				level.add_call(
-					function()
-						return actor_get_pda():get_hud_item_state() == global_flags.eIdle
-					end,
-					function()
-						level.send_event_key_press(bind_to_dik(key_bindings.kWPN_ZOOM))
-						game.start_tutorial("part_1_pda")
-					end
-				)
-			end
-		)
-		return
-	end
-	
+    second_speaker:stop_talk()	
 	game.start_tutorial("part_1_pda")
 end
 
