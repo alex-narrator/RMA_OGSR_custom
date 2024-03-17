@@ -1,11 +1,11 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
-	sm:subscribe({signal = "on_first_update",   fun = this.on_first_update})
+	sm:subscribe({signal = "on_take",   		fun = this.on_take})
 	sm:subscribe({signal = "on_pda_hack",   	fun = this.on_pda_hack})
 end
 
-function on_first_update()
-	if actor_get_pda() then
+function on_take(item)
+	if actor_get_pda():id() == item:id() then
 		fill_owner_info(actor_get_pda():id())
 	end
 end
@@ -16,6 +16,13 @@ function fill_owner_info(id)
 	if not parent then
 	return end
 	local od = se_obj.owner_data
+	
+	if od == nil then
+	return end
+	
+	if od.name ~= "" then
+	return end
+	
 	od.name = parent:character_name()
 	od.comm = parent:character_community()
 	od.profile = parent:profile_name()
@@ -37,7 +44,7 @@ end
 
 function can_download_info(item)
 	local se_obj = alife():object(item:id())
-	return item:get_pda() and se_obj.owner_data and se_obj.was_hacked == false
+	return item:get_pda() and not is_actors_pda(item) and se_obj.was_hacked == false
 end
 
 function download_info(item)

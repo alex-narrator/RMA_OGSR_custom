@@ -28,27 +28,27 @@ $prefetch 		= 32
 class			= II_ANTIR
 cform           = skeleton
 visual          = equipments\item_antirad
-description		= enc_equipment_medi_antirad1
 
-inv_name			= Antirad
-inv_name_short		= Antirad
+inv_name			= st_antirad
+inv_name_short		= st_antirad
+description			= st_antirad_descr
 
 inv_grid_x         = 0
 inv_grid_y         = 4
 cost				= 300
 
 ; eatable item
-eat_portions_num = 1
+eat_portions_num 	= 1
 
 boost_radiation_protection = 0.5
-boost_satiety = -0.1
-boost_time = 30
+boost_satiety 		= -0.1
+boost_time 			= 30
 
 ; food item
 animation_slot		= 4
 
 ;hud item
-hud = antirad_hud
+hud 				= antirad_hud
 
 [medkit]:drugs_base
 GroupControlSection	= spawn_group
@@ -56,9 +56,11 @@ discovery_dependency =
 $spawn 				= "food and drugs\medkit"
 $prefetch 			= 8
 visual				= equipments\item_aptechka
-description			= enc_equipment_medi_medkit1
-inv_name			= Medkit
-inv_name_short		= Medkit
+
+inv_name			= st_medkit
+inv_name_short		= st_medkit
+description			= st_medkit_descr
+
 inv_weight			= 0.3	;0.2
 
 inv_grid_x			= 0
@@ -66,16 +68,10 @@ inv_grid_y			= 2
 cost				= 150
 
 ; eatable item
-;eat_health			= 0.6
-;eat_satiety			= -0.1
-;eat_power			= 0.0
-;eat_radiation		= -0.1
-;eat_wounds_heal	= 0.3
 eat_portions_num	= 1
-;eat_max_power		= 0.1
 
-boost_health = 3
-boost_time = 10
+boost_health 		= 3
+boost_time 			= 10
 
 ; food item
 animation_slot		= 4
@@ -83,7 +79,7 @@ animation_slot		= 4
 ;boost_effector = effector_nightvision_good
 
 ;hud item
-hud = medkit_hud
+hud 				= medkit_hud
 
 [medkit_army]:drugs_base
 GroupControlSection	= spawn_group
@@ -91,9 +87,11 @@ discovery_dependency =
 $spawn 				= "food and drugs\medkit_army"
 $prefetch 			= 8
 visual				= equipments\item_aptechka3
-description			= enc_equipment_medi_medkit2
-inv_name			= Medkit_army
-inv_name_short		= Medkit_army
+
+inv_name			= st_medkit_army
+inv_name_short		= st_medkit_army
+description			= st_medkit_army_descr
+
 inv_weight			= 0.3	;0.2
 
 inv_grid_x			= 2
@@ -101,22 +99,15 @@ inv_grid_y			= 2
 cost				= 220
 
 ; eatable item
-;eat_health			= 1.0
-;eat_satiety			= -0.2
 eat_power			= 0.25
-;eat_radiation		= -0.1
 eat_wounds_heal		= 0.3
 eat_portions_num	= 1
-;eat_max_power		= 0.1
-
-boost_health = 4
-boost_time = 15
-
+boost_health 		= 4
+boost_time 			= 15
 ; food item
 animation_slot		= 4
-
 ;hud item
-hud = medkit_army_hud
+hud 				= medkit_army_hud
 
 [medkit_scientic]:drugs_base
 GroupControlSection	= spawn_group
@@ -124,9 +115,11 @@ discovery_dependency =
 $spawn 				= "food and drugs\medkit_scientic"
 $prefetch 			= 8
 visual				= equipments\item_aptechka2
-description			= enc_equipment_medi_medkit3
-inv_name			= Medkit_scientific
-inv_name_short		= Medkit_scientific
+
+inv_name			= st_medkit_science
+inv_name_short		= st_medkit_science
+description			= st_medkit_science_descr
+
 inv_weight			= 0.3	;0.2
 
 inv_grid_x			= 1
@@ -141,15 +134,12 @@ cost				= 200
 eat_wounds_heal		= 0.2
 eat_portions_num	= 1
 ;eat_max_power		= 0.1
-
 boost_health = 3
 boost_time = 15
-
 ; food item
 animation_slot		= 4
-
 ;hud item
-hud = medkit_scientic_hud
+hud 				= medkit_scientic_hud
 
 [bandage]:drugs_base
 GroupControlSection	= spawn_group
@@ -159,24 +149,21 @@ $prefetch 			= 8
 class				= II_BANDG
 cform				= skeleton
 visual				= equipments\item_bandage
-description			= enc_equipment_medi_bandage1
 
-inv_name			= bandage
-inv_name_short		= bandage
+inv_name			= st_bandage
+inv_name_short		= st_bandage
+description			= st_bandage_descr
 
 inv_grid_x			= 0
 inv_grid_y			= 3
 cost				= 20
-
 ; eatable item
-eat_wounds_heal = 1.0
-eat_portions_num = 1	;100
-
+eat_wounds_heal 	= 1.0
+eat_portions_num 	= 1
 ; food item
 animation_slot		= 4
-
 ;hud item
-hud = bandage_hud
+hud 				= bandage_hud
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;boosters from COP;;;;;;;;;;;;;;;;;;;;;;;;
@@ -184,6 +171,7 @@ hud = bandage_hud
 [drug_booster]:drugs_base
 $spawn 				= "food and drugs\drug_booster"
 visual				= dynamics\equipments\medical\drug_booster
+
 inv_name			= st_drug_booster
 inv_name_short		= st_drug_booster
 description			= st_drug_booster_descr

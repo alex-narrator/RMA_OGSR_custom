@@ -18,7 +18,7 @@ function on_wounded(npc)
 		"%c[UI_orange]", tip_header, 
 		color_by_relation[npc:relation(actor)], npc:character_name(), 
 		"%c[white]", npc_comm)		
-		actor:give_game_news(news_text, "ui\\ui_actor_newsmanager_icons", Frect():set(83,752,83,47), 0, 3000)
+		actor:give_game_news(news_text, "ui\\ui_iconstotal", Frect():set(249, 893, 83, 47), 0, 3000)
 		xr_sound.get_safe_sound_object(sos_snd):play(actor, 0, sound_object.s2d)
 		level.map_add_object_spot_ser(npc:id(), wounded_spot, news_text)
 	end

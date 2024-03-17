@@ -1646,6 +1646,11 @@ function actor_get_backpack()
 	return actor:item_in_slot(12)
 end
 
+function is_actors_pda(item)
+	local se_obj = alife():object(item:id())
+	return item:get_pda() and se_obj.owner_data and se_obj.owner_data.name == actor:character_name()
+end
+
 function actor_break_sprint()
 	local actor_obj = get_actor_obj()
 	if actor_obj:is_actor_sprinting() then

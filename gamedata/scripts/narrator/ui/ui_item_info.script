@@ -902,10 +902,6 @@ function attach_pda_owner_info(UIDesc, item)
 	if not owner_data then
 	return end
 	
-	if actor_get_pda() and actor_get_pda():id() == item:id() then
-		pda.fill_owner_info(item:id())
-	end
-	
 	if owner_data.name == "" then
 	return end
 	
