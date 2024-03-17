@@ -53,6 +53,7 @@ function se_pda:__init (section) super (section)
 		profile = "",
 		rank = 0,
 		info = "",
+		treasure = "",
 	}
 	self.was_hacked = false
 end
@@ -73,6 +74,7 @@ function se_pda:STATE_Write (packet)
 	packet:w_stringZ(od.profile)
 	packet:w_u8(od.rank)
 	packet:w_stringZ(od.info)
+	packet:w_stringZ(od.treasure)
 	packet:w_bool(self.was_hacked)
 end
 function se_pda:STATE_Read (packet, size)
@@ -88,6 +90,7 @@ function se_pda:STATE_Read (packet, size)
 	od.profile = packet:r_stringZ()
 	od.rank = packet:r_u8()
 	od.info = packet:r_stringZ()
+	od.treasure = packet:r_stringZ()
 	self.was_hacked = packet:r_bool()
 end
 

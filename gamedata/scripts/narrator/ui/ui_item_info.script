@@ -905,6 +905,10 @@ function attach_pda_owner_info(UIDesc, item)
 	if owner_data.name == "" then
 	return end
 	
+	if is_actors_pda(item) then
+		pda.fill_owner_info(item:id())
+	end
+	
 	local xml = CScriptXmlInit()
 	xml:ParseFile("script_overlays\\pda_owner.xml")
 

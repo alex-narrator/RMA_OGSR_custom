@@ -40,6 +40,8 @@ function fill_owner_info(id)
 	end
 	--log3("~parent %s - pda has info line %s", parent:name(), known_info)
 	od.info = known_info
+	
+	od.treasure = treasure_manager.try_get_treasure(parent)
 end
 
 function can_download_info(item)
@@ -64,5 +66,9 @@ function on_pda_hack(id)
 		if not has_alife_info(infoportion) then
 			actor:give_info_portion(infoportion) 
 		end
-	end	
+	end
+	
+	if od.treasure ~= "" then
+		treasure_manager.give_treasure(od.treasure)
+	end
 end
