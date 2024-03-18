@@ -46,7 +46,8 @@ function similar_item(item1, item2)
 		loadout.can_remove(item1) == loadout.can_remove(item2) and
 		same_effect(item1, item2) and
 		--iitem1:item_effect(effect.radiation_restore) == iitem2:item_effect(effect.radiation_restore) and
-		iitem1.item_place == iitem2.item_place
+		--//для NPC не треба розділяти предмети по місцезнаходженню в інвентарі, щоб у торгівлі вони групувалися
+		(not (parent_is_actor(item1) and parent_is_actor(item2)) or iitem1.item_place == iitem2.item_place)
 	
 	local ammo1, ammo2 = item1:get_weapon_ammo(), item2:get_weapon_ammo()
 	if ammo1 and ammo2 and ammo1:is_magazine() and ammo2:is_magazine() then
