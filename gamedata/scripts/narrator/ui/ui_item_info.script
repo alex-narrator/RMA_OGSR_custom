@@ -99,6 +99,7 @@ function UIItemInfo:InitControls()
 	
 	self.name_st = self.xml:InitStatic("background_frame:static_name", self.background_frame)
 	self.weight_st = self.xml:InitStatic("background_frame:static_weight", self.background_frame)
+	self.cost_st = self.xml:InitStatic("background_frame:static_cost", self.background_frame)
 	self.condition_pb = self.xml:InitProgressBar("background_frame:condition_progress", self.background_frame)
 	
 	self.descr_list = self.xml:InitScrollView("background_frame:descr_list", self.background_frame)
@@ -133,6 +134,17 @@ function UIItemInfo:InitItemInfo(item)
 	self.name_st:SetText(text)
 	text = string.format("%3.2f %s", item:weight(), game.translate_string("st_kg"))
 	self.weight_st:SetText(text)
+	
+	local trade_partner = level.get_second_talker()
+	local cost = trade_partner and trade_partner:calculate_item_price(item, parent_is_actor(item)) or 0
+	self.cost_st:Show(trade_partner and cost > 0)
+	text = string.format("%d %s", cost, game.translate_string("ui_st_money_regional"))
+	self.cost_st:SetText(text)
+	if self.cost_st:IsShown() then
+		if (parent_is_actor(item) and trade_partner:money() < cost or actor:money() < cost) then
+			self.cost_st:SetTextColor(GetARGB(255, 255, 0, 0))
+		end
+	end
 	
 	local cond = item:condition()
 	self.condition_pb:SetProgressPos(cond)

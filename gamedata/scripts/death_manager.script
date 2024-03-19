@@ -32,10 +32,6 @@ local community_list = {
 	"stranger" 
 }
 
-local WEAPON_MAX_COND = 90
-local WEAPON_RANDOM_COND_PART = 50
-local WEAPON_STABLE_COND_PART = WEAPON_MAX_COND - WEAPON_RANDOM_COND_PART
-
 function attach(sm)
 	sm:subscribe({signal = "on_death",   			fun = this.on_death})
 	sm:subscribe({signal = "on_npc_first_update", 	fun = this.on_npc_first_update})
@@ -188,6 +184,14 @@ function spawn_npc_loot(npc)
     end
 end
 
+function random_weapon_cond()
+	local WEAPON_MAX_COND = 75
+	local WEAPON_RANDOM_COND_PART = 25
+	local WEAPON_STABLE_COND_PART = WEAPON_MAX_COND - WEAPON_RANDOM_COND_PART
+
+	return (math.random(WEAPON_RANDOM_COND_PART)+WEAPON_STABLE_COND_PART) * 0.01
+end
+
 --' Функция вызывается для каждого предмета, если вернет false то предмет удалится.
 function keep_item(npc, item)
     local section = item:section()
@@ -212,7 +216,7 @@ function keep_item(npc, item)
     then
         --item:unload_magazine()
     --' Тут надо уменьшить кондишн оружия
-		item:set_condition((math.random(WEAPON_RANDOM_COND_PART)+WEAPON_STABLE_COND_PART)*item:condition()/100)
+		item:set_condition(random_weapon_cond())
         return true
     end
     item_in_slot = npc:item_in_slot(2)
@@ -221,7 +225,7 @@ function keep_item(npc, item)
     then
         --item:unload_magazine()
     --' Тут надо уменьшить кондишн оружия
-		item:set_condition((math.random(WEAPON_RANDOM_COND_PART)+WEAPON_STABLE_COND_PART)*item:condition()/100)
+		item:set_condition(random_weapon_cond())
         return true
     end
     alife():release(alife():object(item:id()), true)
@@ -269,23 +273,32 @@ function check_item_dependence(npc, section)
 end
 
 
-local lootable_pda_sect = "device_pda_lootable"
-local PDA_MAX_PWR = 50
-local PDA_RANDOM_PWR_PART = 25
-local PDA_STABLE_PWR_PART = PDA_MAX_PWR - PDA_RANDOM_PWR_PART
+local LOOTABLE_PDA_SECT = "device_pda_lootable"
 
-local SPAWN_PDA_PROB = 0.25
+local gd_spawn_prob = {
+	0.25, 	--//novice
+	0.2, 	--//stalker
+	0.15, 	--//veteran
+	0.1, 	--//master
+}
+
+function random_pda_power()
+	local PDA_MAX_PWR = 50
+	local PDA_RANDOM_PWR_PART = 25
+	local PDA_STABLE_PWR_PART = PDA_MAX_PWR - PDA_RANDOM_PWR_PART
+	return (math.random(PDA_RANDOM_PWR_PART)+PDA_STABLE_PWR_PART) * 0.01
+end
 
 function spawn_pda(npc)
-	if npc:story_id() == NO_STORY_ID and math.random() > SPAWN_PDA_PROB then
+	if npc:story_id() == NO_STORY_ID and math.random() > gd_spawn_prob[level.get_game_difficulty()+1] then
 		--log3("~NPC %s (%s) has no story_id and has no luck to spawn PDA", npc:profile_name(), npc:name())
 		for k,infoportion in pairs(npc:get_known_info()) do
 			npc:disable_info_portion(infoportion)
 		end
 	return end
 	
-	local se_abstract = spawn_to_owner(lootable_pda_sect, npc:id())
+	local se_abstract = spawn_to_owner(LOOTABLE_PDA_SECT, npc:id())
 	local se_obj = alife():object(se_abstract.id)
-	se_obj.power_level = (math.random(PDA_RANDOM_PWR_PART)+PDA_STABLE_PWR_PART)/100
+	se_obj.power_level = random_pda_power()
 	pda.fill_owner_info(se_abstract.id)
 end
