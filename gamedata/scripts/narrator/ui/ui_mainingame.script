@@ -710,7 +710,7 @@ function MainIngameOverlay:OnPickUpItemSet(item)
 end
 
 function MainIngameOverlay:UpdatePickupItem()
-	if not self.pickup_item then
+	if not self.pickup_item or level.main_input_receiver() then
 		if self.pickup_item_icon:IsShown() then
 			self.pickup_item_icon:Show(false)
 		end

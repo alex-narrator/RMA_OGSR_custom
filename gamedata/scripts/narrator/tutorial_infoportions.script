@@ -35,7 +35,7 @@ function on_take(item)
 end
 
 function on_npc_use(npc)
-	if not has_alife_info("enc_body_search") then
+	if not npc:alive() and not has_alife_info("enc_body_search") then
 		actor:give_info_portion("enc_body_search")
 	end	
 end

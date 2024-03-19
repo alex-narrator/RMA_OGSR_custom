@@ -104,12 +104,21 @@ det_hide_snd 				= monsters\poltergeist\tele_damage_0
 [af_simple]:af_base
 ;af_rank = 1
 cost						= 1000
+hit_power 					= 0.1
+hit_effector 				= af_hit
+
 [af_medium]:af_base
 ;af_rank = 2
 cost						= 2500
+hit_power 					= 0.2
+hit_effector 				= af_hit
+
 [af_high]:af_base
 ;af_rank = 3
 cost						= 5000
+hit_power 					= 0.3
+hit_effector 				= af_hit
+
 [af_dummy]:af_base
 ;af_rank = 4
 cost						= 7500
@@ -161,6 +170,8 @@ artefact_activation_seq	= af_activation_bold
 radiation_restore_speed	= 5.0
 fire_wound_protection  	= 0.02
 
+hit_type				= strike
+
 [af_cristall_flower]:af_medium
 $spawn					= "artifacts\moscito flower"
 
@@ -182,6 +193,8 @@ artefact_activation_seq	= af_activation_bold
 ;скорости увеличения (уменьшения) 		
 radiation_restore_speed = 5
 fire_wound_protection  	= 0.03
+
+hit_type				= strike
 
 
 [af_night_star]:af_high
@@ -206,6 +219,8 @@ artefact_activation_seq	= af_activation_bold
 radiation_restore_speed = 5
 fire_wound_protection  	= 0.05
 
+hit_type				= strike
+
 ; Артефакты для аномалии "Грави"
 
 [af_vyvert]:af_simple
@@ -229,6 +244,8 @@ artefact_activation_seq	= af_activation_gravi
 radiation_restore_speed = 5
 wound_protection 		= 0.02
 
+hit_type				= strike
+
 [af_gravi]:af_medium
 $spawn					= "artifacts\gravy gravi"
 
@@ -251,6 +268,7 @@ artefact_activation_seq	= af_activation_gravi
 radiation_restore_speed = 5
 wound_protection 		= 0.03
 
+hit_type				= strike
 
 [af_gold_fish]:af_high
 $spawn					= "artifacts\gravy fish"
@@ -274,6 +292,8 @@ artefact_activation_seq	= af_activation_gravi
 radiation_restore_speed = 5
 wound_protection 		= 0.05
 
+hit_type				= strike
+
 ; Артефакты для аномалии "Жарка"
 
 [af_drops]:af_simple
@@ -296,6 +316,8 @@ inv_grid_y				= 6
 ;скорости увеличения (уменьшения) 
 radiation_restore_speed = -1
 power_restore_speed 	= -1
+
+hit_type 				= burn
 
 [af_fireball]:af_medium
 $spawn 					= "artifacts\zharka fireball"
@@ -321,6 +343,8 @@ strike_impulse			= 20
 radiation_restore_speed = -2
 power_restore_speed 	= -1
 
+hit_type 				= burn
+
 
 [af_cristall]:af_high
 $spawn 					= "artifacts\zharka cristall"
@@ -343,6 +367,8 @@ artefact_activation_seq	= af_activation_mincer
 ;скорости увеличения (уменьшения) 	
 radiation_restore_speed = -3
 power_restore_speed 	= -1
+
+hit_type 				= burn
 
 ; Артефакты для аномалии "мясорубка"
 
@@ -368,6 +394,7 @@ strike_protection 		= -0.1
 wound_protection 		= -0.1		
 fire_wound_protection  	= -0.1
 
+hit_type				= strike
 
 [af_mincer_meat]:af_medium
 $spawn					= "artifacts\mincer meatloaf"
@@ -390,6 +417,8 @@ health_restore_speed 	= 4
 strike_protection 		= -0.1
 wound_protection 		= -0.1	
 fire_wound_protection  	= -0.1
+
+hit_type				= strike
 
 
 [af_soul]:af_high
@@ -414,7 +443,8 @@ health_restore_speed 	= 6
 strike_protection 		= -0.1
 wound_protection 		= -0.1	
 fire_wound_protection  	= -0.1
-	
+
+hit_type				= strike	
 
 ; Артефакты для аномалии "Электра"
 
@@ -440,6 +470,7 @@ artefact_activation_seq	= af_activation_electra
 power_restore_speed 	= 2
 shock_protection 		= -0.1
 
+hit_type				= shock
 
 [af_electra_flash]:af_medium
 $spawn					= "artifacts\electra flash"
@@ -464,6 +495,8 @@ artefact_activation_seq	= af_activation_electra
 power_restore_speed 	= 4
 shock_protection 		= -0.1
 
+hit_type				= shock
+
 
 [af_electra_moonlight]:af_high
 $spawn					= "artifacts\electra moonlight"
@@ -487,6 +520,7 @@ artefact_activation_seq	= af_activation_electra
 power_restore_speed 	= 6
 shock_protection 		= -0.1
 
+hit_type				= shock
 
 ; Артефакты для аномалии "Амебы"
 
@@ -511,6 +545,8 @@ wounds_heal_speed 		= 4
 burn_protection 		= -0.1
 chemical_burn_protection = -0.1
 
+hit_type				= chemical_burn
+
 [af_ameba_slug]:af_medium
 $spawn					= "artifacts\ameba slug"
 
@@ -532,6 +568,8 @@ inv_grid_y				= 4
 wounds_heal_speed 		= 8
 burn_protection 		= -0.1
 chemical_burn_protection = -0.1
+
+hit_type				= chemical_burn
 
 
 [af_ameba_mica]:af_high
@@ -557,6 +595,8 @@ wounds_heal_speed 		= 12
 burn_protection 		= -0.1
 chemical_burn_protection = -0.1
 
+hit_type				= chemical_burn
+
 ; " Ржавые волосы аномалия "
 [af_rusty_thorn]:af_simple
 $spawn 					= "artifacts\rusty thorn"
@@ -576,6 +616,8 @@ inv_grid_y				= 2
 radiation_restore_speed = -1
 wounds_heal_speed 		= -3
 
+hit_type				= chemical_burn
+
 [af_rusty_kristall]:af_medium
 $spawn 					= "artifacts\rusty cristall"
 
@@ -594,6 +636,8 @@ inv_grid_y				= 2
 radiation_restore_speed = -2
 wounds_heal_speed 		= -3
 
+hit_type				= chemical_burn
+
 [af_rusty_sea-urchin]:af_high
 $spawn 					= "artifacts\rusty sea-urchin"
 
@@ -611,6 +655,8 @@ inv_grid_y				= 2
 ;скорости увеличения (уменьшения) 			
 radiation_restore_speed = -3
 wounds_heal_speed 		= -3
+
+hit_type				= chemical_burn
 
 ; "  Пустышки"
 

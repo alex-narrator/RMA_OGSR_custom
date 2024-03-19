@@ -129,6 +129,10 @@ function try_add_item(item)
 	
 	alife():object(item:id()).is_taken = true
 	
+	if item:is_artefact() then
+		ogse_signals.get_mgr():call("on_af_first_take", item)
+	end
+	
 	local sect = item:section()
 	local stat_sect = item:is_artefact() and "artefacts" or "trophies"
 	actor_stats.add_points(stat_sect, get_inv_name(sect), 1, 1)
