@@ -14,7 +14,7 @@ local was_called = false
 function parse_repts( s, tbl )
 	s = "-1000," .. s .. ",1000"
 
-	local t = parse_names(s)
+	local t = split_string(s, ",")
 	local i = 2
 
 	while i < table.getn( t ) do
