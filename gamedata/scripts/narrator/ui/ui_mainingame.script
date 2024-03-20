@@ -92,17 +92,29 @@ function MainIngameOverlay:InitControls()
 	
 	self.actor_params = xml:InitStatic("actor_params", self)
 	self.conditions = {
-		["health"] 		= { condition = function() return actor.health end, 			show_val = 0.95 },
-		["power"] 		= { condition = function() return actor.power end, 				show_val = 0.95 },
-		["stamina"] 	= { condition = function() return stamina.get_val() end, 		show_val = 0.95 },
-		["visibility"] 	= { condition = function() return visibility() end, 			show_val = 3 },
-		["noise"] 		= { condition = function() return actor_obj.sound_noise end, 	show_val = 3 },
+		["health"] 		= { condition = function() return actor.health end },
+		["power"] 		= { condition = function() return actor.power end },
+		["stamina"] 	= { condition = function() return stamina.get_val() end },
+		["visibility"] 	= { condition = function() return visibility() end },
+		["noise"] 		= { condition = function() return actor_obj.sound_noise end },
 	}
 	for k,v in pairs(self.conditions) do
 		v.back = xml:InitStatic("actor_params:"..k, self.actor_params)
 		v.static = xml:InitStatic("actor_params:"..k..":static", v.back)
 		v.bar = xml:InitProgressBar("actor_params:"..k..":progress_bar", v.back)
+		v.show_val = xml:ReadAttribFlt("actor_params:"..k, "show_val", 0)
 	end
+	
+	self.conditions_circles = {
+		["health_circle"] 		= { condition = function() return actor.health end},
+		["power_circle"] 		= { condition = function() return actor.power end},
+	}
+	for k,v in pairs(self.conditions_circles) do
+		v.back = xml:InitStatic("actor_params:"..k, self.actor_params)
+		v.icon = xml:InitStatic("actor_params:"..k..":icon", v.back)
+		v.progress_shape = xml:InitProgressShape("actor_params:"..k..":progress_shape", v.back)
+	end
+	
 	--//car condition bar
 	self.car = xml:InitStatic("actor_params:car", self.actor_params)
 	self.car_static = xml:InitStatic("actor_params:car:static", self.car)
@@ -238,6 +250,10 @@ function MainIngameOverlay:UpdateConditions()
 		v.back:Show(v.condition() <= v.show_val or not DYNAMIC_SHOW)
 		--log3("cond %s val %s", k, v.condition())
 	end
+	
+	for k,v in pairs(self.conditions_circles) do
+		v.progress_shape:SetPos(v.condition())
+	end	
 end
 
 function MainIngameOverlay:UpdateMotionIcon()
