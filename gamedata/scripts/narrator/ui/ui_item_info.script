@@ -100,7 +100,7 @@ function UIItemInfo:InitControls()
 	self.name_st = self.xml:InitStatic("background_frame:static_name", self.background_frame)
 	self.weight_st = self.xml:InitStatic("background_frame:static_weight", self.background_frame)
 	self.cost_st = self.xml:InitStatic("background_frame:static_cost", self.background_frame)
-	self.condition_pb = self.xml:InitProgressBar("background_frame:condition_progress", self.background_frame)
+	self.cost_st.base_color = self.cost_st:GetTextColor()
 	
 	self.descr_list = self.xml:InitScrollView("background_frame:descr_list", self.background_frame)
 	self.descr_list.font = self.xml:ReadAttrib("background_frame:descr_list:descr_text", "font", def_font)
@@ -141,15 +141,13 @@ function UIItemInfo:InitItemInfo(item)
 	text = string.format("%d %s", cost, game.translate_string("ui_st_money_regional"))
 	self.cost_st:SetText(text)
 	if self.cost_st:IsShown() then
-		if (parent_is_actor(item) and trade_partner:money() < cost or actor:money() < cost) then
+		if ((parent_is_actor(item) and trade_partner:money() < cost) or (not parent_is_actor(item) and actor:money() < cost)) then
 			self.cost_st:SetTextColor(GetARGB(255, 255, 0, 0))
+		else
+			self.cost_st:SetTextColor(self.cost_st.base_color)
 		end
 	end
 	
-	local cond = item:condition()
-	self.condition_pb:SetProgressPos(cond)
-	self.condition_pb:Show(cond < 1 or read_if_exists(sys_ini, "r_bool", sect, "use_condition", false))
-		
 	self.descr_list:Clear()
 	ogse_signals.get_mgr():call("on_item_info_init", self.descr_list, item)
 	text = read_if_exists(sys_ini, "r_string", sect, "description", nil)
@@ -200,6 +198,7 @@ end
 
 function add_custom_info(UIDesc, obj)
 
+	attach_condition_params(UIDesc, obj)
 	attach_effect_params(UIDesc, obj)
 	attach_protection_params(UIDesc, obj)
 	attach_armor_params(UIDesc, obj)
@@ -236,6 +235,19 @@ function add_custom_info(UIDesc, obj)
 	if vest_plates.can_detach_plate(obj) then
 		attach_plate_condition(UIDesc, obj)
 	end
+end
+
+------------------------------------------ITEM CONDITION WND-----------------------------------------------------------------------------------------------------------------
+function attach_condition_params(UIDesc, obj)
+	local condition = obj:condition()
+	if math.fsimilar(condition, 1) or not read_if_exists(sys_ini, "r_bool", obj:section(), "use_condition", false) then
+	return end
+	
+	local xml = CScriptXmlInit()
+	xml:ParseFile("script_overlays\\condition_params.xml")
+	local condition_params = xml:InitStatic("condition_params", UIDesc)
+	local condition_progress = xml:InitProgressBar("condition_params:condition_progress", condition_params)
+	condition_progress:SetProgressPos(condition)
 end
 
 ------------------------------------------EFFECT PARAMS WND-----------------------------------------------------------------------------------------------------------------

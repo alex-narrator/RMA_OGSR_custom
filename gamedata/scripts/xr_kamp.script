@@ -6,45 +6,17 @@
 --function printf()
 --end
 
+local helmet_visuals = xr_kamp_data.helmet_visuals
+local dont_check_community = xr_kamp_data.dont_check_community
+
+local avail_state = xr_kamp_data.avail_state
+local avail_sound = xr_kamp_data.avail_sound
+local timeout = xr_kamp_data.timeout
+local kamp_states = xr_kamp_data.kamp_states
+local trans_kamp = xr_kamp_data.trans_kamp
+
 kamps = {}
 kamp_stalkers = {} -- могут ли сталкеры в лагере юзаться игроком.
-
---//візуали у шоломах/протигазах яким нема в куди їсти (і на губній гармошці дудіти)
-local helmet_visuals = {
-	--//stalker
-	["actors\\novice\\green_stalker_antigas"] 			= true,
-	["actors\\neytral\\stalker_neytral_hood_9"] 		= true,
-	["actors\\neytral\\stalker_neytral_nauchniy"] 		= true,
-	["actors\\neytral\\stalker_neytral_exoskeleton"] 	= true,
-	--//bandit
-	["actors\\bandit\\stalker_bandit_8"] 				= true,
-	--//killer
-	["actors\\killer\\stalker_ki_exoskeleton"] 			= true,
-	--//dolg
-	["actors\\dolg\\stalker_do_antigas"] 				= true,
-	["actors\\dolg\\stalker_do_nauchniy"] 				= true,
-	["actors\\dolg\\stalker_do_exoskeleton"] 			= true,
-	--//freedom
-	["actors\\svoboda\\stalker_sv_hood_9"] 				= true,
-	["actors\\svoboda\\stalker_sv_nauchniy"] 			= true,
-	["actors\\svoboda\\stalker_sv_exoskeleton"] 		= true,
-	--//ecolog
-	["actors\\ecolog\\stalker_ecolog"] 					= true,
-	["actors\\ecolog\\stalker_ecolog_military"] 		= true,
-	--//zombied
-	["actors\\stalker_zombi\\zombie_exoskeleton"] 		= true,
-	--//monolith
-	["actors\\monolit\\stalker_mo_hood_9"] 				= true,
-	["actors\\monolit\\stalker_mo_nauchniy"] 			= true,
-	["actors\\monolit\\stalker_mo_exo"] 				= true,
-	--//military
-	["actors\\militari\\stalker_militari_antigas_2"] 	= true,
-}
-
-local dont_check_community = {
-	["monolith"] = true,
-	["zombied"] = true,
-}
 
 -- Объявления итераторов
 local k,v,kk,vv = 0,0,0,0
@@ -230,74 +202,14 @@ function CKampManager:__init(path)
 	end
 	--print_table(self.position)
 	--Таблица соответствий состояния лагеря и допустимых анимаций и звуков.	
-	self.avail_state = {idle				= { directed	= { "wait", "sit", "sit_ass", "sit_knee", "eat_kolbasa", "eat_vodka", "eat_energy", "eat_bread", "eat_sigaret", "trans"},
-												undirected	= { "wait", "sit", "sit_ass", "sit_knee", "eat_kolbasa", "eat_vodka", "eat_energy", "eat_bread", "eat_sigaret", "trans"}},
-						pre_harmonica		= { directed	= { "wait_harmonica"},
-												undirected	= { "wait", "sit", "sit_ass", "sit_knee", "eat_kolbasa", "eat_vodka", "eat_energy", "eat_bread", "eat_sigaret", "trans"}},
-						harmonica			= { directed	= { "play_harmonica"},
-												undirected	= { "wait", "sit", "sit_ass", "sit_knee", "eat_kolbasa", "eat_vodka", "eat_energy", "eat_bread", "eat_sigaret", "trans"}},
-						post_harmonica		= { directed	= { "wait_harmonica"},
-												undirected	= { "wait", "sit", "sit_ass", "sit_knee", "eat_kolbasa", "eat_vodka", "eat_energy", "eat_bread", "eat_sigaret", "trans"}},
-						pre_guitar			= { directed	= { "wait_guitar"},
-												undirected	= { "wait", "sit", "sit_ass", "sit_knee", "eat_kolbasa", "eat_vodka", "eat_energy", "eat_bread", "eat_sigaret", "trans"}},
-						guitar				= { directed	= { "play_guitar"},
-												undirected	= { "wait", "sit", "sit_ass", "sit_knee", "eat_kolbasa", "eat_vodka", "eat_energy", "eat_bread", "eat_sigaret", "trans"}},
-						post_guitar			= { directed	= { "wait_guitar"},
-												undirected	= { "wait", "sit", "sit_ass", "sit_knee", "eat_kolbasa", "eat_vodka", "eat_energy", "eat_bread", "eat_sigaret", "trans"}},
-						story				= { directed	= { "declarate"},
-												undirected	= { "wait", "sit", "sit_ass", "sit_knee", "eat_kolbasa", "eat_vodka", "eat_energy", "eat_bread", "eat_sigaret", "trans"}},
-						post_story			= { directed	= { "declarate"},
-												undirected	= { "wait", "sit", "sit_ass", "sit_knee", "eat_kolbasa", "eat_vodka", "eat_energy", "eat_bread", "eat_sigaret", "trans"}},
-						pre_joke			= { directed	= { "declarate"},
-												undirected	= { "wait", "sit", "sit_ass", "sit_knee", "eat_kolbasa", "eat_vodka", "eat_energy", "eat_bread", "eat_sigaret", "trans"}},
-						joke				= { directed	= { "declarate"},
-												undirected	= { "wait", "sit", "sit_ass", "sit_knee", "eat_kolbasa", "eat_vodka", "eat_energy", "eat_bread", "eat_sigaret", "trans"}},
-						post_joke			= { directed	= { "declarate"},
-												undirected	= { "wait", "sit", "sit_ass", "sit_knee", "eat_kolbasa", "eat_vodka", "eat_energy", "eat_bread", "eat_sigaret", "trans"}}}
-	self.avail_sound = {idle				= { directed = "idle", undirected="idle"},
-						pre_harmonica		= { directed = "pre_harmonica", undirected = ""},
-						harmonica			= { directed = "play_harmonica", undirected = ""},
-						post_harmonica		= { directed = "", undirected = "reac_harmonica"},
-						pre_guitar			= { directed = "pre_guitar", undirected = ""},
-						guitar				= { directed = "play_guitar", undirected = ""},
-						post_guitar			= { directed = "", undirected = "reac_guitar"},
-						story				= { directed = "play_story", undirected = ""},
-						post_story			= { directed = "", undirected = "reac_story"},
-						pre_joke			= { directed = "pre_joke", undirected = ""},
-						joke				= { directed = "play_joke", undirected = ""},
-						post_joke			= { directed = "", undirected = "reac_joke"}}
+	self.avail_state = avail_state
+	self.avail_sound = avail_sound
 	-- Таблица таймаутов по состоянию. Если состояние установилось, то некоторое время оно не может быт изменено.						
-	self.timeout	 = {idle				= { min = 30000 },
-						pre_harmonica		= { min = 3000 },
-						harmonica			= { min = 5000, soundstart = true },
-						post_harmonica		= { min = 3000 },
-						pre_guitar			= { min = 3000 },
-						guitar				= { min = 5000, soundstart = true },
-						post_guitar			= { min = 3000 },
-						story				= { min = 1000, soundstart = true },
-						post_story			= { min = 3000 },
-						pre_joke			= { min = 3000 },
-						joke				= { min = 5000, soundstart = true },
-						post_joke			= { min = 3000 }}
+	self.timeout = timeout
 	-- Таблица глобальных состояний лагеря.
-	self.kamp_states = { idle = true, 
-						 pre_harmonica = false, harmonica = false, post_harmonica = false,
-						 pre_guitar = false, guitar = false, post_guitar = false,
-						 story = false, post_story = false,
-						 pre_joke = true, joke = true, post_joke = true}
+	self.kamp_states = kamp_states
 	-- Таблица допустимых переходов между состояниями с вероятностями.
-	self.trans_kamp = { idle			= { idle = 0, pre_harmonica = 20, pre_guitar = 30, story = 20, pre_joke = 30 }, 
-						pre_harmonica	= { harmonica = 100 }, 
-						harmonica		= { post_harmonica = 100 }, 
-						post_harmonica	= { idle = 70, harmonica = 30 },
-						pre_guitar		= { guitar = 100 }, 
-						guitar			= { post_guitar = 100 }, 
-						post_guitar		= { idle = 70, guitar = 30 },
-						story			= { post_story = 100 }, 
-						post_story		= { idle = 100 },
-						pre_joke		= { joke = 100 }, 
-						joke			= { post_joke = 100 }, 
-						post_joke		= { idle = 100 }}
+	self.trans_kamp = trans_kamp
 	-- Хранилище для режиссера лагеря. Режиссерем является сталкер, затеявший необычное поведение
 	self.director = nil
 end
