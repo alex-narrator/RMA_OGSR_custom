@@ -4,10 +4,22 @@ function attach(sm)
 	sm:subscribe({signal = "on_campfire_destroy", fun = this.on_campfire_destroy})
 	sm:subscribe({signal = "on_campfire_update", fun = this.on_campfire_update})
 	sm:subscribe({signal = "on_update", fun = this.on_update})
+	--sm:subscribe({signal = "on_npc_spawn", fun = this.on_npc_spawn})
 end
 
 local campfires = {}
 local usable_campfire = false
+
+function on_npc_spawn(npc)
+	local nearest_campfire, nearest_dist = get_nearest_campfire(npc)
+	
+	local MAX_DIST = 2
+	if nearest_campfire and nearest_dist <= nearest_campfire:radius() then
+		log3("~saving npc %s from spawn into campfire %s", npc:character_name(), nearest_campfire:name())
+		local lv_id = level.vertex_in_direction(npc:level_vertex_id(), npc:direction(), MAX_DIST)
+		alife():teleport_object(npc:id(), level.vertex_position(lv_id), lv_id, npc:game_vertex_id())
+	end
+end
 
 function get_nearest_campfire(target)
 	local campfire, nearest_campfire = false, false

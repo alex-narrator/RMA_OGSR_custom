@@ -1,0 +1,17 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_npc_spawn", fun = this.on_npc_spawn})
+end
+
+function on_npc_spawn(npc)
+	local CHECK_RADIUS = 1
+	function perform_action(obj)
+		if obj:is_anomaly() and distance_between_safe(npc, obj) <= obj:radius() then
+			log3("~saving npc %s from spawn into anomaly %s", npc:character_name(), obj:name())
+			local lv_id = level.vertex_in_direction(npc:level_vertex_id(), npc:direction(), CHECK_RADIUS * 2)
+			alife():teleport_object(npc:id(), level.vertex_position(lv_id), lv_id, npc:game_vertex_id())
+			return
+		end
+	end
+	level.iterate_nearest(npc:position(), CHECK_RADIUS, perform_action)
+end

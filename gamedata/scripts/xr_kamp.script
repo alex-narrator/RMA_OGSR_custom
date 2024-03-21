@@ -153,12 +153,23 @@ function action_wait:net_destroy(npc)
 	kamps[self.a.center_point]:removeNpc(npc)
 end
 
+local DBG_CENTER_SHOW = false
 
 class "CKampManager"
 function CKampManager:__init(path)
 	self.kamp_name = path
 	self.patrol = patrol(path)
 	self.center = self.patrol:level_vertex_id(0)
+	
+	if DBG_CENTER_SHOW then
+		--level.disable_vertex(self.center)
+		--game_graph():accessible(self.center, false)
+		local center_pos = level.vertex_position(self.center)
+		log3("~ self.center %s for camp %s, center pos %s %s %s", self.center, self.kamp_name, center_pos.x, center_pos.y, center_pos.z)
+		local dbg_particle = particles_object("anomaly2\\plasma_generator_death")
+		dbg_particle:play_at_pos(center_pos)
+	end
+	
 	self.position = {{dir = vector():set(1, 0, 0),	used = nil},
 					 {dir = vector():set(1, 0, 1),	used = nil},
 					 {dir = vector():set(0, 0, 1),	used = nil},

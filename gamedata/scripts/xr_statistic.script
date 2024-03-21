@@ -117,17 +117,21 @@ function getNpcType(npc)
 end
 
 function try_add_item(item)
-	if xr_conditions.black_screen() then
-	return end
-	if actor:is_talking() then
-	return end
-	if already_counted(item) then
-	return end
+	-- if xr_conditions.black_screen() then
+	-- return end
+	-- if actor:is_talking() then
+	-- return end
 	
 	if not item:is_artefact() and get_clsid(item) ~= clsid.monster_part_s  
 	then return end
 	
+	if already_counted(item) then
+	return end
+	
 	alife():object(item:id()).is_taken = true
+	
+	if level.main_input_receiver() then
+	return end
 	
 	if item:is_artefact() then
 		ogse_signals.get_mgr():call("on_af_first_take", item)

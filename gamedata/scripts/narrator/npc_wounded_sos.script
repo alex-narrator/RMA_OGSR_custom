@@ -8,24 +8,23 @@ local wounded_spot = "general_wounded_location"
 local sos_snd = [[device\pda\pda_sos]]
 
 function on_wounded(npc)
-	--log3("~NPC %s is wounded", npc:character_name())
 	if npc:relation(actor) == game_object.enemy then
 	return end
-	if not level.map_has_object_spot(npc:id(), wounded_spot) then
-		local tip_header = game.translate_string("st_sos_wounded")
-		local npc_comm = game.translate_string(npc:character_community())
-		local news_text = string.format("%s%s\\n%s%s\\n%s[%s]", 
+	if level.map_has_object_spot(npc:id(), wounded_spot) ~= 0 then
+	return end
+
+	local tip_header = game.translate_string("st_sos_wounded")
+	local npc_comm = game.translate_string(npc:character_community())
+	local news_text = string.format("%s%s\\n%s%s %s[%s]", 
 		"%c[UI_orange]", tip_header, 
-		color_by_relation[npc:relation(actor)], npc:character_name(), 
-		"%c[white]", npc_comm)		
-		actor:give_game_news(news_text, "ui\\ui_iconstotal", Frect():set(249, 893, 83, 47), 0, 3000)
-		xr_sound.get_safe_sound_object(sos_snd):play(actor, 0, sound_object.s2d)
-		level.map_add_object_spot_ser(npc:id(), wounded_spot, news_text)
-	end
+		color_by_relation[npc:relation(actor)], npc:character_name(), "%c[white]", npc_comm)		
+	actor:give_game_news(news_text, "ui\\ui_iconstotal", Frect():set(249, 893, 83, 47), 0, 3000)
+	xr_sound.get_safe_sound_object(sos_snd):play(actor, 0, sound_object.s2d)
+	level.map_add_object_spot_ser(npc:id(), wounded_spot, news_text)
 end
 
 function on_not_wounded(npc)
-	if level.map_has_object_spot(npc:id(), wounded_spot) then
+	if level.map_has_object_spot(npc:id(), wounded_spot) ~= 0 then
 		level.map_remove_object_spot(npc:id(), wounded_spot)
 	end
 end

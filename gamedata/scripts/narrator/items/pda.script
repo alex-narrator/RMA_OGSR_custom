@@ -5,7 +5,7 @@ function attach(sm)
 end
 
 function on_take(item)
-	if actor_get_pda():id() == item:id() then
+	if actor_get_pda() and actor_get_pda():id() == item:id() then
 		fill_owner_info(actor_get_pda():id())
 	end
 end
