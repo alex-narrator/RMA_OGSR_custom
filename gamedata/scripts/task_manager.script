@@ -154,7 +154,7 @@ function CRandomTask:__init()
 		end		
 	
 		curr_task_info.need_return			= read_if_exists(self.task_ini, "r_bool", id, "need_return", true) --utils.cfg_get_bool(self.task_ini, id, "need_return", nil, false, true)
-		curr_task_info.remote_reward		= read_if_exists(self.task_ini, "r_bool", id, "remote_reward", true)
+		curr_task_info.remote_reward		= read_if_exists(self.task_ini, "r_bool", id, "remote_reward", false)
 
 		curr_task_info.init_phrase_id		= self:gen_phrase_id()
 		curr_task_info.desc_phrase_id		= self:gen_phrase_id()
@@ -930,7 +930,7 @@ function CRandomTask:task_reward_remote(task_desc)
 			--news_manager.relocate_item(actor, "in", v)
 		end
 		if task_desc.reward_item_receiver then
-			store_box.unlock_by_sid(task_desc.reward_item_receiver, "ui_st_reward_to_box")
+			store_box.unlock_by_sid(receiver_sid_by_alias[task_desc.reward_item_receiver], "ui_st_reward_to_box")
 		end
 	end
 

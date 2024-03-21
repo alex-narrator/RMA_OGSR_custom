@@ -14,6 +14,7 @@ local avail_sound = xr_kamp_data.avail_sound
 local timeout = xr_kamp_data.timeout
 local kamp_states = xr_kamp_data.kamp_states
 local trans_kamp = xr_kamp_data.trans_kamp
+local shared_sounds = xr_kamp_data.shared_sounds
 
 kamps = {}
 kamp_stalkers = {} -- могут ли сталкеры в лагере юзаться игроком.
@@ -27,6 +28,7 @@ end
 
 function on_spawn()
 	load_stories()
+	prefetch_sounds()
 end
 
 
@@ -39,6 +41,14 @@ function load_stories()
       table.insert( known_stories, id )
 	  --log3("~add story named %s", id)
     end
+end
+
+function prefetch_sounds()
+	local default_prefix = "characters_voice\\"
+	for _, s in ipairs( shared_sounds ) do
+		--log3( "[%s]:   %s", script_name(), default_prefix .. s )
+		level.prefetch_many_sounds( default_prefix .. s )
+	end
 end
 ---------------------------------------------------------------------------------------------------------------------
 --Evaluators

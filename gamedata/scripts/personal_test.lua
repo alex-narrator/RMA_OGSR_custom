@@ -286,4 +286,13 @@ end
 
 -- treasure_manager.get_treasure_manager():give_treasure("esc_secret_village_rucksack")
 
-get_main_window().show_zone_map = not get_main_window().show_zone_map
+--get_main_window().show_zone_map = not get_main_window().show_zone_map
+
+--//для майбутнього квесту на динаміт Черепа
+--actor:give_info_portion("mil_dolg_before_explode")
+--actor:disable_info_portion("mil_freedom_under_attack")
+
+-- local tgt = level.get_target_obj()
+-- if tgt then
+	-- tgt:get_physics_shell():get_element_by_order(0):fix()
+-- end
