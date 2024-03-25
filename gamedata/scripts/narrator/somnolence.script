@@ -84,9 +84,17 @@ function run_effects()
 	level.add_cam_effector("camera_effects\\sleep.anm", eff_id+2, false, "somnolence.proceed_effect")
 end
 
+function play_yawn()
+	xr_sound.get_safe_sound_object([[actor\yawn\yawn_]]..math.random(1,7)):play_no_feedback(actor, sound_object.s2d, 0, vector(), 15.0)
+end
+
+function play_heavy_breath_nightmare()
+	xr_sound.get_safe_sound_object([[characters_voice\human_01\stalker\states\breath\breath_1]]):play_no_feedback(actor, sound_object.s2d, 0, vector(), 15.0)
+end
+
 function proceed_effect()
 	if somnolence < 1 or math.random(0, 10) < RND_SLEEP_PROB then
-		xr_sound.get_safe_sound_object([[actor\sleep]]):play_no_feedback(actor, sound_object.s2d, 0, vector(), 15.0)
+		play_yawn()
 	return end
 	sleep_manager.start_sleep(math.random(MIN_RND_SLEEP_H, MAX_RND_SLEEP_H), math.random(0, 59))
 end

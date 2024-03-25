@@ -176,7 +176,7 @@ function start_sleep(h, m)
 	level.disable_input()
 	level.add_pp_effector("sleep_fade.ppe", 11, false)
 	level.add_cam_effector("camera_effects\\sleep.anm", 10, false, "sleep_manager.play_start_sleep")
-	xr_sound.get_safe_sound_object([[actor\sleep]]):play_no_feedback(actor, sound_object.s2d, 0, vector(), 15.0)
+	somnolence.play_yawn()
 	is_sleeping = true
 end
 
@@ -245,8 +245,11 @@ function play_awake_effects()
 	level.add_cam_effector("camera_effects\\prison_1.anm", 25, false, "sleep_manager.restore_control")
 	level.add_pp_effector("yantar_underground_psi.ppe", 2007, false)
 	level.add_pp_effector("total_recall.ppe", 2008, false)
-	local snd_name = nightmare[dream_name] and [[characters_voice\human_01\stalker\states\breath\breath_1]] or [[actor\sleep]]
-	xr_sound.get_safe_sound_object(snd_name):play_no_feedback(db.actor, sound_object.s2d, 0, vector(), 15.0)
+	if nightmare[dream_name] then
+		somnolence.play_heavy_breath_nightmare()
+	else
+		somnolence.play_yawn()
+	end
 	dream_name = nil
 	make_sleep_savegame()
 end
