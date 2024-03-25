@@ -11,8 +11,12 @@ function can_play_for_container()
 end
 
 function can_play_anim()
+	if level.main_input_receiver() then
+	return false end
 	local target = level.get_target_obj()
 	if not target or not actor_hands_free() then
+	return false end
+	if target:is_stalker() or target:is_trader() or target:is_monster() then
 	return false end
 	return target and target:is_nonscript_usable()
 end
