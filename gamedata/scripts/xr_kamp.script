@@ -586,7 +586,7 @@ function CKampManager:checkNpcAbility(npc)
 	self.kamp_states["harmonica"] = allowed
 	self.kamp_states["post_harmonica"] = allowed
 	-- играть на гитаре
-	allowed = npc:object("guitar_a")
+	allowed = npc:object("guitar_a") and true or false
 	self.npc[npc_id].states["play_guitar"] = allowed
 	self.npc[npc_id].states["wait_guitar"] = allowed
 	self.kamp_states["pre_guitar"] = allowed
