@@ -14,7 +14,7 @@ function can_play_anim()
 	local target = level.get_target_obj()
 	if not target or not actor_hands_free() then
 	return false end
-	return target and not target:is_nonscript_usable()
+	return target and target:is_nonscript_usable()
 end
 
 function on_key_press(key, game_action)
