@@ -371,3 +371,42 @@
     <infoportion_fail>mil_ugrumy_dead</infoportion_fail>
   </objective>
 </game_task>
+
+<!-- знешкодження динаміту Черепа -->
+<game_task id="mil_disarm_dynamite_job" prio="300">
+  <title>mil_disarm_dynamite_job</title>
+  <objective>
+    <icon>ui_icons_task_dynamite</icon>
+    <function_fail>mil_tasks.mil_dynamite_job_failed</function_fail>
+	<article>mil_disarm_dynamite_job</article>
+	<infoportion_complete>mil_disarm_dynamite_job_done</infoportion_complete>
+  </objective>  
+  <objective>
+    <text>mil_talk_to_screw</text>
+	<object_story_id>mil_Svoboda_engineer</object_story_id>
+	<map_location_type hint="mil_talk_to_screw">spot_stalker_cop</map_location_type>
+    <function_fail>mil_tasks.mil_dynamite_job_failed</function_fail>
+    <infoportion_complete>mil_dynamite_disarm</infoportion_complete>
+  </objective>
+  <objective>
+    <text>mil_disarm_dynamite</text>
+    <map_location_type hint="mil_disarm_dynamite">spot_secondary_cop</map_location_type>
+    <object_story_id>Mil_Bomb</object_story_id>
+    <function_fail>mil_tasks.mil_dynamite_job_failed</function_fail>
+	<infoportion_complete>mil_dolg_after_explode</infoportion_complete>
+  </objective>
+  <objective>
+    <text>mil_talk_to_screw</text>
+	<object_story_id>mil_Svoboda_engineer</object_story_id>
+	<map_location_type hint="mil_talk_to_screw">spot_stalker_cop</map_location_type>
+    <function_fail>mil_tasks.mil_dynamite_job_failed</function_fail>
+	<infoportion_complete>mil_disarm_dynamite_job_talk_after_explode</infoportion_complete>
+  </objective>
+  <objective>
+    <text>mil_return_to_lukash_hint</text>
+    <map_location_type hint="mil_return_to_lukash_hint">spot_stalker_cop</map_location_type>
+    <object_story_id>Mil_Lukash</object_story_id>
+    <function_fail>mil_tasks.mil_dynamite_job_failed</function_fail>
+    <infoportion_complete>mil_disarm_dynamite_job_done</infoportion_complete>
+  </objective>
+</game_task>

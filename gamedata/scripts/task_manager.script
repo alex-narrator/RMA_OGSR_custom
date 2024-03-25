@@ -923,7 +923,7 @@ function CRandomTask:task_reward_remote(task_desc)
 	end
 				
 	if task_desc.reward_item ~= nil then
-		local receiver = task_desc.reward_item_receiver and alife():story_object(receiver_sid_by_alias[task_desc.reward_item_receiver]) or sim:actor()
+		local receiver = task_desc.reward_item_receiver and alife():story_object(receiver_sid_by_alias[task_desc.reward_item_receiver]) or alife():actor()
 		for k,v in pairs(task_desc.reward_item) do
 			--log3("~reward item %s", v)
 			spawn_to_owner(v, receiver.id)

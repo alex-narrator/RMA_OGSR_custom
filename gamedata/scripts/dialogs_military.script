@@ -253,11 +253,22 @@ function unlock_storage_freedom()
 end
 
 function screw_dead()
-	local screw = level_object_by_sid(story_ids.mil_Svoboda_engineer)
-	return not screw or not screw:alive()
+	return has_alife_info("mil_screw_dead")
 end
 
 function max_dead()
-	local mil_max = level_object_by_sid(story_ids.Mil_Master_Max)
-	return not mil_max or not mil_max:alive()
+	return has_alife_info("mil_max_dead")
+end
+
+function skull_dynamite_exists()
+	return alife():story_object (story_ids.Mil_Bomb)
+end
+
+function skull_dynamite_remove()
+	local sim = alife()
+	sim:release(sim:story_object (story_ids.Mil_Bomb), true)
+end
+
+function give_vodka_to_actor()
+	dialogs.relocate_item_section(actor, "vodka", "in")
 end

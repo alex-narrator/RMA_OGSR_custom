@@ -291,8 +291,14 @@ end
 --//для майбутнього квесту на динаміт Черепа
 --actor:give_info_portion("mil_dolg_before_explode")
 --actor:disable_info_portion("mil_freedom_under_attack")
+--actor:give_info_portion("mil_freedom_under_attack")
+--actor:give_info_portion("mil_test_info")
+--actor:give_info_portion("mil_dynamite_disarm")
 
--- local tgt = level.get_target_obj()
--- if tgt then
-	-- tgt:get_physics_shell():get_element_by_order(0):fix()
--- end
+
+local tgt = level.get_target_obj()
+if tgt then
+	--tgt:get_physics_shell():get_element_by_order(0):fix()
+	--tgt:get_physics_shell():get_element_by_bone_name("link"):fix()
+	--tgt:kill(tgt)
+end

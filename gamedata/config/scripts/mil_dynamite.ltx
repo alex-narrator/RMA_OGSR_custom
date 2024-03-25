@@ -1,0 +1,17 @@
+[logic]
+active = ph_idle@idle
+
+[ph_idle@idle]
+nonscript_usable = false
+on_info = {+mil_dolg_before_explode} ph_idle@armed
+on_info2 = {+mil_dynamite_disarm} ph_idle@disarm
+
+[ph_idle@disarm]
+nonscript_usable = true
+tips = mil_dynamite_disarm_tip
+on_use = %=give_info(mil_dolg_before_explode)%
+on_info = {+mil_dolg_before_explode} ph_idle@armed
+
+[ph_idle@armed]
+nonscript_usable = false
+tips = mil_dynamite_armed_tip

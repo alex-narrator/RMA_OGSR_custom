@@ -6,7 +6,12 @@ function attach(sm)
 	--sm:subscribe({signal = "on_hit_npc", fun = this.on_hit})
 	--sm:subscribe({signal = "on_info_portion", fun = this.on_info_portion})
 	--sm:subscribe({signal = "on_task", fun = this.on_task})
+	--sm:subscribe({signal = "on_take", fun = this.on_take})
 	sm:subscribe({signal = "on_key_press", fun = this.on_key_press})
+end
+
+function on_take(item)
+	log3("~take item %s|%s", item:name(), item:section())
 end
 
 function on_hit(victim, health_lost, direction, draftsman, bone_id)

@@ -79,7 +79,7 @@ function switch_mutants_online (task_id, subtask)
 end
 
 function fail_rg6_task (task_id, subtask)
-    if has_alife_info("mil_dolg_after_explode") or
+    if --has_alife_info("mil_dolg_after_explode") or
        has_alife_info("mil_cook_dead") then
        return true
     end
@@ -87,11 +87,12 @@ function fail_rg6_task (task_id, subtask)
 end
 
 function is_actor_enemy_freedom ()
-    local gulag = xr_gulag.get_gulag_by_name("mil_freedom")
-    if gulag == nil or gulag:npc_is_enemy_to_anybody(db.actor) == false then
-       return false
-    end    
-    return true
+    -- local gulag = xr_gulag.get_gulag_by_name("mil_freedom")
+    -- if gulag == nil or gulag:npc_is_enemy_to_anybody(db.actor) == false then
+       -- return false
+    -- end    
+    -- return true
+	return relation_registry.community_goodwill("freedom", actor:id()) <= -400
 end
 
 function lukash_job_fail (task_id, subtask)
@@ -179,11 +180,12 @@ function dolg_job_fail2 (task_id, subtask)
 end
 
 function is_actor_enemy_dolg ()
-    local gulag = xr_gulag.get_gulag_by_name ("mil_dolg")
-    if gulag == nil or gulag:npc_is_enemy_to_anybody (db.actor) == false then
-       return false
-    end    
-    return true
+    -- local gulag = xr_gulag.get_gulag_by_name ("mil_dolg")
+    -- if gulag == nil or gulag:npc_is_enemy_to_anybody (db.actor) == false then
+       -- return false
+    -- end    
+    -- return true
+	return relation_registry.community_goodwill("dolg", actor:id()) <= -400
 end
 
 function bloodsuckers_dead (task_id, subtask)
@@ -195,4 +197,22 @@ function bloodsuckers_dead (task_id, subtask)
        return true
     end   
     return false
+end
+
+--//видаємо інфопорцію самому Черепові, щоб гравець отримав її саме з трупа
+function give_skull_dynamite_info()
+	local skull = level_object_by_sid(story_ids.Mil_Dolg_Zoneguard)
+	if not skull then
+	return end
+	skull:give_info_portion("mil_scull_dynamite")
+end
+
+function mil_dynamite_job_failed (task_id, subtask)
+	return this.is_actor_enemy_freedom() or has_alife_info("mil_lukash_dead") or has_alife_info("mil_screw_dead")
+end
+
+function give_skull_dynamite_task_info()
+	if not has_alife_info("mil_disarm_dynamite_job_start") or has_alife_info("mil_disarm_dynamite_job_done") then
+	return end
+	news_manager.send_tip( actor, "tip_screw_dynamite_job", 5, "screw", 10000 )
 end
