@@ -1,18 +1,21 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 local cut_snd = [[interface\item_usage\harvest_use]]
 local take_snd = [[interface\item_usage\harvest_use_success]]
+
+local common = [[camera_effects\item_use\harvest_]]
+local ext = ".anm"
 local effects = {
 	["loot"] = {
-		effect = [[camera_effects\item_use\harvest_loot.anm]],
+		effect = common.."loot"..ext,
 		id = 8997,
 	},
 	["skin"] = {
-		effect = [[camera_effects\item_use\harvest_skin_use.anm]],
-		id = 8998
+		effect = common.."skin_use"..ext,
+		id = 8998,
 	},
 	["lean"] = {
-		effect = [[camera_effects\item_use\harvest_lean_down_main.anm]],
-		id = 8999
+		effect = common.."lean_down_main"..ext,
+		id = 8999,
 	},
 }
 local meat_type = {

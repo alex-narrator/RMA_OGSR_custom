@@ -3,6 +3,7 @@ function attach(sm)
 	sm:subscribe({signal = "on_save",   				fun = this.on_save})
 	sm:subscribe({signal = "on_load",   				fun = this.on_load})
 	sm:subscribe({signal = "on_update",   				fun = this.on_update})
+	sm:subscribe({signal = "on_spawn",   				fun = this.on_spawn})
 end
 
 local somnolence = 0
@@ -17,6 +18,11 @@ local START_YAWN_VAL = 0.5
 
 local eff_name = "snd_shock.ppe"
 local eff_id = 3000
+
+local yawn_prefix = [[actor\yawn\yawn_]]
+function on_spawn()
+	level.prefetch_many_sounds(yawn_prefix)
+end
 
 function on_save(packet)
 	xr_vars.save_var(script_name(), somnolence)
@@ -85,7 +91,7 @@ function run_effects()
 end
 
 function play_yawn()
-	xr_sound.get_safe_sound_object([[actor\yawn\yawn_]]..math.random(1,7)):play_no_feedback(actor, sound_object.s2d, 0, vector(), 15.0)
+	xr_sound.get_safe_sound_object(yawn_prefix..math.random(1,7)):play_no_feedback(actor, sound_object.s2d, 0, vector(), 15.0)
 end
 
 function play_heavy_breath_nightmare()
