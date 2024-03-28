@@ -293,7 +293,7 @@ end
 --actor:disable_info_portion("mil_freedom_under_attack")
 --actor:give_info_portion("mil_freedom_under_attack")
 --actor:give_info_portion("mil_test_info")
---actor:give_info_portion("mil_dynamite_disarm")
+actor:give_info_portion("non_existed_info")
 
 
 local tgt = level.get_target_obj()
