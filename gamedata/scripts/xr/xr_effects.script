@@ -1328,6 +1328,9 @@ local function transfer_object_item(item)
 		out_object:transfer_item(item, in_object)
 	end
 end
+
+local start_hp, start_bleeding
+
 function bar_arena_teleport ( actor, npc)
 
 	inv_box_1 = level_object_by_sid (573)
@@ -1335,6 +1338,10 @@ function bar_arena_teleport ( actor, npc)
 	out_object = actor
     in_object  = inv_box_1
 	actor:inventory_for_each(transfer_object_item)
+	
+	--log3("~bar arena teleport in")
+	start_hp, start_bleeding = db.actor.health, db.actor:get_bleeding()
+	
 
 	bar_arena.give_equipment_set()
 end
@@ -1357,6 +1364,18 @@ function bar_arena_teleport_2 ( actor, npc)
 		db.actor:set_actor_direction(-dir:getH())
 	
 	inv_box_2 = level_object_by_sid (574)
+
+	--log3("~bar arena teleport out")
+
+	--//heal actor after fight
+	if db.actor.health < start_hp then
+		db.actor.health = 1
+		--log3("~heal actor after fight - HP")
+	end
+	if db.actor:get_bleeding() > start_bleeding then
+		db.actor:heal_wounds(3)
+		--log3("~heal actor after fight - bleeding")
+	end
 
 	out_object = actor
     in_object  = inv_box_2
