@@ -199,14 +199,9 @@ function motivator_binder:death_callback(victim, who)
 	self.object:hit(h)
 	
 	if(actor_stats.remove_from_ranking~=nil)then
-		local community = self.object:character_community()
-		if community == "zombied" or
-		   community == "monolith" or
-		   community == "arena_enemy"
-		then
-			return
+		if not community.non_ranked(self.object:character_community()) then
+			actor_stats.remove_from_ranking(self.object:id())
 		end
-		actor_stats.remove_from_ranking(self.object:id())
 	end
 	self.sm:call("on_death", victim, who)
 end

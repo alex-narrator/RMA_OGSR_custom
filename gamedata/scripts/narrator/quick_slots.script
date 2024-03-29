@@ -157,12 +157,27 @@ function set_selected(val)
 	quick_selected = val
 end
 
+function clear_all()
+	for k,v in pairs(quick_sect) do
+		set_item("", k)
+	end
+end
+
 function on_save(packet)
 	xr_vars.save_var(script_name(), quick_sect)
 end
 
 function on_load(reader)
 	quick_sect = xr_vars.load_var(script_name(), quick_sect)
+end
+
+function is_in_quick_slot(item)
+	for slot_num,item_sect in pairs(quick_sect) do
+		if item_sect == item:section() then
+			return true
+		end
+	end
+	return false
 end
 
 --//функції для скриптового пункту контекстного меню
@@ -172,6 +187,10 @@ function can_set(item)
 	return false end
 	
 	selected_slot = nil
+
+	if is_in_quick_slot(item) then
+	return false end
+	
 	for slot_num,item_sect in pairs(quick_sect) do
 		if item_sect == "" then
 			selected_slot = slot_num
@@ -183,7 +202,7 @@ function can_set(item)
 			selected_slot = slot_num
 			return true
 		end
-	end	
+	end
 	return false
 end
 function set(item)

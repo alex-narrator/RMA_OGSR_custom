@@ -49,7 +49,7 @@ if tgt and show_dbg_info then
 		tgt:story_id(), 
 		tgt:name(), 
 		tgt:profile_name() and tgt:profile_name() or "NO PROFILE", 
-		read_if_exists(sys_ini, "r_string", tgt:section(), "species", "NO SPECIES"),
+		get_species(tgt),
 		tgt:is_nonscript_usable(),
 		tgt:position().x, tgt:position().y, tgt:position().z,
 		tgt:level_vertex_id(),

@@ -36,12 +36,34 @@ local comm_icons = {
 	trader			= "ui_stalker",
 	arena_enemy 	= "ui_stalker",
 }
+local comm_news_icons = { 
+	default 	= {x=747, y=705},
+	stalker 	= {x=747, y=705}, 
+	dolg		= {x=747, y=611}, 
+	freedom 	= {x=747, y=564}, 
+	bandit 		= {x=747, y=752}, 
+	military 	= {x=747, y=893}, 
+	zombied 	= {x=747, y=705}, 
+	ecolog 		= {x=747, y=940}, 
+	killer 		= {x=747, y=658}, 
+	monolith 	= {x=747, y=846}, 
+	arena_enemy = {x=747, y=705}, 
+	stranger 	= {x=747, y=705}, 
+}
+local non_ranked_comms = {
+	arena_enemy = true,
+	monolith 	= true,
+	zombied 	= true,
+}
 
 function get_icon_sect(comm)
-	local icon_sect = comm_icons["default"]
-	if comm_icons[comm] then
-		icon_sect = comm_icons[comm]
-	end
-	--log3("community %s | icon sect %s", comm, icon_sect)
-	return icon_sect
+	return comm_icons[comm] or comm_icons["default"]
+end
+
+function get_news_icon(comm)
+	return comm_news_icons[comm] or comm_news_icons["default"]
+end
+
+function non_ranked(comm)
+	return non_ranked_comms[comm]
 end

@@ -53,6 +53,8 @@ function on_death(victim, killer)
 end
 
 function spawn_monster_loot(monster)
+	if get_species(monster) == "arena_monstr" then
+	return end
 	local sect = monster:section()
 	local spawn_sect = read_if_exists(sys_ini, "r_string", sect, "Spawn_Inventory_Item_Section", nil)
 	if not spawn_sect then return end
@@ -163,11 +165,13 @@ function spawn_npc_loot(npc)
     --' Проверка на отсутствие спауна лута
     local ini = npc:spawn_ini()
 	
+	if string.find(npc:profile_name(), "_arena_") then
+	return end	
+	
 	spawn_pda(npc)
 
     if ini and ini:section_exist("dont_spawn_loot") then
-        return
-    end
+    return end
 
     --' Доспавниваем необходимое количество итемов:
     --' Необходимо составить список объектов которые могут быть заспавнены для персонажа
@@ -195,34 +199,27 @@ end
 --' Функция вызывается для каждого предмета, если вернет false то предмет удалится.
 function keep_item(npc, item)
     local section = item:section()
-
-    if section == "bolt" then
-        return false
-    end
-	
 	if read_if_exists(sys_ini, "r_bool", section, "quest_item", false) then
 	return true end
-
 	if read_if_exists(sys_ini, "r_bool", section, "unique_item", false) then
 	return true end	
-	
     if always_keep_item[section] == true then
     return true end
-
+	
+	if section == "bolt" then
+		set_item_inv_hidden(item)
+	return true end
+	
     local item_id = item:id()
     local item_in_slot = npc:item_in_slot(1)
-    if item_in_slot ~= nil and
-       item_in_slot:id() == item_id
-    then
+    if item_in_slot and item_in_slot:id() == item_id then
         --item:unload_magazine()
     --' Тут надо уменьшить кондишн оружия
 		item:set_condition(random_weapon_cond())
         return true
     end
     item_in_slot = npc:item_in_slot(2)
-    if item_in_slot ~= nil and
-       item_in_slot:id() == item_id
-    then
+    if item_in_slot and item_in_slot:id() == item_id then
         --item:unload_magazine()
     --' Тут надо уменьшить кондишн оружия
 		item:set_condition(random_weapon_cond())

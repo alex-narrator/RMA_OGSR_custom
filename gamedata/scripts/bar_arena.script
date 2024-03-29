@@ -1,0 +1,130 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+
+--//загальні правила для видачі спорядження:
+--//спершу варто видавати костюм, бо в ньому можуть бути слоти під медицину/магазини/набої
+--//якщо видавати декілька типів предметів що можна класти в квікслоти та розгрузку - краще видавати їх по одному почерзі,
+--//щоб кожен унікальний предмет знайшов своє місце в розгрузці і слотах
+--//наприклад краще робити:
+-- {sect="bandage", 			count=1},
+-- {sect="medkit", 				count=1},
+-- {sect="bandage", 			count=1},
+-- {sect="medkit", 				count=1},
+--//а не
+-- {sect="bandage", 			count=2},
+-- {sect="medkit", 				count=2},
+--//бо в цьому випадку два бинта займуть два місця в розгрузці а на аптечки вже може місця не стати
+
+local fight_infoportions = {
+	bar_arena_fight_1 = true,
+	bar_arena_fight_2 = true,
+	bar_arena_fight_3 = true,
+	bar_arena_fight_4 = true,
+	bar_arena_fight_5 = true,
+	bar_arena_fight_6 = true,
+	bar_arena_fight_7 = true,
+	bar_arena_fight_8 = true,
+}
+
+local equipment_sets = {
+	--//перший бій - один на один з ПМ
+	["bar_arena_fight_1"] = {
+		{sect="novice_outfit", 			count=1},
+		{sect="wpn_pm", 				count=1},
+		{sect="clip_8_900x18", 			count=2},
+	},
+	--//другий бій
+	["bar_arena_fight_2"] = {
+		{sect="stalker_outfit", 		count=1},
+		{sect="wpn_mp5", 				count=1},
+		{sect="mag_30_900x19", 			count=1, ammo_type=1},
+	},
+	--//третій бій
+	["bar_arena_fight_3"] = {
+		{sect="stalker_outfit", 		count=1},
+		{sect="wpn_bm16", 				count=1},
+		{sect="ammo_12x70_buck", 		count=2},
+	},
+	--//четвертий бій
+	["bar_arena_fight_4"] = {
+		{sect="bandit_outfit", 			count=1},
+		{sect="wpn_ak74", 				count=1},
+		{sect="mag_30_545x39", 			count=2, ammo_type=1},
+		{sect="bandage", 				count=2},
+	},
+	--//п'ятий бій
+	["bar_arena_fight_5"] = {
+		{sect="svoboda_light_outfit", 	count=1},
+		{sect="wpn_abakan", 			count=1},
+		{sect="mag_30_545x39", 			count=3, ammo_type=1},
+		{sect="bandage", 				count=1},
+		{sect="medkit", 				count=1},
+	},
+	--//шостий бій
+	["bar_arena_fight_6"] = {
+		{sect="specops_outfit", 		count=1},	
+		{sect="wpn_groza", 				count=1},
+		{sect="mag_20_900x39", 			count=3, ammo_type=1},
+		{sect="grenade_f1", 			count=1},
+	},
+	--//сьомий бій
+	["bar_arena_fight_7"] = {
+		{sect="wpn_knife", 				count=1},
+		{sect="grenade_f1", 			count=4},
+		{sect="bandage", 				count=1},
+	},
+	--//восьмий бій
+	["bar_arena_fight_8"] = {
+		{sect="exo_outfit", 			count=1},
+		{sect="wpn_g36", 				count=1},
+		{sect="mag_30_556x45", 			count=4, ammo_type=1},
+	},	
+}
+
+function get_arena_eq_set()
+	for k,v in pairs(fight_infoportions) do
+		if has_alife_info(k) then
+			return equipment_sets[k]
+		end
+	end
+	return nil
+end
+
+function give_equipment_set()
+	local eq_set = get_arena_eq_set()
+	
+	if not eq_set then
+	return end
+	
+	quick_slots.clear_all()
+	
+	local class, count
+	for k,v in pairs(eq_set) do
+		count = v.count or 1
+		while count > 0 do
+			class = sys_ini:r_string(v.sect, "class")
+			if class == "AMMO" then
+				local objects = spawn_ammo_to_owner(v.sect, nil, nil, v.ammo_type)
+				for k,v in pairs(objects) do
+					level.client_spawn_manager():add(v.id, -1, try_place)
+				end
+			else
+				local sobj = spawn_to_owner(v.sect)
+				level.client_spawn_manager():add(sobj.id, -1, try_place)
+			end
+			count = count - 1
+		end
+	end
+end
+
+function try_place(id, obj)
+	add_update_delayed_action(1,
+		function()
+			if loadout.can_add(obj) then
+				loadout.add(obj)
+			end
+			if quick_slots.can_set(obj) then
+				quick_slots.set(obj)
+			end
+		end
+	)
+end

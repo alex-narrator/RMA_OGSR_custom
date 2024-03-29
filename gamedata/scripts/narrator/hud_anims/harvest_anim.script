@@ -18,8 +18,8 @@ local effects = {
 		id = 8999,
 	},
 }
+local default_hud = "harv_meat_hud"
 local meat_type = {
-	default 	= "harv_meat_hud",
 	arena_monstr = "harv_meat_hud",
 	bloodsucker = "harv_meat_krovosos_hud",
 	boar 		= "harv_meat_boar_hud",
@@ -44,7 +44,7 @@ function play_harvest(monster)
 	local cond_dec = read_if_exists(sys_ini, "r_float", monster:section(), "knife_harvest_cond_k", 1) * 
 						read_if_exists(sys_ini, "r_float", knife:section(), "condition_shot_dec_on_hit", 0)
 	
-	local meat_hud = meat_type[read_if_exists(sys_ini, "r_string", monster:section(), "species", "default")]
+	local meat_hud = meat_type[get_species(monster)] or default_hud
 	
 	level.disable_input()
 	backpack.force_crouch(true)

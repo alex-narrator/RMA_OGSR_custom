@@ -1939,18 +1939,28 @@ end
 
 --//спавн до inventory_owner'a
 function spawn_to_owner(section, owner_id)
+	owner_id = owner_id or actor:id()
 	return alife():create(section, vector(), -1, -1, owner_id)
 end
 
 function spawn_ammo_to_owner(section, owner_id, count, ammo_type)
+	owner_id = owner_id or actor:id()
 	ammo_type = ammo_type or 0
-	local sim = alife()	
 	local count_in_box = sys_ini:r_u32(section, "box_size")
+	count = count or count_in_box
+	local sim = alife()
+	
+	local spawned = {}
+	local sobj
+	
 	while count > count_in_box do
-		sim:create_ammo(section, vector(), -1,	-1, owner_id, count_in_box, ammo_type)
+		sobj = sim:create_ammo(section, vector(), -1,	-1, owner_id, count_in_box, ammo_type)
+		table.insert(spawned, sobj)
 		count = count - count_in_box
 	end
-	sim:create_ammo(section, vector(), -1,	-1, owner_id, count, ammo_type)
+	sobj = sim:create_ammo(section, vector(), -1,	-1, owner_id, count, ammo_type)
+	table.insert(spawned, sobj)
+	return spawned
 end
 
 --спеціально для видачі пачок набоїв враховуючи магазини
@@ -2015,4 +2025,8 @@ end
 
 function is_3d_pda()
 	return actor_get_pda() and actor_get_pda():is_hud_item() and get_console():get_string("g_3d_pda") == "on"
+end
+
+function get_species(npc)
+	return read_if_exists(sys_ini, "r_string", npc:section(), "species", "NO SPECIES")
 end
