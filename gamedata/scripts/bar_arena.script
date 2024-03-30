@@ -32,26 +32,26 @@ local equipment_sets = {
 		{sect="wpn_pm", 				count=1},
 		{sect="clip_8_900x18", 			count=2},
 	},
-	--//другий бій
+	--//другий бій - один на один з MP5
 	["bar_arena_fight_2"] = {
 		{sect="stalker_outfit", 		count=1},
 		{sect="wpn_mp5", 				count=1},
 		{sect="mag_30_900x19", 			count=1, ammo_type=1},
 	},
-	--//третій бій
+	--//третій бій - один проти двох з рушницями
 	["bar_arena_fight_3"] = {
 		{sect="stalker_outfit", 		count=1},
-		{sect="wpn_bm16", 				count=1},
+		{sect="wpn_toz34", 				count=1},
 		{sect="ammo_12x70_buck", 		count=2},
 	},
-	--//четвертий бій
+	--//четвертий бій - три на три, актор з парою новачків
 	["bar_arena_fight_4"] = {
 		{sect="stalker_outfit", 		count=1},
 		{sect="wpn_ak74", 				count=1},
 		{sect="mag_30_545x39", 			count=2, ammo_type=1},
 		{sect="bandage", 				count=2},
 	},
-	--//п'ятий бій
+	--//п'ятий бій - один проти двох (ОМОН)
 	["bar_arena_fight_5"] = {
 		{sect="svoboda_light_outfit", 	count=1},
 		{sect="wpn_abakan", 			count=1},
@@ -59,20 +59,20 @@ local equipment_sets = {
 		{sect="bandage", 				count=1},
 		{sect="medkit", 				count=1},
 	},
-	--//шостий бій
+	--//шостий бій - один проти шести (бандити)
 	["bar_arena_fight_6"] = {
 		{sect="specops_outfit", 		count=1},	
 		{sect="wpn_groza", 				count=1},
 		{sect="mag_20_900x39", 			count=3, ammo_type=1},
 		{sect="grenade_f1", 			count=1},
 	},
-	--//сьомий бій
+	--//сьомий бій - один на один голяка з Ф-1
 	["bar_arena_fight_7"] = {
 		{sect="wpn_knife", 				count=1},
 		{sect="grenade_f1", 			count=4},
 		{sect="bandage", 				count=1},
 	},
-	--//восьмий бій
+	--//восьмий бій - один проти чотирьох (екіпіровані майстри)
 	["bar_arena_fight_8"] = {
 		{sect="exo_outfit", 			count=1},
 		{sect="wpn_g36", 				count=1},
@@ -127,4 +127,26 @@ function try_place(id, obj)
 			end
 		end
 	)
+end
+
+local monster_names = {
+	bar_arena_pseudodog = true,
+	bar_arena_snork = true,
+	bar_arena_bloodsucker = true,
+	bar_arena_burer = true,
+	bar_arena_savage = true,
+}
+
+function clear_monster_bodies()
+	local sobj, obj
+	for k,v in pairs(monster_names) do
+		sobj = sobj_by_name(k)
+		if sobj then
+			obj = level.object_by_id(sobj.id)
+			if obj and not obj:alive() then
+				--log3("~remove moster %s body", obj:name())
+				alife():release(sobj, true)
+			end
+		end
+	end
 end

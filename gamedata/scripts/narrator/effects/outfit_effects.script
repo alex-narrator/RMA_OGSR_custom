@@ -109,7 +109,7 @@ function on_slot(obj, prev_place)
 		end
 	)
 	
-	if obj:is_outfit() and not xr_conditions.black_screen() and not bar_arena.get_arena_eq_set() then
+	if obj:is_outfit() and not xr_conditions.black_screen() and not has_alife_info("bar_arena_fight") then
 		if known_outfits[obj:section()] then
 			outfit_anim.play("outfit_equip_fast_hud")
 		else
