@@ -28,6 +28,16 @@ function on_take(item)
 	-- end
 	if item:get_pda() and not is_actors_pda(item) and not has_alife_info("enc_pda_npc") then
 		actor:give_info_portion("enc_pda_npc")
+		if has_alife_info("esc_trader_newbie") then
+			level.add_call(
+				function()
+					return not level.main_input_receiver()
+				end,
+				function()
+					game.start_tutorial("part_pda_diary")
+				end
+			)
+		end		
 	end	
 	if item:get_detector() and not has_alife_info("enc_detectors") then
 		actor:give_info_portion("enc_detectors")
