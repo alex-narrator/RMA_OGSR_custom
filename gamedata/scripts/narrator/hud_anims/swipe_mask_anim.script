@@ -22,7 +22,7 @@ function on_key_press(key, game_action)
 	
 	game.play_hud_motion(1, hud_sect, "anm_use", false, 1, false)
 	local snd_name = read_if_exists(sys_ini, "r_string", hud_sect, "hud_sound", nil)
-	xr_sound.get_safe_sound_object(snd_name,sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
+	xr_sound.get_safe_sound_object(snd_name..math.random(1,3),sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
 	local eff_name = read_if_exists(sys_ini, "r_string", hud_sect, "hud_effector", nil)
 	level.add_complex_effector(eff_name, hud_effector_id)
 	

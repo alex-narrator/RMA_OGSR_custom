@@ -240,7 +240,9 @@ end
 ------------------------------------------ITEM CONDITION WND-----------------------------------------------------------------------------------------------------------------
 function attach_condition_params(UIDesc, obj)
 	local condition = obj:condition()
-	if math.fsimilar(condition, 1) or not read_if_exists(sys_ini, "r_bool", obj:section(), "use_condition", false) then
+	
+	local show_cond = condition < 1 or read_if_exists(sys_ini, "r_bool", obj:section(), "use_condition", false)
+	if not show_cond then
 	return end
 	
 	local xml = CScriptXmlInit()

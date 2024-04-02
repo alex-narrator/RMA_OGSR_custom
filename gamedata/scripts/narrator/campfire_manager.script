@@ -59,8 +59,7 @@ function on_update()
 		is_actor_looking_to_pos(nearest_campfire:position(), nearest_campfire:radius()) and 
 		nearest_dist <= get_actor_obj().inventory.take_dist 
 	then
-		local text = game.translate_string("ui_use_campfire")
-		hud_add_info_message("quick_info", text)
+		hud_add_info_message("quick_info", game.translate_string("ui_use_campfire"))
 		usable_campfire = nearest_campfire
 	elseif usable_campfire then
 		hud_remove_info_message("quick_info")
