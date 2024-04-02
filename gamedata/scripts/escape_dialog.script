@@ -442,7 +442,8 @@ end
 
 function fox_pay_money(actor, npc)
 	dialogs.relocate_money(npc, 1000, "in")	
-	treasure_manager.get_treasure_manager():give_treasure("esc_secret_truck_goods")
+	--treasure_manager.get_treasure_manager():give_treasure("esc_secret_truck_goods")
+	level.map_add_object_spot(level_object_by_sid(5005):id(), "crlc_small", "esc_fox_loft_tip")
 end
 
 function run_tutorial_pda(first_speaker, second_speaker)
