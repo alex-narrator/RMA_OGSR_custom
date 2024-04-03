@@ -1972,7 +1972,7 @@ end
 function give_ammo_box_to_actor(section, count, loaded_box, ammo_type)
 	count = count ~= nil and count or 1
 	loaded_box = loaded_box ~= nil and loaded_box or true
-	ammo_type = ammo_table ~= nil and ammo_type or 0
+	ammo_type = ammo_type ~= nil and ammo_type or 0
 	local count_in_box = loaded_box and sys_ini:r_u32(section, "box_size") or 0
 	while count > 0 do
 		spawn_ammo_to_owner(section, actor:id(), count_in_box, ammo_type)
