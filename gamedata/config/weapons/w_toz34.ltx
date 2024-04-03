@@ -61,7 +61,7 @@ inv_name_short	= wpn-toz34
 inv_weight		= 3.1
 
 inv_grid_width     = 5
-inv_grid_height    = 2
+inv_grid_height    = 1
 inv_grid_x         = 7
 inv_grid_y         = 0
 
@@ -138,16 +138,26 @@ wpn_addon_scope_ac10632_hud_sect 		= wpn_toz34_bull_hud
 scope_x                     = 85		; offset in inventory icon
 scope_y                     = 15
 
-disassemble_parts 					= part_shotgun_2barrel, 1
+disassemble_parts 			= part_shotgun_2barrel, 1
+
+sawed_off 					= wpn_toz34_obrez
+sawed_off_tool 				= multitool
 
 [wpn_toz34_decor]:wpn_toz34
 hud                                      = wpn_toz34_sk1_hud
 visual                                   = dynamics\weapons\wpn_toz34\wpn_toz34_sk1
 
+inv_grid_width     = 5
+inv_grid_height    = 1
+inv_grid_x         = 7
+inv_grid_y         = 1
+
 scope_status							 = 0
-scope_meshes 								 =
+scope_meshes 							=
 
 [wpn_toz34_obrez]:wpn_toz34,wpn_toz34_obrez_sounds
+sawed_off 					=
+
 inv_grid_width     = 3
 inv_grid_height    = 1
 inv_grid_x         = 4
@@ -161,4 +171,32 @@ hud                                      = wpn_toz34_obrez_hud
 visual                                   = dynamics\weapons\wpn_toz34\wpn_toz34_obrez
 
 scope_status							 = 0
-scope_meshes 								 =
+scope_meshes 							=
+
+control_inertion_factor = 1.4
+fire_dispersion_base		= 1.5
+
+;отдача
+cam_relax_speed         	= 7.0	;скорость возврата в исходное положение
+cam_dispersion          	= 4.0	;увеличения угла (в градусах) с каждым выстрелом
+cam_dispersion_inc		= 4.0	;увеличениe cam_dispersion с каждым выстрелом
+cam_dispertion_frac		= 1.0	;ствол будет подыматься на cam_dispersion*cam_dispertion_frac +- cam_dispersion*(1-cam_dispertion_frac)
+cam_max_angle			= 8.0	;максимальный угол отдачи
+cam_max_angle_horz		= 20.0	;(degree) maximum shot horizontal degree 
+cam_step_angle_horz		= 2.5	;(degree) size of step camera moved in horizontal position while shooting
+
+; ttc
+hit_power        	= 0.6;0.75, 0.79, 0.85, 0.90
+hit_impulse      	= 30
+hit_type 			= fire_wound
+
+fire_distance       = 25
+bullet_speed		= 215	;начальная скорость пули
+rpm                 = 500
+; end ttc
+
+PDM_disp_base 			= 1.0
+PDM_disp_vel_factor 		= 1.1
+PDM_disp_accel_factor 		= 1.1
+PDM_crouch	 		= 1.0
+PDM_crouch_no_acc 		= 1.0
