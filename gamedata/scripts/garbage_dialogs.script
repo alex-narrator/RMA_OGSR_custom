@@ -33,10 +33,7 @@ end
 
 --Проверка ранга актёра (Р.М.А.):
 function gar_actor_rank_newbie(actor,npc)
-	local actor = db.actor
-	if actor:character_rank() < 300 then
-		return true
-	end
+	return db.actor:character_rank() < 300
 end
 
 function gar_actor_rank_not_newbie(actor,npc)
@@ -45,7 +42,7 @@ end
 
 -- ограбленный новичок:
 function act_have_bm16_for_rob(npc, actor)
-	return db.actor:object("wpn_bm16") ~= nil
+	return db.actor:object("wpn_bm16_full") ~= nil
 end
 
 function act_have_aksu_for_rob(npc, actor)
@@ -53,7 +50,7 @@ function act_have_aksu_for_rob(npc, actor)
 end
 
 function give_bm16_for_rob(first_speaker, second_speaker)
-	dialogs.relocate_item_section(second_speaker, "wpn_bm16", "out")
+	dialogs.relocate_item_section(second_speaker, "wpn_bm16_full", "out")
 end
 
 function give_aksu_for_rob(first_speaker, second_speaker)

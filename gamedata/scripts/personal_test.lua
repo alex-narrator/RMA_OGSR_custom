@@ -296,21 +296,21 @@ end
 --actor:give_info_portion("non_existed_info")
 
 
-local tgt = level.get_target_obj()
-if tgt then
-	--tgt:get_physics_shell():get_element_by_order(0):fix()
-	--tgt:get_physics_shell():get_element_by_bone_name("link"):fix()
-	tgt:kill(tgt)
-	--tgt:set_show_model_mesh(2, false)
-	-- for i=0, 999 do
-		-- local bone_name = tgt:get_bone_name(i)
-		-- if bone_name then
-			-- log3("~[%s] bone name %s", i, bone_name)
-		-- else
-			-- break
-		-- end
-	-- end
-	--tgt:set_bone_visible(tgt:get_bone_name(13), false)
-end
+-- local tgt = level.get_target_obj()
+-- if tgt then
+	-- --tgt:get_physics_shell():get_element_by_order(0):fix()
+	-- --tgt:get_physics_shell():get_element_by_bone_name("link"):fix()
+	-- tgt:kill(tgt)
+	-- --tgt:set_show_model_mesh(2, false)
+	-- -- for i=0, 999 do
+		-- -- local bone_name = tgt:get_bone_name(i)
+		-- -- if bone_name then
+			-- -- log3("~[%s] bone name %s", i, bone_name)
+		-- -- else
+			-- -- break
+		-- -- end
+	-- -- end
+	-- --tgt:set_bone_visible(tgt:get_bone_name(13), false)
+-- end
 
-actor:change_character_rank(100)
+--actor:change_character_rank(100)
