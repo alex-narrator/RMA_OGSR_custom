@@ -7,7 +7,7 @@ function try_service(obj, drop_on_obj)
 	if can_service(obj, drop_on_obj) then
 		show_service_wnd(obj, drop_on_obj)
 	return end
-	local tool = get_tool(drop_on_obj)
+	local tool = get_tool_sect(drop_on_obj)
 	if tool and tool == obj:section() and can_disassemble_item(drop_on_obj) then
 		show_disassemble_wnd(obj, drop_on_obj)
 	return end
@@ -16,11 +16,16 @@ end
 function can_service(obj, drop_on_obj)
 	if not drop_on_obj then
 	return false end
-	local service_type = read_if_exists(sys_ini, "r_float", obj:section(), "service_type", 0)
-	local can_service = 
-		(service_type == 1 and drop_on_obj:is_knife()) or
-		(service_type == 2 and drop_on_obj:is_weapon_magazined()) or
-		(service_type == 3 and drop_on_obj:is_outfit())
+	local service_type = read_if_exists(sys_ini, "r_string", obj:section(), "service_type", nil)
+	local can_service = false
+	if not service_type then
+		local parts = read_if_exists(sys_ini, "r_string", drop_on_obj:section(), "disassemble_parts", nil)
+		can_service = parts and string.find(parts, obj:section())
+	else
+		can_service = (service_type == "knife" and drop_on_obj:is_knife()) or
+		(service_type == "weapon" and drop_on_obj:is_weapon_magazined()) or
+		(service_type == "outfit" and drop_on_obj:is_outfit())
+	end
 	return can_service and check_condition(obj, drop_on_obj)
 end
 
@@ -48,7 +53,7 @@ function show_service_wnd(obj, drop_on_obj)
 	local service_msg_box = ui_message_box.MessageBoxWnd()
 	local msg_text = string.format(
 		"%s %s\\n%s %s ?", 
-		game.translate_string("st_service_item"), 
+		game.translate_string(read_if_exists(sys_ini, "r_string", drop_on_obj:section(), "service_tip", "st_service_item")), 
 		game.translate_string(get_inv_name(drop_on_obj:section())), 
 		game.translate_string("st_service_with"), 
 		game.translate_string(get_inv_name(obj:section())))
@@ -147,7 +152,7 @@ local addon_type = {
 	"forend",
 }
 
-function disassemble_item(item)
+function disassemble_item(tool, item)
 	local sect = item:section()
 	local parent = item:parent()
 	
@@ -181,6 +186,16 @@ function disassemble_item(item)
 	
 	parent:drop_item(item)
 	alife():release(alife():object(item:id()), true)
+	
+	if tool then
+		local repair_count = read_if_exists(sys_ini, "r_float", tool:section(), "use_count", 0)
+		if repair_count > 0 then
+			tool:change_condition(-1/repair_count)
+			if tool:condition() == 0 then
+				alife():release(alife():object(tool:id()), true)
+			end
+		end		
+	end
 	
 	local parts = parse_parts(sys_ini:r_string(sect, "disassemble_parts"))
 	for k,v in pairs(parts) do
@@ -219,14 +234,14 @@ function parse_parts(line)
 	return ret_table
 end
 
-function get_tool(item)
+function get_tool_sect(item)
 	return read_if_exists(sys_ini, "r_string", item:section(), "disassemble_tool", nil)
 end
 
 function can_disassemble_item(item)
 	local sect = item:section()
 	local parts = read_if_exists(sys_ini, "r_string", sect, "disassemble_parts", nil)
-	local tool = get_tool(item)
+	local tool = get_tool_sect(item)
 	return parts and (not tool or actor:object(tool))
 end
 
@@ -248,7 +263,7 @@ function show_disassemble_wnd(obj, drop_on_obj)
 		)
 		msg_text = msg_text..part_str
 	end
-	service_msg_box:InitAction(msg_text, disassemble_item, drop_on_obj)
+	service_msg_box:InitAction(msg_text, disassemble_item, obj, drop_on_obj)
 end
 
 --//script menu actions
@@ -258,5 +273,9 @@ function can_disassemble(obj)
 end
 function disassemble(obj)
 	--disassemble_item(obj)
-	show_disassemble_wnd(nil, obj)
+	local tool = get_tool_sect(obj)
+	if tool then
+		tool = actor:object(tool)
+	end
+	show_disassemble_wnd(tool, obj)
 end

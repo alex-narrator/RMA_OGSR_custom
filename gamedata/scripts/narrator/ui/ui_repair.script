@@ -29,10 +29,6 @@ function create_overlay(condition_limit, cost_k, uniquie_k, armor_repair_infop)
 	end
 end
 
-function is_hidden()
-	return not overlay or not overlay:IsShown()
-end
-
 function RepairOverlay:__init(owner) super()
 	self.owner = level.main_input_receiver()
 	self:InitControls()
@@ -71,7 +67,6 @@ function RepairOverlay:Unsubscribe()
 end
 
 function RepairOverlay:DetachWnd()
-	quick_slots.set_selected(nil)
 	self:Unsubscribe()
 	self:ClearCallbacks()
 	self.owner:DetachChild(self)
