@@ -17,7 +17,7 @@ function death_reson_by_killer(killer)
 		return string.find(killer:name(), "btr") and "st_btr" or "st_car"
 	end
 	if killer:is_anomaly() then
-		return killer:binded_object() and "st_death_by_campfire" or killer:section()
+		return get_clsid(killer) == clsid.zone_campfire_s and "st_death_by_campfire" or killer:section()
 	end
 	return "st_death_reason_undefined"
 end

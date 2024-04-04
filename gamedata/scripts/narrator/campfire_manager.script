@@ -1,9 +1,9 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
 	sm:subscribe({signal = "on_campfire_spawn", fun = this.on_campfire_spawn})
-	sm:subscribe({signal = "on_campfire_destroy", fun = this.on_campfire_destroy})
-	sm:subscribe({signal = "on_campfire_update", fun = this.on_campfire_update})
-	sm:subscribe({signal = "on_update", fun = this.on_update})
+	--sm:subscribe({signal = "on_campfire_destroy", fun = this.on_campfire_destroy})
+	--sm:subscribe({signal = "on_campfire_update", fun = this.on_campfire_update})
+	--sm:subscribe({signal = "on_update", fun = this.on_update})
 	--sm:subscribe({signal = "on_npc_spawn", fun = this.on_npc_spawn})
 end
 
@@ -37,8 +37,19 @@ end
 
 function on_campfire_spawn(campfire)
 	campfires[campfire:id()] = true
+	local se_campfire = alife():object(campfire:id())
+	if se_campfire.usable_campfire_id == 0 then
+		local fireplace_usable = spawn_to_level("fireplace", campfire:position(), level.name(), campfire:direction())
+		se_campfire.usable_campfire_id = fireplace_usable.id
+		--log3("~create usable fireplace %s for campfire %s", fireplace_usable:name(), campfire:name())
+	end
 	-- campfire:disable_anomaly()
 	-- add_time_delayed_action(10, function() campfire:enable_anomaly() end)
+end
+
+function on_campfire_use(campfire)
+	ogse_signals.get_mgr():call( "on_campfire_use", campfire )
+	log3("~use campfire %s", campfire:name())
 end
 
 function on_campfire_destroy(campfire)

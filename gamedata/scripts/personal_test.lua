@@ -314,3 +314,8 @@ end
 -- end
 
 --actor:change_character_rank(100)
+
+	function perform_action(obj)
+		log3("obj name %s, section %s, visual %s", obj:name(), obj:section(), obj:get_visual_name() or "NO VISUAL")
+	end
+	level.iterate_nearest(actor:position(), 1, perform_action)
