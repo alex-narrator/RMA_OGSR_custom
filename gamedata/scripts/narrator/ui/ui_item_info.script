@@ -522,6 +522,8 @@ function attach_armor_params(UIDesc, item)
 	local xml = CScriptXmlInit()
 	xml:ParseFile("script_overlays\\armor_params.xml")
 	
+	local font = xml:ReadAttrib("params_list:descr_text", "font", "letterica16")
+	
 	armor_st = {}
 	sn = game.translate_string("st_armor_class")
 	local params_list = xml:InitScrollView("params_list", UIDesc)
@@ -534,6 +536,7 @@ function attach_armor_params(UIDesc, item)
 				armor_st[k] = CUIStatic()--xml:InitStatic(v.st_name, params_list)
 				text = string.format("%s%s %.0f %s", game.translate_string("st_list_mark"), game.translate_string(v.param_name), val, sn)
 				armor_st[k]:SetText(text)
+				armor_st[k]:SetFont(GetFontCustom(font))
 				armor_st[k]:AdjustHeightToText()
 				params_list:AddWindow(armor_st[k])
 				show = true
@@ -546,6 +549,7 @@ function attach_armor_params(UIDesc, item)
 		armor_st["hit_fraction"] = CUIStatic()--xml:InitStatic("hit_fraction", params_list)
 		text = string.format("%s%s %.0f %s", game.translate_string("st_list_mark"), game.translate_string("st_armor_hit_fraction"), val * 100, "%")
 		armor_st["hit_fraction"]:SetText(text)
+		armor_st["hit_fraction"]:SetFont(GetFontCustom(font))
 		armor_st["hit_fraction"]:AdjustHeightToText()
 		params_list:AddWindow(armor_st["hit_fraction"])
 	end

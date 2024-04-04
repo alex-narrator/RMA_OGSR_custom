@@ -64,24 +64,35 @@ repair_effector_id = 20000
 
 function service(obj, drop_on_obj)
 	local rep_kit_sect = obj:section()
-	local cond_gain = read_if_exists(sys_ini, "r_float", rep_kit_sect, "repair_condition_gain", 0)
-	drop_on_obj:change_condition(cond_gain * get_rank_k())
-	local repair_count = read_if_exists(sys_ini, "r_float", rep_kit_sect, "repair_count", 0)
-	if repair_count > 0 then
-		obj:change_condition(-1/repair_count)
-		if obj:condition() == 0 then
-			alife():release(alife():object(obj:id()), true)
-		end
-	end
+	
 	local repair_sound = read_if_exists(sys_ini, "r_string", rep_kit_sect, "use_sound", nil)
+	local action_delay = 1
 	if repair_sound then
-		xr_sound.get_safe_sound_object(repair_sound,sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
+		local snd = xr_sound.get_safe_sound_object(repair_sound,sound_object.s2d)
+		snd:play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+		action_delay = snd:length() * 0.001
 	end
 	local repair_effector = read_if_exists(sys_ini, "r_string", rep_kit_sect, "use_effector", nil)
 	if repair_effector then
 		level.remove_complex_effector(repair_effector_id)
 		level.add_complex_effector(repair_effector, repair_effector_id)
+	end	
+	
+	local function make_service()
+		local cond_gain = read_if_exists(sys_ini, "r_float", rep_kit_sect, "repair_condition_gain", 0)
+		drop_on_obj:change_condition(cond_gain * get_rank_k())
+		local repair_count = read_if_exists(sys_ini, "r_float", rep_kit_sect, "repair_count", 0)
+		if repair_count > 0 then
+			obj:change_condition(-1/repair_count)
+			if obj:condition() == 0 then
+				alife():release(alife():object(obj:id()), true)
+			end
+		end
+		block_non_move_action(false)
 	end
+	
+	block_non_move_action(true)
+	add_time_delayed_action(action_delay, make_service)
 end
 
 --//script menu actions
@@ -162,7 +173,7 @@ function prepair(item)
 	local wpn = item:get_weapon()
 	local wpn_m = item:get_weapon_m()
 	if wpn then
-		item:unload_magazine(true, true)
+		item:unload_weapon_full()
 		local addon_name
 		for k,v in pairs(addon_type) do
 			local i = k-1
@@ -184,30 +195,38 @@ function disassemble_item(tool, item)
 		snd_name = snd_name..math.random(1, rnd_max)
 	end
 	
-	xr_sound.get_safe_sound_object(snd_name,sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+	local snd = xr_sound.get_safe_sound_object(snd_name,sound_object.s2d)
+	snd:play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+	local action_delay = snd:length() * 0.001
 	
 	prepair(item)
 	
-	parent:drop_item(item)
-	alife():release(alife():object(item:id()), true)
+	local function make_disassemble()
+		parent:drop_item(item)
+		alife():release(alife():object(item:id()), true)
 	
-	if tool then
-		local repair_count = read_if_exists(sys_ini, "r_float", tool:section(), "use_count", 0)
-		if repair_count > 0 then
-			tool:change_condition(-1/repair_count)
-			if tool:condition() == 0 then
-				alife():release(alife():object(tool:id()), true)
-			end
-		end		
-	end
-	
-	local parts = parse_parts(sys_ini:r_string(sect, "disassemble_parts"))
-	for k,v in pairs(parts) do
-		while v.count > 0 do
-			spawn_to_owner(v.section)
-			v.count = v.count - 1
+		if tool then
+			local repair_count = read_if_exists(sys_ini, "r_float", tool:section(), "use_count", 0)
+			if repair_count > 0 then
+				tool:change_condition(-1/repair_count)
+				if tool:condition() == 0 then
+					alife():release(alife():object(tool:id()), true)
+				end
+			end		
 		end
+	
+		local parts = parse_parts(sys_ini:r_string(sect, "disassemble_parts"))
+		for k,v in pairs(parts) do
+			while v.count > 0 do
+				spawn_to_owner(v.section)
+				v.count = v.count - 1
+			end
+		end
+		block_non_move_action(false)
 	end
+	
+	block_non_move_action(true)
+	add_time_delayed_action(action_delay, make_disassemble)	
 end
 
 function parse_parts(line)
@@ -289,20 +308,28 @@ function saw_off_item(tool, item)
 	local parent = item:parent()
 	
 	local snd_name = read_if_exists(sys_ini, "r_string", sect, "saw_off_sound", def_saw_off_snd)
-	xr_sound.get_safe_sound_object(snd_name,sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+	local snd = xr_sound.get_safe_sound_object(snd_name,sound_object.s2d)
+	snd:play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 	
-	--prepair(item)
-	item:get_weapon_m():respawn_weapon(sys_ini:r_string(sect, "sawed_off"))
+	local action_delay = snd:length() * 0.001
 	
-	if tool then
-		local repair_count = read_if_exists(sys_ini, "r_float", tool:section(), "use_count", 0)
-		if repair_count > 0 then
-			tool:change_condition(-1/repair_count)
-			if tool:condition() == 0 then
-				alife():release(alife():object(tool:id()), true)
-			end
-		end		
+	local function make_saw_off()
+		item:get_weapon_m():respawn_weapon(sys_ini:r_string(sect, "sawed_off"))
+	
+		if tool then
+			local repair_count = read_if_exists(sys_ini, "r_float", tool:section(), "use_count", 0)
+			if repair_count > 0 then
+				tool:change_condition(-1/repair_count)
+				if tool:condition() == 0 then
+					alife():release(alife():object(tool:id()), true)
+				end
+			end		
+		end
+		block_non_move_action(false)
 	end
+	
+	block_non_move_action(true)
+	add_time_delayed_action(action_delay, make_saw_off)	
 end
 
 function show_saw_off_wnd(obj, drop_on_obj)
