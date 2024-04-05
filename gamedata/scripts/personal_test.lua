@@ -153,7 +153,8 @@ end
 
 --alife():teleport_object(16531, actor:position(), actor:level_vertex_id(), actor:game_vertex_id())
 
---log3("actor position (%s, %s, %s), lvid %s, gvid %s", actor:position().x, actor:position().y, actor:position().z, actor:level_vertex_id(), actor:game_vertex_id())
+log3("actor position (%s, %s, %s), lvid %s, gvid %s", actor:position().x, actor:position().y, actor:position().z, actor:level_vertex_id(), actor:game_vertex_id())
+log3("actor direction (%s, %s, %s)", actor:direction().x, actor:direction().y, actor:direction().z)
 
 --dis_consciousness
 --dream
@@ -315,7 +316,9 @@ end
 
 --actor:change_character_rank(100)
 
-	function perform_action(obj)
-		log3("obj name %s, section %s, visual %s", obj:name(), obj:section(), obj:get_visual_name() or "NO VISUAL")
-	end
-	level.iterate_nearest(actor:position(), 1, perform_action)
+	-- function perform_action(obj)
+		-- log3("obj name %s, section %s, visual %s", obj:name(), obj:section(), obj:get_visual_name() or "NO VISUAL")
+	-- end
+	-- level.iterate_nearest(actor:position(), 1, perform_action)
+	
+	actor:set_money(10000)

@@ -175,6 +175,7 @@ end
 function transfer_scope (npc, actor)
     dialogs.relocate_item_section(npc, "wpn_addon_scope", "in") 
     dialogs.relocate_item_section(npc, "vodka", "out")
+	actor:give_info_portion("mil_screw_vodka_given")
 end
 
 
@@ -274,7 +275,7 @@ function give_vodka_to_actor()
 end
 
 function give_barrier_defense_ammo()
-	give_ammo_box_to_actor("mag_10_762x54", 4, true, 1)
+	give_ammo_box_to_actor("mag_30_556x45", 4, true, 1)
 	local defense_rifle = alife():story_object(story_ids.mil_barrier_rifle)
 	if not defense_rifle then
 	return end

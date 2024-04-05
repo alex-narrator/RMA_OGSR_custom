@@ -1,0 +1,37 @@
+[logic]
+active = walker
+on_death = death
+trade = trade\trade_dolg_ivancov.ltx
+
+[death]
+on_info = %+sar2_death_41%
+
+[walker]
+path_walk = bar_dolg_ivancov_walk
+path_look = bar_dolg_ivancov_look
+meet = meet
+def_state_standing = guard
+on_info = {+bar_arena_spawn_monstr -bar_arena_monstr_dead} walker1
+
+[walker1]
+path_walk = bar_dolg_ivancov_walk
+path_look = bar_dolg_ivancov_look
+meet = meet
+def_state_standing = guard
+danger = danger
+on_info = {+bar_arena_monstr_dead} walker
+
+[meet]
+meet_state = 5 | guard@talk_hello
+meet_state_wpn = 5 | guard@talk_hello
+use = true
+use_wpn = true
+victim = 5 | actor
+victim_wpn = 5 | actor
+
+[danger]
+ignore_distance_corpse = 2
+ignore_distance_sound = 2
+ignore_distance = 2
+danger_inertion_time_corpse = 1
+danger_inertion_time_sound = 1
