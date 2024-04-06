@@ -13,7 +13,23 @@ function GetDamage(obj)
 		res = cur_gd_hit_power
 	end
 	
-	local ammo_damage = obj:get_ammo_in_magazine() > 0 and read_if_exists(sys_ini, "r_float", get_cur_ammo_sect(obj), "k_hit", 0) or 0
+	local ammo_damage = not obj:is_knife() and obj:get_ammo_in_magazine() > 0 and read_if_exists(sys_ini, "r_float", get_cur_ammo_sect(obj), "k_hit", 0) or 0
+	--log3("game_difficulty %s | res %s", level.get_game_difficulty(), res)
+	return res + res * ammo_damage
+end
+
+function GetDamage2(obj)
+	local res = read_if_exists(sys_ini, "r_float", obj:section(), "hit_power_2", 0)
+	
+	local hit_power_sect = read_if_exists(sys_ini, "r_string", obj:section(), "hit_power_2", nil)
+	local hit_power_table = split_string(hit_power_sect, ",")
+	local cur_gd_hit_power = hit_power_table[level.get_game_difficulty()+1]
+	
+	if cur_gd_hit_power then
+		res = cur_gd_hit_power
+	end
+	
+	local ammo_damage = not obj:is_knife() and obj:get_ammo_in_magazine() > 0 and read_if_exists(sys_ini, "r_float", get_cur_ammo_sect(obj), "k_hit", 0) or 0
 	--log3("game_difficulty %s | res %s", level.get_game_difficulty(), res)
 	return res + res * ammo_damage
 end
@@ -58,7 +74,8 @@ function GetRange(obj)
 end
 
 function GetReliability(obj)
-	local shot_dec = obj:is_knife() and read_if_exists(sys_ini, "r_float", obj:section(), "condition_shot_dec_on_hit", 0.00001) or read_if_exists(sys_ini, "r_float", obj:section(), "condition_shot_dec", 0.00001)
+	local param_name = obj:is_knife() and "condition_shot_dec_on_hit" or "condition_shot_dec"
+	local shot_dec = read_if_exists(sys_ini, "r_float", obj:section(), param_name, 0.00001)
 	local resource = 1 / shot_dec
 	-- log3("resource %s for weapon %s", resource, obj:section())
 	return resource

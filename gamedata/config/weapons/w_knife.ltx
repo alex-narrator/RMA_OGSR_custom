@@ -6,22 +6,23 @@ $npc                		= off
 $prefetch 		    		= 8
 scheduled           		= off
 cform						= skeleton
-description					= enc_weapons1_wpn-knife
 
 ef_weapon_type				= 1
 
 class						= WP_KNIFE
 
 visual						= dynamics\weapons\wpn_knife\wpn_knife
-inv_name					= st_knife
 
-inv_name_short				= st_knife
+inv_name					= st_knife_6x4
+inv_name_short				= st_knife_6x4
+description					= st_knife_6x4_descr
+
 inv_weight					= 0.3
 
-inv_grid_width     = 2
-inv_grid_height    = 1
-inv_grid_x         = 0
-inv_grid_y         = 1
+inv_grid_width     			= 2
+inv_grid_height    			= 1
+inv_grid_x         			= 0
+inv_grid_y         			= 1
 
 show_ammo					= false
 
@@ -29,9 +30,9 @@ slot						= 0
 animation_slot				= 5
 hand_dependence		     	= 1
 single_handed				= 1
-;show_wpn_properties 		= false
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-condition_shot_dec_on_hit 	= 0.01  	;износ при попадании
+condition_shot_dec_on_hit 	= 0.02  	;износ при попадании
 min_condition_hit_part		= 0.1  		;минимальная доля хита при полном износе
 hit_type_zero_condition		= strike	;тип хита при полном износе
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -66,11 +67,11 @@ flame_particles			 	=
 rpm_empty_click 	     	= 200
 
 ; ttc	
-hit_power                	= 1.70, 1.90, 2.10, 2.30
+hit_power                	= 1;1.70, 1.90, 2.10, 2.30
 hit_impulse		         	= 45
 hit_type				 	= wound
 
-hit_power_2                	= 1.80, 2.00, 2.20, 2.40
+hit_power_2                	= 1.2;1.80, 2.00, 2.20, 2.40
 hit_impulse_2	         	= 55
 hit_type_2				 	= wound_2
 
@@ -106,73 +107,108 @@ zoom_enabled				= false
 
 weapon_remove_time			= 5000	;время уничтожения оружия (с учетом TimeFactor) для мультиплеера
 
-show_wpn_properties 		= false
+;show_wpn_properties 		= false
 
-disassemble_parts 				=
+disassemble_parts 			=
 
 [wpn_knife_nr40]:wpn_knife      
-inv_grid_x         = 0
-inv_grid_y         = 2
+inv_grid_y         			= 2
 		
-inv_name           = st_knife_needle
-inv_name_short     = st_knife_needle
-description        = st_knife_needle_descr
+inv_name           			= st_knife_nr40
+inv_name_short     			= st_knife_nr40
+description        			= st_knife_nr40_descr
         
-hud                = wpn_knife_nr40_hud
-visual             = dynamics\weapons\wpn_knife\wpn_knife_nr40
+hud                			= wpn_knife_nr40_hud
+visual             			= dynamics\weapons\wpn_knife\wpn_knife_nr40
+
+condition_shot_dec_on_hit 	= 0.01  	;износ при попадании
+
+hit_power                	= 1.2
+hit_power_2                	= 1.4
+
+fire_distance            	= 1.4
 
 [wpn_knife_hunting]:wpn_knife
-inv_grid_x         = 0
-inv_grid_y         = 3
+inv_grid_x         			= 0
+inv_grid_y         			= 3
 		
-inv_name           = st_knife_hunting
-inv_name_short     = st_knife_hunting
-description        = st_knife_hunting_descr
+inv_name           			= st_knife_hunting
+inv_name_short     			= st_knife_hunting
+description        			= st_knife_hunting_descr
 
-hud                = wpn_knife_hunting_hud
-visual             = dynamics\weapons\wpn_knife\wpn_knife_hunting
+hud                			= wpn_knife_hunting_hud
+visual             			= dynamics\weapons\wpn_knife\wpn_knife_hunting
+
+condition_shot_dec_on_hit 	= 0.005  	;износ при попадании
+
+hit_power                	= 1.1
+hit_power_2                	= 1.2
+
+fire_distance            	= 1.2
 
 [wpn_knife_swat]:wpn_knife
-inv_grid_x         = 0
-inv_grid_y         = 4
+inv_grid_x         			= 0
+inv_grid_y         			= 4
 		
-inv_name           = st_knife_swat
-inv_name_short     = st_knife_swat
-description        = st_knife_swat_descr
+inv_name           			= st_knife_swat
+inv_name_short     			= st_knife_swat
+description        			= st_knife_swat_descr
 
-hud                = wpn_knife_swat_hud
-visual             = dynamics\weapons\wpn_knife\wpn_knife_swat
+hud                			= wpn_knife_swat_hud
+visual             			= dynamics\weapons\wpn_knife\wpn_knife_swat
+
+condition_shot_dec_on_hit 	= 0.005  	;износ при попадании
+
+hit_power                	= 1.4
+hit_power_2                	= 1.6
+
+fire_distance            	= 1
 
 [wpn_knife_combat]:wpn_knife
-inv_grid_x         = 0
-inv_grid_y         = 5
+inv_grid_x         			= 0
+inv_grid_y         			= 5
 		
-inv_name           = st_knife_combat
-inv_name_short     = st_knife_combat
-description        = st_knife_combat_descr
+inv_name           			= st_knife_combat
+inv_name_short     			= st_knife_combat
+description        			= st_knife_combat_descr
         
-hud                = wpn_knife_combat_hud
-visual             = dynamics\weapons\wpn_knife\wpn_knife_combat
+hud                			= wpn_knife_combat_hud
+visual             			= dynamics\weapons\wpn_knife\wpn_knife_combat
+
+condition_shot_dec_on_hit 	= 0.001  	;износ при попадании
+
+hit_power                	= 1.6
+hit_power_2                	= 1.8
+
+fire_distance            	= 1.5
 
 [wpn_axe]:wpn_knife,wpn_axe_sounds       
-inv_grid_width     = 3
-inv_grid_height    = 1
-inv_grid_x         = 4
-inv_grid_y         = 2
+inv_grid_width     			= 3
+inv_grid_height    			= 1
+inv_grid_x         			= 4
+inv_grid_y         			= 2
 		
-inv_name           = st_axe
-inv_name_short     = st_axe
-description        = st_axe_descr
+inv_name           			= st_axe
+inv_name_short     			= st_axe
+description        			= st_axe_descr
         
-hud                = wpn_axe_hud
-visual             = dynamics\weapons\wpn_knife_m\wpn_axe
+hud                			= wpn_axe_hud
+visual             			= dynamics\weapons\wpn_knife_m\wpn_axe
 
-single_handed		= 0
-slot				= 1,2
+single_handed				= 0
+slot						= 1,2
+
+condition_shot_dec_on_hit 	= 0.01  	;износ при попадании
+min_condition_hit_part		= 0.5  		;минимальная доля хита при полном износе
+
+hit_power                	= 1.6
+hit_power_2                	= 1.8
+
+fire_distance            	= 1.8
 
 [wpn_axe2]:wpn_axe,wpn_axe_sounds
-inv_grid_x         = 4
-inv_grid_y         = 3
+inv_grid_x         			= 4
+inv_grid_y         			= 3
 		
 inv_name                    = st_axe2
 inv_name_short              = st_axe2
@@ -181,9 +217,14 @@ description                 = st_axe2_descr
 hud                         = wpn_axe2_hud
 visual                      = dynamics\weapons\wpn_axe\wpn_axe
 
+condition_shot_dec_on_hit 	= 0.005  	;износ при попадании
+
+hit_power                	= 2
+hit_power_2                	= 2
+
 [wpn_axe3]:wpn_axe2,wpn_axe_sounds
-inv_grid_x         = 4
-inv_grid_y         = 4
+inv_grid_x         			= 4
+inv_grid_y         			= 4
 		
 inv_name                    = st_axe3
 inv_name_short              = st_axe3
@@ -191,3 +232,8 @@ description                 = st_axe3_descr
         
 hud                         = wpn_axe3_hud
 visual                      = dynamics\weapons\wpn_axe\wpn_axe3
+
+condition_shot_dec_on_hit 	= 0.001  	;износ при попадании
+
+hit_power                	= 1.8
+hit_power_2                	= 2

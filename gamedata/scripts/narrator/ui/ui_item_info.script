@@ -216,7 +216,11 @@ function add_custom_info(UIDesc, obj)
 		attach_pda_owner_info(UIDesc, obj)
 	end	
 	if obj:is_weapon() then
-		atach_wpn_params(UIDesc, obj)
+		if obj:is_knife() then
+			atach_knife_params(UIDesc, obj)
+		else
+			atach_wpn_params(UIDesc, obj)
+		end
 	end
 	if obj:is_weapon_magazined() then
 		attach_loaded_ammo(UIDesc, obj)
@@ -595,21 +599,22 @@ function atach_wpn_params(UIDesc, obj)
 	
 	local xml = CScriptXmlInit()
 	xml:ParseFile("script_overlays\\weapon_params.xml")
-	local main = xml:InitStatic("wpn_params", UIDesc)
+	local name = "wpn_params"
+	local main = xml:InitStatic(name, UIDesc)
 	
-	local cap_dispersion 	= xml:InitStatic("wpn_params:cap_dispersion", main)
-	local cap_damage 		= xml:InitStatic("wpn_params:cap_damage", main)
-	local cap_speed 		= xml:InitStatic("wpn_params:cap_speed", main)
-	local cap_rpm 			= xml:InitStatic("wpn_params:cap_rpm", main)
-	local cap_range 		= xml:InitStatic("wpn_params:cap_range", main)
-	local cap_reliability 	= xml:InitStatic("wpn_params:cap_reliability", main)
+	local cap_dispersion 	= xml:InitStatic(name..":cap_dispersion", main)
+	local cap_damage 		= xml:InitStatic(name..":cap_damage", main)
+	local cap_speed 		= xml:InitStatic(name..":cap_speed", main)
+	local cap_rpm 			= xml:InitStatic(name..":cap_rpm", main)
+	local cap_range 		= xml:InitStatic(name..":cap_range", main)
+	local cap_reliability 	= xml:InitStatic(name..":cap_reliability", main)
 		
-	local progress_dispersion 	= xml:InitProgressBar("wpn_params:progress_dispersion", main)
-	local progress_damage 		= xml:InitProgressBar("wpn_params:progress_damage", main)
-	local progress_speed 		= xml:InitProgressBar("wpn_params:progress_speed", main)
-	local progress_rpm 			= xml:InitProgressBar("wpn_params:progress_rpm", main)
-	local progress_range 		= xml:InitProgressBar("wpn_params:progress_range", main)
-	local progress_reliability 	= xml:InitProgressBar("wpn_params:progress_reliability", main)
+	local progress_dispersion 	= xml:InitProgressBar(name..":progress_dispersion", main)
+	local progress_damage 		= xml:InitProgressBar(name..":progress_damage", main)
+	local progress_speed 		= xml:InitProgressBar(name..":progress_speed", main)
+	local progress_rpm 			= xml:InitProgressBar(name..":progress_rpm", main)
+	local progress_range 		= xml:InitProgressBar(name..":progress_range", main)
+	local progress_reliability 	= xml:InitProgressBar(name..":progress_reliability", main)
 	
 	local params = ui_wpn_params
 	
@@ -630,6 +635,43 @@ function atach_wpn_params(UIDesc, obj)
 	progress_damage:SetProgressPos(params.GetDamage(obj))
 	progress_speed:SetProgressPos(params.GetSpeed(obj))
 	progress_rpm:SetProgressPos(params.GetRPM(obj))
+	progress_range:SetProgressPos(params.GetRange(obj))
+	progress_reliability:SetProgressPos(params.GetReliability(obj))
+end
+
+------------------------------------------KNIFE PARAMS WND-----------------------------------------------------------------------------------------------------------------
+function atach_knife_params(UIDesc, obj)
+	if not read_if_exists(sys_ini, "r_bool", obj:section(), "show_wpn_properties", true) then
+	return end
+	
+	local xml = CScriptXmlInit()
+	local name = "knife_params"
+	xml:ParseFile("script_overlays\\knife_params.xml")
+	local main = xml:InitStatic(name, UIDesc)
+	
+	local cap_damage 		= xml:InitStatic(name..":cap_damage", main)
+	local cap_damage_2 		= xml:InitStatic(name..":cap_damage_2", main)
+	local cap_range 		= xml:InitStatic(name..":cap_range", main)
+	local cap_reliability 	= xml:InitStatic(name..":cap_reliability", main)
+		
+	local progress_damage 		= xml:InitProgressBar(name..":progress_damage", main)
+	local progress_damage_2 	= xml:InitProgressBar(name..":progress_damage_2", main)
+	local progress_range 		= xml:InitProgressBar(name..":progress_range", main)
+	local progress_reliability 	= xml:InitProgressBar(name..":progress_reliability", main)
+	
+	local params = ui_wpn_params
+	
+	local text = string.format("%s (%.1f)", cap_damage:GetText(), params.GetDamage(obj))
+	cap_damage:SetText(text)
+	text = string.format("%s (%.1f)", cap_damage_2:GetText(), params.GetDamage2(obj))
+	cap_damage_2:SetText(text)	
+	text = string.format("%s (%.1f)", cap_range:GetText(), params.GetRange(obj))
+	cap_range:SetText(text)	
+	text = string.format("%s (%.0f)", cap_reliability:GetText(), params.GetReliability(obj))
+	cap_reliability:SetText(text)		
+	
+	progress_damage:SetProgressPos(params.GetDamage(obj))
+	progress_damage_2:SetProgressPos(params.GetDamage(obj))
 	progress_range:SetProgressPos(params.GetRange(obj))
 	progress_reliability:SetProgressPos(params.GetReliability(obj))
 end
