@@ -259,7 +259,8 @@ function actor_binder:on_trade (item, sell_bye, money)
        game_stats.money_trade_update (money)
     else       
        game_stats.money_trade_update (-money) 
-    end   
+    end
+	self.sm:call("on_trade", item, sell_bye, money)
 end
 ----------------------------------------------------------------------------------------------------------------------
 function actor_binder:article_callback(npc, group, name, article_type, text)

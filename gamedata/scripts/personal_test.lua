@@ -322,3 +322,7 @@ log3("actor direction (%s, %s, %s)", actor:direction().x, actor:direction().y, a
 	-- level.iterate_nearest(actor:position(), 1, perform_action)
 	
 	actor:set_money(10000)
+local tgt = level.get_target_obj()
+if tgt then
+	tgt:set_money(10000)
+end

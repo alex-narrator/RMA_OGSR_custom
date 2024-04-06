@@ -210,7 +210,7 @@ function motivator_binder:use_callback(obj, who)
 	if self.object:alive() then
 		xr_use.notify_on_use(obj, who)
 		if self.st.active_section then
-			log3("~NPC %s, active section %s", obj:name(), self.st.active_section)
+			--log3("~NPC %s, active section %s", obj:name(), self.st.active_section)
 			xr_logic.issue_event(self.object, self.st[self.st.active_scheme], "use_callback", obj, who)
 		end
 	end
