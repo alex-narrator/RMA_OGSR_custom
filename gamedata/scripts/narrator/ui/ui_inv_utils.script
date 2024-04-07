@@ -332,6 +332,45 @@ function UpdateAmmoInBoxIcon(item, icon)
 	icon:AttachChild(ammo_in_box)
 end
 
+function UpdateArmorPlateIcon(item, icon)
+	if not item:is_outfit() then
+	return end
+	
+	local sect = item:section()
+	local armor_plate = icon:FindChild("armor_plate")
+	if armor_plate then
+		armor_plate:Show(vest_plates.can_detach_plate(item))
+		return
+	end
+	
+	if not vest_plates.can_detach_plate(item) then
+	return end
+	
+	local sect = item:section()
+	local plate_sect = item:binded_object():get_plate_sect()
+	
+	local params = CIconParams(plate_sect)
+	local icon_params = CIconParams(sect)
+	
+	local cell_w = icon:GetWidth() / icon_params.grid_width
+	local cell_h = icon:GetHeight() / icon_params.grid_height
+	local scale = read_if_exists(sys_ini, "r_float", sect, "plate_icon_scale", 0.7)
+	local width = params.grid_width * cell_w * scale
+	local height = params.grid_height * cell_h * scale
+	
+	armor_plate = CUIStatic()
+	params:set_shader(armor_plate)
+	
+	armor_plate:SetWidth(width)
+	armor_plate:SetHeight(height)
+	
+	local offset = GetOffset(read_if_exists(sys_ini, "r_string", sect, "plate_icon_offset", "center"), armor_plate, icon)
+
+	armor_plate:SetWndPos(offset.x, offset.y)
+	armor_plate:SetWindowName("armor_plate")
+	icon:AttachChild(armor_plate)
+end
+
 function UpdateMarkedIcon(item, icon)
 	local sect = item:section()
 	local marked_icon = icon:FindChild("marked_icon")
@@ -492,6 +531,7 @@ end
 function AttachRepairMenuIcons(item, icon)
 	icon:DetachAll()
 	UpdateWpnIcons(item, icon)
+	UpdateArmorPlateIcon(item, icon)
 	UpdateAmmoInBoxIcon(item, icon)
 	UpdateMarkedIcon(item, icon)
 	UpdateUpgrageIcon(item, icon)

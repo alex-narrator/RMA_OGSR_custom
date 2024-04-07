@@ -39,23 +39,36 @@ end
 recharge_effector_id = 20001
 
 function change_plate(obj, drop_on_obj)
-	drop_on_obj:binded_object():attach_plate(obj)
-	local plate_sect = obj:section()	
-	local recharge_sound = read_if_exists(sys_ini, "r_string", plate_sect, "use_sound", nil)
-	if recharge_sound then
-		xr_sound.get_safe_sound_object(recharge_sound,sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
-	end
+	local plate_sect = obj:section()
+	local action_delay = read_if_exists(sys_ini, "r_float", plate_sect, "use_delay", 2)
+	-- local change_plate_sound = read_if_exists(sys_ini, "r_string", plate_sect, "use_sound", nil)
+	-- if change_plate_sound then
+		-- xr_sound.get_safe_sound_object(change_plate_sound,sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
+	-- end
 	local effector = read_if_exists(sys_ini, "r_string", plate_sect, "use_effector", nil)
 	if effector then
 		level.remove_complex_effector(recharge_effector_id)
 		level.add_complex_effector(effector, recharge_effector_id)
 	end
+	if actor:is_in_slot(drop_on_obj) then
+		ballistic_plate_anim.play(obj)
+	else
+		ballistic_plate_anim.play_hud_sound(get_hud_sect(obj))
+	end
+
+	block_non_move_action(true)
+	add_time_delayed_action(action_delay, 
+		function()
+			drop_on_obj:binded_object():attach_plate(obj)
+			block_non_move_action(false)
+		end
+	)
 end
 
 
 --//script menu actions
 function detach_plate_tip(obj)
-	return string.format("%s %s", game.translate_string("st_detach_plate"), game.translate_string(get_inv_name(obj:binded_object():get_plate_sect())))
+	return string.format("%s %s", game.translate_string("st_detach"), game.translate_string(get_inv_name(obj:binded_object():get_plate_sect())))
 end
 function can_detach_plate(obj)
 	return is_plate_carrier(obj) and obj:binded_object() and obj:binded_object():is_plate_attached()

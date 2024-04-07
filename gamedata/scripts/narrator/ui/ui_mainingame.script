@@ -52,7 +52,7 @@ function MainIngameOverlay:Subscribe()
 			{signal = "on_item_to_loadout", self = self, fun = self.UpdateQuickSlots},
 			{signal = "on_item_from_loadout", self = self, fun = self.UpdateQuickSlots},
 			{signal = "on_slot", self = self, fun = self.UpdatePanelItems},
-			{signal = "on_ruck", self = self, fun = self.UpdatePanelItems},
+			{signal = "on_ruck", self = self, fun = self.UpdateQuickSlotsAndPanels},
 			{signal = "on_belt", self = self, fun = self.UpdatePanelItems},
 			{signal = "on_loadout_update_count", self = self, fun = self.UpdatePanelItems},
 			{signal = "on_hud_state_switch", self = self, fun = self.OnHudStateSwitch},

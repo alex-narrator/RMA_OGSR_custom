@@ -43,7 +43,7 @@ end
 
 --//script menu actions
 function detach_power_source_tip(obj)
-	return string.format("%s %s", game.translate_string("st_detach_power_source"), game.translate_string(get_inv_name(obj:binded_object():get_power_sect())))
+	return string.format("%s %s", game.translate_string("st_detach"), game.translate_string(get_inv_name(obj:binded_object():get_power_sect())))
 end
 function can_detach_power_source(obj)
 	return is_power_device(obj) and obj:binded_object():can_detach_power_source()

@@ -110,6 +110,10 @@ end
 function device_binder:init_power_source()
 	self.power_consumption = 1 / (self:get_work_time() * 3600)
 	self.last_update_time = false
+	if self:can_detach_power_source() then
+		local iitem = self.object:get_inventory_item()
+		iitem.inv_weight = iitem.inv_weight + sys_ini:r_float(self:get_power_sect(), "inv_weight")
+	end
 end
 
 function device_binder:is_working()
@@ -243,9 +247,10 @@ end
 
 function device_binder:detach_power_source()
 	local parent = self.object:parent()
-	local sobj = alife():create(self:get_power_sect(), parent:position(), parent:level_vertex_id(), parent:game_vertex_id(), parent:id())
+	local sobj = spawn_to_owner(self:get_power_sect(), parent:id())
 	local sobj_iitem = alife():object(sobj.id):get_inventory_item()
 	sobj_iitem.item_condition = self:get_power_level()
+	self.object:get_inventory_item().inv_weight = sys_ini:r_float(self.object:section(), "inv_weight")
 	self:set_power_level(0)
 	self.object:switch_power(false)
 	local detach_sound = read_if_exists(sys_ini, "r_string", self.object:section(), "use_sound", nil)

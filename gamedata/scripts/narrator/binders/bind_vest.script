@@ -81,7 +81,13 @@ end
 function vest_binder:init_plate()
 	local protection_sect = self:is_plate_attached() and self:get_protection_sect() or read_if_exists(sys_ini, "r_string", self.object:section(), "bones_koeff_protection", nil)
 	--log3("~init protection_sect %s", protection_sect)
-	self.object:get_inventory_item().bone_protection_sect = protection_sect
+	local iitem = self.object:get_inventory_item()
+	iitem.bone_protection_sect = protection_sect
+	if self:is_plate_attached() then
+		iitem.inv_weight = iitem.inv_weight + sys_ini:r_float(self:get_plate_sect(), "inv_weight")
+	else
+		iitem.inv_weight = sys_ini:r_float(self.object:section(), "inv_weight")
+	end
 end
 
 function vest_binder:can_attach(obj)
@@ -144,9 +150,9 @@ function vest_binder:attach_plate(plate)
 	self:set_plate_sect(self:get_plate_sect_num(plate:section()))
 	self:init_plate()
 	
-	if actor:is_in_slot(self.object) then
-		ballistic_plate_anim.play(plate)
-	end	
+	-- if actor:is_in_slot(self.object) then
+		-- ballistic_plate_anim.play(plate)
+	-- end	
 	
 	alife():release(alife():object(plate:id()), true)
 end
