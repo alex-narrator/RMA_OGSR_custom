@@ -80,7 +80,12 @@ function service(obj, drop_on_obj)
 	
 	local function make_service()
 		local cond_gain = read_if_exists(sys_ini, "r_float", rep_kit_sect, "repair_condition_gain", 0)
-		drop_on_obj:change_condition(cond_gain * get_rank_k())
+		local cond_add = cond_gain * get_rank_k()
+		local cond_start = drop_on_obj:condition()
+		drop_on_obj:change_condition(cond_add)
+		local cond_end = drop_on_obj:condition()
+		local text = string.format("%s %s %.1f%s", game.translate_string(get_inv_name(drop_on_obj:section())), game.translate_string("st_codition_gain"), (cond_end-cond_start)*100, "%")
+		news_manager.custom_news(game.translate_string("st_service_news_header"), text, "ui_icon_repair_tool")
 		local repair_count = read_if_exists(sys_ini, "r_float", rep_kit_sect, "repair_count", 0)
 		if repair_count > 0 then
 			obj:change_condition(-1/repair_count)
