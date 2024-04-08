@@ -74,7 +74,18 @@ function can_detach_plate(obj)
 	return is_plate_carrier(obj) and obj:binded_object() and obj:binded_object():is_plate_attached()
 end
 function detach_plate(obj)
-	obj:binded_object():detach_plate()
+	local vest = obj:binded_object()
+	local plate_sect = vest:get_plate_sect()
+	local action_delay = read_if_exists(sys_ini, "r_float", plate_sect, "use_delay", 2)
+	ballistic_plate_anim.play_hud_sound(get_hud_sect(plate_sect))
+	
+	block_non_move_action(true)
+	add_time_delayed_action(action_delay, 
+		function()
+			vest:detach_plate()
+			block_non_move_action(false)
+		end
+	)	
 end
 
 function attach_plate_tip(obj)

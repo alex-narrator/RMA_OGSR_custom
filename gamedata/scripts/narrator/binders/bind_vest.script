@@ -158,17 +158,12 @@ function vest_binder:attach_plate(plate)
 end
 
 function vest_binder:detach_plate()
-	local parent = self.object:parent()
-	local sobj = alife():create(self:get_plate_sect(), parent:position(), parent:level_vertex_id(), parent:game_vertex_id(), parent:id())
+	local sobj = spawn_to_owner(self:get_plate_sect(), self.object:parent():id())
 	local sobj_iitem = alife():object(sobj.id):get_inventory_item()
 	sobj_iitem.item_condition = self:get_plate_condition()
 	--log3("~plate cond %.2f on detach", self:get_plate_condition())
 	self.se_obj.cur_plate_num = 0
 	self:init_plate()
-	local detach_sound = read_if_exists(sys_ini, "r_string", self.object:section(), "use_sound", nil)
-	if detach_sound then
-		xr_sound.get_safe_sound_object(detach_sound,sound_object.s2d):play_no_feedback(parent, sound_object.s2d, 0, vector(), 1.0)
-	end
 end
 
 local immunity_type = {

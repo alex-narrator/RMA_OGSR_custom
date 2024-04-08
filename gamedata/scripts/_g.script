@@ -1580,7 +1580,8 @@ function hud_anim_exists(item, anim_name)
 end
 
 function get_hud_sect(item)
-	return read_if_exists(sys_ini, "r_string", item:section(), "hud", nil)
+	local sect = type(item) == "userdata" and item:section() or item
+	return read_if_exists(sys_ini, "r_string", sect, "hud", nil)
 end
 
 function math.clamp(val, _min, _max)
