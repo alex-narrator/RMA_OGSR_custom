@@ -593,7 +593,7 @@ function get_type(item)
 	if item:is_outfit() or item:is_helmet() or loadout.is_module(item) or item:get_container() then
 		return 3
 	end
-	if item:is_eatable_item() and not string.find(item:section(), "pda") then
+	if item:is_eatable_item() or read_if_exists(sys_ini, "r_bool", item:section(), "heal_injuries", false) then
 		return 4
 	end
 	if item:is_artefact() or string.find(item:section(), "mutant_") then

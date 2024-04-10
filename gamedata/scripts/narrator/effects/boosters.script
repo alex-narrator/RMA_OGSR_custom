@@ -20,10 +20,12 @@ end
 
 function on_booster_enable(booster)
 	m_boosters[booster.section] = booster.time
+	body_health.apply_pain_effect(booster.section, true)
 end
 
 function on_booster_disable(booster)
 	m_boosters[booster.section] = nil
+	body_health.apply_pain_effect(booster.section, false)
 end
 
 function get_all()

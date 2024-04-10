@@ -539,6 +539,7 @@ end
 
 function actor_binder:on_death(victim, killer)
 	self.sm:call("on_death", victim, killer)
+	self.sm:call("on_death_actor", victim, killer)
 end
 
 function actor_binder:on_ruck(obj, prev_place)

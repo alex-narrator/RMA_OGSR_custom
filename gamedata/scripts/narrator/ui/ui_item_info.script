@@ -447,10 +447,13 @@ local boost_params = {
 	{st_name = "explosion_boost", 		param_name = "ui_inv_explosion_protection"},
 	{st_name = "fire_wound_boost", 		param_name = "ui_inv_fire_wound_protection"},
 	{st_name = "somnolence", 			param_name = "ui_inv_somnolence"},
+	{st_name = "painkiller", 			param_name = "ui_inv_painkiller"},
+	{st_name = "boost_time", 			param_name = "ui_inv_boost_time"},
 }
 local boost_st = {}
 function attach_booster_params(UIDesc, item)
 	local eatable = item:get_eatable_item()
+	local sect = item:section()
 	local val, sn, text, color
 	local show = false
 	
@@ -460,36 +463,39 @@ function attach_booster_params(UIDesc, item)
 	boost_st = {}
 	local params_list = xml:InitScrollView("params_list", UIDesc)
 	for k,v in ipairs(boost_params) do
-		val = v.st_name == "somnolence" and somnolence.get_boost(item) or eatable:get_boost(k-1)
+		if v.st_name == "somnolence" then
+			val = somnolence.get_boost(item)
+		elseif v.st_name == "painkiller" then
+			val = read_if_exists(sys_ini, "r_float", sect, "boost_pain", 0)
+		elseif v.st_name == "boost_time" then
+			val = read_if_exists(sys_ini, "r_float", sect, "boost_time", 0)
+		else
+			val = eatable:get_boost(k-1)
+		end
 		-- log3("item %s | boost val %s | boost type %s", item:name(), val, v.st_name)
 		if val ~= 0 then
-			sn = "%"
-			val = val * 100
-			boost_st[k] = CUIStatic()--xml:InitStatic(v.st_name, params_list)
+			sn = v.st_name == "boost_time" and game.translate_string("st_time_minute") or "%"
+			val = v.st_name == "boost_time" and val or val * 100
+			boost_st[k] = CUIStatic()
 			boost_st[k]:SetTextComplexMode(true)
 			boost_st[k]:SetWidth(params_list:GetDesiredChildWidth())
 			color = val > 0 and "%c[green]" or "%c[red]"
-			if v.st_name == "max_power" or v.st_name == "radiation" or v.st_name == "somnolence" then
+			if v.st_name == "max_power" or v.st_name == "radiation" or v.st_name == "somnolence" or v.st_name == "painkiller" then
 				color = val > 0 and "%c[red]" or "%c[green]"
+			elseif v.st_name == "boost_time" then
+				color = "%c[UI_orange]"
 			end
-			text = string.format("%s%s %s %+.1f %s",game.translate_string("st_list_mark"), game.translate_string(v.param_name), color, val, sn)
+			if v.st_name == "boost_time" then
+				text = string.format("%s%s %s %.0f %s",game.translate_string("st_list_mark"), game.translate_string(v.param_name), color, val, sn)
+			else
+				text = string.format("%s%s %s %+.1f %s",game.translate_string("st_list_mark"), game.translate_string(v.param_name), color, val, sn)
+			end
 			boost_st[k]:SetText(text)
 			boost_st[k]:AdjustHeightToText()
 			params_list:AddWindow(boost_st[k])
 			show = true
 		end
 	end
-	--boost time
-	boost_st["boost_time"] = CUIStatic()--xml:InitStatic("boost_time", params_list)
-	boost_st["boost_time"]:SetTextComplexMode(true)
-	boost_st["boost_time"]:SetWidth(params_list:GetDesiredChildWidth())
-	val = read_if_exists(sys_ini, "r_float", item:section(), "boost_time", 0)
-	color = "%c[UI_orange]"
-	text = string.format("%s%s %s%.f %s", game.translate_string("st_list_mark"), game.translate_string("ui_inv_boost_time"), color, val, game.translate_string("st_time_minute"))
-	boost_st["boost_time"]:SetText(text)
-	boost_st["boost_time"]:AdjustHeightToText()
-	params_list:AddWindow(boost_st["boost_time"])
-	--
 	params_list:SetHeight(params_list:GetPadSize().y)
 	if not show then
 		params_list:Show(false)

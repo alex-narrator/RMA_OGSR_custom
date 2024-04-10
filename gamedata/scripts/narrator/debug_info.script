@@ -34,12 +34,13 @@ function on_key_press(key, game_action)
 	local show_tgt_info = (game_action == key_bindings.kCHECKACTIVEITEM) and level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION))
 	local tgt = level.get_target_obj()
 	if show_tgt_info and tgt then
-		local tgt_info = string.format("section: %s\\n id: %s\\n story_id: %s\\n name: %s\\n profile: %s\\n species: %s\\n nonscript usable: %s\\n position: (%s, %s, %s) lvid: %s gvid: %s\\n visual: %s\\n gulag: %s\\n mesh count: %s",
+		local tgt_info = string.format("section: %s\\n id: %s\\n story_id: %s\\n name: %s\\n profile: %s\\n community: %s\\n species: %s\\n nonscript usable: %s\\n position: (%s, %s, %s) lvid: %s gvid: %s\\n visual: %s\\n gulag: %s\\n mesh count: %s",
 				tgt:section(), 
 				tgt:id(), 
-				tgt:story_id(), 
+				tgt:story_id() == NO_STORY_ID and "NO STORY ID" or tgt:story_id(), 
 				tgt:name(), 
 				tgt:profile_name() and tgt:profile_name() or "NO PROFILE", 
+				tgt:character_community() or "NO COMMUNITY",
 				get_species(tgt),
 				tgt:is_nonscript_usable(),
 				tgt:position().x, tgt:position().y, tgt:position().z,

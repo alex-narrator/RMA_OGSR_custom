@@ -54,7 +54,7 @@ function use_item_effects(obj, user)
 	--sounds
 	local snd_name = read_if_exists(sys_ini, "r_string", sect, "use_sound", nil)
 	if snd_name then
-		xr_sound.get_safe_sound_object(snd_name,sound_object.s2d):play_no_feedback(user, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(user,user:position())
+		xr_sound.get_safe_sound_object(snd_name,sound_object.s2d):play_no_feedback(user, sound_object.s2d, 0, vector(), 1.0)
 	end
 	--тільки для актора
 	if user:is_actor() then
@@ -68,7 +68,7 @@ function use_item_effects(obj, user)
 			level.remove_complex_effector(use_effector_id)
 			level.add_complex_effector(eff_name, use_effector_id)
 		end
-		somnolence.apply_influence(obj)	
+		somnolence.apply_influence(obj)
 	end
 end
 

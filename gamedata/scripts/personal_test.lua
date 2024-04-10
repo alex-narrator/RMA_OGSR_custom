@@ -10,15 +10,15 @@
 	-- gasmask:set_condition(0.91)
 -- end
 
--- local h = hit()
--- h.draftsman = actor 
--- h.type = hit.fire_wound 
--- h.direction = vector():set(0,0,0) 
--- h:bone("bip01_head")
--- h.power = 0.1
--- h.impulse = 0.0 
--- --h.ap = 1
--- actor:hit(h)
+local h = hit()
+h.draftsman = actor 
+h.type = hit.fire_wound 
+h.direction = vector():set(0,0,0) 
+h:bone("bip01_l_upperarm")
+h.power = 0.6
+h.impulse = 0.0 
+--h.ap = 1
+actor:hit(h)
 
 -- actor.health = 1
 --actor.power = -actor.power
@@ -328,3 +328,12 @@ log3("actor direction (%s, %s, %s)", actor:direction().x, actor:direction().y, a
 -- end
  
 --spawn_to_level("mounted_weapon", actor:position(), level.name(), actor:direction())
+
+-- for i=0, 999 do
+	-- local bone_name = actor:get_bone_name(i)
+	-- if bone_name then
+		-- log3("~[%s] bone name %s", i, bone_name)
+	-- else
+		-- break
+	-- end
+-- end

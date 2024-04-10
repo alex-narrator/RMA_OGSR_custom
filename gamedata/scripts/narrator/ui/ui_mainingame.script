@@ -236,6 +236,7 @@ function MainIngameOverlay:InitControls()
 		{ name = "somnolence", 	val = function() return somnolence.get_val() end },		
 		{ name = "godmode", 	val = function() return get_console():get_string("g_god") == "on" end },
 		{ name = "safehouse", 	val = function() return actor:has_info("safehouse") end },
+		{ name = "limbs_injure", val = function() return body_health.get_injured_limb() end },
 	}
 	for k,v in ipairs(self.warning_icons) do
 		v.icon = xml:InitStatic("icons_back:"..v.name, self.warning_icons_back)
@@ -285,7 +286,26 @@ function MainIngameOverlay:UpdateWarningIcons()
 		if DEBUG_WARNING_SHOW then
 			v.icon:Show(true)
 		elseif not v.threshold then
-			v.icon:Show(v.val())
+			if v.name == "limbs_injure" then
+				v.icon:Show(v.val() ~= "none")
+				if v.icon:IsShown() then
+					local actual_icon = "ui_hud_trauma_"..v.val()
+					if self.limbs_injure_icon ~= actual_icon then
+						v.icon:InitTexture(actual_icon)
+						self.limbs_injure_icon = actual_icon
+					end
+					color = GetARGB(100, 238, 153, 26)
+					local pain_eff = body_health.get_pain_effect()
+					if pain_eff > 0 then
+						color = GetARGB(100, 255, 0, 0)
+					elseif pain_eff < 0 then
+						color = GetARGB(100, 0, 255, 0)
+					end
+					v.icon:SetColor(color)
+				end
+			else
+				v.icon:Show(v.val())
+			end
 		else
 			size = table.size(v.threshold)
 			_min = v.threshold[1]

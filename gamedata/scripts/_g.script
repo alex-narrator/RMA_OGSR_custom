@@ -2031,3 +2031,20 @@ end
 function get_species(npc)
 	return read_if_exists(sys_ini, "r_string", npc:section(), "species", "NO SPECIES")
 end
+
+local immunity_type = {
+	"burn",
+	"shock",
+	"strike",
+	"wound",
+	"radiation",
+	"telepatic",
+	"chemical_burn",
+	"explosion",
+	"fire_wound",
+	"wound_2",
+	"physic_strike",
+}
+function get_hit_type_name(hit_type)
+	return immunity_type[hit_type+1]
+end
