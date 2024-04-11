@@ -497,6 +497,11 @@ function ActorMenuOverlay:UpdateTooltip()
 	self.tooltip_frame:SetWndPos(pos.x, pos.y)	
 end
 
+
+local add_st = {
+	["boost_somnolence"] 	= { name = "ui_inv_somnolence", static = "static_somnolence" },
+	["boost_pain"] 			= { name = "ui_inv_painkiller", static = "static_pain" },
+}
 function ActorMenuOverlay:OnActorInfoUpdate(info_scroll_view)
 	if self:GetMode() ~= "inventory" then
 	return end
@@ -504,11 +509,7 @@ function ActorMenuOverlay:OnActorInfoUpdate(info_scroll_view)
 	local xml = CScriptXmlInit()
 	xml:ParseFile("inventory_new.xml")
 	
-	local val, name, color, add_static
-	local add_st = {
-		["boost_somnolence"] 	= { st = "ui_inv_somnolence", static = "static_somnolence" },
-		["boost_pain"] 			= { st = "ui_inv_painkiller", static = "static_pain" },
-	}
+	local val, color, add_static
 	for b_sect,b_time in pairs(boosters.get_all()) do
 		for param_name,v in pairs(add_st) do
 			val = read_if_exists(sys_ini, "r_float", b_sect, param_name, 0)
@@ -516,7 +517,7 @@ function ActorMenuOverlay:OnActorInfoUpdate(info_scroll_view)
 				val = val * 100
 				color = val > 0 and "%c[red]" or "%c[green]"
 				add_static = xml:InitStatic("outfit_info:"..v.static, info_scroll_view)
-				text = string.format("%s %s %+.1f %s [%.0f %s]", game.translate_string(v.st), color, val, "%", b_time, game.translate_string("st_time_minute"))
+				text = string.format("%s %s %+.1f%s [%.0f %s]", game.translate_string(v.name), color, val, "%", b_time, game.translate_string("st_time_minute"))
 				add_static:SetText(text)
 			end
 		end

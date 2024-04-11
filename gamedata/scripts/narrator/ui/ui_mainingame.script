@@ -608,7 +608,7 @@ function MainIngameOverlay:UpdateActiveItem()
 		end
 		text = string.format("%s", val)
 		if has_fire_modes(act_item) or act_item:get_gl_mode() then
-			text = string.format("%s%s", val, wpn:firemod_string())
+			text = string.format("%s %s", val, get_fire_mode_str(act_item))
 		end
 		self.active_item:SetText(text)
 		

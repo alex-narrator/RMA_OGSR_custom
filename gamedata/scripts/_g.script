@@ -1737,6 +1737,22 @@ function has_fire_modes(wpn)
     return f_modes_str and #split_string(f_modes_str, ",") > 1
 end
 
+function get_fire_mode_str(wpn)
+	if wpn:get_gl_mode() then
+		return string.format("(%s)", game.translate_string("st_gl_firemode"))
+	end
+	local f_modes_str = read_if_exists(sys_ini, "r_string", wpn:section(), "fire_modes", nil)
+	if not f_modes_str then
+		return ""
+	end
+	local firemode_tbl = split_string(f_modes_str, ",")
+    local wpn_m = wpn:get_weapon_m()
+	local cur_firemode = wpn:get_weapon_m().cur_fire_mode
+	local res = firemode_tbl[cur_firemode+1]
+	res = (tonumber(res) ~= -1) and res or "A"
+	return string.format("(%s)", res)
+end
+
 function get_cur_ammo_sect(obj)
 	local ammo_sect = read_if_exists(sys_ini, "r_string", obj:section(), obj:get_gl_mode() and "grenade_class" or "ammo_class", nil)
 	local ammo_table = split_string(ammo_sect, ",")

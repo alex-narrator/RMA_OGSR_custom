@@ -19,7 +19,7 @@ function update_custom_icons(item, cell_item, count)
 	
 	local weapon_mag = item:get_weapon_m()
 	if weapon_mag and weapon_mag.ammo_mag_size > 0 then
-		text = string.format("%s/%s%s", weapon_mag.ammo_elapsed, weapon_mag.ammo_mag_size, (has_fire_modes(item) or item:get_gl_mode()) and weapon_mag:firemod_string() or "")
+		text = string.format("%s/%s%s", weapon_mag.ammo_elapsed, weapon_mag.ammo_mag_size, get_fire_mode_str(item))
 	end
 	
 	if item:get_container() and item:get_inventory_item():item_effect(effect.add_weight) > 0 then

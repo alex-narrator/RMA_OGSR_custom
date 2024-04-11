@@ -175,15 +175,14 @@ function prepair(item)
 	if vest_plates.can_detach_plate(item) then
 		vest_plates.detach_plate(item)
 	end
-	local wpn = item:get_weapon()
-	local wpn_m = item:get_weapon_m()
+	local wpn = item:get_weapon_m()
 	if wpn then
 		item:unload_weapon_full()
 		local addon_name
 		for k,v in pairs(addon_type) do
 			local i = k-1
 			if wpn:is_addon_attached(i) and wpn:addon_attachable(i) then
-				wpn_m:detach_addon(wpn:get_addon_name(i), true)
+				wpn:detach_addon(wpn:get_addon_name(i), true)
 			end
 		end
 	end
@@ -317,6 +316,8 @@ function saw_off_item(tool, item)
 	snd:play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 	
 	local action_delay = snd:length() * 0.001
+	
+	prepair(item)
 	
 	local function make_saw_off()
 		item:get_weapon_m():respawn_weapon(sys_ini:r_string(sect, "sawed_off"))
