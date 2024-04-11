@@ -218,6 +218,31 @@ function UpdateAdditionalStatic(icon, text)
 	update(icon_custom)
 end
 
+function UpdateAdditionalText(item, icon)
+	local text = read_if_exists(sys_ini, "r_string", item:section(), "icon_text", nil)
+	if not text then
+	return end
+	text = game.translate_string(text)
+	
+	local function update(static)
+		local offset = GetOffset("right_top", static, icon)
+		static:SetText(text)
+		static:SetWndPos(offset.x, offset.y)
+		icon:BringToTop(static)
+	end
+
+	local icon_text = icon:FindChild("icon_text")
+	if icon_text then
+		icon_text = icon_text:GetCUIStatic()
+		update(icon_text)
+	return end
+	local xml = CScriptXmlInit()
+	xml:ParseFile(OVERLAY_XML)
+	icon_text = xml:InitStatic("icon_text", icon)
+	icon_text:SetWindowName("icon_text")
+	update(icon_text)
+end
+
 function UpdateCellItemCount(icon, count)
 	if not count or count <= 1 then
 	return end
@@ -544,6 +569,7 @@ end
 function AttachPanelIcons(item, icon)
 	icon:DetachAll()
 	UpdateWpnIcons(item, icon)
+	UpdateAdditionalText(item, icon)
 	UpdateAmmoInBoxIcon(item, icon)
 	--UpdateMarkedIcon(item, icon)
 	UpdateUpgrageIcon(item, icon)
