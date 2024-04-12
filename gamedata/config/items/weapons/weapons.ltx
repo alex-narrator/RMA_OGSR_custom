@@ -1,0 +1,99 @@
+#include "weapon_base.ltx"
+
+#include "magazines.ltx"
+#include "addon_scope.ltx"
+#include "w_binoc.ltx"
+#include "w_binoc_scope.ltx"
+#include "addon_silencer.ltx"
+#include "addon_launcher.ltx"
+#include "addon_light_laser.ltx"
+#include "addon_extender.ltx"
+
+#include "addon_group.ltx"
+
+#include "delayed_action_fuse.ltx"
+#include "w_ak74.ltx"
+#include "w_ak74u.ltx"
+#include "w_fn2000.ltx"
+#include "w_rpg7.ltx"
+#include "w_knife.ltx"
+#include "w_bolt.ltx"
+
+#include "w_f1.ltx"
+#include "w_gd_05.ltx"
+#include "w_rgd5.ltx"
+#include "w_rg6.ltx"
+#include "w_rgo.ltx"
+#include "w_rgn.ltx"
+
+#include "w_vintorez.ltx"
+#include "w_lr300.ltx"
+#include "w_mp5.ltx"
+#include "w_val.ltx"
+
+#include "w_gauss.ltx"
+#include "w_groza.ltx"
+#include "w_hpsa.ltx"
+#include "w_pm.ltx"
+#include "w_pb.ltx"
+#include "w_walther.ltx"
+#include "w_usp.ltx"
+#include "w_fort.ltx"
+#include "w_toz34.ltx"
+#include "w_svd.ltx"
+#include "w_svu.ltx"
+#include "w_l85.ltx"
+#include "w_bm16.ltx"
+#include "w_spas12.ltx"
+#include "w_wincheaster1300.ltx"
+#include "w_mounted.ltx"
+#include "w_colt1911.ltx"
+#include "w_beretta.ltx"
+#include "w_desert_eagle.ltx"
+#include "w_sig220.ltx"
+#include "w_sig550.ltx"
+#include "w_abakan.ltx"
+#include "w_g36.ltx"
+
+#include "w_pkm.ltx"
+#include "w_protecta.ltx"
+
+#include "w_mp412.ltx"
+
+#include "weapons_ammo.ltx"
+#include "weapons_explosive.ltx"
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Огнестрельное оружие
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+[bullet_manager]
+tracer_width					= 0.8
+tracer_length_max				= 10.0	;24.0 ;14.0	
+tracer_length_min				= 2		;0.2
+
+;расстояние после которого учитывается hit_probabilty полностью
+hit_probability_max_dist		= 10;
+
+gravity_const					= 9.81
+;сопротивление воздуха, процент, который отнимается от скорости полета пули
+air_resistance_k				= 0.5;0.3
+
+;размер шага времени (в милисекундах), по которому проигрываются 
+time_step						= 33
+;минимальная скорость (м/с), на которой пуля еще считается и показывается
+min_bullet_speed				= 3.0
+;cколько процентов энергии потеряет пуля при столкновении с материалом (при падении под прямым углом)
+collision_energy_min			= 0.80 ;0.75; 0.90
+;сколько процентов энергии останется у пули при любом столкновении
+collision_energy_max			= 0.5 ;0.7;0.50
+
+whine_sounds					= weapons\whine\whine_1, weapons\whine\whine_2, weapons\whine\whine_3, weapons\whine\whine_4, weapons\whine\whine_5, weapons\whine\whine_6, weapons\whine\whine_7, weapons\whine\whine_8, weapons\whine\whine_9, weapons\whine\whine_10, weapons\whine\whine_11, weapons\whine\whine_12, weapons\whine\whine_13, weapons\whine\whine_14
+explode_particles				= explosions\expl_bullet,explosions\expl_bullet_00,explosions\expl_bullet_01
+
+
+[tracers_color_table]	;color_table
+color_0 = 1.0, 0.54, 0.0	; yellow
+color_1 = 1.0, 1.0, 1.0	; white
+color_2 = 1.0, 0.1, 0.0	; red
+color_3 = 0.3, 1.0, 0.3	; green
+color_4 = 0.0, 0.0, 0.1 ; blue

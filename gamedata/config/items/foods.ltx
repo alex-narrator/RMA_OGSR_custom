@@ -1,0 +1,212 @@
+[food_base]:identity_immunities,quick_item
+GroupControlSection	= spawn_group
+discovery_dependency =
+class				= II_FOOD
+cform				= skeleton
+; food item
+animation_slot		= 4
+;hud item
+hud = wpn_vodka_hud
+
+default_to_ruck 	= true
+; belt = true
+; vest = true
+
+menu_use_tip 		= st_eat
+breakable 			= true
+use_condition 		= true
+helmet_use 			= false
+
+inv_grid_width		= 1
+inv_grid_height		= 1
+icon_group 			= 4
+
+; radiation_accum_factor = 0.1
+; radiation_accum_limit = 1
+
+[bread]:food_base,corruptible
+$spawn 				= "food and drugs\bread"
+visual				= weapons\bred\bred
+
+inv_name			= st_bread_name
+inv_name_short		= st_bread_short
+description			= st_bread_descr
+
+inv_weight			= 0.3	;0.2
+
+inv_grid_x			= 0
+inv_grid_y			= 0
+cost				= 20
+
+attach_angle_offset		= -0.287979, 1.560923, 1.544060
+attach_position_offset	= 0.096910, -0.013594, 0.107925
+attach_bone_name		= bip01_r_hand
+auto_attach				= false
+
+// should be deleted after update
+bone_name				= bip01_r_hand
+position_offset			 = 0.0,0.0,0.0
+angle_offset			 = 1.570790,1.570790,3.92699
+
+; eatable item
+eat_satiety = 0.2
+eat_portions_num = 2
+
+boost_satiety = 0.2
+boost_time = 30
+
+hud 				= bread_hud
+
+[kolbasa]:food_base,corruptible
+$spawn 				= "food and drugs\kolbasa"
+$prefetch 			= 8
+visual				= weapons\kolbasa\kolbasa
+
+inv_name			= st_kolbasa_name
+inv_name_short		= st_kolbasa_short
+description			= st_kolbasa_descr
+
+inv_weight			= 0.5
+
+inv_grid_x			= 1
+inv_grid_y			= 0
+cost				= 50
+
+attach_angle_offset		= 0.440521, 1.378287, -0.644026
+attach_position_offset	= 0.104196, -0.010821, 0.076969
+attach_bone_name		= bip01_r_hand
+auto_attach				= false
+
+// should be deleted after update
+bone_name				= bip01_r_hand
+position_offset			 = 0.0,0.0,0.0
+angle_offset			 = 1.570790,1.570790,3.92699
+
+; eatable item
+eat_satiety = 0.3
+
+boost_satiety = 0.3
+boost_time = 30
+
+hud = kolbasa_hud
+
+[conserva]:food_base
+$spawn 				= "food and drugs\conserva"
+visual				= food\conserv1
+
+inv_name			= st_conserva_name
+inv_name_short		= st_conserva_short
+description			= st_conserva_descr
+
+inv_weight			= 0.5
+
+inv_grid_x         = 2
+inv_grid_y         = 0
+cost				= 100
+
+; eatable item
+eat_satiety = 0.4
+boost_satiety = 0.4
+boost_time = 30
+
+radiation_accum_factor = 0.01
+
+attach_angle_offset		= 0.440521, 1.378287, -0.644026
+attach_position_offset	= 0.104196, -0.010821, 0.076969
+attach_bone_name		= bip01_r_hand
+auto_attach				= false
+
+// should be deleted after update
+bone_name				= bip01_r_hand
+position_offset			 = 0.0,0.0,0.0
+angle_offset			 = 1.570790,1.570790,3.92699
+
+hud 				= conserva_hud
+
+[vodka]:food_base
+GroupControlSection	= spawn_group
+discovery_dependency =
+$spawn 				= "food and drugs\vodka"
+;$prefetch 			= 32
+class				= II_BOTTL
+cform				= skeleton
+visual				= weapons\vodka\vodka
+
+ef_weapon_type		= 0
+
+inv_name			= st_vodka_name
+inv_name_short		= st_vodka_short
+description			= st_vodka_descr
+
+inv_weight			= 0.5	;0.2
+
+inv_grid_width     = 1
+inv_grid_height    = 2
+inv_grid_x         = 5
+inv_grid_y         = 0
+cost				= 100
+
+attach_angle_offset		= 0.000000, 0.000000, 0.000000
+attach_position_offset	= 0.087266, -0.078540, 0.052360
+attach_bone_name		= bip01_r_hand
+auto_attach				= false
+
+// should be deleted after update
+bone_name				= bip01_r_hand
+position_offset			 = 0.0,0.0,0.0
+angle_offset			 = 1.570790,1.570790,3.92699
+
+; eatable item
+eat_satiety			= -0.01
+eat_alcohol			= 0.066
+eat_portions_num 	= 5
+
+boost_satiety 		= -0.2
+boost_alcohol 		= 0.01
+boost_time 			= 30
+
+menu_use_tip 		= st_drink
+
+break_particles		= explosions\explosion_bottle
+break_sound			= material\bottle\collide\bottle_break_1
+
+hud 				= vodka_hud
+
+[energy_drink]:food_base
+$spawn 				= "food and drugs\energy_drink"
+class				= II_BOTTL
+cform				= skeleton
+
+visual				= equipments\drink_nonstop ;equipments\drink_stalker
+cost				= 75
+
+inv_name			= st_energy_drink_name
+inv_name_short		= st_energy_drink_short
+description			= st_energy_drink_descr
+
+inv_grid_x			= 3
+inv_grid_y			= 0
+inv_weight			= 0.3
+
+menu_use_tip 		= st_drink
+
+eat_portions_num 	= 1
+
+eat_power			= 1.0
+eat_somnolence 		= -0.2
+
+boost_satiety 		= -0.2
+boost_somnolence 	= -0.1
+boost_power 		= 2
+boost_sprint 		= 0.1
+boost_jump 			= 0.1
+boost_weight 		= 0.1
+
+boost_time = 30
+
+attach_angle_offset		= 0.000000, 0.000000, 0.000000
+attach_position_offset	= 0.087266, -0.078540, 0.052360
+attach_bone_name		= bip01_r_hand
+auto_attach				= false
+
+hud 				= energy_drink_nonstop_hud

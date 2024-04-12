@@ -1,0 +1,304 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;	MEDICAL
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+[drugs_base]:identity_immunities,quick_item
+class				= II_MEDKI
+cform				= skeleton
+
+inv_weight			= 0.1	;0.2
+
+default_to_ruck = true
+; belt = true
+; vest = true
+use_condition = true
+breakable = true
+
+inv_grid_width		= 1
+inv_grid_height		= 1
+inv_grid_x         	= 0
+inv_grid_y         	= 0
+icon_group 			= 4
+
+;radiation_accum_factor = 0.1
+;radiation_accum_limit = 1
+
+[antirad]:drugs_base
+GroupControlSection	= spawn_group
+discovery_dependency =
+$spawn 			= "food and drugs\antirad"
+$prefetch 		= 32
+class			= II_ANTIR
+cform           = skeleton
+visual          = equipments\item_antirad
+
+inv_name			= st_antirad_name
+inv_name_short		= st_antirad_short
+description			= st_antirad_descr
+
+inv_grid_x         = 0
+inv_grid_y         = 4
+cost				= 300
+
+; eatable item
+eat_portions_num 	= 1
+
+boost_radiation_protection = 0.5
+boost_satiety 		= -0.1
+boost_time 			= 30
+
+; food item
+animation_slot		= 4
+
+;hud item
+hud 				= antirad_hud
+
+[medkit]:drugs_base
+GroupControlSection	= spawn_group
+discovery_dependency =
+$spawn 				= "food and drugs\medkit"
+$prefetch 			= 8
+visual				= equipments\item_aptechka
+
+inv_name			= st_medkit_name
+inv_name_short		= st_medkit_short
+description			= st_medkit_descr
+
+icon_text 			= st_medkit_short
+
+inv_weight			= 0.3	;0.2
+
+inv_grid_x			= 0
+inv_grid_y			= 2
+cost				= 150
+
+; eatable item
+eat_portions_num	= 1
+boost_pain 			= -0.5
+boost_health 		= 3
+boost_time 			= 10
+
+; food item
+animation_slot		= 4
+
+;boost_effector = effector_nightvision_good
+
+;hud item
+hud 				= medkit_hud
+
+[medkit_army]:drugs_base
+GroupControlSection	= spawn_group
+discovery_dependency =
+$spawn 				= "food and drugs\medkit_army"
+$prefetch 			= 8
+visual				= equipments\item_aptechka3
+
+inv_name			= st_medkit_army_name
+inv_name_short		= st_medkit_army_short
+description			= st_medkit_army_descr
+
+icon_text 			= st_medkit_army_short
+
+inv_weight			= 0.3	;0.2
+
+inv_grid_x			= 2
+inv_grid_y			= 2
+cost				= 220
+
+; eatable item
+eat_power			= 0.25
+eat_wounds_heal		= 0.3
+eat_portions_num	= 1
+boost_health 		= 4
+boost_time 			= 15
+; food item
+animation_slot		= 4
+;hud item
+hud 				= medkit_army_hud
+
+[medkit_scientic]:drugs_base
+GroupControlSection	= spawn_group
+discovery_dependency =
+$spawn 				= "food and drugs\medkit_scientic"
+$prefetch 			= 8
+visual				= equipments\item_aptechka2
+
+inv_name			= st_medkit_science_name
+inv_name_short		= st_medkit_science_short
+description			= st_medkit_science_descr
+
+icon_text 			= st_medkit_science_short
+
+inv_weight			= 0.3	;0.2
+
+inv_grid_x			= 1
+inv_grid_y			= 2
+cost				= 200
+
+; eatable item
+;eat_health			= 1.0
+;eat_satiety			= 0
+;eat_power			= 0.0
+;eat_radiation		= -1.0
+eat_wounds_heal		= 0.2
+eat_portions_num	= 1
+;eat_max_power		= 0.1
+boost_health = 3
+boost_time = 15
+; food item
+animation_slot		= 4
+;hud item
+hud 				= medkit_scientic_hud
+
+[bandage]:drugs_base
+GroupControlSection	= spawn_group
+discovery_dependency =
+$spawn 				= "food and drugs\bandage"
+$prefetch 			= 8
+class				= II_BANDG
+cform				= skeleton
+visual				= equipments\item_bandage
+
+inv_name			= st_bandage_name
+inv_name_short		= st_bandage_short
+description			= st_bandage_descr
+
+icon_text 			= st_bandage_short
+
+inv_grid_x			= 0
+inv_grid_y			= 3
+cost				= 20
+; eatable item
+eat_wounds_heal 	= 1.0
+eat_portions_num 	= 1
+; food item
+animation_slot		= 4
+;hud item
+hud 				= bandage_hud
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;boosters from COP;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+[drug_booster]:drugs_base
+$spawn 				= "food and drugs\drug_booster"
+visual				= dynamics\equipments\medical\drug_booster
+
+inv_name			= st_drug_booster_name
+inv_name_short		= st_drug_booster_short
+description			= st_drug_booster_descr
+
+inv_grid_x			= 4
+inv_grid_y			= 0
+cost				= 200
+
+boost_time			= 30
+boost_weight		= 0.5
+
+hud 				= booster_hud
+
+[drug_coagulant]:drugs_base
+$spawn 				= "food and drugs\drug_coagulant"
+visual				= dynamics\equipments\medical\drug_coagulant
+inv_name			= st_drug_coagulant_name
+inv_name_short		= st_drug_coagulant_short
+description			= st_drug_coagulant_descr
+
+inv_grid_x         	= 6
+inv_grid_y         	= 4
+cost				= 200
+
+boost_time			= 30
+boost_wounds_heal	= 0.3
+boost_power 		= -0.1
+
+hud 				= coagulant_hud
+
+[drug_psy_blockade]:drugs_base
+$spawn 				= "food and drugs\drug_psy_blockade"
+visual				= dynamics\equipments\medical\drug_psy_blockade
+inv_name			= st_drug_psy_blockade_name
+inv_name_short		= st_drug_psy_blockade_short
+description			= st_drug_psy_blockade_descr
+
+inv_grid_x         	= 7
+inv_grid_y         	= 4
+cost				= 550
+
+boost_time			= 30
+boost_telepatic_protection 	= 0.5
+
+hud 				= psy_blockade_hud
+
+[drug_antidot]:drugs_base
+$spawn 				= "food and drugs\drug_antidot"
+visual				= dynamics\equipments\medical\drug_antidot
+inv_name			= st_drug_antidot_name
+inv_name_short		= st_drug_antidot_short
+description			= st_drug_antidot_descr
+
+inv_grid_x         	= 8
+inv_grid_y         	= 4
+cost				= 300
+
+boost_time				= 30
+boost_chemical_burn_protection 	= 0.3
+
+hud 				= antidot_hud
+
+[drug_radioprotector]:drugs_base
+$spawn 				= "food and drugs\drug_radioprotector"
+visual				= dynamics\equipments\medical\drug_radioprotector
+inv_name			= st_drug_radioprotector_name
+inv_name_short		= st_drug_radioprotector_short
+description			= st_drug_radioprotector_descr
+
+inv_grid_x         	= 3
+inv_grid_y         	= 4
+cost				= 300
+
+boost_time					= 60.0
+;boost_radiation_immunity	= 0.015
+boost_radiation_protection	= 0.015
+
+boost_radiation_protection = 1
+boost_time = 30
+
+hud 				= radioprotector_hud
+
+[drug_anabiotic]:drugs_base
+$spawn 				= "food and drugs\drug_anabiotic"
+visual				= dynamics\equipments\medical\drug_anabiotic
+inv_name			= st_drug_anabiotic_name
+inv_name_short		= st_drug_anabiotic_short
+description			= st_drug_anabiotic_descr
+
+inv_grid_x         	= 9
+inv_grid_y         	= 4
+cost				= 1000
+
+hud 				= antibiotic_hud
+
+[trauma_kit]:drugs_base
+class 				= II_ATTCH
+visual				= equipments\item_merger
+
+inv_name			= st_trauma_kit_name
+inv_name_short		= st_trauma_kit_short
+description 		= st_trauma_kit_descr
+inv_weight			= 0.5
+
+inv_grid_width     	= 1
+inv_grid_height    	= 1
+inv_grid_x         	= 1
+inv_grid_y         	= 8
+icon_group 			= 4
+
+cost				= 5000
+
+quick_slot 			= false
+
+loadout_type 		= 
+
+heal_injuries 		= true
+
+use_effector 		= bandage_use
+use_sound 			= interface\item_usage\inv_medkitzipper

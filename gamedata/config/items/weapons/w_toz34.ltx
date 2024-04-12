@@ -1,0 +1,208 @@
+[wpn_toz34]:identity_immunities,weapon_base,wpn_toz34_sounds
+GroupControlSection	= spawn_group
+discovery_dependency = 
+$spawn                   = "weapons\toz-34"					; option for Level Editor
+$npc			 = on				; option for Level Editor
+$prefetch 		 = 8
+scheduled                = off              ; option for ALife Simulator
+cform                    = skeleton
+class                    = WP_BM16
+min_radius               = 0
+max_radius               = 50
+
+ef_main_weapon_type			= 1
+ef_weapon_type				= 7
+
+;-----------------------------------------------------------------------------------
+holder_range_modifier	= 1.0               ; во сколько раз увеличивается eye_range 
+holder_fov_modifier		= 0.7              ; во сколько раз увеличивается eye_fov
+;-----------------------------------------------------------------------------------
+
+cost					 = 500	;1000
+weapon_class			 = shotgun
+
+ammo_limit		 = 60
+ammo_current		 = 10
+ammo_elapsed		 = 0
+
+ammo_mag_size		 = 2
+ammo_class		 = ammo_12x70_buck, ammo_12x76_zhekan,ammo_12x76_dart 
+
+fire_modes = 2, 1
+
+control_inertion_factor = 1.76
+;-----------------------------------------------------------------------------------
+;базовая дисперсия
+fire_dispersion_base		= 0.764  	;угол (в градусах) базовой дисперсии оружия (оружия зажатого в тисках)
+
+;отдача
+cam_relax_speed         	= 7.0	;скорость возврата в исходное положение
+cam_dispersion          	= 3.0	;увеличения угла (в градусах) с каждым выстрелом
+cam_dispersion_inc		= 3.0	;увеличениe cam_dispersion с каждым выстрелом
+cam_dispertion_frac		= 1.0	;ствол будет подыматься на cam_dispersion*cam_dispertion_frac +- cam_dispersion*(1-cam_dispertion_frac)
+cam_max_angle			= 8.0	;максимальный угол отдачи
+cam_max_angle_horz		= 20.0	;(degree) maximum shot horizontal degree 
+cam_step_angle_horz		= 2.5	;(degree) size of step camera moved in horizontal position while shooting
+
+fire_dispersion_condition_factor = 5	;увеличение дисперсии в процентах при максимальном износе 
+misfire_probability 		= 0.005	;вероятность осечки при максимальном износе 
+condition_shot_dec 		= 0.0017 ;увеличение износа при каждом выстреле
+;-----------------------------------------------------------------------------------
+
+hand_dependence 	 = 1
+single_handed		 = 0
+
+slot 				 = 1,2		; // secondary
+animation_slot		 = 3		; type of the animation that will be used
+
+description					= st_wpn_toz34_descr
+inv_name					= st_wpn_toz34_name
+inv_name_short				= st_wpn_toz34_short
+
+inv_weight		= 3.1
+
+inv_grid_width     = 5
+inv_grid_height    = 2
+inv_grid_x         = 7
+inv_grid_y         = 0
+
+direction                = 0, 0, 1
+shell_point				 = 0.0, 0.183, 0.07
+fire_point               = 0.0, 0.183, 0.730
+fire_point2              = 0.0, 0.160, 0.730
+
+flame_particles		   = weapons\generic_weapon05
+smoke_particles		   = amik\weapons\smoke_particles\smoke_particles_pump_01
+rpm_empty_click 	   = 200
+
+PDM_disp_base 			= 1.0
+PDM_disp_vel_factor 		= 2.0
+PDM_disp_accel_factor 		= 2.0
+PDM_crouch	 		= 1.0
+PDM_crouch_no_acc 		= 1.0
+
+; ttc
+hit_power        			= 0.75;1.5
+hit_impulse      			= 40
+hit_type 					= fire_wound
+
+fire_distance            	= 75
+bullet_speed				= 430	;начальная скорость пули
+rpm                      	= 1000
+; end ttc
+
+normal  	                = 0, 1, 0
+position                 	= -0.026, -0.132, 0.06 ;-0.026, -0.117, 0.0
+orientation              	= 0, 30, 0      ;значение устанавливается в градусах
+
+;--STRAP PARAMETERS-----------------------------------------------------------------
+;под мишкой
+strap_position         		= -0.26,-0.11,0.15			; position (offset) and orientation of the weapon when it is strapped
+strap_orientation      		= -15,-9,110				; (3rd person view in degrees)
+strap_bone0					= bip01_spine2
+strap_bone1					= bip01_spine1
+
+startup_ammo             = 10
+
+;visual                   = dynamics\weapons\wpn_toz34\wpn_toz34
+visual 					 = dynamics\weapons\wpn_toz34\wpn_toz34_mark4
+hud                      = wpn_toz34_hud
+
+light_color		 = 0.6,0.5,0.3
+light_range		 = 6.0
+light_var_color		 = 0.05
+light_var_range		 = 0.5
+light_time 		 = 0.2
+
+ph_mass			 = 3
+;cost			 = 900
+
+;addons
+;scope_status				= 0
+silencer_status				= 0
+grenade_launcher_status		= 0
+
+zoom_enabled				= true
+scope_zoom_factor	    	= 55
+
+;script_binding      		= bind_weapon.init
+scope_meshes 				= 0,1
+scope_status 				= 2
+scope_name 					= wpn_addon_scope_march_f, wpn_addon_scope_ac10632
+use_scope_zoom 				= true
+
+wpn_addon_scope_ac10632_visual 			= dynamics\weapons\wpn_toz34\wpn_toz34_bull
+wpn_addon_scope_ac10632_hud_sect 		= wpn_toz34_bull_hud
+
+;scope_respawn_wpn_addon_scope_ac10632 = wpn_toz34_ac10632
+
+scope_x                     = 85		; offset in inventory icon
+scope_y                     = 15
+
+wpn_addon_scope_ac10632_x   = 85		; offset in inventory icon
+wpn_addon_scope_ac10632_y   = 10
+
+disassemble_parts 			= part_shotgun_2barrel, 1
+
+sawed_off 					= wpn_toz34_obrez
+sawed_off_tool 				= multitool
+
+[wpn_toz34_decor]:wpn_toz34
+hud                                      = wpn_toz34_sk1_hud
+visual                                   = dynamics\weapons\wpn_toz34\wpn_toz34_sk1
+
+inv_grid_width     = 5
+inv_grid_height    = 2
+inv_grid_x         = 7
+inv_grid_y         = 2
+
+scope_status							 = 0
+scope_meshes 							=
+
+[wpn_toz34_obrez]:wpn_toz34,wpn_toz34_obrez_sounds
+sawed_off 					=
+
+inv_grid_width     = 3
+inv_grid_height    = 1
+inv_grid_x         = 4
+inv_grid_y         = 0
+
+inv_name                                 = st_wpn_toz34_obrez_name
+inv_name_short                           = st_wpn_toz34_obrez_short
+description                              = st_wpn_toz34_obrez_descr
+
+hud                                      = wpn_toz34_obrez_hud
+visual                                   = dynamics\weapons\wpn_toz34\wpn_toz34_obrez
+
+scope_status							 = 0
+scope_meshes 							=
+
+control_inertion_factor = 1.4
+fire_dispersion_base		= 1.5
+
+single_handed		 = 1
+
+;отдача
+cam_relax_speed         	= 7.0	;скорость возврата в исходное положение
+cam_dispersion          	= 4.0	;увеличения угла (в градусах) с каждым выстрелом
+cam_dispersion_inc		= 4.0	;увеличениe cam_dispersion с каждым выстрелом
+cam_dispertion_frac		= 1.0	;ствол будет подыматься на cam_dispersion*cam_dispertion_frac +- cam_dispersion*(1-cam_dispertion_frac)
+cam_max_angle			= 8.0	;максимальный угол отдачи
+cam_max_angle_horz		= 20.0	;(degree) maximum shot horizontal degree 
+cam_step_angle_horz		= 2.5	;(degree) size of step camera moved in horizontal position while shooting
+
+; ttc
+hit_power        	= 0.6;0.75, 0.79, 0.85, 0.90
+hit_impulse      	= 30
+hit_type 			= fire_wound
+
+fire_distance       = 25
+bullet_speed		= 215	;начальная скорость пули
+rpm                 = 500
+; end ttc
+
+PDM_disp_base 			= 1.0
+PDM_disp_vel_factor 		= 1.1
+PDM_disp_accel_factor 		= 1.1
+PDM_crouch	 		= 1.0
+PDM_crouch_no_acc 		= 1.0
