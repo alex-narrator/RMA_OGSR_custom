@@ -89,6 +89,7 @@ function motivator_binder:net_spawn(sobject)
 	-- Все CALLBACK-и ставить здесь:
 	self.object:set_patrol_extrapolate_callback(motivator_binder.extrapolate_callback, self)
 	self.object:set_callback(callback.hit, motivator_binder.hit_callback, self)
+	self.object:set_callback(callback.entity_alive_before_hit, self.on_before_hit, self)
 	self.object:set_callback(callback.death, motivator_binder.death_callback, self)
 	self.object:set_callback(callback.use_object, motivator_binder.use_callback, self)
 	--memusage.collect_info(self.object, "after__callback")
@@ -145,6 +146,7 @@ end
 function motivator_binder:clear_callbacks()
 	self.object:set_patrol_extrapolate_callback(nil)
 	self.object:set_callback(callback.hit, nil)
+	self.object:set_callback(callback.entity_alive_before_hit, nil)
 	self.object:set_callback(callback.death, nil)
 end
 
@@ -170,6 +172,10 @@ function motivator_binder:hit_callback(obj, amount, local_direction, who, bone_i
 	end
 	self.sm:call("on_hit", obj, amount, local_direction, who, bone_index, hit_type)
 	self.sm:call("on_hit_npc", obj, amount, local_direction, who, bone_index, hit_type)
+end
+
+function motivator_binder:on_before_hit(hit)
+	self.sm:call("on_npc_before_hit", self.object, hit)
 end
 
 function motivator_binder:death_callback(victim, who)

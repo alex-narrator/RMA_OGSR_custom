@@ -3,6 +3,7 @@ function attach(sm)
 	--sm:subscribe({signal = "on_hit", fun = this.on_hit})
 	--sm:subscribe({signal = "on_hit_actor", fun = this.on_hit})
 	--sm:subscribe({signal = "on_actor_before_hit", fun = this.on_before_hit})
+	--sm:subscribe({signal = "on_npc_before_hit", fun = this.on_before_hit})
 	--sm:subscribe({signal = "on_hit_npc", fun = this.on_hit})
 	--sm:subscribe({signal = "on_info_portion", fun = this.on_info_portion})
 	--sm:subscribe({signal = "on_task", fun = this.on_task})
@@ -14,12 +15,13 @@ function on_take(item)
 	log3("~take item %s|%s", item:name(), item:section())
 end
 
-function on_hit(victim, health_lost, direction, draftsman, bone_id)
-	log3("~on_hit: victim %s | health_lost %s | draftsman %s | bone %s",	victim:name(),  health_lost, draftsman:name(), victim:get_bone_name(bone_id))
+function on_hit(victim, health_lost, direction, draftsman, bone_id, hit_type)
+	log3("~on_hit: victim %s | health_lost %s | draftsman %s | bone %s | hit_type %s",	victim:name(),  health_lost, draftsman:name(), victim:get_bone_name(bone_id), get_hit_type_name(hit_type))
+	log3("~%s current health %.2f | bleeding %.2f", victim:name(), victim.health, victim:get_bleeding())
 end
 
-function on_before_hit(hit)
-	log3("~actor on_before_hit: power %s | full power %s | type %s | draftsman %s | bone %s | ap %s", hit.power, hit.full_power, hit.hit_type, hit.who:name(), actor:get_bone_name(hit.bone_id), hit.ap)
+function on_before_hit(object, hit)
+	log3("~%s on_before_hit: power %s | full power %s | type %s | draftsman %s | bone %s | ap %s", object:name(), hit.power, hit.full_power, hit.hit_type, hit.who:name(), object:get_bone_name(hit.bone_id), hit.ap)
 end
 
 function on_info_portion(npc, info_id)

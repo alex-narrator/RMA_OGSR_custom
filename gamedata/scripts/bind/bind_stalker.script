@@ -161,7 +161,7 @@ function actor_binder:reinit()
 	self.object:set_callback(callback.on_booster_enable, self.on_booster_enable, self)
 	self.object:set_callback(callback.on_booster_disable, self.on_booster_disable, self)
 	self.object:set_callback(callback.hit, self.on_hit, self)
-	self.object:set_callback(callback.entity_alive_before_hit, self.on_before_hit, self)	
+	self.object:set_callback(callback.entity_alive_before_hit, self.on_before_hit, self)
 	self.object:set_callback(callback.death, self.on_death, self)
 	self.object:set_callback(callback.on_ruck, self.on_ruck, self)
 	self.object:set_callback(callback.on_slot, self.on_slot, self)
@@ -534,7 +534,7 @@ function actor_binder:on_hit(victim, health_lost, direction, draftsman, bone_id,
 end
 
 function actor_binder:on_before_hit(hit)
-	self.sm:call("on_actor_before_hit", hit)
+	self.sm:call("on_actor_before_hit", self.object, hit)
 end
 
 function actor_binder:on_death(victim, killer)
