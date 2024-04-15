@@ -625,7 +625,7 @@ function get_type(item)
 	if item:is_artefact() or string.find(item:section(), "mutant_") then
 		return 5
 	end
-	if item:is_torch() or item:get_pda() or item:get_detector() or is_power_device(item) or string.find(item:section(), "pda") then
+	if item:is_torch() or item:get_pda() or item:get_detector() or is_power_device(item) or string.find(item:section(), "pda") or string.find(item:section(), "battery") then
 		return 6
 	end
 	return 7

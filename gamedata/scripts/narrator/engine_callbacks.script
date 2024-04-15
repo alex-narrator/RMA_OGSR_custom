@@ -14,11 +14,6 @@ function can_save_game()
 end
 
 function is_cell_items_equal(item1, item2)
-	-- local res = loadout.can_remove(item1) == loadout.can_remove(item2)
-	-- if is_power_device(item1) and is_power_device(item2) then
-		-- res = res and math.fsimilar(item1:binded_object():get_power_level(), item2:binded_object():get_power_level(), 0.01)
-	-- end
-	-- return res
 	return ui_inv_utils.similar_item(item1, item2)
 end
 
@@ -36,4 +31,23 @@ end
 
 function ui_inv_get_item_type(item)
 	return ui_inv_utils.get_type(item)
+end
+
+function trade_purchase_item_process( npc, sobj )
+	--log3("~trade_purchase_item_process NPC %s | item %s", npc:name(), sobj:name())
+	sm:call("on_trade_purchase_item_process", npc, sobj)
+end
+
+function trade_get_buy_price(npc, section, result)
+	--log3("~trade_get_buy_price npc %s | section %s | result %s", npc:name(), section, result)
+	local deficit_factor = trade_manager.get_deficit_factor(npc, section)
+	--log3("~NPC %s | section %s | deficit factor %s", npc:name(), section, deficit_factor)
+	return result * deficit_factor
+end
+
+function trade_get_sell_price(npc, section, result)
+	--log3("~trade_get_sell_price npc %s | section %s | result %s", npc:name(), section, result)
+	local deficit_factor = trade_manager.get_deficit_factor(npc, section)
+	--log3("~NPC %s | section %s | deficit factor %s", npc:name(), section, deficit_factor)
+	return result * deficit_factor
 end

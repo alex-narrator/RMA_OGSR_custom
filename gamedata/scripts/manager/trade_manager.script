@@ -9,7 +9,13 @@ function attach(sm)
 	sm:subscribe({signal = "on_trade_show", 	fun = this.on_trade_show})
 	sm:subscribe({signal = "on_trade_hide", 	fun = this.on_trade_hide})
 	sm:subscribe({signal = "on_trade", 			fun = this.on_trade})
+	
+	sm:subscribe({signal = "on_trade_purchase_item_process", 	fun = this.on_trade_purchase_item_process})
+	
 end
+
+local MIN_DEFICIT = read_if_exists(sys_ini, "r_float", "trade", "min_deficit_factor", 1)
+local MAX_DEFICIT = read_if_exists(sys_ini, "r_float", "trade", "max_deficit_factor", 1)
 
 local MIN_H, MAX_H = 8, 12--//межі рандомайзеру часу до оновлення асортиментів (ігрові години)
 local c_time = game.CTime()
@@ -94,6 +100,10 @@ function trade_init(npc, cfg)
 	else
 		tt.buy_supplies = nil
 	end
+	
+	--//дефіцити
+	tt.min_deficit = read_if_exists(tt.config, "r_float", "trader", "min_deficit_factor", MIN_DEFICIT)
+	tt.max_deficit = read_if_exists(tt.config, "r_float", "trader", "max_deficit_factor", MAX_DEFICIT)
 end
 
 function update(npc)
@@ -125,9 +135,10 @@ function update(npc)
 	
 	str = xr_logic.pick_section_from_condlist(actor, npc, tt.buy_supplies)
 	if tt.current_buy_supplies ~= str or not tt.resuply_time or tt.resuply_time:diffSec(game.get_game_time()) <= 0 then
-		--log3("TRADE UPDATE [%s]: buy_supplies = %s", npc:name(), tostring(str))
-		npc:buy_supplies(tt.config, str)
+		--log3("TRADE UPDATE [%s]: buy_supplies = %s", npc:name(), str)
 		tt.current_buy_supplies = str
+		npc:buy_supplies(tt.config, str)		
+		--tt.current_buy_supplies = str
 		local resuply_hours = math.random(MIN_H, MAX_H)
 		c_time:setHMS(resuply_hours, 0, 0)
 		tt.resuply_time = game.get_game_time() + c_time
@@ -170,8 +181,16 @@ function save(obj, packet)
 	else
 		packet:w_stringZ("")
 	end
-
-	packet:w_s32(-1)--//update_time was here
+	
+	
+	local dt_size = tt.deficit and table.size(tt.deficit) or 0
+	packet:w_s32(dt_size) --//update_time was here now its deficit values
+	if dt_size > 0 then
+		for sect,deficit in pairs(tt.deficit) do
+			packet:w_stringZ(sect)
+			packet:w_float(deficit)
+		end
+	end
 
 	if tt.resuply_time then
 		local diff = tt.resuply_time:diffSec(game.get_game_time())
@@ -219,7 +238,13 @@ function load(obj, packet)
 		--log3("TRADE LOAD [%s]: current_buy_supplies = %s", obj:name(), tostring(a))
 	end
 
-	packet:r_s32()--//update_time was here
+	a = packet:r_s32()--//update_time was here now its deficit values
+	if a > 0 then
+		tt.deficit = {}
+		for i=1, a do
+			tt.deficit[packet:r_stringZ()] = packet:r_float()
+		end
+	end
 
 	a = packet:r_s32()
 	if a > 0 then
@@ -231,4 +256,61 @@ end
 
 function clear(npc)
 	trade_manager[npc:id()] = nil
+end
+
+function parse_purchase_list(npc)
+	local tt = trade_manager[npc:id()]
+	if not tt then 
+		log3("~TRADE UPDATE [%s]: fill_purchase_data skiped", npc:name())
+	return end
+	tt.purchase_data = {}
+	--//чистимо таблицю факторів дефіциту
+	tt.deficit = {}
+	--//
+	local suppl_sect = tt.current_buy_supplies
+	local n = tt.config:line_count(suppl_sect)
+	local name, value = "", ""
+	local tmp_tbl
+	for i=0,n-1 do
+		result, name, value = tt.config:r_line(suppl_sect,i,"","")
+		tmp_tbl = split_string(value, ",")
+		tt.purchase_data[name] = { count = tmp_tbl[1], prob = tmp_tbl[2], spawned = 0}
+		--log3("~NPC %s | config %s | sect %s | name %s | value %s", npc:name(),  tt.config, suppl_sect, name, value)
+	end
+	--log3("~NPC %s, tt.purchase_data %s", npc:name(), tt.purchase_data)
+end
+
+function on_trade_purchase_item_process(npc, sobj)
+	local tt = trade_manager[npc:id()]
+	if not tt then
+		log3("~TRADE UPDATE [%s]: on_trade_purchase_item_process skiped", npc:name())
+	return end
+	local sect = sobj:section_name()
+	if not tt.purchase_data then
+		parse_purchase_list(npc)
+	end
+	local pd = tt.purchase_data[sect]
+	pd.spawned = pd.spawned + 1
+	--log3("~on_trade_purchase_item_process [%s]: on_trade_purchase_item_process item %s spawned %s times", npc:name(), sect, pd.spawned)
+	-- if not tt.deficit then
+		-- tt.deficit = {}
+	-- end
+	tt.deficit[sect] = pd.count * pd.prob / pd.spawned
+	--log3("~on_trade_purchase_item_process NPC %s | item %s | deficit %s", npc:name(), sect, tt.deficit[sect])
+end
+
+function get_deficit_factor(npc, sect)
+	local tt = trade_manager[npc:id()]
+	if not tt then
+		--log3("~NPC %s - no trade_manager data", npc:name())
+	return 1 end
+	if tt.cfg_ltx == DEF_TRADE_CFG then
+		--log3("~NPC %s - has default trade list", npc:name())
+	return 1 end
+	if not tt.deficit then
+		--log3("~NPC %s - no deficit data", npc:name())
+	return 1 end
+	local res = tt.deficit[sect] and math.clamp(tt.deficit[sect], tt.min_deficit, tt.max_deficit) or 1
+	--log3("~get_deficit_factor NPC %s | item %s | deficit %s", npc:name(), sect, res)
+	return res
 end

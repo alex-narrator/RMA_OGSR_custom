@@ -52,16 +52,6 @@ gd_master_only = false
 ; Цена оружия будет включать в себя стоимость установленных аддонов
 wpn_cost_include_addons = true
 
-; Учитывать ли дефицит предмета при расчете его цены для покуки или продаж
-; дефицит рассчитываеться при каждом обновлении ассортимента у торговца 
-; формула = count * probability / spawn
-; count, probability - кол-во и вероятность появления из конфига торговли
-; spawn - сколько реально предметов было создано
-; в секции [trade] можно определить граничные значения
-; min_deficit_factor          = 1     ;минимально возможный дефицит при расчете цены на товар. при 1 - не будет влиять на цену.
-; max_deficit_factor          = 1     ;максимально возможный дефицит при расчете цены на товар. при 1 - не будет влиять на цену.
-;use_trade_deficit_factor = true
-
 ; В ПДА, для каждого задания будут показываться только следующее
 ; подзадание и все предыдущие. Т.е. подзадания будут открываться по
 ; мере выполнения.
@@ -181,23 +171,20 @@ ui_inv_get_item_type = engine_callbacks.ui_inv_get_item_type
 ; созданного предмета при обновлении ассортимента торговца. npc -
 ; trader, sobj - серверный объект предмета. Вариант использования:
 ; включать аддоны для оружия и подобное для торгуемых вещей.
-;trade_purchase_item_process = engine_callbacks.trade_purchase_item_process
+trade_purchase_item_process = engine_callbacks.trade_purchase_item_process
 
 ; trade_get_buy_price для расчета цены покупки и trade_get_sell_price
 ; для расчета цены продажи торговцем. По аналогии с коллбеками из
 ; ЗП. Позволяют изменять цены динамически, и не плодить постоянно
 ; новые секции для sell_condition и buy_condition.
 ;
-; Сигнатура: (npc, section, result, original, deficit_factor)
+; Сигнатура: (npc, section, result)
 ;
 ; npc            - объект торговец
 ; section        - секция предмета
 ; result         - конечная цена которую рассчитал движок
-; original       - цена без учета дефицита
-; deficit_factor - факто дефицита рассчитанный движком, с учетом
-; ограничений min\max
-;trade_get_buy_price  = engine_callbacks.trade_get_buy_price
-;trade_get_sell_price = engine_callbacks.trade_get_sell_price
+trade_get_buy_price  = engine_callbacks.trade_get_buy_price
+trade_get_sell_price = engine_callbacks.trade_get_sell_price
 
 ; Вызывается движком из CDangerManager::add() и разрешает или
 ; запрещает добавлять этот danger. Возвращаемое значение, true/false,

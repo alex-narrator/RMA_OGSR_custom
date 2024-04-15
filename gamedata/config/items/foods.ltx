@@ -1,6 +1,7 @@
 [food_base]:identity_immunities,quick_item
 GroupControlSection	= spawn_group
 discovery_dependency =
+$prefetch 			= 8
 class				= II_FOOD
 cform				= skeleton
 ; food item
@@ -59,7 +60,6 @@ hud 				= bread_hud
 
 [kolbasa]:food_base,corruptible
 $spawn 				= "food and drugs\kolbasa"
-$prefetch 			= 8
 visual				= weapons\kolbasa\kolbasa
 
 inv_name			= st_kolbasa_name
@@ -100,8 +100,8 @@ description			= st_conserva_descr
 
 inv_weight			= 0.5
 
-inv_grid_x         = 2
-inv_grid_y         = 0
+inv_grid_x         	= 2
+inv_grid_y         	= 0
 cost				= 100
 
 ; eatable item
@@ -124,12 +124,8 @@ angle_offset			 = 1.570790,1.570790,3.92699
 hud 				= conserva_hud
 
 [vodka]:food_base
-GroupControlSection	= spawn_group
-discovery_dependency =
 $spawn 				= "food and drugs\vodka"
-;$prefetch 			= 32
 class				= II_BOTTL
-cform				= skeleton
 visual				= weapons\vodka\vodka
 
 ef_weapon_type		= 0
@@ -140,10 +136,9 @@ description			= st_vodka_descr
 
 inv_weight			= 0.5	;0.2
 
-inv_grid_width     = 1
-inv_grid_height    = 2
-inv_grid_x         = 5
-inv_grid_y         = 0
+inv_grid_height    	= 2
+inv_grid_x         	= 5
+inv_grid_y         	= 0
 cost				= 100
 
 attach_angle_offset		= 0.000000, 0.000000, 0.000000
@@ -175,7 +170,6 @@ hud 				= vodka_hud
 [energy_drink]:food_base
 $spawn 				= "food and drugs\energy_drink"
 class				= II_BOTTL
-cform				= skeleton
 
 visual				= equipments\drink_nonstop ;equipments\drink_stalker
 cost				= 75
