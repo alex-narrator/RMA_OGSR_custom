@@ -39,15 +39,9 @@ function trade_purchase_item_process( npc, sobj )
 end
 
 function trade_get_buy_price(npc, section, result)
-	--log3("~trade_get_buy_price npc %s | section %s | result %s", npc:name(), section, result)
-	local deficit_factor = trade_manager.get_deficit_factor(npc, section)
-	--log3("~NPC %s | section %s | deficit factor %s", npc:name(), section, deficit_factor)
-	return result * deficit_factor
+	return trade_manager.get_final_price(npc, section, result, false)
 end
 
 function trade_get_sell_price(npc, section, result)
-	--log3("~trade_get_sell_price npc %s | section %s | result %s", npc:name(), section, result)
-	local deficit_factor = trade_manager.get_deficit_factor(npc, section)
-	--log3("~NPC %s | section %s | deficit factor %s", npc:name(), section, deficit_factor)
-	return result * deficit_factor
+	return trade_manager.get_final_price(npc, section, result, true)
 end

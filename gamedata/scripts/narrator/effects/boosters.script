@@ -1,12 +1,12 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 
 function attach(sm)
-	sm:subscribe({signal = "on_update",   			fun = this.on_update})
 	sm:subscribe({signal = "on_booster_enable",   	fun = this.on_booster_enable})
 	sm:subscribe({signal = "on_booster_disable",   	fun = this.on_booster_disable})
 end
 
 local m_boosters = {}
+local subscribed = false
 
 function on_update()
 	local conds = actor.conditions
@@ -21,11 +21,27 @@ end
 function on_booster_enable(booster)
 	m_boosters[booster.section] = booster.time
 	body_health.apply_pain_effect(booster.section, true)
+	if not subscribed then
+		subscribed = {
+			{ signal = "on_update", fun = this.on_update },
+		}
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs( subscribed ) do
+			sm:subscribe( s )
+		end
+	end
 end
 
 function on_booster_disable(booster)
 	m_boosters[booster.section] = nil
 	body_health.apply_pain_effect(booster.section, false)
+	if table.size(m_boosters) == 0 and subscribed ~= false then
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs( subscribed ) do
+			sm:unsubscribe( s )
+		end
+		subscribed = false
+	end
 end
 
 function get_all()

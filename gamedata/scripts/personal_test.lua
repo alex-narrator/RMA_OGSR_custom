@@ -10,15 +10,15 @@
 	-- gasmask:set_condition(0.91)
 -- end
 
-local h = hit()
-h.draftsman = actor 
-h.type = hit.fire_wound 
-h.direction = vector():set(0,0,0) 
-h:bone("bip01_l_upperarm")
-h.power = 0.6
-h.impulse = 0.0 
---h.ap = 1
-actor:hit(h)
+-- local h = hit()
+-- h.draftsman = actor 
+-- h.type = hit.fire_wound 
+-- h.direction = vector():set(0,0,0) 
+-- h:bone("bip01_l_upperarm")
+-- h.power = 0.6
+-- h.impulse = 0.0 
+-- --h.ap = 1
+-- actor:hit(h)
 
 -- actor.health = 1
 --actor.power = -actor.power
@@ -337,3 +337,15 @@ log3("actor direction (%s, %s, %s)", actor:direction().x, actor:direction().y, a
 		-- break
 	-- end
 -- end
+
+local spawn_pos = vector():set(214.28172302246, -0.29822949171066, -22.385293197632)
+local spawn_dir = vector():set(0, 3.14, 0)
+local level_name = "l05_bar"
+local spawn_sect = "mounted_weapon"
+spawn_to_level(spawn_sect, spawn_pos, level_name, spawn_dir)
+
+spawn_pos = vector():set(214.28172302246, -0.29822949171066, -22.435293197632)
+spawn_dir = vector():set(0, 0, 3.14)
+level_name = "l05_bar"
+spawn_sect = "decor_box_tara"
+spawn_to_level(spawn_sect, spawn_pos, level_name, spawn_dir)

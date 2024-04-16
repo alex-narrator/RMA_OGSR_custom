@@ -9,7 +9,6 @@ function attach(sm)
 	sm:subscribe({signal = "on_trade_show", 	fun = this.on_trade_show})
 	sm:subscribe({signal = "on_trade_hide", 	fun = this.on_trade_hide})
 	sm:subscribe({signal = "on_trade", 			fun = this.on_trade})
-	
 	sm:subscribe({signal = "on_trade_purchase_item_process", 	fun = this.on_trade_purchase_item_process})
 	
 end
@@ -45,8 +44,8 @@ function on_trade_hide()
 	for item_id,v in pairs(sold_items) do
 		se_item = sim:object(item_id)
 		cl_item = level.object_by_id(item_id)
-		if not trade_partner:is_in_slot(cl_item) then
-			log3("~release item %s after trade", se_item:name())
+		if trade_partner:is_trader() or not trade_partner:is_in_slot(cl_item) then
+			log3("~release item %s after trade with %s", se_item:name(), trade_partner:name())
 			sim:release(se_item, true)
 		end
 	end
@@ -86,7 +85,7 @@ function trade_init(npc, cfg)
 	
 	-- коэфициенты продажи
 	str = read_if_exists(tt.config, "r_string", "trader", "sell_condition", nil)
-	if str == nil then
+	if not str then
 		abort("Incorrect trader settings. Cannot find sell_condition. [%s]->[%s]", npc:name(), cfg)
 	end
 	--log3("TRADE INIT: [%s] tt.sell_condition = %s", npc:name(), str)
@@ -313,4 +312,8 @@ function get_deficit_factor(npc, sect)
 	local res = tt.deficit[sect] and math.clamp(tt.deficit[sect], tt.min_deficit, tt.max_deficit) or 1
 	--log3("~get_deficit_factor NPC %s | item %s | deficit %s", npc:name(), sect, res)
 	return res
+end
+
+function get_final_price(npc, section, result, sell_bye)
+	return result * get_deficit_factor(npc, section)
 end

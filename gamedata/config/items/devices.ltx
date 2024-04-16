@@ -51,6 +51,9 @@ custom_data = scripts\cit\cit_actor_weapon_box.ltx
 [physical_box_blue_deadcity]:physical_box_blue
 custom_data = scripts\cit\cit_actor_weapon_physical_box.ltx
 
+[decor_box_tara]:inventory_box
+visual				= physics\box\box_wood_tara
+
 [mil_dynamite]:explosive_dinamit
 script_binding      = bind_physic_object.init
 custom_data 		= scripts\mil_dynamite.ltx
@@ -323,7 +326,7 @@ range                                                  = 30 ; range             
 range_r2                                               = 30 ; range                 <in meters>
 
 ;;;;;;;;;;;;;;;;;;;;;GLOWSTICK;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-[device_glowstick]:device_base
+[device_glowstick_green]:device_base
 GroupControlSection						= spawn_group
 discovery_dependency =
 $spawn									= "devices\glow_stick"
@@ -334,18 +337,18 @@ visual									= dynamics\devices\dev_glowstick\dev_glowstick_glow
 slot									= 8
 animation_slot							= 7
 
-description								= st_device_glowstick_descr
-inv_name								= st_device_glowstick_name
-inv_name_short							= st_device_glowstick_short
+description								= st_device_glowstick_green_descr
+inv_name								= st_device_glowstick_green_name
+inv_name_short							= st_device_glowstick_green_short
 
 inv_grid_x         						= 0
 inv_grid_y         						= 3
-cost									= 1800
+cost									= 200
 inv_weight								= 0.084
 hud										= device_glowstick_hud
 snd_draw								= device\glowstick_draw
 snd_holster								= device\glowstick_holster
-light_definition						= glowstick_definition
+light_definition						= glowstick_definition_green
 
 script_binding      					= bind_device.init
 
@@ -356,7 +359,7 @@ breakable 								= true
 use_condition 							= true
 condition_as_power 						= true
 
-[glowstick_definition]
+[glowstick_definition_green]
 type									= 1 ; type  0-Direct 1-Point 2-Spot 3-OMNIPART 4-Reflected
 range									= 0 ; range                 <in meters>
 range_r2								= 0 ; range                 <in meters>
@@ -377,7 +380,7 @@ glow_texture							= glow\empty ; glow texture name     (required)
 glow_radius								= 0.2 ; glow radius           <in meters>
 guide_bone								= lid ; guid bone name        (required)
 
-[device_glowstick_orange]:device_glowstick
+[device_glowstick_orange]:device_glowstick_green
 visual									= dynamics\devices\dev_glowstick\dev_glowstick_glow_orange
 light_definition						= glowstick_definition_orange
 hud										= device_glowstick_hud_orange
@@ -387,9 +390,9 @@ inv_name_short							= st_device_glowstick_orange_short
 description								= st_device_glowstick_orange_descr
 
 inv_grid_x         						= 1
-cost									= 2000
+cost									= 400
 
-[glowstick_definition_orange]:glowstick_definition
+[glowstick_definition_orange]:glowstick_definition_green
 ; color									= 0.8,0.4,0.0,0.8
 ; color_r2								= 0.8,0.4,0.0,0.8
 ; range									= 10 ; range                 <in meters>
@@ -398,7 +401,7 @@ cost									= 2000
 omni_color_r2							= 0.8,0.4,0.0,0.8 ; four color components <r,g,b,a> 0.f<X<3.f
 omni_range_r2							= 10 ; range                 <in meters>
 
-[device_glowstick_red]:device_glowstick
+[device_glowstick_red]:device_glowstick_green
 visual									= dynamics\devices\dev_glowstick\dev_glowstick_glow_red
 light_definition						= glowstick_definition_red
 hud										= device_glowstick_hud_red
@@ -406,11 +409,11 @@ hud										= device_glowstick_hud_red
 inv_name								= st_device_glowstick_red_name
 inv_name_short							= st_device_glowstick_red_short
 description								= st_device_glowstick_red_descr		
-										  
-inv_grid_x         						= 2
-cost									= 2400
 
-[glowstick_definition_red]:glowstick_definition
+inv_grid_x         						= 2
+cost									= 600
+
+[glowstick_definition_red]:glowstick_definition_green
 ; color									= 0.4,0.1,0.0,0.8
 ; color_r2								= 0.4,0.1,0.0,0.8
 ; range									= 24 ; range                 <in meters>
@@ -419,7 +422,7 @@ cost									= 2400
 omni_color_r2							= 0.4,0.1,0.0,0.8 ; four color components <r,g,b,a> 0.f<X<3.f
 omni_range_r2							= 24 ; range                 <in meters>
 
-[device_glowstick_blue]:device_glowstick
+[device_glowstick_blue]:device_glowstick_green
 visual									= dynamics\devices\dev_glowstick\dev_glowstick_glow_blue
 light_definition						= glowstick_definition_blue
 hud										= device_glowstick_hud_blue
@@ -427,11 +430,11 @@ hud										= device_glowstick_hud_blue
 inv_name								= st_device_glowstick_blue_name
 inv_name_short							= st_device_glowstick_blue_short
 description								= st_device_glowstick_blue_descr	
-											   
-inv_grid_x         						= 3
-cost									= 1600
 
-[glowstick_definition_blue]:glowstick_definition
+inv_grid_x         						= 3
+cost									= 800
+
+[glowstick_definition_blue]:glowstick_definition_green
 ; color									= 0.0,0.6,1.0,0.8
 ; color_r2								= 0.0,0.6,1.0,0.8
 ; range									= 8 ; range                 <in meters>

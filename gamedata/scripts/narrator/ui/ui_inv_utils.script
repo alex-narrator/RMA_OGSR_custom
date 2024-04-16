@@ -595,10 +595,13 @@ function sort_by_size(a, b)
 		end
 		
 		if size1.y == size2.y then
-			local ammo1, ammo2 = a:get_weapon_ammo(), b:get_weapon_ammo()
+			if a:section() > b:section() then
+				return true
+			end
 			
-			if ammo1 and ammo2 then						
-				return ammo1.box_size > ammo2.box_size 
+			local ammo1, ammo2 = a:get_weapon_ammo(), b:get_weapon_ammo()
+			if ammo1 and ammo2 then
+				return ammo1.box_size > ammo2.box_size
 			end
 		end
 	end
@@ -616,7 +619,7 @@ function get_type(item)
 	if item:is_ammo() or item:is_grenade() then
 		return 2
 	end
-	if item:is_outfit() or item:is_helmet() or loadout.is_module(item) or item:get_container() then
+	if item:is_outfit() or item:is_helmet() or loadout.is_module(item) or item:get_container() or string.find(item:section(), "pouch") then
 		return 3
 	end
 	if item:is_eatable_item() or read_if_exists(sys_ini, "r_bool", item:section(), "heal_injuries", false) then

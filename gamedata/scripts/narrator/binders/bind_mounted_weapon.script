@@ -1,0 +1,48 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+------------------------------------------------------------------------------------------
+--біндер станкової зброї
+------------------------------------------------------------------------------------------
+
+function init(obj)
+    local new_binder = mounted_weapon_binder(obj)
+    obj:bind_object(new_binder)
+end
+
+--послідовність викликів:
+--__init
+--reload
+--load (if save was called before)
+--net_spawn
+
+class "mounted_weapon_binder" (object_binder)
+function mounted_weapon_binder:__init(obj) super(obj)
+	self.sm = ogse_signals.get_mgr()
+end
+ 
+function mounted_weapon_binder:reload(section)
+end
+
+function mounted_weapon_binder:reinit()
+	object_binder.reinit(self)
+	self.object:set_callback(callback.use_object, self.on_use, self)
+end
+
+function mounted_weapon_binder:net_spawn(data)
+	--log3("%s net_spawn for object %s", script_name(), self.object:name())
+    local spawned = object_binder.net_spawn(self, data)	
+	return spawned
+end
+
+function mounted_weapon_binder:net_destroy()
+	self.object:set_callback(callback.use_object, nil)
+	object_binder.net_destroy(self)
+end
+ 
+function mounted_weapon_binder:update(delta)
+    object_binder.update(self, delta)
+end
+
+function mounted_weapon_binder:on_use()
+	self.sm:call("on_use_mounted_weapon", self.object)
+	log3("~used %s", self.object:name())
+end

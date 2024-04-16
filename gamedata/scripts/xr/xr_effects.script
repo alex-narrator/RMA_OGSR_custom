@@ -2477,3 +2477,17 @@ end
 function use_campfire(actor, npc)
 	campfire_manager.on_campfire_use(npc)
 end
+
+function show_device()
+	log3("~show device start")
+	if actor:active_device() then
+		log3("~show device retrn - device already active")
+	return end
+	local device = actor_get_device()
+	if not device then
+		log3("~show device retrn - hase no device to show")
+	return end
+	level.send_event_key_press(bind_to_dik(key_bindings.kWPN_8))
+	level.send_event_key_release(bind_to_dik(key_bindings.kWPN_8))	
+	log3("~show device end")
+end

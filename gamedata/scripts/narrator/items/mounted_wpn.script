@@ -1,0 +1,41 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_use_mounted_weapon", fun = this.on_use})
+end
+
+local console = get_console()
+local hide_crosshair_after_use = false
+local subscribed = false
+
+function on_use(mounted_wpn)
+		hide_crosshair_after_use = console:get_bool("hud_crosshair") == false
+		log3("~hide_crosshair_after_use %s", hide_crosshair_after_use)
+		
+		if hide_crosshair_after_use then
+			console:execute("hud_crosshair 1")
+		end
+		
+		if not subscribed then
+			subscribed = {
+				{ signal = "on_update", fun = this.on_update },
+			}
+			local sm = ogse_signals.get_mgr()
+			for _, s in ipairs( subscribed ) do
+				sm:subscribe( s )
+			end
+		end
+end
+
+function on_update()
+	if not actor:get_holder() then
+		if hide_crosshair_after_use then
+			console:execute("hud_crosshair 0")
+		end
+		
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs( subscribed ) do
+			sm:unsubscribe( s )
+		end
+		subscribed = false
+	end
+end
