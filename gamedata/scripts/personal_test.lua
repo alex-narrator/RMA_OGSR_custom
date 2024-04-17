@@ -338,14 +338,14 @@ log3("actor direction (%s, %s, %s)", actor:direction().x, actor:direction().y, a
 	-- end
 -- end
 
-local spawn_pos = vector():set(214.28172302246, -0.29822949171066, -22.385293197632)
-local spawn_dir = vector():set(0, 3.14, 0)
-local level_name = "l05_bar"
-local spawn_sect = "mounted_weapon"
+local spawn_pos = vector():set(-235.69061279297, -20.170392990112, -146.9228515625)
+local spawn_dir = vector():set(0, -1.57, 0)
+local level_name = "l01_escape"
+local spawn_sect = "stationary_mgun"
 spawn_to_level(spawn_sect, spawn_pos, level_name, spawn_dir)
 
-spawn_pos = vector():set(214.28172302246, -0.29822949171066, -22.435293197632)
-spawn_dir = vector():set(0, 0, 3.14)
-level_name = "l05_bar"
-spawn_sect = "decor_box_tara"
-spawn_to_level(spawn_sect, spawn_pos, level_name, spawn_dir)
+-- spawn_pos = vector():set(214.28172302246, -0.29822949171066, -22.435293197632)
+-- spawn_dir = vector():set(0, 0, 3.14)
+-- level_name = "l05_bar"
+-- spawn_sect = "decor_box_tara"
+-- spawn_to_level(spawn_sect, spawn_pos, level_name, spawn_dir)

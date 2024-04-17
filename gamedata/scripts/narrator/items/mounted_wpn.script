@@ -1,6 +1,7 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
 	sm:subscribe({signal = "on_use_mounted_weapon", fun = this.on_use})
+	--sm:subscribe({signal = "on_spawn_mounted_weapon", fun = this.on_spawn})
 end
 
 local console = get_console()
@@ -17,7 +18,7 @@ function on_use(mounted_wpn)
 		
 		if not subscribed then
 			subscribed = {
-				{ signal = "on_update", fun = this.on_update },
+				{ signal = "on_update_mounted_weapon", fun = this.on_update },
 			}
 			local sm = ogse_signals.get_mgr()
 			for _, s in ipairs( subscribed ) do
@@ -26,7 +27,7 @@ function on_use(mounted_wpn)
 		end
 end
 
-function on_update()
+function on_update(mounted_wpn)
 	if not actor:get_holder() then
 		if hide_crosshair_after_use then
 			console:execute("hud_crosshair 0")
@@ -37,5 +38,9 @@ function on_update()
 			sm:unsubscribe( s )
 		end
 		subscribed = false
+		return
 	end
+end
+
+function on_spawn(mounted_wpn)
 end

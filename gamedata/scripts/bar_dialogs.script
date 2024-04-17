@@ -331,7 +331,7 @@ end
 
 function give_night_sniper_pda(first_speaker, second_speaker)
 	dialogs.relocate_item_section(second_speaker, "bar_sniper_pda", "out")
-	dialogs.relocate_item_section(second_speaker, "detector_advances", "in")
+	dialogs.relocate_item_section(second_speaker, "detector_advanced_cop", "in")
 end
 
 
@@ -874,9 +874,9 @@ function locate_bar_dolg(actor,npc)
 	if sim == nil then
 		return
 	end
-	local obj = sim:story_object(507)
+	local obj = sim:story_object(572)
 	if obj then
-		level.map_add_object_spot(obj.id, "green_location", "bar_voronin_name")
+		level.map_add_object_spot(obj.id, "crlc_mdl", "bar_dolg_locator")
 	end
 end
 

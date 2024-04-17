@@ -9,8 +9,7 @@ function attach(sm)
 	sm:subscribe({signal = "on_trade_show", 	fun = this.on_trade_show})
 	sm:subscribe({signal = "on_trade_hide", 	fun = this.on_trade_hide})
 	sm:subscribe({signal = "on_trade", 			fun = this.on_trade})
-	sm:subscribe({signal = "on_trade_purchase_item_process", 	fun = this.on_trade_purchase_item_process})
-	
+	--sm:subscribe({signal = "on_trade_purchase_item_process", 	fun = this.on_trade_purchase_item_process})
 end
 
 local MIN_DEFICIT = read_if_exists(sys_ini, "r_float", "trade", "min_deficit_factor", 1)
@@ -136,7 +135,8 @@ function update(npc)
 	if tt.current_buy_supplies ~= str or not tt.resuply_time or tt.resuply_time:diffSec(game.get_game_time()) <= 0 then
 		--log3("TRADE UPDATE [%s]: buy_supplies = %s", npc:name(), str)
 		tt.current_buy_supplies = str
-		npc:buy_supplies(tt.config, str)		
+		--npc:buy_supplies(tt.config, str)		
+		buy_supplies(npc)
 		--tt.current_buy_supplies = str
 		local resuply_hours = math.random(MIN_H, MAX_H)
 		c_time:setHMS(resuply_hours, 0, 0)
@@ -316,4 +316,50 @@ end
 
 function get_final_price(npc, section, result, sell_bye)
 	return result * get_deficit_factor(npc, section)
+end
+
+function buy_supplies(npc)
+	local npc_id = npc:id()
+	local tt = trade_manager[npc_id]
+	if not tt then 
+	return end
+	
+	local sm = ogse_signals.get_mgr()
+	tt.deficit = {}
+	
+	clear_inventory(npc)
+	
+	local suppl_sect = tt.current_buy_supplies
+	local n = tt.config:line_count(suppl_sect)
+	local sect, value = "", ""
+	local tmp_tbl, count, prob, sobj
+	for i=0,n-1 do
+		result, sect, value = tt.config:r_line(suppl_sect,i,"","")
+		tmp_tbl = split_string(value, ",")
+		count = tonumber(tmp_tbl[1])
+		prob = tonumber(tmp_tbl[2])
+		
+		local spawned = 0
+		for ii=1, count do
+			if math.random(0,1) <= prob then
+				sobj = spawn_to_owner(sect, npc_id)
+				spawned = spawned + 1
+				sm:call("on_trade_purchase_item_process", npc, sobj)
+			end
+		end
+		
+		if spawned > 0 then
+			tt.deficit[sect] = count * prob / spawned
+		end
+	end
+end
+
+function clear_inventory(npc)
+	local sim = alife()
+	function perform_action(dummy, item)
+		if item:section() ~= "bolt" and item:get_slot() ~= PDA_SLOT then
+			sim:release(sim:object(item:id()), true)
+		end
+	end	
+	npc:iterate_inventory(perform_action, nil)
 end

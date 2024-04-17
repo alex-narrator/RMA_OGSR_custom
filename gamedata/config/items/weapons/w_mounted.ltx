@@ -1,11 +1,24 @@
-[mounted_weapon]
+[mounted_weapon_base]
 GroupControlSection			= spawn_group
-class						= W_MOUNTD
-$spawn						= "weapons\mounted_weapon"
 cform   	                = skeleton
 visual  	                = weapons\mounted_weapons\wpn_pkm_trenoga  
 
-;-----------------------------------------------------------------------------------
+snd_shoot					= wpn_pkm_snd_shoot;weapons\pkm_shot
+
+ammo_class		 			= ammo_7.62x54_ap
+
+use_aim_bullet 				= false
+
+script_binding 				= bind_mounted_weapon.init
+
+; ttc
+hit_power					= 0.80
+hit_impulse					= 100
+hit_type 					= fire_wound 	
+
+fire_distance  		        = 1000
+bullet_speed				= 825			;начальная скорость пули
+rpm            		        = 650
 
 ;params of weapon recoil
 fire_dispersion_base		= 1 		;угол (в градусах) базовой дисперсии оружия (оружия зажатого в тисках)
@@ -17,79 +30,32 @@ cam_max_angle				= 8	    	;максимальный угол отдачи
 cam_max_angle_horz			= 9.0   	;(degree) maximum shot horizontal degree 
 cam_step_angle_horz			= 1.8		;(degree) size of step camera moved in horizontal position while shooting
 
+light_color		 			= 0.9,0.9,0.5
+light_range		 			= 6
+light_var_color  			= 0.05
+light_var_range  			= 0.5
+light_time 		 			= 0.3
+
+flame_particles				= weapons\generic_weapon_btr ;weapons\generic_weapon08
+smoke_particles				= weapons\generic_shoot_00 ;weapons\generic_shoot_00
+shell_point					= 0.0, 0.0, 0.0
+shell_particles				= weapons\generic_shells00
+
+[mounted_weapon]:mounted_weapon_base
+class						= W_MOUNTD
+$spawn						= "weapons\mounted_weapon"
 
 fire_dispersion_condition_factor = 5	;увеличение дисперсии в процентах при максимальном износе 
 misfire_probability 		= 0.0001	;вероятность осечки при максимальном износе 
 condition_shot_dec 			= 0.00003	;увеличение износа при каждом выстреле
-;-----------------------------------------------------------------------------------
 
-
-; ttc
-hit_power					= 0.80
-hit_impulse					= 100
-hit_type 					= fire_wound 	
-
-fire_distance  		        = 1000
-bullet_speed				= 825			;начальная скорость пули
-rpm            		        = 650
-
-light_color		 = 0.9,0.9,0.5
-light_range		 = 6
-light_var_color  = 0.05
-light_var_range  = 0.5
-light_time 		 = 0.3
-
-
-flame_particles		    = weapons\generic_weapon08
-smoke_particles		    = weapons\generic_shoot_00
-
-shell_point		 = 0.00, 0.0,0
-shell_particles	 = weapons\generic_shells00
-
-snd_shoot			= wpn_pkm_snd_shoot;weapons\pkm_shot
-
-ammo_class		 = ammo_7.62x54_ap
-
-use_aim_bullet = false
-
-script_binding = bind_mounted_weapon.init
-
-
-[stationary_mgun]
-GroupControlSection			= spawn_group
+[stationary_mgun]:mounted_weapon_base
 class						= W_STMGUN
 $spawn						= "weapons\stationary_mgun"
-cform   	                = skeleton
-visual  	                = weapons\mounted_weapons\wpn_pkm_trenoga  
 
-cam_relax_speed         	= 3.0		;скорость возврата в исходное положение
-cam_max_angle				= 8	    	;максимальный угол отдачи
-snd_shoot					= wpn_pkm_snd_shoot ;weapons\pkm_btr_shoot
-;snd_shoot1					= weapons\pkm_btr_shoot2
-use_aim_bullet				= false
+tracer_trail_scale	 		= 0.15
+tracer_start_length	 		= 2
+tracer_width		 		= 0.07
 
-ammo_class					= ammo_7.62x54_ap
-fire_dispersion_base		= 1 		;угол (в градусах) базовой дисперсии оружия (оружия зажатого в тисках)
-rpm            		        = 500
-hit_power					= 0.80
-hit_impulse					= 80
-fire_distance  		        = 500
-bullet_speed				= 500			;начальная скорость пули
-
-light_color					= 0.9,0.9,0.5
-light_range					= 6
-light_var_color				= 0.05
-light_var_range				= 0.5
-light_time 					= 0.3
-
-flame_particles				= weapons\generic_weapon_btr
-smoke_particles				= weapons\generic_shoot_00
-shell_point					= 0.0, 0.0, 0.0
-shell_particles				= weapons\generic_shells00
-
-tracer_trail_scale	 = 0.15
-tracer_start_length	 = 2
-tracer_width		 = 0.07
-
-inv_name	        	= Mounted Weapon								; name in inventory	
-inv_name_short			= Mounted Weapon
+inv_name	        		= Mounted Weapon								; name in inventory	
+inv_name_short				= Mounted Weapon
