@@ -95,14 +95,14 @@ end
 
 
 --' Obsolete, do not use!!!
-function relocate_item(victim, obj, type)
-	if db.actor and victim then
+function relocate_item(victim, item, type)
+	if actor and victim then
 		if type == "in" then
-			victim:transfer_item(obj, db.actor)
+			victim:transfer_item(item, actor)
 		elseif type == "out" then
-			db.actor:transfer_item(obj, victim)
+			actor:transfer_item(item, victim)
 		end
-		--'news_manager.relocate_item(db.actor, type, obj)
+		news_manager.relocate_item(actor, type, item:section())
 	end
 end
 --' Use this function instead.
@@ -118,11 +118,7 @@ function relocate_item_section(victim, section, type, receiver)
 			then
 				victim:transfer_item(victim:object(section), receiver)
 			else
-				alife():create(section,	
-					    receiver:position(),
-						receiver:level_vertex_id(),	
-						receiver:game_vertex_id(),
-						receiver:id())
+				spawn_to_owner(section, receiver:id())
 			end
 		elseif type == "out" then
 			actor:transfer_item(actor:object(section), victim)
@@ -131,6 +127,19 @@ function relocate_item_section(victim, section, type, receiver)
 	end
 end
 
+function give_item_to_actor(section)
+	spawn_to_owner(section)
+	news_manager.relocate_item(actor, "in", section)
+end
+
+function take_item_from_actor(sect_or_item)
+	local is_obj = type(sect_or_item) == "userdata"
+	local section = is_obj and sect_or_item:section() or section
+	local item = is_obj and item or actor:object(sect_or_item)
+	local sim = alife()
+	sim:release(sim:object(item:id()), true)
+	news_manager.relocate_item(actor, "out", section)
+end
 
 function relocate_money(victim, num, type)
 	if actor and victim then

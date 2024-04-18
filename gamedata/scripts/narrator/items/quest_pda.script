@@ -1,0 +1,91 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function get_pda_by_profile(profile_name)
+	local pda = nil
+	function perform_action(dummy, item)
+		if item:section() == death_manager.LOOTABLE_PDA_SECT then
+			local owner_data = alife():object(item:id()).owner_data
+			if owner_data and owner_data.profile == profile_name then
+				pda = item
+			end
+		end
+	end
+	actor:iterate_inventory(perform_action, nil)
+	return pda
+end
+
+function get_night_sniper_pda()
+	return get_pda_by_profile("bar_bar_night_sniper")
+end
+
+function get_deserter_pda()
+	return get_pda_by_profile("agr_ratcatcher")
+end
+
+function get_lucky_pda()
+	return get_pda_by_profile("bar_crazy_veterans_lucky")
+end
+
+function get_tiran_pda()
+	return get_pda_by_profile("bar_killer_ambush_tiran")
+end
+
+function get_voronin_pda()
+	return get_pda_by_profile("bar_dolg_leader")
+end
+
+function get_lukash_pda()
+	return get_pda_by_profile("mil_Svoboda_leader")
+end
+
+function get_vp_pda()
+	return get_pda_by_profile("cit_vp")
+end
+
+function get_killer_leader_pda()
+	return get_pda_by_profile("cit_killer_leader")
+end
+
+function get_jaw_zam_pda()
+	return get_pda_by_profile("rad_jaw_zam")
+end
+
+function is_dolg_pda(item)
+	if item:section() ~= death_manager.LOOTABLE_PDA_SECT then
+	return false end
+	local owner_data = alife():object(item:id()).owner_data
+	if not owner_data then
+	return false end
+	return owner_data.comm == "dolg"
+end
+
+function is_freedom_pda(item)
+	if item:section() ~= death_manager.LOOTABLE_PDA_SECT then
+	return false end
+	local owner_data = alife():object(item:id()).owner_data
+	if not owner_data then
+	return false end
+	return owner_data.comm == "freedom"
+end
+
+function get_pda_rank(item)
+	if item:section() ~= death_manager.LOOTABLE_PDA_SECT then
+	return nil end
+	local owner_data = alife():object(item:id()).owner_data
+	if not owner_data then
+	return nil end
+	return ranks.get_val_rank_name(owner_data.rank)
+end
+
+function has_pda_by_community(comm_name)
+	local res = false
+	function perform_action(dummy, item)
+		if item:section() == death_manager.LOOTABLE_PDA_SECT then
+			local owner_data = alife():object(item:id()).owner_data
+			if owner_data and owner_data.comm == comm_name then
+				res = true
+			end
+		end
+	end
+	actor:iterate_inventory(perform_action, nil)
+	return res
+end

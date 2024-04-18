@@ -17,30 +17,33 @@ function trader_alredy_give_job(trader, actor)
 end
 
 function trader_give_extra_job(trader, actor)
-	local actor = db.actor
-	if has_alife_info("escape_blockpost_case") and not has_alife_info("escape_blockpost_case_done")
-	then
-		return true
-	end
-	return false
+	-- local actor = db.actor
+	-- if has_alife_info("escape_blockpost_case") and not has_alife_info("escape_blockpost_case_done")
+	-- then
+		-- return true
+	-- end
+	-- return false
+	return has_alife_info("escape_blockpost_case") and not has_alife_info("escape_blockpost_case_done")
 end
 
 function bandits_die(actor,npc)
-	local actor = db.actor
-	if has_alife_info("esc_kill_bandits_quest_kill") and not has_alife_info("esc_kill_bandits_noquest_kill")
-	then
-		return true
-	end
-	return false
+	-- local actor = db.actor
+	-- if has_alife_info("esc_kill_bandits_quest_kill") and not has_alife_info("esc_kill_bandits_noquest_kill")
+	-- then
+		-- return true
+	-- end
+	-- return false
+	return has_alife_info("esc_kill_bandits_quest_kill") and not has_alife_info("esc_kill_bandits_noquest_kill")
 end
 
 function trader_need_extra_job(trader, actor)
-	if not has_alife_info("escape_blockpost_case") and 
-	    has_alife_info("esc_return")
-	then
-		return true
-	end
-	return false
+	-- if not has_alife_info("escape_blockpost_case") and 
+	    -- has_alife_info("esc_return")
+	-- then
+		-- return true
+	-- end
+	-- return false
+	return not has_alife_info("escape_blockpost_case") and has_alife_info("esc_return")
 end
 
 function is_tutorial()
@@ -52,17 +55,17 @@ function is_not_tutorial()
 end
 
 function is_not_tutorial_art(actor, trader)
-	local tutorial_artefact = db.actor:object("af_blood_tutorial")
-	if (has_alife_info("tutorial_artefact_start") and not has_alife_info("tutorial_artefact_done")
-		and  tutorial_artefact ~= nil) or has_alife_info("tutorial_artefact_done")
-	then
-		return true
-	end
-	return false
+	-- local tutorial_artefact = db.actor:object("af_blood_tutorial")
+	-- if (has_alife_info("tutorial_artefact_start") and not has_alife_info("tutorial_artefact_done")
+		-- and  tutorial_artefact ~= nil) or has_alife_info("tutorial_artefact_done")
+	-- then
+		-- return true
+	-- end
+	-- return false
+	return (has_alife_info("tutorial_artefact_start") and not has_alife_info("tutorial_artefact_done") and actor:object("af_blood_tutorial")) or has_alife_info("tutorial_artefact_done")
 end
 
 function not_final_job(trader, actor)
-	local actor = db.actor
 	return not has_alife_info("escape_blockpost_case_done")
 end
 
@@ -78,7 +81,8 @@ end
 -- end
 
 function esc_give_deadcity_map(first_speaker, second_speaker)
-	dialogs.relocate_item_section(second_speaker, "cit_deadcity_maps", "out")
+	--dialogs.relocate_item_section(second_speaker, "cit_deadcity_maps", "out")
+	dialogs.take_item_from_actor("cit_deadcity_maps")
 	dialogs.relocate_money(second_speaker, 25000, "in")
 end
 

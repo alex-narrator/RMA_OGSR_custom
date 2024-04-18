@@ -270,7 +270,7 @@ function check_item_dependence(npc, section)
 end
 
 
-local LOOTABLE_PDA_SECT = "device_pda_lootable"
+LOOTABLE_PDA_SECT = "device_pda_lootable"
 
 local gd_spawn_prob = {
 	0.25, 	--//novice
@@ -286,8 +286,17 @@ function random_pda_power()
 	return (math.random(PDA_RANDOM_PWR_PART)+PDA_STABLE_PWR_PART) * 0.01
 end
 
+--//профілі персонажів для яких спавнити ПДА обов'язково (не всі мають SID)
+local need_pda_by_profile = {
+	["bar_bar_night_sniper"] = true, --//снайпер у Барі
+}
+
+function npc_protected(npc)
+	return need_pda_by_profile[npc:profile_name()]
+end
+
 function spawn_pda(npc)
-	if npc:story_id() == NO_STORY_ID and math.random() > gd_spawn_prob[level.get_game_difficulty()+1] then
+	if npc:story_id() == NO_STORY_ID and not npc_protected(npc) and math.random() > gd_spawn_prob[level.get_game_difficulty()+1] then
 		--log3("~NPC %s (%s) has no story_id and has no luck to spawn PDA", npc:profile_name(), npc:name())
 		for k,infoportion in pairs(npc:get_known_info()) do
 			npc:disable_info_portion(infoportion)

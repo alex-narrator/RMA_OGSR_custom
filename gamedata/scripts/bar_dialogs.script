@@ -1,11 +1,15 @@
 
 --Взнос Долгу для прохода на территорию
+function get_dolg_deposit()
+	return 10000
+end
+
 function has_dolg_deposite(actor, npc)
-	return actor:money() >= 10000
+	return actor:money() >= get_dolg_deposit()
 end
 
 function give_dolg_deposite(actor, npc)	
-	dialogs.relocate_money(npc, 10000, "out")
+	dialogs.relocate_money(npc, get_dolg_deposit(), "out")
 end
 
 function spawn_arena_mnstr()	
@@ -24,16 +28,18 @@ end
 
 --Долг архивные документы
 function have_dolg_arhive_document(first_speaker, second_speaker)
-  	return first_speaker:object("dolg_arhive_documents") ~= nil
+  	--return first_speaker:object("dolg_arhive_documents") ~= nil
+	return actor:object("dolg_arhive_documents")
 end
 
 function give_dolg_arhive_document(actor, npc)
-	local item = db.actor:object("dolg_arhive_documents")
+	-- local item = db.actor:object("dolg_arhive_documents")
 
-	if item then
-		dialogs.relocate_item_section(npc, "dolg_arhive_documents", "out")
-		alife():release(alife():object(item:id()), true)
-	end
+	-- if item then
+		-- dialogs.relocate_item_section(npc, "dolg_arhive_documents", "out")
+		-- alife():release(alife():object(item:id()), true)
+	-- end
+	dialogs.take_item_from_actor("dolg_arhive_documents")
 end
 
 -- Карта Мёртвого города
@@ -42,7 +48,8 @@ end
 --end
 
 function bar_give_deadcity_map(first_speaker, second_speaker)
-	dialogs.relocate_item_section(second_speaker, "cit_deadcity_maps", "out")
+	--dialogs.relocate_item_section(second_speaker, "cit_deadcity_maps", "out")
+	dialogs.take_item_from_actor("cit_deadcity_maps")
 	if second_speaker:profile_name() == "bar_dolg_leader" then
 		dialogs.relocate_money(second_speaker, 20000, "in")
 	elseif second_speaker:profile_name() == "bar_barman" then
@@ -54,7 +61,8 @@ end
 
 --Бармен в комнате
 function give_agroprom_documents(first_speaker, second_speaker)
-	dialogs.relocate_item_section(second_speaker, "quest_case_02", "out")
+	--dialogs.relocate_item_section(second_speaker, "quest_case_02", "out")
+	dialogs.take_item_from_actor("quest_case_02")
 end
 
 function give_agroprom_reward(first_speaker, second_speaker)
@@ -62,13 +70,14 @@ function give_agroprom_reward(first_speaker, second_speaker)
 end
 
 function give_extra_task(actor, npc)
-	if barman_darklab_documents_given(actor,npc) or
-	   barman_x16_given(actor,npc) or
-	   has_alife_info("bar_deactivate_radar_start")
-	then
-		return true
-	end
-	return false
+	-- if barman_darklab_documents_given(actor,npc) or
+	   -- barman_x16_given(actor,npc) or
+	   -- has_alife_info("bar_deactivate_radar_start")
+	-- then
+		-- return true
+	-- end
+	-- return false
+	return barman_darklab_documents_given(actor,npc) or barman_x16_given(actor,npc) or has_alife_info("bar_deactivate_radar_start")
 end
 function dont_give_extra_task(actor, npc)
 	return not give_extra_task(actor, npc)
@@ -78,20 +87,22 @@ function barman_dont_has_room_job(actor,npc)
 	return not barman_has_room_job(actor,npc)
 end
 function barman_has_room_job(actor,npc)	
-	if barman_need_darklab_documents(actor,npc)
-	then
-		return true
-	end
-	return false
+	-- if barman_need_darklab_documents(actor,npc)
+	-- then
+		-- return true
+	-- end
+	-- return false
+	return barman_need_darklab_documents(actor,npc)
 end
 
 function barman_need_complete_job(actor,npc)
-	if barman_darklab_documents_given(actor,npc) and 
-	   have_darklab_documents(actor,npc)
-	then
-		return true
-	end
-	return false
+	-- if barman_darklab_documents_given(actor,npc) and 
+	   -- have_darklab_documents(actor,npc)
+	-- then
+		-- return true
+	-- end
+	-- return false
+	return barman_darklab_documents_given(actor,npc) and have_darklab_documents(actor,npc)
 end
 
 function barman_dont_has_job(actor,npc)
@@ -99,11 +110,12 @@ function barman_dont_has_job(actor,npc)
 end
 
 function barman_has_job(actor,npc)
-	if barman_need_research(actor,npc) or barman_need_kill_veterans(actor,npc)
-	then
-		return true
-	end
-	return false
+	-- if barman_need_research(actor,npc) or barman_need_kill_veterans(actor,npc)
+	-- then
+		-- return true
+	-- end
+	-- return false
+	return barman_need_research(actor,npc) or barman_need_kill_veterans(actor,npc)
 end
 
 
@@ -113,63 +125,74 @@ end
 -- ********************************************************
 -- Документы с дарклаба
 function barman_need_darklab_documents(actor,npc)
-	if not has_alife_info("bar_darklab_document_start")
-	then
-		return true
-	end
-	return false
+	-- if not has_alife_info("bar_darklab_document_start")
+	-- then
+		-- return true
+	-- end
+	-- return false
+	return not has_alife_info("bar_darklab_document_start")
 end
 
 function barman_darklab_documents_given(actor,npc)
-	if has_alife_info("bar_darklab_document_start") and
-	   not has_alife_info("bar_darklab_document_done") 
-	then
-		return true
-	end
-	return false
+	-- if has_alife_info("bar_darklab_document_start") and
+	   -- not has_alife_info("bar_darklab_document_done") 
+	-- then
+		-- return true
+	-- end
+	-- return false
+	return has_alife_info("bar_darklab_document_start") and not has_alife_info("bar_darklab_document_done") 
 end
 
 function have_darklab_documents(first_speaker, second_speaker)
-  	return first_speaker:object("dar_document4") ~= nil
+  	--return first_speaker:object("dar_document4") ~= nil
+	return actor:object("dar_document4")
 end
 
 function hasnt_darklab_documents(first_speaker, second_speaker)
-    return first_speaker:object("dar_document4") == nil
+    --return first_speaker:object("dar_document4") == nil
+	return not this.have_darklab_documents()
 end
 
 function give_darklab_documents(first_speaker, second_speaker)
-	dialogs.relocate_item_section(second_speaker, "dar_document4", "out")
+	--dialogs.relocate_item_section(second_speaker, "dar_document4", "out")
+	dialogs.take_item_from_actor("dar_document4")
 end
 function give_darklab_reward(first_speaker, second_speaker)
 	dialogs.relocate_money(second_speaker, 10000, "in")
 end
 
 function barman_give_back_darklab_doc(first_speaker, second_speaker)
-	dialogs.relocate_item_section(second_speaker, "dar_document4", "in")
+	--dialogs.relocate_item_section(second_speaker, "dar_document4", "in")
+	dialogs.give_item_to_actor("dar_document4")
 end
 
 -- Документы с Янтаря
 function barman_x16_given(actor,npc)
-	if has_alife_info("bar_x16_documents_start") and
-	   not has_alife_info("bar_x16_documents_done")
-	then
-		return true
-	end
-	return false
+	-- if has_alife_info("bar_x16_documents_start") and
+	   -- not has_alife_info("bar_x16_documents_done")
+	-- then
+		-- return true
+	-- end
+	-- return false
+	return has_alife_info("bar_x16_documents_start") and not has_alife_info("bar_x16_documents_done")
 end
 
 -- Документы из янтаря
 function have_x16_documents(first_speaker, second_speaker)
-  	return first_speaker:object("lab_x16_documents") ~= nil
+  	--return first_speaker:object("lab_x16_documents") ~= nil
+	return actor:object("lab_x16_documents")
 end
 function give_x16_documents(first_speaker, second_speaker)
-	dialogs.relocate_item_section(second_speaker, "lab_x16_documents", "out")
+	--dialogs.relocate_item_section(second_speaker, "lab_x16_documents", "out")
+	dialogs.take_item_from_actor("lab_x16_documents")
 end
 function have_dec_documents(first_speaker, second_speaker)
-  	return first_speaker:object("bar_decoding_documents") ~= nil
+  	--return first_speaker:object("bar_decoding_documents") ~= nil
+	return actor:object("bar_decoding_documents")
 end
 function give_dec_documents(first_speaker, second_speaker)
-	dialogs.relocate_item_section(second_speaker, "bar_decoding_documents", "out")
+	--dialogs.relocate_item_section(second_speaker, "bar_decoding_documents", "out")
+	dialogs.take_item_from_actor("bar_decoding_documents")
 end
 function give_x16_reward(first_speaker, second_speaker)
 	dialogs.relocate_money(second_speaker, 15000, "in")
@@ -185,7 +208,8 @@ function bar_barman_not_psih_path(actor, npc)
 end
 
 function bar_actor_has_scientic_medkit(actor, npc)
-	return db.actor:object("medkit_scientic") ~= nil
+	--return db.actor:object("medkit_scientic") ~= nil
+	return actor:object("medkit_scientic")
 end
 
 function bar_actor_has_not_scientic_medkit(actor, npc)
@@ -193,15 +217,18 @@ function bar_actor_has_not_scientic_medkit(actor, npc)
 end
 
 function actor_give_scientic_medkit(first_speaker, second_speaker)
-	dialogs.relocate_item_section(second_speaker, "medkit_scientic", "out")
+	--dialogs.relocate_item_section(second_speaker, "medkit_scientic", "out")
+	dialogs.take_item_from_actor("medkit_scientic")
 end
 
 function ryaboy_give_art(first_speaker, second_speaker)
-	dialogs.relocate_item_section(second_speaker, "af_fuzz_kolobok", "in")
+	--dialogs.relocate_item_section(second_speaker, "af_fuzz_kolobok", "in")
+	dialogs.give_item_to_actor("af_fuzz_kolobok")
 end
 
 function barman_give_scientic_medkit(first_speaker, second_speaker)
-	dialogs.relocate_item_section(second_speaker, "medkit_scientic", "in")
+	--dialogs.relocate_item_section(second_speaker, "medkit_scientic", "in")
+	dialogs.give_item_to_actor("medkit_scientic")
 end
 
 function bar_barman_medkit_path(actor, npc)
@@ -213,15 +240,18 @@ function bar_barman_not_medkit_path(actor, npc)
 end
 
 function actor_has_ryaboy_art(actor, npc)
-	return db.actor:object("af_fuzz_kolobok") ~= nil
+	--return db.actor:object("af_fuzz_kolobok") ~= nil
+	return actor:object("af_fuzz_kolobok")
 end
 
 function actor_give_ryaboy_art(first_speaker, second_speaker)
-	dialogs.relocate_item_section(second_speaker, "af_fuzz_kolobok", "out")
+	--dialogs.relocate_item_section(second_speaker, "af_fuzz_kolobok", "out")
+	dialogs.take_item_from_actor("af_fuzz_kolobok")
 end
 
 function actor_take_ryaboy_art(first_speaker, second_speaker)
-	dialogs.relocate_item_section(first_speaker, "af_fuzz_kolobok", "in")
+	--dialogs.relocate_item_section(first_speaker, "af_fuzz_kolobok", "in")
+	dialogs.give_item_to_actor("af_fuzz_kolobok")
 end
 
 function play_bar_psih_suicide_demo(first_speaker, second_speaker)
@@ -249,10 +279,11 @@ end
 
 -- Выдача задания на отключение радара
 function barman_need_radar(actor,npc)
-	if has_alife_info("bar_deactivate_radar_start")	then
-		return true
-	end
-	return false
+	-- if has_alife_info("bar_deactivate_radar_start")	then
+		-- return true
+	-- end
+	-- return false
+	return has_alife_info("bar_deactivate_radar_start")
 end
 
 -- Условия появления диалога "Что за работа?" (пока не завершено! Создано: 12.07.2009 11:10 Обновлено: 23.08.2009 22:33 (завершено)) (Р.М.А.):
@@ -273,13 +304,15 @@ function barman_need_research(actor,npc)
 	return false
 end
 function actor_have_research(first_speaker, second_speaker)
-  	return first_speaker:object("bar_ecolog_flash") ~= nil
+  	--return first_speaker:object("bar_ecolog_flash") ~= nil
+	return actor:object("bar_ecolog_flash")
 end
 function actor_not_have_research(first_speaker, second_speaker)
   	return not this.actor_have_research(first_speaker, second_speaker)
 end
 function actor_transfer_research(first_speaker, second_speaker)
-	dialogs.relocate_item_section(second_speaker, "bar_ecolog_flash", "out")
+	--dialogs.relocate_item_section(second_speaker, "bar_ecolog_flash", "out")
+	dialogs.take_item_from_actor("bar_ecolog_flash")
 	if has_alife_info("rostok_kruglov_give_flash") and not has_alife_info("bar_kill_professor_done") then
         dialogs.relocate_money(second_speaker, 5000, "in")
     end
@@ -298,40 +331,48 @@ end
 end]]
 
 function have_lucky_pda(actor,npc)
-	if db.actor:object("bar_lucky_pda") then
-		return true
-	end
-	return false
+	-- if db.actor:object("bar_lucky_pda") then
+		-- return true
+	-- end
+	-- return false
+	return quest_pda.get_lucky_pda()
 end
 
 function give_lucky_pda(first_speaker, second_speaker)
-	dialogs.relocate_item_section(second_speaker, "bar_lucky_pda", "out")
+	--dialogs.relocate_item_section(second_speaker, "bar_lucky_pda", "out")
 	dialogs.relocate_money(second_speaker, 2500, "in")
+	dialogs.take_item_from_actor(quest_pda.get_lucky_pda())
 end
 
 function have_deserter_pda(actor,npc)
-	if db.actor:object("agr_deserter_pda") then
-		return true
-	end
-	return false
+	-- if db.actor:object("agr_deserter_pda") then
+		-- return true
+	-- end
+	-- return false
+	quest_pda.get_deserter_pda()
 end
 
 function give_deserter_pda(first_speaker, second_speaker)
-	dialogs.relocate_item_section(second_speaker, "agr_deserter_pda", "out")
-	dialogs.relocate_item_section(second_speaker, "af_ameba_slug", "in")
+	--dialogs.relocate_item_section(second_speaker, "agr_deserter_pda", "out")
+	--dialogs.relocate_item_section(second_speaker, "af_ameba_slug", "in")
 	dialogs.relocate_money(second_speaker, 2000, "in")
+	dialogs.take_item_from_actor(quest_pda.get_deserter_pda())
+	dialogs.give_item_to_actor("af_ameba_slug")
 end
 
 function have_night_sniper_pda(actor,npc)
-	if db.actor:object("bar_sniper_pda") then
-		return true
-	end
-	return false
+	-- if db.actor:object("bar_sniper_pda") then
+		-- return true
+	-- end
+	-- return false
+	return quest_pda.get_night_sniper_pda()
 end
 
 function give_night_sniper_pda(first_speaker, second_speaker)
-	dialogs.relocate_item_section(second_speaker, "bar_sniper_pda", "out")
-	dialogs.relocate_item_section(second_speaker, "detector_advanced_cop", "in")
+	--dialogs.relocate_item_section(second_speaker, "bar_sniper_pda", "out")
+	--dialogs.relocate_item_section(second_speaker, "detector_advanced_cop", "in")
+	dialogs.take_item_from_actor(quest_pda.get_night_sniper_pda())
+	dialogs.give_item_to_actor("detector_advanced_cop")
 end
 
 
@@ -340,7 +381,8 @@ end
 -- ********************************************************
 --Свобода РГ-6
 function have_rg6(first_speaker, second_speaker)
-  	return first_speaker:object("wpn_rg-6") ~= nil
+  	--return first_speaker:object("wpn_rg-6") ~= nil
+	return actor:object("wpn_rg-6")
 end
 
 function dont_have_rg6(first_speaker, second_speaker)
@@ -349,25 +391,29 @@ end
 
 
 function give_rg6(first_speaker, second_speaker)
-	dialogs.relocate_item_section(second_speaker, "wpn_rg-6", "out")
+	--dialogs.relocate_item_section(second_speaker, "wpn_rg-6", "out")
+	dialogs.take_item_from_actor("wpn_rg-6")
 end
 
 function enter_to_dolg(first_speaker, second_speaker)
 --	dialogs.relocate_item_section(second_speaker, "dolg_scientific_outfit", "in")
-	dialogs.relocate_item_section(second_speaker, "dolg_outfit", "in")
+	--dialogs.relocate_item_section(second_speaker, "dolg_outfit", "in")
+	dialogs.give_item_to_actor("dolg_outfit")
 end
 
 function actor_have_borov_flash(first_speaker, second_speaker)
-  	return first_speaker:object("borov_flash") ~= nil
+  	--return first_speaker:object("borov_flash") ~= nil
+	return actor:object("borov_flash")
 end
 
 function give_borov_flash(actor, npc)
-	local item = db.actor:object("borov_flash")
+	-- local item = db.actor:object("borov_flash")
 
-	if item then
-		dialogs.relocate_item_section(npc, "borov_flash", "out")
-		alife():release(alife():object(item:id()), true)
-	end
+	-- if item then
+		-- dialogs.relocate_item_section(npc, "borov_flash", "out")
+		-- alife():release(alife():object(item:id()), true)
+	-- end
+	dialogs.take_item_from_actor("borov_flash")
 end
 
 --Возвращает "истина", если имеются активные задания или задание на "Тирана" не доступно, иначе - "ложь".
@@ -398,29 +444,32 @@ function voronin_not_need_kill_tiran(actor,npc)
 end
 
 function actor_have_tiran_pda(first_speaker, second_speaker)
-  	return first_speaker:object("bar_tiran_pda") ~= nil
+  	return quest_pda.get_tiran_pda()--first_speaker:object("bar_tiran_pda") ~= nil
 end
 
 function give_tiran_pda(actor, npc)
-	local item = db.actor:object("bar_tiran_pda")
+	-- local item = db.actor:object("bar_tiran_pda")
 
-	if item then
-		dialogs.relocate_item_section(npc, "bar_tiran_pda", "out")
-		alife():release(alife():object(item:id()), true)
-	end
+	-- if item then
+		-- dialogs.relocate_item_section(npc, "bar_tiran_pda", "out")
+		-- alife():release(alife():object(item:id()), true)
+	-- end
+	dialogs.take_item_from_actor(quest_pda.get_tiran_pda())
 end
 
 function actor_have_lukash_pda(first_speaker, second_speaker)
-  	return first_speaker:object("mil_svoboda_leader_pda") ~= nil
+  	--return first_speaker:object("mil_svoboda_leader_pda") ~= nil
+	return quest_pda.get_lukash_pda()
 end
 
 function give_lukash_pda(actor, npc)
-	local item = db.actor:object("mil_svoboda_leader_pda")
+	-- local item = db.actor:object("mil_svoboda_leader_pda")
 
-	if item then
-		dialogs.relocate_item_section(npc, "mil_svoboda_leader_pda", "out")
-		alife():release(alife():object(item:id()), true)
-	end
+	-- if item then
+		-- dialogs.relocate_item_section(npc, "mil_svoboda_leader_pda", "out")
+		-- alife():release(alife():object(item:id()), true)
+	-- end
+	dialogs.take_item_from_actor(quest_pda.get_lukash_pda())
 end
 
 -- Петренко, выдача награды
@@ -429,7 +478,7 @@ function actor_need_petrenko_reward(actor, npc)
 	if (has_alife_info("bar_dolg_borov_quest_done") and not has_alife_info("bar_dolg_borov_quest_reward")) or
 	   (has_alife_info("bar_kill_svoboda_ambush_done") and not has_alife_info("bar_kill_svoboda_reward")) or 
 	   (has_alife_info("bar_kill_svoboda_leader_done") and not has_alife_info("bar_kill_svoboda_leader_reward")) or 
-	   (db.actor:object("svoboda_pda") ~= nil and has_alife_info("bar_kill_svoboda_leader_done"))
+	   (quest_pda.has_pda_by_community("freedom") and has_alife_info("bar_kill_svoboda_leader_done"))
 	then
 		return true
 	end
@@ -437,29 +486,53 @@ function actor_need_petrenko_reward(actor, npc)
 end	
 
 function give_borov_reward(first_speaker, second_speaker)
-	dialogs.relocate_item_section(second_speaker, "wpn_spas12", "in")
+	--dialogs.relocate_item_section(second_speaker, "wpn_spas12", "in")
+	dialogs.give_item_to_actor("wpn_spas12")
 	dialogs.relocate_money(second_speaker, 1000, "in")
 end
 
 function give_tiran_reward(first_speaker, second_speaker)
-	dialogs.relocate_item_section(second_speaker, "wpn_groza", "in")
+	--dialogs.relocate_item_section(second_speaker, "wpn_groza", "in")
+	dialogs.give_item_to_actor("wpn_groza")
 	dialogs.relocate_money(second_speaker, 2000, "in")
 end
 
 function give_svoboda_leader_reward(first_speaker, second_speaker)
-	dialogs.relocate_item_section(second_speaker, "dolg_scientific_outfit", "in")
+	--dialogs.relocate_item_section(second_speaker, "dolg_scientific_outfit", "in")
+	dialogs.give_item_to_actor("dolg_scientific_outfit")
 	dialogs.relocate_money(second_speaker, 10000, "in")
 end
 
 function actor_have_sv_do_pda(first_speaker, second_speaker)
-  	return first_speaker:object("svoboda_pda") ~= nil or first_speaker:object("dolg_pda") ~= nil
+  	--return first_speaker:object("svoboda_pda") ~= nil or first_speaker:object("dolg_pda") ~= nil
+	return quest_pda.has_pda_by_community("dolg") or quest_pda.has_pda_by_community("freedom")
 end
+
+local dolg_pda_goodwill_by_rank = {
+	["novice"] 	= 1,
+	["stalker"] = 2,
+	["veteran"] = 3,
+	["master"] 	= 5,
+}
+
+--Тип награды
+local reward_types = {
+		"ammo_12x70_buck", "ammo_12x76_zhekan", "ammo_12x76_dart", 
+		"ammo_5.45x39_fmj", "ammo_5.45x39_ap", 
+		"ammo_9x18_fmj", "ammo_9x18_pmm", 
+		"ammo_9x19_fmj", "ammo_9x19_pbp", 
+		"ammo_7.62x54_7h1", "ammo_7.62x54_ap", "ammo_7.62x54_7h14", 
+		"ammo_9x39_ap", "ammo_9x39_sp5", 
+		"ammo_gauss", 
+		"ammo_11.43x23_fmj", "ammo_11.43x23_hydro", 
+		"ammo_og-7b", 
+		"grenade_rgd5", "grenade_f1", "grenade_gd-05", 
+		"ammo_vog-25", "ammo_vog-25p", 
+		"wpn_addon_scope", "wpn_addon_silencer", "wpn_addon_grenade_launcher"
+}
 
 function give_svoboda_pda(actor, npc)
 	
-	--Тип награды
-	local reward_types = {"ammo_12x70_buck", "ammo_12x76_zhekan", "ammo_12x76_dart", "ammo_5.45x39_fmj", "ammo_5.45x39_ap", "ammo_9x18_fmj", "ammo_9x18_pmm", "ammo_9x19_fmj", "ammo_9x19_pbp", "ammo_7.62x54_7h1", "ammo_7.62x54_ap", "ammo_7.62x54_7h14", "ammo_9x39_ap", "ammo_9x39_sp5", "ammo_gauss", "ammo_11.43x23_fmj", "ammo_11.43x23_hydro", "ammo_og-7b", "grenade_rgd5", "grenade_f1", "grenade_gd-05", "ammo_vog-25", "ammo_vog-25p", "wpn_addon_scope", "wpn_addon_silencer", "wpn_addon_grenade_launcher"}
-
 	--Перебираем инвентарь ГГ.
 	function item(actor)
 		actor:iterate_inventory(item_trns_reward, actor)
@@ -467,14 +540,21 @@ function give_svoboda_pda(actor, npc)
 	
 	--Удаляем предмет и получаем случайную награду из reward_types
 	function item_trns_reward(actor, item)
-		if item:section() == "svoboda_pda" then
---			actor:transfer_item(item, npc)
-			dialogs.relocate_item_section(actor, reward_types[math.random(#reward_types)], "in")
-			dialogs.relocate_money(actor, 100, "in")
-			alife():release(alife():object(item:id()), true)
-		elseif item:section() == "dolg_pda" then
-			alife():release(alife():object(item:id()), true)
-		end
+		-- if item:section() == "svoboda_pda" then
+-- --			actor:transfer_item(item, npc)
+			-- dialogs.relocate_item_section(actor, reward_types[math.random(#reward_types)], "in")
+			-- dialogs.relocate_money(actor, 100, "in")
+			-- alife():release(alife():object(item:id()), true)
+		-- elseif item:section() == "dolg_pda" then
+			-- alife():release(alife():object(item:id()), true)
+		-- end
+		if quest_pda.is_freedom_pda(item) then
+			dialogs.give_item_to_actor(reward_types[math.random(#reward_types)])
+			dialogs.take_item_from_actor(item)
+		elseif quest_pda.is_dolg_pda(item) then
+			relation_registry.change_community_goodwill("dolg", actor:id(), dolg_pda_goodwill_by_rank[quest_pda.get_pda_rank(item)])
+			dialogs.take_item_from_actor(item)
+		end		
 	end
 	
 	item(actor)
@@ -487,12 +567,21 @@ function act_have_pda_to_inf(first_speaker, second_speaker)
 end
 
 function act_have_sv_pda_to_inf(first_speaker, second_speaker)
-  	return first_speaker:object("svoboda_pda") ~= nil
+  	--return first_speaker:object("svoboda_pda") ~= nil
+	return quest_pda.has_pda_by_community("freedom")
 end
 
 function act_have_dg_pda_to_inf(first_speaker, second_speaker)
-  	return first_speaker:object("dolg_pda") ~= nil
+  	--return first_speaker:object("dolg_pda") ~= nil
+	return quest_pda.has_pda_by_community("dolg")
 end
+
+local informer_pda_price_by_rank = {
+	["novice"] 	= 100,
+	["stalker"] = 250,
+	["veteran"] = 350,
+	["master"] 	= 500,
+}
 
 function give_sv_pda_to_informer(actor, npc)
 
@@ -503,9 +592,14 @@ function give_sv_pda_to_informer(actor, npc)
 	
 	--Удаляем предмет
 	function item_trns_reward(actor, item)
-		if item:section() == "svoboda_pda" then
-			dialogs.relocate_money(actor, 50 + math.random(100), "in")
-			alife():release(alife():object(item:id()), true)
+		-- if item:section() == "svoboda_pda" then
+			-- dialogs.relocate_money(actor, 50 + math.random(100), "in")
+			-- alife():release(alife():object(item:id()), true)
+		-- end
+		if quest_pda.is_freedom_pda(item) then
+			local price = informer_pda_price_by_rank[quest_pda.get_pda_rank(item)]
+			dialogs.relocate_money(actor, price + math.random(50), "in")
+			dialogs.take_item_from_actor(item)
 		end
 	end
 	
@@ -521,9 +615,14 @@ function give_dlg_pda_to_informer(actor, npc)
 	
 	--Удаляем предмет
 	function item_trns_reward(actor, item)
-		if item:section() == "dolg_pda" then
-			dialogs.relocate_money(actor, 50 + math.random(100), "in")
-			alife():release(alife():object(item:id()), true)
+		-- if item:section() == "dolg_pda" then
+			-- dialogs.relocate_money(actor, 50 + math.random(100), "in")
+			-- alife():release(alife():object(item:id()), true)
+		-- end
+		if quest_pda.is_dolg_pda(item) then
+			local price = informer_pda_price_by_rank[quest_pda.get_pda_rank(item)]
+			dialogs.relocate_money(actor, price + math.random(50), "in")
+			dialogs.take_item_from_actor(item)
 		end
 	end
 	
@@ -531,33 +630,39 @@ function give_dlg_pda_to_informer(actor, npc)
 end
 
 function give_jaw_zam_pda_to_inf(actor, npc)
-	local item = db.actor:object("rad_jaw_zam_pda")
+	-- local item = db.actor:object("rad_jaw_zam_pda")
 	
-	if item then
-		dialogs.relocate_item_section(npc, "rad_jaw_zam_pda", "out")
-		alife():release(alife():object(item:id()), true)
-		dialogs.relocate_money(actor, 50 + math.random(100), "in")
-	end
+	-- if item then
+		-- dialogs.relocate_item_section(npc, "rad_jaw_zam_pda", "out")
+		-- alife():release(alife():object(item:id()), true)
+		-- dialogs.relocate_money(actor, 50 + math.random(100), "in")
+	-- end
+	dialogs.take_item_from_actor(quest_pda.get_jaw_zam_pda())
+	dialogs.relocate_money(actor, 50 + math.random(100), "in")
 end
 
 function give_killer_leader_pda(actor, npc)
-	local item = db.actor:object("cit_leader_killer_pda")
+	-- local item = db.actor:object("cit_leader_killer_pda")
 	
-	if item then
-		dialogs.relocate_item_section(npc, "cit_leader_killer_pda", "out") --Вначале отдаём предмет, потом удаляем
-		alife():release(alife():object(item:id()), true)
-		dialogs.relocate_money(actor, 450 + math.random(100), "in")
-	end
+	-- if item then
+		-- dialogs.relocate_item_section(npc, "cit_leader_killer_pda", "out") --Вначале отдаём предмет, потом удаляем
+		-- alife():release(alife():object(item:id()), true)
+		-- dialogs.relocate_money(actor, 450 + math.random(100), "in")
+	-- end
+	dialogs.take_item_from_actor(quest_pda.get_killer_leader_pda())
+	dialogs.relocate_money(actor, 450 + math.random(100), "in")
 end
 
 function bar_give_vp_pda(actor, npc)
-	local item = db.actor:object("cit_vp_pda")
+	-- local item = db.actor:object("cit_vp_pda")
 	
-	if item then
-		dialogs.relocate_item_section(npc, "cit_vp_pda", "out")
-		alife():release(alife():object(item:id()), true)
-		dialogs.relocate_money(actor, 50 + math.random(100), "in")
-	end
+	-- if item then
+		-- dialogs.relocate_item_section(npc, "cit_vp_pda", "out")
+		-- alife():release(alife():object(item:id()), true)
+		-- dialogs.relocate_money(actor, 50 + math.random(100), "in")
+	-- end
+	dialogs.take_item_from_actor(quest_pda.get_vp_pda())
+	dialogs.relocate_money(actor, 50 + math.random(100), "in")
 end
 
 function give_dlg_doc_reward(first_speaker, second_speaker)
@@ -571,10 +676,12 @@ end
 
 --Фамильное ружье охотника
 function have_hunters_toz(first_speaker, second_speaker)
-  	return first_speaker:object("hunters_toz") ~= nil
+  	--return first_speaker:object("hunters_toz") ~= nil
+	return actor:object("hunters_toz")
 end
 function give_hunters_toz(first_speaker, second_speaker)
-	dialogs.relocate_item_section(second_speaker, "hunters_toz", "out")
+	--dialogs.relocate_item_section(second_speaker, "hunters_toz", "out")
+	dialogs.take_item_from_actor("hunters_toz")
 end
 function have_hunter_reward(first_speaker, second_speaker)
 	dialogs.relocate_money(second_speaker, 4000, "in")
@@ -607,22 +714,26 @@ function give_money_for_informer_3(actor, npc)
 end
 
 function give_volkodav_reward(first_speaker, second_speaker)
-	dialogs.relocate_item_section(first_speaker, "wpn_addon_grenade_launcher", "in")
+	--dialogs.relocate_item_section(first_speaker, "wpn_addon_grenade_launcher", "in")
+	dialogs.give_item_to_actor("wpn_addon_grenade_launcher")
 	dialogs.relocate_money(first_speaker, 1000, "in")
 end
 
 function barman_give_outfit(first_speaker, second_speaker)
-	dialogs.relocate_item_section(second_speaker, "stalker_outfit", "in")
+	--dialogs.relocate_item_section(second_speaker, "stalker_outfit", "in")
+	dialogs.give_item_to_actor("stalker_outfit")
 end
 
 function barman_give_val_key(first_speaker, second_speaker)
-	dialogs.relocate_item_section(second_speaker, "bar_key_to_val_underground", "in")
+	--dialogs.relocate_item_section(second_speaker, "bar_key_to_val_underground", "in")
+	dialogs.give_item_to_actor("bar_key_to_val_underground")
 end
 
 
 function professor_for_resque(npc, actor)
     if not has_alife_info("rostok_kruglov_give_flash") then
-	    dialogs.relocate_item_section(npc, "bar_ecolog_flash", "in")
+	    --dialogs.relocate_item_section(npc, "bar_ecolog_flash", "in")
+		dialogs.give_item_to_actor("bar_ecolog_flash")
         db.actor:give_info_portion("rostok_kruglov_give_flash")
     end
 end
