@@ -100,7 +100,7 @@ end
 function random_prob()
 	local rnd = math.random()
 	local probe = gd_injure_prob[level.get_game_difficulty()+1]
-	log3("~%s random %s probe %s | %s", script_name(), rnd, probe, rnd <= probe and "INJURE" or "IGNORE")
+	--log3("~%s random %s probe %s | %s", script_name(), rnd, probe, rnd <= probe and "INJURE" or "IGNORE")
 	return rnd <= probe
 end
 
@@ -162,7 +162,7 @@ function try_groggy_effect(health_lost)
 	if not groggy_treshold or health_lost < groggy_treshold then 
 	return end
 	
-	log3("~groggy effect on hit amount %s", health_lost)
+	--log3("~groggy effect on hit amount %s", health_lost)
 	
 	level.remove_cam_effector(groggy_cam_eff_id)
 	level.remove_pp_effector(groggy_ppe_eff)
@@ -203,7 +203,7 @@ function try_upper_limbs_injure(health_lost)
 	hand_injured = true
 	hud_add_info_message("item_usage", "st_hand_injured")
 	
-	log3("~upper limbs injure on hit amount %s", health_lost)
+	--log3("~upper limbs injure on hit amount %s", health_lost)
 end
 
 function try_lower_limbs_injure(health_lost)
@@ -213,7 +213,7 @@ function try_lower_limbs_injure(health_lost)
 	leg_injured = true
 	hud_add_info_message("item_usage", "st_leg_injured")
 	
-	log3("~lower limbs injure on hit amount %s", health_lost)
+	--log3("~lower limbs injure on hit amount %s", health_lost)
 	
 	if not legs_subscribe then
 		legs_subscribe = { signal = "on_update", fun = this.on_update }

@@ -11,7 +11,7 @@ function on_key_press(key, game_action)
 	if level.main_input_receiver() or 
 		game_action ~= key_bindings.kSWIPE_MASK or
 		not actor_hands_free() or
-		console:get_string("r2_rain_drops_control") == "off"
+		not console:get_bool("r2_rain_drops_control")
 	then
 	return end
 	

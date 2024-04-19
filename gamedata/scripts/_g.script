@@ -2042,7 +2042,7 @@ function get_bone_protection_sect(section)
 end
 
 function is_3d_pda()
-	return actor_get_pda() and actor_get_pda():is_hud_item() and get_console():get_string("g_3d_pda") == "on"
+	return actor_get_pda() and actor_get_pda():is_hud_item() and get_console():get_bool("g_3d_pda")
 end
 
 function get_species(npc)

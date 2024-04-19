@@ -134,8 +134,8 @@ end
 
 function take_item_from_actor(sect_or_item)
 	local is_obj = type(sect_or_item) == "userdata"
-	local section = is_obj and sect_or_item:section() or section
-	local item = is_obj and item or actor:object(sect_or_item)
+	local section = is_obj and sect_or_item:section() or sect_or_item
+	local item = is_obj and item or actor:object(section)
 	local sim = alife()
 	sim:release(sim:object(item:id()), true)
 	news_manager.relocate_item(actor, "out", section)

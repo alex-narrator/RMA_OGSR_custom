@@ -17,6 +17,16 @@ end
 class "mounted_weapon_binder" (object_binder)
 function mounted_weapon_binder:__init(obj) super(obj)
 	self.sm = ogse_signals.get_mgr()
+	self.overheated = false
+	self.overheat = 0
+	local sect = obj:section()
+	self.overheat_inc = read_if_exists(sys_ini, "r_float", sect, "overheat_inc", 0)
+	self.overheat_dec = read_if_exists(sys_ini, "r_float", sect, "overheat_dec", 0)
+	self.overheat_particle = read_if_exists(sys_ini, "r_string", sect, "overheat_particle", nil)
+	self.overheat_particle_pos = read_if_exists(sys_ini, "r_vector", sect, "overheat_particle_pos", vector())
+	if self.overheat_particle then
+		self.overheat_particle = particles_object(self.overheat_particle)
+	end
 end
  
 function mounted_weapon_binder:reload(section)
@@ -42,9 +52,43 @@ end
 function mounted_weapon_binder:update(delta)
     object_binder.update(self, delta)
 	self.sm:call("on_update_mounted_weapon", self.object)
+	self:process_overheat(false, delta)
 end
 
 function mounted_weapon_binder:on_use()
 	self.sm:call("on_use_mounted_weapon", self.object)
-	log3("~used %s", self.object:name())
+	--log3("~used %s", self.object:name())
+end
+
+function mounted_weapon_binder:process_overheat(val, dt)
+	local delta = val and self.overheat_inc or -self.overheat_dec
+	delta = delta * (dt or 1)
+	self.overheat = self.overheat + delta
+	self.overheat = math.clamp(self.overheat, 0, 1)
+	--log3("~weapon %s - overheat %s", self.object:name(), self.overheat)
+	if self.overheated then
+		if self.overheat == 0 then
+			self.overheated = false
+		end
+		if self.overheat_particle then
+			local pos = self.object:position()
+			pos:add(self.overheat_particle_pos)
+			self.overheat_particle:play_at_pos(pos)
+		end
+	else
+		if self.overheat == 1 then
+			self.overheated = true
+		end
+		if self.overheat_particle and self.overheat_particle:playing() then
+			self.overheat_particle:stop()
+		end		
+	end
+end
+
+function mounted_weapon_binder:is_overheated()
+	return self.overheated
+end
+
+function mounted_weapon_binder:get_overheat()
+	return self.overheat
 end

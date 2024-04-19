@@ -359,6 +359,7 @@ function clear_inventory(npc)
 	function perform_action(dummy, item)
 		if item:section() ~= "bolt" and item:get_slot() ~= PDA_SLOT then
 			sim:release(sim:object(item:id()), true)
+			--log3("~remove item %s from trader %s due to trade list update", item:name(), npc:name())
 		end
 	end	
 	npc:iterate_inventory(perform_action, nil)

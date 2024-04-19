@@ -9,12 +9,7 @@ end
 
 local subscribed = false
 
-function is_3d_pda()
-	return actor_get_pda() and actor_get_pda():is_hud_item() and get_console():get_string("g_3d_pda") == "on"
-end
-
 function create_window()
-
 	if not overlay then
 		overlay = PDAOverlay(level.get_pda_wnd())
 	end
