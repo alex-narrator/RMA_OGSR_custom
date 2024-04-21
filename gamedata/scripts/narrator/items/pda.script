@@ -38,6 +38,16 @@ function fill_owner_info(id)
 		known_info = known_info..infoportion..","
 		parent:disable_info_portion(infoportion)
 	end
+	
+	local custom_known_info = storyline_data.custom_known_info[parent:story_id()]
+	if custom_known_info then
+		--log3("parent %s | custom_known_info %s", parent:name(), custom_known_info)
+		for k, infoportion in pairs(custom_known_info) do
+			--log3("~parent %s - add custom infoportion %s", parent:name(), infoportion)
+			known_info = known_info..infoportion..","
+		end	
+	end
+	
 	--log3("~parent %s - pda has info line %s", parent:name(), known_info)
 	od.info = known_info
 	

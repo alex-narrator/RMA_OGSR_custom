@@ -292,11 +292,11 @@ local need_pda_by_profile = {
 }
 
 function npc_protected(npc)
-	return need_pda_by_profile[npc:profile_name()]
+	return need_pda_by_profile[npc:profile_name()] or storyline_data.custom_known_info[npc:story_id()]
 end
 
 function spawn_pda(npc)
-	if npc:story_id() == NO_STORY_ID and not npc_protected(npc) and math.random() > gd_spawn_prob[level.get_game_difficulty()+1] then
+	if --[[npc:story_id() == NO_STORY_ID and]] not npc_protected(npc) and math.random() > gd_spawn_prob[level.get_game_difficulty()+1] then
 		--log3("~NPC %s (%s) has no story_id and has no luck to spawn PDA", npc:profile_name(), npc:name())
 		for k,infoportion in pairs(npc:get_known_info()) do
 			npc:disable_info_portion(infoportion)
