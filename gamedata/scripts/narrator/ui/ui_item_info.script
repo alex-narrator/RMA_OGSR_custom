@@ -535,6 +535,7 @@ function attach_armor_params(UIDesc, item)
 	local font = xml:ReadAttrib("params_list:descr_text", "font", "letterica16")
 	
 	armor_st = {}
+	local armored_bones = {}
 	sn = game.translate_string("st_armor_class")
 	local params_list = xml:InitScrollView("params_list", UIDesc)
 	for k,v in ipairs(armor_params) do
@@ -543,22 +544,40 @@ function attach_armor_params(UIDesc, item)
 			tmp_tbl = split_string(bone_protect_str, ",")
 			val = tonumber(tmp_tbl[2])
 			if val > 0 then
-				armor_st[k] = CUIStatic()--xml:InitStatic(v.st_name, params_list)
-				text = string.format("%s%s %.0f %s", game.translate_string("st_list_mark"), game.translate_string(v.param_name), val, sn)
-				armor_st[k]:SetText(text)
-				armor_st[k]:SetFont(GetFontCustom(font))
-				armor_st[k]:AdjustHeightToText()
-				params_list:AddWindow(armor_st[k])
-				show = true
+				if not armored_bones[val] then
+					armored_bones[val] = {}
+				end
+				table.insert(armored_bones[val], game.translate_string(v.param_name))
 			end
 		end
 	end
+	
+	local divider
+	for armor_class, armored_bone_names in pairs(armored_bones) do
+		text = string.format("%s%s%.0f %s: %s", game.translate_string("st_list_mark"),"%c[UI_orange]", armor_class, sn, "%c[default]")
+		for i=1, table.size(armored_bone_names) do
+			divider = armored_bone_names[i+1] and ", " or ""
+			text = text..armored_bone_names[i]..divider
+		end
+		log3("~text %s", text)
+		armor_st[armor_class] = CUIStatic()--xml:InitStatic(v.st_name, params_list)
+		armor_st[armor_class]:SetWidth(params_list:GetDesiredChildWidth())
+		armor_st[armor_class]:SetText(text)
+		armor_st[armor_class]:SetTextComplexMode(true)		
+		armor_st[armor_class]:SetFont(GetFontCustom(font))
+		armor_st[armor_class]:AdjustHeightToText()
+		params_list:AddWindow(armor_st[armor_class])
+		show = true		
+	end
+	
 	--hit fraction
 	val = read_if_exists(sys_ini, "r_float", item:section(), "hit_fraction", 0.1)
 	if val > 0 then
 		armor_st["hit_fraction"] = CUIStatic()--xml:InitStatic("hit_fraction", params_list)
-		text = string.format("%s%s %.0f %s", game.translate_string("st_list_mark"), game.translate_string("st_armor_hit_fraction"), val * 100, "%")
+		armor_st["hit_fraction"]:SetWidth(params_list:GetDesiredChildWidth())
+		text = string.format("%s%s%.0f%s %s%s", game.translate_string("st_list_mark"),"%c[UI_orange]", val * 100, "%", "%c[default]", game.translate_string("st_armor_hit_fraction"))
 		armor_st["hit_fraction"]:SetText(text)
+		armor_st["hit_fraction"]:SetTextComplexMode(true)	
 		armor_st["hit_fraction"]:SetFont(GetFontCustom(font))
 		armor_st["hit_fraction"]:AdjustHeightToText()
 		params_list:AddWindow(armor_st["hit_fraction"])

@@ -603,6 +603,8 @@ function sort_by_size(a, b)
 			if ammo1 and ammo2 then
 				return ammo1.box_size > ammo2.box_size
 			end
+			
+			return a:condition() > b:condition()
 		end
 	end
 	
