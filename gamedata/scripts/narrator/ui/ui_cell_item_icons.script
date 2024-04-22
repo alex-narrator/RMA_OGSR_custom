@@ -17,6 +17,11 @@ function update_custom_icons(item, cell_item, count)
 		text = string.format("%s/%s", eatable.eat_portions_num, eatable.eat_start_portions_num)
 	end
 	
+	local use_count = read_if_exists(sys_ini, "r_float", item:section(), "use_count", 0)
+	if use_count > 0 then
+		text = string.format("%.0f/%s", use_count*item:condition(), use_count)
+	end
+	
 	local weapon_mag = item:get_weapon_m()
 	if weapon_mag and weapon_mag.ammo_mag_size > 0 then
 		text = string.format("%s/%s%s", weapon_mag.ammo_elapsed, weapon_mag.ammo_mag_size, get_fire_mode_str(item))
