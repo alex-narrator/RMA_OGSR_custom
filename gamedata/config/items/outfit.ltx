@@ -20,6 +20,7 @@ disassemble_tool 				= multitool
 
 [plate_carrier]
 script_binding      			= bind_vest.init
+plates 							= plate_class_2, damage_plate_class_2, plate_class_3, damage_plate_class_3, plate_class_4, damage_plate_class_4, plate_class_6, damage_plate_class_6
 
 [scientific_common]
 covered_bones_sect 				=
@@ -27,8 +28,8 @@ covered_bones_sect 				=
 belt_size 						= 4
 
 hud_shader 						= true
-;hud_texture 					= sci
-;hud_breakable 					= true
+hud_texture 					= sci
+hud_breakable 					= true
 hud_breathe 					= 0.2
 
 slots_locked 					= 9, 11
@@ -76,7 +77,7 @@ fire_wound_protection  			= 0.1
 
 bones_koeff_protection 			= kurtka_mask_damage
 
-disassemble_parts 					= part_cloth, 2
+disassemble_parts 				= part_cloth, 2
 
 [sect_novice_outfit_immunities]
 burn_immunity					= 0.04			;коэффициенты иммунитета самого костюма
@@ -126,7 +127,7 @@ fire_wound_protection  			= 0.15
 
 bones_koeff_protection 			= kurtka_antigas_damage
 
-disassemble_parts 					= part_cloth, 2
+disassemble_parts 				= part_cloth, 2
 
 [sect_bandit_outfit_immunities]
 burn_immunity					= 0.04			;коэффициенты иммунитета самого костюма
@@ -143,7 +144,7 @@ fire_wound_immunity				= 0.015
 ;---------------------------------------------------------------------------------------------
 ;		КОСТЮМ НАЕМНИКА
 ;---------------------------------------------------------------------------------------------
-[killer_outfit]:outfit_base
+[killer_outfit]:outfit_base,plate_carrier
 $spawn 							= "outfit\killer_outfit"
 ;$prefetch 						= 32
 visual          				= equipments\stalker_killer_suit
@@ -179,7 +180,7 @@ fire_wound_protection  			= 0.2
 
 bones_koeff_protection 			= gilet_antigas_damage
 
-disassemble_parts 					= part_synt, 2
+disassemble_parts 				= part_synt, 2
 
 [sect_killer_outfit_immunities]
 burn_immunity					= 0.04			;коэффициенты иммунитета самого костюма
@@ -198,7 +199,7 @@ fire_wound_immunity				= 0.012
 ;---------------------------------------------------------------------------------------------
 ;		КОСТЮМ МОНОЛИТОВЦА
 ;---------------------------------------------------------------------------------------------
-[monolit_outfit]:outfit_base
+[monolit_outfit]:outfit_base,plate_carrier
 $spawn 							= "outfit\monolit_outfit"
 ;$prefetch 						= 32
 visual          				= equipments\monolit_suit
@@ -232,7 +233,7 @@ fire_wound_protection  			= 0.4
 
 bones_koeff_protection 			= kombez_mask_damage
 
-disassemble_parts 					= part_synt, 2
+disassemble_parts 				= part_synt, 2
 
 [sect_monolit_outfit_immunities]
 burn_immunity					= 0.03			;коэффициенты иммунитета самого костюма
@@ -250,7 +251,7 @@ fire_wound_immunity				= 0.01
 ;---------------------------------------------------------------------------------------------
 ;		КОСТЮМ ВОЕННОГО СПЕЦНАЗА
 ;---------------------------------------------------------------------------------------------
-[specops_outfit]:outfit_base
+[specops_outfit]:outfit_base,plate_carrier
 $spawn 							= "outfit\specops_outfit"
 ;$prefetch 						= 32
 visual          				= equipments\specnaz_suit
@@ -284,7 +285,7 @@ fire_wound_protection  			= 0.45
 
 bones_koeff_protection 			= kombez_helmet_damage
 
-disassemble_parts 					= part_synt, 2
+disassemble_parts 				= part_synt, 2
 
 [sect_specops_outfit_immunities]
 burn_immunity					= 0.04			;коэффициенты иммунитета самого костюма
@@ -303,7 +304,7 @@ fire_wound_immunity				= 0.01
 ;---------------------------------------------------------------------------------------------
 ;		КОСТЮМ МИЛИТАРИ
 ;---------------------------------------------------------------------------------------------
-[military_outfit]:outfit_base
+[military_outfit]:outfit_base,plate_carrier
 $spawn 							= "outfit\military_outfit"
 ;$prefetch 						= 32
 visual          				= equipments\stalker_comander_suit
@@ -340,7 +341,7 @@ fire_wound_protection  			= 0.55
 
 bones_koeff_protection 			= armor_helmet_damage
 
-disassemble_parts 					= part_mil, 2
+disassemble_parts 				= part_mil, 2
 
 [sect_military_outfit_immunities]
 burn_immunity					= 0.02			;коэффициенты иммунитета самого костюма
@@ -381,7 +382,7 @@ belt_size 						= 3
 
 immunities_sect					= sect_stalker_outfit_immunities
 
-disassemble_parts 					= part_synt, 2
+disassemble_parts 				= part_synt, 2
 
 ; LOW RESISTANCE
 burn_protection 				= 0.5
@@ -396,8 +397,6 @@ fire_wound_protection  			= 0.3
 
 power_loss 						= -0.13
 ;bones_koeff_protection = gilet_antigas_damage
-
-plates 							= plate_class_2, damage_plate_class_2, plate_class_3, damage_plate_class_3, plate_class_4, damage_plate_class_4, plate_class_6, damage_plate_class_6
 
 [sect_stalker_outfit_immunities]
 burn_immunity					= 0.03			;коэффициенты иммунитета самого костюма
@@ -415,7 +414,7 @@ fire_wound_immunity				= 0.01
 ;---------------------------------------------------------------------------------------------
 ;		НАУЧНЫЙ КОСТЮМ НЕЙТРАЛЬНОГО СТАЛКЕРА
 ;---------------------------------------------------------------------------------------------
-[scientific_outfit]:outfit_base,scientific_common
+[scientific_outfit]:outfit_base,scientific_common,plate_carrier
 $spawn 							= "outfit\scientific_outfit"
 visual          				= equipments\stalker_scient_suit	
 actor_visual					= actors\hero\stalker_scien
@@ -451,7 +450,7 @@ fire_wound_protection  			= 0.40
 
 bones_koeff_protection 			= kombez_kupol_damage
 
-disassemble_parts 					= part_dyra, 2
+disassemble_parts 				= part_dyra, 2
 
 [sect_scientific_outfit_immunities]
 burn_immunity					= 0.03			;коэффициенты иммунитета самого костюма
@@ -469,7 +468,7 @@ fire_wound_immunity				= 0.01
 ;---------------------------------------------------------------------------------------------
 ;		ЭКЗОСКЕЛЕТ НЕЙТРАЛЬНОГО СТАЛКЕРА
 ;---------------------------------------------------------------------------------------------
-[exo_outfit]:outfit_base
+[exo_outfit]:outfit_base,plate_carrier
 $spawn 							= "outfit\exo_outfit"
 visual          				= equipments\exoskelet	
 actor_visual					= actors\hero\stalker_exoskeleton
@@ -492,9 +491,6 @@ actor_icon 						= ui_npc_u_stalker_neytral_exoskeleton
 immunities_sect					= sect_exo_outfit_immunities
 
 belt_size 						= 4
-
-rifle_ammo 						= 4
-grenade							= 2
 
 ; MEDIUM RESISTANCE
 burn_protection 				= 0.5
@@ -539,7 +535,7 @@ fire_wound_immunity				= 0.005
 ;---------------------------------------------------------------------------------------------
 ;		ЛЕГКИЙ КОСТЮМ СВОБОДЫ
 ;---------------------------------------------------------------------------------------------
-[svoboda_light_outfit]:outfit_base 
+[svoboda_light_outfit]:outfit_base,plate_carrier
 $spawn 							= "outfit\svoboda_light_outfit"
 visual          				= equipments\svoboda_light_suit
 actor_visual					= actors\hero\stalker_svoboda_light
@@ -575,7 +571,7 @@ fire_wound_protection  			= 0.3
 power_loss 						= -0.33
 bones_koeff_protection 			= gilet_mask_damage
 
-disassemble_parts 					= part_synt, 2
+disassemble_parts 				= part_synt, 2
 
 [sect_svoboda_light_outfit_immunities]
 burn_immunity					= 0.04			;коэффициенты иммунитета самого костюма
@@ -594,7 +590,7 @@ fire_wound_immunity				= 0.012
 ;---------------------------------------------------------------------------------------------
 ;		ТЯЖЕЛЫЙ КОСТЮМ СВОБОДЫ
 ;---------------------------------------------------------------------------------------------
-[svoboda_heavy_outfit]:outfit_base
+[svoboda_heavy_outfit]:outfit_base,plate_carrier
 $spawn 							= "outfit\svoboda_heavy_outfit"
 visual          				= equipments\svoboda_heavy_suit
 actor_visual					= actors\hero\stalker_svoboda_heavy
@@ -630,7 +626,7 @@ fire_wound_protection  			= 0.4
 
 bones_koeff_protection 			= kombez_antigas_damage
 
-disassemble_parts 					= part_synt, 2
+disassemble_parts 				= part_synt, 2
 
 [sect_svoboda_heavy_outfit_immunities]
 burn_immunity					= 0.03			;коэффициенты иммунитета самого костюма
@@ -648,7 +644,7 @@ fire_wound_immunity				= 0.01
 ;---------------------------------------------------------------------------------------------
 ;		ОБЫЧНЫЙ КОСТЮМ ДОЛГА
 ;---------------------------------------------------------------------------------------------
-[dolg_outfit]:outfit_base
+[dolg_outfit]:outfit_base,plate_carrier
 $spawn 							= "outfit\dolg_outfit"
 visual          				= equipments\dolg_suit
 actor_visual					= actors\hero\stalker_dolg
@@ -683,7 +679,7 @@ fire_wound_protection  			= 0.4
 
 bones_koeff_protection 			= kombez_antigas_damage
 
-disassemble_parts 					= part_synt, 2
+disassemble_parts 				= part_synt, 2
 
 [sect_dolg_outfit_immunities]
 burn_immunity					= 0.03			;коэффициенты иммунитета самого костюма
@@ -699,7 +695,7 @@ fire_wound_immunity				= 0.01
 ;---------------------------------------------------------------------------------------------
 ;		НАУЧНЫЙ КОСТЮМ ДОЛГА
 ;---------------------------------------------------------------------------------------------
-[dolg_scientific_outfit]:outfit_base,scientific_common
+[dolg_scientific_outfit]:outfit_base,scientific_common,plate_carrier
 $spawn 							= "outfit\dolg_scientific_outfit"
 visual          				= equipments\stalker_dolg_nauchniy_suit
 actor_visual					= actors\dolg\stalker_do_nauchniy	
@@ -734,7 +730,7 @@ fire_wound_protection  			= 0.40
 
 bones_koeff_protection 			= kombez_kupol_damage
 
-disassemble_parts 					= part_dyra, 2
+disassemble_parts 				= part_dyra, 2
 
 [sect_dolg_scientific_outfit_immunities]
 burn_immunity					= 0.03			;коэффициенты иммунитета самого костюма
@@ -789,7 +785,7 @@ fire_wound_protection  			= 0.20
 
 bones_koeff_protection 			= kurtka_kupol_damage
 
-disassemble_parts 					= part_dyra, 2
+disassemble_parts 				= part_dyra, 2
 
 [sect_ecolog_outfit_immunities]
 burn_immunity					= 0.005			;коэффициенты иммунитета самого костюма
@@ -805,7 +801,7 @@ fire_wound_immunity				= 0.015
 ;---------------------------------------------------------------------------------------------
 ;		УКРЕПЛЕННЫЙ КОСТЮМ УЧЕННОГО
 ;---------------------------------------------------------------------------------------------
-[protection_outfit]:outfit_base,scientific_common
+[protection_outfit]:outfit_base,scientific_common,plate_carrier
 $spawn 							= "outfit\protection_outfit"
 visual          				= equipments\scientist_suit	
 actor_visual					= actors\hero\stalker_chemical
@@ -840,7 +836,7 @@ fire_wound_protection  			= 0.40
 
 bones_koeff_protection 			= kombez_kupol_damage
 
-disassemble_parts 					= part_mil, 2
+disassemble_parts 				= part_mil, 2
 
 
 [sect_protection_outfit_immunities]
@@ -856,7 +852,7 @@ fire_wound_immunity				= 0.01
 
 
 
-[soldier_outfit]:outfit_base
+[soldier_outfit]:outfit_base,plate_carrier
 $spawn 							= "outfit\obsolete\soldier_outfit"
 visual          				= equipments\soldier_suit
 actor_visual					= actors\hero\stalker_soldier
@@ -888,7 +884,7 @@ fire_wound_protection  			= 0.2
 
 bones_koeff_protection 			= gilet_mask_damage
 
-disassemble_parts 					= part_synt, 2
+disassemble_parts 				= part_synt, 2
 
 [sect_soldier_outfit_immunities]
 burn_immunity					= 0.035			;коэффициенты иммунитета самого костюма

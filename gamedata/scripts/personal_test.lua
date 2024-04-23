@@ -125,13 +125,13 @@ end
 	--item:set_show_model_mesh_hud(7, false)
 --end
 
---local item = level.get_target_obj()
---if item then
---item:dump_visual_to_log() --Распечатать в лог информацию о мешах и костях модели - мировой и худовой, если худовая доступна.
-	--log3("--Mesh count of [%s]: [%s]", item:name(), item:get_mesh_count()) --вывести кол-во мешей в худовой модели.
-	--item:set_show_model_mesh(0, false) --Установить видимость меша для худовой модели
--- --local shown = item:get_show_model_mesh_hud(0) --узнать показан ли меш
---end
+local item = level.get_target_obj()
+if item then
+item:dump_visual_to_log() --Распечатать в лог информацию о мешах и костях модели - мировой и худовой, если худовая доступна.
+	log3("--Mesh count of [%s]: [%s]", item:name(), item:get_mesh_count()) --вывести кол-во мешей в худовой модели.
+	item:set_show_model_mesh(1, not item:get_show_model_mesh(1)) --Установить видимость меша для худовой модели
+--local shown = item:get_show_model_mesh_hud(0) --узнать показан ли меш
+end
 
 -- if actor:active_item() then
 	-- actor:active_item():stop_aim_inertion(false)
@@ -153,8 +153,8 @@ end
 
 --alife():teleport_object(16531, actor:position(), actor:level_vertex_id(), actor:game_vertex_id())
 
-log3("actor position (%s, %s, %s), lvid %s, gvid %s", actor:position().x, actor:position().y, actor:position().z, actor:level_vertex_id(), actor:game_vertex_id())
-log3("actor direction (%s, %s, %s)", actor:direction().x, actor:direction().y, actor:direction().z)
+--log3("actor position (%s, %s, %s), lvid %s, gvid %s", actor:position().x, actor:position().y, actor:position().z, actor:level_vertex_id(), actor:game_vertex_id())
+--log3("actor direction (%s, %s, %s)", actor:direction().x, actor:direction().y, actor:direction().z)
 
 --dis_consciousness
 --dream
@@ -181,13 +181,20 @@ log3("actor direction (%s, %s, %s)", actor:direction().x, actor:direction().y, a
 
 -- local sobj
 -- local sim = alife()
+-- local sects = {
+	-- ["dar_document1"] = true,
+	-- ["dar_document2"] = true,
+	-- ["dar_document3"] = true,
+	-- ["dar_document4"] = true,
+	-- ["dar_document5"] = true,
+-- }
 -- for i = 1, 65535 do
 	-- sobj = sim:object(i)
-	-- if sobj and (sobj:clsid() == clsid.equ_vest_s) then
-		-- log3("~item %s was deleted", sobj:name())
-		-- sim:release(sobj, true)
+	-- if sobj and sects[sobj:section_name()] then
+		-- level.map_add_object_spot_ser(i, "personal_location", sobj:section_name())
 	-- end
 -- end
+-- get_main_window().show_zone_map = true
 
 -- if actor_get_outfit() then
 	-- local outfit = actor_get_outfit():get_outfit()
@@ -350,4 +357,4 @@ log3("actor direction (%s, %s, %s)", actor:direction().x, actor:direction().y, a
 -- spawn_sect = "decor_box_tara"
 -- spawn_to_level(spawn_sect, spawn_pos, level_name, spawn_dir)
 
-game.play_hud_motion(2, "medkit_exo_hud", "anm_use", false, 0.75, true)
+--game.play_hud_motion(2, "medkit_exo_hud", "anm_use", false, 0.75, true)

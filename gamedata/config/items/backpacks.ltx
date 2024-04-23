@@ -1,63 +1,467 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;BACKPACK;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-[backpack]:identity_immunities
-GroupControlSection	= spawn_group
-discovery_dependency =
-class				= O_CONTNR
-cform				= skeleton
-visual				= equipments\item_rukzak
-description			= backpack_descr
-slot				= 12
+[backpack_base]:identity_immunities
+class						= O_CONTNR
+cform						= skeleton
+visual						= equipments\item_rukzak
 
-use_ai_locations = false
+slot						= 12
 
-icon_group 				= 7
+use_ai_locations 			= false
 
-additional_weight 		= 0.5
-power_restore_speed 	= 1
-shock_protection 		= 0.1
-burn_protection 		= 0.5
-strike_protection 		= 0.5
+icon_group 					= 7
 
-immunities_sect			= sect_backpack_immunities
+inv_name					= Backpack
+inv_name_short				= Backpack
+description					= Backpack
+inv_weight					= 1
 
-inv_name			= Backpack
-inv_name_short		= Backpack
-inv_weight			= 0.5
+inv_grid_width     			= 2
+inv_grid_height    			= 2
+inv_grid_x         			= 0
+inv_grid_y         			= 0
 
-inv_grid_width     = 2
-inv_grid_height    = 2
-inv_grid_x         = 0
-inv_grid_y         = 2
+use_condition 				= true
+cost						= 500
+default_to_ruck				= false
 
-use_condition 		= true
-cost				= 500	;30
-default_to_ruck		= false
+disassemble_tool 			= multitool
 
-quick_drop 			= true
+position					= 0.35,0.25,0.0
+attach_angle_offset			= -1.6, -3.14, 1.6
+attach_position_offset		= 0.18, 0.00, -0.07 ;vert(+up -down)/horz (+left -right)/deep (-close to screen +far from screen)
+attach_bone_name			= bip01_spine1
 
-position				= 0.35,0.25,0.0
-attach_angle_offset		= -1.6, -3.14, 1.6
-attach_position_offset	= 0.18, 0.00, -0.07 ;vert(+up -down)/horz (+left -right)/deep (-close to screen +far from screen)
-attach_bone_name		= bip01_spine1
+immunities_sect 			= actor_backpack_immunity
 
-[sect_backpack_immunities]
-burn_immunity				= 0.03			;коэффициенты иммунитета самого костюма
-strike_immunity				= 0.01
-shock_immunity				= 0.03
-wound_immunity				= 0.015
-radiation_immunity			= 0.00
-telepatic_immunity			= 0.00
+[actor_backpack_immunity]
+burn_immunity				= 0.05
+strike_immunity				= 0.0
+shock_immunity				= 0.0
+wound_immunity				= 0.05
+radiation_immunity			= 0.0
+telepatic_immunity			= 0.0
+chemical_burn_immunity		= 0.05
+explosion_immunity			= 0.05
+fire_wound_immunity			= 0.02
+
+;------------------------------------------------------------------------------------------
+;------------------ Перелік рюкзаків для використання -------------------------------------
+;------------------------------------------------------------------------------------------
+
+;------------------------------------------------------------------------------------------
+;------------------------------------- Мішечок --------------------------------------------
+;------------------------------------------------------------------------------------------
+
+[backpack_sack]:backpack_base
+$spawn						= "backpacks\novice_bag"
+visual						= dynamics\backpacks\novice_sack
+
+inv_name					= st_backpack_sack_name
+inv_name_short				= st_backpack_sack_short
+description					= st_backpack_sack_desc
+
+inv_weight					= 0.2
+cost						= 100
+
+inv_grid_x         			= 0
+inv_grid_y         			= 0
+
+additional_weight 			= 0.2
+
+attach_angle_offset 		= -0.100, 0.243, 1.600
+attach_position_offset 		= -0.003, -0.041, -0.218
+
+disassemble_parts 			= part_cloth
+
+immunities_sect 			= actor_novice_sack_immunity
+
+[actor_novice_sack_immunity]
+burn_immunity				= 0.1
+strike_immunity				= 0.0
+shock_immunity				= 0.0
+wound_immunity				= 0.1
+radiation_immunity			= 0.0
+telepatic_immunity			= 0.0
+chemical_burn_immunity		= 0.1
+explosion_immunity			= 0.1
+fire_wound_immunity			= 0.06
+
+;------------------------------------------------------------------------------------------
+;------------------------------------- Сумка новачка --------------------------------------
+;------------------------------------------------------------------------------------------
+
+[backpack_bag]:backpack_base
+$spawn						= "backpacks\novice_bag"
+visual						= dynamics\backpacks\novice_bag
+
+inv_name					= st_backpack_bag_name
+inv_name_short				= st_backpack_bag_short
+description					= st_backpack_bag_desc
+
+inv_weight					= 1.0
+cost						= 400
+
+inv_grid_x         			= 2
+inv_grid_y         			= 0
+
+additional_weight 			= 0.25
+
+disassemble_parts 			= part_cloth, 2
+
+immunities_sect 			= actor_novice_bag_immunity
+
+attach_angle_offset 		= 1.542, -0.002, 1.558
+attach_position_offset 		= 0.140, 0.000, -0.340
+
+[actor_novice_bag_immunity]
+burn_immunity				= 0.03
+strike_immunity				= 0.0
+shock_immunity				= 0.0
+wound_immunity				= 0.03
+radiation_immunity			= 0.0
+telepatic_immunity			= 0.0
 chemical_burn_immunity		= 0.03
 explosion_immunity			= 0.03
 fire_wound_immunity			= 0.01
 
-[backpack_small]:backpack
-additional_weight = 0.2
-quick_drop 			= false
+;------------------------------------------------------------------------------------------
+;------------------------------------- Рюкзак новачка -------------------------------------
+;------------------------------------------------------------------------------------------
 
-description			= backpack_small_descr
-inv_name			= Backpack_small
-inv_name_short		= Backpack_small
+[backpack_novice]:backpack_base
+$spawn						= "backpacks\backpack_stalker"
+visual						= dynamics\backpacks\backpack_novice
 
-inv_grid_x         = 0
-inv_grid_y         = 0
+inv_name					= st_backpack_novice_name
+inv_name_short				= st_backpack_novice_short
+description					= st_backpack_novice_desc
+
+inv_weight					= 1.0
+cost						= 800
+
+inv_grid_x         			= 4
+inv_grid_y         			= 0
+
+burn_protection 			= 0.05
+shock_protection 			= 0.05
+chemical_burn_protection 	= 0.05
+strike_protection 			= 0.05
+explosion_protection 		= 0.05
+wound_protection			= 0.05
+
+additional_weight 			= 0.3
+
+disassemble_parts 			= part_cloth, part_synt
+
+attach_angle_offset 		= 2.542, -0.002, -1.542
+attach_position_offset 		= 0.020, -0.010, -0.020
+
+;------------------------------------------------------------------------------------------
+;------------------------------------- Рюкзак сталкера ------------------------------------
+;------------------------------------------------------------------------------------------
+
+[backpack_stalker]:backpack_base
+$spawn						= "backpacks\backpack_stalker"
+visual						= dynamics\backpacks\backpack_stalker
+
+inv_name					= st_backpack_stalker_name
+inv_name_short				= st_backpack_stalker_short
+description					= st_backpack_stalker_desc
+
+inv_weight					= 1.3
+cost						= 1500
+
+inv_grid_x         			= 0
+inv_grid_y         			= 2
+
+burn_protection 			= 0.1
+shock_protection 			= 0.1
+chemical_burn_protection 	= 0.1
+radiation_protection 		= 0.1
+telepatic_protection 		= 0.1
+strike_protection 			= 0.1
+explosion_protection 		= 0.1
+wound_protection			= 0.1
+
+additional_weight 			= 0.4
+
+disassemble_parts 			= part_synt, 2
+
+quick_drop 					= true
+
+;------------------------------------------------------------------------------------------
+;--------------------------------------- Чорний рюкзак ------------------------------------
+;------------------------------------------------------------------------------------------
+
+[backpack_black]:backpack_base
+$spawn						= "backpacks\backpack_black"
+visual						= dynamics\backpacks\backpack_black
+
+inv_name					= st_backpack_black_name
+inv_name_short				= st_backpack_black_short
+description					= st_backpack_black_desc
+
+inv_weight					= 1.3
+cost						= 1500
+
+inv_grid_x         			= 2
+inv_grid_y         			= 2
+
+burn_protection 			= 0.1
+shock_protection 			= 0.1
+chemical_burn_protection 	= 0.1
+radiation_protection 		= 0.1
+telepatic_protection 		= 0.1
+strike_protection 			= 0.1
+explosion_protection 		= 0.1
+wound_protection			= 0.1
+
+additional_weight 			= 0.4
+
+disassemble_parts 			= part_synt, 2
+
+quick_drop 					= true
+
+;------------------------------------------------------------------------------------------
+;---------------------------------------- Рюкзак зомбі ------------------------------------
+;------------------------------------------------------------------------------------------
+
+[backpack_zombied]:backpack_base
+$spawn						= "backpacks\backpack_zombied"
+visual						= dynamics\backpacks\backpack_zombied
+
+inv_name					= st_backpack_zombied_name
+inv_name_short				= st_backpack_zombied_short
+description					= st_backpack_zombied_desc
+
+inv_weight					= 1.1
+cost						= 950
+
+inv_grid_x         			= 4
+inv_grid_y         			= 2
+
+burn_protection 			= 0.07
+shock_protection 			= 0.07
+chemical_burn_protection 	= 0.07
+radiation_protection 		= 0.07
+telepatic_protection 		= 0.07
+strike_protection 			= 0.07
+explosion_protection 		= 0.07
+wound_protection			= 0.07
+
+additional_weight 			= 0.35
+
+disassemble_parts 			= part_synt
+
+;------------------------------------------------------------------------------------------
+;-------------------------------------- Кисневий балон ------------------------------------
+;------------------------------------------------------------------------------------------
+
+[backpack_balloon]:backpack_base
+$spawn						= "backpacks\balloon_stalker"
+visual						= dynamics\backpacks\balloon_stalker
+
+inv_name					= st_backpack_balloon_name
+inv_name_short				= st_backpack_balloon_short
+description					= st_backpack_balloon_desc
+
+inv_weight					= 5.0
+cost						= 2000
+
+inv_grid_x         			= 0
+inv_grid_y         			= 4
+
+burn_protection 			= 0.03
+shock_protection 			= 0.1
+chemical_burn_protection 	= 0.065
+radiation_protection 		= 0.01
+telepatic_protection 		= 0.013
+strike_protection 			= 0.009
+explosion_protection 		= 0.009
+wound_protection			= 0.009
+
+attach_angle_offset 		= 1.542, -0.002, -1.542
+attach_position_offset 		= 0.220, 0.000, -0.110
+
+;------------------------------------------------------------------------------------------
+;---------------------------------- Туристичний рюкзак ------------------------------------
+;------------------------------------------------------------------------------------------
+
+[backpack_tourist]:backpack_base
+$spawn						= "backpacks\backpack_tourist"
+visual						= dynamics\backpacks\backpack_tourist
+
+inv_name					= st_backpack_tourist_name
+inv_name_short				= st_backpack_tourist_short
+description					= st_backpack_tourist_desc
+
+inv_weight					= 2.5
+cost						= 3500
+
+inv_grid_x         			= 6
+inv_grid_y         			= 2
+
+burn_protection 			= 0.1
+shock_protection 			= 0.1
+chemical_burn_protection 	= 0.1
+radiation_protection 		= 0.1
+telepatic_protection 		= 0.1
+strike_protection 			= 0.1
+explosion_protection 		= 0.1
+wound_protection			= 0.1
+
+additional_weight 			= 0.5
+
+quick_drop 					= true
+
+disassemble_parts 			= part_synt, part_dyra
+
+attach_angle_offset 		= -1.500, -0.040, 1.600
+attach_position_offset 		= 0.160, -0.020, -0.120
+
+;------------------------------------------------------------------------------------------
+;------------------------------------ Тактичний рюкзак ------------------------------------
+;------------------------------------------------------------------------------------------
+
+[backpack_tactic]:backpack_base
+$spawn						= "backpacks\backpack_tactic"
+visual						= dynamics\backpacks\backpack_tactic
+
+inv_name					= st_backpack_tactic_name
+inv_name_short				= st_backpack_tactic_short
+description					= st_backpack_tactic_desc
+
+inv_weight					= 2.0
+cost						= 5000
+
+inv_grid_x         			= 6
+inv_grid_y         			= 0
+
+burn_protection 			= 0.4
+shock_protection 			= 0.4
+chemical_burn_protection 	= 0.3
+radiation_protection 		= 0.1
+telepatic_protection 		= 0.1
+strike_protection 			= 0.5
+explosion_protection 		= 0.5
+wound_protection			= 0.5
+
+additional_weight 			= 0.5
+
+rifle_ammo 					= 2
+medicine					= 2
+
+quick_drop 					= true
+
+disassemble_parts 			= part_mil, part_dyra
+
+attach_angle_offset 		= 0.000, 0.143, 1.600
+attach_position_offset 		= -0.090, -0.010, -0.130
+
+;------------------------------------------------------------------------------------------
+;------------------------------------- Науковий рюкзак ------------------------------------
+;------------------------------------------------------------------------------------------
+
+[backpack_scientific]:backpack_base
+$spawn						= "backpacks\backpack_scientific"
+visual						= dynamics\backpacks\backpack_scientific
+
+inv_name					= st_backpack_scientific_name
+inv_name_short				= st_backpack_scientific_short
+description					= st_backpack_scientific_desc
+
+inv_weight					= 3.2
+cost						= 10000
+
+artefact_count          	= 2
+
+inv_grid_x         			= 2
+inv_grid_y        			= 4
+
+burn_protection 			= 0.05
+shock_protection 			= 0.13
+chemical_burn_protection 	= 0.13
+radiation_protection 		= 0.02
+telepatic_protection 		= 0.026
+strike_protection 			= 0.013
+explosion_protection 		= 0.013
+wound_protection			= 0.013
+
+additional_weight 			= 0.25
+
+attach_angle_offset 		= 1.842, -0.002, -1.442
+attach_position_offset 		= 0.100, -0.040, -0.010
+
+;------------------------------------------------------------------------------------------
+;------------------------------------- Рюкзак мілітарі ------------------------------------
+;------------------------------------------------------------------------------------------
+
+[backpack_military]:backpack_base
+$spawn						= "backpacks\backpack_military"
+visual						= dynamics\backpacks\backpack_military
+
+inv_name					= st_backpack_military_name
+inv_name_short				= st_backpack_military_short
+description					= st_backpack_military_desc
+
+inv_weight					= 3.0
+cost						= 7500
+
+inv_grid_x         			= 8
+inv_grid_y         			= 0
+
+burn_protection 			= 0.45
+shock_protection 			= 0.45
+chemical_burn_protection 	= 0.35
+radiation_protection 		= 0.13
+telepatic_protection 		= 0.13
+strike_protection 			= 0.55
+explosion_protection 		= 0.55
+wound_protection			= 0.55
+
+additional_weight 			= 0.75
+
+rifle_ammo 					= 2
+medicine					= 2
+grenade 					= 2
+
+quick_drop 					= true
+
+disassemble_parts 			= part_mil, part_dyra
+
+attach_angle_offset 		= 0.000, 0.143, 1.600
+attach_position_offset 		= -0.240, -0.020, -0.250
+
+;------------------------------------------------------------------------------------------
+;------------------------------ Сервоприводи для екзоскелету ------------------------------
+;------------------------------------------------------------------------------------------
+
+[backpack_exo]:backpack_base
+$spawn						= "backpacks\backpack_exo"
+visual						= dynamics\backpacks\backpack_exo
+
+inv_name					= st_backpack_exo_name
+inv_name_short				= st_backpack_exo_short  
+description					= st_backpack_exo_desc
+
+inv_weight					= 10.0
+cost						= 30000
+
+artefact_count          	= 1
+
+inv_grid_x         			= 4
+inv_grid_y         			= 4
+
+burn_protection 			= 0.035
+shock_protection 			= 0.16
+chemical_burn_protection 	= 0.06
+radiation_protection 		= 0.015
+telepatic_protection 		= 0.04
+strike_protection 			= 0.1
+explosion_protection 		= 0.2
+wound_protection			= 0.2
+
+additional_weight 			= 1.5
+
+attach_angle_offset 		= -2.100, 0.043, -1.483
+attach_position_offset 		= 0.020, -0.030, -0.210

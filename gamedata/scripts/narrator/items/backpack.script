@@ -69,9 +69,11 @@ function try_drop()
 	
 	drop_item_to_angle(actor, backpack, 180)
 	
-	xr_sound.get_safe_sound_object("interface\\inv_open", sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
-	hud_add_info_message("item_usage", "st_backpack_dropped")
-	level.map_add_object_spot_ser(backpack:id(), backpack_spot, game.translate_string("ui_st_dropped_backpack"))
+	xr_sound.get_safe_sound_object("interface\\inv_open", sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+	local name_short = read_if_exists(sys_ini, "r_string", backpack:section(), "inv_name_short", read_if_exists(sys_ini, "r_string", backpack:section(), "inv_name", nil))
+	local text = string.format("%s: %s", game.translate_string("ui_st_dropped_backpack"), game.translate_string(name_short))
+	hud_add_info_message("item_usage", text)
+	level.map_add_object_spot_ser(backpack:id(), backpack_spot, text)
 end
 
 local actor_obj = get_actor_obj()
