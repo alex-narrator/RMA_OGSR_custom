@@ -1,0 +1,92 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+local hud_effector_id = 5555
+
+local guitar_prefix = [[characters_voice\music\guitar\guitar_]]
+local guitar_hud = "guitar_hud"
+
+local sm = ogse_signals.get_mgr()
+local subscribed = false
+local play_anim = false
+local sound = false
+
+local stop_keys = {
+	[key_bindings.kUSE] = true,
+	[key_bindings.kINVENTORY] = true,
+}
+
+function play()
+	if level.main_input_receiver() then
+		level.start_stop_menu(level.main_input_receiver(), true)
+	end
+	
+	actor:hide_weapon()
+	block_non_move_action(true)
+	actor:hide_crosshair(true)
+	if not subscribed then
+		subscribed = { signal = "on_key_press", fun = this.on_key_press }
+		sm:subscribe( subscribed )
+	end
+	hud_add_info_message("item_usage", "st_guitar_stop_tip", 99)
+	
+	level.add_call(
+		function() 
+			return actor_hands_free()
+		end,
+		function() 
+			play_music()
+		end
+	)
+end
+
+function play_music()
+	game.play_hud_motion(2, guitar_hud, "anm_play", true, 1, true)
+	sound = xr_sound.get_safe_sound_object(guitar_prefix..math.random(1, 13),sound_object.s2d)
+	sound:play_at_pos(actor,device().cam_pos)
+	level.add_call(
+		function()
+			if sound and sound:playing() then
+				sound:set_position(device().cam_pos)
+			end
+			return not sound or not sound:playing()
+		end,
+		function()
+			stop_music()
+		end
+	)	
+end
+
+function stop_music()
+	if not sound then
+	return end
+	game.stop_hud_motion()
+	restore_control()
+	sound:stop()
+	sound = false
+end
+
+function restore_control()
+	hud_remove_info_message("item_usage")
+	actor:restore_weapon()
+	block_non_move_action(false)
+	actor:hide_crosshair(true)
+	if subscribed then
+		subscribed = { signal = "on_key_press", fun = this.on_key_press }
+		sm:unsubscribe( subscribed )
+		subscribed = false
+	end
+end
+
+function on_key_press(key, game_action)
+	if stop_keys[game_action] then
+		stop_music()
+	end
+end
+
+--//context menu
+function can_play_guitar(item)
+	return string.find(item:section(), "guitar")
+end
+
+function play_guitar(item)
+	play()
+end

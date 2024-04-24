@@ -348,12 +348,12 @@ function CRandomTask:action_give_task(actor, npc, p1, p2)
 	local objective = SGameTaskObjective(task,1)
 	objective:set_description(task_desc.name)
 	--' Выбираем текущую цель квеста
-	-- if task_desc.target_objects ~= nil then
-		-- self.task_info[self.task_id_by_yes_phrase_id[p2]].selected_target = task_desc.target_objects[math.random(table.getn(task_desc.target_objects))]
-		-- printf("TARGET DEBUG INFO")
-		-- printf("selected = %s", tostring(self.task_info[self.task_id_by_yes_phrase_id[p2]].selected_target))
-		-- print_table(task_desc.target_objects)
-	-- end
+	if task_desc.target_objects ~= nil and task_desc.selected_target == NO_STORY_ID then
+		self.task_info[self.task_id_by_yes_phrase_id[p2]].selected_target = task_desc.target_objects[math.random(table.getn(task_desc.target_objects))]
+		printf("TARGET DEBUG INFO")
+		printf("selected = %s", tostring(self.task_info[self.task_id_by_yes_phrase_id[p2]].selected_target))
+		print_table(task_desc.target_objects)
+	end
 	
 	if task_desc.type == "eliminate_lager" then
 		objective:set_map_hint(task_desc.text)
@@ -419,7 +419,7 @@ function CRandomTask:action_refuse_task(actor, npc, p1, p2)
 end
 --' Проверяем, не выполнен ли таск
 function CRandomTask:task_complete(p1, p2)
-	if db.actor == nil then
+	if not actor then
 		return false
 	end
 
@@ -469,7 +469,7 @@ function CRandomTask:task_complete(p1, p2)
 				abort("OBJ = nil for task %s", tostring(self.active_task_by_type[p1]))
 			elseif oo.alive == nil then	
 				printf("OBJ.ALIVE = nil for task %s", tostring(self.active_task_by_type[p1]))
-				abort("OBJ.NAME = %s", obj:name())				
+				abort("OBJ.NAME = %s", oo:name())				
 			end		
 
 			if oo and oo:alive() == false then

@@ -357,4 +357,4 @@ end
 -- spawn_sect = "decor_box_tara"
 -- spawn_to_level(spawn_sect, spawn_pos, level_name, spawn_dir)
 
---game.play_hud_motion(2, "medkit_exo_hud", "anm_use", false, 0.75, true)
+--game.play_hud_motion(2, "guitar_hud", "anm_play", false, 1, true)
