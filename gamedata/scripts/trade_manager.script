@@ -327,6 +327,8 @@ function buy_supplies(npc)
 	local sm = ogse_signals.get_mgr()
 	tt.deficit = {}
 	
+	--log3("~call buy_supplies for trader %s", npc:profile_name())
+	
 	clear_inventory(npc)
 	
 	local suppl_sect = tt.current_buy_supplies
@@ -355,12 +357,24 @@ function buy_supplies(npc)
 end
 
 function clear_inventory(npc)
+	--log3("~call clear_inventory for trader %s", npc:profile_name())
 	local sim = alife()
+	local bolt_id = npc:item_in_slot(BOLT_SLOT) and npc:item_in_slot(BOLT_SLOT):id() or -1
+	local pda_id = npc:item_in_slot(PDA_SLOT) and npc:item_in_slot(PDA_SLOT):id() or -1
+	local item_id
 	function perform_action(dummy, item)
-		if item:section() ~= "bolt" and item:get_slot() ~= PDA_SLOT then
-			sim:release(sim:object(item:id()), true)
-			log3("~remove item %s from trader %s due to trade list update", item:name(), npc:name())
+		item_id = item:id()
+		if item_id ~= bolt_id and item_id ~= pda_id then
+			sim:release(sim:object(item_id), true)
+			--log3("~remove item %s from trader %s due to trade list update", item:name(), npc:name())
 		end
 	end	
 	npc:iterate_inventory(perform_action, nil)
+end
+
+function is_trader(npc)
+	local tt = trade_manager[npc:id()]
+	if not tt or tt.cfg_ltx == DEF_TRADE_CFG then
+	return false end
+	return true
 end
