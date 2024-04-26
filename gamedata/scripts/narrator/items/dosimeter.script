@@ -104,3 +104,33 @@ end
 function get_result_radiation()
 	return result_power
 end
+
+function can_detect_radiation()
+	local item = actor_get_device()
+	if not item then
+	return false end
+	
+	local sect = item:section()
+	
+	if not item:get_detector() and sect ~= "detector_geiger_cop" then
+		log3("~item %s is not detector", item:name())
+	return false end
+
+	local can_detect = item:condition() > 0 and (not is_power_device(item) or item:binded_object():get_power_level() > 0)
+	
+	if sect == "detector_geiger_cop" and can_detect then
+	return true end
+	
+	local detect_radzone = false
+	
+	local zone_sect
+	for i = 1, 255 do
+		zone_sect = read_if_exists(sys_ini, "r_string", sect, "zone_class_"..i, nil)
+		if zone_sect and string.find(zone_sect, "zone_radioactive") then
+			detect_radzone = true
+			break
+		end
+	end
+	
+	return can_detect and detect_radzone
+end

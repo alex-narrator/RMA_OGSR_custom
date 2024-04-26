@@ -130,7 +130,7 @@ function ActorMenuOverlay:InitControls()
 		["power_"] 		= { condition = function() return actor.power end },
 		["satiety_"] 	= { condition = function() return actor.satiety end },
 		["alcohol_"] 	= { condition = function() return actor.alcohol end },
-		["radiation_"] 	= { condition = function() return actor.radiation end },
+		["radiation_"] 	= { condition = function() return dosimeter.can_detect_radiation() and actor.radiation or 0 end },
 		["somnolence_"] = { condition = function() return somnolence.get_val() end },
 		["bleeding_"] 	= { condition = function() return actor:get_bleeding() end },
 		["injure_"] 	= { condition = function() return body_health.get_injured_limb() end },

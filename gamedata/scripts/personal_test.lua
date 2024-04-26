@@ -358,3 +358,5 @@ end
 -- spawn_to_level(spawn_sect, spawn_pos, level_name, spawn_dir)
 
 --game.play_hud_motion(2, "guitar_hud", "anm_play", false, 1, true)
+
+log3("~can detect rad %s", dosimeter.can_detect_radiation())
