@@ -236,6 +236,9 @@ function add_custom_info(UIDesc, obj)
 			attach_ammo_params(UIDesc, obj)
 		end
 	end
+	if is_plate_carrier(obj) then
+		attach_armor_plates(UIDesc, obj)
+	end
 	if vest_plates.can_detach_plate(obj) then
 		attach_plate_condition(UIDesc, obj)
 	end
@@ -967,6 +970,41 @@ function attach_plate_condition(UIDesc, obj)
 	
 	local condition_progress = xml:InitProgressBar("plate_params:progress_condition", plate_params)
 	condition_progress:SetProgressPos(bind_obj:get_plate_condition())
+end
+
+------------------------------------------COMPATIBLE ARMOR PLATES WND-----------------------------------------------------------------------------------------------------------------
+local plates = {}
+function attach_armor_plates(UIDesc, obj)
+	if not obj:binded_object() then
+	return end
+	
+	local xml = CScriptXmlInit()
+	xml:ParseFile("script_overlays\\armor_plates.xml")
+
+	local tmp_tbl, def_font, def_color = nil, "letterica16", "255, 255, 255, 255"
+
+	local plate_list = xml:InitScrollView("plate_list", UIDesc)
+	
+	plate_list.font = xml:ReadAttrib("plate_list:descr_text", "font", def_font)
+	tmp_tbl = split_string(xml:ReadAttrib("plate_list:descr_text", "text_color", def_color), ",")
+	plate_list.text_color = GetARGB(tmp_tbl[1], tmp_tbl[2], tmp_tbl[3], tmp_tbl[4])
+
+	plates = obj:binded_object():get_plates()
+
+	local text
+	for k,v in pairs(plates) do
+		v.st = CUIStatic()
+		local _st = v.st
+		_st:SetWidth(plate_list:GetDesiredChildWidth())
+		text = string.format("%s%s", game.translate_string("st_list_mark"), game.translate_string(get_inv_name(v.section)))
+		_st:SetText(text)
+		_st:SetTextComplexMode(true)
+		_st:SetTextColor(plate_list.text_color)
+		_st:SetFont(GetFontCustom(plate_list.font))
+		_st:AdjustHeightToText()
+		plate_list:AddWindow(_st)
+	end
+	plate_list:SetHeight(plate_list:GetPadSize().y)
 end
 
 -----------------------------------------------------BELT SLOTS PARAMS-----------------------------------------------------------------------------------------------------------

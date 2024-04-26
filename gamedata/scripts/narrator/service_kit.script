@@ -86,9 +86,9 @@ function service(obj, drop_on_obj)
 		local cond_end = drop_on_obj:condition()
 		local text = string.format("%s %s %.1f%s", game.translate_string(get_inv_name(drop_on_obj:section())), game.translate_string("st_codition_gain"), (cond_end-cond_start)*100, "%")
 		news_manager.custom_news(game.translate_string("st_service_news_header"), text, "ui_icon_repair_tool")
-		local repair_count = read_if_exists(sys_ini, "r_float", rep_kit_sect, "repair_count", 0)
-		if repair_count > 0 then
-			obj:change_condition(-1/repair_count)
+		local use_count = read_if_exists(sys_ini, "r_float", rep_kit_sect, "use_count", 0)
+		if use_count > 0 then
+			obj:change_condition(-1/use_count)
 			if obj:condition() == 0 then
 				alife():release(alife():object(obj:id()), true)
 			end
@@ -210,9 +210,9 @@ function disassemble_item(tool, item)
 		alife():release(alife():object(item:id()), true)
 	
 		if tool then
-			local repair_count = read_if_exists(sys_ini, "r_float", tool:section(), "use_count", 0)
-			if repair_count > 0 then
-				tool:change_condition(-1/repair_count)
+			local use_count = read_if_exists(sys_ini, "r_float", tool:section(), "use_count", 0)
+			if use_count > 0 then
+				tool:change_condition(-1/use_count)
 				if tool:condition() == 0 then
 					alife():release(alife():object(tool:id()), true)
 				end
@@ -323,9 +323,9 @@ function saw_off_item(tool, item)
 		item:get_weapon_m():respawn_weapon(sys_ini:r_string(sect, "sawed_off"))
 	
 		if tool then
-			local repair_count = read_if_exists(sys_ini, "r_float", tool:section(), "use_count", 0)
-			if repair_count > 0 then
-				tool:change_condition(-1/repair_count)
+			local use_count = read_if_exists(sys_ini, "r_float", tool:section(), "use_count", 0)
+			if use_count > 0 then
+				tool:change_condition(-1/use_count)
 				if tool:condition() == 0 then
 					alife():release(alife():object(tool:id()), true)
 				end
