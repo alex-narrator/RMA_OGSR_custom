@@ -1,8 +1,18 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 local hud_effector_id = 5555
 
-local guitar_prefix = [[characters_voice\music\guitar\guitar_]]
-local guitar_hud = "guitar_hud"
+local instruments = {
+	["guitar"] = {
+		sound_prefix = [[characters_voice\music\guitar\guitar_]], 
+		hud = "guitar_hud",
+		max_rnd = 13,
+	},
+	["harmonica"] = {
+		sound_prefix = [[characters_voice\music\harmonica\harmonica_]], 
+		hud = "harmonica_hud",
+		max_rnd = 9,
+	},	
+}
 
 local sm = ogse_signals.get_mgr()
 local subscribed = false
@@ -14,7 +24,7 @@ local stop_keys = {
 	[key_bindings.kINVENTORY] = true,
 }
 
-function play()
+function play(instrument)
 	if level.main_input_receiver() then
 		level.start_stop_menu(level.main_input_receiver(), true)
 	end
@@ -26,21 +36,22 @@ function play()
 		subscribed = { signal = "on_key_press", fun = this.on_key_press }
 		sm:subscribe( subscribed )
 	end
-	hud_add_info_message("item_usage", "st_guitar_stop_tip", 99)
+	hud_add_info_message("item_usage", "st_music_stop", 99)
 	
 	level.add_call(
 		function() 
 			return actor_hands_free()
 		end,
 		function() 
-			play_music()
+			play_music(instrument)
 		end
 	)
 end
 
-function play_music()
-	game.play_hud_motion(2, guitar_hud, "anm_play", true, 1, true)
-	sound = xr_sound.get_safe_sound_object(guitar_prefix..math.random(1, 13),sound_object.s2d)
+function play_music(instrument)
+	local data = instruments[instrument]
+	game.play_hud_motion(2, data.hud, "anm_play", true, 1, true)
+	sound = xr_sound.get_safe_sound_object(data.sound_prefix..math.random(1, data.max_rnd),sound_object.s2d)
 	sound:play_at_pos(actor,device().cam_pos)
 	level.add_call(
 		function()
@@ -83,10 +94,35 @@ function on_key_press(key, game_action)
 end
 
 --//context menu
+function can_play_instrument(item)
+	for k,v in pairs(instruments) do
+		if string.find(item:section(), k) then
+			return true
+		end
+	end
+	return false
+end
+
+function play_instrument(item)
+	for k,v in pairs(instruments) do
+		if string.find(item:section(), k) then
+			play(k)
+			return
+		end
+	end	
+end
+
 function can_play_guitar(item)
 	return string.find(item:section(), "guitar")
 end
-
 function play_guitar(item)
-	play()
+	play("guitar")
+end
+
+function can_play_harmonica(item)
+	log3("~item %s - res %s", item:section(), string.find(item:section(), "harmonica"))
+	return string.find(item:section(), "harmonica")
+end
+function play_harmonica(item)
+	play("harmonica")
 end
