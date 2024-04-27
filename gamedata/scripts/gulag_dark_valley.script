@@ -338,15 +338,20 @@ gulags.val_escort.job = function(sj, gname, type, squad, groups)
                "anim                = wounded_heavy ;wait\n" ..
                "snd                 = speech\n" ..
                "target              = 406\n" ..
-               "on_signal           = sound_end | remark@" .. gname .. "_halfdead_end %+val_halfdead_phrase_end%\n" ..
+               "on_signal           = sound_end | walker@" .. gname .. "_halfdead_end %+val_halfdead_phrase_end%\n" ..
                "wounded             = wounded@" .. gname .. "_halfdead1\n" ..
                "combat_ignore_cond  = always\n" ..
 
-               "[remark@" .. gname .. "_halfdead_end]\n" ..
-               "anim            = wounded_heavy ;wait\n" ..
-               "target          = 406\n" ..
-               "wounded         = wounded@" .. gname .. "_halfdead\n" ..
-			   "combat_ignore_cond  = always\n"
+               -- "[remark@" .. gname .. "_halfdead_end]\n" ..
+               -- "anim            = wounded_heavy ;wait\n" ..
+               -- "target          = 406\n" ..
+               -- "wounded         = wounded@" .. gname .. "_halfdead\n" ..
+			   -- "combat_ignore_cond  = always\n"
+			    
+               "[walker@" .. gname .. "_halfdead_end]\n" ..
+			   "path_walk 			= guards_leave_walk\n"..
+			   --"combat_ignore_cond  = {=fighting_actor}, {=check_fighting(400)}, {=check_fighting(406)};always\n"..
+			   "meet 				= default_meet\n"			   
 
     gulags.val_escort.ltx = ltx
 end

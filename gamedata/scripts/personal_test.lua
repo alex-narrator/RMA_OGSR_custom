@@ -125,13 +125,13 @@ end
 	--item:set_show_model_mesh_hud(7, false)
 --end
 
-local item = level.get_target_obj()
-if item then
-item:dump_visual_to_log() --Распечатать в лог информацию о мешах и костях модели - мировой и худовой, если худовая доступна.
-	log3("--Mesh count of [%s]: [%s]", item:name(), item:get_mesh_count()) --вывести кол-во мешей в худовой модели.
-	item:set_show_model_mesh(1, not item:get_show_model_mesh(1)) --Установить видимость меша для худовой модели
---local shown = item:get_show_model_mesh_hud(0) --узнать показан ли меш
-end
+-- local item = level.get_target_obj()
+-- if item then
+	-- item:dump_visual_to_log() --Распечатать в лог информацию о мешах и костях модели - мировой и худовой, если худовая доступна.
+	-- log3("--Mesh count of [%s]: [%s]", item:name(), item:get_mesh_count()) --вывести кол-во мешей в худовой модели.
+	-- item:set_show_model_mesh(1, not item:get_show_model_mesh(1)) --Установить видимость меша для худовой модели
+-- --local shown = item:get_show_model_mesh_hud(0) --узнать показан ли меш
+-- end
 
 -- if actor:active_item() then
 	-- actor:active_item():stop_aim_inertion(false)
@@ -357,6 +357,11 @@ end
 -- spawn_sect = "decor_box_tara"
 -- spawn_to_level(spawn_sect, spawn_pos, level_name, spawn_dir)
 
-game.play_hud_motion(2, "medkit_exo_hud", "anm_use", false, 1, true)
+--game.play_hud_motion(2, "medkit_exo_hud", "anm_use", false, 1, true)
 
 --log3("~can detect rad %s", dosimeter.can_detect_radiation())
+
+local tgt = level.get_target_obj()
+if tgt then
+	log3("~%s is wounded %s | health %s", tgt:profile_name(), tgt:wounded(), tgt.health)
+end

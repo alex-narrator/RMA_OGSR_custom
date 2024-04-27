@@ -4,6 +4,10 @@
 --	TODO:
 ----------------------------------------------------------------------------------------------------------------------
 
+local non_healed_comms = {
+	["monolith"] = true,
+}
+
 ---------------------------------------------------------------------------------------------------------------------
 --Evaluators
 ----------------------------------------------------------------------------------------------------------------------
@@ -82,11 +86,11 @@ function action_wounded:execute ()
 	end
 
 	
-	-- if self.object:relation(db.actor) == game_object.enemy then
-		-- self.object:disable_talk()
-	-- else
-		-- self.object:enable_talk()
-	-- end
+	if non_healed_comms[self.object:character_community()] then--self.object:relation(db.actor) == game_object.enemy then
+		self.object:disable_talk()
+	else
+		self.object:enable_talk()
+	end
     
     
     wound_manager_state = xr_logic.pstor_retrieve(self.object, "wounded_state")
@@ -378,7 +382,7 @@ local wounded_by_state = {
 }
 
 function init_wounded(npc, ini, section, st, scheme)
-	printf("WOUNDED SECTION [%s][%s]", tostring(section), tostring(scheme))
+	--log3("~WOUNDED SECTION [%s][%s][%s]", npc:profile_name(), tostring(section), tostring(scheme))
 
 	if tostring(section) == st.wounded_section and
 	   tostring(section) ~= "nil" 
@@ -390,7 +394,7 @@ function init_wounded(npc, ini, section, st, scheme)
 	
 	local def = {}	
 	local npc_community = npc:character_community()
-	if npc_community == "monolith" then
+	if non_healed_comms[npc_community] then--npc_community == "monolith" then
 		local state = wounded_by_state[math.mod(npc:id(), 3)]
 		def.hp_state			= "10|"..state.."@nil"
 		def.hp_state_see		= "10|"..state.."@nil"
@@ -403,17 +407,17 @@ function init_wounded(npc, ini, section, st, scheme)
 		def.help_start_dialog	= nil
 		def.use_medkit			= false
 		
-	elseif npc_community == "zombied" then
-		def.hp_state			= "40|wounded_zombie@nil"
-		def.hp_state_see		= "40|wounded_zombie@nil"
-		def.psy_state			= ""
-		def.hp_victim			= "40|nil"
-		def.hp_cover			= "40|false"
-		def.hp_fight			= "40|false"
-		def.syndata				= ""
-		def.help_dialog			= nil
-		def.help_start_dialog	= nil
-		def.use_medkit			= false
+	-- elseif npc_community == "zombied" then
+		-- def.hp_state			= "40|wounded_zombie@nil"
+		-- def.hp_state_see		= "40|wounded_zombie@nil"
+		-- def.psy_state			= ""
+		-- def.hp_victim			= "40|nil"
+		-- def.hp_cover			= "40|false"
+		-- def.hp_fight			= "40|false"
+		-- def.syndata				= ""
+		-- def.help_dialog			= nil
+		-- def.help_start_dialog	= nil
+		-- def.use_medkit			= false
 		
 	else
 		local state = wounded_by_state[math.mod(npc:id(), 3)]

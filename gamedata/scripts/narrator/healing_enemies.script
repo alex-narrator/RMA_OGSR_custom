@@ -1,0 +1,30 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_npc_not_wounded", fun = this.on_npc_not_wounded})
+end
+
+local goodwill_by_rank = {
+	["novice"] 	= 1,
+	["stalker"] = 2,
+	["veteran"] = 3,
+	["master"] 	= 5,
+}
+
+function on_npc_not_wounded(npc)
+	if npc:relation(actor) == game_object.enemy then
+		local comm = npc:character_community()
+		local comm_goodwill = relation_registry.community_goodwill(comm, actor:id())
+		--log3("~goodwill %s for NPC %s [%s]", comm_goodwill, npc:character_name(), comm)
+		local goodwill_up = goodwill_by_rank[ranks.get_obj_rank_name(npc)]
+		relation_registry.change_community_goodwill(comm, actor:id(), goodwill_up)
+		log3("~new goodwill %s for NPC %s [%s] - goodwill up is %s", comm_goodwill, npc:character_name(), comm, goodwill_up)
+		if comm_goodwill <= 0 then
+			npc:set_character_community("stalker", 0, 0)
+			--log3("~changing community for NPC %s", npc:character_name())
+			smart_terrain.unregister_npc(alife():object(npc:id()))
+		else
+			npc:set_relation(game_object.friend, actor)
+			--log3("~changing relation for NPC %s", npc:character_name())
+		end
+	end
+end
