@@ -11,6 +11,8 @@ local goodwill_by_rank = {
 }
 
 function on_npc_not_wounded(npc)
+	if not npc:alive() then
+	return end
 	if npc:relation(actor) == game_object.enemy then
 		local comm = npc:character_community()
 		local comm_goodwill = relation_registry.community_goodwill(comm, actor:id())

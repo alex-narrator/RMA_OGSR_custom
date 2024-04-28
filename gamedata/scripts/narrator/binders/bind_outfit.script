@@ -7,7 +7,7 @@ function init(obj)
 	if not is_plate_carrier(obj) then
 		log3("![%s]:init failed to bind object name:[%s] section:[%s] - not a plate carrier\nsee se_outfit.script for plate carriers (must have a self.plate_condition and self.cur_plate_num field)", script_name(), obj:name(), obj:section())
 	return end
-    local new_binder = vest_binder(obj)
+    local new_binder = outfit_binder(obj)
     obj:bind_object(new_binder)
 end
 
@@ -17,26 +17,26 @@ end
 --load (if save was called before)
 --net_spawn
 
-class "vest_binder" (object_binder)
-function vest_binder:__init(obj) super(obj)
+class "outfit_binder" (object_binder)
+function outfit_binder:__init(obj) super(obj)
 	--log3("%s __init for object %s", script_name(), self.object:name())
 	self.t_plates = {}
 	self.se_obj = alife():object(self.object:id())
 end
 
-function vest_binder:reinit()
+function outfit_binder:reinit()
 	object_binder.reinit(self)
 	self.object:set_callback(callback.hit, self.hit, self)
 end
 
-function vest_binder:reload(section)
+function outfit_binder:reload(section)
     object_binder.reload(self, section)
 	
 	local plates_str = read_if_exists(sys_ini, "r_string", self.object:section(), "plates", self.object:section())
 	self.t_plates = self:parse_plates(plates_str)
 end
 
-function vest_binder:parse_plates(line)
+function outfit_binder:parse_plates(line)
 	local DEF_BONE_PROTECTION = read_if_exists(sys_ini, "r_string", self.object:section(), "bones_koeff_protection", nil)
 	local t = se_respawn.parse_names(line)
 	--log3("~t %s",t)
@@ -66,47 +66,48 @@ function vest_binder:parse_plates(line)
 	return ret_table
 end
  
-function vest_binder:net_spawn(data)
+function outfit_binder:net_spawn(data)
 	--log3("%s net_spawn for object %s", script_name(), self.object:name())
     local spawned = object_binder.net_spawn(self, data)
 	self:init_plate()
 	return spawned
 end 
 
-function vest_binder:net_destroy()
+function outfit_binder:net_destroy()
 	self.object:set_callback(callback.hit, nil)
 	object_binder.net_destroy(self)
 end
 
-function vest_binder:init_plate()
+function outfit_binder:init_plate()
 	local protection_sect = self:is_plate_attached() and self:get_protection_sect() or read_if_exists(sys_ini, "r_string", self.object:section(), "bones_koeff_protection", nil)
 	--log3("~init protection_sect %s", protection_sect)
 	local iitem = self.object:get_inventory_item()
 	iitem.bone_protection_sect = protection_sect
 	if self:is_plate_attached() then
 		iitem.inv_weight = iitem.inv_weight + sys_ini:r_float(self:get_plate_sect(), "inv_weight")
+		--iitem.cost = 
 	else
 		iitem.inv_weight = sys_ini:r_float(self.object:section(), "inv_weight")
 	end
 end
 
-function vest_binder:can_attach(obj)
+function outfit_binder:can_attach(obj)
 	return self:get_plate_sect_num(obj:section()) and self.object:condition() > 0 and obj:condition() > 0
 end
 
-function vest_binder:is_plate_attached()
+function outfit_binder:is_plate_attached()
 	return self.se_obj.cur_plate_num > 0
 end
 
-function vest_binder:get_plate_sect()
+function outfit_binder:get_plate_sect()
 	return self.t_plates[self.se_obj.cur_plate_num].section
 end
 
-function vest_binder:get_protection_sect()
+function outfit_binder:get_protection_sect()
 	return self.t_plates[self.se_obj.cur_plate_num].protection
 end
 
-function vest_binder:set_plate_sect(num)
+function outfit_binder:set_plate_sect(num)
 	if num > #self.t_plates then
 		log3("![%s]: wrong cur_plate_num [%s/%s] for vest [%s] - set default plate section", script_name(), num, #self.t_plates, self.object:section())
 		num = 1
@@ -114,7 +115,7 @@ function vest_binder:set_plate_sect(num)
 	self.se_obj.cur_plate_num = num
 end
 
-function vest_binder:get_plate_sect_num(section)
+function outfit_binder:get_plate_sect_num(section)
 	for k, v in pairs(self.t_plates) do
 		if section == v.section then
 			return k
@@ -123,29 +124,29 @@ function vest_binder:get_plate_sect_num(section)
 	return nil
 end
 
-function vest_binder:get_plates()
+function outfit_binder:get_plates()
 	return self.t_plates
 end
 
-function vest_binder:get_plate_condition()
+function outfit_binder:get_plate_condition()
 	return self.se_obj.plate_condition or 0
 end
 
-function vest_binder:set_plate_condition(val)
+function outfit_binder:set_plate_condition(val)
 	if not self.se_obj.plate_condition then return end
 	self.se_obj.plate_condition = val
 	self.se_obj.plate_condition = math.clamp(self.se_obj.plate_condition,0,1)
 	--log3("~plate cond %.2f on set", self.se_obj.plate_condition)
 end
 
-function vest_binder:change_plate_condition(val)
+function outfit_binder:change_plate_condition(val)
 	if not self.se_obj.plate_condition then return end
 	self.se_obj.plate_condition = self.se_obj.plate_condition + val
 	self.se_obj.plate_condition = math.clamp(self.se_obj.plate_condition,0,1)
 	--log3("~plate cond %.2f on change", self.se_obj.plate_condition)
 end
 
-function vest_binder:attach_plate(plate)
+function outfit_binder:attach_plate(plate)
 	if self:is_plate_attached() then
 		self:detach_plate()
 	end
@@ -161,7 +162,7 @@ function vest_binder:attach_plate(plate)
 	alife():release(alife():object(plate:id()), true)
 end
 
-function vest_binder:detach_plate()
+function outfit_binder:detach_plate()
 	local sobj = spawn_to_owner(self:get_plate_sect(), self.object:parent():id())
 	local sobj_iitem = alife():object(sobj.id):get_inventory_item()
 	sobj_iitem.item_condition = self:get_plate_condition()
@@ -170,7 +171,7 @@ function vest_binder:detach_plate()
 	self:init_plate()
 end
 
-function vest_binder:is_plate_bone(bone_id)
+function outfit_binder:is_plate_bone(bone_id)
 	local bone_protect_str = read_if_exists(sys_ini, "r_string", get_bone_protection_sect(self:get_plate_sect()), actor:get_bone_name(bone_id), nil)
 	if not bone_protect_str then
 	return false end
@@ -178,7 +179,7 @@ function vest_binder:is_plate_bone(bone_id)
 	return tonumber(tmp_tbl[2]) > 0
 end
 
-function vest_binder:hit(victim, health_lost, direction, draftsman, bone_id, hit_type)
+function outfit_binder:hit(victim, health_lost, direction, draftsman, bone_id, hit_type)
 	--log3("~hit outfit %s actor hitted in bone %s", self.object:name(), actor:get_bone_name(bone_id))
 	if not actor_get_outfit() or actor_get_outfit():id() ~= self.object:id() then
 	return end

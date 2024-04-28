@@ -68,7 +68,7 @@ end
 
 --//script menu actions
 function detach_plate_tip(obj)
-	return string.format("%s %s", game.translate_string("st_detach"), game.translate_string(get_inv_name(obj:binded_object():get_plate_sect())))
+	return string.format("%s %s", game.translate_string("st_detach"), game.translate_string(get_inv_name_short(obj:binded_object():get_plate_sect())))
 end
 function can_detach_plate(obj)
 	return is_plate_carrier(obj) and obj:binded_object() and obj:binded_object():is_plate_attached()
@@ -89,7 +89,7 @@ function detach_plate(obj)
 end
 
 function attach_plate_tip(obj)
-	return string.format("%s %s", game.translate_string("st_attach_to"), game.translate_string(get_inv_name(actor_get_outfit():section())))
+	return string.format("%s %s", game.translate_string("st_attach_to"), game.translate_string(get_inv_name_short(actor_get_outfit():section())))
 end
 function can_attach_plate(obj)
 	return can_change_plate(obj, actor_get_outfit())

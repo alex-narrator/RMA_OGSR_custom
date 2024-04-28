@@ -1575,6 +1575,10 @@ function get_inv_name(section)
 	return sys_ini:r_string(section,"inv_name")
 end
 
+function get_inv_name_short(section)
+	return read_if_exists(sys_ini, "r_string", section, "inv_name_short", get_inv_name(section))
+end
+
 function cobj_by_name(name)
 	return level.object_by_id(sobj_by_name(name).id)
 end

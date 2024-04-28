@@ -102,7 +102,7 @@ end
 
 --//script menu actions
 function service_0_tip(obj)
-	return string.format("%s %s", game.translate_string("st_service"), game.translate_string(get_inv_name(actor:item_in_slot(0):section())))
+	return string.format("%s %s", game.translate_string("st_service"), game.translate_string(get_inv_name_short(actor:item_in_slot(0):section())))
 end
 function can_service_0(obj)
 	return can_service(obj, actor:item_in_slot(0))
@@ -112,7 +112,7 @@ function service_0(obj)
 end
 
 function service_1_tip(obj)
-	return string.format("%s %s", game.translate_string("st_service"), game.translate_string(get_inv_name(actor:item_in_slot(1):section())))
+	return string.format("%s %s", game.translate_string("st_service"), game.translate_string(get_inv_name_short(actor:item_in_slot(1):section())))
 end
 function can_service_1(obj)
 	return can_service(obj, actor:item_in_slot(1))
@@ -122,7 +122,7 @@ function service_1(obj)
 end
 
 function service_2_tip(obj)
-	return string.format("%s %s", game.translate_string("st_service"), game.translate_string(get_inv_name(actor:item_in_slot(2):section())))
+	return string.format("%s %s", game.translate_string("st_service"), game.translate_string(get_inv_name_short(actor:item_in_slot(2):section())))
 end
 function can_service_2(obj)
 	return can_service(obj, actor:item_in_slot(2))
@@ -132,7 +132,7 @@ function service_2(obj)
 end
 
 function service_4_tip(obj)
-	return string.format("%s %s", game.translate_string("st_service"), game.translate_string(get_inv_name(actor:item_in_slot(4):section())))
+	return string.format("%s %s", game.translate_string("st_service"), game.translate_string(get_inv_name_short(actor:item_in_slot(4):section())))
 end
 function can_service_4(obj)
 	return can_service(obj, actor:item_in_slot(4))
@@ -142,7 +142,7 @@ function service_4(obj)
 end
 
 function service_6_tip(obj)
-	return string.format("%s %s", game.translate_string("st_service"), game.translate_string(get_inv_name(actor:item_in_slot(6):section())))
+	return string.format("%s %s", game.translate_string("st_service"), game.translate_string(get_inv_name_short(actor:item_in_slot(6):section())))
 end
 function can_service_6(obj)
 	return can_service(obj, actor:item_in_slot(6))
@@ -171,6 +171,9 @@ local addon_type = {
 function prepair(item)
 	if recharge.can_detach_power_source(item) then
 		recharge.detach_power_source(item)
+	end
+	if pda.can_download_info(item) then
+		pda.download_info(item)
 	end
 	if vest_plates.can_detach_plate(item) then
 		vest_plates.detach_plate(item)
