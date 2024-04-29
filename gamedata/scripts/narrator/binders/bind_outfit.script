@@ -85,9 +85,10 @@ function outfit_binder:init_plate()
 	iitem.bone_protection_sect = protection_sect
 	if self:is_plate_attached() then
 		iitem.inv_weight = iitem.inv_weight + sys_ini:r_float(self:get_plate_sect(), "inv_weight")
-		--iitem.cost = 
+		iitem.cost = iitem.cost + sys_ini:r_u32(self:get_plate_sect(), "cost") * self:get_plate_condition()
 	else
 		iitem.inv_weight = sys_ini:r_float(self.object:section(), "inv_weight")
+		iitem.cost = sys_ini:r_u32(self:get_plate_sect(), "cost")
 	end
 end
 

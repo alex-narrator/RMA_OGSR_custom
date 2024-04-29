@@ -199,10 +199,19 @@ end
 function add_custom_info(UIDesc, obj)
 
 	attach_condition_params(UIDesc, obj)
+	
+	if vest_plates.can_detach_plate(obj) then
+		attach_plate_condition(UIDesc, obj)
+	end	
+	
 	attach_effect_params(UIDesc, obj)
+	
 	attach_protection_params(UIDesc, obj)
+	
 	attach_armor_params(UIDesc, obj)
+	
 	attach_addon_params(UIDesc, obj)
+	
 	attach_belt_params(UIDesc, obj)
 	
 	if obj:is_eatable_item() then
@@ -238,9 +247,6 @@ function add_custom_info(UIDesc, obj)
 	end
 	if is_plate_carrier(obj) then
 		attach_armor_plates(UIDesc, obj)
-	end
-	if vest_plates.can_detach_plate(obj) then
-		attach_plate_condition(UIDesc, obj)
 	end
 end
 
@@ -965,7 +971,8 @@ function attach_plate_condition(UIDesc, obj)
 	local plate_params = xml:InitStatic("plate_params", UIDesc)
 	
 	local cap_plate = xml:InitStatic("plate_params:cap_plate", plate_params)
-	local text = string.format("%s: %s", game.translate_string("st_attached_plate"), game.translate_string(get_inv_name(bind_obj:get_plate_sect())))
+	local text = string.format("%s:\\n%s", game.translate_string("st_attached_plate"), game.translate_string(get_inv_name_short(bind_obj:get_plate_sect())))
+	cap_plate:SetTextComplexMode(true)
 	cap_plate:SetText(text)
 	
 	local condition_progress = xml:InitProgressBar("plate_params:progress_condition", plate_params)

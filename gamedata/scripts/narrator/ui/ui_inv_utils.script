@@ -219,7 +219,8 @@ function UpdateAdditionalStatic(icon, text)
 end
 
 function UpdateAdditionalText(item, icon)
-	local text = read_if_exists(sys_ini, "r_string", item:section(), "icon_text", nil)
+	local sect = type(item) == "string" and item or item:section()
+	local text = read_if_exists(sys_ini, "r_string", sect, "icon_text", nil)
 	if not text then
 	return end
 	text = game.translate_string(text)
@@ -393,7 +394,36 @@ function UpdateArmorPlateIcon(item, icon)
 
 	armor_plate:SetWndPos(offset.x, offset.y)
 	armor_plate:SetWindowName("armor_plate")
+	--UpdateAdditionalText(plate_sect, armor_plate)
+	UpdateArmorPlateCondition(item, armor_plate)
 	icon:AttachChild(armor_plate)
+end
+
+function UpdateArmorPlateCondition(item, icon)
+	if not is_plate_carrier(item) or not item:binded_object() then
+	return end
+	
+	local pos = item:binded_object():get_plate_condition()
+
+	local function update(progress_bar)
+		local offset = GetOffset("left_down", progress_bar, icon)
+		offset.y = offset.y - 1
+		progress_bar:SetWndPos(offset.x, offset.y)
+		progress_bar:SetWidth(icon:GetWidth() - 1)
+		icon:BringToTop(progress_bar)
+		progress_bar:SetProgressPos(pos)
+	end
+
+	local plate_condition_progess_bar = icon:FindChild("plate_condition_progess_bar")
+	if plate_condition_progess_bar then
+		plate_condition_progess_bar = plate_condition_progess_bar:GetProgressBar()
+		update(plate_condition_progess_bar)
+	return end
+	local xml = CScriptXmlInit()
+	xml:ParseFile(OVERLAY_XML)
+	plate_condition_progess_bar = xml:InitProgressBar("plate_condition_progess_bar", icon)
+	plate_condition_progess_bar:SetWindowName("plate_condition_progess_bar")
+	update(plate_condition_progess_bar)
 end
 
 function UpdateMarkedIcon(item, icon)
