@@ -88,7 +88,7 @@ function outfit_binder:init_plate()
 		iitem.cost = iitem.cost + sys_ini:r_u32(self:get_plate_sect(), "cost") * self:get_plate_condition()
 	else
 		iitem.inv_weight = sys_ini:r_float(self.object:section(), "inv_weight")
-		iitem.cost = sys_ini:r_u32(self:get_plate_sect(), "cost")
+		iitem.cost = sys_ini:r_u32(self.object:section(), "cost")
 	end
 end
 
