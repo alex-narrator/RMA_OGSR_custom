@@ -2,15 +2,15 @@
 ;		ШЛЕМЫ
 ;---------------------------------------------------------------------------------------------
 
-[helmet]:identity_immunities
+[helmet_base]:identity_immunities
 class							= EQ_HELMT
 cform           				= skeleton
 visual          				= dynamics\outfit\scientific_outfit
 slot							= 11
 default_to_ruck					= false
 
-inv_name             			= st_helmet
-inv_name_short       			= st_helmet
+inv_name             			= st_helmet_name
+inv_name_short       			= st_helmet_short
 description						= st_helmet_descr
 inv_weight           			= 4.0
 inv_grid_width       			= 2
@@ -27,35 +27,188 @@ attach_position_offset 			= 0.081, 0.001, 0.083
 attach_bone_name				= bip01_head
 auto_attach						= false
 
-immunities_sect 				= sect_helm_immunities
+immunities_sect 				= gasmask_immunities_immunities
 bones_koeff_protection			= actor_helm_respirator
 
 covered_bones_sect 				= head_cover
 
 icon_group 						= 8
 
-[helm_bandana]:helmet
+[gasmask_cloth]:helmet_base
 visual                        	= dynamics\outfit\cloth_mask
-        
-inv_name                      	= helm_bandana_name
-inv_name_short                	= helm_bandana_short
-description                   	= helm_bandana_descr
 
-inv_grid_x         				= 4
+inv_name                      	= st_gasmask_cloth_name
+inv_name_short                	= st_gasmask_cloth_short
+description                   	= st_gasmask_cloth_descr
+
+inv_grid_x         				= 0
+inv_grid_y         				= 0
+
+immunities_sect               	= gasmask_cloth_immunities
+
+inv_weight           			= 0.05
+
+power_loss                    	= 0.1
+
+burn_protection               	= 0.05
+radiation_protection          	= 0.05
+chemical_burn_protection      	= 0.05
+
+[gasmask_cloth_immunities]
+burn_immunity                 	= 0.2
+chemical_burn_immunity        	= 0.2
+explosion_immunity            	= 0.1
+fire_wound_immunity          	= 0.2
+radiation_immunity            	= 0.0
+shock_immunity                	= 0.0
+strike_immunity               	= 0.0
+telepatic_immunity            	= 0.0
+wound_2_immunity              	= 0.0
+wound_immunity                	= 0.0
+
+[gasmask_respirator]:helmet_base
+visual                        	= dynamics\outfit\helm_respirator
+        
+inv_name                      	= st_gasmask_respirator_name
+inv_name_short                	= st_gasmask_respirator_short
+description                   	= st_gasmask_respirator_descr
+		
+inv_grid_x         				= 0
 inv_grid_y         				= 4
 
-immunities_sect               	= sect_helm_bandana_immunities
-        
-burn_protection               	= 0.1
-shock_protection              	= 0.1
-radiation_protection          	= 0.04
-chemical_burn_protection      	= 0.1
+hud 							= respirator_hud
 
-[sect_helm_bandana_immunities]
-burn_immunity                 	= 0.3
-chemical_burn_immunity        	= 0.295
-explosion_immunity            	= 0.28
-fire_wound_immunity           	= 0.162
+immunities_sect               	= gasmask_respirator_immunities
+
+inv_weight           			= 0.15
+
+power_loss                    	= 0.1
+
+burn_protection               	= 0.05
+shock_protection              	= 0
+radiation_protection          	= 0.1
+chemical_burn_protection      	= 0.1
+telepatic_protection          	= 0
+strike_protection             	= 0
+explosion_protection          	= 0
+wound_protection              	= 0.05
+
+[gasmask_respirator_immunities]
+burn_immunity                 	= 0.5
+chemical_burn_immunity        	= 0.5
+explosion_immunity            	= 0.5
+fire_wound_immunity          	= 0.5
+radiation_immunity            	= 0.0
+shock_immunity                	= 0.0
+strike_immunity               	= 0.0
+telepatic_immunity            	= 0.0
+wound_2_immunity              	= 0.0
+wound_immunity                	= 0.0
+
+[gasmask]:helmet_base
+visual                        	= dynamics\outfit\helm_respirator
+        
+inv_name                      	= st_gasmask_name
+inv_name_short                	= st_gasmask_short
+description                   	= st_gasmask_descr
+
+inv_grid_x         				= 0
+inv_grid_y         				= 6
+
+hud_shader 						= true
+hud_breathe 					= 0.2
+hud 							= gasmask_hud
+
+immunities_sect               	= gasmask_immunities
+
+inv_weight           			= 0.9
+
+power_loss                    	= 0.2
+
+burn_protection               	= 0.1
+shock_protection              	= 0.05
+radiation_protection          	= 0.15
+chemical_burn_protection      	= 0.15
+telepatic_protection          	= 0
+strike_protection             	= 0
+explosion_protection          	= 0.05
+wound_protection              	= 0.05
+
+[gasmask_immunities]
+burn_immunity                 	= 0.2
+chemical_burn_immunity        	= 0.2
+explosion_immunity            	= 0.2
+fire_wound_immunity          	= 0.3
+radiation_immunity            	= 0.0
+shock_immunity                	= 0.0
+strike_immunity               	= 0.0
+telepatic_immunity            	= 0.0
+wound_2_immunity              	= 0.0
+wound_immunity                	= 0.0
+
+[gasmask_old]:helmet_base
+visual                        	= dynamics\outfit\helm_respirator_monolith
+
+inv_name                      	= st_gasmask_old_name
+inv_name_short                	= st_gasmask_old_short
+description                   	= st_gasmask_old_descr
+
+inv_grid_x         				= 0
+inv_grid_y         				= 8
+
+hud_shader 						= true
+hud_breathe 					= 0.2
+hud 							= gasmask_hud
+
+immunities_sect               	= gasmask_immunities
+
+inv_weight           			= 0.9
+
+power_loss                    	= 0.25
+
+burn_protection               	= 0.1
+shock_protection              	= 0.05
+radiation_protection          	= 0.10
+chemical_burn_protection      	= 0.10
+telepatic_protection          	= 0
+strike_protection             	= 0
+explosion_protection          	= 0.05
+wound_protection              	= 0.05
+
+[gasmask_m40]:helmet_base
+visual                        	= dynamics\outfit\helm_m40
+
+inv_name                      	= st_gasmask_m40_name
+inv_name_short                	= st_gasmask_m40_short
+description                   	= st_gasmask_m40_descr
+
+inv_grid_x         				= 2
+inv_grid_y         				= 2
+
+hud_shader 						= true
+hud_breathe 					= 0.2
+hud 							= gasmask_hud
+
+immunities_sect               	= gasmask_m40_immunities
+
+inv_weight           			= 0.9
+
+power_loss                    	= 0.2
+
+burn_protection               	= 0.2
+shock_protection              	= 0.05
+radiation_protection          	= 0.2
+chemical_burn_protection      	= 0.2
+telepatic_protection          	= 0
+strike_protection             	= 0
+explosion_protection          	= 0.1
+wound_protection              	= 0.1
+
+[gasmask_m40_immunities]
+burn_immunity                 	= 0.2
+chemical_burn_immunity        	= 0.2
+explosion_immunity            	= 0.2
+fire_wound_immunity          	= 0.2
 radiation_immunity            	= 0.0
 shock_immunity                	= 0.0
 strike_immunity               	= 0.0
@@ -64,139 +217,66 @@ wound_2_immunity              	= 0.0
 wound_immunity                	= 0.0
 
 ;---------------------------------------------------------------------------------------------
-;		СТАЛЬНОЙ ШЛЕМ
+;		СТАЛЬНОЙ ШЛЕМ (SPH-4B) - шолом пілотів гелікоптерів
 ;---------------------------------------------------------------------------------------------
 
-[helm_hardhat]:helmet
+[helmet_hardhat]:helmet_base
 visual          				= dynamics\outfit\helm_hardhat
 
-inv_name             			= st_helm_hardhat
-inv_name_short       			= st_helm_hardhat
-description						= st_helm_hardhat_descr
+inv_name             			= st_helmet_hardhat_name
+inv_name_short       			= st_helmet_hardhat_short
+description						= st_helmet_hardhat_descr
 
-inv_weight           			= 4.0
+inv_weight           			= 1.54
 
 inv_grid_x         				= 6
 inv_grid_y         				= 0
 
 cost							= 1200
 
-hud 							= hardhat_hud
+hud_shader 						= true
+hud 							= helmet_hud
 
-immunities_sect 				= sect_helm_hardhat_immunities
+immunities_sect 				= helmet_hardhat_immunities
 bones_koeff_protection			= actor_helm_hardhat
 
-burn_protection               	= 0.3
-shock_protection              	= 0.35
-radiation_protection          	= 0.1
+burn_protection               	= 0.2
+shock_protection              	= 0.2
+radiation_protection          	= 0
 chemical_burn_protection      	= 0.1
-telepatic_protection          	= 0.1
-strike_protection             	= 0
-explosion_protection          	= 0.25
-wound_protection              	= 0.035
+telepatic_protection          	= 0
+strike_protection             	= 0.5
+explosion_protection          	= 0.3
+wound_protection              	= 0.3
 
 attach_angle_offset 			= 0.300, -0.057, 1.600
 attach_position_offset 			= -0.008, 0.012, -0.008
 
-[sect_helm_hardhat_immunities]
-burn_immunity                 	= 0.075
-chemical_burn_immunity        	= 0.04
-explosion_immunity            	= 0.14
-fire_wound_immunity           	= 0.064
+[helmet_hardhat_immunities]
+burn_immunity                 	= 0.2
+chemical_burn_immunity        	= 0.2
+explosion_immunity            	= 0.1
+fire_wound_immunity           	= 0.5
 radiation_immunity            	= 0.0
 shock_immunity                	= 0.0
-strike_immunity               	= 0.0
+strike_immunity               	= 0.1
 telepatic_immunity            	= 0.0
 wound_2_immunity              	= 0.0
 wound_immunity                	= 0.0
-		
-[helm_ach7]:helmet
-visual                        	= dynamics\outfit\helm_hardhat
-        
-inv_name                      	= helm_ach7_name
-inv_name_short                	= helm_ach7_short
-description                   	= helm_ach7_descr
-
-inv_grid_x         				= 8
-inv_grid_y         				= 0
-
-immunities_sect               	= sect_helm_ach7_immunities
-
-hud 							= hardhat_hud
-
-bones_koeff_protection        	= actor_helm_hardhat
-        
-burn_protection               	= 0.39
-shock_protection              	= 0.4
-radiation_protection          	= 0.11
-chemical_burn_protection      	= 0.29
-telepatic_protection          	= 0.1
-strike_protection             	= 0
-explosion_protection          	= 0.2
-wound_protection              	= 0.035
-
-[sect_helm_ach7_immunities]
-burn_immunity                 	= 0.075
-chemical_burn_immunity        	= 0.005
-explosion_immunity            	= 0.1
-fire_wound_immunity           	= 0.05
-radiation_immunity            	= 0.0
-shock_immunity                	= 0.0
-strike_immunity               	= 0.0
-telepatic_immunity            	= 0.0
-wound_2_immunity              	= 0.0
-wound_immunity                	= 0.0		
-		
-[helm_ach7ex]:helmet
-visual                        	= dynamics\outfit\helm_hardhat
-        
-inv_name                      	= helm_ach7ex_name
-inv_name_short                	= helm_ach7ex_short
-description                   	= helm_ach7ex_descr
-
-inv_grid_x         				= 8
-inv_grid_y         				= 2
-
-hud 							= hardhat_hud
-
-immunities_sect               	= sect_helm_ach7ex_immunities
-
-bones_koeff_protection        	= actor_helm_hardhat
-        
-burn_protection               	= 0.014
-shock_protection              	= 0.11
-radiation_protection          	= 0.0205
-chemical_burn_protection      	= 0.034
-telepatic_protection          	= 0.1
-strike_protection             	= 0
-explosion_protection          	= 0.25
-wound_protection              	= 0.05
-
-[sect_helm_ach7ex_immunities]
-burn_immunity                 	= 0.075
-chemical_burn_immunity        	= 0.005
-explosion_immunity            	= 0.1
-fire_wound_immunity           	= 0.05
-radiation_immunity            	= 0.0
-shock_immunity                	= 0.0
-strike_immunity               	= 0.0
-telepatic_immunity            	= 0.0
-wound_2_immunity              	= 0.0
-wound_immunity                	= 0.0		
 
 ;---------------------------------------------------------------------------------------------
 ;		ШЛЕМ "ЗАСЛОН"
 ;---------------------------------------------------------------------------------------------
 
-[helm_protective]:helmet
+[helmet_protective]:helmet_base
 $spawn 							= "outfit\helm_protective"
 visual          				= dynamics\outfit\helm_protective
 
-inv_name             			= st_helm_protective
-inv_name_short       			= st_helm_protective
-description						= st_helm_protective_descr
+inv_name             			= st_helmet_protective_name
+inv_name_short       			= st_helmet_protective_short
+description						= st_helmet_protective_descr
 
-inv_weight           			= 4.0
+inv_weight           			= 1.6
 
 inv_grid_x         				= 2
 inv_grid_y         				= 4
@@ -206,7 +286,9 @@ cost							= 6000
 hud_shader 						= true
 hud_breathe 					= 0.2
 
-immunities_sect 				= sect_helm_protective_immunities
+hud 							= protector_hud
+
+immunities_sect 				= helmet_protective_immunities
 bones_koeff_protection			= actor_helm_protective
 
 radiation_protection 			= 0.5
@@ -216,7 +298,7 @@ telepatic_protection 			= 0.5
 attach_angle_offset 			= 1.550, 0.043, 1.650
 attach_position_offset 			= 0.047, 0.006, 0.043
 
-[sect_helm_protective_immunities]
+[helmet_protective_immunities]
 burn_immunity					= 0.01
 strike_immunity					= 0.0
 shock_immunity					= 0.01
@@ -232,15 +314,15 @@ fire_wound_immunity				= 0.035
 ;		ТАКТИЧЕСКИЙ ШЛЕМ
 ;---------------------------------------------------------------------------------------------
 
-[helm_tactic]:helmet
+[helmet_tactic]:helmet_base
 $spawn 							= "outfit\helm_tactic"
 visual          				= dynamics\outfit\helm_tactic
 
-inv_name             			= st_helm_tactic
-inv_name_short       			= st_helm_tactic
-description						= st_helm_tactic_descr
+inv_name             			= st_helmet_tactic_name
+inv_name_short       			= st_helmet_tactic_short
+description						= st_helmet_tactic_descr
 
-inv_weight           			= 4.0
+inv_weight           			= 1.47
 
 inv_grid_x         				= 6
 inv_grid_y         				= 2
@@ -251,22 +333,26 @@ show_minimap 					= true
 
 hud_shader 						= true
 hud_breathe 					= 0.2
-hud 							= metro_hud
+hud 							= helmet_tactic_hud
 
-immunities_sect 				= sect_helm_tactic_immunities
+immunities_sect 				= helmet_tactic_immunities
 bones_koeff_protection			= actor_helm_tactic
 
-telepatic_protection 			= 0.1
-radiation_protection 			= 0.1
-chemical_burn_protection 		= 0.3
-strike_protection 				= 0.8
-explosion_protection 			= 0.8
-wound_protection				= 0.8
+power_loss                    	= 0.2
+
+burn_protection               	= 0.2
+shock_protection              	= 0.1
+radiation_protection          	= 0.25
+chemical_burn_protection      	= 0.25
+telepatic_protection          	= 0.1
+strike_protection             	= 0.2
+explosion_protection          	= 0.2
+wound_protection              	= 0.2
 
 attach_angle_offset 			= 0.300, -0.057, 1.600
 attach_position_offset 			= -0.008, 0.012, -0.008
 
-[sect_helm_tactic_immunities]
+[helmet_tactic_immunities]
 burn_immunity					= 0.02
 strike_immunity					= 0.0
 shock_immunity					= 0.02
@@ -276,45 +362,49 @@ radiation_immunity				= 0.0
 telepatic_immunity				= 0.0
 chemical_burn_immunity			= 0.02
 explosion_immunity				= 0.02
-fire_wound_immunity				= 0.015
+fire_wound_immunity				= 0.15
 
 ;---------------------------------------------------------------------------------------------
 ;		ШЛЕМ "СФЕРА М12"
 ;---------------------------------------------------------------------------------------------
 
-[helm_battle]:helmet
+[helmet_battle]:helmet_base
 $spawn 							= "outfit\helm_battle"
 visual          				= dynamics\outfit\helm_battle
 
-inv_name             			= st_helm_battle
-inv_name_short       			= st_helm_battle
-description						= st_helm_battle_descr
+inv_name             			= st_helmet_battle_name
+inv_name_short       			= st_helmet_battle_short
+description						= st_helmet_battle_descr
 
-inv_weight           			= 4.0
+inv_weight           			= 1.62
 
 inv_grid_x         				= 6
 inv_grid_y         				= 4
 
 hud_shader 						= true
 hud_breathe 					= 0.2
-hud 							= metro_hud
+hud 							= helmet_battle_hud
 
 cost							= 8000
 
-immunities_sect 				= sect_helm_battle_immunities
+immunities_sect 				= helmet_battle_immunities
 bones_koeff_protection			= actor_helm_battle
 
-telepatic_protection 			= 0.2
-radiation_protection 			= 0.2
-chemical_burn_protection 		= 0.5
-strike_protection 				= 0.8
-explosion_protection 			= 0.8
-wound_protection				= 0.8
+power_loss                    	= 0.25
+
+burn_protection               	= 0.25
+shock_protection              	= 0.2
+radiation_protection          	= 0.3
+chemical_burn_protection      	= 0.3
+telepatic_protection          	= 0.15
+strike_protection             	= 0.25
+explosion_protection          	= 0.25
+wound_protection              	= 0.25
 
 attach_angle_offset 			= 0.300, -0.057, 1.600
 attach_position_offset 			= -0.008, 0.012, -0.008
 
-[sect_helm_battle_immunities]
+[helmet_battle_immunities]
 burn_immunity					= 0.02
 strike_immunity					= 0.0
 shock_immunity					= 0.02
@@ -324,76 +414,47 @@ radiation_immunity				= 0.0
 telepatic_immunity				= 0.0
 chemical_burn_immunity			= 0.02
 explosion_immunity				= 0.01
-fire_wound_immunity				= 0.01
+fire_wound_immunity				= 0.1
 
-[helm_exo]:helmet
+[helmet_exo]:helmet_base
 visual                        	= dynamics\outfit\helm_exo
-        
-inv_name                      	= helm_exo_name
-inv_name_short                	= helm_exo_short
-description                   	= helm_exo_descr
-		
+
+inv_name                      	= st_helmet_exo_name
+inv_name_short                	= st_helmet_exo_short
+description                   	= st_helmet_exo_descr
+
 inv_grid_x         				= 6
 inv_grid_y         				= 8
 
-immunities_sect               	= sect_helm_exo_immunities
+immunities_sect               	= helmet_exo_immunities
 
 bones_koeff_protection        	= actor_helm_exo
 
-power_loss                    	= 0.1
-
 hud_shader 						= true
 hud_breathe 					= 0.2
-hud 							= metro_hud
-        
-burn_protection               	= 0.07
-shock_protection              	= 0.085
-radiation_protection          	= 0.0235
-chemical_burn_protection      	= 0.042
-telepatic_protection          	= 0.06
-strike_protection             	= 0
-explosion_protection          	= 0.3
-wound_protection              	= 0.09
+hud 							= helmet_exo_hud
 
-[sect_helm_exo_immunities]
-burn_immunity                 	= 0.075
-chemical_burn_immunity        	= 0.035
-explosion_immunity            	= 0.075
-fire_wound_immunity           	= 0.044
-radiation_immunity            	= 0.0
-shock_immunity                	= 0.0
-strike_immunity               	= 0.0
-telepatic_immunity            	= 0.0
-wound_2_immunity              	= 0.0
-wound_immunity                	= 0.0
+inv_weight           			= 4.6
+
+power_loss                    	= 0.4
  
-;--------------------------------------------------------------------------
+burn_protection               	= 0.2
+shock_protection              	= 0.2
+radiation_protection          	= 0.25
+chemical_burn_protection      	= 0.25
+telepatic_protection          	= 0.2
+strike_protection             	= 0.4
+explosion_protection          	= 0.4
+wound_protection              	= 0.2
 
-[helm_heavy]:helmet
-visual                        	= dynamics\outfit\helm_tactic
-        
-inv_name                      	= helm_heavy_name
-inv_name_short                	= helm_heavy_short
-description                   	= helm_heavy_descr
-
-inv_grid_x         				= 8
-inv_grid_y         				= 4
-
-hud_shader 						= true
-hud_breathe 					= 0.2
-hud 							= metro_hud
-
-immunities_sect               	= sect_helm_battle_immunities
-
-bones_koeff_protection        	= actor_helm_heavy
-
-power_loss                    	= 0.1
-        
-burn_protection               	= 0.113
-shock_protection              	= 0
-radiation_protection          	= 0.0255
-chemical_burn_protection      	= 0.074
-telepatic_protection          	= 0.048
-strike_protection             	= 0
-explosion_protection          	= 0.35
-wound_protection              	= 0.07
+[helmet_exo_immunities]
+burn_immunity					= 0.05
+strike_immunity					= 0.0
+shock_immunity					= 0.02
+wound_immunity					= 0.0
+wound_2_immunity				= 0.0
+radiation_immunity				= 0.0
+telepatic_immunity				= 0.0
+chemical_burn_immunity			= 0.03
+explosion_immunity				= 0.03
+fire_wound_immunity				= 0.3

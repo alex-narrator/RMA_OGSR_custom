@@ -18,14 +18,13 @@ local nvd_slots = {
 }
 
 function get_current_nvd()
-	local item = nil
 	for k, v in ipairs(nvd_slots) do
 		item = actor:item_in_slot(v)
 		if item and get_nvd_params(item:section()) and alife():object(item:id()).is_nvd_on ~= nil then
 			return item
 		end
 	end
-	return item
+	return nil
 end
 
 function get_nvd_params(sect)

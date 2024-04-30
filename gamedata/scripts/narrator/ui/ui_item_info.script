@@ -580,7 +580,7 @@ function attach_armor_params(UIDesc, item)
 	end
 	
 	--hit fraction
-	val = read_if_exists(sys_ini, "r_float", item:section(), "hit_fraction", 0.1)
+	val = read_if_exists(sys_ini, "r_float", bones_protect_sect, "hit_fraction", 0.1)
 	if val > 0 then
 		armor_st["hit_fraction"] = CUIStatic()--xml:InitStatic("hit_fraction", params_list)
 		armor_st["hit_fraction"]:SetWidth(params_list:GetDesiredChildWidth())

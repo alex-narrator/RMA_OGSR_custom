@@ -532,14 +532,14 @@ eye_right 			 		= 1.0, 0
 jaw_1 		 		 		= 1.0, 0
 
 [actor_head_damage_battle]
-bip01_head 			 		= 1.0, 3
+bip01_head 			 		= 1.0, 4
 eyelid_1 			 		= 1.0, 0
 eye_left 			 		= 1.0, 0
 eye_right 			 		= 1.0, 0
 jaw_1 		 		 		= 1.0, 0
 
 [actor_head_damage_exo]
-bip01_head 			 		= 1.0, 4
+bip01_head 			 		= 1.0, 6
 eyelid_1 			 		= 1.0, 0
 eye_left 			 		= 1.0, 0
 eye_right 			 		= 1.0, 0
@@ -566,25 +566,29 @@ jaw_1 		 		 		= 1.0, 4
 
 [actor_armor_heavy]:actor_body_damage_heavy, actor_head_damage_absent
 
-[actor_armor_sci]:actor_body_damage_sci, actor_head_damage_protective
+[actor_armor_sci]:actor_body_damage_sci, actor_head_damage_absent
 
-[actor_armor_exo]:actor_body_damage_exo, actor_head_damage_battle
+[actor_armor_exo]:actor_body_damage_exo, actor_head_damage_absent
 
 
 ;***************************************************************
 ; ACTOR HELM SECTIONS
 ;***************************************************************
-[actor_helm_respirator]:actor_body_damage_absent, actor_head_damage_respirator
+[actor_helm_respirator]:actor_body_damage_absent, actor_head_damage_absent
 
-[actor_helm_protective]:actor_body_damage_absent, actor_head_damage_protective
+[actor_helm_protective]:actor_body_damage_absent, actor_head_damage_absent
 
 [actor_helm_hardhat]:actor_body_damage_absent, actor_head_damage_hardhat
+hit_fraction				= 0.05
 
 [actor_helm_tactic]:actor_body_damage_absent, actor_head_damage_tactic
+hit_fraction				= 0.2
 
 [actor_helm_battle]:actor_body_damage_absent, actor_head_damage_battle
+hit_fraction				= 0.15
 
 [actor_helm_exo]:actor_body_damage_absent, actor_head_damage_exo
+hit_fraction				= 0.25
 
 [actor_helm_heavy]:actor_body_damage_absent, actor_head_damage_heavy
 

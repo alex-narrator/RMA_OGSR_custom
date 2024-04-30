@@ -1,8 +1,8 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
 	--sm:subscribe({signal = "on_hit", fun = this.on_hit})
-	--sm:subscribe({signal = "on_hit_actor", fun = this.on_hit})
-	--sm:subscribe({signal = "on_actor_before_hit", fun = this.on_before_hit})
+	sm:subscribe({signal = "on_hit_actor", fun = this.on_hit})
+	sm:subscribe({signal = "on_actor_before_hit", fun = this.on_before_hit})
 	--sm:subscribe({signal = "on_npc_before_hit", fun = this.on_before_hit})
 	--sm:subscribe({signal = "on_hit_npc", fun = this.on_hit})
 	--sm:subscribe({signal = "on_info_portion", fun = this.on_info_portion})
@@ -21,7 +21,7 @@ function on_hit(victim, health_lost, direction, draftsman, bone_id, hit_type)
 end
 
 function on_before_hit(object, hit)
-	log3("~%s on_before_hit: power %s | full power %s | type %s | draftsman %s | bone %s | ap %s", object:name(), hit.power, hit.full_power, hit.hit_type, hit.who:name(), object:get_bone_name(hit.bone_id), hit.ap)
+	log3("~%s on_before_hit: power %s | full power %s | type %s | draftsman %s | bone %s | ap %s", object:name(), hit.power, hit.full_power, get_hit_type_name(hit.hit_type), hit.who:name(), object:get_bone_name(hit.bone_id), hit.ap)
 end
 
 function on_info_portion(npc, info_id)

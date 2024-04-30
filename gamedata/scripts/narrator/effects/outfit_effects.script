@@ -150,7 +150,7 @@ function play_gasmask_anim(item, is_on)
 		function()
 			actor:hide_crosshair(true)
 			
-			game.play_hud_motion(2, hud_sect, is_on and "anm_equip" or "anm_takeoff", false, 1, true)
+			game.play_hud_motion(2, hud_sect, is_on and "anm_equip" or "anm_unequip", false, 1, true)
 
 			local snd_name = read_if_exists(sys_ini, "r_string", hud_sect, is_on and "sound_on" or "sound_off", nil)
 			if snd_name then
