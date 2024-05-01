@@ -51,6 +51,7 @@ end
 function play_music(instrument)
 	local data = instruments[instrument]
 	game.play_hud_motion(2, data.hud, "anm_play", true, 1, true)
+	_G.SCRIPT_ANIM_PLAYING = true
 	sound = xr_sound.get_safe_sound_object(data.sound_prefix..math.random(1, data.max_rnd))
 	sound:play(actor, 0, sound_object.s2d)
 	level.add_call(
@@ -67,6 +68,7 @@ function stop_music()
 	if not sound then
 	return end
 	game.stop_hud_motion()
+	_G.SCRIPT_ANIM_PLAYING = false
 	restore_control()
 	sound:stop()
 	sound = false

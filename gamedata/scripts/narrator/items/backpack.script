@@ -99,7 +99,7 @@ function anm_snd_speed()
 end
 
 function play_anim(state)
-	if not actor_get_backpack() or eatable_item_anim.is_playing() then
+	if not actor_get_backpack() or SCRIPT_ANIM_PLAYING then
 		idle_playing = false
 	return end
 	local community_hud_sect = DEF_HUD_SECT.."_"..actor:character_community()
@@ -134,7 +134,7 @@ function play_effects(enable)
 	force_crouch(enable)
 	play_anim(enable and 1 or 2)
 	
-	if eatable_item_anim.is_playing() then
+	if SCRIPT_ANIM_PLAYING then
 	return end
 	
 	if actor_get_backpack() then

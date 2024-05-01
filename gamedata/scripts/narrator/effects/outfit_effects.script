@@ -4,31 +4,11 @@ local mask_texture = [[ui\dinamic_hud\hud_]]
 local breathe_texture = [[ui\dinamic_hud\breathe]]
 local brake_sound = xr_sound.get_safe_sound_object([[material\glass\glass_fall01hl]])
 
-local hud_obj, hud_params, mask_static, breathe_static, last_cond_idx, last_power_idx, last_power_idx, breathe_val
+local hud_obj, mask_static, breathe_static, last_cond_idx, last_power_idx, last_power_idx, breathe_val
+
+local breathe, texture, breakable = false, false, false
 
 local dec_breathe, show_minimap = false, false
-
-function get_hud_params(sect)
-	hud_data = {}
-	
-	hud_data.shader = read_if_exists(sys_ini, "r_bool", sect, "hud_shader", false)
-	
-	hud_data.texture = read_if_exists(sys_ini, "r_string", sect, "hud_texture", nil)
-	
-	if hud_data.texture then
-		hud_data.texture = mask_texture..hud_data.texture
-		hud_data.breakable = read_if_exists(sys_ini, "r_bool", sect, "hud_breakable", false)
-	end
-	
-	hud_data.breathe = read_if_exists(sys_ini, "r_float", sect, "hud_breathe", 0)
-	
-	return hud_data
-end
-
-function has_hud(sect)
-	local params = get_hud_params(sect)
-	return params.shader or params.texture or params.breathe > 0
-end
 
 function get_cond_idx()
 	local cond = hud_obj:condition()
@@ -101,16 +81,16 @@ function on_slot(obj, prev_place)
 			if obj:is_outfit() or not get_hud_sect(obj) or xr_conditions.black_screen() then
 				enable_effects(obj)
 			else
-				play_gasmask_anim(obj, true)
+				outfit_anim.play_gasmask(obj, true)
 			end
 		end
 	)
 	
 	if obj:is_outfit() and not xr_conditions.black_screen() and not has_alife_info("bar_arena_fight") then
 		if known_outfits[obj:section()] then
-			outfit_anim.play("outfit_equip_fast_hud")
+			outfit_anim.play_outfit("fast")
 		else
-			outfit_anim.play("outfit_equip_hud")
+			outfit_anim.play_outfit("full")
 			known_outfits[obj:section()] = true
 		end
 	end
@@ -126,64 +106,12 @@ function on_non_slot(obj, prev_place)
 	disable_effects(obj)
 	
 	if get_hud_sect(obj) and not xr_conditions.black_screen() and not level.is_removing_objects() then
-		play_gasmask_anim(obj, false)
+		outfit_anim.play_gasmask(obj, false)
 	end	
 		
 	if obj:is_outfit() and actor:alive() and level.main_input_receiver() then
 		add_update_delayed_action(1, function() backpack.play_anim(3) end)
 	end
-end
-
-function play_gasmask_anim(item, is_on)
-	local hud_sect = get_hud_sect(item)
-	
-	local already_blocked = actor.inventory:is_active_slot_blocked()
-	
-	if not already_blocked then
-		actor:hide_weapon(true)
-	end
-	
-	level.add_call(
-		function() 
-			return not actor:active_item() and not actor:active_device()
-		end,
-		function()
-			actor:hide_crosshair(true)
-			
-			game.play_hud_motion(2, hud_sect, is_on and "anm_equip" or "anm_unequip", false, 1, true)
-
-			local snd_name = read_if_exists(sys_ini, "r_string", hud_sect, is_on and "sound_on" or "sound_off", nil)
-			if snd_name then
-				xr_sound.get_safe_sound_object(snd_name):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
-			end
-
-			local eff_name = read_if_exists(sys_ini, "r_string", hud_sect, is_on and "hud_effector_on" or "hud_effector_off", nil)
-			if eff_name and actor:alive() then
-				level.remove_complex_effector(gasmask_effector_id)
-				level.add_complex_effector(eff_name, gasmask_effector_id)
-			end
-			
-			block_non_move_action(true)
-			level.add_call(
-				function()
-					return game.hud_motion_allowed()
-				end,
-				function()
-					block_non_move_action(false)
-					if not already_blocked then
-						actor:restore_weapon()
-					end
-					if has_alife_info("ui_inventory") or has_alife_info("ui_car_body") then
-						backpack.play_anim(3)
-					end
-					actor:hide_crosshair(false)
-					if is_on then 
-						enable_effects(item)
-					end
-				end
-			)
-		end
-	)	
 end
 
 function enable_effects(obj)
@@ -201,16 +129,26 @@ function enable_effects(obj)
 		sm:subscribe({signal = "on_update", fun = this.on_update_minimap})
 	end
 	
-	if has_hud(sect) then
-		hud_params = get_hud_params(sect)
+	if read_if_exists(sys_ini, "r_bool", sect, "hud_shader", false) then
+		switch_shader_effects(true)
+	end
+	
+	if read_if_exists(sys_ini, "r_float", sect, "hud_breathe", 0) > 0 then
+		breathe = read_if_exists(sys_ini, "r_float", sect, "hud_breathe", 0)
+		switch_breathe(true)
+	end
+	
+	if read_if_exists(sys_ini, "r_string", sect, "hud_texture", nil) then
+		texture = mask_texture..read_if_exists(sys_ini, "r_string", sect, "hud_texture", nil)
+		breakable = read_if_exists(sys_ini, "r_bool", sect, "hud_breakable", false)
 		hud_obj = obj
-		try_switch_shader_effects(true) 
-		try_set_hud_mask(true)
+		switch_hud_texture(true)
 	end
 end
 
 function disable_effects(obj, prev_place)
 	local sm = ogse_signals.get_mgr()
+	local sect = obj:section()
 	
 	local default_icon = actor:get_default_character_icon()
 	if obj:is_outfit() and default_icon ~= actor:get_character_icon() then
@@ -223,61 +161,64 @@ function disable_effects(obj, prev_place)
 		sm:unsubscribe({signal = "on_update", fun = this.on_update_minimap})
 	end
 	
-	if has_hud(obj:section()) then
-		hud_params = get_hud_params(obj:section())
-		try_switch_shader_effects(false)
-		try_set_hud_mask(false)
+	if read_if_exists(sys_ini, "r_bool", sect, "hud_shader", false) then
+		switch_shader_effects(false)
+	end
+	if read_if_exists(sys_ini, "r_float", sect, "hud_breathe", 0) > 0 then
+		breathe = 0
+		switch_breathe(false)
 	end
 	
-	hud_obj = nil
-	hud_params = {}
+	if read_if_exists(sys_ini, "r_string", sect, "hud_texture", nil) then
+		texture = nil
+		breakable = false
+		hud_obj = nil
+		switch_hud_texture(false)
+	end	
 end
 
-function try_switch_shader_effects(val)
-	if not hud_params.shader then 
-	return end
-	
-	val = val and 1 or 0
+function switch_shader_effects(val)
 	local console = get_console()
+	val = val and 1 or 0
 	console:execute("r2_rain_drops_control "..val)
 	console:execute("r2_visor_refl_control "..val)
 end
 
-function try_set_hud_mask(val)
+function switch_breathe(val)
 	local sm = ogse_signals.get_mgr()
-	
-	if hud_params.breathe > 0 then
-		breathe_val = 0
-		dec_breathe = false
-		if val then
-			sm:subscribe({signal = "update_items_effect", fun = this.on_update_mask})
-			breathe_static = create_breathe_static()
-			main_wnd:AttachChild(breathe_static)
-			main_wnd:BringToBottom(breathe_static)
-		else
-			sm:unsubscribe({signal = "update_items_effect", fun = this.on_update_mask})
-			main_wnd:DetachChild(breathe_static)
-			breathe_static = nil
-		end
-	end
-	
-	if hud_params.texture then
-		if val then
-			sm:subscribe({signal = "on_hit_actor", fun = this.on_hit})
-			mask_static = create_mask_static()
-			main_wnd:AttachChild(mask_static)
-			main_wnd:BringToBottom(mask_static)
-		else
-			sm:unsubscribe({signal = "on_hit_actor", fun = this.on_hit})
-			main_wnd:DetachChild(mask_static)
-			mask_static = nil
-		end
+	breathe_val = 0
+	dec_breathe = false
+	local subscribe = {signal = "update_items_effect", fun = this.on_update_mask}
+	if val then
+		sm:subscribe(subscribe)
+		breathe_static = create_breathe_static()
+		main_wnd:AttachChild(breathe_static)
+		main_wnd:BringToBottom(breathe_static)
+	else
+		sm:unsubscribe(subscribe)
+		main_wnd:DetachChild(breathe_static)
+		breathe_static = nil
+	end	
+end
+
+function switch_hud_texture(val)
+	local sm = ogse_signals.get_mgr()
+	local subscribe = {signal = "on_hit_actor", fun = this.on_hit}
+	if val then
+		sm:subscribe(subscribe)
+		mask_static = create_mask_static()
+		main_wnd:AttachChild(mask_static)
+		main_wnd:BringToBottom(mask_static)
+	else
+		sm:unsubscribe(subscribe)
+		main_wnd:DetachChild(mask_static)
+		mask_static = nil
 	end
 end
 
 function create_mask_static()
-	local texture_name = hud_params.texture
-	if hud_params.breakable then
+	local texture_name = texture
+	if breakable then
 		last_cond_idx = get_cond_idx()
 		texture_name = texture_name..last_cond_idx
 	end
@@ -299,12 +240,12 @@ end
 
 function update_mask_texture()
 	local cond_idx = get_cond_idx()
-	if hud_params.breakable and last_cond_idx ~= cond_idx then
-		mask_static:InitTexture(hud_params.texture..cond_idx)
+	if breakable and last_cond_idx ~= cond_idx then
+		mask_static:InitTexture(texture..cond_idx)
 		last_cond_idx = cond_idx
 		
 		if last_cond_idx == 2 then
-			brake_sound:play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor, actor:position())
+			brake_sound:play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 		end
 	end
 end
@@ -334,7 +275,7 @@ end
 
 function on_update_mask(delta)
 	--log3("%s | %s", script_name(), delta)
-	local change = delta * hud_params.breathe
+	local change = delta * breathe
 	change = change + (change * (1 - actor.power))
 	
 	if dec_breathe then

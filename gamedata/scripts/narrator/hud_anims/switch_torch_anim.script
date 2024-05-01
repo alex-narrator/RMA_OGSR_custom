@@ -9,7 +9,6 @@ local torch_action = {
 }
 
 local actor_obj = get_actor_obj()
-local is_playing = false
 local hud_effector_id = 5557
 
 function on_spawn()
@@ -22,7 +21,7 @@ function on_key_press(key, game_action)
 	local curr_torch = actor_get_torch()
 	if not torch_action[game_action] or
 		not actor_hands_free() or
-		is_playing or actor:get_holder() or
+		SCRIPT_ANIM_PLAYING or actor:get_holder() or
 		not curr_torch
 	then
 	return end
@@ -36,9 +35,9 @@ function on_key_press(key, game_action)
 	local hud_sect = get_hud_sect(actor_get_torch())
 	
 	game.play_hud_motion(1, hud_sect, "anm_use", false, 1, false)
+	_G.SCRIPT_ANIM_PLAYING = true
 	local eff_name = read_if_exists(sys_ini, "r_string", hud_sect, "hud_effector", nil)
 	level.add_complex_effector(eff_name, hud_effector_id)
-	is_playing = true
 	
 	local switch_mode = game_action == key_bindings.kTORCH and
 		level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) and 
@@ -60,7 +59,7 @@ function on_key_press(key, game_action)
 			return game.hud_motion_allowed()
 		end,
 		function()
-			is_playing = false
+			_G.SCRIPT_ANIM_PLAYING = false
 		end
 	)
 end

@@ -49,6 +49,7 @@ function play_harvest(monster)
 	level.disable_input()
 	backpack.force_crouch(true)
 	game.play_hud_motion(2, "harv_"..get_hud_sect(knife), "anm_show", true, 1, true)
+	_G.SCRIPT_ANIM_PLAYING = true
 	for _,v in pairs(effects) do
 		level.add_cam_effector(v.effect, v.id, false, "")
 	end
@@ -74,6 +75,7 @@ function play_harvest(monster)
 							news_manager.item_tip(item, "harvest")
 						end
 					end
+					_G.SCRIPT_ANIM_PLAYING = false
 					backpack.force_crouch(false)
 					level.enable_input()
 				end

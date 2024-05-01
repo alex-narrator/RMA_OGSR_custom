@@ -22,6 +22,7 @@ function play(item)
 			actor:hide_crosshair(true)
 			
 			game.play_hud_motion(2, hud_sect, "anm_use", false, 1, true)
+			_G.SCRIPT_ANIM_PLAYING = true
 			play_hud_sound(hud_sect)
 			play_hud_effector(hud_sect)
 			block_non_move_action(true)
@@ -31,6 +32,7 @@ function play(item)
 				end,
 				function()
 					block_non_move_action(false)
+					_G.SCRIPT_ANIM_PLAYING = false
 					if not already_blocked then
 						actor:restore_weapon(ANIM_FAST)
 					end

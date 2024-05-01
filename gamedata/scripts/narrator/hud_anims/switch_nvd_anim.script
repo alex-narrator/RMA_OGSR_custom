@@ -7,7 +7,6 @@ local nvd_action = {
 	[key_bindings.kNIGHT_VISION] = true,
 }
 
-local is_playing = false
 local hud_effector_id = 5558
 
 function wpn_scope_allow_nvd(weapon)
@@ -28,7 +27,7 @@ function on_key_press(key, game_action)
 		not actor_hands_free() or
 		nvd.aim_nvd_weapon() or
 		aim_scope() or
-		is_playing or 
+		SCRIPT_ANIM_PLAYING or 
 		not curr_nvd
 	then
 		if nvd_action[game_action] and curr_nvd and aim_scope() and not nvd.aim_nvd_weapon() then
@@ -39,9 +38,9 @@ function on_key_press(key, game_action)
 	local hud_sect = "switch_torch_hud"
 	
 	game.play_hud_motion(1, hud_sect, "anm_use", false, 1, false)
+	_G.SCRIPT_ANIM_PLAYING = true
 	local eff_name = read_if_exists(sys_ini, "r_string", hud_sect, "hud_effector", nil)
 	level.add_complex_effector(eff_name, hud_effector_id)
-	is_playing = true
 	
 	add_time_delayed_action(
 		read_if_exists(sys_ini, "r_float", hud_sect, "use_delay", 1.5),
@@ -57,7 +56,7 @@ function on_key_press(key, game_action)
 			return game.hud_motion_allowed()
 		end,
 		function()
-			is_playing = false
+			_G.SCRIPT_ANIM_PLAYING = false
 		end
 	)
 end

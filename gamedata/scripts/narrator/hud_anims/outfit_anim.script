@@ -3,7 +3,15 @@ local hud_effector_id = 5555
 
 local ANIM_FAST = false
 
-function play(hud_sect)
+local anim_types = {
+	["full"] = "outfit_equip_hud",
+	["fast"] = "outfit_equip_fast_hud",
+	["inspect"] = "outfit_inspect_hud",
+}
+
+function play_outfit(anim_type)
+	
+	local hud_sect = anim_types[anim_type]
 	local already_blocked = actor.inventory:is_active_slot_blocked()
 	
 	if not already_blocked then
@@ -18,6 +26,7 @@ function play(hud_sect)
 			actor:hide_crosshair(true)
 			
 			game.play_hud_motion(2, hud_sect, "anm_use", false, 1, true)
+			_G.SCRIPT_ANIM_PLAYING = true
 			play_hud_sound(hud_sect)
 			play_hud_effector(hud_sect)
 			block_non_move_action(true)
@@ -27,6 +36,7 @@ function play(hud_sect)
 				end,
 				function()
 					block_non_move_action(false)
+					_G.SCRIPT_ANIM_PLAYING = false
 					if not already_blocked then
 						actor:restore_weapon(ANIM_FAST)
 					end
@@ -55,4 +65,61 @@ function play_hud_effector(sect)
 		level.remove_complex_effector(hud_effector_id)
 		level.add_complex_effector(eff_name, hud_effector_id)
 	end
+end
+
+function play_gasmask(item, is_on)
+	local hud_sect = get_hud_sect(item)
+	
+	if not hud_sect then
+	return end
+	
+	local already_blocked = actor.inventory:is_active_slot_blocked()
+	
+	if not already_blocked then
+		actor:hide_weapon(true)
+	end
+	
+	level.add_call(
+		function() 
+			return not actor:active_item() and not actor:active_device()
+		end,
+		function()
+			actor:hide_crosshair(true)
+			
+			game.play_hud_motion(2, hud_sect, is_on and "anm_equip" or "anm_unequip", false, 1, true)
+			_G.SCRIPT_ANIM_PLAYING = true
+
+			local snd_name = read_if_exists(sys_ini, "r_string", hud_sect, is_on and "sound_on" or "sound_off", nil)
+			if snd_name then
+				xr_sound.get_safe_sound_object(snd_name):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+			end
+
+			local eff_name = read_if_exists(sys_ini, "r_string", hud_sect, is_on and "hud_effector_on" or "hud_effector_off", nil)
+			if eff_name and actor:alive() then
+				level.remove_complex_effector(gasmask_effector_id)
+				level.add_complex_effector(eff_name, gasmask_effector_id)
+			end
+			
+			block_non_move_action(true)
+			level.add_call(
+				function()
+					return game.hud_motion_allowed()
+				end,
+				function()
+					block_non_move_action(false)
+					_G.SCRIPT_ANIM_PLAYING = false
+					if not already_blocked then
+						actor:restore_weapon()
+					end
+					if has_alife_info("ui_inventory") or has_alife_info("ui_car_body") then
+						backpack.play_anim(3)
+					end
+					actor:hide_crosshair(false)
+					if is_on then 
+						outfit_effects.enable_effects(item)
+					end
+				end
+			)
+		end
+	)	
 end

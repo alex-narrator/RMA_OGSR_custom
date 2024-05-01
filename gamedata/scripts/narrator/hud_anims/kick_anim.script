@@ -9,7 +9,6 @@ local KICK_DIST = actor.inventory.take_dist
 local POWER_DEC_K = 0.001
 local ANM_SPEED = 2
 
-local is_playing = false
 local hud_effector_id = 5560
 
 function can_play_anim()
@@ -17,7 +16,7 @@ function can_play_anim()
 		--level.get_target_dist() <= KICK_DIST and
 		not level.main_input_receiver() and
 		actor_hands_free() and 
-		not is_playing and 
+		not SCRIPT_ANIM_PLAYING and 
 		not actor:ph_capture()-- and
 		--(not actor:active_item() or not actor:active_item():is_knife()) 
 end
@@ -28,7 +27,6 @@ function on_key_press(key, game_action)
 	then
 	return end
 		
-	is_playing = true
 	block_non_move_action(true)
 	
 	actor:hard_crosshair(false)
@@ -54,6 +52,7 @@ function on_key_press(key, game_action)
 	end
 	
 	game.play_hud_motion(2, hud_sect, "anm_use", true, ANM_SPEED, false)
+	_G.SCRIPT_ANIM_PLAYING = true
 	-- local eff_name = read_if_exists(sys_ini, "r_string", hud_sect, "hud_effector", nil)
 	-- level.add_complex_effector(eff_name, hud_effector_id)
 	
@@ -68,7 +67,7 @@ function on_key_press(key, game_action)
 			if act_item and act_item:is_knife() then
 				game.stop_hud_motion()
 			end
-			is_playing = false
+			_G.SCRIPT_ANIM_PLAYING = false
 		end
 	)
 	add_time_delayed_action(

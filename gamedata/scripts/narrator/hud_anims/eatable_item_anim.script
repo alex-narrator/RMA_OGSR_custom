@@ -3,8 +3,6 @@ local hud_effector_id = 5555
 
 local ANIM_FAST = false
 
-local playing = false
-
 local ANM_SND_SLOWDOWN = 1.1
 
 function anm_snd_speed()
@@ -12,10 +10,6 @@ function anm_snd_speed()
 	local has_injure_pain = (inj_limb == "hand" or inj_limb == "leg_hand") and body_health.get_pain_effect() >= 0
 	local speed = has_injure_pain and ANM_SND_SLOWDOWN or 1
 	return 1 / speed
-end
-
-function is_playing()
-	return playing
 end
 
 function play(item)
@@ -37,7 +31,7 @@ function play(item)
 			actor:hide_crosshair(true)
 			
 			game.play_hud_motion(2, hud_sect, "anm_use", false, anm_snd_speed(), true)
-			playing = true
+			_G.SCRIPT_ANIM_PLAYING = true
 			play_hud_sound(hud_sect)
 			play_hud_effector(hud_sect)
 			set_use_delay(hud_sect, item)
@@ -48,7 +42,7 @@ function play(item)
 				end,
 				function()
 					block_non_move_action(false)
-					playing = false
+					_G.SCRIPT_ANIM_PLAYING = false
 					if not already_blocked then
 						actor:restore_weapon(ANIM_FAST)
 					end
