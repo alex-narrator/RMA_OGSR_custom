@@ -5,6 +5,15 @@ local ANIM_FAST = false
 
 local playing = false
 
+local ANM_SND_SLOWDOWN = 1.1
+
+function anm_snd_speed()
+	local inj_limb = body_health.get_injured_limb()
+	local has_injure_pain = (inj_limb == "hand" or inj_limb == "leg_hand") and body_health.get_pain_effect() >= 0
+	local speed = has_injure_pain and ANM_SND_SLOWDOWN or 1
+	return 1 / speed
+end
+
 function is_playing()
 	return playing
 end
@@ -27,7 +36,7 @@ function play(item)
 		function()
 			actor:hide_crosshair(true)
 			
-			game.play_hud_motion(2, hud_sect, "anm_use", false, 1, true)
+			game.play_hud_motion(2, hud_sect, "anm_use", false, anm_snd_speed(), true)
 			playing = true
 			play_hud_sound(hud_sect)
 			play_hud_effector(hud_sect)
@@ -58,7 +67,8 @@ function play_hud_sound(sect)
 	local snd_name = read_if_exists(sys_ini, "r_string", sect, "hud_sound", nil)
 	if snd_name then
 		sound = xr_sound.get_safe_sound_object(snd_name,sound_object.s2d)
-		sound:play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+		sound:play(actor, 0, sound_object.s2d)
+		sound.frequency = anm_snd_speed()
 	end
 end
 
@@ -72,7 +82,7 @@ end
 
 function set_use_delay(sect, item)
 	add_time_delayed_action(
-		read_if_exists(sys_ini, "r_float", sect, "use_delay", 1.5), 
+		read_if_exists(sys_ini, "r_float", sect, "use_delay", 1.5) * 1 / anm_snd_speed(), 
 		function() 
 			use_item_effects.delay_use = true
 			item:get_eatable_item().can_be_eaten = true

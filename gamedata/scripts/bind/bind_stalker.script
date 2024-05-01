@@ -119,6 +119,10 @@ function actor_binder:net_destroy()
 	self.object:set_callback(callback.update_items_effect, nil)
 	--
 	self.object:set_callback(callback.on_before_use_item, nil)
+	--
+	self.object:set_callback(callback.on_actor_footstep, nil)
+	self.object:set_callback(callback.on_actor_jump, nil)
+	self.object:set_callback(callback.on_actor_land, nil)
 
 	if sr_psy_antenna.psy_antenna then
 		sr_psy_antenna.psy_antenna:destroy()
@@ -187,6 +191,10 @@ function actor_binder:reinit()
 	--
 	self.object:set_callback(callback.on_before_use_item, self.on_before_use_item, self)
 	--
+	self.object:set_callback(callback.on_actor_footstep, self.on_actor_footstep, self)
+	self.object:set_callback(callback.on_actor_jump, self.on_actor_jump, self)
+	self.object:set_callback(callback.on_actor_land, self.on_actor_land, self)
+	--	
 	self.sm:call("on_reinit")
 end
 ----------------------------------------------------------------------------------------------------------------------
@@ -603,6 +611,16 @@ end
 
 function actor_binder:on_before_use_item(item)
 	self.sm:call("on_before_use_item", item, self.object)
+end
+
+function actor_binder:on_actor_footstep(actor, step_power)
+	self.sm:call("on_actor_footstep", actor, step_power)
+end
+function actor_binder:on_actor_jump(actor)
+	self.sm:call("on_actor_jump", actor)
+end
+function actor_binder:on_actor_land(actor, contact_speed)
+	self.sm:call("on_actor_land", actor, contact_speed)
 end
 
 --старт префетча звуков

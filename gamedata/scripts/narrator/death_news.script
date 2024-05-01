@@ -1,6 +1,7 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
 	sm:subscribe({signal = "on_death",   fun = this.send_tip})
+	sm:subscribe({signal = "on_actor_before_hit", fun = this.on_actor_before_hit})
 end
 
 function death_reson_by_killer(killer)
@@ -20,6 +21,14 @@ function death_reson_by_killer(killer)
 		return get_clsid(killer) == clsid.zone_campfire_s and "st_death_by_campfire" or killer:section()
 	end
 	return "st_death_reason_undefined"
+end
+
+local last_hit_data = {}
+
+function on_actor_before_hit(object, hit)
+	log3("~%s on_before_hit: power %s | full power %s | type %s | draftsman %s | bone %s | ap %s", object:name(), hit.power, hit.full_power, get_hit_type_name(hit.hit_type), hit.who:name(), object:get_bone_name(hit.bone_id), hit.ap)
+	last_hit_data.type = get_hit_type_name(hit.hit_type)
+	last_hit_data.bone = object:get_bone_name(hit.bone_id)
 end
 
 function send_tip(victim, killer)
@@ -45,9 +54,16 @@ function send_tip(victim, killer)
 									"%c[red]", tip_header, 
 									color_by_relation[victim:relation(actor)], victim_name,
 									"%c[white]", death_reason_header, death_reason)
+									
+	if victim:is_actor() then
+		local last_hit_info = string.format("\\n%s:\\n%s (%s)", game.translate_string("st_last_hit"), game.translate_string(last_hit_data.bone), game.translate_string(last_hit_data.type))
+		news_text = news_text..last_hit_info
+	end
+	
+	local ttl = victim:is_actor() and 10 or 2
 	
 	local rnd = math.random(1, 3)
 	local icon = community.get_news_icon(victim:character_community())
-	actor:give_game_news(news_text, "ui\\ui_iconstotal", Frect():set(icon.x,icon.y,83,47), rnd * 1000, 2000)
+	actor:give_game_news(news_text, "ui\\ui_iconstotal", Frect():set(icon.x,icon.y,83,47), rnd * 1000, ttl * 1000)
 	xr_sound.get_safe_sound_object([[device\pda\pda_tip]]):play(actor, rnd, sound_object.s2d)
 end

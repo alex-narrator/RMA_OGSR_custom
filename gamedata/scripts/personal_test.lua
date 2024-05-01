@@ -361,7 +361,10 @@ end
 
 --log3("~can detect rad %s", dosimeter.can_detect_radiation())
 
-local tgt = level.get_target_obj()
-if tgt then
-	log3("~%s is wounded %s | health %s", tgt:profile_name(), tgt:wounded(), tgt.health)
-end
+-- local tgt = level.get_target_obj()
+-- if tgt then
+	-- log3("~%s is wounded %s | health %s", tgt:profile_name(), tgt:wounded(), tgt.health)
+-- end
+
+body_health.try_upper_limbs_injure(0.3)
+body_health.try_lower_limbs_injure(0.3)

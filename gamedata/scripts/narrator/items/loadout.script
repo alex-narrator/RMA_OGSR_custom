@@ -228,7 +228,7 @@ function add(item)
 	-- if level.main_input_receiver() then
 		-- update_inventory_window()
 	-- end
-	xr_sound.get_safe_sound_object("interface\\inv_slot", sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
+	xr_sound.get_safe_sound_object("interface\\inv_slot"):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 	ogse_signals.get_mgr():call("on_item_to_loadout", item)
 	actor:invalidate_inventory()
 end
@@ -240,7 +240,7 @@ function remove(item)
 	-- if level.main_input_receiver() then
 		-- update_inventory_window()
 	-- end
-	xr_sound.get_safe_sound_object("interface\\inv_ruck", sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
+	xr_sound.get_safe_sound_object("interface\\inv_ruck"):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 	ogse_signals.get_mgr():call("on_item_from_loadout", item)
 	actor:invalidate_inventory()
 end
@@ -253,7 +253,7 @@ function clear_all()
 			remove(item)
 		end
 	end
-	xr_sound.get_safe_sound_object("interface\\inv_ruck", sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
+	xr_sound.get_safe_sound_object("interface\\inv_ruck"):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 end
 
 function menu_tip_to(item)

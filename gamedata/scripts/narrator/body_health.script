@@ -44,11 +44,11 @@ local actor_obj = get_actor_obj()
 
 local groggy_treshold, groggy_snd, groggy_eff, groggy_cam_eff, groggy_ppe_eff
 local groggy_cam_eff_id, groggy_ppe_eff_id = 5596, 5597
-local eff_dec = 0.01
+local EFF_DEC = 0.01
 
-local upper_limbs_hit_amount = 0.3
-local lower_limbs_hit_amount = 0.3
-local injure_hit_power = 0.01
+local UPPER_LIMBS_HIT_AMOUNT = 0.3
+local LOWER_LIMBS_HIT_AMOUNT = 0.3
+local DEFAULT_HIT_POWER = 0.01
 
 local sm = ogse_signals.get_mgr()
 local legs_subscribe = false
@@ -69,11 +69,14 @@ function add_pain_effect(val)
 	painkiller_effect = painkiller_effect + val
 end
 
-function injure_hit()
-	local res_hit = injure_hit_power + injure_hit_power * get_pain_effect()
+function injure_hit(hit_power)
+	if not hit_power then
+		hit_power = DEFAULT_HIT_POWER
+	end
+	local res_hit = hit_power + hit_power * get_pain_effect()
 	if get_pain_effect() < 0 then
-		--log3("~res_hit %s", -res_hit*0.1)
-		actor.health = -res_hit*0.1
+		actor.health = -res_hit
+		--log3("~res_hit %s", res_hit)		
 	return end
 	local h = hit()
 	h.draftsman = actor 
@@ -106,33 +109,49 @@ end
 
 function on_spawn()
 	load_groggy_params()
-	
 	subscribe_hands()
 	subscribe_legs()
 end
 
 function subscribe_legs()
 	if leg_injured and not legs_subscribe then
-		legs_subscribe = { signal = "on_update", fun = this.on_update }
-		sm:subscribe( legs_subscribe )
+		legs_subscribe = { 
+			{ signal = "on_actor_footstep", 	fun = this.on_actor_footstep },
+			{ signal = "on_actor_jump", 		fun = this.on_actor_jump },
+			{ signal = "on_actor_land", 		fun = this.on_actor_land },
+		}
+		for _,s in ipairs(legs_subscribe) do
+			sm:subscribe( s )
+		end
 	end
 end
 function unsubscribe_legs()
 	if legs_subscribe then
-		sm:unsubscribe( legs_subscribe )
+		for _,s in ipairs(legs_subscribe) do
+			sm:unsubscribe( s )
+		end
 		legs_subscribe = false
 	end
 end
 
 function subscribe_hands()
 	if hand_injured and not hands_subscribe then
-		hands_subscribe = { signal = "on_actor_weapon_zoom_in", fun = this.on_zoom_in }
-		sm:subscribe( hands_subscribe )
+		hands_subscribe = { 
+			{ signal = "on_weapon_fire", 		fun = this.on_weapon_fire },
+			{ signal = "on_missile_throw", 		fun = this.on_missile_throw },
+			{ signal = "on_knife_stab", 		fun = this.on_knife_stab },
+			{ signal = "on_actor_kick", 		fun = this.on_actor_kick },
+		}
+		for _,s in ipairs(hands_subscribe) do
+			sm:subscribe( s )
+		end
 	end
 end
 function unsubscribe_hands()
 	if hands_subscribe then
-		sm:unsubscribe( hands_subscribe )
+		for _,s in ipairs(hands_subscribe) do
+			sm:unsubscribe( s )
+		end
 		hands_subscribe = false
 	end
 end
@@ -178,12 +197,12 @@ function try_groggy_effect(health_lost)
 		level.set_pp_effector_factor(groggy_ppe_eff_id, eff_power)
 	end			
 			
-	local snd = xr_sound.get_safe_sound_object(groggy_snd,sound_object.s2d)
+	local snd = xr_sound.get_safe_sound_object(groggy_snd)
 	snd:play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 			
 	level.add_call(
 		function()
-			eff_power = actor:alive() and eff_power - eff_dec or 0
+			eff_power = actor:alive() and eff_power - EFF_DEC or 0
 			if groggy_ppe_eff then
 				level.set_pp_effector_factor(groggy_ppe_eff_id, eff_power)
 			end
@@ -197,28 +216,25 @@ function try_groggy_effect(health_lost)
 end
 
 function try_upper_limbs_injure(health_lost)
-	if health_lost < upper_limbs_hit_amount or hand_injured or not random_prob() then
+	if health_lost < UPPER_LIMBS_HIT_AMOUNT or hand_injured or not random_prob() then
 	return end
 	
 	hand_injured = true
 	hud_add_info_message("item_usage", "st_hand_injured")
 	
+	subscribe_hands()
 	--log3("~upper limbs injure on hit amount %s", health_lost)
 end
 
 function try_lower_limbs_injure(health_lost)
-	if health_lost < lower_limbs_hit_amount or leg_injured or not random_prob() then
+	if health_lost < LOWER_LIMBS_HIT_AMOUNT or leg_injured or not random_prob() then
 	return end
 	
 	leg_injured = true
 	hud_add_info_message("item_usage", "st_leg_injured")
 	
+	subscribe_legs()	
 	--log3("~lower limbs injure on hit amount %s", health_lost)
-	
-	if not legs_subscribe then
-		legs_subscribe = { signal = "on_update", fun = this.on_update }
-		sm:subscribe( legs_subscribe )
-	end
 end
 
 function on_hit(victim, health_lost, direction, draftsman, bone_id, hit_type)
@@ -238,48 +254,57 @@ function on_hit(victim, health_lost, direction, draftsman, bone_id, hit_type)
 	return end	
 end
 
-function on_zoom_in(weapon)
-	if not hand_injured or read_if_exists(sys_ini, "r_bool", weapon:section(), "single_handed", true) then
-		unsubscribe_hands()
+--//injure hit effects
+function on_actor_footstep(actor, step_power)
+	if step_power <= 1 then
 	return end
-	--injure_hit()
-	level.add_call(
-		function()
-			if actor.health < sys_ini:r_float("actor_condition", "limping_health_begin") then
-				weapon:get_weapon():zoom_out()
-				hud_add_info_message("item_usage", "st_hand_injured")
-			else
-				injure_hit()
-			end
-			return not weapon or not weapon:get_weapon().zoom_mode
-		end,
-		function()
-		end
-	)
+	local hit_power = DEFAULT_HIT_POWER * step_power * inventory.get_overweight()
+	--log3("~hit power %s - on_actor_footstep", hit_power)
+	injure_hit(hit_power)
 	if get_pain_effect() < 0 then
 	return end
-	weapon:get_weapon():zoom_out()
-	hud_add_info_message("item_usage", "st_hand_injured")
+	actor_break_sprint()	
+end
+function on_actor_jump(actor)
+	local hit_power = DEFAULT_HIT_POWER * inventory.get_overweight()
+	--log3("~hit power %s - on_actor_jump", hit_power)
+	injure_hit(hit_power)
+end
+function on_actor_land(actor, contact_speed)
+	local hit_power = DEFAULT_HIT_POWER * contact_speed * inventory.get_overweight()
+	--log3("~hit power %s - on_actor_land", hit_power)
+	injure_hit(hit_power)	
 end
 
-function on_update()
-	if not leg_injured then
-		unsubscribe_legs()
-	return end
-	if not actor_obj:is_actor_sprinting() then
-	return end
-	injure_hit()
+function on_weapon_fire(weapon)
+	local recoil = sys_ini:r_float(weapon:section(), "cam_dispersion")
+	local hit_power = DEFAULT_HIT_POWER + DEFAULT_HIT_POWER * recoil
+	--log3("~hit power %s - on_weapon_fire", hit_power)
+	injure_hit(hit_power)
 	if get_pain_effect() < 0 then
 	return end
-	actor_break_sprint()
-	hud_add_info_message("item_usage", "st_leg_injured")	
+	local wpn = weapon:get_weapon()
+	if wpn and wpn.zoom_mode then
+		wpn:zoom_out()
+	end
+end
+function on_missile_throw(missile)
+	injure_hit()
+end
+function on_knife_stab(knife)
+	injure_hit()
+end
+function on_actor_kick(target, power, power_dec)
+	local hit_power = DEFAULT_HIT_POWER + DEFAULT_HIT_POWER * power_dec
+	--log3("~hit power %s - on_weapon_fire", on_actor_kick)	
+	injure_hit(hit_power)
 end
 
 function heal_injure(item, limb)
 	local snd_name = read_if_exists(sys_ini, "r_string", item:section(), "use_sound", nil)
 	local action_delay = 1
 	if snd_name then
-		local snd = xr_sound.get_safe_sound_object(snd_name,sound_object.s2d)
+		local snd = xr_sound.get_safe_sound_object(snd_name)
 		snd:play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 		action_delay = snd:length() * 0.001
 	end

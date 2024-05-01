@@ -321,7 +321,7 @@ function RepairOverlay:Repair()
 	self:UpdateRepairInfo()
 	
 	local sound = item:is_weapon() and repair_sound_weapon or repair_sound_armor
-	xr_sound.get_safe_sound_object(sound,sound_object.s3d):play_at_pos(level.get_second_talker(),level.get_second_talker():position())
+	xr_sound.get_safe_sound_object(sound):play_at_pos(level.get_second_talker(),level.get_second_talker():position())
 	
 	self:Reinit()
 end

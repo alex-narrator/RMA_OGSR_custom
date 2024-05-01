@@ -52,14 +52,14 @@ function on_state_switch(item, state, old_state)
 							set_light_params(item)
 							item:switch_power(true)
 						end
-						xr_sound.get_safe_sound_object(SWITCH_SOUND,sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
+						xr_sound.get_safe_sound_object(SWITCH_SOUND):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 					end)
 			else
 				item:switch_power(true)
 			end
 		elseif state == global_flags.eHiding and not is_glowstick(item) then
 			item:switch_power(false)
-			xr_sound.get_safe_sound_object(SWITCH_SOUND,sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
+			xr_sound.get_safe_sound_object(SWITCH_SOUND):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 		elseif state == global_flags.eHidden and is_glowstick(item) then
 			item:switch_power(false)	
 		end
@@ -110,7 +110,7 @@ local idle_zoom_states = {
 
 function switch_mode(item)
 	alife():object(item:id()).is_second_mode = not alife():object(item:id()).is_second_mode
-	xr_sound.get_safe_sound_object(SWITCH_SOUND,sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
+	xr_sound.get_safe_sound_object(SWITCH_SOUND):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 	set_light_params(item)
 	
 	if hud_anim_exists(item, "anm_switch") and not idle_zoom_states[item:get_hud_item_state()] then

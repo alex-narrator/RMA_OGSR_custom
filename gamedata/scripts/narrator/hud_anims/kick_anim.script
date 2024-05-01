@@ -58,7 +58,7 @@ function on_key_press(key, game_action)
 	-- level.add_complex_effector(eff_name, hud_effector_id)
 	
 	local sound_name = "interface\\kick\\swing\\swing_"..math.random(1,6)
-	xr_sound.get_safe_sound_object(sound_name,sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
+	xr_sound.get_safe_sound_object(sound_name):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 	local kick_forward = level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION))
 	
 	add_time_delayed_action(
@@ -129,6 +129,8 @@ function kick(forward_dir)
 	
 	--log3("~kick object %s | mass %s | power_dec %s", target:name(), mass, power_dec)
 	
+	ogse_signals.get_mgr():call("on_actor_kick", target, power, power_dec)
+	
 	local sound_name = "interface\\kick\\metal\\metal_"..math.random(1,4)
 	if target:is_stalker() or target:is_monster() then
 		sound_name = "interface\\kick\\flesh\\flesh_"..math.random(1,6)
@@ -138,5 +140,5 @@ function kick(forward_dir)
 			sound_name = "interface\\kick\\wood\\wood_"..math.random(1,4)
 		end
 	end
-	xr_sound.get_safe_sound_object(sound_name, sound_object.s2d):play_no_feedback(target, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(target,target:position())
+	xr_sound.get_safe_sound_object(sound_name):play_no_feedback(target, sound_object.s2d, 0, vector(), 1.0)
 end

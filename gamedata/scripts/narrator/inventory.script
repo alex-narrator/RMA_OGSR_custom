@@ -126,3 +126,9 @@ function move_all_ruck(inv_owner)
 	end	
 	actor:iterate_ruck(perform_action, nil)
 end
+
+function get_overweight()
+	local overweight = actor:get_inventory_weight() / actor:get_max_weight()
+	overweight = math.clamp(overweight, 1, overweight)
+	return overweight
+end

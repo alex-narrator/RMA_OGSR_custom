@@ -17,7 +17,7 @@ function play_sound(anomaly, power, dt)
 		sound_time[anomaly:id()] = 0
 	return end
 
-	local snd = xr_sound.get_safe_sound_object("detectors\\geiger_"..math.random(1,8),sound_object.s2d)
+	local snd = xr_sound.get_safe_sound_object("detectors\\geiger_"..math.random(1,8))
 	local cur_freq = min_freq + (max_freq - min_freq) * power * power * power * power
 	local current_snd_time = 1000 / cur_freq;
 

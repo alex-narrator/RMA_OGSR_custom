@@ -43,7 +43,7 @@ function change_plate(obj, drop_on_obj)
 	local action_delay = read_if_exists(sys_ini, "r_float", plate_sect, "use_delay", 2)
 	-- local change_plate_sound = read_if_exists(sys_ini, "r_string", plate_sect, "use_sound", nil)
 	-- if change_plate_sound then
-		-- xr_sound.get_safe_sound_object(change_plate_sound,sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
+		-- xr_sound.get_safe_sound_object(change_plate_sound):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 	-- end
 	local effector = read_if_exists(sys_ini, "r_string", plate_sect, "use_effector", nil)
 	if effector then

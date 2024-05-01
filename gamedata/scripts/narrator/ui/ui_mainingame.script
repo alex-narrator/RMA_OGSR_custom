@@ -237,7 +237,7 @@ function MainIngameOverlay:InitControls()
 		{ name = "bleeding", 	val = function() return actor:get_bleeding() end },
 		{ name = "starvation", 	val = function() return 1 - actor.satiety end },
 		{ name = "psy_health", 	val = function() return 1 - actor.psy_health end },
-		{ name = "overweight", 	val = function() return actor:get_inventory_weight() / actor:get_max_weight() end },
+		{ name = "overweight", 	val = function() return inventory.get_overweight() end },
 		{ name = "somnolence", 	val = function() return somnolence.get_val() end },		
 		{ name = "godmode", 	val = function() return get_console():get_bool("g_god") end },
 		{ name = "safehouse", 	val = function() return actor:has_info("safehouse") end },

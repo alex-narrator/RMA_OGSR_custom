@@ -68,7 +68,7 @@ function service(obj, drop_on_obj)
 	local repair_sound = read_if_exists(sys_ini, "r_string", rep_kit_sect, "use_sound", nil)
 	local action_delay = 1
 	if repair_sound then
-		local snd = xr_sound.get_safe_sound_object(repair_sound,sound_object.s2d)
+		local snd = xr_sound.get_safe_sound_object(repair_sound)
 		snd:play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 		action_delay = snd:length() * 0.001
 	end
@@ -202,7 +202,7 @@ function disassemble_item(tool, item)
 		snd_name = snd_name..math.random(1, rnd_max)
 	end
 	
-	local snd = xr_sound.get_safe_sound_object(snd_name,sound_object.s2d)
+	local snd = xr_sound.get_safe_sound_object(snd_name)
 	snd:play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 	local action_delay = snd:length() * 0.001
 	
@@ -315,7 +315,7 @@ function saw_off_item(tool, item)
 	local parent = item:parent()
 	
 	local snd_name = read_if_exists(sys_ini, "r_string", sect, "saw_off_sound", def_saw_off_snd)
-	local snd = xr_sound.get_safe_sound_object(snd_name,sound_object.s2d)
+	local snd = xr_sound.get_safe_sound_object(snd_name)
 	snd:play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 	
 	local action_delay = snd:length() * 0.001

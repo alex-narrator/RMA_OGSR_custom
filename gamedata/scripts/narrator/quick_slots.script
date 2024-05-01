@@ -110,7 +110,7 @@ function set_item(item_sect, slot_num)
 			quick_sect[num] = ""
 		end
 	end
-	xr_sound.get_safe_sound_object("interface\\inv_slot", sound_object.s2d):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+	xr_sound.get_safe_sound_object("interface\\inv_slot"):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 	ogse_signals.get_mgr():call("on_quick_item_set", item_sect, slot_num)
 end
 

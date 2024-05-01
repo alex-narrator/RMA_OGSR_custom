@@ -51,13 +51,10 @@ end
 function play_music(instrument)
 	local data = instruments[instrument]
 	game.play_hud_motion(2, data.hud, "anm_play", true, 1, true)
-	sound = xr_sound.get_safe_sound_object(data.sound_prefix..math.random(1, data.max_rnd),sound_object.s2d)
-	sound:play_at_pos(actor,device().cam_pos)
+	sound = xr_sound.get_safe_sound_object(data.sound_prefix..math.random(1, data.max_rnd))
+	sound:play(actor, 0, sound_object.s2d)
 	level.add_call(
 		function()
-			if sound and sound:playing() then
-				sound:set_position(device().cam_pos)
-			end
 			return not sound or not sound:playing()
 		end,
 		function()

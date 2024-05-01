@@ -1,0 +1,32 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_hud_state_switch", 	fun = this.on_state_switch})
+	sm:subscribe({signal = "on_weapon_shell_drop",  fun = this.on_shell_drop})
+end
+
+local sm = ogse_signals.get_mgr()
+
+local callback_states = {
+	[global_flags.eFire] = true,
+	[global_flags.eFire2] = true,
+	[global_flags.eThrow] = true,
+}
+
+function on_state_switch(item, state, old_state)
+	if not callback_states[state] then
+	return end
+	if item:is_missile() then
+		sm:call("on_missile_throw", item)
+	return end
+	if item:is_knife() then
+		sm:call("on_knife_stab", item)
+	end
+end
+
+function on_shell_drop(wpn, pos, vel)
+	if not wpn:is_weapon() then
+	return end
+	if wpn:get_weapon().state == global_flags.eShutter then
+	return end
+	sm:call("on_weapon_fire", wpn)
+end
