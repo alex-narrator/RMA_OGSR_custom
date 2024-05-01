@@ -26,7 +26,7 @@ end
 local last_hit_data = {}
 
 function on_actor_before_hit(object, hit)
-	log3("~%s on_before_hit: power %s | full power %s | type %s | draftsman %s | bone %s | ap %s", object:name(), hit.power, hit.full_power, get_hit_type_name(hit.hit_type), hit.who:name(), object:get_bone_name(hit.bone_id), hit.ap)
+	--log3("~%s on_before_hit: power %s | full power %s | type %s | draftsman %s | bone %s | ap %s", object:name(), hit.power, hit.full_power, get_hit_type_name(hit.hit_type), hit.who:name(), object:get_bone_name(hit.bone_id), hit.ap)
 	last_hit_data.type = get_hit_type_name(hit.hit_type)
 	last_hit_data.bone = object:get_bone_name(hit.bone_id)
 end
