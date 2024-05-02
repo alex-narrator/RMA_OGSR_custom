@@ -169,6 +169,9 @@ local addon_type = {
 }
 
 function prepair(item)
+	if actor:is_in_slot(item) then
+		actor:move_to_ruck(item)
+	end
 	if recharge.can_detach_power_source(item) then
 		recharge.detach_power_source(item)
 	end
