@@ -72,7 +72,7 @@ function process_info_portion(info_id)
 	end
 end
 
-function add_location(sid, location, hint)
+function add_location(sid, location, hint, news)
 	local sim = alife()
 	if sim then
 		local obj = sim:story_object(sid)
@@ -82,6 +82,10 @@ function add_location(sid, location, hint)
 				level.map_add_object_spot(obj.id, location, hint)
 			else
 				level.map_add_object_spot(obj.id, location, "")
+			end
+			
+			if news then
+				news_manager.custom_news("st_map_location_added", news, "ui_new_map_location")
 			end
 		end
 	end

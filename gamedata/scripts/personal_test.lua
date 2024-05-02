@@ -351,11 +351,11 @@ end
 -- local spawn_sect = "stationary_mgun"
 -- spawn_to_level(spawn_sect, spawn_pos, level_name, spawn_dir)
 
--- spawn_pos = vector():set(214.28172302246, -0.29822949171066, -22.435293197632)
--- spawn_dir = vector():set(0, 0, 3.14)
--- level_name = "l05_bar"
--- spawn_sect = "decor_box_tara"
--- spawn_to_level(spawn_sect, spawn_pos, level_name, spawn_dir)
+spawn_pos = vector():set(-72.884278869629, -6.0554096603394, -74.048715209961)
+spawn_dir = vector():set(-0.91856408119202, 0.011560671962798, 0.39510345458984)
+level_name = "l03u_agr_underground"
+spawn_sect = "harmonica_a"
+spawn_to_level(spawn_sect, spawn_pos, level_name, spawn_dir)
 
 --game.play_hud_motion(2, "medkit_exo_hud", "anm_use", false, 1, true)
 
@@ -366,5 +366,5 @@ end
 	-- log3("~%s is wounded %s | health %s", tgt:profile_name(), tgt:wounded(), tgt.health)
 -- end
 
-body_health.try_upper_limbs_injure(0.3)
-body_health.try_lower_limbs_injure(0.3)
+-- body_health.try_upper_limbs_injure(0.3)
+-- body_health.try_lower_limbs_injure(0.3)

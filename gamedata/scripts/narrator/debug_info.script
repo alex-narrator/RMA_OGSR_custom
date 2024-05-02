@@ -9,7 +9,7 @@ function attach(sm)
 	--sm:subscribe({signal = "on_info_portion", fun = this.on_info_portion})
 	--sm:subscribe({signal = "on_task", fun = this.on_task})
 	--sm:subscribe({signal = "on_take", fun = this.on_take})
-	--sm:subscribe({signal = "on_key_press", fun = this.on_key_press})
+	sm:subscribe({signal = "on_key_press", fun = this.on_key_press})
 end
 
 function on_take(item)
@@ -43,7 +43,7 @@ function on_key_press(key, game_action)
 	local show_tgt_info = (game_action == key_bindings.kCHECKACTIVEITEM) and level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION))
 	local tgt = level.get_target_obj()
 	if show_tgt_info and tgt then
-		local tgt_info = string.format("section: %s\\n id: %s\\n story_id: %s\\n name: %s\\n profile: %s\\n community: %s\\n species: %s\\n nonscript usable: %s\\n position: (%s, %s, %s) lvid: %s gvid: %s\\n visual: %s\\n gulag: %s\\n mesh count: %s",
+		local tgt_info = string.format("section: %s\\n id: %s\\n story_id: %s\\n name: %s\\n profile: %s\\n community: %s\\n species: %s\\n nonscript usable: %s\\n position: (%s, %s, %s) lvid: %s gvid: %s\\n direction: (%s, %s, %s)\\n visual: %s\\n gulag: %s\\n mesh count: %s",
 				tgt:section(), 
 				tgt:id(), 
 				tgt:story_id() == NO_STORY_ID and "NO STORY ID" or tgt:story_id(), 
@@ -55,6 +55,7 @@ function on_key_press(key, game_action)
 				tgt:position().x, tgt:position().y, tgt:position().z,
 				tgt:level_vertex_id(),
 				tgt:game_vertex_id(),
+				tgt:direction().x, tgt:direction().y, tgt:direction().z,
 				tgt:get_visual_name() or "NO VISUAL",
 				(tgt:is_stalker() or tgt:is_monster() or tgt:is_trader()) and xr_gulag.get_npc_gulag(tgt) and xr_gulag.get_npc_gulag(tgt).name or "NONE",
 				tgt:get_mesh_count()

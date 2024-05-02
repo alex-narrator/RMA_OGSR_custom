@@ -23,7 +23,7 @@ function process_info_portion(info_id)
 	       level_tasks.set_task_state (task.completed, "mil_freedom_rg6_task", 0) 
 		return true   
 	elseif info_id == "mil_bandit_flash_get" and not has_alife_info("mil_bandit_secret_found") then
-	       level_tasks.add_location (705, "crlc_mdl", "mil_secret_location")
+	       level_tasks.add_location (705, "crlc_mdl", "mil_secret_location", "mil_secret_location")
 	    return true
 	elseif info_id == "mil_bandit_secret_found" then
            level_tasks.remove_location (705, "crlc_mdl", "mil_secret_location")

@@ -30,35 +30,39 @@ function new_game_spawn()
 	local sim = alife()
 	local se_item
 	for k,v in ipairs(storyline_data.custom_spawn_sections) do
-		if v.level then
-			local spawn_dir = nil
-			if v.dir then
-				spawn_dir = vector():set(v.dir[1],v.dir[2],v.dir[3])
-			end
-			local spawn_pos = vector():set(v.pos[1],v.pos[2],v.pos[3])
-			se_item = spawn_to_level(v.section, spawn_pos, v.level, spawn_dir)
-			if v.story_id then
-				sim:assign_story_id(se_item.id, v.story_id)
-			end
-			if v.custom_data then
-				se_item.custom_data = v.custom_data
-			end
-		end
-		if v.owner_sid then
-			level.add_call(
-				function()
-					return sim:story_object(v.owner_sid)
-				end,
-				function()
-					se_item = spawn_to_owner(v.section, sim:story_object(v.owner_sid).id)
-					if v.story_id then
-						sim:assign_story_id(se_item.id, v.story_id)
-					end
-					if v.custom_data then
-						se_item.custom_data = v.custom_data
-					end
+		if sys_ini:section_exist(v.section) then
+			if v.level then
+				local spawn_dir = nil
+				if v.dir then
+					spawn_dir = vector():set(v.dir[1],v.dir[2],v.dir[3])
 				end
-			)
-		end	
+				local spawn_pos = vector():set(v.pos[1],v.pos[2],v.pos[3])
+				se_item = spawn_to_level(v.section, spawn_pos, v.level, spawn_dir)
+				if v.story_id then
+					sim:assign_story_id(se_item.id, v.story_id)
+				end
+				if v.custom_data then
+					se_item.custom_data = v.custom_data
+				end
+			end
+			if v.owner_sid then
+				level.add_call(
+					function()
+						return sim:story_object(v.owner_sid)
+					end,
+					function()
+						se_item = spawn_to_owner(v.section, sim:story_object(v.owner_sid).id)
+						if v.story_id then
+							sim:assign_story_id(se_item.id, v.story_id)
+						end
+						if v.custom_data then
+							se_item.custom_data = v.custom_data
+						end
+					end
+				)
+			end
+		else
+			log3("! can't find section %s to create object in %s", v.section, script_name())
+		end
 	end
 end

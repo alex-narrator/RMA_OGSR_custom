@@ -1,29 +1,34 @@
 ;;;;;;;;;;;;;;REPAIR PARTS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [repair_part_base]:identity_immunities
-GroupControlSection	= spawn_group
-discovery_dependency = 
-class				= II_ATTCH
-cform				= skeleton
-visual              = Equipments\item_harmonica
+class					= II_ATTCH
+cform					= skeleton
+visual              	= Equipments\item_harmonica
 
-inv_grid_width     	= 1
-inv_grid_height    	= 1
-icon_group 			= 11
+inv_grid_width     		= 1
+inv_grid_height    		= 1
+icon_group 				= 11
 
-cost 				= 100
-inv_weight 			= 0.1
+cost 					= 100
+inv_weight 				= 0.01
 
 [repair_part_wpn]:repair_part_base
 condition_threshold 	= 0.5
 repair_condition_gain 	= 0.2
 repair_count 			= 1
 use_sound 				= interface\item_usage\inv_repair_kit_use_fast_2p8
+inv_weight 				= 0.1
 
 [repair_part_outfit]:repair_part_base
 condition_threshold 	= 0.5
 repair_condition_gain 	= 0.2
 repair_count 			= 1
 use_sound 				= interface\item_usage\inv_repair_sewing_kit
+
+[repair_part_device]:repair_part_base
+condition_threshold 	= 0.5
+repair_condition_gain 	= 0.2
+repair_count 			= 1
+use_sound 				= interface\item_usage\inv_repair_kit_use_fast_2p8
 
 ;;;;;;;;;;;;;WEAPON PARTS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [part_pistol_9x18]:repair_part_wpn
@@ -159,7 +164,7 @@ inv_grid_y 			= 15
 icon_text 			= st_part_rubber_text
 
 ;;;;;;;;;;;;;DEVICES PARTS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-[part_electronics]:repair_part_base
+[part_electronics]:repair_part_device
 inv_name 			= st_part_electronics_name
 inv_name_short 		= st_part_electronics_name
 description 		= st_part_electronics_descr

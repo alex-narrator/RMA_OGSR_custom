@@ -74,18 +74,18 @@ end
 ----------------------------------------------------------------------------------------------------
 function process_info_portion(info_id)
     if info_id == "val_sos_give_tip" then
-		level_tasks.add_location(422, "general_wounded_location", "val_sos_help_main_hint")
+		level_tasks.add_location(422, "general_wounded_location", "val_sos_help_main_hint", "val_sos_help_main_hint")
 	elseif info_id == "val_sos_actor_near_wounded" then
 		level_tasks.remove_location(422, "general_wounded_location")
 	elseif info_id == "val_show_zones" then
-		level_tasks.add_location(427, "crlc_big", "val_zone_bandits_hint")
-		level_tasks.add_location(428, "crlc_big", "val_zone_monolith_hint")
-		level_tasks.add_location(429, "crlc_mdl", "val_zone_robbers_hint")
-		level_tasks.add_location(430, "crlc_small", "val_zone_south_gate_hint")
+		level_tasks.add_location(427, "crlc_big", "val_zone_bandits_hint", "val_zone_bandits_hint")
+		level_tasks.add_location(428, "crlc_big", "val_zone_monolith_hint", "val_zone_monolith_hint")
+		level_tasks.add_location(429, "crlc_mdl", "val_zone_robbers_hint", "val_zone_robbers_hint")
+		level_tasks.add_location(430, "crlc_small", "val_zone_south_gate_hint", "val_zone_south_gate_hint")
 	elseif info_id == "val_show_pipe_zone" then
-		level_tasks.add_location(431, "crlc_mdl", "val_zone_pipe_hint")
+		level_tasks.add_location(431, "crlc_mdl", "val_zone_pipe_hint", "val_zone_pipe_hint")
 	elseif info_id == "val_show_farm_zone" then
-		level_tasks.add_location(435, "crlc_big", "val_zone_farm_hint")
+		level_tasks.add_location(435, "crlc_big", "val_zone_farm_hint", "val_zone_farm_hint")
 	else
         return false
 	end

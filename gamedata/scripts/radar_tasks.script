@@ -23,13 +23,13 @@ end
 
 function process_info_portion(info_id)
 	if info_id == "rad_code_door" then
-		level_tasks.add_location(1001, "crlc_mdl", "rad_code_door_location")
+		level_tasks.add_location(1001, "crlc_mdl", "rad_code_door_location", "rad_code_door_location")
 	elseif info_id == "rad_code_door_found" then
 		level_tasks.remove_location(1001, "crlc_mdl")
 		
 	elseif info_id == "rad_find_treasurer_start" then
-		level_tasks.add_location(1009, "crlc_big", "rad_jaw_zam2_ms")
-		level_tasks.add_location(1010, "crlc_big", "rad_jaw_zam2_ms")
+		level_tasks.add_location(1009, "crlc_big", "rad_jaw_zam2_ms", "rad_jaw_zam2_ms")
+		level_tasks.add_location(1010, "crlc_big", "rad_jaw_zam2_ms", "rad_jaw_zam2_ms")
 	elseif info_id == "rad_find_treasurer_done" then
 		level_tasks.remove_location(1009, "crlc_big")
 		level_tasks.remove_location(1010, "crlc_big")
