@@ -108,11 +108,13 @@ function MainIngameOverlay:InitControls()
 	self.conditions_circles = {
 		["health_circle"] 		= { condition = function() return actor.health end},
 		["power_circle"] 		= { condition = function() return actor.power end},
+		["stamina_circle"] 		= { condition = function() return stamina.get_val() end},
 	}
 	for k,v in pairs(self.conditions_circles) do
 		v.back = xml:InitStatic("actor_params:"..k, self.actor_params)
 		v.icon = xml:InitStatic("actor_params:"..k..":icon", v.back)
 		v.progress_shape = xml:InitProgressShape("actor_params:"..k..":progress_shape", v.back)
+		v.show_val = xml:ReadAttribFlt("actor_params:"..k, "show_val", 1)
 	end
 	
 	--//car condition bar
@@ -259,6 +261,7 @@ function MainIngameOverlay:UpdateConditions()
 	
 	for k,v in pairs(self.conditions_circles) do
 		v.progress_shape:SetPos(v.condition())
+		v.progress_shape:Show(v.condition() <= v.show_val or not DYNAMIC_SHOW)
 	end	
 end
 
