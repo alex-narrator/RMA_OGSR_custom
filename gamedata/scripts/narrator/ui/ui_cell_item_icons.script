@@ -18,7 +18,7 @@ function update_custom_icons(item, cell_item, count)
 	end
 	
 	local use_count = read_if_exists(sys_ini, "r_float", item:section(), "use_count", 0)
-	if use_count > 0 then
+	if use_count > 1 then
 		text = string.format("%.0f/%s", use_count*item:condition(), use_count)
 	end
 	

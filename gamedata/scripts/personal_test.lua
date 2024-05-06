@@ -168,7 +168,7 @@ end
 
 --pri_wave4_monolith5_free2
 
---alife():release(sobj_by_name("pri_wave4_monolith5_free2"), true)
+alife():release(sobj_by_name("pri_wave4_monolith5_free2"), true)
 
 -- local torch = actor_get_torch() and actor_get_torch():get_torch() or nil
 -- if torch then
