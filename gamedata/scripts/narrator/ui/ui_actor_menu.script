@@ -501,6 +501,12 @@ end
 local add_st = {
 	["boost_somnolence"] 	= { name = "ui_inv_somnolence", static = "static_somnolence" },
 	["boost_pain"] 			= { name = "ui_inv_painkiller", static = "static_pain" },
+	["power_loss"] 			= { name = "st_power_loss", static = "static_power_loss" },
+}
+local account_slots = {
+	[OUTFIT_SLOT] = true,
+	[HELMET_SLOT] = true,
+	[BACKPACK_SLOT] = true,
 }
 function ActorMenuOverlay:OnActorInfoUpdate(info_scroll_view)
 	if self:GetMode() ~= "inventory" then
@@ -517,10 +523,27 @@ function ActorMenuOverlay:OnActorInfoUpdate(info_scroll_view)
 				val = val * 100
 				color = val > 0 and "%c[red]" or "%c[green]"
 				add_static = xml:InitStatic("outfit_info:"..v.static, info_scroll_view)
-				text = string.format("%s %s %+.1f%s [%.0f %s]", game.translate_string(v.name), color, val, "%", b_time, game.translate_string("st_time_minute"))
+				local text = string.format("%s %s %+.f%s [%.0f %s]", game.translate_string(v.name), color, val, "%", b_time, game.translate_string("st_time_minute"))
 				add_static:SetText(text)
 			end
 		end
+	end
+	
+	val = 0
+	local item
+	for i,_ in pairs(account_slots) do
+		item = actor:item_in_slot(i)
+		if item then
+			val = val + item:get_inventory_item().power_loss
+		end
+	end
+	if val ~= 0 then
+		local v = add_st["power_loss"]
+		val = val * 100
+		color = val > 0 and "%c[red]" or "%c[green]"
+		add_static = xml:InitStatic("outfit_info:"..v.static, info_scroll_view)
+		local text = string.format("%s %s %+.f%s", game.translate_string(v.name), color, val, "%")
+		add_static:SetText(text)	
 	end
 end
 

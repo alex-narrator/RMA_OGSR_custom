@@ -79,16 +79,20 @@ function outfit_binder:net_destroy()
 end
 
 function outfit_binder:init_plate()
-	local protection_sect = self:is_plate_attached() and self:get_protection_sect() or read_if_exists(sys_ini, "r_string", self.object:section(), "bones_koeff_protection", nil)
+	local sect = self.object:section()
+	local protection_sect = self:is_plate_attached() and self:get_protection_sect() or read_if_exists(sys_ini, "r_string", sect, "bones_koeff_protection", nil)
 	--log3("~init protection_sect %s", protection_sect)
 	local iitem = self.object:get_inventory_item()
 	iitem.bone_protection_sect = protection_sect
 	if self:is_plate_attached() then
-		iitem.inv_weight = iitem.inv_weight + sys_ini:r_float(self:get_plate_sect(), "inv_weight")
-		iitem.cost = iitem.cost + sys_ini:r_u32(self:get_plate_sect(), "cost") * self:get_plate_condition()
+		local plate_sect = self:get_plate_sect()
+		iitem.inv_weight = iitem.inv_weight + sys_ini:r_float(plate_sect, "inv_weight")
+		iitem.cost = iitem.cost + sys_ini:r_u32(plate_sect, "cost") * self:get_plate_condition()
+		iitem.power_loss = iitem.power_loss + read_if_exists(sys_ini, "r_float", plate_sect, "power_loss", 0)
 	else
-		iitem.inv_weight = sys_ini:r_float(self.object:section(), "inv_weight")
-		iitem.cost = sys_ini:r_u32(self.object:section(), "cost")
+		iitem.inv_weight = sys_ini:r_float(sect, "inv_weight")
+		iitem.cost = sys_ini:r_u32(sect, "cost")
+		iitem.power_loss = read_if_exists(sys_ini, "r_float", sect, "power_loss", 0)
 	end
 end
 
