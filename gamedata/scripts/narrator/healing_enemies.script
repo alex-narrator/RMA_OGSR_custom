@@ -10,8 +10,8 @@ local goodwill_by_rank = {
 	["master"] 	= 5,
 }
 
-function on_npc_not_wounded(npc)
-	if not npc:alive() then
+function on_npc_not_wounded(npc, healed_by_actor)
+	if not npc:alive() or not healed_by_actor then
 	return end
 	if npc:relation(actor) == game_object.enemy then
 		local comm = npc:character_community()

@@ -21,12 +21,14 @@ function create_scope_static(weapon)
 	local wpn = weapon:get_weapon()
 	if not wpn:is_addon_attached(addon.scope) then
 	return false end
-	local scope_tex_sect = wpn:addon_attachable(addon.scope) and wpn:get_addon_name(addon.scope) or weapon:section()
-	if read_if_exists(sys_ini, "r_bool", scope_tex_sect, "ignore_scope_texture", false) then
+	local sect = weapon:section()
+	local scope_tex_sect = wpn:addon_attachable(addon.scope) and wpn:get_addon_name(addon.scope) or sect
+	local scope_texture_forced = (scope_tex_sect ~= sect) and read_if_exists(sys_ini, "r_string", sect, scope_tex_sect.."_scope_texture", nil) or nil
+	if read_if_exists(sys_ini, "r_bool", scope_tex_sect, "ignore_scope_texture", false) and not scope_texture_forced then
 	return false end
 	local scope_tex_type = wpn:scope_mode_second() and "scope_texture_second" or "scope_texture"	
-	local texture_name = read_if_exists(sys_ini, "r_string", scope_tex_sect, scope_tex_type, nil)
-	if not texture_name then 
+	local texture_name = scope_texture_forced or read_if_exists(sys_ini, "r_string", scope_tex_sect, scope_tex_type, nil)
+	if not texture_name then
 	return false end
 	local static = CUIStatic()
 	static:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)

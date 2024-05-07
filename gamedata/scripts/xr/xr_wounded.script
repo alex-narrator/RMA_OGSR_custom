@@ -161,7 +161,7 @@ function action_wounded:finalize ()
     xr_sound.set_sound(self.object, nil)
     self.object:wounded(false)
 	self.object:enable_trade()
-	ogse_signals.get_mgr():call("on_npc_not_wounded", self.object)
+	ogse_signals.get_mgr():call("on_npc_not_wounded", self.object, self.a.wound_manager.healed_by_actor)
 end    
 
 ----------------------------------------------------------------------------------------------------------------------
@@ -205,6 +205,7 @@ function Cwound_manager:update()
 end
 function Cwound_manager:unlock_medkit()
 	self.can_use_medkit = true
+	self.healed_by_actor = true
 end
 function Cwound_manager:eat_medkit()
 	local item_to_eat
