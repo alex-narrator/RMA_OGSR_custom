@@ -43,20 +43,22 @@
 local tgt = level.get_target_obj()
 show_dbg_info = false
 if tgt and show_dbg_info then
-	log3("~ target section: %s | id %s| story_id %s | name: %s | profile: %s | species %s | nonscript usable %s | position (%s, %s, %s) | lvid %s | gvid %s | visual %s | gulag %s", 
-		tgt:section(), 
-		tgt:id(), 
-		tgt:story_id(), 
-		tgt:name(), 
-		tgt:profile_name() and tgt:profile_name() or "NO PROFILE", 
-		get_species(tgt),
-		tgt:is_nonscript_usable(),
-		tgt:position().x, tgt:position().y, tgt:position().z,
-		tgt:level_vertex_id(),
-		tgt:game_vertex_id(),
-		tgt:get_visual_name() or "NO VISUAL",
-		xr_gulag.get_npc_gulag(tgt) and xr_gulag.get_npc_gulag(tgt).name or "NONE"
-		)
+	-- log3("~ target section: %s | id %s| story_id %s | name: %s | profile: %s | species %s | nonscript usable %s | position (%s, %s, %s) | lvid %s | gvid %s | visual %s | gulag %s", 
+		-- tgt:section(), 
+		-- tgt:id(), 
+		-- tgt:story_id(), 
+		-- tgt:name(), 
+		-- tgt:profile_name() and tgt:profile_name() or "NO PROFILE", 
+		-- get_species(tgt),
+		-- tgt:is_nonscript_usable(),
+		-- tgt:position().x, tgt:position().y, tgt:position().z,
+		-- tgt:level_vertex_id(),
+		-- tgt:game_vertex_id(),
+		-- tgt:get_visual_name() or "NO VISUAL",
+		-- xr_gulag.get_npc_gulag(tgt) and xr_gulag.get_npc_gulag(tgt).name or "NONE"
+		-- )
+		
+		--log3("~get_addon_flags %s", tgt:get_addon_flags())
 		
 		-- pos = tgt:position()
 		-- log3("{level = %s, pos = {%.2f, %.2f, %.2f}},", level.name(), pos.x, pos.y, pos.z)
@@ -125,13 +127,14 @@ end
 	--item:set_show_model_mesh_hud(7, false)
 --end
 
--- local item = level.get_target_obj()
--- if item then
-	-- item:dump_visual_to_log() --Распечатать в лог информацию о мешах и костях модели - мировой и худовой, если худовая доступна.
-	-- log3("--Mesh count of [%s]: [%s]", item:name(), item:get_mesh_count()) --вывести кол-во мешей в худовой модели.
-	-- item:set_show_model_mesh(1, not item:get_show_model_mesh(1)) --Установить видимость меша для худовой модели
--- --local shown = item:get_show_model_mesh_hud(0) --узнать показан ли меш
--- end
+local item = level.get_target_obj()
+if item then
+	--item:dump_visual_to_log() --Распечатать в лог информацию о мешах и костях модели - мировой и худовой, если худовая доступна.
+	local mesh_num = 2
+	--log3("--Mesh count of [%s]: [%s]", item:name(), item:get_mesh_count()) --вывести кол-во мешей в худовой модели.
+	item:set_show_model_mesh(mesh_num, not item:get_show_model_mesh(mesh_num)) --Установить видимость меша для худовой модели
+--local shown = item:get_show_model_mesh_hud(0) --узнать показан ли меш
+end
 
 -- if actor:active_item() then
 	-- actor:active_item():stop_aim_inertion(false)
@@ -168,7 +171,7 @@ end
 
 --pri_wave4_monolith5_free2
 
-alife():release(sobj_by_name("pri_wave4_monolith5_free2"), true)
+--alife():release(sobj_by_name("pri_wave4_monolith5_free2"), true)
 
 -- local torch = actor_get_torch() and actor_get_torch():get_torch() or nil
 -- if torch then

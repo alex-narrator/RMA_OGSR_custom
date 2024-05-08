@@ -1537,7 +1537,7 @@ function get_current_kx()
 end
 
 function read_if_exists(ltx, val_type, section, value, default)
-	if ltx:line_exist(section,value) then
+	if ltx and ltx:line_exist(section,value) then
 		if val_type == "r_string" then
 			return ltx:r_string(section,value)
 		elseif val_type == "r_bool" then
