@@ -1,0 +1,14 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+local AMMO_CHECK_ANIM = "anm_ammo_check"
+function has_ammo_check_anim(item)
+	local hud_sect = get_hud_sect(item)
+	if not hud_sect then
+	return false end
+	return sys_ini:line_exist(hud_sect,AMMO_CHECK_ANIM)
+end
+
+function try_play_anim(item)
+	if not has_ammo_check_anim(item) then
+	return end
+	item:play_hud_motion(AMMO_CHECK_ANIM)
+end
