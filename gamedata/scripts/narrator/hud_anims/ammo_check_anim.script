@@ -1,14 +1,34 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
-local AMMO_CHECK_ANIM = "anm_ammo_check"
-function has_ammo_check_anim(item)
-	local hud_sect = get_hud_sect(item)
-	if not hud_sect then
-	return false end
-	return sys_ini:line_exist(hud_sect,AMMO_CHECK_ANIM)
-end
+
+local ammo_check_anims = {
+	"anm_ammo_check",
+	"anim_reload_partly",
+	"anm_reload_partly",
+	"anim_reload",
+	"anm_reload",
+	"anm_open",
+}
+
+local non_check_class = {
+	[clsid.wpn_rpg7_s] = true,
+	[clsid.wpn_bm16_s] = true,
+}
 
 function try_play_anim(item)
-	if not has_ammo_check_anim(item) then
+	if non_check_class[get_clsid(item)] then
 	return end
-	item:play_hud_motion(AMMO_CHECK_ANIM)
+	local hud_sect = get_hud_sect(item)
+	if not hud_sect then
+	return end
+	local ammo_check_anim
+	for k,anim in ipairs(ammo_check_anims) do
+		if sys_ini:line_exist(hud_sect,anim) then
+			local wpn = item:get_weapon()
+			if wpn and wpn.zoom_mode then
+				wpn:zoom_out()
+			end
+			item:play_hud_motion(anim)
+			return
+		end
+	end
 end
