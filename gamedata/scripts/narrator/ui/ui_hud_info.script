@@ -33,7 +33,7 @@ function on_key_press(key, game_action)
 	if game_action == key_bindings.kCHECKGEAR then
 		try_show_gear_info()
 	else
-		try_show_active_item_info()
+		try_show_active_item_info(game_action)
 	end
 end
 
@@ -44,11 +44,11 @@ function on_state_switch(item, state, old_state)
 	try_show_active_item_info()
 end
 
-function try_show_active_item_info()
+function try_show_active_item_info(game_action)
 	if (not act_item and not act_item_2) --or SHOW_ACTIVE_ITEM_INFO
 	then return end
 	
-	if act_item then
+	if act_item and game_action == key_bindings.kCHECKACTIVEITEM then
 		ammo_check_anim.try_play_anim(act_item)
 	end
 	

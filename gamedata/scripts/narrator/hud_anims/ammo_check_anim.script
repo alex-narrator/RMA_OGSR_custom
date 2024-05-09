@@ -7,6 +7,17 @@ local ammo_check_anims = {
 	"anim_reload",
 	"anm_reload",
 	"anm_open",
+	"anm_empty",
+}
+
+local ammo_check_anims_g = {
+	"anm_ammo_check_g",
+	"anm_reload_g",
+}
+
+local ammo_check_anims_w_gl = {
+	"anm_ammo_check_w_gl",
+	"anm_reload_w_gl",
 }
 
 local non_check_class = {
@@ -20,8 +31,15 @@ function try_play_anim(item)
 	local hud_sect = get_hud_sect(item)
 	if not hud_sect then
 	return end
-	local ammo_check_anim
-	for k,anim in ipairs(ammo_check_anims) do
+	
+	local anim_list = ammo_check_anims
+	
+	local wpn = item:get_weapon()
+	if wpn and wpn:is_addon_attached(addon.launcher) then
+		anim_list = item:get_gl_mode() and ammo_check_anims_g or ammo_check_anims_w_gl
+	end
+	
+	for k,anim in ipairs(anim_list) do
 		if sys_ini:line_exist(hud_sect,anim) then
 			local wpn = item:get_weapon()
 			if wpn and wpn.zoom_mode then
