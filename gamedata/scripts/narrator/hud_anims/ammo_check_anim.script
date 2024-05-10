@@ -1,52 +1,32 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 
-local ammo_check_anims = {
-	"anm_ammo_check",
-	"anim_reload_partly",
-	"anm_reload_partly",
-	"anim_reload",
-	"anm_reload",
-	"anm_open",
-	"anm_empty",
-}
-
-local ammo_check_anims_g = {
-	"anm_ammo_check_g",
-	"anm_reload_g",
-}
-
-local ammo_check_anims_w_gl = {
-	"anm_ammo_check_w_gl",
-	"anm_reload_w_gl",
-}
-
-local non_check_class = {
-	[clsid.wpn_rpg7_s] = true,
-	[clsid.wpn_bm16_s] = true,
-}
+local anm_alias = "anm_ammo_check"
 
 function try_play_anim(item)
-	if non_check_class[get_clsid(item)] then
-	return end
 	local hud_sect = get_hud_sect(item)
 	if not hud_sect then
 	return end
 	
-	local anim_list = ammo_check_anims
+	local anim_name = anm_alias
+	local postfix = ""
 	
 	local wpn = item:get_weapon()
-	if wpn and wpn:is_addon_attached(addon.launcher) then
-		anim_list = item:get_gl_mode() and ammo_check_anims_g or ammo_check_anims_w_gl
+	
+	if wpn and wpn.zoom_mode then
+		wpn:zoom_out()
 	end
 	
-	for k,anim in ipairs(anim_list) do
-		if sys_ini:line_exist(hud_sect,anim) then
-			local wpn = item:get_weapon()
-			if wpn and wpn.zoom_mode then
-				wpn:zoom_out()
-			end
-			item:play_hud_motion(anim)
-			return
-		end
+	if wpn and wpn:is_addon_attached(addon.launcher) then
+		postfix = item:get_gl_mode() and "_g" or "_w_gl"
 	end
+
+	if item:is_pistol() and item:get_ammo_in_magazine() == 0 then
+		postfix = "_empty"
+	end
+
+	anim_name = anim_name..postfix
+	if not sys_ini:line_exist(hud_sect,anim_name) then
+	return end
+	
+	item:play_hud_motion(anim_name)
 end
