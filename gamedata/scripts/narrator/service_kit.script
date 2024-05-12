@@ -289,7 +289,7 @@ function show_disassemble_wnd(obj, drop_on_obj)
 	local parts = parse_parts(sys_ini:r_string(drop_on_obj:section(), "disassemble_parts"))
 	local part_str
 	for k,v in pairs(parts) do
-		part_str = string.format("%s%s x%s\\n", 
+		part_str = string.format("%s %s x%s\\n", 
 			game.translate_string("st_list_mark"),
 			game.translate_string(get_inv_name(v.section)),
 			v.count

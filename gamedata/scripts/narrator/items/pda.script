@@ -2,6 +2,7 @@
 function attach(sm)
 	sm:subscribe({signal = "on_take",   		fun = this.on_take})
 	sm:subscribe({signal = "on_pda_hack",   	fun = this.on_pda_hack})
+	sm:subscribe({signal = "on_hud_state_switch",   	fun = this.on_state_switch})
 end
 
 function on_take(item)
@@ -80,5 +81,22 @@ function on_pda_hack(id)
 	
 	if od.treasure ~= "" then
 		treasure_manager.give_treasure(od.treasure)
+	end
+end
+
+local anm_state = {
+	[global_flags.eShowing] = true,
+	--[global_flags.eHiding] = true,
+}
+
+function on_state_switch(item, state, old_state)
+	if not item:get_pda() or not anm_state[old_state] then
+	return end
+	if not item:is_power_on() then
+		add_update_delayed_action(1,
+			function()
+				item:play_hud_motion("anm_empty")
+			end
+		)
 	end
 end

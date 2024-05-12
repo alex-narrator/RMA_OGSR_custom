@@ -309,7 +309,7 @@ function attach_effect_params(UIDesc, item)
 			if v.st_name == "max_power_restore_speed" or v.st_name == "radiation_restore_speed" or v.st_name == "alcohol_restore_speed" then
 				color = val > 0 and "%c[red]" or "%c[green]"
 			end
-			text = string.format("%s%s %s %+.f %s", game.translate_string("st_list_mark"), game.translate_string(v.param_name), color, val, sn)
+			text = string.format("%s %s %s %+.f %s", game.translate_string("st_list_mark"), game.translate_string(v.param_name), color, val, sn)
 			effect_st[k]:SetText(text)
 			effect_st[k]:AdjustHeightToText()
 			params_list:AddWindow(effect_st[k])
@@ -326,7 +326,7 @@ function attach_effect_params(UIDesc, item)
 			effect_st["power_loss"]:SetTextComplexMode(true)
 			effect_st["power_loss"]:SetWidth(params_list:GetDesiredChildWidth())
 			color = val > 0 and "%c[red]" or "%c[green]"
-			text = string.format("%s%s %s %+.f %s",game.translate_string("st_list_mark"),  game.translate_string("st_power_loss"), color, val, sn)
+			text = string.format("%s %s %s %+.f %s",game.translate_string("st_list_mark"),  game.translate_string("st_power_loss"), color, val, sn)
 			effect_st["power_loss"]:SetText(text)
 			effect_st["power_loss"]:AdjustHeightToText()
 			params_list:AddWindow(effect_st["power_loss"])
@@ -372,7 +372,7 @@ function attach_protection_params(UIDesc, item)
 			protection_st[k]:SetTextComplexMode(true)
 			protection_st[k]:SetWidth(params_list:GetDesiredChildWidth())
 			color = val > 0 and "%c[green]" or "%c[red]"
-			text = string.format("%s%s %s %+.f %s",game.translate_string("st_list_mark"),  game.translate_string(v.param_name), color, val, sn)
+			text = string.format("%s %s %s %+.f %s",game.translate_string("st_list_mark"),  game.translate_string(v.param_name), color, val, sn)
 			protection_st[k]:SetText(text)
 			protection_st[k]:AdjustHeightToText()
 			params_list:AddWindow(protection_st[k])
@@ -420,7 +420,7 @@ function attach_eatable_params(UIDesc, item)
 			if v.st_name == "max_power" or v.st_name == "radiation" or v.st_name == "somnolence" then
 				color = val > 0 and "%c[red]" or "%c[green]"
 			end
-			text = string.format("%s%s %s %+.f %s",game.translate_string("st_list_mark"),  game.translate_string(v.param_name), color, val, sn)
+			text = string.format("%s %s %s %+.f %s",game.translate_string("st_list_mark"),  game.translate_string(v.param_name), color, val, sn)
 			eatable_st[k]:SetText(text)
 			eatable_st[k]:AdjustHeightToText()
 			params_list:AddWindow(eatable_st[k])
@@ -495,9 +495,9 @@ function attach_booster_params(UIDesc, item)
 				color = "%c[UI_orange]"
 			end
 			if v.st_name == "boost_time" then
-				text = string.format("%s%s %s %.f %s",game.translate_string("st_list_mark"), game.translate_string(v.param_name), color, val, sn)
+				text = string.format("%s %s %s %.f %s",game.translate_string("st_list_mark"), game.translate_string(v.param_name), color, val, sn)
 			else
-				text = string.format("%s%s %s %+.f %s",game.translate_string("st_list_mark"), game.translate_string(v.param_name), color, val, sn)
+				text = string.format("%s %s %s %+.f %s",game.translate_string("st_list_mark"), game.translate_string(v.param_name), color, val, sn)
 			end
 			boost_st[k]:SetText(text)
 			boost_st[k]:AdjustHeightToText()
@@ -564,7 +564,7 @@ function attach_armor_params(UIDesc, item)
 	
 	local divider
 	for armor_class, armored_bone_names in pairs(armored_bones) do
-		text = string.format("%s%s%.0f %s: %s", game.translate_string("st_list_mark"),"%c[UI_orange]", armor_class, sn, "%c[default]")
+		text = string.format("%s %s%.0f %s: %s", game.translate_string("st_list_mark"),"%c[UI_orange]", armor_class, sn, "%c[default]")
 		for i=1, table.size(armored_bone_names) do
 			divider = armored_bone_names[i+1] and ", " or ""
 			text = text..armored_bone_names[i]..divider
@@ -585,7 +585,7 @@ function attach_armor_params(UIDesc, item)
 	if val > 0 then
 		armor_st["hit_fraction"] = CUIStatic()--xml:InitStatic("hit_fraction", params_list)
 		armor_st["hit_fraction"]:SetWidth(params_list:GetDesiredChildWidth())
-		text = string.format("%s%s%.0f%s %s%s", game.translate_string("st_list_mark"),"%c[UI_orange]", val * 100, "%", "%c[default]", game.translate_string("st_armor_hit_fraction"))
+		text = string.format("%s %s%.0f%s %s%s", game.translate_string("st_list_mark"),"%c[UI_orange]", val * 100, "%", "%c[default]", game.translate_string("st_armor_hit_fraction"))
 		armor_st["hit_fraction"]:SetText(text)
 		armor_st["hit_fraction"]:SetTextComplexMode(true)	
 		armor_st["hit_fraction"]:SetFont(GetFontCustom(font))
@@ -830,7 +830,7 @@ function attach_weapon_addons(UIDesc, obj)
 				addons_st[addon_sect] = CUIStatic()
 				local _st = addons_st[addon_sect]
 				_st:SetWidth(addons_list:GetDesiredChildWidth())
-				addons_txt = string.format("%s%s", game.translate_string("st_list_mark"), game.translate_string(get_inv_name(addon_sect)))
+				addons_txt = string.format("%s %s", game.translate_string("st_list_mark"), game.translate_string(get_inv_name(addon_sect)))
 				_st:SetText(addons_txt)
 				_st:SetTextComplexMode(true)
 				_st:SetTextColor(addons_list.text_color)
@@ -909,7 +909,7 @@ function attach_ammo_params(UIDesc, item)
 			if v.invert then
 				color = val > 0 and "%c[red]" or "%c[green]"
 			end
-			text = string.format(v.is_int and "%s%s %s%.0f %s" or v.name == "k_pierce" and "%s%s %s%.1f %s" or "%s%s %s%+.1f %s", game.translate_string("st_list_mark"), game.translate_string("ui_st_"..v.name), color, val, game.translate_string(v.unit))
+			text = string.format(v.is_int and "%s %s %s%.0f %s" or v.name == "k_pierce" and "%s %s %s%.1f %s" or "%s %s %s%+.1f %s", game.translate_string("st_list_mark"), game.translate_string("ui_st_"..v.name), color, val, game.translate_string(v.unit))
 			v.static:SetText(text)
 			v.static:AdjustHeightToText()
 			show = true
@@ -951,7 +951,7 @@ function attach_addon_params(UIDesc, item)
 			if v.invert then
 				color = val > 0 and "%c[red]" or "%c[green]"
 			end			
-			text = string.format(v.is_int and "%s%s %s%.0f %s" or "%s%s %s%+.1f %s", game.translate_string("st_list_mark"), game.translate_string("ui_st_"..v.name), color, val, game.translate_string(v.unit))
+			text = string.format(v.is_int and "%s %s %s%.0f %s" or "%s %s %s%+.1f %s", game.translate_string("st_list_mark"), game.translate_string("ui_st_"..v.name), color, val, game.translate_string(v.unit))
 			v.static:SetText(text)
 			v.static:AdjustHeightToText()
 			show = true
@@ -1004,7 +1004,7 @@ function attach_armor_plates(UIDesc, obj)
 		v.st = CUIStatic()
 		local _st = v.st
 		_st:SetWidth(plate_list:GetDesiredChildWidth())
-		text = string.format("%s%s", game.translate_string("st_list_mark"), game.translate_string(get_inv_name(v.section)))
+		text = string.format("%s %s", game.translate_string("st_list_mark"), game.translate_string(get_inv_name(v.section)))
 		_st:SetText(text)
 		_st:SetTextComplexMode(true)
 		_st:SetTextColor(plate_list.text_color)
@@ -1028,7 +1028,7 @@ function attach_belt_params(UIDesc, item)
 	belt_slots_st:SetTextComplexMode(true)
 	belt_slots_st:SetWidth(params_list:GetDesiredChildWidth())
 	local color = "%c[UI_orange]"
-	local text = string.format("%s%s %s%s", game.translate_string("st_list_mark"), game.translate_string("ui_st_belt_slots"), color, belt_size)
+	local text = string.format("%s %s %s%s", game.translate_string("st_list_mark"), game.translate_string("ui_st_belt_slots"), color, belt_size)
 	belt_slots_st:SetText(text)
 	belt_slots_st:AdjustHeightToText()
 	params_list:AddWindow(belt_slots_st)
@@ -1063,7 +1063,7 @@ function attach_pda_owner_info(UIDesc, item)
 	ui_owner_data.name_st = name_st
 	name_st:SetTextComplexMode(true)
 	name_st:SetWidth(data_list:GetDesiredChildWidth())
-	local text = string.format("%s%s: %s%s", game.translate_string("st_list_mark"), game.translate_string("ui_st_name"), color, game.translate_string(owner_data.name))
+	local text = string.format("%s %s: %s%s", game.translate_string("st_list_mark"), game.translate_string("ui_st_name"), color, game.translate_string(owner_data.name))
 	name_st:SetText(text)
 	name_st:AdjustHeightToText()
 	data_list:AddWindow(name_st)
@@ -1072,7 +1072,7 @@ function attach_pda_owner_info(UIDesc, item)
 	ui_owner_data.comm_st = comm_st
 	comm_st:SetTextComplexMode(true)
 	comm_st:SetWidth(data_list:GetDesiredChildWidth())
-	text = string.format("%s%s: %s%s", game.translate_string("st_list_mark"), game.translate_string("ui_st_community"), color, game.translate_string(owner_data.comm))
+	text = string.format("%s %s: %s%s", game.translate_string("st_list_mark"), game.translate_string("ui_st_community"), color, game.translate_string(owner_data.comm))
 	comm_st:SetText(text)
 	comm_st:AdjustHeightToText()
 	data_list:AddWindow(comm_st)
@@ -1081,7 +1081,7 @@ function attach_pda_owner_info(UIDesc, item)
 	ui_owner_data.rank_st = rank_st
 	rank_st:SetTextComplexMode(true)
 	rank_st:SetWidth(data_list:GetDesiredChildWidth())
-	text = string.format("%s%s: %s%s", game.translate_string("st_list_mark"), game.translate_string("ui_st_rank"), color, game.translate_string(ranks.get_val_rank_name(owner_data.rank)))
+	text = string.format("%s %s: %s%s", game.translate_string("st_list_mark"), game.translate_string("ui_st_rank"), color, game.translate_string(ranks.get_val_rank_name(owner_data.rank)))
 	rank_st:SetText(text)
 	rank_st:AdjustHeightToText()
 	data_list:AddWindow(rank_st)	

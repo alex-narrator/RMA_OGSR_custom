@@ -225,23 +225,41 @@ cit_killers_base
 cit_find_vp
 sec_monster_attack
 
-[remote_task]
+[task_base]
+penalty_reputation = -10
+
+[remote_task]:task_base
 need_return = false
 remote_reward = true
 
-[trader_remote_task]:remote_task
+[trader_base_task]:task_base
+penalty_relation = trader, -20
+
+[trader_remote_task]:remote_task,trader_base_task
 reward_item_receiver = sidor_box
 
-[barman_remote_task]:remote_task
+[barman_base_task]:task_base
+penalty_relation = trader, -20
+
+[barman_remote_task]:remote_task,barman_base_task
 reward_item_receiver = barman_box
 
-[ecolog_remote_task]:remote_task
+[ecolog_base_task]:task_base
+penalty_relation = ecolog, -20
+
+[ecolog_remote_task]:remote_task,ecolog_base_task
 reward_item_receiver = sakharov_box
 
-[dolg_remote_task]:remote_task
+[dolg_base_task]:task_base
+penalty_relation = dolg, -20
+
+[dolg_remote_task]:remote_task,dolg_base_task
 reward_item_receiver = voronin_box
 
-[freedom_remote_task]:remote_task
+[freedom_base_task]:task_base
+penalty_relation = freedom, -20
+
+[freedom_remote_task]:remote_task,freedom_base_task
 reward_item_receiver = max_box
 
 [tm_eliminate_camp_1]:trader_remote_task
@@ -258,6 +276,8 @@ reward_relation = dolg, 15
 reward_rank = 5
 reward_item = grenade_rgd5, grenade_rgd5
 time = 86400
+
+penalty_reputation = none
 
 [tm_eliminate_camp_2]:trader_remote_task
 type = eliminate_lager
@@ -276,6 +296,8 @@ time = 86400
 ;idle_time = 84000
 prior = 3
 
+penalty_reputation = none
+
 [tm_eliminate_camp_3]:trader_remote_task
 type = eliminate_lager
 
@@ -290,6 +312,8 @@ reward_relation = dolg, 10
 reward_rank = 5
 reward_item = grenade_rgd5, grenade_rgd5
 time = 86400
+
+penalty_reputation = none
 
 [tm_eliminate_camp_4]:trader_remote_task
 type = eliminate_lager
@@ -339,7 +363,9 @@ reward_rank = 5
 reward_item = grenade_rgd5, grenade_rgd5
 time = 86400
 
-[tm_find_artefact_1]
+penalty_reputation = none
+
+[tm_find_artefact_1]:trader_base_task
 type = artefact
 
 text = tm_find_artefact_1_text
@@ -354,7 +380,7 @@ time = 86400
 ;idle_time = 84000
 prior = 1
 
-[tm_find_artefact_2]
+[tm_find_artefact_2]:trader_base_task
 type = artefact
 
 text = tm_find_artefact_2_text
@@ -368,7 +394,7 @@ reward_item = vodka
 time = 86400
 prior = 2
 
-[tm_find_artefact_3]
+[tm_find_artefact_3]:trader_base_task
 type = artefact
 
 condlist = {+esc_darklab_documents_read}
@@ -383,7 +409,7 @@ reward_item = outfit_stalker_m2
 time = 86400
 prior = 4
 
-[tm_find_artefact_4]
+[tm_find_artefact_4]:trader_base_task
 type = artefact
 
 ;condlist = {+agroprom_military_case_have}
@@ -412,6 +438,8 @@ reward_relation = dolg, 10
 reward_item = wpn_ak74u, ammo_5.45x39_ap, ammo_5.45x39_ap, ammo_5.45x39_ap, ammo_5.45x39_ap, ammo_5.45x39_ap
 reward_rank = 6
 time = 86400
+
+penalty_reputation = none
 
 [tm_kill_stalker_2]:trader_remote_task
 type = kill_stalker
@@ -484,7 +512,7 @@ reward_item = af_vyvert, conserva
 time = 86400
 prior = 1
 
-[tm_find_item_1]
+[tm_find_item_1]:trader_base_task
 type = find_item
 
 condlist = {+agroprom_military_case_done}
@@ -513,7 +541,9 @@ reward_rank = 10
 reward_item = af_fireball
 time = 86400
 
-[tm_monster_part_1]
+penalty_reputation = none
+
+[tm_monster_part_1]:trader_base_task
 type = monster_part
 
 condlist = {+agroprom_military_case_have}
@@ -528,7 +558,7 @@ time = 86400
 reward_item = ammo_12x76_dart, ammo_12x76_dart, ammo_12x76_dart, ammo_12x76_dart, ammo_12x76_dart
 prior = 2
 
-[tm_monster_part_2]
+[tm_monster_part_2]:trader_base_task
 type = monster_part
 
 text = tm_monster_part_2_text
@@ -572,6 +602,8 @@ reward_rank = 6
 reward_item = grenade_f1
 time = 86400
 
+penalty_reputation = none
+
 ;--[barmen_eliminate_camp_3]
 ;--type = eliminate_lager
 ;--
@@ -614,6 +646,8 @@ reward_item = grenade_f1
 time = 86400
 prior = 3
 
+penalty_reputation = none
+
 [barmen_eliminate_camp_6]:barman_remote_task
 type = eliminate_lager
 
@@ -644,7 +678,7 @@ reward_item = grenade_f1, grenade_f1
 time = 86400
 prior = 5
 
-[barmen_find_artefact_1]
+[barmen_find_artefact_1]:barman_base_task
 type = artefact
 
 text = barmen_find_artefact_1_text
@@ -659,7 +693,7 @@ time = 86400
 prior = 1
 
 
-[barmen_find_artefact_2]
+[barmen_find_artefact_2]:barman_base_task
 type = artefact
 
 condlist = {+bar_darklab_document_done}
@@ -675,7 +709,7 @@ time = 86400
 prior = 3
 
 
-[barmen_find_artefact_3]
+[barmen_find_artefact_3]:barman_base_task
 type = artefact
 
 ;condlist = {+yan_kill_brain_done}
@@ -689,7 +723,7 @@ reward_item = specops_outfit, grenade_f1, grenade_f1, grenade_f1
 time = 86400
 prior = 4
 
-[barmen_find_artefact_4]
+[barmen_find_artefact_4]:barman_base_task
 type = artefact
 
 condlist = {+bar_darklab_document_done}
@@ -703,7 +737,7 @@ reward_rank = 4
 time = 86400
 prior = 2
 
-[barmen_find_artefact_5]
+[barmen_find_artefact_5]:barman_base_task
 type = artefact
 
 condlist = {+yan_kill_brain_done}
@@ -758,6 +792,8 @@ reward_reputation = +200
 reward_rank = 20
 time = 86400
 
+penalty_reputation = none
+
 [barmen_kill_stalker_4]:barman_remote_task
 type = kill_stalker
 
@@ -785,7 +821,7 @@ reward_item = af_electra_moonlight
 time = 86400
 prior = 4
 
-[barmen_find_item_1]
+[barmen_find_item_1]:barman_base_task
 type = find_item
 
 condlist = {+bar_darklab_document_start}
@@ -798,7 +834,7 @@ reward_relation = trader, +5
 reward_reputation = +30
 reward_rank = 5
 
-[barmen_find_item_2]
+[barmen_find_item_2]:barman_base_task
 type = find_item
 
 condlist = {+bar_x16_documents_start}
@@ -811,7 +847,7 @@ reward_relation = trader, +10
 reward_reputation = +35
 reward_rank = 6
 
-[barmen_find_item_3]
+[barmen_find_item_3]:barman_base_task
 type = find_item
 
 condlist = {+bar_deactivate_radar_start}
@@ -824,7 +860,7 @@ reward_relation = trader, +15
 reward_reputation = +40
 reward_rank = 8
 
-[barmen_monster_part_1]
+[barmen_monster_part_1]:barman_base_task
 type = monster_part
 
 text = barmen_monster_part_1_text
@@ -838,7 +874,7 @@ reward_item = conserva, conserva, conserva
 time = 86400
 prior = 1
 
-[barmen_monster_part_2]
+[barmen_monster_part_2]:barman_base_task
 type = monster_part
 
 text = barmen_monster_part_2_text
@@ -865,6 +901,8 @@ reward_rank = 10
 reward_item = af_gravi
 time = 86400
 
+penalty_reputation = none
+
 [barmen_defend_camp_2]:barman_remote_task
 type = defend_lager
 
@@ -878,6 +916,8 @@ reward_relation = dolg, 50
 reward_rank = 8
 reward_item = af_ameba_slug
 time = 86400
+
+penalty_reputation = none
 
 ;--------------------Ecolog-----------------------------
 [ecolog_eliminate_lager_1]:ecolog_remote_task
@@ -896,6 +936,8 @@ reward_item = medkit_scientic, medkit_scientic
 time = 86400
 prior = 1
 
+penalty_reputation = none
+
 [ecolog_eliminate_lager_2]:ecolog_remote_task
 type = eliminate_lager
 
@@ -911,7 +953,9 @@ reward_rank = 4
 reward_item = medkit_scientic, medkit_scientic
 time = 86400
 
-[ecolog_find_item_1]
+penalty_reputation = none
+
+[ecolog_find_item_1]:ecolog_base_task
 type = find_item
 
 text = ecolog_find_item_1_text
@@ -925,7 +969,7 @@ reward_item = protection_outfit
 ;time = 86400
 prior = 1
 
-[ecolog_monster_part_1]
+[ecolog_monster_part_1]:ecolog_base_task
 type = monster_part
 
 text = ecolog_monster_part_1_text
@@ -940,7 +984,7 @@ reward_item = medkit_scientic
 time = 86400
 prior = 1
 
-[ecolog_monster_part_2]
+[ecolog_monster_part_2]:ecolog_base_task
 type = monster_part
 
 text = ecolog_monster_part_2_text
@@ -955,7 +999,7 @@ reward_item = wpn_addon_scope_acog
 time = 86400
 prior = 2
 
-[ecolog_monster_part_3]
+[ecolog_monster_part_3]:ecolog_base_task
 type = monster_part
 
 text = ecolog_monster_part_3_text
@@ -970,7 +1014,7 @@ reward_item = ammo_12x76_dart, ammo_12x76_dart, ammo_12x76_dart
 time = 86400
 prior = 3
 
-[ecolog_monster_part_4]
+[ecolog_monster_part_4]:ecolog_base_task
 type = monster_part
 
 text = ecolog_monster_part_4_text
@@ -985,7 +1029,7 @@ reward_item = medkit_scientic
 time = 86400
 prior = 4
 
-[ecolog_monster_part_5]
+[ecolog_monster_part_5]:ecolog_base_task
 type = monster_part
 
 text = ecolog_monster_part_5_text
@@ -1001,7 +1045,7 @@ time = 86400
 prior = 5
 
 ;------Artefact---------------
-[ecolog_find_artefact_1]
+[ecolog_find_artefact_1]:ecolog_base_task
 type = artefact
 
 text = ecolog_find_artefact_1_text
@@ -1015,7 +1059,7 @@ reward_item = af_dummy_pellicle
 time = 86400
 prior = 3
 
-[ecolog_find_artefact_2]
+[ecolog_find_artefact_2]:ecolog_base_task
 type = artefact
 
 text = ecolog_find_artefact_2_text
@@ -1030,7 +1074,7 @@ reward_item = medkit_scientic
 time = 86400
 prior = 1
 
-[ecolog_find_artefact_3]
+[ecolog_find_artefact_3]:ecolog_base_task
 type = artefact
 
 text = ecolog_find_artefact_3_text
@@ -1045,7 +1089,7 @@ reward_item = medkit_scientic
 time = 86400
 prior = 2
 
-[ecolog_find_artefact_4]
+[ecolog_find_artefact_4]:ecolog_base_task
 type = artefact
 
 text = ecolog_find_artefact_4_text
@@ -1060,7 +1104,7 @@ reward_item = medkit_scientic, medkit_scientic, medkit_scientic
 time = 86400
 prior = 4
 
-[ecolog_find_artefact_5]
+[ecolog_find_artefact_5]:ecolog_base_task
 type = artefact
 
 text = ecolog_find_artefact_5_text
@@ -1090,6 +1134,8 @@ reward_rank = 6
 reward_item = ammo_9x39_ap, ammo_9x39_ap, ammo_vog-25
 time = 86400
 
+penalty_reputation = none
+
 [dolg_eliminate_lager_1]:dolg_remote_task
 type = eliminate_lager
 
@@ -1104,6 +1150,8 @@ reward_relation = dolg, +150
 reward_rank = 6
 reward_item = ammo_9x39_ap, ammo_9x39_ap, ammo_vog-25
 time = 86400
+
+penalty_reputation = none
 
 [dolg_eliminate_lager_2]:dolg_remote_task
 type = eliminate_lager
@@ -1227,7 +1275,7 @@ reward_item = ammo_9x39_ap, ammo_9x39_ap, ammo_9x39_ap, ammo_vog-25, ammo_vog-25
 time = 86400
 prior = 3
 
-[dolg_eliminate_lager_10]
+[dolg_eliminate_lager_10]:dolg_base_task
 type = eliminate_lager
 
 text = dolg_eliminate_lager_10_text
@@ -1315,7 +1363,7 @@ reward_item = wpn_groza, ammo_9x39_ap, ammo_9x39_ap, ammo_9x39_ap, ammo_vog-25, 
 time = 86400
 prior = 1
 
-[dolg_find_item_1]
+[dolg_find_item_1]:dolg_base_task
 type = find_item
 
 text = dolg_find_item_1_text
@@ -1474,7 +1522,7 @@ reward_rank = 7
 time = 86400
 prior = 2
 
-[freedom_find_item_3]
+[freedom_find_item_3]:freedom_base_task
 type = find_item
 
 text = freedom_find_item_3_text
@@ -1488,7 +1536,7 @@ reward_relation = dolg, -50, freedom, +150
 ;time = 86400
 prior = 1
 
-[freedom_monster_part_1]
+[freedom_monster_part_1]:freedom_base_task
 type = monster_part
 
 text = freedom_monster_part_1_text
@@ -1518,6 +1566,8 @@ reward_rank = 5
 reward_item = af_cristall
 time = 86400
 
+penalty_reputation = none
+
 [freedom_defend_lager_2]:freedom_remote_task
 type = defend_lager
 
@@ -1533,6 +1583,7 @@ reward_rank = 8
 reward_item = af_rusty_sea_urchin
 time = 86400
 
+penalty_reputation = none
 
 ;*************************************************
 ;** STORYLINE TASKS

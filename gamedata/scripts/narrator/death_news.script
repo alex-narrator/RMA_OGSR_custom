@@ -56,7 +56,7 @@ function send_tip(victim, killer)
 									"%c[white]", death_reason_header, death_reason)
 									
 	if victim:is_actor() then
-		local last_hit_info = string.format("\\n%s:\\n%s (%s)", game.translate_string("st_last_hit"), game.translate_string(last_hit_data.bone), game.translate_string(last_hit_data.type))
+		local last_hit_info = string.format("\\n%s:\\n%s - %s", game.translate_string("st_last_hit"), game.translate_string(last_hit_data.bone), game.translate_string(last_hit_data.type))
 		news_text = news_text..last_hit_info
 	end
 	

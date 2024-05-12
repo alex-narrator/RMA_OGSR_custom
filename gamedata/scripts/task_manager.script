@@ -120,7 +120,7 @@ function CRandomTask:__init()
 		if self.task_ini:line_exist(id, "description") then
 			curr_task_info.description	= self.task_ini:r_string(id, "description")				
 		end
-		curr_task_info.time				= utils.cfg_get_number(self.task_ini, id, "time", nil, false)
+		curr_task_info.time				= read_if_exists(self.task_ini, "r_u32", id, "time", nil)
 
 		curr_task_info.idle_time		= utils.cfg_get_number(self.task_ini, id, "idle_time", nil, false, 24*60*60) --' Время между выдачами задания (в игровых секундах)
 		curr_task_info.prior			= utils.cfg_get_number(self.task_ini, id, "prior", nil, false, 0) --' Приоритет квеста, выдаются доступные квесты с наименьшим приоритетом
@@ -136,16 +136,17 @@ function CRandomTask:__init()
 		else
 			curr_task_info.reward_item = sss
 		end
-		curr_task_info.reward_money = utils.cfg_get_number(self.task_ini, id, "reward_money", nil, false)		
+		curr_task_info.reward_money 		= read_if_exists(self.task_ini, "r_s32", id, "reward_money", nil)		
 	
-		-- if self.task_ini:line_exist(id, "community") then
-			-- curr_task_info.community = self.task_ini:r_string(id, "community")
-		-- end		
 		curr_task_info.community 			= read_if_exists(self.task_ini, "r_string", id, "community", nil)
 
-		curr_task_info.reward_rank			= utils.cfg_get_number(self.task_ini, id, "reward_rank", nil, false, 0)
-		curr_task_info.reward_reputation	= utils.cfg_get_number(self.task_ini, id, "reward_reputation", nil, false)
-		curr_task_info.reward_relation		= parse_key_value(utils.cfg_get_string(self.task_ini, id, "reward_relation", nil, false, ""))
+		curr_task_info.reward_rank			= read_if_exists(self.task_ini, "r_u32", id, "reward_rank", nil)
+		curr_task_info.reward_reputation	= read_if_exists(self.task_ini, "r_s32", id, "reward_reputation", nil)
+		curr_task_info.reward_relation		= parse_key_value(read_if_exists(self.task_ini, "r_string", id, "reward_relation", nil))
+		curr_task_info.reward_info			= parse_key_value(read_if_exists(self.task_ini, "r_string", id, "reward_info", nil))
+		
+		curr_task_info.penalty_reputation	= read_if_exists(self.task_ini, "r_s32", id, "penalty_reputation", nil)
+		curr_task_info.penalty_relation		= parse_key_value(read_if_exists(self.task_ini, "r_string", id, "penalty_relation", nil))
 		
 		if self.task_ini:line_exist(id, "condlist") then
 			curr_task_info.condlist			= xr_logic.parse_condlist(db.actor, "task_manager", "condlist", self.task_ini:r_string(id, "condlist"))
@@ -153,7 +154,7 @@ function CRandomTask:__init()
 			curr_task_info.condlist			= xr_logic.parse_condlist(db.actor, "task_manager", "condlist", "true")
 		end		
 	
-		curr_task_info.need_return			= read_if_exists(self.task_ini, "r_bool", id, "need_return", true) --utils.cfg_get_bool(self.task_ini, id, "need_return", nil, false, true)
+		curr_task_info.need_return			= read_if_exists(self.task_ini, "r_bool", id, "need_return", true)
 		curr_task_info.remote_reward		= read_if_exists(self.task_ini, "r_bool", id, "remote_reward", false)
 
 		curr_task_info.init_phrase_id		= self:gen_phrase_id()
@@ -348,7 +349,7 @@ function CRandomTask:action_give_task(actor, npc, p1, p2)
 	local objective = SGameTaskObjective(task,1)
 	objective:set_description(task_desc.name)
 	--' Выбираем текущую цель квеста
-	if task_desc.target_objects ~= nil and task_desc.selected_target == NO_STORY_ID then
+	if task_desc.target_objects ~= nil and not self:target_valid(task_desc.selected_target) then
 		self.task_info[self.task_id_by_yes_phrase_id[p2]].selected_target = task_desc.target_objects[math.random(table.getn(task_desc.target_objects))]
 		printf("TARGET DEBUG INFO")
 		printf("selected = %s", tostring(self.task_info[self.task_id_by_yes_phrase_id[p2]].selected_target))
@@ -552,8 +553,16 @@ function CRandomTask:task_callback(p1, p2, state)
 		self.active_task_by_type[p1] = nil	
 
 	elseif state == task.fail then
+		local task_data = self.task_info[self.active_task_by_type[p1]]
+		
+		--' Проверяем что жив, выдавший квест.
+		local parent = alife():story_object(story_by_parent[task_data.parent])	
+		local parent_alive = parent and (parent.alive or parent:alive())
+		if task_data.status ~= "refused" and parent_alive then
+			self:task_penalty(task_data)
+		end
 		self.task_info[self.active_task_by_type[p1]].status = "normal"
-
+		
 		--' восстановление других заданий данного типа
 		for k,v in pairs(self.task_info) do
 			if v.complex_type == self.task_info[self.active_task_by_type[p1]].complex_type then
@@ -790,13 +799,14 @@ function CRandomTask:ShowRewardText(actor, npc, p1, p2)
 	local task_info = self.task_info[self.task_id_by_desc_phrase_id[p2]]
 	--log3("~vendor %s, task %s, target %s", alife():story_object(story_by_parent[task_info.parent]):name(), task_info.name, task_info.selected_target)
 	--' Выбираем текущую цель квеста
-	if task_info.target_objects and task_info.selected_target == NO_STORY_ID then
+	if task_info.target_objects and not self:target_valid(task_info.selected_target) then
 		self.task_info[self.task_id_by_desc_phrase_id[p2]].selected_target = task_info.target_objects[math.random(table.getn(task_info.target_objects))]
 		--log3("~vendor %s, task %s, target %s", alife():story_object(story_by_parent[task_info.parent]):name(), task_info.name, task_info.selected_target)
 	end	
 	local icon_type = (task_info.type == "eliminate_lager") and (mob_lagers[task_info.target] and "eliminate_layer" or "eliminate_lager") or task_info.type
 	local task_texture, task_rect = get_texture_info("ui_icons_task_"..icon_type, "ui_iconsTotal_locations")
-	actor:give_talk_message(self:GetRewardText(task_info, true), task_texture, task_rect, "iconed_trade_info")
+	local text = self:GetRewardText(task_info, true)..self:GetPenaltyText(task_info)
+	actor:give_talk_message(text, task_texture, task_rect, "iconed_trade_info")
 end
 
 function CRandomTask:ShowRewardMsg(task_info)
@@ -805,14 +815,23 @@ function CRandomTask:ShowRewardMsg(task_info)
 	actor:give_talk_message(self:GetRewardText(task_info), task_texture, task_rect, "iconed_trade_info")
 end
 
+function CRandomTask:ShowPenaltyMsg(task_info)
+	local icon_type = (task_info.type == "eliminate_lager") and (mob_lagers[task_info.target] and "eliminate_layer" or "eliminate_lager") or task_info.type
+	local task_texture, task_rect = get_texture_info("ui_icons_task_"..icon_type, "ui_iconsTotal_locations")
+	--actor:give_talk_message(self:GetPenaltyText(task_info), task_texture, task_rect, "iconed_trade_info")
+	actor:give_game_news(self:GetPenaltyText(task_info), task_texture, task_rect, 0, 3000)
+end
+
 function CRandomTask:GetRewardText(task_info, show_location)
 	local reward_text = string.format("%s%s\\n", "%c[white]", game.translate_string("ui_st_reward"))
-	local money = task_info.reward_money or nil
-	local items = task_info.reward_item or nil
-	local reputation = task_info.reward_reputation or nil
-	local relation = task_info.reward_relation or nil
-	local rank = task_info.reward_rank or nil
-	
+	local money = task_info.reward_money
+	local items = task_info.reward_item
+	local reputation = task_info.reward_reputation
+	local relation = task_info.reward_relation
+	local rank = task_info.reward_rank
+	local info = task_info.reward_info
+	local task_time = task_info.time
+		
 	local list_prefix = "%c[UI_orange]•"
 	if money then
 		money = string.format("%s%s %s\\n",list_prefix, money, game.translate_string("ui_st_money_regional"))
@@ -849,8 +868,24 @@ function CRandomTask:GetRewardText(task_info, show_location)
 		rank = string.format("%s%s %+1.0f\\n",list_prefix, game.translate_string("ui_st_rank"), rank)
 		reward_text = string.format("%s%s", reward_text, rank)
 	end
-	
-	if show_location and task_info.selected_target and task_info.selected_target ~= NO_STORY_ID then
+	if info then
+		local rew_info
+		for info_portion,info_name in pairs(info) do
+			rew_info = string.format("%s%s %s\\n",list_prefix, game.translate_string("ui_st_info"), game.translate_string(info_name))
+			reward_text = string.format("%s%s", reward_text, rew_info)
+		end		
+	end
+	if task_time then
+		local time_header = string.format("%s%s\\n", "%c[white]", game.translate_string("ui_st_task_time"))
+		task_time = string.format("%s %s %s\\n",list_prefix, task_time / 3600, game.translate_string("ui_st_hours"))
+		reward_text = string.format("%s%s", reward_text, time_header..task_time)
+	end	
+	if show_location and task_info.target_objects then
+		if not self:target_valid(task_info.selected_target) then
+			log3("~vendor %s, task %s, target %s - target non valid, reselect target", alife():story_object(story_by_parent[task_info.parent]):name(), task_info.name, task_info.selected_target)
+			task_info.selected_target = task_info.target_objects[math.random(table.getn(task_info.target_objects))]
+			log3("~new target %s", task_info.selected_target)
+		end
 		local sim = alife()
 		local target = sim:object(task_info.selected_target)
 		local level = target and sim:level_name( game_graph():vertex( target.m_game_vertex_id ):level_id() ) or "ui_st_unknown"
@@ -858,8 +893,50 @@ function CRandomTask:GetRewardText(task_info, show_location)
 		local level_header = string.format("%s%s\\n", "%c[white]", game.translate_string("ui_st_location"))		
 		reward_text = string.format("%s%s%s", reward_text, level_header, level)
 	end
-	
 	return reward_text
+end
+
+function CRandomTask:GetPenaltyText(task_info)
+	local penalty_text = ""
+	local list_prefix = "%c[UI_orange]•"
+	local penalty_reputation = task_info.penalty_reputation
+	local penalty_relation = task_info.penalty_relation
+	if penalty_reputation or penalty_relation then
+		local penalty_header = string.format("%s%s\\n", "%c[white]", game.translate_string("ui_st_penalty"))
+		penalty_text = string.format("%s%s", penalty_text, penalty_header)
+		
+		if penalty_reputation then
+			penalty_reputation = string.format("%s%s %+1.0f\\n",list_prefix, game.translate_string("ui_st_reputation"), penalty_reputation)
+			penalty_text = string.format("%s%s", penalty_text, penalty_reputation)			
+		end
+		if penalty_relation ~= nil then
+			local rel
+			for k,v in pairs(penalty_relation) do
+				rel = string.format("%s%s %s %+1.0f\\n",list_prefix, game.translate_string("ui_st_relation"), game.translate_string(k), tonumber(v))
+				penalty_text = string.format("%s%s", penalty_text, rel)
+			end
+		end		
+	end	
+	return penalty_text
+end
+
+function CRandomTask:task_penalty(task_info)
+	local penalty_reputation = task_info.penalty_reputation
+	local penalty_relation = task_info.penalty_relation
+
+	if penalty_reputation then
+		actor:change_character_reputation(penalty_reputation)
+	end
+	
+	if penalty_relation then
+		for comm,rel in pairs(penalty_relation) do
+			relation_registry.change_community_goodwill (comm, actor:id(), tonumber(rel))
+		end
+	end	
+	
+	if penalty_reputation or penalty_relation then
+		self:ShowPenaltyMsg(task_info)
+	end
 end
 
 --' Функция, в которой будет выдаваться вещевая награда за выполненные квесты
@@ -915,10 +992,16 @@ function CRandomTask:task_reward(npc, actor, p1, p2)
 						relation_registry.change_community_goodwill (kk, db.actor:id(), tonumber(vv))
 					end
 				end
+				
+				if task_desc.reward_info ~= nil then
+					for kk,vv in pairs(task_desc.reward_info) do
+						actor:give_info_portion(kk)
+					end
+				end				
 
 				if task_desc.reward_rank ~= nil then
-					actor_stats.add_points("quests", task_desc.name, 1, 1)--task_desc.reward_rank)
-					db.actor:change_character_rank(task_desc.reward_rank)--set_character_rank(db.actor:character_rank() + task_desc.reward_rank)
+					actor_stats.add_points("quests", task_desc.name, 1, 1)
+					db.actor:change_character_rank(task_desc.reward_rank)
 				end
 				
 				self:ShowRewardMsg(task_desc)
@@ -1102,6 +1185,11 @@ function CRandomTask:unregister_target(obj)
 		end
 	end
 end
+--//валідація цілі квесту
+function CRandomTask:target_valid(target_id)
+	return target_id and target_id ~= NO_STORY_ID and target_id ~= -1 and alife():object(target_id)
+end
+
 function CRandomTask:stats(obj)
 	printf("### TASK STATISTIC ###")
 	for k,v in pairs(self.task_info) do
