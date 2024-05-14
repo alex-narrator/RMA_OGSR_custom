@@ -85,8 +85,6 @@ function ActorMenuOverlay:Subscribe()
 			{signal = "on_loadout_update_count", self = self, fun = self.UpdateSlots},
 			{signal = "on_loadout_update_max_count", self = self, fun = self.UpdateSlots},
 			{signal = "on_actor_icon_update", self = self, fun = self.OnActorIconUpdate},
-			
-			{signal = "ui_actor_info_callback", self = self, fun = self.OnActorInfoUpdate},
 		}
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
@@ -148,6 +146,43 @@ function ActorMenuOverlay:InitControls()
 		self:Register(v.static, k)
 		self:AddCallback(k, ui_events.STATIC_FOCUS_RECEIVED, function() self:ConditionOnFocusReceived(k) end)
 		self:AddCallback(k, ui_events.STATIC_FOCUS_LOST, function() self:ConditionOnFocusLost(k) end)
+	end
+	
+	name = "effects_info"
+	self.effects_info = xml:InitStatic(name, self)
+	self.effects_info.scroll_view = xml:InitScrollView(name..":scroll_view", self.effects_info)
+	self.effects_info.effects = {
+		{param = "health_restore_speed", 		name = "ui_inv_health_boost"},
+		{param = "power_restore_speed", 		name = "ui_inv_power"},
+		{param = "max_power_restore_speed", 	name = "ui_inv_max_power"},
+		{param = "satiety_restore_speed", 		name = "ui_inv_satiety"},
+		{param = "radiation_restore_speed", 	name = "ui_inv_radiation"},
+		{param = "psy_health_restore_speed", 	name = "ui_inv_psy_health"},
+		{param = "alcohol_restore_speed", 		name = "ui_inv_alcohol"},
+		{param = "wounds_heal_speed", 			name = "ui_inv_wounds_heal"},
+		--//
+		{param = "additional_sprint", 			name = "ui_inv_sprint"},
+		{param = "additional_jump", 			name = "ui_inv_jump"},
+		{param = "additional_weight", 			name = "ui_inv_weight"},
+		--//
+		{param = "burn_immunity", 				name = "ui_inv_burn_protection"},
+		{param = "shock_immunity", 				name = "ui_inv_shock_protection"},
+		{param = "strike_immunity", 			name = "ui_inv_strike_protection"},
+		{param = "wound_immunity", 				name = "ui_inv_wound_protection"},
+		{param = "radiation_immunity", 			name = "ui_inv_radiation_protection"},
+		{param = "telepatic_immunity", 			name = "ui_inv_telepatic_protection"},
+		{param = "chemical_burn_immunity", 		name = "ui_inv_chemical_burn_protection"},
+		{param = "explosion_immunity", 			name = "ui_inv_explosion_protection"},
+		{param = "fire_wound_immunity", 		name = "ui_inv_fire_wound_protection"},
+		--//
+		{param = "boost_somnolence", 			name = "ui_inv_somnolence"},
+		{param = "boost_pain", 					name = "ui_inv_painkiller"},
+		{param = "power_loss", 					name = "st_power_loss"},	
+	}
+	for k,v in pairs (self.effects_info.effects) do
+		v.static = CUIStatic()
+		v.static:SetTextComplexMode(true)
+		v.static:SetWidth(self.effects_info.scroll_view:GetDesiredChildWidth())
 	end
 	
 	--// quick slots
@@ -497,53 +532,115 @@ function ActorMenuOverlay:UpdateTooltip()
 	self.tooltip_frame:SetWndPos(pos.x, pos.y)	
 end
 
-
-local add_st = {
-	["boost_somnolence"] 	= { name = "ui_inv_somnolence", static = "static_somnolence" },
-	["boost_pain"] 			= { name = "ui_inv_painkiller", static = "static_pain" },
-	["power_loss"] 			= { name = "st_power_loss", static = "static_power_loss" },
-}
 local account_slots = {
 	[OUTFIT_SLOT] = true,
 	[HELMET_SLOT] = true,
 	[BACKPACK_SLOT] = true,
 }
-function ActorMenuOverlay:OnActorInfoUpdate(info_scroll_view)
-	if self:GetMode() ~= "inventory" then
+function ActorMenuOverlay:UpdateEffectsInfo()
+	self.effects_info:Show(self:GetMode() == "inventory")
+	if not self.effects_info:IsShown() then
 	return end
 	
-	local xml = CScriptXmlInit()
-	xml:ParseFile("inventory_new.xml")
+	self.effects_info.scroll_view:Clear()
 	
-	local val, color, add_static
-	for b_sect,b_time in pairs(boosters.get_all()) do
-		for param_name,v in pairs(add_st) do
-			val = read_if_exists(sys_ini, "r_float", b_sect, param_name, 0)
-			if val ~= 0 then
-				val = val * 100
-				color = val > 0 and "%c[red]" or "%c[green]"
-				add_static = xml:InitStatic("outfit_info:"..v.static, info_scroll_view)
-				local text = string.format("%s %s %+.f%s [%.0f %s]", game.translate_string(v.name), color, val, "%", b_time, game.translate_string("st_time_minute"))
-				add_static:SetText(text)
+	local text = ""
+	local sn, sn_boost = "%", "%"
+	local sn_time = game.translate_string("st_time_minute")
+	local actor_obj = get_actor_obj()
+	local conds = actor.conditions
+	
+	local outfit, helmet, backpack = actor_get_outfit(), actor_get_helmet(), actor_get_backpack()
+	
+	for _i=1, table.size(self.effects_info.effects) do
+		local val, val_boost, boost_time = 0, 0, 0
+		
+		local i = _i-1
+		
+		local t = self.effects_info.effects[_i]
+		
+		if i > 19 then
+			if t.param == "boost_somnolence" or t.param == "boost_pain" then
+				for b_sect,b_time in pairs(boosters.get_all()) do
+					val_boost = read_if_exists(sys_ini, "r_float", b_sect, t.param, 0)
+					if val_boost ~= 0 then
+						boost_time = b_time
+					end
+				end
+			else
+				local item
+				for i,_ in pairs(account_slots) do
+					item = actor:item_in_slot(i)
+					if item then
+						val = val + item:get_inventory_item().power_loss
+					end
+				end				
+			end	
+		else
+		
+			val_boost = conds:get_boosted_params(i)
+			boost_time = conds:get_boosted_time(i)
+			
+			if i < 11 then 				--//effects
+				if i < 8 then			--//additional_sprint
+					val = val + actor_obj:get_items_effect(i)
+				else
+					val = val + actor_obj:get_artefacts_effect(i)
+					if outfit then
+						val = val + outfit:get_inventory_item():item_effect(i)
+					end
+					if helmet then
+						val = val + helmet:get_inventory_item():item_effect(i)
+					end
+					if backpack then
+						val = val + backpack:get_inventory_item():item_effect(i)
+					end				
+				end
+			else 						--//protection
+				local ii = i - 11
+				val = val + actor_obj:get_artefacts_protection(ii)
+				if outfit then
+					val = val +outfit:get_inventory_item():hit_type_protection(ii)
+				end
+				if helmet then
+					val = val +helmet:get_inventory_item():hit_type_protection(ii)
+				end			
 			end
+		
 		end
-	end
-	
-	val = 0
-	local item
-	for i,_ in pairs(account_slots) do
-		item = actor:item_in_slot(i)
-		if item then
-			val = val + item:get_inventory_item().power_loss
+				
+		if not math.fsimilar(val, 0) or not math.fsimilar(val_boost, 0) then
+		
+			if t.param ~= "radiation_restore_speed" then
+				val = val * 100
+				val_boost = val_boost * 100
+			else
+				sn = game.translate_string("st_rad")
+				sn_boost = game.translate_string("st_rad")
+			end
+		
+			local color = val > 0 and "%c[green]" or "%c[red]"
+			local color_boost = val_boost > 0 and "%c[green]" or "%c[red]"
+		
+			if t.param == "radiation_restore_speed" or t.param == "alcohol_restore_speed" or t.param == "boost_somnolence" or t.param == "boost_pain" or t.param == "power_loss" then
+				color = val > 0 and "%c[red]" or "%c[green]"
+				color_boost = val_boost > 0 and "%c[red]" or "%c[green]"
+			end
+		
+			local name = game.translate_string(t.name)
+		
+			if val ~= 0 and val_boost ~= 0 then
+				text = string.format("%s %s%+.f%s %s%+.f%s [%.f %s]", name, color, val, sn, color_boost, val_boost, sn_boost, boost_time, sn_time)
+			elseif val ~= 0 then
+				text = string.format("%s %s%+.f%s", name, color, val, sn)
+			elseif val_boost ~= 0 then
+				text = string.format("%s %s%+.f%s [%.f %s]", name, color_boost, val_boost, sn_boost, boost_time, sn_time)
+			end
+		
+			t.static:SetText(text)
+			t.static:AdjustHeightToText()
+			self.effects_info.scroll_view:AddWindow(t.static)
 		end
-	end
-	if val ~= 0 then
-		local v = add_st["power_loss"]
-		val = val * 100
-		color = val > 0 and "%c[red]" or "%c[green]"
-		add_static = xml:InitStatic("outfit_info:"..v.static, info_scroll_view)
-		local text = string.format("%s %s %+.f%s", game.translate_string(v.name), color, val, "%")
-		add_static:SetText(text)	
 	end
 end
 
@@ -589,6 +686,7 @@ function ActorMenuOverlay:Update()
 		end
 	end
 	
+	self:UpdateEffectsInfo()
 	self:UpdateWeightText()
 	self:UpdateDateTimeText()
 	self:UpdateTooltip()

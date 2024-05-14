@@ -116,7 +116,7 @@ function can_detect_radiation()
 		--log3("~item %s is not detector", item:name())
 	return false end
 
-	local can_detect = item:is_power_on()--item:condition() > 0 and (not is_power_device(item) or item:binded_object():get_power_level() > 0)
+	local can_detect = item:is_power_on()
 	
 	if sect == "detector_geiger_cop" and can_detect then
 	return true end

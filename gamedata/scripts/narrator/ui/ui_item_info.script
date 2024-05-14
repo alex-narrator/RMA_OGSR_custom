@@ -299,9 +299,6 @@ function attach_effect_params(UIDesc, item)
 				sn = game.translate_string("st_rad")
 				val = val / 100				
 			end
-			if v.st_name == "alcohol_restore_speed" then
-				val = val * -1
-			end
 			effect_st[k] = CUIStatic()--xml:InitStatic(v.st_name, params_list)
 			effect_st[k]:SetTextComplexMode(true)
 			effect_st[k]:SetWidth(params_list:GetDesiredChildWidth())
@@ -417,7 +414,7 @@ function attach_eatable_params(UIDesc, item)
 			eatable_st[k]:SetTextComplexMode(true)
 			eatable_st[k]:SetWidth(params_list:GetDesiredChildWidth())
 			color = val > 0 and "%c[green]" or "%c[red]"
-			if v.st_name == "max_power" or v.st_name == "radiation" or v.st_name == "somnolence" then
+			if v.st_name == "alcohol" or v.st_name == "radiation" or v.st_name == "somnolence" then
 				color = val > 0 and "%c[red]" or "%c[green]"
 			end
 			text = string.format("%s %s %s %+.f %s",game.translate_string("st_list_mark"),  game.translate_string(v.param_name), color, val, sn)
@@ -489,7 +486,7 @@ function attach_booster_params(UIDesc, item)
 			boost_st[k]:SetTextComplexMode(true)
 			boost_st[k]:SetWidth(params_list:GetDesiredChildWidth())
 			color = val > 0 and "%c[green]" or "%c[red]"
-			if v.st_name == "max_power" or v.st_name == "radiation" or v.st_name == "somnolence" or v.st_name == "painkiller" then
+			if v.st_name == "alcohol" or v.st_name == "radiation" or v.st_name == "somnolence" or v.st_name == "painkiller" then
 				color = val > 0 and "%c[red]" or "%c[green]"
 			elseif v.st_name == "boost_time" then
 				color = "%c[UI_orange]"

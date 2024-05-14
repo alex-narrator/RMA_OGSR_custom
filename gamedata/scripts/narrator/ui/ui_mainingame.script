@@ -135,6 +135,7 @@ function MainIngameOverlay:InitControls()
 
 	--// quick slots
 	self.quick_slots = xml:InitStatic("quick_slots", self)
+	self.quick_slots.show_on_gear = (xml:ReadAttribInt("quick_slots", "show_on_gear", 0) > 0) and true or false
 
 	--//slot colors
 	self.quick_color_has_item 	= GetARGB(255, 255, 255, 255)
@@ -807,6 +808,7 @@ function MainIngameOverlay:Update()
 	self.slot_panel:Show(SHOW_GEAR_INFO)
 	self.belt_panel:Show(SHOW_GEAR_INFO)
 	--self.loadout_panel:Show(SHOW_GEAR_INFO)
+	self.quick_slots:Show(not self.quick_slots.show_on_gear or SHOW_GEAR_INFO)
 	self:UpdatePanelBoosters()
 	self:UpdateActiveItem()
 	self:UpdateMissileThrow()

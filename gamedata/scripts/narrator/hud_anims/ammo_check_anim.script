@@ -12,10 +12,6 @@ function try_play_anim(item)
 	
 	local wpn = item:get_weapon()
 	
-	if wpn and wpn.zoom_mode then
-		wpn:zoom_out()
-	end
-	
 	if wpn and wpn:is_addon_attached(addon.launcher) then
 		postfix = item:get_gl_mode() and "_g" or "_w_gl"
 	end
@@ -27,6 +23,9 @@ function try_play_anim(item)
 	anim_name = anim_name..postfix
 	if not sys_ini:line_exist(hud_sect,anim_name) then
 	return end
-	
+
+	if wpn and wpn.zoom_mode then
+		wpn:zoom_out()
+	end	
 	item:play_hud_motion(anim_name)
 end
