@@ -689,11 +689,11 @@ function MainIngameOverlay:UpdateActiveItem()
 		local fov = get_console():get_float("fov")
 		local cur_fov = device().fov
 		local zoom = fov / cur_fov
-		if zoom > 2 then
-			zoom = math.floor(zoom+0.1)
-		end
+		-- if zoom > 2 then
+			-- zoom = math.floor(zoom+0.1)
+		-- end
 		self.zoom_counter:Show(zoom > 1)
-		text = string.format(zoom > 2 and "%s %.0fx" or "%s %.1fx", game.translate_string("st_zoom"), zoom)
+		text = string.format("%s %.1fx", game.translate_string("st_zoom"), zoom)--string.format(zoom > 2 and "%s %.0fx" or "%s %.1fx", game.translate_string("st_zoom"), zoom)
 		self.zoom_counter:SetText(text)
 		local zoom_params = get_wpn_scope_zoom_params(act_item)
 		self.zoom_progress:Show(zoom_params and #zoom_params>1)

@@ -306,7 +306,7 @@ function attach_effect_params(UIDesc, item)
 			if v.st_name == "max_power_restore_speed" or v.st_name == "radiation_restore_speed" or v.st_name == "alcohol_restore_speed" then
 				color = val > 0 and "%c[red]" or "%c[green]"
 			end
-			text = string.format("%s %s %s %+.f %s", game.translate_string("st_list_mark"), game.translate_string(v.param_name), color, val, sn)
+			text = string.format("%s %s %s %+.1f %s", game.translate_string("st_list_mark"), game.translate_string(v.param_name), color, val, sn)
 			effect_st[k]:SetText(text)
 			effect_st[k]:AdjustHeightToText()
 			params_list:AddWindow(effect_st[k])
@@ -323,7 +323,7 @@ function attach_effect_params(UIDesc, item)
 			effect_st["power_loss"]:SetTextComplexMode(true)
 			effect_st["power_loss"]:SetWidth(params_list:GetDesiredChildWidth())
 			color = val > 0 and "%c[red]" or "%c[green]"
-			text = string.format("%s %s %s %+.f %s",game.translate_string("st_list_mark"),  game.translate_string("st_power_loss"), color, val, sn)
+			text = string.format("%s %s %s %+.1f %s",game.translate_string("st_list_mark"),  game.translate_string("st_power_loss"), color, val, sn)
 			effect_st["power_loss"]:SetText(text)
 			effect_st["power_loss"]:AdjustHeightToText()
 			params_list:AddWindow(effect_st["power_loss"])
@@ -369,7 +369,7 @@ function attach_protection_params(UIDesc, item)
 			protection_st[k]:SetTextComplexMode(true)
 			protection_st[k]:SetWidth(params_list:GetDesiredChildWidth())
 			color = val > 0 and "%c[green]" or "%c[red]"
-			text = string.format("%s %s %s %+.f %s",game.translate_string("st_list_mark"),  game.translate_string(v.param_name), color, val, sn)
+			text = string.format("%s %s %s %+.1f %s",game.translate_string("st_list_mark"),  game.translate_string(v.param_name), color, val, sn)
 			protection_st[k]:SetText(text)
 			protection_st[k]:AdjustHeightToText()
 			params_list:AddWindow(protection_st[k])
@@ -417,7 +417,7 @@ function attach_eatable_params(UIDesc, item)
 			if v.st_name == "alcohol" or v.st_name == "radiation" or v.st_name == "somnolence" then
 				color = val > 0 and "%c[red]" or "%c[green]"
 			end
-			text = string.format("%s %s %s %+.f %s",game.translate_string("st_list_mark"),  game.translate_string(v.param_name), color, val, sn)
+			text = string.format("%s %s %s %+.1f %s",game.translate_string("st_list_mark"),  game.translate_string(v.param_name), color, val, sn)
 			eatable_st[k]:SetText(text)
 			eatable_st[k]:AdjustHeightToText()
 			params_list:AddWindow(eatable_st[k])
@@ -494,7 +494,7 @@ function attach_booster_params(UIDesc, item)
 			if v.st_name == "boost_time" then
 				text = string.format("%s %s %s %.f %s",game.translate_string("st_list_mark"), game.translate_string(v.param_name), color, val, sn)
 			else
-				text = string.format("%s %s %s %+.f %s",game.translate_string("st_list_mark"), game.translate_string(v.param_name), color, val, sn)
+				text = string.format("%s %s %s %+.1f %s",game.translate_string("st_list_mark"), game.translate_string(v.param_name), color, val, sn)
 			end
 			boost_st[k]:SetText(text)
 			boost_st[k]:AdjustHeightToText()
