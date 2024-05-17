@@ -805,7 +805,7 @@ function CRandomTask:ShowRewardText(actor, npc, p1, p2)
 	end	
 	local icon_type = (task_info.type == "eliminate_lager") and (mob_lagers[task_info.target] and "eliminate_layer" or "eliminate_lager") or task_info.type
 	local task_texture, task_rect = get_texture_info("ui_icons_task_"..icon_type, "ui_iconsTotal_locations")
-	local text = self:GetRewardText(task_info, true)..self:GetPenaltyText(task_info)
+	local text = self:GetRewardText(task_info)..self:GetTaskTimeText(task_info)..self:GetLocationText(task_info)..self:GetPenaltyText(task_info)
 	actor:give_talk_message(text, task_texture, task_rect, "iconed_trade_info")
 end
 
@@ -822,7 +822,7 @@ function CRandomTask:ShowPenaltyMsg(task_info)
 	actor:give_game_news(self:GetPenaltyText(task_info), task_texture, task_rect, 0, 3000)
 end
 
-function CRandomTask:GetRewardText(task_info, show_location)
+function CRandomTask:GetRewardText(task_info)
 	local reward_text = string.format("%s%s\\n", "%c[white]", game.translate_string("ui_st_reward"))
 	local money = task_info.reward_money
 	local items = task_info.reward_item
@@ -830,7 +830,6 @@ function CRandomTask:GetRewardText(task_info, show_location)
 	local relation = task_info.reward_relation
 	local rank = task_info.reward_rank
 	local info = task_info.reward_info
-	local task_time = task_info.time
 		
 	local list_prefix = "%c[UI_orange]•"
 	if money then
@@ -875,12 +874,25 @@ function CRandomTask:GetRewardText(task_info, show_location)
 			reward_text = string.format("%s%s", reward_text, rew_info)
 		end		
 	end
+	return reward_text
+end
+
+function CRandomTask:GetTaskTimeText(task_info)
+	local task_time = task_info.time
+	local reward_text = ""
+	local list_prefix = "%c[UI_orange]•"
 	if task_time then
 		local time_header = string.format("%s%s\\n", "%c[white]", game.translate_string("ui_st_task_time"))
 		task_time = string.format("%s %s %s\\n",list_prefix, task_time / 3600, game.translate_string("ui_st_hours"))
 		reward_text = string.format("%s%s", reward_text, time_header..task_time)
-	end	
-	if show_location and task_info.target_objects then
+	end
+	return reward_text
+end
+
+function CRandomTask:GetLocationText(task_info)
+	local reward_text = ""
+	local list_prefix = "%c[UI_orange]•"
+	if task_info.target_objects then
 		if not self:target_valid(task_info.selected_target) then
 			log3("~vendor %s, task %s, target %s - target non valid, reselect target", alife():story_object(story_by_parent[task_info.parent]):name(), task_info.name, task_info.selected_target)
 			task_info.selected_target = task_info.target_objects[math.random(table.getn(task_info.target_objects))]
@@ -951,19 +963,22 @@ function CRandomTask:task_reward(npc, actor, p1, p2)
 				if db.actor:object(task_desc.target) == nil then
 					can_finish = false
 				else
-					dialogs.relocate_item_section(npc, task_desc.target, "out")
+					--dialogs.relocate_item_section(npc, task_desc.target, "out")
+					dialogs.take_item_from_actor(task_desc.target)
 				end
 			elseif task_desc.type == "monster_part" then
 				if db.actor:object(task_desc.target) == nil then
 					can_finish = false
 				else
-					dialogs.relocate_item_section(npc, task_desc.target, "out")
+					--dialogs.relocate_item_section(npc, task_desc.target, "out")
+					dialogs.take_item_from_actor(task_desc.target)
 				end
 			elseif task_desc.type == "find_item" then
 				if db.actor:object(task_desc.target) == nil then
 					can_finish = false
 				else
-					dialogs.relocate_item_section(npc, task_desc.target, "out")
+					--dialogs.relocate_item_section(npc, task_desc.target, "out")
+					dialogs.take_item_from_actor(task_desc.target)
 				end
 			end
 	
@@ -979,7 +994,8 @@ function CRandomTask:task_reward(npc, actor, p1, p2)
 				if task_desc.reward_item ~= nil then
 					for kk,vv in pairs(task_desc.reward_item) do
 						--dialogs.relocate_item_section(npc, vv, "in", actor)
-						spawn_to_owner(vv, db.actor:id())
+						--spawn_to_owner(vv, db.actor:id())
+						dialogs.give_item_to_actor(vv)
 					end
 				end
 
