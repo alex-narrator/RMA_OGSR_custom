@@ -87,8 +87,14 @@ function MainIngameOverlay:InitControls()
 	self:Enable(true)
 	self:Show(true)
 	
+	self.blood_overlay = CUIStatic()
+	self.blood_overlay:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
+	self.blood_overlay:InitTexture("ui_actor_blood_overlay")
+	self.blood_overlay:SetStretchTexture(true)
+	self:AttachChild(self.blood_overlay)	
+	
 	local xml = CScriptXmlInit()
-	xml:ParseFile(OVERLAY_XML)
+	xml:ParseFile(OVERLAY_XML)	
 	
 	self.actor_params = xml:InitStatic("actor_params", self)
 	self.conditions = {
@@ -263,7 +269,10 @@ function MainIngameOverlay:UpdateConditions()
 	for k,v in pairs(self.conditions_circles) do
 		v.progress_shape:SetPos(v.condition())
 		v.progress_shape:Show(v.condition() <= v.show_val or not DYNAMIC_SHOW)
-	end	
+	end
+	
+	
+	self.blood_overlay:SetColor(GetARGB(255 * (1 - actor.health), 255, 255, 255))
 end
 
 function MainIngameOverlay:UpdateMotionIcon()
