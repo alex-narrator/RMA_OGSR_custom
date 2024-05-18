@@ -109,7 +109,7 @@ function on_non_slot(obj, prev_place)
 		outfit_anim.play_gasmask(obj, false)
 	end	
 		
-	if obj:is_outfit() and actor:alive() and level.main_input_receiver() then
+	if obj:is_outfit() and actor:alive() and has_alife_info("ui_inventory") or has_alife_info("ui_car_body") then
 		add_update_delayed_action(1, function() backpack.play_anim(3) end)
 	end
 end

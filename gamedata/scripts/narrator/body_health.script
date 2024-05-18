@@ -15,15 +15,17 @@ local upper_limbs = {
 	["bip01_l_hand"] = true,
 	["bip01_r_upperarm"] = true,
 	["bip01_r_forearm"] = true,
-	["bip01_r_hand"] = true,	
+	["bip01_r_hand"] = true,
 }
 local lower_limbs = {
 	["bip01_l_thigh"] = true,
 	["bip01_l_calf"] = true,
 	["bip01_l_foot"] = true,
+	["bip01_l_toe0"] = true,
 	["bip01_r_thigh"] = true,
 	["bip01_r_calf"] = true,
 	["bip01_r_foot"] = true,
+	["bip01_r_toe0"] = true,	
 }
 local counted_hit_types = {
 	--["burn"] = true,
@@ -216,6 +218,7 @@ function try_groggy_effect(health_lost)
 end
 
 function try_upper_limbs_injure(health_lost)
+	--log3("~health_lost %s, amount %s", health_lost, UPPER_LIMBS_HIT_AMOUNT)
 	if health_lost < UPPER_LIMBS_HIT_AMOUNT or hand_injured or not random_prob() then
 	return end
 	
@@ -223,17 +226,20 @@ function try_upper_limbs_injure(health_lost)
 	hud_add_info_message("item_usage", "st_hand_injured")
 	
 	subscribe_hands()
+	try_give_tutorial()
 	--log3("~upper limbs injure on hit amount %s", health_lost)
 end
 
 function try_lower_limbs_injure(health_lost)
+	--log3("~health_lost %s, amount %s", health_lost, LOWER_LIMBS_HIT_AMOUNT)
 	if health_lost < LOWER_LIMBS_HIT_AMOUNT or leg_injured or not random_prob() then
 	return end
 	
 	leg_injured = true
 	hud_add_info_message("item_usage", "st_leg_injured")
 	
-	subscribe_legs()	
+	subscribe_legs()
+	try_give_tutorial()
 	--log3("~lower limbs injure on hit amount %s", health_lost)
 end
 
@@ -355,4 +361,10 @@ function can_heal_leg(item)
 end
 function heal_leg(item)
 	heal_injure(item, "leg")
+end
+
+function try_give_tutorial()
+	if not has_alife_info("enc_limb_wounds") then
+		actor:give_info_portion("enc_limb_wounds")
+	end	
 end
