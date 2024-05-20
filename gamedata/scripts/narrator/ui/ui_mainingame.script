@@ -94,7 +94,7 @@ function MainIngameOverlay:InitControls()
 	self:AttachChild(self.blood_overlay)	
 	
 	local xml = CScriptXmlInit()
-	xml:ParseFile(OVERLAY_XML)	
+	xml:ParseFile(OVERLAY_XML)
 	
 	self.actor_params = xml:InitStatic("actor_params", self)
 	self.conditions = {
@@ -257,6 +257,9 @@ function MainIngameOverlay:InitControls()
 		v.icon:Show(false)
 		v.threshold = split_string(xml:ReadAttrib("icons_back:"..v.name, "threshold", nil), ",", true)
 	end
+	
+	self.compass = xml:InitStatic("compass", self)
+	self.compass_arrow = xml:InitStatic("compass:arrow", self.compass)
 end
 
 function MainIngameOverlay:UpdateConditions()
@@ -804,6 +807,15 @@ function MainIngameOverlay:UpdatePickupItem()
 	self.pickup_item_icon:Show(true)
 end
 
+function MainIngameOverlay:UpdateCompass()
+	local show = level.get_key_state(bind_to_dik(key_bindings.kSCORES))
+	self.compass:Show(show)
+	if not self.compass:IsShown() then
+	return end
+	local h = device().cam_dir:getH()
+	self.compass_arrow:SetHeading(-h)
+end
+
 function MainIngameOverlay:Update()
 	CUIScriptWnd.Update(self)
 	local alive = actor:alive()
@@ -823,4 +835,5 @@ function MainIngameOverlay:Update()
 	self:UpdateMissileThrow()
 	self:UpdateWarningIcons()
 	self:UpdatePickupItem()
+	self:UpdateCompass()
 end
