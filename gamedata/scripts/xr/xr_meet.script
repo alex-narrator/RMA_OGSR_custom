@@ -187,7 +187,12 @@ function Cmeet_manager:update()
 	local dist = actor:position():distance_to(self.npc:position())
 	if self.a.precond == "visibility" and not
 		(
-			(self.npc:see(actor) and is_actor_looking_to_pos(self.npc:center(), self.npc:radius()*0.75)) or 
+			(
+				self.npc:see(actor) and actor:see(self.npc) 
+				and is_actor_looking_to_pos(self.npc:center(), self.npc:radius() * 0.7) 
+				--and dist < get_actor_obj().inventory.take_dist
+			) 
+			or 
 			self.npc:is_talking()
 		)
 	then
@@ -217,7 +222,7 @@ function Cmeet_manager:update()
 	if db.actor:is_talking() and not self.npc:is_talking() then
 		self.sound = "nil"
 	end
-	-- printf("MEET [%s], state: [%s], sound: [%s]", self.npc:name(), tostring(self.state), tostring(self.sound))
+	--log3("MEET [%s], state: [%s], sound: [%s]", self.npc:name(), tostring(self.state), tostring(self.sound))
 end
 function Cmeet_manager:process_zone()
 	if self.a.zone == nil then return "nil","nil" end

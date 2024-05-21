@@ -306,6 +306,7 @@ function UpdateConditionProgress(item, icon)
 		offset.y = offset.y - 1
 		progress_bar:SetWndPos(offset.x, offset.y)
 		progress_bar:SetWidth(icon:GetWidth() - 1)
+		--progress_bar:SetWidth(icon:GetWidth() / CIconParams(item:section()).grid_width - 1)
 		icon:BringToTop(progress_bar)
 		progress_bar:SetProgressPos(pos)
 	end
