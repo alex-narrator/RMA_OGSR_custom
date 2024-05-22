@@ -76,6 +76,7 @@ function MainIngameOverlay:Unsubscribe()
 end
 
 function MainIngameOverlay:DetachWnd()
+	self.minimap_back:DetachChild(self.compass)
 	self:Unsubscribe()
 	self:ClearCallbacks()
 	self.owner:DetachChild(self)
@@ -258,8 +259,11 @@ function MainIngameOverlay:InitControls()
 		v.threshold = split_string(xml:ReadAttrib("icons_back:"..v.name, "threshold", nil), ",", true)
 	end
 	
-	self.compass = xml:InitStatic("compass", self)
+	self.minimap = self.owner:GetStatic("minimap")
+	self.minimap_back = self.owner:GetStatic("minimap:background")
+	self.compass = xml:InitStatic("compass", self.minimap_back)
 	self.compass_arrow = xml:InitStatic("compass:arrow", self.compass)
+	self.dist_text = xml:InitStatic("compass:dist_text", self.compass)
 end
 
 function MainIngameOverlay:UpdateConditions()
@@ -807,13 +811,15 @@ function MainIngameOverlay:UpdatePickupItem()
 	self.pickup_item_icon:Show(true)
 end
 
-function MainIngameOverlay:UpdateCompass()
-	local show = level.get_key_state(bind_to_dik(key_bindings.kSCORES))
-	self.compass:Show(show)
-	if not self.compass:IsShown() then
-	return end
+function MainIngameOverlay:UpdateMinimap()
 	local h = device().cam_dir:getH()
 	self.compass_arrow:SetHeading(-h)
+	local dist = self.minimap:GetActivePointDist()
+	local text = ""
+	if dist >= 0.5 then
+		text = string.format("%.f%s", dist, game.translate_string("st_m"))
+	end
+	self.dist_text:SetText(text)
 end
 
 function MainIngameOverlay:Update()
@@ -835,5 +841,5 @@ function MainIngameOverlay:Update()
 	self:UpdateMissileThrow()
 	self:UpdateWarningIcons()
 	self:UpdatePickupItem()
-	self:UpdateCompass()
+	self:UpdateMinimap()
 end
