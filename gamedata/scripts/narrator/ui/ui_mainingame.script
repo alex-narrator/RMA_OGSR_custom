@@ -264,6 +264,7 @@ function MainIngameOverlay:InitControls()
 	self.compass = xml:InitStatic("compass", self.minimap_back)
 	self.compass_arrow = xml:InitStatic("compass:arrow", self.compass)
 	self.dist_text = xml:InitStatic("compass:dist_text", self.compass)
+	self.time_text = xml:InitStatic("compass:time_text", self.compass)
 end
 
 function MainIngameOverlay:UpdateConditions()
@@ -817,9 +818,13 @@ function MainIngameOverlay:UpdateMinimap()
 	local dist = self.minimap:GetActivePointDist()
 	local text = ""
 	if dist >= 0.5 then
-		text = string.format("%.f%s", dist, game.translate_string("st_m"))
+		text = string.format("%.f %s", dist, game.translate_string("st_m"))
 	end
 	self.dist_text:SetText(text)
+
+	local _time = game.get_game_time():timeToString(game.CTime.TimeToMinutes)
+	local text = string.format("%s", _time)
+	self.time_text:SetText(text)	
 end
 
 function MainIngameOverlay:Update()
