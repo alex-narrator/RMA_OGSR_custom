@@ -41,3 +41,7 @@ end
 function trade_get_sell_price(npc, section, result)
 	return trade_manager.get_final_price(npc, section, result, true)
 end
+
+function can_artefact_affect(item)
+	return item:condition() > 0 and (actor:is_on_belt(item) or actor:is_in_slot(item))
+end

@@ -545,7 +545,7 @@ function ActorMenuOverlay:UpdateEffectsInfo()
 	self.effects_info.scroll_view:Clear()
 	
 	local text = ""
-	local sn, sn_boost = "%", "%"
+	local sn, sn_boost
 	local sn_time = game.translate_string("st_time_minute")
 	local actor_obj = get_actor_obj()
 	local conds = actor.conditions
@@ -614,6 +614,8 @@ function ActorMenuOverlay:UpdateEffectsInfo()
 			if t.param ~= "radiation_restore_speed" then
 				val = val * 100
 				val_boost = val_boost * 100
+				sn = "%"
+				sn_boost = "%"
 			else
 				sn = game.translate_string("st_rad")
 				sn_boost = game.translate_string("st_rad")

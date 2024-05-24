@@ -614,28 +614,28 @@ function sort_by_size(a, b)
 	a = type(a) == "table" and a.item or a
 	b = type(b) == "table" and b.item or b
 	local params1, params2 = CIconParams(a:section()), CIconParams(b:section())
-	local size1, size2 = vector2():set(params1.grid_width, params1.grid_height), vector2():set(params2.grid_width, params2.grid_height)
 	
-	if size1.x > size2.x then
+	if params1.grid_width > params2.grid_width then
 		return true 
 	end
-	
-	if size1.x == size2.x then
-		if size1.y > size2.y then
+	if params1.grid_width == params2.grid_width then
+		if params1.grid_height > params2.grid_height then
 			return true 
 		end
-		
-		if size1.y == size2.y then
+		if params1.grid_height == params2.grid_height then
 			if a:section() > b:section() then
 				return true
 			end
 			
-			local ammo1, ammo2 = a:get_weapon_ammo(), b:get_weapon_ammo()
-			if ammo1 and ammo2 then
-				return ammo1.box_size > ammo2.box_size
+			if a:section() == b:section() then
+				if a:condition() > b:condition() then
+					return true
+				end
+				
+				if a:condition() == b:condition() then
+					return a:weight() > b:weight()
+				end
 			end
-			
-			return a:condition() > b:condition()
 		end
 	end
 	

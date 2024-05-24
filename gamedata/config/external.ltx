@@ -3,9 +3,6 @@
 ;створювати лог-файли з унікальними іменами (тобто накопичувати логи у процесі гри)
 unique_logs = false
 
-;артефакти діють з усього інвентаря
-artefacts_from_all = false
-
 ;рушійний прибиральник викинутих предметів
 ;вказуємо час, після якого предмет, що було викинуто з інвентаря/ящика, буде видалено з гри (у ігрових годинах)
 ;виключення для квестових та унікальних предметів
@@ -159,6 +156,8 @@ on_pickup_item_set = engine_callbacks.on_pickup_item_set
 
 ui_inv_custom_sort = engine_callbacks.ui_inv_custom_sort
 ui_inv_get_item_type = engine_callbacks.ui_inv_get_item_type
+
+can_artefact_affect = engine_callbacks.can_artefact_affect
 
 ; trade_purchase_item_process( npc, sobj ) вызывается для каждого
 ; созданного предмета при обновлении ассортимента торговца. npc -
