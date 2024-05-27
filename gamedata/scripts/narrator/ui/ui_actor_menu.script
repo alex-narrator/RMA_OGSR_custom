@@ -473,7 +473,7 @@ function ActorMenuOverlay:ConditionOnFocusReceived(cond_name)
 		local pain_eff = body_health.get_pain_effect()
 		local pain = pain_eff == 0 and "" or pain_eff > 0 and "_more_pain" or "_less_pain"
 		cond_text = game.translate_string(string.format("%s%s%s%s%s","st_", cond_name, self.conditions[cond_name].condition(), pain, "_hint_text"))
-		log3("~hint string: %s", cond_text)
+		--log3("~hint string: %s", cond_text)
 	end
 	local tip_text = string.format("%s\\n---------------------------------\\n%s", cond_descr, cond_text)	
 	self:SetTooltip(tip_text)

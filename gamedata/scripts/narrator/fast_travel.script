@@ -4,7 +4,7 @@ local fast_travel_types = {
 }
 
 function fast_travel_allowed()
-	return not has_enemy_near(actor, ENEMY_CHECK_RADIUS) and actor:get_inventory_weight() < actor:get_max_weight() and actor:get_bleeding() < 0.1
+	return false--not has_enemy_near(actor, ENEMY_CHECK_RADIUS) and actor:get_inventory_weight() < actor:get_max_weight() and actor:get_bleeding() < 0.1
 end
 
 function action_tip(id, spot_type, level_name, position)

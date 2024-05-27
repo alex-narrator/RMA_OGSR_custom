@@ -62,7 +62,8 @@ local leg_injured = false
 local painkiller_effect = 0
 
 function get_pain_effect()
-	return painkiller_effect
+	local alcohol = math.clamp(actor.alcohol, 0, 1)
+	return painkiller_effect - alcohol
 end
 function set_pain_effect(val)
 	painkiller_effect = val
