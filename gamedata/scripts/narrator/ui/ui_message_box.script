@@ -3,7 +3,7 @@ local OVERLAY_XML = "message_box.xml"
 
 class "MessageBoxWnd" (CUIScriptWnd)
 
-function MessageBoxWnd:__init(owner) super()
+function MessageBoxWnd:__init() super()
 	self.owner = level.main_input_receiver()
 	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
 	self:InitWnd()

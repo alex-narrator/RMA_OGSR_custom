@@ -1,0 +1,221 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+local color_default 	= GetARGB(0, 255, 255, 255)
+local color_focused 	= GetARGB(70, 200, 200, 200)
+
+local back_texture 		= "ui_inv_back_green"
+
+class "UICellItemContainer" (CUIScriptWnd)
+
+function UICellItemContainer:__init(xml, name, owner) super()
+	self.owner = owner
+	self.name = name
+	self.xml = xml
+	self.grid = {}
+	self.cell_items = {}
+	self.last_type_row = 0
+	self.end_row = 0
+	self.last_type = -1
+	self.curr_type = -1
+	self:InitControls()
+	self.sm = ogse_signals.get_mgr()
+	self:Subscribe()
+end
+
+function UICellItemContainer:DetachWnd()
+	self:ClearCallbacks()
+	self.owner:DetachChild(self)
+	self:Unsubscribe()
+end
+
+function UICellItemContainer:Subscribe()
+	self.subscribed = false
+	if not self.subscribed then
+		self.subscribed = {
+			-- {signal = "on_cell_item_select", self = self, fun = self.OnCellItemSelect},
+			-- {signal = "on_cell_item_focus", self = self, fun = self.OnCellItemFocus},
+			-- {signal = "on_cell_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
+		}
+		for _, s in ipairs( self.subscribed ) do
+			self.sm:subscribe( s )
+		end
+	end
+end
+
+function UICellItemContainer:Unsubscribe()
+	if self.subscribed then
+		for _, s in ipairs( self.subscribed ) do
+			self.sm:unsubscribe( s )
+		end
+		self.subscribed = false
+	end
+end
+
+function UICellItemContainer:InitControls()
+	self.owner:AttachChild(self)
+	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
+	self:Show(true)
+
+	self.scroll = self.xml:InitScrollView(self.name, self)
+
+	self.back = CUIStatic()
+	self.back:Init(0, 0, self.scroll:GetWidth(), self.scroll:GetHeight())
+	self.back:SetStretchTexture(true)
+	self.back:InitTexture(back_texture)
+	self.back:Show(false)	
+	self.scroll:AddWindow(self.back)
+	
+	self.cell_container = CUIStatic()
+	self.scroll:AddWindow(self.cell_container)
+	
+	self.cell_w = self.xml:ReadAttribInt(self.name, "cell_width", 30)
+	self.cell_h = self.xml:ReadAttribInt(self.name, "cell_height", 40)
+	
+	self.rows = self.xml:ReadAttribInt(self.name, "rows_num", 1)
+	self.cols = self.xml:ReadAttribInt(self.name, "cols_num", 1)
+	
+	self.cell_container:SetWidth(self.cols * self.cell_w)
+	
+	self:AdjustContainerHeight()
+	
+	local name = "scroll_view"
+	self:Register(self.scroll, name)
+	self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnFocusReceived() end, self)
+	self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnFocusLost() end, self)
+	--self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnLButtonDown() end, self)
+end
+
+function UICellItemContainer:AdjustContainerHeight()
+	self.cell_container:SetHeight(table.size(self.grid) * self.cell_h)
+end
+
+function UICellItemContainer:Reinit()
+	self.grid = {}
+	self.cell_items = {}
+	self.last_type_row = 0
+	self.end_row = 0
+	self.last_type = -1
+	self.curr_type = -1
+	
+	self.cell_container:DetachAll()
+	self:AdjustContainerHeight()	
+end
+
+function UICellItemContainer:Update()
+	CUIScriptWnd.Update(self)
+end
+
+function UICellItemContainer:OnFocusReceived()
+	-- self.sm:call("on_cell_item_focus", self.item)
+end
+
+function UICellItemContainer:OnFocusLost()
+	-- self.sm:call("on_cell_item_focus_lost", self.item)
+end
+
+function UICellItemContainer:Highlight(enable)
+	self.back:Show(enable)
+end
+
+function UICellItemContainer:Grow()
+	local rows = table.size(self.grid)
+	rows = rows + 1
+	self.grid[rows] = {}
+	
+	for i=1,self.cols do
+		self.grid[rows][i] = true
+	end
+	
+	self:AdjustContainerHeight()
+end
+
+function UICellItemContainer:AddItem(item)
+	local ci = self:FindSimilar(item)
+	if ci then
+		if ci:AddChild(item) then
+			return
+		end
+	end
+	
+	local cell_pos = self:FindFreeCell(item)
+	if cell_pos then
+		local pos_x = (cell_pos.x - 1) * self.cell_w
+		local pos_y = (cell_pos.y - 1) * self.cell_h
+		local ci = ui_cell_item.UICellItem(self.cell_container, item, pos_x, pos_y, self.cell_w, self.cell_h)
+		self.cell_items[ci] = true
+	end
+end
+
+function UICellItemContainer:FindSimilar(item)
+	local ci
+	for k,v in pairs(self.cell_items) do
+		if ui_inv_utils.similar_item(k:GetItem(), item) then
+			ci = k
+			break
+		end
+	end
+	return ci
+end
+
+function UICellItemContainer:FindFreeCell(item)
+	local params = CIconParams(item:section())
+	
+	local w = params.grid_width
+	local h = params.grid_height
+	
+	if w > self.cols then
+	return false end
+
+	self.curr_type = ui_inv_utils.get_type(item)
+	if self.curr_type ~= self.last_type then
+		self.last_type = self.curr_type
+		self.last_type_row = self.end_row + 1
+	end
+	
+	local row_s = self.last_type_row
+	local rows = table.size(self.grid)
+	local cols = self.cols + 1 - params.grid_width
+	for r=row_s, rows do
+		for c=1,cols do
+			if self:IsFreeRoom(r, c, w, h) then
+				return self:TakeRoom(r, c , w, h)
+			end
+		end
+	end
+	
+	self:Grow()
+	
+	return self:FindFreeCell(item)	
+end
+
+function UICellItemContainer:IsFreeRoom(r,c,w,h)
+	for row = r, r+(h-1) do
+		for col = c, c+(w-1) do
+			if not self.grid[row] then
+				return false
+			end
+			if not self.grid[row][col] then
+				return false
+			end
+		end
+	end
+	return true
+end
+
+function UICellItemContainer:TakeRoom(r,c,w,h)
+	local r_end = r+(h-1)
+	local c_end = c+(w-1)
+	for row = r, r_end do -- -1 because starting row/coloumn cell should be counted
+		for col = c, c_end do
+			self.grid[row][col] = false
+		end
+	end
+	
+	if (r_end > self.end_row) then
+		self.end_row = r_end
+	end
+	-- if (c_end > self.col_end) then
+		-- self.col_end = c_end
+	-- end
+	
+	return {x=c,y=r}
+end
