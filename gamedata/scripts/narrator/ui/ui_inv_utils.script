@@ -244,13 +244,15 @@ function UpdateAdditionalText(item, icon)
 	update(icon_text)
 end
 
-function UpdateCellItemCount(icon, count)
-	if not count or count <= 1 then
+function UpdateCellItemCount(item, icon, count)
+	local for_ammo = item:get_weapon_ammo() and not item:get_weapon_ammo():is_magazine()
+	if not count or (count <= 1 and not for_ammo) then
 	return end
 
 	local function update(static)
 		local offset = GetOffset("left_top", static, icon)
-		static:SetText(string.format("x%s", count))
+		local str = for_ammo and "%s" or "x%s"
+		static:SetText(string.format(str, count))
 		static:SetWndPos(offset.x, offset.y)
 		icon:BringToTop(static)
 	end

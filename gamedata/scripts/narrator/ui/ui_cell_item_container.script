@@ -6,9 +6,9 @@ local back_texture 		= "ui_inv_back_green"
 
 class "UICellItemContainer" (CUIScriptWnd)
 
-function UICellItemContainer:__init(xml, name, owner) super()
+function UICellItemContainer:__init(xml, path, owner) super()
 	self.owner = owner
-	self.name = name
+	self.path = path
 	self.xml = xml
 	self.grid = {}
 	self.cell_items = {}
@@ -31,7 +31,7 @@ function UICellItemContainer:Subscribe()
 	self.subscribed = false
 	if not self.subscribed then
 		self.subscribed = {
-			-- {signal = "on_cell_item_select", self = self, fun = self.OnCellItemSelect},
+			{signal = "on_cell_item_select", self = self, fun = self.OnCellItemSelect},
 			-- {signal = "on_cell_item_focus", self = self, fun = self.OnCellItemFocus},
 			-- {signal = "on_cell_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
 		}
@@ -55,7 +55,7 @@ function UICellItemContainer:InitControls()
 	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
 	self:Show(true)
 
-	self.scroll = self.xml:InitScrollView(self.name, self)
+	self.scroll = self.xml:InitScrollView(self.path, self)
 
 	self.back = CUIStatic()
 	self.back:Init(0, 0, self.scroll:GetWidth(), self.scroll:GetHeight())
@@ -67,13 +67,18 @@ function UICellItemContainer:InitControls()
 	self.cell_container = CUIStatic()
 	self.scroll:AddWindow(self.cell_container)
 	
-	self.cell_w = self.xml:ReadAttribInt(self.name, "cell_width", 30)
-	self.cell_h = self.xml:ReadAttribInt(self.name, "cell_height", 40)
+	self.group_by_type = self.xml:ReadAttribInt(self.path, "group_by_type", 0) > 0 and true or false
+	self.group_similar = self.xml:ReadAttribInt(self.path, "group_similar", 0) > 0 and true or false
+	self.ID = self.xml:ReadAttribInt(self.path, "ID", "")
 	
-	self.rows = self.xml:ReadAttribInt(self.name, "rows_num", 1)
-	self.cols = self.xml:ReadAttribInt(self.name, "cols_num", 1)
+	self.cell_size = {}
+	self.cell_size.w = self.xml:ReadAttribInt(self.path, "cell_width", 30)
+	self.cell_size.h = self.xml:ReadAttribInt(self.path, "cell_height", 40)
 	
-	self.cell_container:SetWidth(self.cols * self.cell_w)
+	self.rows = self.xml:ReadAttribInt(self.path, "rows_num", 1)
+	self.cols = self.xml:ReadAttribInt(self.path, "cols_num", 1)
+	
+	self.cell_container:SetWidth(self.cols * self.cell_size.w)
 	
 	self:AdjustContainerHeight()
 	
@@ -85,7 +90,7 @@ function UICellItemContainer:InitControls()
 end
 
 function UICellItemContainer:AdjustContainerHeight()
-	self.cell_container:SetHeight(table.size(self.grid) * self.cell_h)
+	self.cell_container:SetHeight(table.size(self.grid) * self.cell_size.h)
 end
 
 function UICellItemContainer:Reinit()
@@ -105,15 +110,34 @@ function UICellItemContainer:Update()
 end
 
 function UICellItemContainer:OnFocusReceived()
-	-- self.sm:call("on_cell_item_focus", self.item)
+	
 end
 
 function UICellItemContainer:OnFocusLost()
-	-- self.sm:call("on_cell_item_focus_lost", self.item)
+	
+end
+
+function UICellItemContainer:OnCellItemSelect(item)
+	for cell_item,v in pairs(self.cell_items) do
+		cell_item:SetSelected(cell_item:GetItem():id() == item:id())
+	end
+end
+
+function UICellItemContainer:GetSelected()
+	for cell_item,v in pairs(self.cell_items) do
+		if cell_item:GetSelected() then
+			return cell_item
+		end
+	end
+	return nil
 end
 
 function UICellItemContainer:Highlight(enable)
 	self.back:Show(enable)
+end
+
+function UICellItemContainer:GetID()
+	return self.ID
 end
 
 function UICellItemContainer:Grow()
@@ -129,31 +153,56 @@ function UICellItemContainer:Grow()
 end
 
 function UICellItemContainer:AddItem(item)
-	local ci = self:FindSimilar(item)
-	if ci then
-		if ci:AddChild(item) then
-			return
+	if self.group_similar then
+		local ci = self:FindSimilar(item)
+		if ci then
+			if ci:AddChild(item) then
+				return
+			end
 		end
 	end
 	
 	local cell_pos = self:FindFreeCell(item)
 	if cell_pos then
-		local pos_x = (cell_pos.x - 1) * self.cell_w
-		local pos_y = (cell_pos.y - 1) * self.cell_h
-		local ci = ui_cell_item.UICellItem(self.cell_container, item, pos_x, pos_y, self.cell_w, self.cell_h)
-		self.cell_items[ci] = true
+		local ci = ui_cell_item.UICellItem(self.cell_container, item, cell_pos, self.cell_size, self.ID)
+		local params = CIconParams(item:section())
+		self.cell_items[ci] = {x=cell_pos.x, y=cell_pos.y, w=params.grid_width, h=params.grid_height}
+	end
+end
+
+function UICellItemContainer:RemoveItem(item)
+	local ci = self:FindItem(item)
+	if ci then
+		if ci:RemoveChild(item) then
+			return
+		end
+		local cell_data = self.cell_items[ci]
+		local params = CIconParams(cell_item:GetItem():section())
+		self:FreeRoom(cell_data.x, cell_data.y, cell_data.w, cell_data.h)
+		ci:DetachWnd()
+		self.cell_items[ci] = nil
 	end
 end
 
 function UICellItemContainer:FindSimilar(item)
-	local ci
-	for k,v in pairs(self.cell_items) do
-		if ui_inv_utils.similar_item(k:GetItem(), item) then
-			ci = k
-			break
+	for cell_item,v in pairs(self.cell_items) do
+		if ui_inv_utils.similar_item(cell_item:GetItem(), item) then
+			return cell_item
 		end
 	end
-	return ci
+	return nil
+end
+
+function UICellItemContainer:FindItem(item)
+	for cell_item,v in pairs(self.cell_items) do
+		if cell_item:IsChild(item) then
+			return cell_item
+		end
+		if cell_item:GetItem():id() == item:id() then
+			return cell_item
+		end
+	end
+	return nil
 end
 
 function UICellItemContainer:FindFreeCell(item)
@@ -171,7 +220,7 @@ function UICellItemContainer:FindFreeCell(item)
 		self.last_type_row = self.end_row + 1
 	end
 	
-	local row_s = self.last_type_row
+	local row_s = self.group_by_type and self.last_type_row or 1
 	local rows = table.size(self.grid)
 	local cols = self.cols + 1 - params.grid_width
 	for r=row_s, rows do
@@ -218,4 +267,12 @@ function UICellItemContainer:TakeRoom(r,c,w,h)
 	-- end
 	
 	return {x=c,y=r}
+end
+
+function UICellItemContainer:FreeRoom(r,c,w,h)
+	for row = r, r+(h-1) do
+		for col = c, c+(w-1) do
+			self.grid[row][col] = true
+		end
+	end
 end

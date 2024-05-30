@@ -57,6 +57,7 @@ function MainIngameOverlay:Subscribe()
 			{signal = "on_loadout_update_count", self = self, fun = self.UpdatePanelItems},
 			{signal = "on_hud_state_switch", self = self, fun = self.OnHudStateSwitch},
 			{signal = "on_pickup_item_set", self = self, fun = self.OnPickUpItemSet},
+			{signal = "on_key_press", self = self, fun = self.OnKeyPress},
 		}
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
@@ -824,6 +825,21 @@ function MainIngameOverlay:UpdateMinimap()
 	local _time = game.get_game_time():timeToString(game.CTime.TimeToMinutes)
 	local text = string.format("%s", _time)
 	self.time_text:SetText(text)	
+end
+
+function MainIngameOverlay:OnKeyPress(key, game_action)
+	if game_action == key_bindings.kSCORES then
+		local text = ""
+		local task = actor:get_active_task()
+		if task then
+			text = game.translate_string(task:get_title())
+			local objective = actor:get_active_objective()
+			if objective then
+				text = text.."\\n"..game.translate_string(objective:get_description())
+			end
+		end
+		hud_add_info_message("main_task", text, 3)
+	end
 end
 
 function MainIngameOverlay:Update()

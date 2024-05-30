@@ -2,6 +2,7 @@
 function attach(sm)
 	sm:subscribe({signal = "on_cell_item_update",   	fun = this.update_custom_icons})
 	sm:subscribe({signal = "on_pickup_item_showing", 	fun = this.update_custom_icons})
+	sm:subscribe({signal = "on_cell_item_show", 		fun = this.update_custom_icons})
 end
 
 function update_custom_icons(item, cell_item, count)
@@ -40,6 +41,6 @@ function update_custom_icons(item, cell_item, count)
 	ui_inv_utils.UpdateQuestIcon(item, cell_item)
 	--ui_inv_utils.UpdateConditionStatic(item, cell_item)
 	ui_inv_utils.UpdateAdditionalStatic(cell_item, text)
-	ui_inv_utils.UpdateCellItemCount(cell_item, count)
+	ui_inv_utils.UpdateCellItemCount(item, cell_item, count)
 	ui_inv_utils.UpdateConditionProgress(item, cell_item)
 end

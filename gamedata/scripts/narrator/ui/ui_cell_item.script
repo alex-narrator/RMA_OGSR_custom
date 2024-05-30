@@ -6,13 +6,15 @@ local back_texture 		= "ui_inv_back_green"
 
 class "UICellItem" (CUIScriptWnd)
 
-function UICellItem:__init(owner, item, pos_x, pos_y, width, height) super()
+function UICellItem:__init(owner, item, cell_pos, cell_size, owner_ID) super()
 	self.owner = owner
+	self.owner_ID = owner_ID
 	self.item = item
 	self.childs = {}
+	self.selected = false
 	self.sm = ogse_signals.get_mgr()
 	self:Subscribe()
-	self:InitControls(pos_x, pos_y, width, height)
+	self:InitControls(cell_pos, cell_size)
 end
 
 function UICellItem:DetachWnd()
@@ -44,11 +46,13 @@ function UICellItem:Unsubscribe()
 	end
 end
 
-function UICellItem:InitControls(pos_x, pos_y, width, height)
+function UICellItem:InitControls(cell_pos, cell_size)
 	local params = CIconParams(self.item:section())	
 	
-	local icon_w = width * params.grid_width
-	local icon_h = height * params.grid_height
+	local pos_x = (cell_pos.x - 1) * cell_size.w
+	local pos_y = (cell_pos.y - 1) * cell_size.h
+	local icon_w = cell_size.w * params.grid_width
+	local icon_h = cell_size.h * params.grid_height
 	
 	self.owner:AttachChild(self)
 	self:Init(pos_x, pos_y, icon_w, icon_h)
@@ -84,7 +88,7 @@ function UICellItem:Update()
 end
 
 function UICellItem:OnIconShow()
-	self.sm:call("on_cell_item_show", self.item, self.icon)
+	self.sm:call("on_cell_item_show", self.item, self.icon, self:GetCount())
 end
 
 function UICellItem:OnFocusReceived()
@@ -93,7 +97,7 @@ function UICellItem:OnFocusReceived()
 end
 
 function UICellItem:OnFocusLost()
-	self.back:Show(false)
+	self.back:Show(self:GetSelected())
 	self.sm:call("on_cell_item_focus_lost", self.item)
 end
 
@@ -109,8 +113,20 @@ function UICellItem:OnDBClick()
 	self.sm:call("on_cell_item_db_click", self.item)
 end
 
+function UICellItem:GetOwnerID()
+	return self.owner_ID
+end
+
+function UICellItem:GetItem()
+	return self.item
+end
+
 function UICellItem:GetChilds()
 	return self.childs
+end
+
+function UICellItem:IsChild(item)
+	return self.childs[item]
 end
 
 function UICellItem:GetChildsCount()
@@ -121,12 +137,46 @@ function UICellItem:AddChild(item)
 	if ui_inv_utils.similar_item(self.item, item) then
 		if not self.childs[item] then
 			self.childs[item] = true
+			self:UpdateCountText()
 			return true
 		end
 	end
 	return false
 end
 
-function UICellItem:GetItem()
-	return self.item
+function UICellItem:RemoveChild(item)
+	if self.childs[item] then
+		self.childs[item] = nil
+		self:UpdateCountText()
+		return true
+	end
+	return false
+end
+
+function UICellItem:GetCount()
+
+	local function item_count(item)
+		local ammo = item:get_weapon_ammo()
+		if ammo and not ammo:is_magazine() then
+			return ammo.box_curr
+		end
+		return 1
+	end
+	
+	local count = item_count(self.item)
+	
+	for item,v in pairs(self.childs) do
+		count = count + item_count(item)
+	end
+	
+	return count
+end
+
+function UICellItem:SetSelected(val)
+	self.selected = val
+	self.back:Show(self:GetSelected())
+end
+
+function UICellItem:GetSelected()
+	return self.selected
 end
