@@ -58,6 +58,7 @@ function MainIngameOverlay:Subscribe()
 			{signal = "on_hud_state_switch", self = self, fun = self.OnHudStateSwitch},
 			{signal = "on_pickup_item_set", self = self, fun = self.OnPickUpItemSet},
 			{signal = "on_key_press", self = self, fun = self.OnKeyPress},
+			{signal = "on_key_release", self = self, fun = self.OnKeyRelease},
 		}
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
@@ -265,6 +266,13 @@ function MainIngameOverlay:InitControls()
 	self.compass_arrow = xml:InitStatic("compass:arrow", self.compass)
 	self.dist_text = xml:InitStatic("compass:dist_text", self.compass)
 	self.time_text = xml:InitStatic("compass:time_text", self.compass)
+	
+	--//active task
+	self.active_task = xml:InitStatic("active_task", self)
+	self.active_task_show_time = xml:ReadAttribInt("active_task", "show_time", 5)
+	self.task_icon = xml:InitStatic("active_task:task_icon", self.active_task)
+	self.task_header = xml:InitStatic("active_task:task_header", self.active_task)
+	self.objective_header = xml:InitStatic("active_task:objective_header", self.active_task)
 end
 
 function MainIngameOverlay:UpdateConditions()
@@ -829,16 +837,35 @@ end
 
 function MainIngameOverlay:OnKeyPress(key, game_action)
 	if game_action == key_bindings.kSCORES then
-		local text = ""
 		local task = actor:get_active_task()
-		if task then
-			text = game.translate_string(task:get_title())
-			local objective = actor:get_active_objective()
-			if objective then
-				text = text.."\\n"..game.translate_string(objective:get_description())
-			end
+		self.active_task:Show(task)
+		if not self.active_task:IsShown() then
+		return end
+		
+		local text = game.translate_string(task:get_title() or "NO_TASK_TITLE")
+		self.task_header:SetText(text)
+		
+		local objective = actor:get_active_objective()
+		text = string.format("%s %s", game.translate_string("st_list_mark"), game.translate_string(objective:get_description() or "NO_OBJECTIVE_DESCRIPTION"))
+		self.objective_header:SetText(text)
+		
+		local task_icon = task:get_objective(0):get_icon_name()
+		self.task_icon:Show(task_icon)
+		log3("~task_icon %s", task_icon)
+		if self.task_icon:IsShown() then
+			self.task_icon:InitTexture(task_icon)
+			local r = task:get_objective(0):get_icon_rect()
+			self.task_icon:SetOriginalRect(r.x1, r.y1, r.x2, r.y2)
 		end
-		hud_add_info_message("main_task", text, 3)
+	end
+end
+
+function MainIngameOverlay:OnKeyRelease(key, game_action)
+	if game_action == key_bindings.kSCORES then
+		self.active_task:Show(task)
+		if self.active_task:IsShown() then
+			self.active_task:Show(false)
+		end
 	end
 end
 
