@@ -195,6 +195,7 @@ function MainIngameOverlay:InitControls()
 	tmp_tbl = split_string(xml:ReadAttrib("belt_panel", "text_offset", "0,0"), ",")
 	self.belt_panel.text_offset = {x = tmp_tbl[1], y = tmp_tbl[2]}
 	self.belt_panel.align_center = xml:ReadAttribInt("belt_panel", "center", 0) > 0 and true or false
+	self.belt_panel.hide_in_quick_slot = xml:ReadAttribInt("belt_panel", "hide_in_quick_slot", 0) > 0 and true or false
 	--// loadout panel
 	-- self.loadout_panel = xml:InitStatic("loadout_panel", self)
 	-- self.loadout_panel.scale = xml:ReadAttribFlt("loadout_panel", "scale", 1)
@@ -269,6 +270,7 @@ function MainIngameOverlay:InitControls()
 	
 	--//active task
 	self.active_task = xml:InitStatic("active_task", self)
+	self.active_task:Show(false)
 	self.active_task_show_time = xml:ReadAttribInt("active_task", "show_time", 5)
 	self.task_icon = xml:InitStatic("active_task:task_icon", self.active_task)
 	self.task_header = xml:InitStatic("active_task:task_header", self.active_task)
@@ -479,12 +481,12 @@ function MainIngameOverlay:UpdatePanelItems()
 	end
 	for k,v in pairs(loadout.get_loaded_items()) do
 		item = level.object_by_id(k)
-		if item then
+		if item and (not self.belt_panel.hide_in_quick_slot or not quick_slots.is_in_quick_slot(item)) then
 			self:TryAddToList(item, items, self.belt_panel.group_similar)
 		end
 	end	
-	--table.sort(items,ui_inv_utils.sort_by_size)
-	table.sort(items,ui_inv_utils.sort_by_size_type)
+	--table.sort(items,ui_inv_utils.sort_by_size_type)
+	table.sort(items,ui_inv_utils.sort_by_quick_slot_num)
 	for k, v in pairs(items) do
 		params = CIconParams(v.item:section())
 		item_st = CUIStatic()
@@ -498,6 +500,24 @@ function MainIngameOverlay:UpdatePanelItems()
 		item_st:SetFont(GetFontCustom(self.belt_panel.font))
 		item_st:SetTextColor(self.belt_panel.text_color)
 		item_st:SetTextPos(self.belt_panel.text_offset.x, self.belt_panel.text_offset.y)
+		
+		local quick_slot_num = quick_slots.get_slot_num(v.item)
+		if quick_slot_num then
+			slot_num_st = CUIStatic()
+			slot_num_st:SetWidth(params.grid_width * CELL_W * self.belt_panel.scale * get_current_kx())
+			slot_num_st:SetHeight(params.grid_height * CELL_H * self.belt_panel.scale)
+			
+			slot_num_st:SetTextComplexMode(true)
+			slot_num_st:SetFont(GetFontCustom(self.belt_panel.font))
+			slot_num_st:SetTextColor(self.belt_panel.text_color)
+			slot_num_st:SetTextAlign(CGameFont.alRight)
+			slot_num_st:SetVTextAlign(CGameFont.valBotton)
+			local text = "ui_quick_slot_"..quick_slot_num
+			text = game.translate_string(text)
+			slot_num_st:SetText(text)
+			item_st:AttachChild(slot_num_st)
+		end
+		
 		if self.belt_panel.vertical then
 			pos.y = pos.y + item_st:GetHeight() + self.belt_panel.indent
 		else

@@ -644,6 +644,24 @@ function sort_by_size(a, b)
 	return false
 end
 
+function sort_by_quick_slot_num(a, b)
+	a = type(a) == "table" and a.item or a
+	b = type(b) == "table" and b.item or b
+	
+	local slot_num = quick_slots.get_slot_num
+	
+	if slot_num(a) and slot_num(b) then
+		return slot_num(a) < slot_num(b)
+	end
+	if slot_num(a) then
+		return true
+	end
+	if slot_num(b) then
+		return false
+	end
+	return sort_by_size_type(a, b)
+end
+
 function get_type(item)
 	if loadout.can_remove(item) then
 		return 0

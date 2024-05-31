@@ -180,6 +180,15 @@ function is_in_quick_slot(item)
 	return false
 end
 
+function get_slot_num(item)
+	for i=0, 3 do
+		if quick_sect[i] == item:section() then
+			return i
+		end
+	end
+	return nil
+end
+
 --//функції для скриптового пункту контекстного меню
 local selected_slot = nil
 function can_set(item)
