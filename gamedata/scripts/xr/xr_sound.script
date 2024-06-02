@@ -141,7 +141,7 @@ function set_sound(npc, sound, now, into_timeout)
 end
 
 function set_sound_play(npc, sound, timeout)
-	printf("*SND* play SND to [%s] for [%s]", utils.to_str(sound), npc:name())
+	--log3("~*SND* play SND to [%s] for [%s]", utils.to_str(sound), npc:name())
 	local npc_id = npc:id()
 	if db.sound[npc_id] == nil then db.sound[npc_id] = {} end
 	if db.sound[npc_id].last_snd == nil then
@@ -273,7 +273,7 @@ function play_sound(npc, themes, timeout)
 			if timeout == nil then
 				timeout = 0
 			end							
-			--printf("*SND* play rnd [%s] for [%s]", s, npc:name())
+			--log3("~*SND* play rnd [%s] for [%s]", s, npc:name())
 			process_tutor_on_sound(snd.theme)
 			npc:play_sound(snd.rnd_id, timeout+1, timeout, 1, 0, s)
 			--db.sound[npc_id].last_snd[snd.rnd_id] = s

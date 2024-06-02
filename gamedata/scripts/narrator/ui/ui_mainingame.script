@@ -10,6 +10,9 @@ local actor_obj = get_actor_obj()
 local MOTION_TEXTURE_PREFIX = "ui_hud_soldier_"
 local MOTION_TEXTURE_POSTFIX = "_warning"
 
+local PANEL_SLOT_BACK = "ui_inv_back_green"
+local PANEL_SLOT_BACK_COLOR = GetARGB(200, 255, 255, 255)
+
 function visibility()
 	return USE_LUMINOCITY and actor:get_luminocity() or actor_obj:get_visibility()
 end
@@ -503,19 +506,23 @@ function MainIngameOverlay:UpdatePanelItems()
 		
 		local quick_slot_num = quick_slots.get_slot_num(v.item)
 		if quick_slot_num then
-			slot_num_st = CUIStatic()
-			slot_num_st:SetWidth(params.grid_width * CELL_W * self.belt_panel.scale * get_current_kx())
-			slot_num_st:SetHeight(params.grid_height * CELL_H * self.belt_panel.scale)
-			
-			slot_num_st:SetTextComplexMode(true)
-			slot_num_st:SetFont(GetFontCustom(self.belt_panel.font))
-			slot_num_st:SetTextColor(self.belt_panel.text_color)
-			slot_num_st:SetTextAlign(CGameFont.alRight)
-			slot_num_st:SetVTextAlign(CGameFont.valBotton)
+			add_st = CUIStatic()
+			add_st:InitTexture(PANEL_SLOT_BACK)
+			add_st:SetStretchTexture(true)
+			add_st:SetColor(PANEL_SLOT_BACK_COLOR)
+			add_st:SetWidth(14)--(params.grid_width * CELL_W * self.belt_panel.scale * get_current_kx())
+			add_st:SetHeight(11)--(params.grid_height * CELL_H * self.belt_panel.scale)
+			local pos = ui_inv_utils.GetOffset("right_down",add_st,item_st)
+			add_st:SetWndPos(pos.x, pos.y)
+			add_st:SetTextComplexMode(true)
+			add_st:SetFont(GetFontCustom(self.belt_panel.font))
+			add_st:SetTextColor(self.belt_panel.text_color)
+			add_st:SetTextAlign(CGameFont.alRight)
+			add_st:SetVTextAlign(CGameFont.valBotton)
 			local text = "ui_quick_slot_"..quick_slot_num
 			text = game.translate_string(text)
-			slot_num_st:SetText(text)
-			item_st:AttachChild(slot_num_st)
+			add_st:SetText(text)
+			item_st:AttachChild(add_st)
 		end
 		
 		if self.belt_panel.vertical then
@@ -902,7 +909,7 @@ function MainIngameOverlay:Update()
 	self.slot_panel:Show(SHOW_GEAR_INFO)
 	self.belt_panel:Show(SHOW_GEAR_INFO)
 	--self.loadout_panel:Show(SHOW_GEAR_INFO)
-	self.quick_slots:Show(not self.quick_slots.show_on_gear or SHOW_GEAR_INFO)
+	self.quick_slots:Show(false)--(not self.quick_slots.show_on_gear or SHOW_GEAR_INFO)
 	self:UpdatePanelBoosters()
 	self:UpdateActiveItem()
 	self:UpdateMissileThrow()
