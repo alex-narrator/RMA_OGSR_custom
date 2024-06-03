@@ -10,9 +10,6 @@ local actor_obj = get_actor_obj()
 local MOTION_TEXTURE_PREFIX = "ui_hud_soldier_"
 local MOTION_TEXTURE_POSTFIX = "_warning"
 
-local PANEL_SLOT_BACK = "ui_inv_back_green"
-local PANEL_SLOT_BACK_COLOR = GetARGB(200, 255, 255, 255)
-
 function visibility()
 	return USE_LUMINOCITY and actor:get_luminocity() or actor_obj:get_visibility()
 end
@@ -496,34 +493,8 @@ function MainIngameOverlay:UpdatePanelItems()
 		params:set_shader(item_st)
 		item_st:SetWidth(params.grid_width * CELL_W * self.belt_panel.scale * get_current_kx())
 		item_st:SetHeight(params.grid_height * CELL_H * self.belt_panel.scale)
-		ui_inv_utils.AttachPanelIcons(v.item, item_st)
+		ui_inv_utils.AttachPanelIcons(v.item, item_st, v.count)
 		item_st:SetWndPos(pos.x, pos.y)
-		text = v.count > 1 and string.format("x%s", v.count) or ""
-		item_st:SetText(game.translate_string(text))
-		item_st:SetFont(GetFontCustom(self.belt_panel.font))
-		item_st:SetTextColor(self.belt_panel.text_color)
-		item_st:SetTextPos(self.belt_panel.text_offset.x, self.belt_panel.text_offset.y)
-		
-		local quick_slot_num = quick_slots.get_slot_num(v.item)
-		if quick_slot_num then
-			add_st = CUIStatic()
-			add_st:InitTexture(PANEL_SLOT_BACK)
-			add_st:SetStretchTexture(true)
-			add_st:SetColor(PANEL_SLOT_BACK_COLOR)
-			add_st:SetWidth(14)--(params.grid_width * CELL_W * self.belt_panel.scale * get_current_kx())
-			add_st:SetHeight(11)--(params.grid_height * CELL_H * self.belt_panel.scale)
-			local pos = ui_inv_utils.GetOffset("right_down",add_st,item_st)
-			add_st:SetWndPos(pos.x, pos.y)
-			add_st:SetTextComplexMode(true)
-			add_st:SetFont(GetFontCustom(self.belt_panel.font))
-			add_st:SetTextColor(self.belt_panel.text_color)
-			add_st:SetTextAlign(CGameFont.alRight)
-			add_st:SetVTextAlign(CGameFont.valBotton)
-			local text = "ui_quick_slot_"..quick_slot_num
-			text = game.translate_string(text)
-			add_st:SetText(text)
-			item_st:AttachChild(add_st)
-		end
 		
 		if self.belt_panel.vertical then
 			pos.y = pos.y + item_st:GetHeight() + self.belt_panel.indent

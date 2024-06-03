@@ -586,6 +586,32 @@ function UpdateInSlotIcon(item, icon)
 	icon:AttachChild(in_slot_icon)	
 end
 
+function UpdateQuickSlotStatic(item, icon)
+	local quick_slot_num = quick_slots.get_slot_num(item)
+	if not quick_slot_num then
+	return end
+	local text = "ui_quick_slot_"..quick_slot_num
+	text = game.translate_string(text)
+
+	local function update(static)
+		local offset = GetOffset("left_down", static, icon)
+		static:SetText(text)
+		static:SetWndPos(offset.x, offset.y)
+		icon:BringToTop(static)
+	end
+	
+	local icon_quick = icon:FindChild("icon_quick")
+	if icon_quick then
+		icon_quick = icon_quick:GetCUIStatic()
+		update(icon_quick)
+	return end
+	local xml = CScriptXmlInit()
+	xml:ParseFile(OVERLAY_XML)
+	icon_quick = xml:InitStatic("cell_item_quick", icon)
+	icon_quick:SetWindowName("icon_quick")
+	update(icon_quick)
+end
+
 function AttachRepairMenuIcons(item, icon)
 	icon:DetachAll()
 	UpdateWpnIcons(item, icon)
@@ -599,7 +625,7 @@ function AttachRepairMenuIcons(item, icon)
 	UpdateConditionStatic(item, icon)
 end
 
-function AttachPanelIcons(item, icon)
+function AttachPanelIcons(item, icon, count)
 	icon:DetachAll()
 	UpdateWpnIcons(item, icon)
 	UpdateAdditionalText(item, icon)
@@ -607,6 +633,8 @@ function AttachPanelIcons(item, icon)
 	--UpdateMarkedIcon(item, icon)
 	UpdateUpgrageIcon(item, icon)
 	UpdateQuestIcon(item, icon)
+	UpdateQuickSlotStatic(item, icon)
+	UpdateCellItemCount(item, icon, count)
 	--UpdateInSlotIcon(item, icon)
 	--UpdateConditionProgress(item, icon)
 	--UpdateConditionStatic(item, icon)
