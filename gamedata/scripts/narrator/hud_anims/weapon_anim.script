@@ -72,7 +72,7 @@ function play_switch_anim(item)
 	level.add_complex_effector("fire_mode", 1912)
 	local switch_snd = read_if_exists(sys_ini, "r_string", item:section(), "snd_firemode", "")
 	xr_sound.get_safe_sound_object(switch_snd):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
-	ui_hud_info.on_key_press(nil, key_bindings.kCHECKACTIVEITEM)
+	ui_hud_info.try_show_active_item_info()
 	-- if hud_anim_exists(item, "anm_switch") then
 		-- game.play_hud_motion(2, get_hud_sect(item), "anm_switch", false, 1, false)
 	-- end

@@ -275,6 +275,9 @@ function MainIngameOverlay:InitControls()
 	self.task_icon = xml:InitStatic("active_task:task_icon", self.active_task)
 	self.task_header = xml:InitStatic("active_task:task_header", self.active_task)
 	self.objective_header = xml:InitStatic("active_task:objective_header", self.active_task)
+	
+	--//slot selector
+	self.slot_selector = ui_slot_selector.SlotSelectorOverlay(self)
 end
 
 function MainIngameOverlay:UpdateConditions()
@@ -421,7 +424,7 @@ function MainIngameOverlay:UpdatePanelItems()
 	if level.is_removing_objects() then
 	return end
 	
-	local item, params, item_st, add_st, text
+	local item, params, item_st, text
 	local pos = vector2():set(0,0)
 	--// slots
 	self.slot_panel:DetachAll()
@@ -512,52 +515,11 @@ function MainIngameOverlay:UpdatePanelItems()
 			self.belt_panel:SetWidth(pos.x)
 			self.belt_panel:SetWndPos(UI_BASE_WIDTH / 2 - self.belt_panel:GetWidth() / 2, orig_pos.y)
 		end
-	end	
-	--// loadout
-	-- self.loadout_panel:DetachAll()
-	-- items = {}
-	-- pos = vector2():set(0,0)
-	-- for k,v in pairs(loadout.get_loaded_items()) do
-		-- item = level.object_by_id(k)
-		-- if item then
-			-- self:TryAddToList(item, items, self.loadout_panel.group_similar)
-		-- end
-	-- end
-	-- table.sort(items,ui_inv_utils.sort_by_size)
-	-- for k, v in pairs(items) do
-		-- params = CIconParams(v.item:section())
-		-- item_st = CUIStatic()
-		-- params:set_shader(item_st)
-		-- item_st:SetWidth(params.grid_width * CELL_W * self.loadout_panel.scale * get_current_kx())
-		-- item_st:SetHeight(params.grid_height * CELL_H * self.loadout_panel.scale)
-		-- ui_inv_utils.AttachPanelIcons(v.item, item_st)
-		-- item_st:SetWndPos(pos.x, pos.y)
-		-- text = v.count > 1 and string.format("x%s", v.count) or ""
-		-- item_st:SetText(game.translate_string(text))
-		-- item_st:SetFont(GetFontCustom(self.loadout_panel.font))
-		-- item_st:SetTextColor(self.loadout_panel.text_color)
-		-- item_st:SetTextPos(self.loadout_panel.text_offset.x, self.loadout_panel.text_offset.y)
-		-- if self.loadout_panel.vertical then
-			-- pos.y = pos.y + item_st:GetHeight() + self.loadout_panel.indent
-		-- else
-			-- pos.x = pos.x + item_st:GetWidth() + self.loadout_panel.indent
-		-- end
-		-- self.loadout_panel:AttachChild(item_st)
-	-- end
-	-- if self.loadout_panel.align_center then
-		-- local orig_pos = self.loadout_panel:GetWndPos()
-		-- if self.loadout_panel.vertical then
-			-- self.loadout_panel:SetHeight(pos.y)
-			-- self.loadout_panel:SetWndPos(orig_pos.x, UI_BASE_HEIGHT / 2 - self.loadout_panel:GetHeight() / 2)
-		-- else
-			-- self.loadout_panel:SetWidth(pos.x)
-			-- self.loadout_panel:SetWndPos(UI_BASE_WIDTH / 2 - self.loadout_panel:GetWidth() / 2, orig_pos.y)
-		-- end
-	-- end		
+	end		
 end
 
 function MainIngameOverlay:UpdatePanelBoosters()
-	local item, params, item_st, add_st, text
+	local item, params, item_st, text
 	--// boosters
 	self.booster_panel:DetachAll()
 	local pos = vector2():set(0,0)
@@ -835,32 +797,47 @@ end
 
 function MainIngameOverlay:OnKeyPress(key, game_action)
 	if game_action == key_bindings.kSCORES then
+	
+		self.slot_selector:ShowHideSelector()
+	
 		local task = actor:get_active_task()
 		self.active_task:Show(task)
-		if not self.active_task:IsShown() then
-		return end
+		if self.active_task:IsShown() then
 		
-		local text = game.translate_string(task:get_title() or "NO_TASK_TITLE")
-		self.task_header:SetText(text)
+			local text = game.translate_string(task:get_title() or "NO_TASK_TITLE")
+			self.task_header:SetText(text)
 		
-		local objective = actor:get_active_objective()
-		text = string.format("%s %s", game.translate_string("st_list_mark"), game.translate_string(objective:get_description() or "NO_OBJECTIVE_DESCRIPTION"))
-		self.objective_header:SetText(text)
+			local objective = actor:get_active_objective()
+			text = string.format("%s %s", game.translate_string("st_list_mark"), game.translate_string(objective:get_description() or "NO_OBJECTIVE_DESCRIPTION"))
+			self.objective_header:SetText(text)
 		
-		local task_icon = task:get_objective(0):get_icon_name()
-		self.task_icon:Show(task_icon)
-		log3("~task_icon %s", task_icon)
-		if self.task_icon:IsShown() then
-			self.task_icon:InitTexture(task_icon)
-			local r = task:get_objective(0):get_icon_rect()
-			self.task_icon:SetOriginalRect(r.x1, r.y1, r.x2, r.y2)
+			local task_icon = task:get_objective(0):get_icon_name()
+			self.task_icon:Show(task_icon)
+			--log3("~task_icon %s", task_icon)
+			if self.task_icon:IsShown() then
+				self.task_icon:InitTexture(task_icon)
+				local r = task:get_objective(0):get_icon_rect()
+				self.task_icon:SetOriginalRect(r.x1, r.y1, r.x2, r.y2)
+			end
 		end
 	end
+	
+	-- if game_action == key_bindings.kCHECKGEAR then
+		-- if not level.main_input_receiver() or self.slot_selector:IsShown() then
+			-- level.start_stop_menu(self.slot_selector,false)
+			-- local console = get_console()
+			-- if self.slot_selector:IsShown() then
+				-- self.slot_selector:UpdateSlots()
+				-- console:execute("time_factor 0.25")
+			-- else
+				-- console:execute("time_factor 1")
+			-- end
+		-- end
+	-- end
 end
 
 function MainIngameOverlay:OnKeyRelease(key, game_action)
-	if game_action == key_bindings.kSCORES then
-		self.active_task:Show(task)
+	if game_action == key_bindings.kSCORES or key == DIK_keys.DIK_ESCAPE then
 		if self.active_task:IsShown() then
 			self.active_task:Show(false)
 		end
@@ -877,7 +854,7 @@ function MainIngameOverlay:Update()
 	self:UpdateMotionIcon()
 	self:UpdateCarPanel()
 	self:UpdateMountedWpnPanel()
-	self.slot_panel:Show(SHOW_GEAR_INFO)
+	self.slot_panel:Show(false)--(SHOW_GEAR_INFO)
 	self.belt_panel:Show(SHOW_GEAR_INFO)
 	--self.loadout_panel:Show(SHOW_GEAR_INFO)
 	self.quick_slots:Show(false)--(not self.quick_slots.show_on_gear or SHOW_GEAR_INFO)
@@ -887,4 +864,6 @@ function MainIngameOverlay:Update()
 	self:UpdateWarningIcons()
 	self:UpdatePickupItem()
 	self:UpdateMinimap()
+	
+	self.slot_selector:TrySignalHide()
 end

@@ -1,0 +1,314 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+local OVERLAY_XML = "script_overlays\\slot_selector_overlay.xml"
+
+local subscribed = false
+local sm = ogse_signals.get_mgr()
+
+class "SlotSelectorOverlay" (CUIScriptWnd)
+
+function SlotSelectorOverlay:__init() super()
+	self:InitControls()
+	self:Subscribe()
+end
+
+function SlotSelectorOverlay:Subscribe()
+	self.subscribed = false
+	if not self.subscribed then
+		self.subscribed = {
+			--{signal = "on_key_release", self = self, fun = self.OnKeyRelease},
+			--{signal = "on_slot_selector_show", self = self, fun = self.ProcessSlowMotion},
+			--{signal = "on_slot_selector_hide", self = self, fun = self.ProcessSlowMotion},
+		}
+		for _, s in ipairs( self.subscribed ) do
+			sm:subscribe( s )
+		end
+	end
+end
+
+function SlotSelectorOverlay:Unsubscribe()
+	if self.subscribed then
+		for _, s in ipairs( self.subscribed ) do
+			sm:unsubscribe( s )
+		end
+		self.subscribed = false
+	end
+end
+
+function SlotSelectorOverlay:InitControls()
+	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
+	
+	local xml = CScriptXmlInit()
+	xml:ParseFile(OVERLAY_XML)
+	
+	local name
+	--//background
+	self.back = xml:InitStatic("background", self)
+	xml:InitAutoStaticGroup("background:auto_static", self.back)
+	
+	self.offset = xml:ReadAttrib("background", "offset", "center")
+	local pos = ui_inv_utils.GetOffset(self.offset, self.back, self)
+	self.back:SetWndPos(pos.x, pos.y)
+	
+	local root = "background:"
+	local tmp_tbl, def_font, def_color = nil, "letterica16", "255, 255, 255, 255"
+	--// slot panel
+	self.slot_panel = xml:InitStatic(root.."slot_panel", self.back)
+	self.slot_panel.scale = xml:ReadAttribFlt(root.."slot_panel", "scale", 1)
+	self.slot_panel.indent = xml:ReadAttribFlt(root.."slot_panel", "indent", 0)
+	self.slot_panel.vertical = xml:ReadAttribInt(root.."slot_panel", "vertical", 0) > 0 and true or false
+	self.slot_panel.font = xml:ReadAttrib(root.."slot_panel", "font", def_font)
+	tmp_tbl = split_string(xml:ReadAttrib(root.."slot_panel", "text_color", def_color), ",")
+	self.slot_panel.text_color = GetARGB(tmp_tbl[1], tmp_tbl[2], tmp_tbl[3], tmp_tbl[4])
+	tmp_tbl = split_string(xml:ReadAttrib(root.."slot_panel", "text_offset", "0,0"), ",")
+	self.slot_panel.text_offset = {x = tmp_tbl[1], y = tmp_tbl[2]}
+	self.slot_panel.slots = split_string(xml:ReadAttrib(root.."slot_panel", "slots", ""), ",", true)
+	self.slot_panel.offset = xml:ReadAttrib(root.."slot_panel", "offset", "center")
+	
+	self.compatible_back = CUIStatic()
+	self.compatible_back:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
+	self.back:AttachChild(self.compatible_back)
+	
+	self:UpdateSlots()
+end
+
+function SlotSelectorOverlay:Update()
+	CUIScriptWnd.Update(self)
+end
+
+function SlotSelectorOverlay:UpdateSlots()
+	if level.is_removing_objects() then
+	return end
+	self.compatible_back:DetachAll()
+	local item, params, back_st, item_st, text
+	local pos = vector2():set(0,0)
+	local size = vector2():set(0,0)
+
+	--// slots
+	self.slot_panel:DetachAll()
+	self.slot_static = {}
+	for _,i in ipairs(self.slot_panel.slots) do
+		item = actor:item_in_slot(i)
+		if item and (i ~= BACKPACK_SLOT or read_if_exists(sys_ini, "r_bool", item:section(), "quick_drop", false)) then
+			name = "slot_"..i
+			
+			params = CIconParams(item:section())
+			local icon_size = vector2():set(params.grid_width * CELL_W * self.slot_panel.scale * get_current_kx(), params.grid_height * CELL_H * self.slot_panel.scale)
+			
+			back_st = CUIStatic()
+			back_st:Init(pos.x, pos.y, icon_size.x, icon_size.y)
+			back_st:SetStretchTexture(true)
+			back_st:InitTexture("ui_inv_back_green")
+			back_st:Show(false)
+			
+			item_st = CUIStatic()
+			item_st:Init(pos.x, pos.y, icon_size.x, icon_size.y)
+			item_st:SetWindowName(name)
+			params:set_shader(item_st)
+						
+			ui_inv_utils.AttachPanelIcons(item, item_st)
+			
+			text = "ui_use_slot_"..i
+			if i == TORCH_SLOT then
+				local torch = torch.get_light_sect(item)
+				local nvd = nvd.get_nvd_params(item:section())
+				if not (torch and nvd) then
+					if torch then
+						text = "ui_switch_torch"
+					elseif nvd then
+						text = "ui_switch_night_vision"
+					end
+				end
+			end
+			item_st:SetText(game.translate_string(text))
+			item_st:SetFont(GetFontCustom(self.slot_panel.font))
+			item_st:SetTextColor(self.slot_panel.text_color)
+			item_st:SetTextPos(self.slot_panel.text_offset.x, self.slot_panel.text_offset.y)
+			if self.slot_panel.vertical then
+				pos.y = pos.y + item_st:GetHeight() + self.slot_panel.indent
+				size.y = size.y + item_st:GetHeight() + self.slot_panel.indent
+				if item_st:GetWidth() > size.x then
+					size.x = item_st:GetWidth()
+				end
+			else
+				pos.x = pos.x + item_st:GetWidth() + self.slot_panel.indent
+				size.x = size.x + item_st:GetWidth() + self.slot_panel.indent
+				if item_st:GetHeight() > size.y then
+					size.y = item_st:GetHeight()
+				end				
+			end
+			
+			self.slot_panel:AttachChild(back_st)
+			self.slot_panel:AttachChild(item_st)
+			
+			self.slot_static[i] = item_st
+			self.slot_static[i].back = back_st			
+			
+			self:Register(item_st, name)
+			self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnSlotFocusReceived(i) end)
+			self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnSlotFocusLost(i) end)
+			self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnSlotClick(i) end)
+		end
+	end
+
+	self.slot_panel:SetWidth(size.x)
+	self.slot_panel:SetHeight(size.y)
+	local pos = ui_inv_utils.GetOffset(self.slot_panel.offset, self.slot_panel, self.back)
+	self.slot_panel:SetWndPos(pos.x, pos.y)
+	
+	self.compatible_back:Show(false)
+end
+
+function SlotSelectorOverlay:OnSlotFocusReceived(slot_num)
+	--log3("~OnSlotFocusReceived %s", slot_num)
+	self.compatible_back:DetachAll()
+	self:ShowCompatible(slot_num)
+	self.slot_static[slot_num].back:Show(true)
+	sm:call("on_cell_item_focus", actor:item_in_slot(slot_num))
+end
+
+function SlotSelectorOverlay:OnSlotFocusLost(slot_num)
+	local static = self.slot_static[slot_num]
+	static.back:Show(false)
+	sm:call("on_cell_item_focus_lost", actor:item_in_slot(slot_num))
+	if static and not static.compat_shown then
+		self.compatible_back:DetachAll()
+	end
+end
+
+function SlotSelectorOverlay:OnSlotClick(slot_num)
+	if slot_num == HELMET_SLOT then
+		gasmask.wear_mask(actor:item_in_slot(slot_num))
+		self:UpdateSlots()
+		return
+	end
+	local slot = (actor:active_slot() ~= slot_num) and slot_num or NO_ACTIVE_SLOT
+	actor:activate_slot(slot, false)
+end
+
+function SlotSelectorOverlay:ShowCompatible(slot_num)
+	--log3("~ShowCompatible %s", slot_num)
+	
+	self.compat_slot = slot_num
+	
+	for k,v in pairs(self.slot_static) do
+		v.compat_shown = false
+	end
+	local static = self.slot_static[slot_num]
+	local item, params, back_st, item_st, text
+	
+	self.compat_static = {}
+	
+	local static_pos = static:GetWndPos()
+	local panel_pos = self.slot_panel:GetWndPos()
+	local pos = vector2():set(0, 0)
+	local compat_pos = vector2():set(panel_pos.x + static_pos.x, panel_pos.y + static_pos.y + static:GetHeight() + self.slot_panel.indent)
+	self.compatible_back:SetWndPos(compat_pos)
+	self.compatible_back:Show(false)
+	local compat_size = vector2():set(static:GetWidth(), static:GetHeight() + self.slot_panel.indent)
+	self.compatible_back:Init(compat_pos.x, compat_pos.y, compat_size.x, compat_size.y)	
+	for i = 0, actor:belt_count() - 1 do
+		item = actor:item_on_belt(i)
+		local slots = item:get_inventory_item().slots
+		local can_set = false
+		for k,v in pairs(slots) do
+			if v == slot_num then
+				can_set = true
+				break
+			end
+		end
+		--log3("~check item %s | slots %s", item:name(), slots)
+		if can_set then
+			--log3("~item %s | slot %s", item:name(), slot_num)
+			local name = "compatible_"..i
+			
+			params = CIconParams(item:section())
+			local icon_size = vector2():set(params.grid_width * CELL_W * self.slot_panel.scale * get_current_kx(), params.grid_height * CELL_H * self.slot_panel.scale)
+			
+			back_st = CUIStatic()
+			back_st:Init(pos.x, pos.y, icon_size.x, icon_size.y)
+			back_st:SetStretchTexture(true)
+			back_st:InitTexture("ui_inv_back_green")
+			back_st:Show(false)			
+			
+			item_st = CUIStatic()
+			item_st:Init(pos.x, pos.y, icon_size.x, icon_size.y)			
+			item_st:SetWindowName(name)
+			params:set_shader(item_st)
+			ui_inv_utils.AttachPanelIcons(item, item_st)
+
+			self.compatible_back:Show(true)
+			self.compatible_back:SetWidth(compat_size.x)
+			self.compatible_back:SetHeight(compat_size.y)
+			
+			self.compatible_back:AttachChild(back_st)
+			self.compatible_back:AttachChild(item_st)
+
+			self.compat_static[i] = item_st
+			self.compat_static[i].back = back_st
+			
+			compat_size.y = compat_size.y + item_st:GetHeight() + self.slot_panel.indent
+			
+			pos.y = pos.y + item_st:GetHeight() + self.slot_panel.indent
+			self:Register(item_st, name)
+			
+			--log3("~slot_num_1 %s", slot_num)
+				
+			self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnCompatFocusReceived(i) end)
+			self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnCompatFocusLost(i) end)
+			self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnCompatClick(i) end)
+			
+			static.compat_shown = true			
+		end
+	end
+end
+
+function SlotSelectorOverlay:OnCompatFocusReceived(idx)
+	self.compat_static[idx].back:Show(true)
+	sm:call("on_cell_item_focus", actor:item_on_belt(idx))
+end
+
+function SlotSelectorOverlay:OnCompatFocusLost(idx)
+	self.compat_static[idx].back:Show(false)
+	sm:call("on_cell_item_focus_lost", actor:item_on_belt(idx))
+end
+
+function SlotSelectorOverlay:OnCompatClick(idx)
+	local desired_item = actor:item_on_belt(idx)
+	if not desired_item then
+	return end
+	local slot_item = actor:item_in_slot(self.compat_slot)
+	if not slot_item then
+	return end
+	
+	actor:move_to_ruck(slot_item)
+	actor:move_to_slot(desired_item)
+	actor:activate_slot(self.compat_slot, false)
+	actor:move_to_belt(slot_item)
+	
+	self:UpdateSlots()
+end
+
+function SlotSelectorOverlay:TrySignalHide()
+	if self.was_shown and not self:IsShown() then
+		sm:call("on_slot_selector_hide")
+	end
+end
+
+function SlotSelectorOverlay:ShowHideSelector()
+	if not level.main_input_receiver() or self:IsShown() then
+		level.start_stop_menu(self,false)
+		self.was_shown = self:IsShown()
+		if self.was_shown then
+			self:UpdateSlots()
+			sm:call("on_slot_selector_show")
+		else
+			sm:call("on_slot_selector_hide")
+		end
+	end
+end
+
+function SlotSelectorOverlay:ProcessSlowMotion()
+	local console = get_console()
+	local timefactor = self:IsShown() and 0.2 or 1
+	console:execute("time_factor "..timefactor)
+end

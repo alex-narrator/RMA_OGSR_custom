@@ -11,6 +11,8 @@ function attach(sm)
 	sm:subscribe({signal = "on_talk_hide",   		fun = this.destroy_window})
 	sm:subscribe({signal = "on_repair_show",   		fun = this.create_window})
 	sm:subscribe({signal = "on_repair_hide",   		fun = this.destroy_window})
+	sm:subscribe({signal = "on_slot_selector_show", fun = this.create_window})
+	sm:subscribe({signal = "on_slot_selector_hide", fun = this.destroy_window})
 end
 
 local overlay = nil
