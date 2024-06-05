@@ -22,6 +22,21 @@ function GetOffset(offset_type, icon, parent_icon)
 	end
 end
 
+function CellItemFitToSize(params, icon, parent_icon, size)
+	
+	local icon_size = vector2():set(params.grid_width * CELL_W * get_current_kx(), params.grid_height * CELL_H)
+	local static_size = parent_icon and vector2():set(parent_icon:GetWidth(), parent_icon:GetHeight()) or size
+	
+	local scale_x = static_size.x / icon_size.x
+	scale_x = scale_x > 1 and 1 or scale_x
+	local scale_y = static_size.y / icon_size.y
+	scale_y = scale_y > 1 and 1 or scale_y
+	local scale = math.min(scale_x, scale_y)
+	
+	icon:SetWidth(icon_size.x * scale)
+	icon:SetHeight(icon_size.y * scale)	
+end
+
 function similar_item(item1, item2)
 	-- local t = profile_timer()
 	-- t:start()

@@ -369,10 +369,5 @@ end
 	-- log3("~%s is wounded %s | health %s", tgt:profile_name(), tgt:wounded(), tgt.health)
 -- end
 
--- body_health.try_upper_limbs_injure(0.3)
--- body_health.try_lower_limbs_injure(0.3)
-
-local a = "b"
-local b = "a"
-
-log3("~test res %s", a > b)
+body_health.try_upper_limbs_injure(0.3)
+body_health.try_lower_limbs_injure(0.3)

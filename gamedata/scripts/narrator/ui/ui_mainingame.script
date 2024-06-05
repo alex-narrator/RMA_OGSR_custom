@@ -763,16 +763,11 @@ function MainIngameOverlay:UpdatePickupItem()
 	
 	local params = CIconParams(self.pickup_item:section())
 	params:set_shader(self.pickup_item_icon)
-	local icon_size = vector2():set(params.grid_width * CELL_W * get_current_kx(), params.grid_height * CELL_H)
-	local static_size = self.pickup_item_icon.size
 	
-	local scale_x = static_size.x / icon_size.x
-	scale_x = scale_x > 1 and 1 or scale_x
-	local scale_y = static_size.y / icon_size.y
-	scale_y = scale_y > 1 and 1 or scale_y
-	local scale = math.min(scale_x, scale_y)
-	self.pickup_item_icon:SetWidth(icon_size.x * scale)
-	self.pickup_item_icon:SetHeight(icon_size.y * scale)
+	ui_inv_utils.CellItemFitToSize(params, self.pickup_item_icon, nil, self.pickup_item_icon.size)
+	
+	local icon_size = vector2():set(params.grid_width * CELL_W * get_current_kx(), params.grid_height * CELL_H)
+
 	local offset = ui_inv_utils.GetOffset("center", self.pickup_item_icon, self.owner)
 	local icon_offset = self.pickup_item_icon.offset
 	self.pickup_item_icon:SetWndPos(offset.x + icon_offset.x, offset.y + icon_offset.y)

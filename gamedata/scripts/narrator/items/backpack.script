@@ -63,11 +63,11 @@ end
 function try_drop()
 	local backpack = actor_get_backpack()
 	if not backpack then 
-	return end
+	return false end
 	
 	local has_quick_drop = read_if_exists(sys_ini, "r_bool", backpack:section(), "quick_drop", false)
 	if not has_quick_drop then
-	return end
+	return false end
 	
 	drop_item_to_angle(actor, backpack, 180)
 	
@@ -76,6 +76,7 @@ function try_drop()
 	local text = string.format("%s: %s", game.translate_string("ui_st_dropped_backpack"), game.translate_string(name_short))
 	hud_add_info_message("item_usage", text)
 	level.map_add_object_spot_ser(backpack:id(), backpack_spot, text)
+	return true
 end
 
 local actor_obj = get_actor_obj()
