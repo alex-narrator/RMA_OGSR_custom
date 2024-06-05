@@ -479,13 +479,13 @@ function MainIngameOverlay:UpdatePanelItems()
 	for i = 0, actor:belt_count() - 1 do
 		item = actor:item_on_belt(i)
 		if item then
-			self:TryAddToList(item, items, self.belt_panel.group_similar)
+			ui_inv_utils.try_add_to_list(item, items, self.belt_panel.group_similar)
 		end
 	end
 	for k,v in pairs(loadout.get_loaded_items()) do
 		item = level.object_by_id(k)
 		if item and (not self.belt_panel.hide_in_quick_slot or not quick_slots.is_in_quick_slot(item)) then
-			self:TryAddToList(item, items, self.belt_panel.group_similar)
+			ui_inv_utils.try_add_to_list(item, items, self.belt_panel.group_similar)
 		end
 	end	
 	--table.sort(items,ui_inv_utils.sort_by_size_type)
@@ -553,20 +553,6 @@ function MainIngameOverlay:UpdatePanelBoosters()
 			self.booster_panel:SetWndPos(UI_BASE_WIDTH / 2 - self.booster_panel:GetWidth() / 2, orig_pos.y)
 		end
 	end	
-end
-
-function MainIngameOverlay:TryAddToList(item, tbl, group_similar)
-	local ammo = item:get_weapon_ammo()
-	local item_count = (not ammo or ammo:is_magazine()) and 1 or ammo.box_curr
-	if not group_similar then
-		table.insert(tbl, {item = item, count = item_count})
-	return end
-	for k, v in pairs(tbl) do
-		if ui_inv_utils.similar_item(v.item, item) then
-			v.count = v.count + item_count
-		return end
-	end
-	table.insert(tbl, {item = item, count = item_count})
 end
 
 function MainIngameOverlay:UpdateActiveItem()

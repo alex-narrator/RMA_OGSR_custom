@@ -1783,6 +1783,24 @@ function get_cur_ammo2_sect(obj)
 	return ammo_table[obj:get_underbarrel_ammo_type()+1]
 end
 
+function get_ammo_sects(obj)
+	local ammo_sect = read_if_exists(sys_ini, "r_string", obj:section(), "ammo_class", nil)
+	local ammo_table = split_string(ammo_sect, ",")
+	return ammo_table
+end
+
+function get_magazine_sects(obj)
+	local ammo_sect = read_if_exists(sys_ini, "r_string", obj:section(), "magazine_class", nil)
+	local ammo_table = split_string(ammo_sect, ",")
+	return ammo_table
+end
+
+function get_ammo2_sects(obj)
+	local ammo_sect = read_if_exists(sys_ini, "r_string", obj:section(), "grenade_class", nil)
+	local ammo_table = split_string(ammo_sect, ",")
+	return ammo_table
+end
+
 -- сделать предмет безусловно негруппируемым в окнах инвентаря
 function set_item_ungroupable( item )
   local f = item:get_inventory_item_flags()

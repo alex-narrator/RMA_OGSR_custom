@@ -114,6 +114,16 @@ function SlotSelectorOverlay:InitControls()
 	self.belt_items_icon.indent = xml:ReadAttribFlt(path, "indent", 1)
 	self.belt_items_icon.size = vector2():set(xml:ReadAttribFlt(path, "width", 1), xml:ReadAttribFlt(path, "height", 1))
 	self.belt_items_icon.pos = vector2():set(xml:ReadAttribFlt(path, "x", 0), xml:ReadAttribFlt(path, "y", 0))
+	
+	path = root..":weapon_items"
+	self.weapon_items_back = xml:InitStatic(path, self.back)
+	self.weapon_items_back:Show(false)
+	path = path..":icon"
+	self.weapon_items_icon = {}
+	self.weapon_items_icon.scale = xml:ReadAttribFlt(path, "scale", 1)
+	self.weapon_items_icon.indent = xml:ReadAttribFlt(path, "indent", 1)
+	self.weapon_items_icon.size = vector2():set(xml:ReadAttribFlt(path, "width", 1), xml:ReadAttribFlt(path, "height", 1))
+	self.weapon_items_icon.pos = vector2():set(xml:ReadAttribFlt(path, "x", 0), xml:ReadAttribFlt(path, "y", 0))	
 end
 
 function SlotSelectorOverlay:Update()
@@ -186,6 +196,10 @@ function SlotSelectorOverlay:UpdateSlots()
 	
 	self.belt_items_back:DetachAll()
 	self.belt_items_back:Show(false)
+	
+	self.weapon_items_back:DetachAll()
+	self.weapon_items_back:Show(false)	
+	
 	add_update_delayed_action(1, function() self.quick_slots_back:Show(true) end)
 end
 
@@ -200,7 +214,10 @@ function SlotSelectorOverlay:OnSlotFocusReceived(slot_num)
 	self:ShowCompatible(slot_num)
 	local has_compat = table.size(self.belt_items) > 0
 	self.belt_items_back:Show(has_compat)
-	self.quick_slots_back:Show(not has_compat)
+	self:ShowWeapon(slot_num)
+	local has_weapon = table.size(self.weapon_items) > 0
+	self.weapon_items_back:Show(has_weapon)
+	self.quick_slots_back:Show(not has_compat and not has_weapon)
 end
 
 function SlotSelectorOverlay:OnSlotFocusLost(slot_num)
@@ -257,7 +274,7 @@ end
 function SlotSelectorOverlay:ShowCompatible(slot_num)
 	--log3("~ShowCompatible %s", slot_num)
 	
-	self.compat_slot = slot_num
+	self.selected_slot = slot_num
 
 	local item, params, back_st, item_st, text
 	
@@ -285,8 +302,12 @@ function SlotSelectorOverlay:ShowCompatible(slot_num)
 			local icon_size = vector2():set(params.grid_width * CELL_W * self.belt_items_icon.scale * get_current_kx(), params.grid_height * CELL_H * self.belt_items_icon.scale)
 			
 			item_st = CUIStatic()
-			item_st:Init(pos.x, pos.y, icon_size.x, icon_size.y)			
-			item_st:SetWindowName(name)
+			item_st:Init(pos.x, pos.y, icon_size.x, icon_size.y)
+			
+			if self.belt_items_icon.scale == 1 then
+				ui_inv_utils.CellItemFitToSize(params, item_st, nil, self.belt_items_icon.size)
+			end			
+			
 			params:set_shader(item_st)
 			ui_inv_utils.AttachPanelIcons(item, item_st)
 
@@ -318,16 +339,146 @@ function SlotSelectorOverlay:OnCompatClick(idx)
 	local desired_item = actor:item_on_belt(idx)
 	if not desired_item then
 	return end
-	local slot_item = actor:item_in_slot(self.compat_slot)
+	local slot_item = actor:item_in_slot(self.selected_slot)
 	if not slot_item then
 	return end
 	
 	actor:move_to_ruck(slot_item)
 	actor:move_to_slot(desired_item)
-	actor:activate_slot(self.compat_slot, false)
+	actor:activate_slot(self.selected_slot, false)
 	actor:move_to_belt(slot_item)
 	
 	self:UpdateSlots()
+end
+
+function SlotSelectorOverlay:ShowWeapon(slot_num)
+	--log3("~ShowCompatible %s", slot_num)
+	
+	self.selected_slot = slot_num
+
+	local item, params, back_st, item_st, text
+	
+	self.weapon_items_back:DetachAll()
+	self.weapon_items = {}
+	
+	local slot_item = actor:item_in_slot(slot_num)
+	
+	local weapon = slot_item:get_weapon()
+	
+	if not weapon then
+	return end
+	
+	local weapon_m = slot_item:get_weapon_m()
+	
+	if not weapon_m then
+	return end
+	
+	local orig_pos = self.weapon_items_icon.pos
+	local pos = vector2():set(orig_pos.x, orig_pos.y)
+	for id,v in pairs(loadout.get_loaded_items()) do
+		local can_set = false
+		item = level.object_by_id(id)
+		
+		local ammo_sects = get_ammo_sects(slot_item)
+		for k,v in pairs(ammo_sects) do
+			if v == item:section() then
+				can_set = true
+				break
+			end
+		end
+		
+		if weapon:addon_attachable(addon.magazine) then
+			local magazine_sect = get_magazine_sects(slot_item)
+			for k,v in pairs(magazine_sect) do
+				if v == item:section() then
+					can_set = true
+					break
+				end
+			end
+		end	
+		
+		if weapon:is_addon_attached(addon.launcher) then
+			local ammo_sects2 = get_ammo_sects(slot_item)
+			for k,v in pairs(ammo_sects2) do
+				if v == item:section() then
+					can_set = true
+					break
+				end
+			end
+		end
+		
+		local ammo = item:get_weapon_ammo()
+		if ammo then
+			can_set = can_set and (item:section() ~= get_cur_ammo_sect(slot_item) or item:get_ammo_in_magazine() == 0) and ammo.box_curr > 0
+		end
+		
+		--log3("~check item %s | slots %s", item:name(), slots)
+		if can_set then
+			--log3("~item %s | slot %s", item:name(), slot_num)
+			local name = "weapon_"..id
+			
+			params = CIconParams(item:section())
+			local icon_size = vector2():set(params.grid_width * CELL_W * self.weapon_items_icon.scale * get_current_kx(), params.grid_height * CELL_H * self.weapon_items_icon.scale)
+			
+			item_st = CUIStatic()
+			item_st:Init(pos.x, pos.y, icon_size.x, icon_size.y)
+			
+			if self.weapon_items_icon.scale == 1 then
+				ui_inv_utils.CellItemFitToSize(params, item_st, nil, self.weapon_items_icon.size)
+			end
+			
+			params:set_shader(item_st)
+			ui_inv_utils.AttachPanelIcons(item, item_st)
+
+			if ammo and not ammo:is_magazine() then
+				local text = string.format("%s", ammo.box_curr)
+				item_st:SetText(text)
+				
+			end
+
+			self.weapon_items_back:AttachChild(item_st)
+
+			self.weapon_items[id] = item_st
+			
+			pos.x = pos.x + item_st:GetWidth() + self.weapon_items_icon.indent
+			self:Register(item_st, name)
+				
+			self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnWeaponFocusReceived(id) end)
+			self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnWeaponFocusLost(id) end)
+			self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnWeaponClick(id) end)		
+		end
+	end
+end
+
+function SlotSelectorOverlay:OnWeaponFocusReceived(id)
+	local item = level.object_by_id(id)
+	sm:call("on_cell_item_focus", item)
+	self.weapon_items[id]:SetColor(color_focused)
+end
+
+function SlotSelectorOverlay:OnWeaponFocusLost(id)
+	local item = level.object_by_id(id)
+	sm:call("on_cell_item_focus_lost", item)
+	self.weapon_items[id]:SetColor(color_default)
+end
+
+function SlotSelectorOverlay:OnWeaponClick(id)
+	local item = level.object_by_id(id)
+	local weapon = actor:item_in_slot(self.selected_slot)
+	
+	if actor:active_slot() ~= self.selected_slot then
+		actor:activate_slot(self.selected_slot, false)
+		level.add_call(
+			function()
+				return actor:active_slot() == self.selected_slot
+			end,
+			function()
+				weapon:is_direct_reload(item)
+			end
+		)
+	else
+		weapon:is_direct_reload(item)
+	end
 end
 
 function SlotSelectorOverlay:TrySignalHide()
