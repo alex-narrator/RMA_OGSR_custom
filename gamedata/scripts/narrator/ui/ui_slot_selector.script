@@ -19,8 +19,10 @@ function SlotSelectorOverlay:Subscribe()
 	if not self.subscribed then
 		self.subscribed = {
 			--{signal = "on_key_release", self = self, fun = self.OnKeyRelease},
-			--{signal = "on_slot_selector_show", self = self, fun = self.ProcessSlowMotion},
-			--{signal = "on_slot_selector_hide", self = self, fun = self.ProcessSlowMotion},
+			{signal = "on_slot_selector_show", self = self, fun = self.ProcessSlowMotion},
+			{signal = "on_slot_selector_hide", self = self, fun = self.ProcessSlowMotion},
+			{signal = "on_drop", self = self, fun = self.UpdateSlots},
+			{signal = "on_use", self = self, fun = self.UpdateSlots},
 		}
 		for _, s in ipairs( self.subscribed ) do
 			sm:subscribe( s )
@@ -51,6 +53,8 @@ function SlotSelectorOverlay:InitControls()
 	self.offset = xml:ReadAttrib("background", "offset", "center")
 	local pos = ui_inv_utils.GetOffset(self.offset, self.back, self)
 	self.back:SetWndPos(pos.x, pos.y)
+	
+	self.menu_time_factor = xml:ReadAttribFlt("background", "menu_time_factor", 1)
 
 	local slot_list = split_string(xml:ReadAttrib("background", "slots", ""), ",", true)
 	
@@ -116,6 +120,15 @@ function SlotSelectorOverlay:Update()
 	CUIScriptWnd.Update(self)
 end
 
+function SlotSelectorOverlay:OnKeyboard( dik, keyboard_action )
+	CUIScriptWnd.OnKeyboard( self, dik, keyboard_action )
+	-- if keyboard_action == ui_events.WINDOW_KEY_PRESSED then
+		-- local action = dik_to_bind(dik)
+		-- if action == 
+	-- end
+	-- return true
+end
+
 function SlotSelectorOverlay:UpdateSlots()
 	if level.is_removing_objects() then
 	return end
@@ -164,9 +177,9 @@ function SlotSelectorOverlay:UpdateSlots()
 			
 			local text = ""
 			local count = quick_slots.get_item_count(i)
-			if count > 1 then
+			--if count > 1 then
 				text = string.format("x%s", count)
-			end
+			--end
 			self.quick_slots[i].icon:SetText(text)
 		end
 	end
@@ -206,7 +219,7 @@ function SlotSelectorOverlay:OnSlotClick(slot_num)
 		return
 	end
 	if slot_num == BACKPACK_SLOT and backpack.try_drop() then
-		add_update_delayed_action(1, function() self:UpdateSlots() end)	
+		--add_update_delayed_action(1, function() self:UpdateSlots() end)	
 		return
 	end
 	if slot_num == TORCH_SLOT then
@@ -338,6 +351,6 @@ end
 
 function SlotSelectorOverlay:ProcessSlowMotion()
 	local console = get_console()
-	local timefactor = self:IsShown() and 0.2 or 1
+	local timefactor = self:IsShown() and self.menu_time_factor or 1
 	console:execute("time_factor "..timefactor)
 end
