@@ -356,7 +356,7 @@ function SlotSelectorOverlay:ShowWeapon(slot_num)
 	
 	self.selected_slot = slot_num
 
-	local item, params, back_st, item_st, text
+	local params, back_st, item_st, text
 	
 	self.weapon_items_back:DetachAll()
 	self.weapon_items = {}
@@ -373,11 +373,18 @@ function SlotSelectorOverlay:ShowWeapon(slot_num)
 	if not weapon_m then
 	return end
 	
+	local items = {}
+	for id,v in pairs(loadout.get_loaded_items()) do
+		local item = level.object_by_id(id)
+		ui_inv_utils.try_add_to_list(item, items, true)
+	end
+	
 	local orig_pos = self.weapon_items_icon.pos
 	local pos = vector2():set(orig_pos.x, orig_pos.y)
-	for id,v in pairs(loadout.get_loaded_items()) do
+	for k,v in pairs(items) do
 		local can_set = false
-		item = level.object_by_id(id)
+		local item = v.item
+		local id = item:id()
 		
 		local ammo_sects = get_ammo_sects(slot_item)
 		for k,v in pairs(ammo_sects) do
@@ -409,7 +416,7 @@ function SlotSelectorOverlay:ShowWeapon(slot_num)
 		
 		local ammo = item:get_weapon_ammo()
 		if ammo then
-			can_set = can_set and (item:section() ~= get_cur_ammo_sect(slot_item) or item:get_ammo_in_magazine() == 0) and ammo.box_curr > 0
+			can_set = can_set and (item:section() ~= get_cur_ammo_sect(slot_item) or slot_item:get_ammo_in_magazine() == 0) and ammo.box_curr > 0
 		end
 		
 		--log3("~check item %s | slots %s", item:name(), slots)
@@ -430,10 +437,9 @@ function SlotSelectorOverlay:ShowWeapon(slot_num)
 			params:set_shader(item_st)
 			ui_inv_utils.AttachPanelIcons(item, item_st)
 
-			if ammo and not ammo:is_magazine() then
-				local text = string.format("%s", ammo.box_curr)
+			if v.count > 1 then
+				local text = string.format("%s", v.count)
 				item_st:SetText(text)
-				
 			end
 
 			self.weapon_items_back:AttachChild(item_st)
