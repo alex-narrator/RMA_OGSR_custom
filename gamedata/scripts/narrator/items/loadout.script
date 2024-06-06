@@ -165,7 +165,7 @@ function on_take(item)
 	local ammo = item:get_weapon_ammo()
 	if ammo and is_weapon_unloading() then
 		--log3("~ammo %s [%s] unloaded from weapon", item:name(), item:id())
-		if xr_conditions.black_screen() or level.main_input_receiver() then
+		if xr_conditions.black_screen() or (level.main_input_receiver() and not ui_mainingame.get_slot_selector():IsShown()) then
 		return end
 		
 		if ammo.box_curr == 0 and has_drop_pouch() then

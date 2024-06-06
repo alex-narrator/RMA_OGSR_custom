@@ -5,11 +5,13 @@ function attach(sm)
 	sm:subscribe({signal = "on_dialog_show", 	fun = this.start_dof})
 	sm:subscribe({signal = "on_talk_show", 		fun = this.start_dof})
 	sm:subscribe({signal = "on_trade_show", 	fun = this.start_dof})
+	sm:subscribe({signal = "on_slot_selector_show", fun = this.start_dof})
 	
 	sm:subscribe({signal = "on_inventory_hide", fun = this.stop_dof})
 	sm:subscribe({signal = "on_carbody_hide", 	fun = this.stop_dof})
 	sm:subscribe({signal = "on_dialog_hide", 	fun = this.stop_dof})
 	sm:subscribe({signal = "on_talk_hide", 		fun = this.stop_dof})
+	sm:subscribe({signal = "on_slot_selector_hide",	fun = this.stop_dof})
 	--sm:subscribe({signal = "on_trade_hide", 	fun = this.stop_dof})
 end
 

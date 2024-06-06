@@ -19,8 +19,8 @@ function SlotSelectorOverlay:Subscribe()
 	if not self.subscribed then
 		self.subscribed = {
 			--{signal = "on_key_release", self = self, fun = self.OnKeyRelease},
-			{signal = "on_slot_selector_show", self = self, fun = self.ProcessSlowMotion},
-			{signal = "on_slot_selector_hide", self = self, fun = self.ProcessSlowMotion},
+			{signal = "on_slot_selector_show", self = self, fun = self.OnShow},
+			{signal = "on_slot_selector_hide", self = self, fun = self.OnHide},
 			{signal = "on_drop", self = self, fun = self.UpdateSlots},
 			{signal = "on_use", self = self, fun = self.UpdateSlots},
 		}
@@ -510,4 +510,19 @@ function SlotSelectorOverlay:ProcessSlowMotion()
 	local console = get_console()
 	local timefactor = self:IsShown() and self.menu_time_factor or 1
 	console:execute("time_factor "..timefactor)
+end
+
+function SlotSelectorOverlay:OnShow()
+	local act_item = actor:active_item()
+	if act_item then
+		local wpn = act_item:get_weapon()
+		if wpn and wpn.zoom_mode then
+			wpn:zoom_out()
+		end		
+	end
+	self:ProcessSlowMotion()
+end
+
+function SlotSelectorOverlay:OnHide()
+	self:ProcessSlowMotion()
 end
