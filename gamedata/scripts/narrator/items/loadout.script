@@ -74,6 +74,8 @@ function get_slot_type(item)
 end
 
 function is_module(item)
+	if not item then
+	return false end
 	local slot_volume
 	local sect = item:section()
 	for k,v in pairs(slots) do
