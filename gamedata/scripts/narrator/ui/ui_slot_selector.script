@@ -24,6 +24,7 @@ function SlotSelectorOverlay:Subscribe()
 			{signal = "on_drop", self = self, fun = self.UpdateSlots},
 			{signal = "on_use", self = self, fun = self.UpdateSlots},
 			{signal = "on_ruck", self = self, fun = self.UpdateSlots},
+			{signal = "on_hud_state_switch", self = self, fun = self.UpdateSlots},
 		}
 		for _, s in ipairs( self.subscribed ) do
 			sm:subscribe( s )
@@ -231,6 +232,9 @@ function SlotSelectorOverlay:OnSlotFocusReceived(slot_num)
 	if slot_num == TORCH_SLOT then
 		action = "ui_st_switch"
 	end
+	if slot_num == DETECTOR_SLOT then
+		action = actor:active_device() and "ui_st_hide" or "ui_st_show"
+	end
 	action = game.translate_string(action)
 	local name = game.translate_string(get_inv_name_short(actor:item_in_slot(slot_num):section()))
 	local text = string.format("%s\\n%s", action, name)
@@ -272,19 +276,27 @@ function SlotSelectorOverlay:OnSlotClick(slot_num)
 end
 
 function SlotSelectorOverlay:OnQuickFocusReceived(quick_slot_num)
-	sm:call("on_quick_item_focus", quick_slots.get_item(quick_slot_num))
+	local item = quick_slots.get_item(quick_slot_num)
+	if not item then
+	return end
+	
+	sm:call("on_quick_item_focus", item)
 	self.quick_slots[quick_slot_num].icon:SetColor(color_focused)
 	
 	self.center_tip:Show(true)
 	local action = "ui_st_quick_use"
 	action = game.translate_string(action)
-	local name = game.translate_string(get_inv_name_short(quick_slots.get_item(quick_slot_num):section()))
+	local name = game.translate_string(get_inv_name_short(item:section()))
 	local text = string.format("%s\\n%s", action, name)
 	self.center_tip:SetText(text)	
 end
 
 function SlotSelectorOverlay:OnQuickFocusLost(quick_slot_num)
-	sm:call("on_quick_item_focus_lost", quick_slots.get_item(quick_slot_num))
+	local item = quick_slots.get_item(quick_slot_num)
+	if not item then
+	return end
+	
+	sm:call("on_quick_item_focus_lost", item)
 	self.quick_slots[quick_slot_num].icon:SetColor(color_default)
 	self.center_tip:Show(false)
 end
