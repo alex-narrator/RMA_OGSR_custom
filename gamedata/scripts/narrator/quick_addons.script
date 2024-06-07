@@ -1,34 +1,12 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
 	sm:subscribe({signal = "on_key_press",   		fun = this.on_key_press})
-	sm:subscribe({signal = "on_take",   			fun = this.on_take})
 end
 
 local quick_addon_action = {
 	[key_bindings.kQUICK_SCOPE] = true,
 	[key_bindings.kQUICK_SILENCER] = true,
 }
-
-local scope_sect, silencer_sect = nil, nil
-
-function on_take(item)
-	local sect = item:section()
-	local function try_add_to_loadout(item) 
-		if loadout.can_add(item) then
-			loadout.add(item)
-		else
-			actor:drop_item(item)
-		end
-	end
-	
-	if sect == scope_sect then
-		try_add_to_loadout(item)
-		scope_sect = nil
-	elseif sect == silencer_sect then
-		try_add_to_loadout(item)
-		silencer_sect = nil
-	end
-end
 
 function on_key_press(key, game_action)
 	if level.main_input_receiver() then
@@ -51,7 +29,6 @@ function on_key_press(key, game_action)
 	local for_scope = game_action == key_bindings.kQUICK_SCOPE
 	
 	local addon_type = for_scope and addon.scope or addon.silencer
-	local function remember_sect(sect) if for_scope then scope_sect = sect else silencer_sect = sect end end
 	local function check_type(item) return for_scope and (item:is_scope() or item:is_binoculars()) or item:is_silencer() end
 	
 	if act_wpn:is_addon_attached(addon_type) and act_wpn:addon_attachable(addon_type) then
@@ -68,7 +45,7 @@ function on_key_press(key, game_action)
 				act_wpn_m:detach_addon(addon_sect, true)
 				actor_break_sprint()
 				xr_sound.get_safe_sound_object([[interface\inv_detach_addon]]):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
-				remember_sect(addon_sect)
+				loadout.set_marked_sect(addon_sect)
 				actor:restore_weapon()
 			end
 		)

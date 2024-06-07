@@ -34,6 +34,7 @@ function log_slots()
 end
 
 local loaded_items = {}
+local marked_sect = nil
 
 local unload_states = {
 	[global_flags.eReload] = true,
@@ -42,6 +43,10 @@ local unload_states = {
 function is_weapon_unloading()
 	local weapon = actor:active_item() and actor:active_item():get_weapon_m()
 	return weapon and unload_states[weapon.state]
+end
+
+function set_marked_sect(sect)
+	marked_sect = sect
 end
 
 function get_loaded_items()
@@ -162,6 +167,15 @@ function on_drop(item, prev_place)
 end
 
 function on_take(item)
+	if item:section() == marked_sect then
+		marked_sect = nil
+		if can_add(item) then
+			add(item)
+		else
+			actor:drop_item(item)
+		end
+		return
+	end
 	local ammo = item:get_weapon_ammo()
 	if ammo and is_weapon_unloading() then
 		--log3("~ammo %s [%s] unloaded from weapon", item:name(), item:id())
