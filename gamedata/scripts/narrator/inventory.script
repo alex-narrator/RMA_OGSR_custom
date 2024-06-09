@@ -132,3 +132,31 @@ function get_overweight()
 	overweight = math.clamp(overweight, 1, overweight)
 	return overweight
 end
+
+local power_sources = {
+	["battery"] = true,
+	["pda_battery"] = true,
+}
+function repack_power_sources()
+	local sources = {}
+	local sim = alife()
+	
+	function perform_action(dummy, item)
+		if power_sources[item:section()] and item:condition() < 1 then
+			sources[item:section()] = sources[item:section()] and sources[item:section()] + item:condition() or item:condition()
+			sim:release(sim:object(item:id()), true)
+		end
+	end
+	actor:iterate_ruck(perform_action, nil)
+	
+	for sect,total_cond in pairs(sources) do
+		while(total_cond > 0) do
+			local sobj = spawn_to_owner(sect)
+			if total_cond < 1 then
+				local sobj_iitem = sim:object(sobj.id):get_inventory_item()
+				sobj_iitem.item_condition = total_cond
+			end
+			total_cond = total_cond - 1
+		end
+	end
+end
