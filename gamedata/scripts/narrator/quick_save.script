@@ -1,0 +1,52 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_key_press",   	fun = this.on_key_press})
+end
+
+local actor_obj = get_actor_obj()
+local QUICK_SAVE_MAX = read_if_exists(sys_ini, "r_u32", "features", "quick_save_max", 10)
+
+local quick_save_keys = {
+	[key_bindings.kQUICK_SAVE] = true,
+	[key_bindings.kQUICK_LOAD] = true,
+}
+
+function on_key_press(key, game_action)
+	if not quick_save_keys[game_action] then 
+	return end
+	
+	if game_action == key_bindings.kQUICK_SAVE then
+		make_quick_save()
+	else
+		quick_last_load()
+	end
+end
+
+function make_quick_save()
+	local save_name = user_name().."_quicksave_"
+	
+	local user_quicks = {}
+	
+	local flist = getFS():file_list_open_ex( "$game_saves$", FS.FS_ListFiles + FS.FS_ClampExt + FS.FS_RootOnly + FS.FS_NoLower, "*.sav" )
+	flist:Sort(FS.FS_sort_by_modif_down)
+	for file in flist:GetAll() do
+		if string.find(file:NameFull(), save_name) then
+			user_quicks[file:NameFull()] = true
+		end
+	end
+	
+	local next_save_name = save_name..1
+	for i=1, QUICK_SAVE_MAX do
+		if not user_quicks[save_name..i] then
+			next_save_name = save_name..i
+			break
+		end
+	end
+	
+	local save_cmd = string.format("save %s", next_save_name)
+	get_console():execute(save_cmd)
+end
+
+function quick_last_load()
+	get_console():execute("load_last_save")
+end
