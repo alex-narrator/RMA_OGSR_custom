@@ -18,18 +18,12 @@ local info_state = {
 local ACTIVE_ITEM_INFO_TTL 	= read_if_exists(sys_ini, "r_u32", "actor", "active_item_info_ttl", 3)
 local GEAR_INFO_TTL 		= read_if_exists(sys_ini, "r_u32", "actor", "gear_info_ttl", 3)
 
-local act_item = false
-local act_item_2 = false
-
 function on_key_press(key, game_action)
 	if level.main_input_receiver() or 
 		not info_action[game_action] or 
 		not actor_hands_free() then
 	return end
-	
-	act_item = actor:active_item()
-	act_item_2 = actor:active_device()
-	
+		
 	if game_action == key_bindings.kCHECKGEAR then
 		try_show_gear_info()
 	else
@@ -40,11 +34,13 @@ end
 function on_state_switch(item, state, old_state)
 	if not info_state[state] then
 	return end
-	act_item = item
 	try_show_active_item_info()
 end
 
 function try_show_active_item_info(game_action)
+	local act_item = actor:active_item()
+	local act_item_2 = actor:active_device()
+	
 	if (not act_item and not act_item_2) --or SHOW_ACTIVE_ITEM_INFO
 	then return end
 	
