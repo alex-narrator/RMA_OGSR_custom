@@ -82,6 +82,8 @@ function on_zoom_in(weapon)
 			sm:subscribe( s )
 		end
 	end
+	
+	hud_add_info_message("item_usage", game.translate_string("st_hold_key_to_hard_hold"), 3)
 end
 
 function on_zoom_out(weapon)
@@ -97,6 +99,7 @@ function on_zoom_out(weapon)
 	hard_hold = false
 	base_k = false
 	zoom_factor = false
+	hud_remove_info_message("item_usage")
 end
 
 function on_update(delta)
