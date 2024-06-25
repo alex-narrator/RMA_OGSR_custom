@@ -944,6 +944,10 @@ function ActorMenuOverlay:Update()
 	self:UpdateDateTimeText()
 	self:UpdateTooltip()
 	self:UpdateDragItem()
+	
+	if self:GetMode() == "carbody" and self.target then
+		aim_camera_to_pos(self.target:center())
+	end
 end
 
 function ActorMenuOverlay:ClearLoadout()

@@ -2102,3 +2102,16 @@ local immunity_type = {
 function get_hit_type_name(hit_type)
 	return immunity_type[hit_type+1]
 end
+
+function aim_camera_to_pos(pos)
+	if is_actor_looking_to_pos(pos, 0.01) then
+	return end
+	local dir = vector():sub(pos, device().cam_pos)
+	local h = -dir:getH()
+	local p = -dir:getP()
+	local cam = actor_camera( 0 )
+	if cam then
+		cam.yaw = h
+		cam.pitch = p
+	end
+end
