@@ -1,23 +1,30 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
+local highlight_texture = "square_light_grey"
 local color_default 	= GetARGB(0, 255, 255, 255)
-local color_focused 	= GetARGB(70, 200, 200, 200)
+local color_compatible 	= GetARGB(150, 0, 128, 0)
+local color_restricted 	= GetARGB(150, 124, 0, 0)
 
-local back_texture 		= "ui_inv_back_green"
+local back_texture 		= "square_light_grey"
+local back_color 		= GetARGB(150, 255, 255, 255)
 
 class "UICellItem" (CUIScriptWnd)
 
-function UICellItem:__init(owner, item, cell_pos, cell_size, owner_ID) super()
+function UICellItem:__init(owner, item, cell_pos, cell_size, owner_list) super()
+	--//статик до якого атачимо іконки
 	self.owner = owner
-	self.owner_ID = owner_ID
+	--//сам cell_item_container
+	self.owner_list = owner_list
 	self.item = item
+	self.cell_size = cell_size
 	self.childs = {}
 	self.selected = false
 	self.sm = ogse_signals.get_mgr()
 	self:Subscribe()
-	self:InitControls(cell_pos, cell_size)
+	self:InitControls(cell_pos)
 end
 
 function UICellItem:DetachWnd()
+	self:OnFocusLost()
 	self:ClearCallbacks()
 	self.owner:DetachChild(self)
 	self:Unsubscribe()
@@ -46,9 +53,10 @@ function UICellItem:Unsubscribe()
 	end
 end
 
-function UICellItem:InitControls(cell_pos, cell_size)
+function UICellItem:InitControls(cell_pos)
 	local params = CIconParams(self.item:section())	
 	
+	local cell_size = self.cell_size
 	local pos_x = (cell_pos.x - 1) * cell_size.w
 	local pos_y = (cell_pos.y - 1) * cell_size.h
 	local icon_w = cell_size.w * params.grid_width
@@ -58,11 +66,19 @@ function UICellItem:InitControls(cell_pos, cell_size)
 	self:Init(pos_x, pos_y, icon_w, icon_h)
 	self:Show(true)
 
+	self.highlight = CUIStatic()
+	self:AttachChild(self.highlight)	
+	self.highlight:Init(0, 0, icon_w, icon_h)
+	self.highlight:SetStretchTexture(true)
+	self.highlight:InitTexture(highlight_texture)
+	self.highlight:SetColor(color_default)
+
 	self.back = CUIStatic()
 	self:AttachChild(self.back)	
 	self.back:Init(0, 0, icon_w, icon_h)
 	self.back:SetStretchTexture(true)
 	self.back:InitTexture(back_texture)
+	self.back:SetColor(back_color)
 	self.back:Show(false)
 	
 	self.icon = CUIStatic()
@@ -79,42 +95,85 @@ function UICellItem:InitControls(cell_pos, cell_size)
 	self:AddCallback(name, ui_events.WINDOW_RBUTTON_DOWN, function() self:OnRButtonDown() end, self)
 	self:AddCallback(name, ui_events.WINDOW_LBUTTON_DB_CLICK, function() self:OnDBClick() end, self)
 	
+	
+	self:AddCallback(name, ui_events.WINDOW_LBUTTON_UP, function() self:OnLButtonUp() end, self)
+	self:AddCallback(name, ui_events.WINDOW_MOUSE_MOVE, function() self:OnMouseMove() end, self)
+	
 	self:OnIconShow()
 end
 
 function UICellItem:Update()
 	CUIScriptWnd.Update(self)
-	--self.sm:call("on_cell_item_update", self.item, self.icon)
+	
+	self.sm:call("on_cell_item_update", self.item, self.icon, self:GetCount())
 end
 
 function UICellItem:OnIconShow()
+	--log3("~on_cell_item_show item %s [id %s] | count %s", self.item:name(), self.item:id(), self:GetCount())
 	self.sm:call("on_cell_item_show", self.item, self.icon, self:GetCount())
 end
 
 function UICellItem:OnFocusReceived()
+	if ui_actor_menu.get_prop_box():IsShown() then
+	return end
+	
 	self.back:Show(true)
-	self.sm:call("on_cell_item_focus", self.item)
+	self.sm:call("on_cell_item_focus", self.item, self)
 end
 
 function UICellItem:OnFocusLost()
+	if ui_actor_menu.get_prop_box():IsShown() then
+	return end
+	
 	self.back:Show(self:GetSelected())
-	self.sm:call("on_cell_item_focus_lost", self.item)
+	self.sm:call("on_cell_item_focus_lost", self.item, self)
 end
 
 function UICellItem:OnLButtonDown()
-	self.sm:call("on_cell_item_select", self.item)
+	self.sm:call("on_cell_item_select", self.item, self)
+	self.sm:call("on_cell_item_lb_click", self.item, self)
+	
+	self.l_button_down = true
+	self.start_drag = false
+end
+
+function UICellItem:OnLButtonUp()
+	self.l_button_down = false
+	self.start_drag = false
 end
 
 function UICellItem:OnRButtonDown()
-	self.sm:call("on_cell_item_select", self.item)
+	self.sm:call("on_cell_item_select", self.item, self)
+	self.sm:call("on_cell_item_rb_click", self.item, self)
+	
+	--log3("~OnRButtonDown item %s | ID %s", self.item:name(), self.item:id())
 end
 
 function UICellItem:OnDBClick()
-	self.sm:call("on_cell_item_db_click", self.item)
+	if ui_actor_menu.get_prop_box():IsShown() then
+	return end
+	
+	self.sm:call("on_cell_item_db_click", self.item, self)
+end
+
+function UICellItem:GetIcon()
+	return self.icon
+end
+
+function UICellItem:GetCellSize()
+	return self.cell_size
+end
+
+function UICellItem:GetOwner()
+	return self.owner
+end
+
+function UICellItem:GetOwnerList()
+	return self.owner_list
 end
 
 function UICellItem:GetOwnerID()
-	return self.owner_ID
+	return self.owner_list:GetID()
 end
 
 function UICellItem:GetItem()
@@ -126,7 +185,7 @@ function UICellItem:GetChilds()
 end
 
 function UICellItem:IsChild(item)
-	return self.childs[item]
+	return self.childs[item:id()]
 end
 
 function UICellItem:GetChildsCount()
@@ -134,10 +193,12 @@ function UICellItem:GetChildsCount()
 end
 
 function UICellItem:AddChild(item)
+	if self.item:id() == item:id() then
+	return false end
 	if ui_inv_utils.similar_item(self.item, item) then
-		if not self.childs[item] then
-			self.childs[item] = true
-			self:UpdateCountText()
+		if not self:IsChild(item) then
+			self.childs[item:id()] = true
+			self:OnIconShow()
 			return true
 		end
 	end
@@ -145,9 +206,9 @@ function UICellItem:AddChild(item)
 end
 
 function UICellItem:RemoveChild(item)
-	if self.childs[item] then
-		self.childs[item] = nil
-		self:UpdateCountText()
+	if self.childs[item:id()] then
+		self.childs[item:id()] = nil
+		self:OnIconShow()
 		return true
 	end
 	return false
@@ -165,8 +226,11 @@ function UICellItem:GetCount()
 	
 	local count = item_count(self.item)
 	
-	for item,v in pairs(self.childs) do
-		count = count + item_count(item)
+	for child_id,v in pairs(self.childs) do
+		local item = level.object_by_id(child_id)
+		if item then
+			count = count + item_count(item)
+		end
 	end
 	
 	return count
@@ -179,4 +243,37 @@ end
 
 function UICellItem:GetSelected()
 	return self.selected
+end
+
+function UICellItem:ClearColorize()
+	--self.icon:SetColor(color_default)
+	self.highlight:SetColor(color_default)
+end
+
+function UICellItem:ColorizeCompatible()
+	--self.icon:SetColor(color_compatible)
+	self.highlight:SetColor(color_compatible)
+end
+
+function UICellItem:ColorizeRestricted()
+	--self.icon:SetColor(color_restricted)
+	self.highlight:SetColor(color_restricted)
+end
+
+function UICellItem:ForceUpdate()
+	for child_id,v in pairs(self.childs) do
+		local item = level.object_by_id(child_id)
+		if item and not ui_inv_utils.similar_item(self.item, item) then
+			self:RemoveChild(item)
+			self.owner_list:AddItem(item)
+		end
+	end
+	self.sm:call("on_cell_item_show", self.item, self.icon, self:GetCount())
+end
+
+function UICellItem:OnMouseMove()
+	if self.l_button_down and not self.start_drag then
+		self.start_drag = true
+		self.sm:call("on_cell_item_start_drag", self)
+	end
 end

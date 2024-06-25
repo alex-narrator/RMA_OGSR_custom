@@ -2,7 +2,7 @@
 local OVERLAY_XML = "script_overlays\\properties_box.xml"
 
 local color_default 	= GetARGB(0, 255, 255, 255)
-local color_focused 	= GetARGB(70, 200, 200, 200)
+local color_focused 	= GetARGB(70, 255, 255, 255)
 local text_color_default 	= GetARGB(255, 131, 131, 131)
 local text_color_focused 	= GetARGB(255, 255, 255, 255)
 
@@ -28,6 +28,7 @@ function UIPropertiesBox:Subscribe()
 			-- {signal = "on_cell_item_select", self = self, fun = self.OnCellItemSelect},
 			-- {signal = "on_cell_item_focus", self = self, fun = self.OnCellItemFocus},
 			-- {signal = "on_cell_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
+			{signal = "on_key_press", self = self, fun = self.OnKeyPress},
 		}
 		for _, s in ipairs( self.subscribed ) do
 			self.sm:subscribe( s )
@@ -47,22 +48,27 @@ end
 function UIPropertiesBox:InitControls()
 	self.owner:AttachChild(self)
 	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
-	--self:Enable(true)
-	self:Show(false)
 	
 	self.xml = CScriptXmlInit()
 	self.xml:ParseFile(OVERLAY_XML)
 
-	self.back = self.xml:InitStatic("properties_box", self)
-	self.scroll_view = self.xml:InitScrollView("properties_box:list", self.back)
+	self.back = self.xml:InitFrame("properties_box", self)
+	local root = "properties_box"
+	self.scroll_view = self.xml:InitScrollView(root..":list", self.back)
+	local root = "properties_box:list"
 	self.scroll_view.indent = {
-		r = self.xml:ReadAttribInt("properties_box:list", "right_ident", 0),
-		t = self.xml:ReadAttribInt("properties_box:list", "top_ident", 0),
-		l = self.xml:ReadAttribInt("properties_box:list", "left_ident", 0),
-		b = self.xml:ReadAttribInt("properties_box:list", "bottom_indent", 0),
+		r = self.xml:ReadAttribInt(root, "right_ident", 0),
+		t = self.xml:ReadAttribInt(root, "top_ident", 0),
+		l = self.xml:ReadAttribInt(root, "left_ident", 0),
+		b = self.xml:ReadAttribInt(root, "bottom_indent", 0),
 	}
+	
+	local pos = self.scroll_view:GetWndPos()
+	self.scroll_view:SetWndPos(pos.x, pos.y + self.scroll_view.indent.t)
+	
 	self.actions = {}
 	
+	self:SetWindowName("properties_box")
 	-- local name = "cell_container"
 	-- self:Register(self.cell_container, name)
 	-- self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnFocusReceived() end, self)
@@ -81,17 +87,18 @@ function UIPropertiesBox:Activate()
 	for k, v in ipairs(self.actions) do
 		v.list_item = self.xml:InitStatic("properties_box:list:list_item", self.scroll_view)
 		v.list_item:SetText(v.name)
-		v.list_item:AdjustHeightToText()
+		--v.list_item:AdjustHeightToText()
 		v.list_item:AdjustWidthToText()
+		v.list_item:SetWidth(v.list_item:GetWidth() + self.xml:ReadAttribInt("properties_box:list:list_item:text", "x", 0) * 2)
 		
 		v.list_item:SetColor(color_default)
 		v.list_item:SetTextColor(text_color_default)
 		
 		name = "list_item_"..k
 		self:Register(v.list_item, name)
-		self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnLButtonDown(k) end, self)
-		self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnFocusReceived(k) end, self)
-		self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnFocusLost(k) end, self)
+		self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnLButtonDown( k ) end, self)
+		self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnFocusReceived( k ) end, self)
+		self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnFocusLost( k ) end, self)
 		
 		--self.scroll_view:AddWindow(v.list_item)
 		--log3("~list item w %s | h %s", v.list_item:GetWidth(), v.list_item:GetHeight())
@@ -100,9 +107,11 @@ function UIPropertiesBox:Activate()
 			self.scroll_view:SetWidth(v.list_item:GetWidth() + indent.r + indent.l)
 		end
 		self.scroll_view:SetWidth(self.scroll_view:GetPadSize().x + indent.r + indent.l)
-		self.scroll_view:SetHeight(self.scroll_view:GetPadSize().y)
+		self.scroll_view:SetHeight(self.scroll_view:GetPadSize().y + indent.b)
 		self.back:SetWidth(self.scroll_view:GetWidth())
-		self.back:SetHeight(self.scroll_view:GetHeight())		
+		self.back:SetHeight(self.scroll_view:GetHeight())
+		
+		v.list_item:SetWidth(self.scroll_view:GetPadSize().x)
 	end
 	--log3("self.actions: %s", self.actions)
 	
@@ -129,7 +138,8 @@ end
 function UIPropertiesBox:OnLButtonDown(i)
 	local v = self.actions[i]
 	v.action(unpack(v.args))
-	self:Show(false)
+	--self:Show(false)
+	--log3("~UIPropertiesBox:OnLButtonDown(%s)", i)
 end
 
 function UIPropertiesBox:AddItem(name, precondition, action, ...)
@@ -147,7 +157,13 @@ function UIPropertiesBox:AddItem(name, precondition, action, ...)
 end
 
 function UIPropertiesBox:AddCustomAction(item)
-	for k,v in ipairs(ui_properties_box_data.actions) do
+	for k,v in pairs(ui_properties_box_data.actions) do
 		self:AddItem(v[1], v[2], v[3], item)
 	end	
+end
+
+function UIPropertiesBox:OnKeyPress(key, game_action)
+	if self:IsShown() then
+		add_update_delayed_action(1, function() self:Show(false) end)
+	end
 end

@@ -2,25 +2,39 @@
 
 --//CUSTOM ACTIONS FOR PROPERTIES BOX
 actions = {
+	--//any unique action name = propbox tip text (translation string or function), action precondition function (game obj in args), action function (game obj in args)
+	--//eat item
+	["eat_item"] 			= {script_actions.eat_item_tip, script_actions.can_eat, script_actions.eat},
 	--//donate item in trade
-	{ui_st_donate, script_actions.can_donate, script_actions.donate},
+	["donate_item"] 		= {"ui_st_donate", script_actions.can_donate, script_actions.donate},
 	--//power devices
-	{recharge.detach_power_source_tip, recharge.can_detach_power_source, recharge.detach_power_source},
-	{recharge.pda_tip, recharge.can_recharge_pda, recharge.recharge_pda},
-	{recharge.torch_tip, recharge.can_recharge_torch, recharge.recharge_torch},
-	{recharge.detector_tip, recharge.can_recharge_detector, recharge.recharge_detector},
+	["detach_power_source"] = {recharge.detach_power_source_tip, recharge.can_detach_power_source, recharge.detach_power_source},
+	["recharge_pda"] 		= {recharge.pda_tip, recharge.can_recharge_pda, recharge.recharge_pda},
+	["recharge_torch"] 		= {recharge.torch_tip, recharge.can_recharge_torch, recharge.recharge_torch},
+	["recharge_detector"] 	= {recharge.detector_tip, recharge.can_recharge_detector, recharge.recharge_detector},
 	--//armor plates
-	{vest_plates.attach_plate_tip, vest_plates.can_attach_plate, vest_plates.attach_plate},
-	{vest_plates.detach_plate_tip, vest_plates.can_detach_plate, vest_plates.detach_plate},
+	["attach_armor_plate"] 	= {vest_plates.attach_plate_tip, vest_plates.can_attach_plate, vest_plates.attach_plate},
+	["detach_armor_plate"] 	= {vest_plates.detach_plate_tip, vest_plates.can_detach_plate, vest_plates.detach_plate},
 	--//put item to quick slot
-	{quick_slots.menu_tip_set, quick_slots.can_set, quick_slots.set},
+	["quick_slot_set"] 		= {quick_slots.menu_tip_set, quick_slots.can_set, quick_slots.set},
 	--//move item to/from loadout
-	{loadout.menu_tip_to, loadout.can_add, loadout.add},
-	{loadout.menu_tip_from, loadout.can_remove, loadout.remove},
-	--//repair items in slots
-	{service_kit.repair_0_tip, service_kit.can_repair_0, service_kit.repair_0},
-	{service_kit.repair_1_tip, service_kit.can_repair_1, service_kit.repair_1},
-	{service_kit.repair_2_tip, service_kit.can_repair_2, service_kit.repair_2},
-	{service_kit.repair_4_tip, service_kit.can_repair_4, service_kit.repair_4},
-	{service_kit.repair_6_tip, service_kit.can_repair_6, service_kit.repair_6},
+	["to_loadout"] 			= {loadout.menu_tip_to, loadout.can_add, loadout.add},
+	["from_loadout"] 		= {loadout.menu_tip_from, loadout.can_remove, loadout.remove},
+	--//service items in slots
+	["service_slot_0"] 		= {service_kit.service_0_tip, service_kit.can_service_0, service_kit.service_0},
+	["service_slot_1"] 		= {service_kit.service_1_tip, service_kit.can_service_1, service_kit.service_1},
+	["service_slot_2"] 		= {service_kit.service_2_tip, service_kit.can_service_2, service_kit.service_2},
+	["service_slot_4"] 		= {service_kit.service_4_tip, service_kit.can_service_4, service_kit.service_4},
+	["service_slot_6"] 		= {service_kit.service_6_tip, service_kit.can_service_6, service_kit.service_6},
+	--//disassemble
+	["disassemble"] 		= {"st_disassemble", service_kit.can_disassemble, service_kit.disassemble},
+	--//saw off
+	["saw_off"] 			= {"st_saw_off", service_kit.can_saw_off, service_kit.saw_off},
+	--//download pda info
+	["pda_download_info"] 	= {"ui_st_download_info", pda.can_download_info, pda.download_info},
+	--//limb injuries healing
+	["heal_hand_injure"] 	= {"ui_st_heal_hand_injure", body_health.can_heal_nand, body_health.heal_nand},
+	["heal_leg_injure"] 	= {"ui_st_heal_leg_injure", body_health.can_heal_leg, body_health.heal_leg},
+	--//play music instruments
+	["play_guitar"] 		= {"ui_st_music_play", musical_instruments.can_play_instrument, musical_instruments.play_instrument},
 }

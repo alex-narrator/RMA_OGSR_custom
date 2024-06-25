@@ -9,7 +9,22 @@ function on_drag_drop(obj, drop_on_obj)
 	
 	if not drop_on_obj:get_weapon() or actor:is_in_slot(drop_on_obj) then
 		if drop_on_obj:is_direct_reload(obj) then
-			update_inventory_window()
+			if drop_on_obj:get_weapon_ammo() then
+				local snd_name = read_if_exists(sys_ini, "r_string", drop_on_obj:section(), "load_sound", nil)
+				if snd_name then
+					xr_sound.get_safe_sound_object(snd_name):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+				end				
+			end
+			--update_inventory_window()
+			--ui_actor_menu.get_menu():Organize()
+			-- local ci = ui_actor_menu.get_menu():GetCellItem(obj)
+			-- if ci then
+				-- ci:ForceUpdate()
+			-- end
+			-- local drop_on_ci = ui_actor_menu.get_menu():GetCellItem(drop_on_obj)
+			-- if drop_on_ci then
+				-- drop_on_ci:ForceUpdate()
+			-- end
 		end
 	end
 	
@@ -18,4 +33,13 @@ function on_drag_drop(obj, drop_on_obj)
 			xr_sound.get_safe_sound_object([[interface\inv_attach_addon]]):play(actor, 0, sound_object.s2d)
 		end
 	end
+	
+	local ci = ui_actor_menu.get_menu():GetCellItem(obj)
+	if ci then
+		ci:ForceUpdate()
+	end
+	local drop_on_ci = ui_actor_menu.get_menu():GetCellItem(drop_on_obj)
+	if drop_on_ci then
+		drop_on_ci:ForceUpdate()
+	end	
 end

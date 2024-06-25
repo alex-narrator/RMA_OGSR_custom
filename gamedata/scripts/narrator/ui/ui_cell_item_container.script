@@ -1,8 +1,7 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
-local color_default 	= GetARGB(0, 255, 255, 255)
-local color_focused 	= GetARGB(70, 200, 200, 200)
+local color_highlight 	= GetARGB(100, 200, 200, 200)
 
-local back_texture 		= "ui_inv_back_green"
+local back_texture 		= "square_light_grey"
 
 class "UICellItemContainer" (CUIScriptWnd)
 
@@ -16,6 +15,7 @@ function UICellItemContainer:__init(xml, path, owner) super()
 	self.end_row = 0
 	self.last_type = -1
 	self.curr_type = -1
+	self.saved_scroll_pos = nil
 	self:InitControls()
 	self.sm = ogse_signals.get_mgr()
 	self:Subscribe()
@@ -32,6 +32,8 @@ function UICellItemContainer:Subscribe()
 	if not self.subscribed then
 		self.subscribed = {
 			{signal = "on_cell_item_select", self = self, fun = self.OnCellItemSelect},
+			{signal = "on_cell_item_start_drag", self = self, fun = self.HoldScroll},
+			{signal = "on_drag_item_drop", self = self, fun = self.ReleaseScroll},
 			-- {signal = "on_cell_item_focus", self = self, fun = self.OnCellItemFocus},
 			-- {signal = "on_cell_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
 		}
@@ -55,14 +57,25 @@ function UICellItemContainer:InitControls()
 	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
 	self:Show(true)
 
-	self.scroll = self.xml:InitScrollView(self.path, self)
-
 	self.back = CUIStatic()
-	self.back:Init(0, 0, self.scroll:GetWidth(), self.scroll:GetHeight())
+	self.back:Init(0, 0, 0, 0)
 	self.back:SetStretchTexture(true)
 	self.back:InitTexture(back_texture)
-	self.back:Show(false)	
-	self.scroll:AddWindow(self.back)
+	self.back:Show(false)
+	self.back:SetColor(color_highlight)
+	self:AttachChild(self.back)
+	
+	--//спеціальний статик для ловлі подій focus received/lost, бо сам скроллв'ю їх не обробляє
+	self.scroll = self.xml:InitScrollView(self.path, self)
+	self.service_back = CUIStatic()
+	local pos = self.scroll:GetWndPos()
+	local size = {
+		w = self.scroll:GetWidth(),
+		h = self.scroll:GetHeight(),
+	}
+	self.service_back:Init(pos.x, pos.y, size.w, size.h)
+	self:AttachChild(self.service_back)
+	--self:BringToBottom(self.service_back)
 	
 	self.cell_container = CUIStatic()
 	self.scroll:AddWindow(self.cell_container)
@@ -82,15 +95,21 @@ function UICellItemContainer:InitControls()
 	
 	self:AdjustContainerHeight()
 	
-	local name = "scroll_view"
-	self:Register(self.scroll, name)
+	self.back:SetWidth(self.cell_size.w * self.cols)
+	self.back:SetHeight(self.cell_size.h * self.rows)
+	local pos = self.scroll:GetWndPos()
+	self.back:SetWndPos(pos.x, pos.y)
+	
+	local name = self.ID.."service_back"
+	self:Register(self.service_back, name)
 	self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnFocusReceived() end, self)
 	self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnFocusLost() end, self)
-	--self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnLButtonDown() end, self)
 end
 
 function UICellItemContainer:AdjustContainerHeight()
+	self.scroll:Clear()
 	self.cell_container:SetHeight(table.size(self.grid) * self.cell_size.h)
+	self.scroll:AddWindow(self.cell_container)
 end
 
 function UICellItemContainer:Reinit()
@@ -107,17 +126,24 @@ end
 
 function UICellItemContainer:Update()
 	CUIScriptWnd.Update(self)
+	if self.saved_scroll_pos then
+		self.scroll:SetScrollPos(self.saved_scroll_pos)
+	end
 end
 
 function UICellItemContainer:OnFocusReceived()
-	
+	self.sm:call("on_cell_item_container_focus", self)
+	--log3("~%s is focused", self.ID)
 end
 
 function UICellItemContainer:OnFocusLost()
-	
+	self.sm:call("on_cell_item_container_focus_lost", self)
+	--log3("~%s is non focused", self.ID)
 end
 
 function UICellItemContainer:OnCellItemSelect(item)
+	if ui_actor_menu.get_prop_box():IsShown() then
+	return end
 	for cell_item,v in pairs(self.cell_items) do
 		cell_item:SetSelected(cell_item:GetItem():id() == item:id())
 	end
@@ -133,11 +159,16 @@ function UICellItemContainer:GetSelected()
 end
 
 function UICellItemContainer:Highlight(enable)
+	--log3("~highlight %s for list %s", enable, self.ID)
 	self.back:Show(enable)
 end
 
 function UICellItemContainer:GetID()
 	return self.ID
+end
+
+function UICellItemContainer:SetID(id)
+	self.ID = id
 end
 
 function UICellItemContainer:Grow()
@@ -164,23 +195,28 @@ function UICellItemContainer:AddItem(item)
 	
 	local cell_pos = self:FindFreeCell(item)
 	if cell_pos then
-		local ci = ui_cell_item.UICellItem(self.cell_container, item, cell_pos, self.cell_size, self.ID)
+		local ci = ui_cell_item.UICellItem(self.cell_container, item, cell_pos, self.cell_size, self)
 		local params = CIconParams(item:section())
 		self.cell_items[ci] = {x=cell_pos.x, y=cell_pos.y, w=params.grid_width, h=params.grid_height}
+		self:ColorizeRestricted(item)
 	end
 end
 
 function UICellItemContainer:RemoveItem(item)
+	if level.is_removing_objects() then
+	return end
 	local ci = self:FindItem(item)
 	if ci then
 		if ci:RemoveChild(item) then
 			return
 		end
 		local cell_data = self.cell_items[ci]
-		local params = CIconParams(cell_item:GetItem():section())
-		self:FreeRoom(cell_data.x, cell_data.y, cell_data.w, cell_data.h)
+		self:FreeRoom(cell_data.y, cell_data.x, cell_data.w, cell_data.h)
 		ci:DetachWnd()
 		self.cell_items[ci] = nil
+	end
+	if table.size(self.cell_items) == 0 then
+		self:ResetTypeRow()
 	end
 end
 
@@ -275,4 +311,55 @@ function UICellItemContainer:FreeRoom(r,c,w,h)
 			self.grid[row][col] = true
 		end
 	end
+end
+
+function UICellItemContainer:ColorizeCompatible(item)
+	for cell_item,v in pairs(self.cell_items) do
+		cell_item:ClearColorize()
+		self:ColorizeCellRestricted(cell_item)
+		if ui_inv_utils.need_highlight(item, cell_item:GetItem()) then
+			cell_item:ColorizeCompatible()
+		end
+	end
+end
+
+function UICellItemContainer:ColorizeRestricted(item)
+	local ci = self:FindItem(item)
+	if not ci then
+	return end
+	local menu = ui_actor_menu.get_menu()
+	if not menu:IsShown() or menu:GetMode() ~= "trade" then
+	return end
+	if trade_manager.tradable(item) then
+	return end
+	ci:ColorizeRestricted()
+end
+
+function UICellItemContainer:ColorizeCellRestricted(cell_item)
+	local menu = ui_actor_menu.get_menu()
+	if not menu:IsShown() or menu:GetMode() ~= "trade" then
+	return end
+	if trade_manager.tradable(cell_item:GetItem()) then
+	return end
+	cell_item:ColorizeRestricted()
+end
+
+function UICellItemContainer:GetCellItems()
+	return self.cell_items
+end
+
+function UICellItemContainer:HoldScroll()
+	self.saved_scroll_pos = self.scroll:GetCurrentScrollPos()
+end
+
+function UICellItemContainer:ReleaseScroll()
+	self.saved_scroll_pos = nil
+end
+
+function UICellItemContainer:ResetTypeRow()
+	self.last_type_row = 0
+	self.end_row = 0
+	self.last_type = -1
+	self.curr_type = -1
+	--log3("~ResetTypeRow for cell container %s", self.ID)
 end

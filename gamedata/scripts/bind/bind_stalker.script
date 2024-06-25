@@ -89,6 +89,7 @@ function actor_binder:net_destroy()
 	self.object:set_callback(callback.level_border_enter, nil)
 	self.object:set_callback(callback.level_border_exit, nil)
 	self.object:set_callback(callback.take_item_from_box, nil)
+	self.object:set_callback(callback.place_item_to_box, nil)
 	self.object:set_callback(callback.level_changer_action, nil)
 	self.object:set_callback(callback.use_object, nil)
 	self.object:set_callback(callback.on_booster_enable, nil)
@@ -99,11 +100,6 @@ function actor_binder:net_destroy()
 	self.object:set_callback(callback.on_ruck, nil)
 	self.object:set_callback(callback.on_slot, nil)
 	self.object:set_callback(callback.on_belt, nil)
-	--
-	self.object:set_callback(callback.on_cell_item_focus, nil)
-	self.object:set_callback(callback.on_cell_item_focus_lost, nil)
-	self.object:set_callback(callback.on_cell_item_select, nil)
-	self.object:set_callback(callback.on_cell_item_mouse, nil)
 	--
 	self.object:set_callback(callback.on_key_press, nil)
 	self.object:set_callback(callback.on_key_release, nil)
@@ -160,6 +156,7 @@ function actor_binder:reinit()
 	self.object:set_callback(callback.level_border_enter, self.level_border_enter, self)
 	self.object:set_callback(callback.level_border_exit, self.level_border_exit, self)
 	self.object:set_callback(callback.take_item_from_box, self.take_item_from_box, self)
+	self.object:set_callback(callback.place_item_to_box, self.place_item_to_box, self)
 	self.object:set_callback(callback.level_changer_action, self.level_changer_action, self)
 	self.object:set_callback(callback.use_object, self.use_object, self)
 	self.object:set_callback(callback.on_booster_enable, self.on_booster_enable, self)
@@ -171,10 +168,6 @@ function actor_binder:reinit()
 	self.object:set_callback(callback.on_slot, self.on_slot, self)
 	self.object:set_callback(callback.on_belt, self.on_belt, self)
 	--
-	self.object:set_callback(callback.on_cell_item_focus, self.on_cell_item_focus, self)
-	self.object:set_callback(callback.on_cell_item_focus_lost, self.on_cell_item_focus_lost, self)
-	self.object:set_callback(callback.on_cell_item_select, self.on_cell_item_select, self)	
-	self.object:set_callback(callback.on_cell_item_mouse, self.on_cell_item_mouse, self)
 	--self.object:set_callback(callback.on_mouse_move, self.on_mouse_move, self)
 	--
 	self.object:set_callback(callback.on_key_press, self.on_key_press, self)
@@ -199,31 +192,13 @@ function actor_binder:reinit()
 end
 ----------------------------------------------------------------------------------------------------------------------
 function actor_binder:take_item_from_box(box, item)
-	-- if box:story_id() then
-		-- treasure_manager.take_item_from_box(box, box:story_id())
-	-- end
---[[	
-	local respawner = se_respawn.get_respawner_by_parent(story_id)
-	if respawner == nil then
-		return
-	end
-	
-	--' Необходимо уменьшить счетчик в респавнере
-	respawner:remove_spawned(item:id())
-
-	local smart_terrain = db.strn_by_respawn[respawner:name()]
-	if smart_terrain == nil then
-		return
-	end
-
-	local npc = smart_terrain.gulag:get_nearest_online_obj(db.actor:position())
-    if npc ~= nil then
-	    xr_sound.set_sound_play(npc, "reac_box")
-	    xr_gulag.setGulagEnemy(smart_terrain:name() , db.actor)		
-    end
-]]
 	--
-	self.sm:call("on_take_from_box", box, item, sobj)
+	self.sm:call("on_take_from_box", box, item)
+end
+
+function actor_binder:place_item_to_box(box, item)
+	--
+	self.sm:call("on_place_item_to_box", box, item)
 end
 ----------------------------------------------------------------------------------------------------------------------
 function actor_binder:level_border_enter(npc, info_id)
@@ -238,16 +213,16 @@ local infop_signals = {
 	ui_pda = "on_pda_show",
 	ui_pda_hide = "on_pda_hide",
 	ui_pda_actor_info = "on_pda_actor_info",
-	ui_inventory = "on_inventory_show",
-	ui_inventory_hide = "on_inventory_hide",
-	ui_car_body = "on_carbody_show",
-	ui_car_body_hide = "on_carbody_hide",
+	--ui_inventory = "on_inventory_show",
+	--ui_inventory_hide = "on_inventory_hide",
+	--ui_car_body = "on_carbody_show",
+	--ui_car_body_hide = "on_carbody_hide",
 	ui_dialog = "on_dialog_show",
 	ui_dialog_hide = "on_dialog_hide",
 	ui_talk = "on_talk_show",
 	ui_talk_hide = "on_talk_hide",
-	ui_trade = "on_trade_show",
-	ui_trade_hide = "on_trade_hide",
+	--ui_trade = "on_trade_show",
+	--ui_trade_hide = "on_trade_hide",
 }
 function actor_binder:info_callback(npc, info_id)
 	--log3("*INFO*: npc='%s' id='%s'", npc:name(), info_id)
@@ -558,19 +533,6 @@ function actor_binder:on_slot(obj, prev_place)
 end
 function actor_binder:on_belt(obj, prev_place)
 	self.sm:call("on_belt", obj, prev_place)
-end
-
-function actor_binder:on_cell_item_focus(obj)
-	self.sm:call("on_cell_item_focus", obj)
-end
-function actor_binder:on_cell_item_focus_lost(obj)
-	self.sm:call("on_cell_item_focus_lost", obj)
-end
-function actor_binder:on_cell_item_select(obj)
-	self.sm:call("on_cell_item_select", obj)
-end
-function actor_binder:on_cell_item_mouse(obj, x, y, action)
-	self.sm:call("on_cell_item_mouse", obj, x, y, action)
 end
 
 function actor_binder:on_key_press(key, game_action)

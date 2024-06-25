@@ -6,8 +6,8 @@ function attach(sm)
 	sm:subscribe({signal = "on_trader_spawn",   fun = this.update})
 	sm:subscribe({signal = "on_trader_destroy", fun = this.clear})
 	sm:subscribe({signal = "on_trader_use", 	fun = this.update})
-	sm:subscribe({signal = "on_trade_show", 	fun = this.on_trade_show})
-	sm:subscribe({signal = "on_trade_hide", 	fun = this.on_trade_hide})
+	sm:subscribe({signal = "on_actor_menu_show", 	fun = this.on_actor_menu_show})
+	sm:subscribe({signal = "on_actor_menu_hide", 	fun = this.on_actor_menu_hide})
 	sm:subscribe({signal = "on_trade", 			fun = this.on_trade})
 	--sm:subscribe({signal = "on_trade_purchase_item_process", 	fun = this.on_trade_purchase_item_process})
 end
@@ -22,6 +22,18 @@ local trade_manager = {}
 local DEF_TRADE_CFG = [[trade\trade_generic.ltx]]
 
 local sold_items = nil
+
+function on_actor_menu_show(mode)
+	if mode == "trade" then
+		on_trade_show()
+	end
+end
+
+function on_actor_menu_hide(mode)
+	if mode == "trade" then
+		on_trade_hide()
+	end
+end
 
 function on_trade_show()
 	sold_items = nil
@@ -51,8 +63,8 @@ function on_trade_hide()
 	sold_items = nil
 end
 
-function on_trade(item, sell_bye, money)
-	if not sell_bye then
+function on_trade(item, sell_buy, money)
+	if not sell_buy then
 	return end
 	if not sold_items then
 	return end
@@ -377,4 +389,14 @@ function is_trader(npc)
 	if not tt or tt.cfg_ltx == DEF_TRADE_CFG then
 	return false end
 	return true
+end
+
+function get_trade_cost(item)
+	local trade_partner = level.get_second_talker()
+	local cost = trade_partner and trade_partner:calculate_item_price(item, parent_is_actor(item)) or 0
+	return cost
+end
+
+function tradable(item)
+	return get_trade_cost(item) > 0
 end

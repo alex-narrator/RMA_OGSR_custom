@@ -4,22 +4,12 @@ local OVERLAY_XML = "script_overlays\\actor_menu_overlay.xml"
 
 function attach(sm)
 	sm:subscribe({signal = "on_spawn",   			fun = this.create_window})
-	sm:subscribe({signal = "on_destroy",   			fun = this.destroy_window})	
+	sm:subscribe({signal = "on_destroy",   			fun = this.destroy_window})
+	sm:subscribe({signal = "on_update",   			fun = this.on_update})
+	--sm:subscribe({signal = "on_carbody",   			fun = this.on_carbody})
 end
 
 local subscribed = false
-
-function get_current_owner()
-	if level.get_inventory_wnd():IsShown() then
-		--log3("~get_inventory_wnd")
-		return level.get_inventory_wnd()
-	end
-	if level.get_car_body_wnd():IsShown() then
-		--log3("~get_car_body_wnd")
-		return level.get_car_body_wnd()
-	end
-	return level.get_trade_wnd()
-end
 
 function create_window()
 	if overlay then
@@ -35,48 +25,83 @@ function destroy_window()
 	end
 end
 
+function on_update()
+	local menu = get_menu()
+	if menu.was_shown and not menu:IsShown() then
+		menu.was_shown = false
+		if menu:GetMode() == "trade" then
+			level.get_talk_wnd():Show(true)
+		end
+		menu:OnHide()
+	end	
+end
+
+function get_menu()
+	return overlay
+end
+
+function get_prop_box()
+	return overlay.properties_box
+end
+
+function ShowHideMenu(mode, target)
+	local menu = get_menu()
+	level.start_stop_menu(menu, true)
+	menu.was_shown = menu:IsShown()
+	if menu.was_shown then
+		menu:SetMode(mode)
+		menu:SetTarget(target)
+		menu:OnShow()
+	else
+		menu:OnHide()
+	end
+end
+
+function on_carbody(target)
+	ShowHideMenu("carbody", target)
+end
+
 class "ActorMenuOverlay" (CUIScriptWnd)
 
 function ActorMenuOverlay:__init() super()
+	self.sm = ogse_signals.get_mgr()
 	self:InitControls()
-	self:Subscribe()
+	--self:Subscribe()
 end
 
 function ActorMenuOverlay:GetMode()
-	if level.get_inventory_wnd():IsShown() then
-		return "inventory"
-	end
-	if level.get_car_body_wnd():IsShown() then
-		return "carbody"
-	end
-	return "trade"
+	return self.mode
+end
+
+function ActorMenuOverlay:SetMode(mode)
+	self.mode = mode
 end
 
 function ActorMenuOverlay:GetTarget()
-	if self:GetMode() == "inventory" then
-		return nil 
-	end
-	if self:GetMode() == "carbody" then
-		return level.get_car_body_target()
-	end
-	return level.get_second_talker()
+	return self.target
+end
+
+function ActorMenuOverlay:SetTarget(target)
+	self.target = target
 end
 
 function ActorMenuOverlay:Subscribe()
 	self.subscribed = false
 	if not self.subscribed then
 		self.subscribed = {
-			{signal = "on_inventory_show", self = self, fun = self.OnShow},
-			{signal = "on_inventory_hide", self = self, fun = self.OnHide},
-			{signal = "on_carbody_show", self = self, fun = self.OnShow},
-			{signal = "on_carbody_hide", self = self, fun = self.OnHide},
-			{signal = "on_trade_show", self = self, fun = self.OnShow},
-			{signal = "on_trade_hide", self = self, fun = self.OnHide},			
-		
 			{signal = "on_cell_item_focus", self = self, fun = self.OnCellItemFocus},
 			{signal = "on_cell_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
 			{signal = "on_cell_item_select", self = self, fun = self.OnCellItemSelect},
-			{signal = "on_cell_item_mouse", self = self, fun = self.OnCellItemMouse},
+			{signal = "on_cell_item_start_drag", self = self, fun = self.OnCellItemStartDrag},
+			
+			{signal = "on_cell_item_rb_click", self = self, fun = self.OnCellItemRBClick},
+			{signal = "on_cell_item_db_click", self = self, fun = self.OnCellItemDBClick},
+			
+			{signal = "on_cell_item_container_focus", self = self, fun = self.OnContainerFocus},
+			{signal = "on_cell_item_container_focus_lost", self = self, fun = self.OnContainerFocusLost},
+			
+			{signal = "on_drag_item_drop", self = self, fun = self.OnDragItemDrop},
+			
 			{signal = "on_quick_item_set", self = self, fun = self.UpdateSlots},
 			{signal = "on_quick_item_use", self = self, fun = self.UpdateSlots},
 			{signal = "on_ruck", self = self, fun = self.UpdateSlots},
@@ -85,19 +110,29 @@ function ActorMenuOverlay:Subscribe()
 			{signal = "on_loadout_update_count", self = self, fun = self.UpdateSlots},
 			{signal = "on_loadout_update_max_count", self = self, fun = self.UpdateSlots},
 			{signal = "on_actor_icon_update", self = self, fun = self.OnActorIconUpdate},
+			
+			{signal = "on_ruck", self = self, fun = self.OnRuck},
+			{signal = "on_drop", self = self, fun = self.OnDrop},
+			{signal = "on_slot", self = self, fun = self.OnSlot},
+			{signal = "on_belt", self = self, fun = self.OnBelt},
+			{signal = "on_use", self = self, fun = self.OnUse},
+			{signal = "on_place_item_to_box", self = self, fun = self.OnItemToPartner},
+			{signal = "on_ruck_npc", self = self, fun = self.OnItemToPartner},
+			{signal = "on_slot_npc", self = self, fun = self.OnItemToPartner},
+			{signal = "on_ruck_trader", self = self, fun = self.OnItemToPartner},
+			
+			{signal = "on_loadout_update_count", self = self, fun = self.OnMoveLoadout},
 		}
-		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
-			sm:subscribe( s )
+			self.sm:subscribe( s )
 		end
 	end
 end
 
 function ActorMenuOverlay:Unsubscribe()
 	if self.subscribed then
-		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
-			sm:unsubscribe( s )
+			self.sm:unsubscribe( s )
 		end
 		self.subscribed = false
 	end
@@ -105,7 +140,7 @@ end
 
 function ActorMenuOverlay:DetachWnd()
 	quick_slots.set_selected(nil)
-	self:Unsubscribe()
+	--self:Unsubscribe()
 	self:ClearCallbacks()
 end
 
@@ -114,12 +149,60 @@ function ActorMenuOverlay:InitControls()
 	
 	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
 	
+	self.service_back = CUIStatic()
+	self.service_back:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
+	self:AttachChild(self.service_back)
+	
+	local name = "service_back"
+	self:Register(self.service_back, name)
+	self:AddCallback(name, ui_events.WINDOW_LBUTTON_UP, function() self:ServiceOnLButtonUp() end, self)
+	
+	
 	local xml = CScriptXmlInit()
 	xml:ParseFile(OVERLAY_XML)
+	
+	xml:InitAutoStaticGroup("w:auto_static", self)
+	
+	--//drag item
+	tmp_tbl = split_string(xml:ReadAttrib("drag_cell_item", "offset", "0,0"), ",")
+	self.drag_item_offset = {x = tmp_tbl[1], y = tmp_tbl[2]}
+	-- dragdrops
+	--//actor ruck and belt
+	self.ruck_list = ui_cell_item_container.UICellItemContainer(xml, "dragdrop_ruck", self)
+	self.ruck_list:SetID("ruck_list")
+	self.belt_list = ui_cell_item_container.UICellItemContainer(xml, "dragdrop_belt", self)
+	self.belt_list:SetID("belt_list")
+	--//actor slots
+	local inv = actor.inventory
+	self.slot_list = {}
+	for i = 0, sys_ini:r_u32("inventory","slots") - 1 do
+		if inv:is_slot_allowed(i) then
+			self.slot_list[i] = ui_cell_item_container.UICellItemContainer(xml, "dragdrop_slot_"..i, self)
+			self.slot_list[i]:SetID("slot_"..i)
+		end
+	end	
+	--//carbody/trade_partner
+	self.target_list = ui_cell_item_container.UICellItemContainer(xml, "dragdrop_target", self)
+	self.target_list:SetID("target_list")
+	--//buy/sell
+	self.sell_buy_back = xml:InitStatic("sell_buy_back", self)
+		--//background
+	self.buy_list_back = xml:InitStatic("buy_back", self.sell_buy_back)
+	self.sell_list_back = xml:InitStatic("sell_back", self.sell_buy_back)
+		--//list
+	self.buy_list = ui_cell_item_container.UICellItemContainer(xml, "dragdrop_buy", self.sell_buy_back)
+	self.buy_list:SetID("buy_list")
+	self.sell_list = ui_cell_item_container.UICellItemContainer(xml, "dragdrop_sell", self.sell_buy_back)
+	self.sell_list:SetID("sell_list")
+		--//costs
+	self.buy_cost = xml:InitStatic("buy_cost", self.sell_buy_back)
+	self.buy_cost.base_color = self.buy_cost:GetTextColor()
+	self.sell_cost = xml:InitStatic("sell_cost", self.sell_buy_back)
+	self.sell_cost.base_color = self.sell_cost:GetTextColor()
+
+	self.properties_box = ui_properties_box.UIPropertiesBox(self)
 
 	self.conditions_background = xml:InitStatic("conditions_background", self)
-	
-	local name
 	
 	--// actor condition progressbars
 	self.conditions = {
@@ -180,9 +263,8 @@ function ActorMenuOverlay:InitControls()
 		{param = "power_loss", 					name = "st_power_loss"},	
 	}
 	for k,v in pairs (self.effects_info.effects) do
-		v.static = CUIStatic()
-		v.static:SetTextComplexMode(true)
-		v.static:SetWidth(self.effects_info.scroll_view:GetDesiredChildWidth())
+		v.static = xml:InitStatic(name..":static_item", self.effects_info.scroll_view)
+		v.static:SetAutoDelete(false)
 	end
 	
 	--// quick slots
@@ -360,17 +442,18 @@ end
 function ActorMenuOverlay:QuickOnFocusReceived(slot_num)
 	quick_slots.set_selected(slot_num)
 	self.slots[slot_num].highlight:Show(true)--SetColor(self.quick_color_highlight)
-	ogse_signals.get_mgr():call("on_quick_item_focus", quick_slots.get_item(slot_num))
+	self.sm:call("on_quick_item_focus", quick_slots.get_item(slot_num))
 end
 
 function ActorMenuOverlay:QuickOnFocusLost(slot_num)
 	quick_slots.set_selected(nil)
 	self.slots[slot_num].highlight:Show(false)--SetColor(self.quick_color_default)
-	ogse_signals.get_mgr():call("on_quick_item_focus_lost", quick_slots.get_item(slot_num))
+	self.sm:call("on_quick_item_focus_lost", quick_slots.get_item(slot_num))
 end
 
-function ActorMenuOverlay:OnCellItemFocus(obj)
-	local highlight_quick_slots = read_if_exists(sys_ini, "r_bool", obj:section(), "quick_slot", false)
+function ActorMenuOverlay:OnCellItemFocus(obj, cell_item)
+	local sect = obj:section()
+	local highlight_quick_slots = read_if_exists(sys_ini, "r_bool", sect, "quick_slot", false)
 	if highlight_quick_slots then
 		for i=0,3 do
 			self.slots[i].highlight:Show(true)--.back:SetColor(self.quick_color_highlight)
@@ -392,9 +475,36 @@ function ActorMenuOverlay:OnCellItemFocus(obj)
 			end
 		end
 	end
+	
+	
+	--//dragdrop
+	if cell_item then
+		self.cell_item_focused = cell_item
+	end
+	if read_if_exists(sys_ini, "r_bool", sect, "belt", false) and not actor:is_on_belt(obj) then
+		self.belt_list:Highlight(true)
+	end
+	local slots = read_if_exists(sys_ini, "r_string", sect, "slot", nil)
+	if slots then
+		slots = split_string(slots, ",", true)
+		for k,v in pairs(slots) do
+			if not actor:item_in_slot(v) or actor:item_in_slot(v):id() ~= obj:id() then
+				self.slot_list[v]:Highlight(true)
+			end
+		end
+	end
+	--//trade
+	if self:GetMode() == "trade" and trade_manager.tradable(obj) then
+		if parent_is_actor(obj) and cell_item:GetOwnerList():GetID() ~= "sell_list" then
+			self.sell_list:Highlight(true)
+		end
+		if not parent_is_actor(obj) and cell_item:GetOwnerList():GetID() ~= "buy_list" then
+			self.buy_list:Highlight(true)
+		end	
+	end
 end
 
-function ActorMenuOverlay:OnCellItemFocusLost(obj)
+function ActorMenuOverlay:OnCellItemFocusLost(obj, cell_item)
 	for i=0,3 do
 		self.slots[i].highlight:Show(false)--.back:SetColor(self.quick_color_default)
 	end
@@ -402,15 +512,156 @@ function ActorMenuOverlay:OnCellItemFocusLost(obj)
 		v.static:SetTextColor(self.loadout_color_default)
 		--v.icon:SetColor(self.loadout_color_default)
 	end
-end
-
-function ActorMenuOverlay:OnCellItemSelect(obj)
-end
-
-function ActorMenuOverlay:OnCellItemMouse(obj, x, y, action)
-	if action == ui_events.WINDOW_RBUTTON_DOWN then
-		--log3("~RB clicked item %s", obj:section())
+	
+	--//dragdrop
+	self.cell_item_focused = nil
+	
+	self.belt_list:Highlight(false)
+	for k,v in pairs(self.slot_list) do
+		v:Highlight(false)
 	end
+	--//trade
+	if self:GetMode() == "trade" then
+		self.sell_list:Highlight(false)
+		self.buy_list:Highlight(false)
+	end	
+end
+
+function ActorMenuOverlay:OnCellItemSelect(item, cell_item)
+	self.cell_item_selected = cell_item
+	
+	self.ruck_list:ColorizeCompatible(item)
+	self.belt_list:ColorizeCompatible(item)
+	for i,list in pairs(self.slot_list) do
+		list:ColorizeCompatible(item)
+	end
+	if self.target_list:IsShown() then
+		self.target_list:ColorizeCompatible(item)
+	end
+end
+
+function ActorMenuOverlay:OnCellItemStartDrag(cell_item)
+	local item = cell_item:GetItem()
+	for k,v in pairs(cell_item:GetChilds()) do
+		item = level.object_by_id(k)
+		break
+	end	
+	
+	local cell_pos = vector2():set(1, 1)
+	self.drag_item = ui_cell_item.UICellItem(self, item, cell_pos, cell_item:GetCellSize(), cell_item:GetOwnerList())
+end
+
+function ActorMenuOverlay:UpdateDragItem()
+	if not self.drag_item then
+	return end
+	
+	local pos = vector2():set(self:GetMousePosX(), self:GetMousePosY())
+	self.drag_item:SetWndPos(pos.x + self.drag_item_offset.x, pos.y + self.drag_item_offset.y)
+end
+
+function ActorMenuOverlay:ServiceOnLButtonUp()
+	if self.drag_item then
+		self.sm:call("on_drag_item_drop", self.drag_item)
+		self:DestroyDragItem()
+	end
+end
+
+function ActorMenuOverlay:DestroyDragItem()
+	if not self.drag_item then
+	return end
+	self.drag_item:DetachWnd()
+	self.drag_item = nil	
+end
+
+function ActorMenuOverlay:OnDragItemDrop(cell_item)
+	local item = cell_item:GetItem()
+	local parent = cell_item:GetOwnerList()
+	
+	local ci_f = self.cell_item_focused
+	if ci_f then
+		local on_item = ci_f:GetItem()
+		for id,v in pairs(ci_f:GetChilds()) do
+			on_item = level.object_by_id(id)
+			break
+		end
+		self.sm:call( "inv_drag_drop", item, on_item )
+		return
+	end
+	
+	local cic_f = self.cell_container_focused
+	if cic_f then
+		if cic_f:GetID() == parent:GetID() then
+		return end
+		
+		local mode = self:GetMode()
+		if mode == "trade" then
+			if not trade_manager.tradable(item) then
+			return end
+			if parent_is_actor(item) then
+				if cic_f:GetID() == "sell_list" then
+					ui_cell_item_utils.move_cell_item(item, cell_item, parent, cic_f)
+				elseif parent:GetID() == "sell_list" then
+					local target = self.ruck_list
+					if actor:is_in_slot(item) then
+						target = self.slot_list[item:get_slot()]
+					elseif actor:is_on_belt(item) then
+						target = self.belt_list
+					end
+					ui_cell_item_utils.move_cell_item(item, cell_item, parent, target)
+				end
+			else
+				if cic_f:GetID() == "buy_list" then
+					ui_cell_item_utils.move_cell_item(item, cell_item, parent, self.buy_list)
+				else
+					ui_cell_item_utils.move_cell_item(item, cell_item, parent, self.target_list)
+				end
+			end
+			self:UpdatePrices()
+			return
+		-- elseif mode == "carbody" then
+			-- if parent_is_actor(item) then
+				-- if cic_f:GetID() == "target_list" then
+					-- ui_cell_item_utils.transfer_cell_item(item, cell_item, self.target)
+				-- end
+			-- else
+				-- ui_cell_item_utils.transfer_cell_item(item, cell_item, actor)
+			-- end
+		else
+			if cic_f:GetID() == "target_list" then
+				ui_cell_item_utils.transfer_cell_item(item, cell_item, self.target)
+				return
+			end
+			if not parent_is_actor(item) then
+				ui_cell_item_utils.transfer_cell_item(item, cell_item, actor)
+				return
+			end
+			if cic_f:GetID() == "ruck_list" then
+				actor:move_to_ruck(item)
+			elseif cic_f:GetID() == "belt_list" then
+				actor:move_to_belt(item)
+			else
+				local slots = read_if_exists(sys_ini, "r_string", item:section(), "slot", nil)
+				if slots then
+					slots = split_string(slots, ",", true)
+					for k,i in pairs(slots) do
+						if self.slot_list[i]:GetID() == cic_f:GetID() and actor:can_put_in_slot(item, i) then
+							item:set_slot(i)
+							actor:move_to_slot(item)
+							break
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
+function ActorMenuOverlay:OnContainerFocus(container)
+	self.cell_container_focused = container
+end
+
+function ActorMenuOverlay:OnContainerFocusLost(container)
+	self.cell_container_focused = nil
 end
 
 function ActorMenuOverlay:DrawSlotIcon(slot_num)
@@ -518,7 +769,7 @@ function ActorMenuOverlay:UpdateTooltip()
 	if not self.tooltip_frame:IsShown() then
 	return end
 	
-	local pos = vector2():set(self.owner:GetMousePosX(), self.owner:GetMousePosY())
+	local pos = vector2():set(self:GetMousePosX(), self:GetMousePosY())
 	pos.x = pos.x + self.tooltip_frame.offset.x
 	pos.y = pos.y + self.tooltip_frame.offset.y
 	local wnd_size = {x = self.tooltip_frame:GetWidth(), y = self.tooltip_frame:GetHeight()}
@@ -640,7 +891,7 @@ function ActorMenuOverlay:UpdateEffectsInfo()
 			end
 		
 			t.static:SetText(text)
-			t.static:AdjustHeightToText()
+			--t.static:AdjustHeightToText()
 			self.effects_info.scroll_view:AddWindow(t.static)
 		end
 	end
@@ -692,6 +943,7 @@ function ActorMenuOverlay:Update()
 	self:UpdateWeightText()
 	self:UpdateDateTimeText()
 	self:UpdateTooltip()
+	self:UpdateDragItem()
 end
 
 function ActorMenuOverlay:ClearLoadout()
@@ -699,47 +951,62 @@ function ActorMenuOverlay:ClearLoadout()
 end
 
 function ActorMenuOverlay:OnShow()
-	self.owner = get_current_owner()
-	self.owner:AttachChild(self)
-	self:Show(true)
+	self.sm:call("on_actor_menu_show", self:GetMode(), self:GetTarget())
+	self:Subscribe()
 	
+	local mode = self:GetMode()
 	self.target = self:GetTarget()
-	self.take_all_button:Show(self:GetMode() == "carbody")
-	self.move_all_ruck_button:Show(self:GetMode() == "carbody")	
-	self.trade_button:Show(self:GetMode() == "trade")
-	self.to_talk_button:Show(self:GetMode() == "trade")	
+	
+	local inv_box = self.target and self.target:get_inventory_box()
+	if inv_box then
+		inv_box.in_use = true
+	end
+	
+	self.take_all_button:Show(mode == "carbody")
+	self.move_all_ruck_button:Show(mode == "carbody")	
+	self.trade_button:Show(mode == "trade")
+	self.to_talk_button:Show(mode == "trade")
+	self.sell_buy_back:Show(mode == "trade")
+	self.conditions_background:Show(mode ~= "trade")
+	self.loadout_back:Show(mode ~= "trade")
+	self.quick_slots:Show(mode ~= "trade")
 	self:OnShowButtonClick(0)
 	self:OnActorIconUpdate()
 	self:OnNPCIconUpdate()
 	self:SetCharacterText()	
 	self:SetCharacterTextNPC()
+	self:UpdatePrices()
 end
 
 function ActorMenuOverlay:OnHide()
-	self:OnShowButtonClick(0)
-	inventory.set_item_visibility(actor, 0)
-	inventory.set_item_visibility(self.target, 0)
-	self.target = nil
+	self.sm:call("on_actor_menu_hide", self:GetMode(), self:GetTarget())
+	self:Unsubscribe()
 	
-	self:Show(false)
-	if self.owner then
-		self.owner:DetachChild(self)
-	end
-	self.owner = nil
+	inventory.repack_power_sources()
+	actor:repack_ammo()
+	if self.target then
+		self.target:repack_ammo()
+	end	
+	
+	local inv_box = self.target and self.target:get_inventory_box()
+	if inv_box then
+		inv_box.in_use = true
+	end	
+	
+	self.target = nil
+	self.mode = nil
 end
 
 function ActorMenuOverlay:Exit()
-	level.start_stop_menu(level.main_input_receiver(), true)
+	level.start_stop_menu(self, true)
 end
 
 --//switching of item visibility functions
 function ActorMenuOverlay:OnShowButtonClick(show_type)
-	inventory.set_item_visibility(actor, show_type)
-	inventory.set_item_visibility(self.target, show_type)	
 	for k,v in pairs(self.show_buttons) do
 		v.button:SetCheck(k == show_type)
 	end
-	update_inventory_window()
+	self:ReinitLists(show_type)
 end
 
 function ActorMenuOverlay:OnShowButtonFocusReceived(show_type)
@@ -872,12 +1139,58 @@ function ActorMenuOverlay:UpdateWeightText()
 end
 
 function ActorMenuOverlay:PerformTrade()
-	actor:perform_trade()
+	local money_give = self.money_from_actor
+	money_take = self.money_to_actor
+
+	if money_give == 0 and money_take == 0 then
+	return end
+	
+	if money_give > actor:money() then
+		local text = string.format("%s - %s", game.translate_string(actor:character_name()), game.translate_string("st_not_enough_money_to_trade"))
+		self.sell_buy_back:SetText(text)
+	return end
+	
+	if money_take > self.target:money() then
+		local text = string.format("%s - %s", game.translate_string(self.target:character_name()), game.translate_string("st_not_enough_money_to_trade"))
+		self.sell_buy_back:SetText(text)
+	return end	
+
+	local function trade_operation(trade_list, money, seller, buyer)
+		local sell_buy = (seller:id() == actor:id())
+		buyer:transfer_money(money, seller)
+		local item
+		for cell_item,v in pairs(trade_list:GetCellItems()) do
+			for id,v in pairs(cell_item:GetChilds()) do
+				item = level.object_by_id(id)
+				seller:transfer_item(item, buyer)
+				self.sm:call("on_trade", item, sell_buy, trade_manager.get_trade_cost(item))
+			end
+			item = cell_item:GetItem()
+			seller:transfer_item(item, buyer)
+			trade_list:RemoveItem(item)
+			self.sm:call("on_trade", item, sell_buy, trade_manager.get_trade_cost(item))
+		end		
+	end
+	
+	if money_give > 0 then
+		trade_operation(self.buy_list, money_give, self.target, actor)
+		game_stats.money_trade_update(-money_give) --//воно не треба насправді але нехай поки буде
+	end
+	if money_take > 0 then
+		trade_operation(self.sell_list, money_take, actor, self.target)
+		game_stats.money_trade_update(money_take) --//воно не треба насправді але нехай поки буде
+	end	
+
+	self.sm:call("on_perform_trade", self.target, money_give, money_take)
+
 	self:UpdateCharInfos()
+	self:UpdatePrices()
 end
 
 function ActorMenuOverlay:SwitchToTalk()
-	actor:switch_to_talk()
+	--actor:switch_to_talk()
+	self:Exit()
+	level.get_talk_wnd():Show(true)
 end
 
 function ActorMenuOverlay:UpdateCharInfos()
@@ -894,8 +1207,14 @@ function ActorMenuOverlay:UpdateDateTimeText()
 end
 
 function ActorMenuOverlay:Organize()
+	if not self:IsShown() then
+	return end
 	inventory.repack_power_sources()
-	update_inventory_window()
+	actor:repack_ammo()
+	if self.target then
+		self.target:repack_ammo()
+	end
+	add_update_delayed_action(1, function() self:ReinitLists() end)
 end
 
 function ActorMenuOverlay:TakeAll()
@@ -903,4 +1222,538 @@ function ActorMenuOverlay:TakeAll()
 end
 function ActorMenuOverlay:MoveAllRuck()
 	inventory.move_all_ruck(self.target)
+end
+
+function ActorMenuOverlay:ReinitLists(show_type)
+	if show_type == 0 then
+		show_type = nil
+	end
+	
+	self:DestroyDragItem()
+	self.cell_item_selected = nil
+	self.cell_item_focused = nil
+	self.cell_container_focused	= nil
+	
+	self.ruck_list:Reinit()
+	self.belt_list:Reinit()
+	for i,list in pairs(self.slot_list) do
+		list:Reinit()
+	end	
+	
+	local function show_item(item)
+		return not get_inv_item_hidden(item) and (not show_type or show_type == ui_inv_utils.get_type(item) or ui_inv_utils.get_type(item) == 0)
+	end
+	
+	local ruck_items, belt_items = {}, {}
+	
+	function fill_list(dummy, item)
+		if actor:is_in_ruck(item) then
+			if show_item(item) then
+				table.insert(ruck_items, item)
+			end
+		elseif actor:is_on_belt(item) then
+			table.insert(belt_items, item)
+		else
+			self.slot_list[item:get_slot()]:AddItem(item)
+		end
+	end
+	actor:iterate_inventory(fill_list, nil)
+	
+	table.sort(ruck_items, ui_inv_utils.sort_by_size_type)
+	for k, item in pairs(ruck_items) do
+		self.ruck_list:AddItem(item)
+	end
+	
+	table.sort(belt_items, ui_inv_utils.sort_by_size)
+	for k, item in pairs(belt_items) do
+		self.belt_list:AddItem(item)
+	end
+	
+	self.target_list:Reinit()
+	local mode = self:GetMode()
+	self.target_list:Show(mode == "carbody" or mode == "trade")
+	if self.target_list:IsShown() then
+		local target_items = {}
+		function fill_target_list(dummy, item)
+			if show_item(item) and (mode ~= "trade" or item:can_trade()) then
+				table.insert(target_items, item)
+			end
+		end		
+		self.target:iterate_inventory(fill_target_list, nil)
+		table.sort(target_items, ui_inv_utils.sort_by_size_type)
+		for k, item in pairs(target_items) do
+			self.target_list:AddItem(item)
+		end
+	end
+	
+	self.buy_list:Reinit()
+	self.sell_list:Reinit()
+	self.buy_list:Show(mode == "trade")
+	self.sell_list:Show(mode == "trade")
+	self.sell_buy_back:SetText("")
+end
+
+function ActorMenuOverlay:OnCellItemRBClick(item, cell_item)
+	self:ShowPropertiesBox(item, cell_item)
+end
+
+function ActorMenuOverlay:OnCellItemDBClick(item, cell_item)
+	local item = item
+	for k,v in pairs(cell_item:GetChilds()) do
+		item = level.object_by_id(k)
+		break
+	end
+	
+	local mode = self:GetMode()
+	local key_all = level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION))
+	
+	if mode == "inventory" then
+		if actor:is_in_slot(item) or actor:is_on_belt(item) then
+			actor:move_to_ruck(item)
+			return
+		end
+	
+		local slots = read_if_exists(sys_ini, "r_string", item:section(), "slot", nil)
+		if slots then
+			slots = split_string(slots, ",", true)
+			for k,i in pairs(slots) do
+				if actor:can_put_in_slot(item, i) and parent_is_actor(item) then
+					item:set_slot(i)
+					actor:move_to_slot(item)
+					return
+				end
+			end
+		end
+	
+		if actor:can_put_in_belt(item) and parent_is_actor(item) then
+			actor:move_to_belt(item)
+			return
+		end
+	elseif mode == "carbody" then
+		local new_owner = parent_is_actor(item) and self.target or actor
+		ui_cell_item_utils.transfer_cell_item(item, cell_item, new_owner, key_all)
+		return
+	else
+		local parent = cell_item:GetOwnerList()
+		local target = nil
+		
+		if not trade_manager.tradable(item) then
+		return end
+		
+		if parent_is_actor(item) then
+			if parent:GetID() ~= "sell_list" then
+				target = self.sell_list
+			else
+				target = self.ruck_list
+				if actor:is_in_slot(item) then
+					target = self.slot_list[item:get_slot()]
+				elseif actor:is_on_belt(item) then
+					target = self.belt_list
+				end					
+			end
+		else
+			target = parent:GetID() == "buy_list" and self.target_list or self.buy_list
+		end		
+		
+		if target then
+			ui_cell_item_utils.move_cell_item(item, cell_item, parent, target, key_all)
+			self:UpdatePrices()
+		end
+		return
+	end
+end
+
+function ActorMenuOverlay:OnRuck(item)
+	if not self:IsShown() then
+	return end
+	local ci = self:GetCellItem(item)
+	if ci then
+		ci:GetOwnerList():RemoveItem(item)
+	end
+	self.ruck_list:AddItem(item)
+end
+
+function ActorMenuOverlay:OnDrop(item)
+	if not self:IsShown() then
+	return end
+	local ci = self:GetCellItem(item)
+	if ci then
+		ci:GetOwnerList():RemoveItem(item)
+	end
+end
+
+function ActorMenuOverlay:OnSlot(item)
+	if not self:IsShown() then
+	return end
+	local ci = self:GetCellItem(item)
+	if ci then
+		ci:GetOwnerList():RemoveItem(item)
+	end	
+	self.slot_list[item:get_slot()]:AddItem(item)
+end
+
+function ActorMenuOverlay:OnBelt(item)
+	if not self:IsShown() then
+	return end
+	local ci = self:GetCellItem(item)
+	if ci then
+		ci:GetOwnerList():RemoveItem(item)
+	end
+	self.belt_list:AddItem(item)
+end
+
+function ActorMenuOverlay:OnUse(item)
+	if not self:IsShown() then
+	return end
+	if parent_is_actor(item) then
+	return end
+	if item:get_eatable_item().eat_portions_num > 0 then
+	return end
+	local ci = self:GetCellItem(item)
+	if ci then
+		ci:GetOwnerList():RemoveItem(item)
+	end
+end
+
+function ActorMenuOverlay:OnItemToPartner(partner, item)
+	if not self:IsShown() then
+	return end
+	if not self.target then
+	return end
+	if partner:id() ~= self.target:id() then
+	return end
+	if not self.target_list:IsShown() then
+	return end
+	if self:GetMode() == "trade" and not trade_manager.tradable(item) then
+	return end
+	self.target_list:AddItem(item)
+end
+
+function ActorMenuOverlay:OnKeyboard(dik, keyboard_action)
+	CUIScriptWnd.OnKeyboard(self, dik, keyboard_action)
+	
+	local game_action = dik_to_bind(dik)
+	
+	if keyboard_action == ui_events.WINDOW_KEY_PRESSED then
+		local mode = self:GetMode()
+		if game_action == key_bindings.kUSE then 
+			if mode == "carbody" then
+				self:Exit()
+				return true
+			end
+			if self.cell_item_selected then
+				local item = self.cell_item_selected:GetItem()
+				for id,v in pairs(self.cell_item_selected:GetChilds()) do
+					item = level.object_by_id(id)
+					break
+				end
+				if script_actions.can_eat(item) then
+					actor:eat(item)
+					self.cell_item_selected = nil
+					return true
+				end
+			end
+		end
+	end
+
+	return false
+end
+
+function ActorMenuOverlay:StopAnyMove()
+	CUIScriptWnd.StopAnyMove(self)
+	return self:GetMode() ~= "inventory"
+end
+
+function ActorMenuOverlay:ShowPropertiesBox(item, cell_item)
+	local item = item
+	local cell_item = cell_item
+	
+	for k,v in pairs(cell_item:GetChilds()) do
+		item = level.object_by_id(k)
+		break
+	end
+	
+	local pbox = self.properties_box
+	local mode = self:GetMode()
+	
+	pbox:Clear()
+	
+	local name, precondition, action
+
+	--//move to slot
+	local slots = read_if_exists(sys_ini, "r_string", item:section(), "slot", nil)
+	if slots then
+		slots = split_string(slots, ",", true)
+		for k,i in pairs(slots) do
+			name = game.translate_string("st_move_to_slot_"..i)
+			precondition = function(item, i)
+				return actor:can_put_in_slot(item, i)
+			end
+			action = function(item, i)
+				item:set_slot(i)
+				actor:move_to_slot(item)
+			end
+			pbox:AddItem(name, precondition, action, item, i)
+		end
+	end
+	
+	--//move to belt
+	name = game.translate_string("st_move_to_belt")
+	precondition = function(item)
+		return actor:can_put_in_belt(item)
+	end
+	action = function(item)
+		actor:move_to_belt(item)
+	end
+	pbox:AddItem(name, precondition, action, item)
+	
+	--//move to ruck
+	name = game.translate_string("st_move_to_bag")
+	precondition = function(item)
+		return actor:is_in_slot(item) or actor:is_on_belt(item)
+	end
+	action = function(item)
+		actor:move_to_ruck(item)
+	end
+	pbox:AddItem(name, precondition, action, item)
+	
+	--//unload weapon
+	name = game.translate_string("st_unload_magazine")
+	precondition = function(item)
+		return (parent_is_actor(item) or mode ~= "trade") and ui_cell_item_utils.can_be_unloaded(item)
+	end
+	action = function(item, cell_item)
+		ui_cell_item_utils.unload_magazine(item, cell_item)
+	end
+	pbox:AddItem(name, precondition, action, item, cell_item)	
+	
+	--//unload all weapon
+	name = game.translate_string("st_unload_magazine_all")
+	precondition = function(cell_item)
+		local item = cell_item:GetItem()	
+		return (parent_is_actor(item) or mode ~= "trade") and cell_item:GetChildsCount() > 1 and ui_cell_item_utils.can_be_unloaded(item)
+	end	
+	action = function(cell_item)
+		ui_cell_item_utils.unload_magazine(nil, cell_item, true)
+	end
+	pbox:AddItem(name, precondition, action, cell_item)
+	
+	--//detach addon
+	local wpn = item:get_weapon_m()
+	if wpn then
+		for i=0,7 do --//all addons escept magazine
+			if wpn:addon_attachable(i) and wpn:is_addon_attached(i) then
+				local addon_sect = wpn:get_addon_name(i)
+				local detach_tip = read_if_exists(sys_ini, "r_string", addon_sect, "menu_detach_tip", "st_detach")
+				name = string.format("%s %s", game.translate_string(detach_tip), game.translate_string(get_inv_name_short(addon_sect)))
+				precondition = function(item)
+					return parent_is_actor(item) or mode ~= "trade"
+				end
+				action = function(item, cell_item)
+					wpn:detach_addon(addon_sect, true)
+					xr_sound.get_safe_sound_object([[interface\inv_detach_addon]]):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+					cell_item:ForceUpdate()
+					if mode == "trade" then
+						self:UpdatePrices()
+					end
+				end
+				pbox:AddItem(name, precondition, action, item, cell_item)
+			end
+		end
+	end
+	
+	--//move to carbody
+	name = game.translate_string("st_move")
+	precondition = function(item) 
+		return not read_if_exists(sys_ini, "r_bool", item:section(), "quest_item", false) and mode == "carbody"
+	end
+	action = function(item)
+		local new_owner = parent_is_actor(item) and self.target or actor
+		ui_cell_item_utils.transfer_cell_item(item, nil, new_owner)
+	end
+	pbox:AddItem(name, precondition, action, item)
+	
+	--//move all to carbody
+	name = game.translate_string("st_move_all")
+	precondition = function(cell_item)
+		local item = cell_item:GetItem()
+		return cell_item:GetChildsCount() > 0 and not read_if_exists(sys_ini, "r_bool", item:section(), "quest_item", false) and mode == "carbody"
+	end
+	action = function(cell_item)
+		local new_owner = parent_is_actor(item) and self.target or actor
+		ui_cell_item_utils.transfer_cell_item(item, cell_item, new_owner, true)
+	end
+	pbox:AddItem(name, precondition, action, cell_item)
+	
+	--//drop item
+	name = game.translate_string("st_drop")
+	precondition = function(item) 
+		return ui_cell_item_utils.can_drop(item)
+	end
+	action = function(item)
+		ui_cell_item_utils.drop_cell_item(item)
+	end
+	pbox:AddItem(name, precondition, action, item)
+	
+	--//drop all
+	name = game.translate_string("st_drop_all")
+	precondition = function(cell_item)
+		local item = cell_item:GetItem()
+		return cell_item:GetChildsCount() > 0 and ui_cell_item_utils.can_drop(item)
+	end
+	action = function(cell_item)
+		ui_cell_item_utils.drop_cell_item(nil, cell_item, true)
+	end
+	pbox:AddItem(name, precondition, action, cell_item)
+	
+	--//move to trade
+	name = function(item, cell_item)
+		if parent_is_actor(item) then
+			return cell_item:GetOwnerList():GetID() == "sell_list" and game.translate_string("st_move_back") or game.translate_string("st_move_to_sell")
+		else
+			return cell_item:GetOwnerList():GetID() == "buy_list" and game.translate_string("st_move_back") or game.translate_string("st_move_to_buy")
+		end
+	end
+	precondition = function(item) 
+		return trade_manager.tradable(item)
+	end
+	action = function(item, cell_item)
+		local parent = cell_item:GetOwnerList()
+		local target = nil
+		if parent_is_actor(item) then
+			if parent:GetID() ~= "sell_list" then
+				target = self.sell_list
+			else
+				target = self.ruck_list
+				if actor:is_in_slot(item) then
+					target = self.slot_list[item:get_slot()]
+				elseif actor:is_on_belt(item) then
+					target = self.belt_list
+				end					
+			end
+		else
+			target = parent:GetID() == "buy_list" and self.target_list or self.buy_list
+		end
+		ui_cell_item_utils.move_cell_item(item, cell_item, parent, target)
+		self:UpdatePrices()
+	end
+	pbox:AddItem(name, precondition, action, item, cell_item)
+	
+	--//move all to trade
+	name = function(item, cell_item)
+		if parent_is_actor(item, cell_item) then
+			return cell_item:GetOwnerList():GetID() == "sell_list" and game.translate_string("st_move_back_all") or game.translate_string("st_move_to_sell_all")
+		else
+			return cell_item:GetOwnerList():GetID() == "buy_list" and game.translate_string("st_move_back_all") or game.translate_string("st_move_to_buy_all")
+		end
+	end
+	precondition = function(item, cell_item) 
+		return trade_manager.tradable(item) and cell_item:GetChildsCount() > 0
+	end
+	action = function(item, cell_item)
+		local parent = cell_item:GetOwnerList()
+		local target = nil
+		if parent_is_actor(item) then
+			if parent:GetID() ~= "sell_list" then
+				target = self.sell_list
+			else
+				target = self.ruck_list
+				if actor:is_in_slot(item) then
+					target = self.slot_list[item:get_slot()]
+				elseif actor:is_on_belt(item) then
+					target = self.belt_list
+				end					
+			end
+		else
+			target = parent:GetID() == "buy_list" and self.target_list or self.buy_list
+		end
+		ui_cell_item_utils.move_cell_item(item, cell_item, parent, target, true)
+		self:UpdatePrices()		
+	end
+	pbox:AddItem(name, precondition, action, item, cell_item)
+	
+	pbox:AddCustomAction(item)
+	pbox:Activate()
+end
+
+function ActorMenuOverlay:GetCellItem(item)
+	local ci = self.ruck_list:FindItem(item)
+	if ci then
+	return ci end
+	ci = self.belt_list:FindItem(item)
+	if ci then
+	return ci end
+	for i,list in pairs(self.slot_list) do
+		ci = list:FindItem(item)
+		if ci then
+		return ci end
+	end
+	if self.target_list:IsShown() then
+		ci = self.target_list:FindItem(item)
+		if ci then
+		return ci end
+	end
+	if self:GetMode() == "trade" then
+		ci = self.buy_list:FindItem(item)
+		if ci then
+		return ci end
+		ci = self.sell_list:FindItem(item)
+		if ci then
+		return ci end
+	end
+	return nil
+end
+
+function ActorMenuOverlay:UpdatePrices()
+	if self:GetMode() ~= "trade" then
+	return end
+	
+	self.sell_buy_back:SetText("")
+	self.money_from_actor = nil
+	self.money_to_actor = nil
+	
+	local total_price = 0
+	local item = nil
+	local text, color
+	
+	for cell_item,v in pairs(self.buy_list:GetCellItems()) do
+		for id,v in pairs(cell_item:GetChilds()) do
+			item = level.object_by_id(id)
+			total_price = total_price + trade_manager.get_trade_cost(item)
+		end
+		item = cell_item:GetItem()
+		total_price = total_price + trade_manager.get_trade_cost(item)
+	end
+	
+	self.money_from_actor = total_price
+	text = string.format("%s %s", total_price, game.translate_string("ui_st_money_regional"))
+	self.buy_cost:SetText(text)
+	color = (total_price > actor:money()) and GetARGB(255, 255, 0, 0) or self.buy_cost.base_color
+	self.buy_cost:SetTextColor(color)
+	
+	total_price = 0
+	item = nil
+	for cell_item,v in pairs(self.sell_list:GetCellItems()) do
+		for id,v in pairs(cell_item:GetChilds()) do
+			item = level.object_by_id(id)
+			total_price = total_price + trade_manager.get_trade_cost(item)
+		end
+		item = cell_item:GetItem()
+		total_price = total_price + trade_manager.get_trade_cost(item)
+	end
+	
+	self.money_to_actor = total_price
+	text = string.format("%s %s", total_price, game.translate_string("ui_st_money_regional"))
+	self.sell_cost:SetText(text)
+	color = (total_price > self.target:money()) and GetARGB(255, 255, 0, 0) or self.sell_cost.base_color
+	self.sell_cost:SetTextColor(color)	
+end
+
+function ActorMenuOverlay:OnMoveLoadout(item)
+	if not item then return end
+	
+	local ci = self:GetCellItem(item)
+	if ci then
+		ci:ForceUpdate()
+	end
 end

@@ -49,16 +49,16 @@ function MainIngameOverlay:Subscribe()
 	self.subscribed = false
 	if not self.subscribed then
 		self.subscribed = {
-			{signal = "on_quick_item_set", self = self, fun = self.UpdateQuickSlots},
-			{signal = "on_quick_item_use", self = self, fun = self.UpdateQuickSlots},
-			{signal = "on_drop", self = self, fun = self.UpdateQuickSlotsAndPanels},
-			{signal = "on_use", self = self, fun = self.UpdateQuickSlots},
-			{signal = "on_item_to_loadout", self = self, fun = self.UpdateQuickSlots},
-			{signal = "on_item_from_loadout", self = self, fun = self.UpdateQuickSlots},
-			{signal = "on_slot", self = self, fun = self.UpdatePanelItems},
-			{signal = "on_ruck", self = self, fun = self.UpdateQuickSlotsAndPanels},
-			{signal = "on_belt", self = self, fun = self.UpdatePanelItems},
-			{signal = "on_loadout_update_count", self = self, fun = self.UpdatePanelItems},
+			{signal = "on_quick_item_set", self = self, fun = self.SetPanelItemsNeedUpdate},
+			--{signal = "on_quick_item_use", self = self, fun = self.UpdatePanelItems},
+			{signal = "on_drop", self = self, fun = self.TryUpdatePanelItems},
+			--{signal = "on_use", self = self, fun = self.UpdateQuickSlotsAndPanels},
+			--{signal = "on_item_to_loadout", self = self, fun = self.UpdatePanelItems},
+			--{signal = "on_item_from_loadout", self = self, fun = self.UpdatePanelItems},
+			--{signal = "on_slot", self = self, fun = self.UpdatePanelItems},
+			{signal = "on_ruck", self = self, fun = self.TryUpdatePanelItems},
+			{signal = "on_belt", self = self, fun = self.SetPanelItemsNeedUpdate},
+			{signal = "on_loadout_update_count", self = self, fun = self.SetPanelItemsNeedUpdate},
 			{signal = "on_hud_state_switch", self = self, fun = self.OnHudStateSwitch},
 			{signal = "on_pickup_item_set", self = self, fun = self.OnPickUpItemSet},
 			{signal = "on_key_press", self = self, fun = self.OnKeyPress},
@@ -176,17 +176,17 @@ function MainIngameOverlay:InitControls()
 	
 	local tmp_tbl, def_font, def_color = nil, "letterica16", "255, 255, 255, 255"
 	--// slot panel
-	self.slot_panel = xml:InitStatic("slot_panel", self)
-	self.slot_panel.scale = xml:ReadAttribFlt("slot_panel", "scale", 1)
-	self.slot_panel.indent = xml:ReadAttribFlt("slot_panel", "indent", 0)
-	self.slot_panel.vertical = xml:ReadAttribInt("slot_panel", "vertical", 0) > 0 and true or false
-	self.slot_panel.font = xml:ReadAttrib("slot_panel", "font", def_font)
-	tmp_tbl = split_string(xml:ReadAttrib("slot_panel", "text_color", def_color), ",")
-	self.slot_panel.text_color = GetARGB(tmp_tbl[1], tmp_tbl[2], tmp_tbl[3], tmp_tbl[4])
-	tmp_tbl = split_string(xml:ReadAttrib("slot_panel", "text_offset", "0,0"), ",")
-	self.slot_panel.text_offset = {x = tmp_tbl[1], y = tmp_tbl[2]}
-	self.slot_panel.slots = split_string(xml:ReadAttrib("slot_panel", "slots", ""), ",")
-	self.slot_panel.align_center = xml:ReadAttribInt("slot_panel", "center", 0) > 0 and true or false
+	-- self.slot_panel = xml:InitStatic("slot_panel", self)
+	-- self.slot_panel.scale = xml:ReadAttribFlt("slot_panel", "scale", 1)
+	-- self.slot_panel.indent = xml:ReadAttribFlt("slot_panel", "indent", 0)
+	-- self.slot_panel.vertical = xml:ReadAttribInt("slot_panel", "vertical", 0) > 0 and true or false
+	-- self.slot_panel.font = xml:ReadAttrib("slot_panel", "font", def_font)
+	-- tmp_tbl = split_string(xml:ReadAttrib("slot_panel", "text_color", def_color), ",")
+	-- self.slot_panel.text_color = GetARGB(tmp_tbl[1], tmp_tbl[2], tmp_tbl[3], tmp_tbl[4])
+	-- tmp_tbl = split_string(xml:ReadAttrib("slot_panel", "text_offset", "0,0"), ",")
+	-- self.slot_panel.text_offset = {x = tmp_tbl[1], y = tmp_tbl[2]}
+	-- self.slot_panel.slots = split_string(xml:ReadAttrib("slot_panel", "slots", ""), ",")
+	-- self.slot_panel.align_center = xml:ReadAttribInt("slot_panel", "center", 0) > 0 and true or false
 	--// belt panel
 	self.belt_panel = xml:InitStatic("belt_panel", self)
 	self.belt_panel.scale = xml:ReadAttribFlt("belt_panel", "scale", 1)
@@ -282,7 +282,7 @@ function MainIngameOverlay:InitControls()
 	self.objective_header = xml:InitStatic("active_task:objective_header", self.active_task)
 	
 	--//slot selector
-	self.slot_selector = ui_slot_selector.SlotSelectorOverlay(self)
+	self.slot_selector = ui_slot_selector.SlotSelectorOverlay()
 end
 
 function MainIngameOverlay:UpdateConditions()
@@ -397,9 +397,10 @@ function MainIngameOverlay:UpdateWarningIcons()
 	end
 end
 
-function MainIngameOverlay:UpdateQuickSlotsAndPanels()
-	self:UpdateQuickSlots()
-	self:UpdatePanelItems()
+function MainIngameOverlay:TryUpdatePanelItems(item, prev_place)
+	if prev_place == item_place.belt or quick_slots.is_in_quick_slot(item) then 
+		self:SetPanelItemsNeedUpdate()
+	end
 end
 
 function MainIngameOverlay:DrawSlotIcon(slot_num)
@@ -425,58 +426,66 @@ function MainIngameOverlay:UpdateQuickSlots()
 	end
 end
 
+function MainIngameOverlay:SetPanelItemsNeedUpdate()
+	self.update_panel_items = true
+end
+
 function MainIngameOverlay:UpdatePanelItems()
 	if level.is_removing_objects() then
 	return end
 	
+	if not self.update_panel_items then
+	return end
+	self.update_panel_items = false
+
 	local item, params, item_st, text
 	local pos = vector2():set(0,0)
 	--// slots
-	self.slot_panel:DetachAll()
-	for _,i in ipairs(self.slot_panel.slots) do
-		item = actor:item_in_slot(i)
-		if item and (tonumber(i) ~= BACKPACK_SLOT or read_if_exists(sys_ini, "r_bool", item:section(), "quick_drop", false)) then
-			params = CIconParams(item:section())
-			item_st = CUIStatic()
-			params:set_shader(item_st)
-			item_st:SetWidth(params.grid_width * CELL_W * self.slot_panel.scale * get_current_kx())
-			item_st:SetHeight(params.grid_height * CELL_H * self.slot_panel.scale)
-			ui_inv_utils.AttachPanelIcons(item, item_st)
-			item_st:SetWndPos(pos.x, pos.y)
-			text = "ui_use_slot_"..i
-			if tonumber(i) == TORCH_SLOT then
-				local torch = torch.get_light_sect(item)
-				local nvd = nvd.get_nvd_params(item:section())
-				if not (torch and nvd) then
-					if torch then
-						text = "ui_switch_torch"
-					elseif nvd then
-						text = "ui_switch_night_vision"
-					end
-				end
-			end
-			item_st:SetText(game.translate_string(text))
-			item_st:SetFont(GetFontCustom(self.slot_panel.font))
-			item_st:SetTextColor(self.slot_panel.text_color)
-			item_st:SetTextPos(self.slot_panel.text_offset.x, self.slot_panel.text_offset.y)
-			if self.slot_panel.vertical then
-				pos.y = pos.y + item_st:GetHeight() + self.slot_panel.indent
-			else
-				pos.x = pos.x + item_st:GetWidth() + self.slot_panel.indent
-			end
-			self.slot_panel:AttachChild(item_st)
-		end
-	end
-	if self.slot_panel.align_center then
-		local orig_pos = self.slot_panel:GetWndPos()
-		if self.slot_panel.vertical then
-			self.slot_panel:SetHeight(pos.y)
-			self.slot_panel:SetWndPos(orig_pos.x, UI_BASE_HEIGHT / 2 - self.slot_panel:GetHeight() / 2)
-		else
-			self.slot_panel:SetWidth(pos.x)
-			self.slot_panel:SetWndPos(UI_BASE_WIDTH / 2 - self.slot_panel:GetWidth() / 2, orig_pos.y)
-		end
-	end
+	-- self.slot_panel:DetachAll()
+	-- for _,i in ipairs(self.slot_panel.slots) do
+		-- item = actor:item_in_slot(i)
+		-- if item and (tonumber(i) ~= BACKPACK_SLOT or read_if_exists(sys_ini, "r_bool", item:section(), "quick_drop", false)) then
+			-- params = CIconParams(item:section())
+			-- item_st = CUIStatic()
+			-- params:set_shader(item_st)
+			-- item_st:SetWidth(params.grid_width * CELL_W * self.slot_panel.scale * get_current_kx())
+			-- item_st:SetHeight(params.grid_height * CELL_H * self.slot_panel.scale)
+			-- ui_inv_utils.AttachPanelIcons(item, item_st)
+			-- item_st:SetWndPos(pos.x, pos.y)
+			-- text = "ui_use_slot_"..i
+			-- if tonumber(i) == TORCH_SLOT then
+				-- local torch = torch.get_light_sect(item)
+				-- local nvd = nvd.get_nvd_params(item:section())
+				-- if not (torch and nvd) then
+					-- if torch then
+						-- text = "ui_switch_torch"
+					-- elseif nvd then
+						-- text = "ui_switch_night_vision"
+					-- end
+				-- end
+			-- end
+			-- item_st:SetText(game.translate_string(text))
+			-- item_st:SetFont(GetFontCustom(self.slot_panel.font))
+			-- item_st:SetTextColor(self.slot_panel.text_color)
+			-- item_st:SetTextPos(self.slot_panel.text_offset.x, self.slot_panel.text_offset.y)
+			-- if self.slot_panel.vertical then
+				-- pos.y = pos.y + item_st:GetHeight() + self.slot_panel.indent
+			-- else
+				-- pos.x = pos.x + item_st:GetWidth() + self.slot_panel.indent
+			-- end
+			-- self.slot_panel:AttachChild(item_st)
+		-- end
+	-- end
+	-- if self.slot_panel.align_center then
+		-- local orig_pos = self.slot_panel:GetWndPos()
+		-- if self.slot_panel.vertical then
+			-- self.slot_panel:SetHeight(pos.y)
+			-- self.slot_panel:SetWndPos(orig_pos.x, UI_BASE_HEIGHT / 2 - self.slot_panel:GetHeight() / 2)
+		-- else
+			-- self.slot_panel:SetWidth(pos.x)
+			-- self.slot_panel:SetWndPos(UI_BASE_WIDTH / 2 - self.slot_panel:GetWidth() / 2, orig_pos.y)
+		-- end
+	-- end
 	--// belt
 	self.belt_panel:DetachAll()
 	local items = {}
@@ -840,10 +849,11 @@ function MainIngameOverlay:Update()
 	self:UpdateMotionIcon()
 	self:UpdateCarPanel()
 	self:UpdateMountedWpnPanel()
-	self.slot_panel:Show(false)--(SHOW_GEAR_INFO)
+	--self.slot_panel:Show(false)--(SHOW_GEAR_INFO)
 	self.belt_panel:Show(SHOW_GEAR_INFO)
 	--self.loadout_panel:Show(SHOW_GEAR_INFO)
 	self.quick_slots:Show(false)--(not self.quick_slots.show_on_gear or SHOW_GEAR_INFO)
+	self:UpdatePanelItems()
 	self:UpdatePanelBoosters()
 	self:UpdateActiveItem()
 	self:UpdateMissileThrow()

@@ -126,7 +126,7 @@ end
 
 function on_drop(obj)
 	if obj:get_flashlight() and is_glowstick(obj) then
-		if has_alife_info("ui_inventory") then
+		if ui_actor_menu.get_menu():GetMode() == "inventory" then
 			obj:switch_power(not is_power_device(obj) or obj:binded_object():get_power_level() > 0)
 		end
 	end

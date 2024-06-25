@@ -40,7 +40,7 @@ local meat_type = {
 }
 
 function play_harvest(monster)
-	local knife = actor:active_item()
+	local knife = actor_get_knife()--actor:active_item()
 	local cond_dec = read_if_exists(sys_ini, "r_float", monster:section(), "knife_harvest_cond_k", 1) * 
 						read_if_exists(sys_ini, "r_float", knife:section(), "condition_shot_dec_on_hit", 0)
 	

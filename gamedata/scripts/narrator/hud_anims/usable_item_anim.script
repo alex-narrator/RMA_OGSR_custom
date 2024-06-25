@@ -10,7 +10,7 @@ function can_play_anim()
 	if not target or not actor_hands_free() then
 	return false end
 	if level.get_target_dist() > actor.inventory.take_dist then
-	return end
+	return false end
 	if target:is_entity_alive() and target:alive() then
 	return false end
 	return target --and target:is_nonscript_usable()

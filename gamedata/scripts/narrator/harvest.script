@@ -27,6 +27,6 @@ function has_loot(monster)
 end
 
 function has_good_knife()
-	local act_item = actor:active_item()
-	return act_item and act_item:is_knife() and act_item:condition() > 0
+	local item = actor_get_knife()--actor:active_item()
+	return item and item:is_knife() and item:condition() > 0
 end

@@ -745,6 +745,7 @@ end
 
 function SlotSelectorOverlay:TrySignalHide()
 	if self.was_shown and not self:IsShown() then
+		self.was_shown = false
 		sm:call("on_slot_selector_hide")
 	end
 end
@@ -781,4 +782,28 @@ end
 
 function SlotSelectorOverlay:OnHide()
 	self:ProcessSlowMotion()
+end
+
+function SlotSelectorOverlay:StopAnyMove()
+	CUIScriptWnd.StopAnyMove(self)
+	return false
+end
+
+local restricted_actions = {
+	[key_bindings.kWPN_FIRE] = true,
+	[key_bindings.kWPN_ZOOM] = true,
+}
+
+function SlotSelectorOverlay:OnKeyboard(dik, keyboard_action)
+	CUIScriptWnd.OnKeyboard(self, dik, keyboard_action)
+	
+	local game_action = dik_to_bind(dik)
+	
+	if keyboard_action == ui_events.WINDOW_KEY_PRESSED then
+		if restricted_actions[game_action] then
+			return true
+		end
+	end
+
+	return false
 end

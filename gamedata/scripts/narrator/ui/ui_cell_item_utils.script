@@ -1,0 +1,94 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function move_cell_item(item, cell_item, parent, target, for_all)
+	if for_all then
+		local item
+		for k,v in pairs(cell_item:GetChilds()) do
+			item = level.object_by_id(k)
+			parent:RemoveItem(item)
+			target:AddItem(item)
+		end
+		item = cell_item:GetItem()
+		parent:RemoveItem(item)
+		target:AddItem(item)
+	else
+		parent:RemoveItem(item)
+		target:AddItem(item)
+	end			
+end
+
+function can_drop(item)
+	return parent_is_actor(item) and not read_if_exists(sys_ini, "r_bool", item:section(), "quest_item", false)
+end
+
+function drop_cell_item(item, cell_item, for_all)
+	if for_all then
+		local item
+		for k,v in pairs(cell_item:GetChilds()) do
+			item = level.object_by_id(k)
+			item:parent():drop_item(item)
+		end
+		item = cell_item:GetItem()
+		item:parent():drop_item(item)
+	else
+		item:parent():drop_item(item)
+	end			
+end
+
+function transfer_cell_item(item, cell_item, new_owner, for_all)
+	if for_all then
+		local item
+		for k,v in pairs(cell_item:GetChilds()) do
+			item = level.object_by_id(k)
+			item:parent():transfer_item(item, new_owner)
+		end
+		item = cell_item:GetItem()
+		item:parent():transfer_item(item, new_owner)
+	else
+		item:parent():transfer_item(item, new_owner)
+	end			
+end
+
+function can_be_unloaded(item)
+	local can_be_unloaded = false
+	if item:get_ammo_in_magazine() > 0 then
+		can_be_unloaded = true
+	end
+	if item:get_ammo_in_magazine2() > 0 then
+		can_be_unloaded = true
+	end
+	local wpn = item:get_weapon_m()
+	if wpn and wpn:addon_attachable(addon.magazine) and wpn:is_addon_attached(addon.magazine) then
+		can_be_unloaded = true
+	end		
+	local ammo = item:get_weapon_ammo()
+	if ammo and ammo:is_magazine() and ammo.box_curr > 0 then
+		can_be_unloaded = true
+	end
+	return can_be_unloaded
+end
+
+function unload_magazine(item, cell_item, for_all)
+	local function try_play_sound(item)
+		if item:get_weapon_ammo() then
+			local snd_name = read_if_exists(sys_ini, "r_string", item:section(), "unload_sound", nil)
+			if snd_name then
+				xr_sound.get_safe_sound_object(snd_name):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+			end
+		end
+	end
+	
+	if for_all then
+		local item
+		for k,v in pairs(cell_item:GetChilds()) do
+			item = level.object_by_id(k)
+			item:unload_magazine_full()
+		end
+		item = cell_item:GetItem()
+		item:unload_magazine_full()
+		try_play_sound(item)
+	else
+		item:unload_magazine_full()
+		cell_item:ForceUpdate()
+		try_play_sound(item)
+	end
+end

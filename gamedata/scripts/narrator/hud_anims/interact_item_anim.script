@@ -3,10 +3,43 @@ local actor_obj = get_actor_obj()
 local hud_sect = "pickup_hud"
 local hud_effector_id = 5559
 
+function is_quick_info_shown()
+	return get_main_window() and get_main_window():FindChild("quick_info") and get_main_window():FindChild("quick_info"):IsShown()
+end
+
+function get_carbody_target()
+	local tgt = level.get_target_obj()
+	if not tgt or 
+		not tgt:is_nonscript_usable() or
+		not is_quick_info_shown() or 
+		actor:ph_capture()
+	then return false end
+	
+	if level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) then
+		return false
+	end
+	
+	if tgt:get_inventory_box() then
+		return tgt
+	end
+	
+	if tgt:is_monster() or tgt:is_stalker() then
+		if not tgt:alive() then
+			return tgt
+		end
+	end
+	
+	return false
+end
+
 function play()
 	if SCRIPT_ANIM_PLAYING then
 	return end
-		
+	
+	local tgt = get_carbody_target()
+	if tgt and tgt:is_monster() and harvest.try_harvest(tgt) then
+	return end
+	
 	actor_obj:block_action(key_bindings.kUSE)
 	block_non_move_action(true)
 	
@@ -30,8 +63,15 @@ function play()
 		function() 
 			block_non_move_action(false)
 			actor_obj:unblock_action(key_bindings.kUSE)
+			
+			--//це важливо робити ДО імовірного відкриття вікна actor_menu щоб спрацював колбек on_use
 			level.send_event_key_press(bind_to_dik(key_bindings.kUSE))
-			level.send_event_key_release(bind_to_dik(key_bindings.kUSE))
+			level.send_event_key_release(bind_to_dik(key_bindings.kUSE))			
+			
+			local tgt = get_carbody_target()
+			if tgt and not tgt:is_monster() then
+				ui_actor_menu.ShowHideMenu("carbody", tgt)
+			end
 			_G.SCRIPT_ANIM_PLAYING = false
 			actor:hard_crosshair(true)
 		end

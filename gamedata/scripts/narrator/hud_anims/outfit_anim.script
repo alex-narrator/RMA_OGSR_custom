@@ -40,7 +40,8 @@ function play_outfit(anim_type)
 					if not already_blocked then
 						actor:restore_weapon(ANIM_FAST)
 					end
-					if has_alife_info("ui_inventory") or has_alife_info("ui_car_body") then
+					local mode = ui_actor_menu.get_menu():GetMode()
+					if mode == "inventory" or mode == "carbody"	then
 						backpack.play_anim(3)
 					end
 					actor:hide_crosshair(false)
@@ -111,7 +112,8 @@ function play_gasmask(item, is_on)
 					if not already_blocked then
 						actor:restore_weapon()
 					end
-					if has_alife_info("ui_inventory") or has_alife_info("ui_car_body") then
+					local mode = ui_actor_menu.get_menu():GetMode()
+					if mode == "inventory" or mode == "carbody" then
 						backpack.play_anim(3)
 					end
 					actor:hide_crosshair(false)

@@ -68,15 +68,14 @@ function similar_item(item1, item2)
 		return true
 	end
 
-	local similar = fsim(item1:condition(), item2:condition(), cmp) and
-		fsim(item1:weight(), item2:weight(), cmp) and
-		fsim(item1:cost(), item2:cost(), cmp) and
-		item1:section() == item2:section() and
-		loadout.can_remove(item1) == loadout.can_remove(item2) and
-		same_effect(item1, item2) and
-		--iitem1:item_effect(effect.radiation_restore) == iitem2:item_effect(effect.radiation_restore) and
+	local similar = fsim(item1:condition(), item2:condition(), cmp) 
+		and fsim(item1:weight(), item2:weight(), cmp) 
+		and fsim(item1:cost(), item2:cost(), cmp) 
+		and item1:section() == item2:section() 
+		and loadout.can_remove(item1) == loadout.can_remove(item2) 
+		and same_effect(item1, item2)
 		--//для NPC не треба розділяти предмети по місцезнаходженню в інвентарі, щоб у торгівлі вони групувалися
-		(not (parent_is_actor(item1) and parent_is_actor(item2)) or iitem1.item_place == iitem2.item_place)
+		--and (not (parent_is_actor(item1) and parent_is_actor(item2)) or iitem1.item_place == iitem2.item_place)
 	
 	local ammo1, ammo2 = item1:get_weapon_ammo(), item2:get_weapon_ammo()
 	if ammo1 and ammo2 and ammo1:is_magazine() and ammo2:is_magazine() then
@@ -134,22 +133,82 @@ function UpdateWpnIcons(item, icon)
 	local i
 	for k,v in ipairs(addon_name) do
 		i = k-1
-		if wpn:addon_attachable(i) and wpn:is_addon_attached(i) then
-			icon_sect = wpn:get_addon_name(i)
-			offset = wpn:get_addon_offset(i)
-			--log3("wpn %s, addon %s, offset.x %s, offset.y %s", item:name(), v, offset.x, offset.y)
-			if v == "magazine" then
-				icon_sect = read_if_exists(sys_ini, "r_string", icon_sect, "mag_icon_sect", nil)
+		if wpn:addon_attachable(i) then
+			
+			if not wpn:is_addon_attached(i) then
+				local static = icon:FindChild(v)
+				if static then
+					icon:DetachChild(static)
+				end
+			else
+				icon_sect = wpn:get_addon_name(i)
+				offset = wpn:get_addon_offset(i)
+				--log3("wpn %s, addon %s, offset.x %s, offset.y %s", item:name(), v, offset.x, offset.y)
+				if v == "magazine" then
+					icon_sect = read_if_exists(sys_ini, "r_string", icon_sect, "mag_icon_sect", nil)
+				end
+				if icon_sect then
+					params = CIconParams(icon_sect)
+					addon_st = icon:FindChild(v)
+					if addon_st then
+						addon_st = addon_st:GetCUIStatic()
+					else
+						addon_st = CUIStatic()
+						params:set_shader(addon_st)
+						addon_st:SetWindowName(v)
+						icon:AttachChild(addon_st)
+					end
+
+					addon_st:EnableHeading(rotate)
+				
+					if rotate then
+						cell_w = icon:GetHeight() / wpn_params.grid_width
+						cell_h = icon:GetWidth() / wpn_params.grid_height
+						width = params.grid_width * cell_w
+						height = params.grid_height * cell_h
+						addon_st:SetWidth(width)
+						addon_st:SetHeight(height)
+					
+						addon_st:SetWndPos(offset.y * (cell_w/CELL_W) * get_current_kx(), icon:GetHeight() - offset.x * (cell_h/CELL_H))
+					
+						addon_st:SetHeading(heading)
+						local zero_vec = vector2():set(0,0)
+						addon_st:SetHeadingPivot(zero_vec, zero_vec, false)
+					
+						--log3("~item %s | width %s | height %s | params.grid_width %s | params.grid_height %s | wpn_params.grid_width %s | wpn_params.grid_height %s", item:section(), width, height, params.grid_width, params.grid_height, wpn_params.grid_width, wpn_params.grid_height)
+					else
+						cell_w = icon:GetWidth() / wpn_params.grid_width
+						cell_h = icon:GetHeight() / wpn_params.grid_height
+						width = params.grid_width * cell_w
+						height = params.grid_height * cell_h
+						addon_st:SetWidth(width)
+						addon_st:SetHeight(height)
+						addon_st:SetWndPos(offset.x * (cell_w/CELL_W), offset.y * (cell_h/CELL_H))
+					end
+				end
 			end
+		end
+	end
+	
+	if get_clsid(item) == clsid.wpn_rpg7_s and item:get_ammo_in_magazine() > 0 then
+	
+		if item:get_ammo_in_magazine() == 0 then
+			local static = icon:FindChild("grenade")
+			if static then
+				icon:DetachChild(static)
+			end
+		else
+			icon_sect = get_cur_ammo_sect(item)
+			offset = vector():set(read_if_exists(sys_ini, "r_float", sect, "grenade_x", 0), read_if_exists(sys_ini, "r_float", sect, "grenade_y", 0),0)
 			if icon_sect then
 				params = CIconParams(icon_sect)
-				addon_st = icon:FindChild(v)
+				addon_st = icon:FindChild("grenade")
 				if addon_st then
 					addon_st = addon_st:GetCUIStatic()
 				else
 					addon_st = CUIStatic()
 					params:set_shader(addon_st)
-					addon_st:SetWindowName(v)
+					addon_st:SetWindowName("grenade")
 					icon:AttachChild(addon_st)
 				end
 
@@ -162,14 +221,10 @@ function UpdateWpnIcons(item, icon)
 					height = params.grid_height * cell_h
 					addon_st:SetWidth(width)
 					addon_st:SetHeight(height)
-					
-					addon_st:SetWndPos(offset.y * (cell_w/CELL_W) * get_current_kx(), icon:GetHeight() - offset.x * (cell_h/CELL_H))
+					addon_st:SetWndPos(offset.y * (cell_w/CELL_W) * get_current_kx(), icon:GetHeight() - offset.x * (cell_h/CELL_H) - cell_w)
 					
 					addon_st:SetHeading(heading)
-					local zero_vec = vector2():set(0,0)
-					addon_st:SetHeadingPivot(zero_vec, zero_vec, false)
-					
-					--log3("~item %s | width %s | height %s | params.grid_width %s | params.grid_height %s | wpn_params.grid_width %s | wpn_params.grid_height %s", item:section(), width, height, params.grid_width, params.grid_height, wpn_params.grid_width, wpn_params.grid_height)
+					addon_st:SetHeadingPivot(vector2():set(0,0), vector2():set(0,icon:GetWidth() - cell_w), false)
 				else
 					cell_w = icon:GetWidth() / wpn_params.grid_width
 					cell_h = icon:GetHeight() / wpn_params.grid_height
@@ -179,46 +234,6 @@ function UpdateWpnIcons(item, icon)
 					addon_st:SetHeight(height)
 					addon_st:SetWndPos(offset.x * (cell_w/CELL_W), offset.y * (cell_h/CELL_H))
 				end
-			end
-		end
-	end
-	
-	if get_clsid(item) == clsid.wpn_rpg7_s and item:get_ammo_in_magazine() > 0 then
-		icon_sect = get_cur_ammo_sect(item)
-		offset = vector():set(read_if_exists(sys_ini, "r_float", sect, "grenade_x", 0), read_if_exists(sys_ini, "r_float", sect, "grenade_y", 0),0)
-		if icon_sect then
-			params = CIconParams(icon_sect)
-			addon_st = icon:FindChild("grenade")
-			if addon_st then
-				addon_st = addon_st:GetCUIStatic()
-			else
-				addon_st = CUIStatic()
-				params:set_shader(addon_st)
-				addon_st:SetWindowName("grenade")
-				icon:AttachChild(addon_st)
-			end
-
-			addon_st:EnableHeading(rotate)
-				
-			if rotate then
-				cell_w = icon:GetHeight() / wpn_params.grid_width
-				cell_h = icon:GetWidth() / wpn_params.grid_height
-				width = params.grid_width * cell_w
-				height = params.grid_height * cell_h
-				addon_st:SetWidth(width)
-				addon_st:SetHeight(height)
-				addon_st:SetWndPos(offset.y * (cell_w/CELL_W) * get_current_kx(), icon:GetHeight() - offset.x * (cell_h/CELL_H) - cell_w)
-					
-				addon_st:SetHeading(heading)
-				addon_st:SetHeadingPivot(vector2():set(0,0), vector2():set(0,icon:GetWidth() - cell_w), false)
-			else
-				cell_w = icon:GetWidth() / wpn_params.grid_width
-				cell_h = icon:GetHeight() / wpn_params.grid_height
-				width = params.grid_width * cell_w
-				height = params.grid_height * cell_h
-				addon_st:SetWidth(width)
-				addon_st:SetHeight(height)
-				addon_st:SetWndPos(offset.x * (cell_w/CELL_W), offset.y * (cell_h/CELL_H))
 			end
 		end		
 	end
@@ -275,12 +290,13 @@ end
 
 function UpdateCellItemCount(item, icon, count)
 	local for_ammo = item:get_weapon_ammo() and not item:get_weapon_ammo():is_magazine()
-	if not count or (count <= 1 and not for_ammo) then
+	if not count then
 	return end
 
 	local function update(static)
 		local offset = GetOffset("left_top", static, icon)
 		local str = for_ammo and "%s" or "x%s"
+		static:Show(for_ammo or count > 1)
 		static:SetText(string.format(str, count))
 		static:SetWndPos(offset.x, offset.y)
 		icon:BringToTop(static)
@@ -362,6 +378,10 @@ function UpdateAmmoInBoxIcon(item, icon)
 	local ammo_in_box = icon:FindChild("ammo_in_box")
 	if ammo_in_box then
 		ammo_in_box:Show(ammo.box_curr > 0)
+		if ammo_in_box:IsShown() then
+			local params = CIconParams(ammo:ammo_sect())
+			params:set_shader(ammo_in_box)		
+		end
 		return
 	end
 	
@@ -806,4 +826,47 @@ function sort_by_size_type(a, b)
 		return sort_by_size(a, b)
 	end
 	return sort_by_type(a, b)
+end
+
+local check_params = {
+	["highlight_item"] = true,
+	["ammo_types"] = true,
+	["ammo_class"] = true,
+	["magazine_class"] = true,
+	["grenade_class"] = true,
+	["scope_name"] = true,
+	["silencer_name"] = true,
+	["grenade_launcher_name"] = true,
+	["laser_name"] = true,
+	["flashlight_name"] = true,
+	["extender_name"] = true,
+	["stock_name"] = true,
+	["forend_name"] = true,
+}
+function need_highlight(item1, item2)
+	if item1:id() == item2:id() then
+		return true
+	end
+	local sect1, sect2 = item1:section(), item2:section()
+	
+	local function check_sect(check_string, section_a, section_b)
+		local tbl = split_string(read_if_exists(sys_ini, "r_string", section_a, check_string, nil), ",")
+		if not tbl then
+			return false
+		end
+		
+		for k,v in pairs(tbl) do
+			if v == section_b then
+				return true
+			end
+		end
+		return false
+	end
+	
+	for param,v in pairs(check_params) do
+		if check_sect(param, sect1, sect2) or check_sect(param, sect2, sect1) then
+			return true
+		end
+	end
+	return false
 end

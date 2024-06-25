@@ -6,7 +6,7 @@ function attach(sm)
 	sm:subscribe({signal = "on_slot",   				fun = this.on_slot})
 	sm:subscribe({signal = "on_belt",   				fun = this.on_belt})
 	sm:subscribe({signal = "on_grenade_type_switch",   	fun = this.on_grenade_type_switch})
-	sm:subscribe({signal = "on_cell_item_mouse",   		fun = this.try_set_item})
+	sm:subscribe({signal = "on_cell_item_db_click",   	fun = this.try_set_item})
 	sm:subscribe({signal = "on_save",   				fun = this.on_save})
 	sm:subscribe({signal = "on_load",   				fun = this.on_load})
 end
@@ -115,7 +115,7 @@ function update_item_count(item, item_in)
 		loaded_items[item:id()] = nil
 	end
 
-	ogse_signals.get_mgr():call("on_loadout_update_count", item)
+	ogse_signals.get_mgr():call("on_loadout_update_count", item, item_in)
 	--log3("~update_item_count item %s [%s] | slot_type %s, slots[slot_type].current_count %s, slots[slot_type].max_count %s", item:name(), item:id(), slot_type, slots[slot_type].current_count, slots[slot_type].max_count)
 end
 
@@ -222,6 +222,8 @@ end
 function can_add(item)
 	if not is_loadout_item(item) then
 	return false end
+	if not parent_is_actor(item) then
+	return false end
 	
 	--local ammo = item:get_weapon_ammo()
 	if can_remove(item) or (item:is_grenade() and actor:is_in_slot(item)) then --or (ammo and ammo.box_curr == 0) then
@@ -240,25 +242,15 @@ function add(item)
 	--log3("~add item %s | %s", item:name(), item:id())
 	update_item_count(item, true)
 	
-	--set_item_ungroupable(item)
-	-- if level.main_input_receiver() then
-		-- update_inventory_window()
-	-- end
 	xr_sound.get_safe_sound_object("interface\\inv_slot"):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
-	ogse_signals.get_mgr():call("on_item_to_loadout", item)
-	actor:invalidate_inventory()
+	--ogse_signals.get_mgr():call("on_item_to_loadout", item)
 end
 
 function remove(item)
 	update_item_count(item, false)
 	
-	--set_item_default_grouping(item)
-	-- if level.main_input_receiver() then
-		-- update_inventory_window()
-	-- end
 	xr_sound.get_safe_sound_object("interface\\inv_ruck"):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
-	ogse_signals.get_mgr():call("on_item_from_loadout", item)
-	actor:invalidate_inventory()
+	--ogse_signals.get_mgr():call("on_item_from_loadout", item)
 end
 
 function clear_all()
@@ -283,12 +275,12 @@ function menu_tip_from(item)
 	return tip_text
 end
 
-function try_set_item(obj, x, y, action)
-	if not has_alife_info("ui_inventory") then return end
+function try_set_item(obj)
+	if ui_actor_menu.get_menu():GetMode() ~= "inventory" then
+	return end
+	
 	local action_allowed = can_add(obj) or can_remove(obj)
-	if action ~= ui_events.WINDOW_LBUTTON_DB_CLICK or 
-		not action_allowed
-	then 
+	if not action_allowed then
 	return end
 	
 	if can_add(obj) then

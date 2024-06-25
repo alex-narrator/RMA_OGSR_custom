@@ -1845,6 +1845,11 @@ function set_item_inv_visible( item )
   item:set_inventory_item_flags( f )
 end
 
+function get_inv_item_hidden(item)
+	local f = item:get_inventory_item_flags()
+	return f:test( global_flags.FIHiddenForInventory )
+end
+
 -- Покрасить предмет в окнах обыска тайников/трупов в зелёный цвет
 function set_item_always_highlighting( item )
   local f = item:get_inventory_item_flags()

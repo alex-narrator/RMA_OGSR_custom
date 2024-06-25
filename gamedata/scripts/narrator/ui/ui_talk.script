@@ -39,7 +39,7 @@ function TalkOverlay:Subscribe()
 			{signal = "on_talk_show", self = self, fun = self.OnShow},
 			{signal = "on_talk_hide", self = self, fun = self.OnHide},
 			{signal = "on_actor_icon_update", self = self, fun = self.OnActorIconUpdate},
-			{signal = "on_trade_show", self = self, fun = self.OnShowTrade},
+			--{signal = "on_trade_show", self = self, fun = self.OnShowTrade},
 		}
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
@@ -208,5 +208,7 @@ function TalkOverlay:SetCharacterTextNPC()
 end
 
 function TalkOverlay:ToTrade()
-	actor:switch_to_trade()
+	--actor:switch_to_trade()
+	ui_actor_menu.ShowHideMenu("trade", level.get_second_talker())
+	self.owner:Show(false)	
 end

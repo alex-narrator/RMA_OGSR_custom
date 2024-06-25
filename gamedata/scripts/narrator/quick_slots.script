@@ -195,6 +195,9 @@ function can_set(item)
 	if not read_if_exists(sys_ini, "r_bool", item:section(), "quick_slot", false) then
 	return false end
 	
+	if not parent_is_actor(item) then
+	return false end
+	
 	selected_slot = nil
 
 	if is_in_quick_slot(item) then

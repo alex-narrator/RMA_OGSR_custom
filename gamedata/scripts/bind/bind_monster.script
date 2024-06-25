@@ -40,6 +40,10 @@ function generic_object_binder:reinit()
 	self.object:set_callback(callback.hit,					self.hit_callback,		self)
 	self.object:set_callback(callback.death,				self.death_callback,	self)
 	self.object:set_callback(callback.use_object, 			self.use_callback, 		self)
+	
+	if self.object:clsid() == clsid.script_trader then
+		self.object:set_callback(callback.on_ruck, 			self.on_ruck, 			self)
+	end
 end
 
 function generic_object_binder:update(delta)
@@ -152,6 +156,9 @@ function generic_object_binder:net_destroy()
 	self.object:set_callback(callback.death,				nil)
 	self.object:set_callback(callback.patrol_path_in_point, nil)
 	self.object:set_callback(callback.hit,					nil)
+	if self.object:clsid() == clsid.script_trader then
+		self.object:set_callback(callback.on_ruck, 			nil)
+	end	
 
 	local st = db.storage[self.object:id()]
 	if st and st.active_scheme then
@@ -216,4 +223,8 @@ function generic_object_binder:use_callback(obj, who)
 	else
 		self.sm:call("on_monster_use", self.object)
 	end
+end
+
+function generic_object_binder:on_ruck(item, prev_place)
+	self.sm:call("on_ruck_trader", self.object, item, prev_place)	
 end

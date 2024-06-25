@@ -2481,9 +2481,7 @@ end
 function show_device()
 	if actor:active_device() then
 	return end
-	local device = actor_get_device()
-	if not device then
+	if not actor_get_device() then
 	return end
-	level.send_event_key_press(bind_to_dik(key_bindings.kWPN_8))
-	level.send_event_key_release(bind_to_dik(key_bindings.kWPN_8))	
+	actor:activate_slot(DETECTOR_SLOT, false)
 end

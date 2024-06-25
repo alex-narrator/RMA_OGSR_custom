@@ -46,7 +46,7 @@ function RepairOverlay:Subscribe()
 			{signal = "on_dialog_hide", self = self, fun = self.DetachWnd},
 			{signal = "on_talk_show", self = self, fun = self.DetachWnd},
 			{signal = "on_talk_hide", self = self, fun = self.DetachWnd},
-			{signal = "on_trade_show", self = self, fun = self.DetachWnd},
+			{signal = "on_actor_menu_show", self = self, fun = self.OnActorMenuShow},
 			{signal = "on_cell_item_show", self = self, fun = self.OnItemIconShow},
 			{signal = "on_cell_item_select", self = self, fun = self.OnItemSelect},
 			{signal = "on_cell_item_db_click", self = self, fun = self.ShowRepairRequest},
@@ -65,6 +65,12 @@ function RepairOverlay:Unsubscribe()
 			sm:unsubscribe( s )
 		end
 		self.subscribed = false
+	end
+end
+
+function RepairOverlay:OnActorMenuShow(mode)
+	if mode == "trade" then
+		self:DetachWnd()
 	end
 end
 
@@ -91,7 +97,7 @@ function RepairOverlay:InitControls()
 	
 	xml:InitAutoStaticGroup("repair_back:auto_static", self.repair_back)
 	
-	self.item_container = ui_cell_item_container.UICellItemContainer(xml, "repair_back:repair_items", self.repair_back)	
+	self.item_container = ui_cell_item_container.UICellItemContainer(xml, "repair_back:repair_items", self.repair_back)
 
 	local name
 	

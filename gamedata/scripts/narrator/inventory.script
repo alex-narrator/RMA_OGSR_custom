@@ -100,7 +100,7 @@ function set_item_visibility(inv_owner, show_mode)
 			set_item_inv_hidden(item)
 		end
 	end
-	if inv_owner:is_actor() and actor:has_info("ui_inventory") then
+	if inv_owner:is_actor() and ui_actor_menu.get_menu():GetMode() == "inventory" then
 		inv_owner:iterate_ruck(perform_action, nil)
 	else
 		inv_owner:iterate_inventory(perform_action, nil)

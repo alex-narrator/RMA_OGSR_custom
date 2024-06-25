@@ -108,8 +108,9 @@ function on_non_slot(obj, prev_place)
 	if get_hud_sect(obj) and not xr_conditions.black_screen() and not level.is_removing_objects() then
 		outfit_anim.play_gasmask(obj, false)
 	end	
-		
-	if obj:is_outfit() and actor:alive() and has_alife_info("ui_inventory") or has_alife_info("ui_car_body") then
+
+	local mode = ui_actor_menu.get_menu():GetMode()
+	if obj:is_outfit() and actor:alive() and (mode == "inventory" or mode == "carbody") then
 		add_update_delayed_action(1, function() backpack.play_anim(3) end)
 	end
 end
