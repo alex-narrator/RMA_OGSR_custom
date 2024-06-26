@@ -115,7 +115,9 @@ function UIPropertiesBox:Activate()
 	end
 	--log3("self.actions: %s", self.actions)
 	
-	self:Show(table.size(self.actions) > 0)
+	local show = table.size(self.actions) > 0
+	self:Show(show)
+	return show
 end
 
 function UIPropertiesBox:OnFocusReceived(i)

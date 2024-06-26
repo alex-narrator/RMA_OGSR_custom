@@ -32,6 +32,11 @@ function get_carbody_target()
 	return false
 end
 
+function action_use()
+	level.send_event_key_press(bind_to_dik(key_bindings.kUSE))
+	level.send_event_key_release(bind_to_dik(key_bindings.kUSE))
+end
+
 function play()
 	if SCRIPT_ANIM_PLAYING then
 	return end
@@ -63,14 +68,15 @@ function play()
 		function() 
 			block_non_move_action(false)
 			actor_obj:unblock_action(key_bindings.kUSE)
-			
-			--//це важливо робити ДО імовірного відкриття вікна actor_menu щоб спрацював колбек on_use
-			level.send_event_key_press(bind_to_dik(key_bindings.kUSE))
-			level.send_event_key_release(bind_to_dik(key_bindings.kUSE))			
-			
+						
 			local tgt = get_carbody_target()
 			if tgt and not tgt:is_monster() then
+				if not tgt:get_container() then --//без цього інвентарний контейнер буде одразу підібраний у інвентар
+					action_use() --//це важливо робити ДО імовірного відкриття вікна actor_menu щоб спрацював колбек on_use
+				end
 				ui_actor_menu.ShowHideMenu("carbody", tgt)
+			else
+				action_use()
 			end
 			_G.SCRIPT_ANIM_PLAYING = false
 			actor:hard_crosshair(true)

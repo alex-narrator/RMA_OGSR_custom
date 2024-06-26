@@ -59,6 +59,7 @@ function MainIngameOverlay:Subscribe()
 			{signal = "on_ruck", self = self, fun = self.TryUpdatePanelItems},
 			{signal = "on_belt", self = self, fun = self.SetPanelItemsNeedUpdate},
 			{signal = "on_loadout_update_count", self = self, fun = self.SetPanelItemsNeedUpdate},
+			{signal = "on_actor_menu_hide", self = self, fun = self.SetPanelItemsNeedUpdate},			
 			{signal = "on_hud_state_switch", self = self, fun = self.OnHudStateSwitch},
 			{signal = "on_pickup_item_set", self = self, fun = self.OnPickUpItemSet},
 			{signal = "on_key_press", self = self, fun = self.OnKeyPress},

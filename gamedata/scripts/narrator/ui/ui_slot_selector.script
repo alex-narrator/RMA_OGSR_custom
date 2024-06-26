@@ -11,7 +11,7 @@ class "SlotSelectorOverlay" (CUIScriptWnd)
 
 function SlotSelectorOverlay:__init() super()
 	self:InitControls()
-	self:Subscribe()
+	--self:Subscribe()
 end
 
 function SlotSelectorOverlay:Subscribe()
@@ -746,6 +746,7 @@ end
 function SlotSelectorOverlay:TrySignalHide()
 	if self.was_shown and not self:IsShown() then
 		self.was_shown = false
+		self:Unsubscribe()
 		sm:call("on_slot_selector_hide")
 	end
 end
@@ -756,8 +757,10 @@ function SlotSelectorOverlay:ShowHideSelector()
 		self.was_shown = self:IsShown()
 		if self.was_shown then
 			self:UpdateSlots()
+			self:Subscribe()
 			sm:call("on_slot_selector_show")
 		else
+			self:Unsubscribe()
 			sm:call("on_slot_selector_hide")
 		end
 	end

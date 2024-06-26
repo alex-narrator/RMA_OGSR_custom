@@ -104,9 +104,6 @@ function ActorMenuOverlay:Subscribe()
 			
 			{signal = "on_quick_item_set", self = self, fun = self.UpdateSlots},
 			{signal = "on_quick_item_use", self = self, fun = self.UpdateSlots},
-			{signal = "on_ruck", self = self, fun = self.UpdateSlots},
-			{signal = "on_drop", self = self, fun = self.UpdateSlots},
-			{signal = "on_use", self = self, fun = self.UpdateSlots},
 			{signal = "on_loadout_update_count", self = self, fun = self.UpdateSlots},
 			{signal = "on_loadout_update_max_count", self = self, fun = self.UpdateSlots},
 			{signal = "on_actor_icon_update", self = self, fun = self.OnActorIconUpdate},
@@ -437,6 +434,22 @@ function ActorMenuOverlay:InitControls()
 	name = "to_talk_button"
 	self:Register(self.to_talk_button, name)
 	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.SwitchToTalk, self)
+	
+	--//action sounds
+	name = "action_sounds"
+	self.sounds = {}
+	local sound_names = {
+		"open",
+		"close",
+		"to_slot",
+		"to_belt",
+		"to_ruck",
+		"properties",
+		"drop",
+	}
+	for k,snd_name in pairs(sound_names) do
+		self.sounds[snd_name] = xr_sound.get_safe_sound_object(xml:ReadAttrib(name, snd_name, ""))
+	end
 end
 
 function ActorMenuOverlay:QuickOnFocusReceived(slot_num)
@@ -947,6 +960,9 @@ function ActorMenuOverlay:Update()
 	
 	if self:GetMode() == "carbody" and self.target then
 		aim_camera_to_pos(self.target:center())
+		if distance_between_safe(actor, self.target) > actor.inventory.take_dist then
+			self:Exit()
+		end
 	end
 end
 
@@ -980,6 +996,8 @@ function ActorMenuOverlay:OnShow()
 	self:SetCharacterText()	
 	self:SetCharacterTextNPC()
 	self:UpdatePrices()
+	
+	self:PlayActionSound("open")
 end
 
 function ActorMenuOverlay:OnHide()
@@ -999,6 +1017,8 @@ function ActorMenuOverlay:OnHide()
 	
 	self.target = nil
 	self.mode = nil
+	
+	self:PlayActionSound("close")
 end
 
 function ActorMenuOverlay:Exit()
@@ -1211,8 +1231,6 @@ function ActorMenuOverlay:UpdateDateTimeText()
 end
 
 function ActorMenuOverlay:Organize()
-	if not self:IsShown() then
-	return end
 	inventory.repack_power_sources()
 	actor:repack_ammo()
 	if self.target then
@@ -1292,8 +1310,6 @@ function ActorMenuOverlay:ReinitLists(show_type)
 	
 	self.buy_list:Reinit()
 	self.sell_list:Reinit()
-	self.buy_list:Show(mode == "trade")
-	self.sell_list:Show(mode == "trade")
 	self.sell_buy_back:SetText("")
 end
 
@@ -1368,48 +1384,45 @@ function ActorMenuOverlay:OnCellItemDBClick(item, cell_item)
 end
 
 function ActorMenuOverlay:OnRuck(item)
-	if not self:IsShown() then
-	return end
+	self:UpdateSlots()
 	local ci = self:GetCellItem(item)
 	if ci then
 		ci:GetOwnerList():RemoveItem(item)
 	end
 	self.ruck_list:AddItem(item)
+	self:PlayActionSound("to_ruck")
 end
 
 function ActorMenuOverlay:OnDrop(item)
-	if not self:IsShown() then
-	return end
+	self:UpdateSlots()
 	local ci = self:GetCellItem(item)
 	if ci then
 		ci:GetOwnerList():RemoveItem(item)
 	end
+	self:PlayActionSound("drop")
 end
 
 function ActorMenuOverlay:OnSlot(item)
-	if not self:IsShown() then
-	return end
 	local ci = self:GetCellItem(item)
 	if ci then
 		ci:GetOwnerList():RemoveItem(item)
 	end	
 	self.slot_list[item:get_slot()]:AddItem(item)
+	self:PlayActionSound("to_slot")
 end
 
 function ActorMenuOverlay:OnBelt(item)
-	if not self:IsShown() then
-	return end
 	local ci = self:GetCellItem(item)
 	if ci then
 		ci:GetOwnerList():RemoveItem(item)
 	end
 	self.belt_list:AddItem(item)
+	self:PlayActionSound("to_belt")
 end
 
 function ActorMenuOverlay:OnUse(item)
-	if not self:IsShown() then
-	return end
 	if parent_is_actor(item) then
+		self:UpdateSlots()
 	return end
 	if item:get_eatable_item().eat_portions_num > 0 then
 	return end
@@ -1420,8 +1433,6 @@ function ActorMenuOverlay:OnUse(item)
 end
 
 function ActorMenuOverlay:OnItemToPartner(partner, item)
-	if not self:IsShown() then
-	return end
 	if not self.target then
 	return end
 	if partner:id() ~= self.target:id() then
@@ -1431,6 +1442,7 @@ function ActorMenuOverlay:OnItemToPartner(partner, item)
 	if self:GetMode() == "trade" and not trade_manager.tradable(item) then
 	return end
 	self.target_list:AddItem(item)
+	self:PlayActionSound("to_ruck")
 end
 
 function ActorMenuOverlay:OnKeyboard(dik, keyboard_action)
@@ -1465,7 +1477,7 @@ end
 
 function ActorMenuOverlay:StopAnyMove()
 	CUIScriptWnd.StopAnyMove(self)
-	return self:GetMode() ~= "inventory"
+	return false--self:GetMode() ~= "inventory"
 end
 
 function ActorMenuOverlay:ShowPropertiesBox(item, cell_item)
@@ -1677,7 +1689,9 @@ function ActorMenuOverlay:ShowPropertiesBox(item, cell_item)
 	pbox:AddItem(name, precondition, action, item, cell_item)
 	
 	pbox:AddCustomAction(item)
-	pbox:Activate()
+	if pbox:Activate() then
+		self:PlayActionSound("properties")
+	end
 end
 
 function ActorMenuOverlay:GetCellItem(item)
@@ -1750,7 +1764,8 @@ function ActorMenuOverlay:UpdatePrices()
 	text = string.format("%s %s", total_price, game.translate_string("ui_st_money_regional"))
 	self.sell_cost:SetText(text)
 	color = (total_price > self.target:money()) and GetARGB(255, 255, 0, 0) or self.sell_cost.base_color
-	self.sell_cost:SetTextColor(color)	
+	self.sell_cost:SetTextColor(color)
+	self:PlayActionSound("to_ruck")	
 end
 
 function ActorMenuOverlay:OnMoveLoadout(item)
@@ -1760,4 +1775,12 @@ function ActorMenuOverlay:OnMoveLoadout(item)
 	if ci then
 		ci:ForceUpdate()
 	end
+end
+
+function ActorMenuOverlay:PlayActionSound(name)
+	local snd = self.sounds[name]
+	if not snd then
+		log3("![%s]: action sound name [%s] not found in self.sounds", script_name(), name)
+	return end
+	snd:play(actor, 0, sound_object.s2d)
 end
