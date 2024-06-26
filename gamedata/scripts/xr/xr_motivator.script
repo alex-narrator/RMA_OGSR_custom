@@ -138,7 +138,7 @@ function motivator_binder:net_destroy()
 
 	db.storage[self.object:id()] = nil
 
-	self:clear_callbacks()
+	self:clear_callbacks(true)
 	self.object:set_callback(callback.use_object, nil)
 
 	self.sm:call("on_npc_destroy", self.object, self)
@@ -146,11 +146,13 @@ function motivator_binder:net_destroy()
 	object_binder.net_destroy(self)
 end
 
-function motivator_binder:clear_callbacks()
+function motivator_binder:clear_callbacks(on_destroy)
 	self.object:set_patrol_extrapolate_callback(nil)
 	self.object:set_callback(callback.hit, nil)
 	self.object:set_callback(callback.entity_alive_before_hit, nil)
 	self.object:set_callback(callback.death, nil)
+	if not on_destroy then
+	return end
 	self.object:set_callback(callback.on_ruck, nil)
 	self.object:set_callback(callback.on_slot, nil)
 end

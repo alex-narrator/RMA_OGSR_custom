@@ -154,6 +154,7 @@ function ActorMenuOverlay:InitControls()
 	self:Register(self.service_back, name)
 	self:AddCallback(name, ui_events.WINDOW_LBUTTON_UP, function() self:ServiceOnLButtonUp() end, self)
 	
+	self.key_accels = {}
 	
 	local xml = CScriptXmlInit()
 	xml:ParseFile(OVERLAY_XML)
@@ -360,6 +361,7 @@ function ActorMenuOverlay:InitControls()
 		v.accel = xml:ReadAttrib(prefix.."show_"..v.name.."_button", "accel", nil)
 		if v.accel then
 			v.button:SetAccelerator(keyname_to_dik(v.accel), 0)
+			self.key_accels[v.button:GetAccelerator(0)] = true
 		end
 		v.hint = xml:ReadAttrib(prefix.."show_"..v.name.."_button", "hint", "")
 		v.st = xml:InitStatic(prefix.."show_"..v.name.."_button:static", v.button)
@@ -407,6 +409,7 @@ function ActorMenuOverlay:InitControls()
 	
 	--//organize button
 	self.organize_button = xml:Init3tButton("organize_button", self)
+	self.key_accels[self.organize_button:GetAccelerator(0)] = true	
 	name = "organize_button"
 	self:Register(self.organize_button, name)
 	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.Organize, self)
@@ -414,11 +417,13 @@ function ActorMenuOverlay:InitControls()
 	--//carbody mode
 	--//take all button
 	self.take_all_button = xml:Init3tButton("take_all_btn", self)
+	self.key_accels[self.take_all_button:GetAccelerator(0)] = true	
 	name = "take_all_button"
 	self:Register(self.take_all_button, name)
-	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.TakeAll, self)	
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.TakeAll, self)
 	--//move all ruck button
 	self.move_all_ruck_button = xml:Init3tButton("move_all_ruck_btn", self)
+	self.key_accels[self.move_all_ruck_button:GetAccelerator(0)] = true
 	name = "move_all_ruck_button"
 	self:Register(self.move_all_ruck_button, name)
 	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.MoveAllRuck, self)	
@@ -450,6 +455,9 @@ function ActorMenuOverlay:InitControls()
 	for k,snd_name in pairs(sound_names) do
 		self.sounds[snd_name] = xr_sound.get_safe_sound_object(xml:ReadAttrib(name, snd_name, ""))
 	end
+	
+	--//selected item tip
+	self.selected_item_tip = xml:InitStatic("selected_item_tip", self)
 end
 
 function ActorMenuOverlay:QuickOnFocusReceived(slot_num)
@@ -551,6 +559,12 @@ function ActorMenuOverlay:OnCellItemSelect(item, cell_item)
 	if self.target_list:IsShown() then
 		self.target_list:ColorizeCompatible(item)
 	end
+	
+	local text = ""
+	if self:GetMode() == "inventory" then
+		text = game.translate_string(read_if_exists(sys_ini, "r_string", item:section(), "selected_tip", ""))
+	end
+	self.selected_item_tip:SetText(text)
 end
 
 function ActorMenuOverlay:OnCellItemStartDrag(cell_item)
@@ -1255,6 +1269,7 @@ function ActorMenuOverlay:ReinitLists(show_type)
 	self.cell_item_selected = nil
 	self.cell_item_focused = nil
 	self.cell_container_focused	= nil
+	self.selected_item_tip:SetText("")
 	
 	self.ruck_list:Reinit()
 	self.belt_list:Reinit()
@@ -1452,6 +1467,7 @@ function ActorMenuOverlay:OnKeyboard(dik, keyboard_action)
 	
 	if keyboard_action == ui_events.WINDOW_KEY_PRESSED then
 		local mode = self:GetMode()
+		
 		if game_action == key_bindings.kUSE then 
 			if mode == "carbody" then
 				self:Exit()
@@ -1471,8 +1487,7 @@ function ActorMenuOverlay:OnKeyboard(dik, keyboard_action)
 			end
 		end
 	end
-
-	return false
+	return self.key_accels[dik]
 end
 
 function ActorMenuOverlay:StopAnyMove()
