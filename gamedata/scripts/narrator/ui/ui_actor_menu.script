@@ -974,7 +974,7 @@ function ActorMenuOverlay:Update()
 	
 	if self:GetMode() == "carbody" and self.target then
 		aim_camera_to_pos(self.target:center())
-		if distance_between_safe(actor, self.target) > actor.inventory.take_dist then
+		if distance_between_safe(actor, self.target) > actor.inventory.take_dist + self.target:radius() then
 			self:Exit()
 		end
 	end
