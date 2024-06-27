@@ -679,7 +679,11 @@ function ActorMenuOverlay:OnDragItemDrop(cell_item)
 				if slots then
 					slots = split_string(slots, ",", true)
 					for k,i in pairs(slots) do
-						if self.slot_list[i]:GetID() == cic_f:GetID() and actor:can_put_in_slot(item, i) then
+						if self.slot_list[i]:GetID() == cic_f:GetID() and actor.inventory:is_slot_allowed(i) then--actor:can_put_in_slot(item, i) then
+							local slot_item = actor:item_in_slot(i)
+							if slot_item then
+								actor:move_to_ruck(slot_item)
+							end
 							item:set_slot(i)
 							actor:move_to_slot(item)
 							break
