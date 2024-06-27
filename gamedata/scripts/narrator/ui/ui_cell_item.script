@@ -202,6 +202,15 @@ function UICellItem:GetChilds()
 	return self.childs
 end
 
+function UICellItem:GetAnyItem()
+	local item = self:GetItem()
+	for k,v in pairs(self:GetChilds()) do
+		item = level.object_by_id(k)
+		break
+	end
+	return item
+end
+
 function UICellItem:IsChild(item)
 	return self.childs[item:id()]
 end

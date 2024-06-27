@@ -161,10 +161,6 @@ function ActorMenuOverlay:InitControls()
 	
 	xml:InitAutoStaticGroup("w:auto_static", self)
 	
-	--//drag item
-	tmp_tbl = split_string(xml:ReadAttrib("drag_cell_item", "offset", "0,0"), ",", true)
-	self.drag_item_offset = {x = tmp_tbl[1], y = tmp_tbl[2]}
-	self.drag_item_offset_mode = xml:ReadAttribInt("drag_cell_item", "offset_mode", "0") > 0 and true or false
 	-- dragdrops
 	--//actor ruck and belt
 	self.ruck_list = ui_cell_item_container.UICellItemContainer(xml, "dragdrop_ruck", self)
@@ -175,10 +171,8 @@ function ActorMenuOverlay:InitControls()
 	local inv = actor.inventory
 	self.slot_list = {}
 	for i = 0, sys_ini:r_u32("inventory","slots") - 1 do
-		if inv:is_slot_allowed(i) then
-			self.slot_list[i] = ui_cell_item_container.UICellItemContainer(xml, "dragdrop_slot_"..i, self)
-			self.slot_list[i]:SetID("slot_"..i)
-		end
+		self.slot_list[i] = ui_cell_item_container.UICellItemContainer(xml, "dragdrop_slot_"..i, self)
+		self.slot_list[i]:SetID("slot_"..i)
 	end	
 	--//carbody/trade_partner
 	self.target_list = ui_cell_item_container.UICellItemContainer(xml, "dragdrop_target", self)
@@ -569,11 +563,7 @@ function ActorMenuOverlay:OnCellItemSelect(item, cell_item)
 end
 
 function ActorMenuOverlay:OnCellItemStartDrag(cell_item)
-	local item = cell_item:GetItem()
-	for k,v in pairs(cell_item:GetChilds()) do
-		item = level.object_by_id(k)
-		break
-	end	
+	local item = cell_item:GetAnyItem()
 	local cell_pos = vector2():set(1, 1)
 	self.drag_item = ui_cell_item.UICellItem(self, item, cell_pos, cell_item:GetCellSize(), cell_item:GetOwnerList())
 	self.drag_item:SetInteractive(false)
@@ -585,13 +575,8 @@ function ActorMenuOverlay:UpdateDragItem()
 	return end
 	
 	local pos = vector2():set(self:GetMousePosX(), self:GetMousePosY())
-	local offset = nil
-	if self.drag_item_offset_mode then
-		offset = vector2():set(self.drag_item_offset.x, self.drag_item_offset.y)
-	else
-		offset = vector2():set(-self.drag_item.orig_pos.x, -self.drag_item.orig_pos.y)
-	end
-	self.drag_item:SetWndPos(pos.x + offset.x, pos.y + offset.y)
+	local orig_pos = self.drag_item.orig_pos
+	self.drag_item:SetWndPos(pos.x - orig_pos.x, pos.y - orig_pos.y)
 end
 
 function ActorMenuOverlay:ServiceOnLButtonUp()
@@ -679,7 +664,7 @@ function ActorMenuOverlay:OnDragItemDrop(cell_item)
 				if slots then
 					slots = split_string(slots, ",", true)
 					for k,i in pairs(slots) do
-						if self.slot_list[i]:GetID() == cic_f:GetID() and actor.inventory:is_slot_allowed(i) then--actor:can_put_in_slot(item, i) then
+						if self.slot_list[i]:GetID() == cic_f:GetID() then
 							local slot_item = actor:item_in_slot(i)
 							if slot_item then
 								actor:move_to_ruck(slot_item)
@@ -1287,6 +1272,7 @@ function ActorMenuOverlay:ReinitLists(show_type)
 	self.belt_list:Reinit()
 	for i,list in pairs(self.slot_list) do
 		list:Reinit()
+		list:Show(actor.inventory:is_slot_allowed(i))
 	end	
 	
 	local function show_item(item)
@@ -1345,11 +1331,7 @@ function ActorMenuOverlay:OnCellItemRBClick(item, cell_item)
 end
 
 function ActorMenuOverlay:OnCellItemDBClick(item, cell_item)
-	local item = item
-	for k,v in pairs(cell_item:GetChilds()) do
-		item = level.object_by_id(k)
-		break
-	end
+	local item = cell_item:GetAnyItem()
 	
 	local mode = self:GetMode()
 	local key_all = level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION))
@@ -1508,13 +1490,8 @@ function ActorMenuOverlay:StopAnyMove()
 end
 
 function ActorMenuOverlay:ShowPropertiesBox(item, cell_item)
-	local item = item
+	local item = cell_item:GetAnyItem()
 	local cell_item = cell_item
-	
-	for k,v in pairs(cell_item:GetChilds()) do
-		item = level.object_by_id(k)
-		break
-	end
 	
 	local pbox = self.properties_box
 	local mode = self:GetMode()
