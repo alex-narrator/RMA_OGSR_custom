@@ -2,6 +2,8 @@
 local color_highlight 	= GetARGB(100, 200, 200, 200)
 
 local back_texture 		= "square_light_grey"
+local grid_texture 		= "ui\\ui_grid_array"
+local TEXTURE_CELL_SIZE = 64
 
 class "UICellItemContainer" (CUIScriptWnd)
 
@@ -65,8 +67,14 @@ function UICellItemContainer:InitControls()
 	self.back:SetColor(color_highlight)
 	self:AttachChild(self.back)
 	
-	--//спеціальний статик для ловлі подій focus received/lost, бо сам скроллв'ю їх не обробляє
+	self.grid_back = CUIStatic()
+	self.grid_back:Init(0, 0, 0, 0)
+	self.grid_back:SetStretchTexture(true)
+	self.grid_back:InitTexture(grid_texture)
+	self:AttachChild(self.grid_back)
+	
 	self.scroll = self.xml:InitScrollView(self.path, self)
+	--//спеціальний статик для ловлі подій focus received/lost, бо сам скроллв'ю їх не обробляє	
 	self.service_back = CUIStatic()
 	local pos = self.scroll:GetWndPos()
 	local size = {
@@ -95,10 +103,17 @@ function UICellItemContainer:InitControls()
 	
 	self:AdjustContainerHeight()
 	
-	self.back:SetWidth(self.cell_size.w * self.cols)
-	self.back:SetHeight(self.cell_size.h * self.rows)
+	local grid_size = vector2():set(self.cell_size.w * self.cols, self.cell_size.h * self.rows)
 	local pos = self.scroll:GetWndPos()
+	
+	self.back:SetWidth(grid_size.x)
+	self.back:SetHeight(grid_size.y)
 	self.back:SetWndPos(pos.x, pos.y)
+	
+	self.grid_back:SetWidth(grid_size.x)
+	self.grid_back:SetHeight(grid_size.y)
+	self.grid_back:SetWndPos(pos.x, pos.y)
+	self.grid_back:SetOriginalRect(0, 0, self.cols * TEXTURE_CELL_SIZE, self.rows * TEXTURE_CELL_SIZE)
 	
 	local name = self.ID.."service_back"
 	self:Register(self.service_back, name)
