@@ -114,6 +114,7 @@ function UICellItemContainer:InitControls()
 	self.grid_back:SetHeight(grid_size.y)
 	self.grid_back:SetWndPos(pos.x, pos.y)
 	self.grid_back:SetOriginalRect(0, 0, self.cols * TEXTURE_CELL_SIZE, self.rows * TEXTURE_CELL_SIZE)
+	self.grid_back:Show(self.xml:ReadAttribInt(self.path, "show_grid", 1) > 0)
 	
 	local name = self.ID.."service_back"
 	self:Register(self.service_back, name)

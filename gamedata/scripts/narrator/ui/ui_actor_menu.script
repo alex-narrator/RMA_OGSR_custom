@@ -162,8 +162,9 @@ function ActorMenuOverlay:InitControls()
 	xml:InitAutoStaticGroup("w:auto_static", self)
 	
 	--//drag item
-	tmp_tbl = split_string(xml:ReadAttrib("drag_cell_item", "offset", "0,0"), ",")
+	tmp_tbl = split_string(xml:ReadAttrib("drag_cell_item", "offset", "0,0"), ",", true)
 	self.drag_item_offset = {x = tmp_tbl[1], y = tmp_tbl[2]}
+	self.drag_item_offset_mode = xml:ReadAttribInt("drag_cell_item", "offset_mode", "0") > 0 and true or false
 	-- dragdrops
 	--//actor ruck and belt
 	self.ruck_list = ui_cell_item_container.UICellItemContainer(xml, "dragdrop_ruck", self)
@@ -573,9 +574,10 @@ function ActorMenuOverlay:OnCellItemStartDrag(cell_item)
 		item = level.object_by_id(k)
 		break
 	end	
-	
 	local cell_pos = vector2():set(1, 1)
 	self.drag_item = ui_cell_item.UICellItem(self, item, cell_pos, cell_item:GetCellSize(), cell_item:GetOwnerList())
+	self.drag_item:SetInteractive(false)
+	self.drag_item.orig_pos = vector2():set(cell_item:GetMousePosX(), cell_item:GetMousePosY())
 end
 
 function ActorMenuOverlay:UpdateDragItem()
@@ -583,7 +585,13 @@ function ActorMenuOverlay:UpdateDragItem()
 	return end
 	
 	local pos = vector2():set(self:GetMousePosX(), self:GetMousePosY())
-	self.drag_item:SetWndPos(pos.x + self.drag_item_offset.x, pos.y + self.drag_item_offset.y)
+	local offset = nil
+	if self.drag_item_offset_mode then
+		offset = vector2():set(self.drag_item_offset.x, self.drag_item_offset.y)
+	else
+		offset = vector2():set(-self.drag_item.orig_pos.x, -self.drag_item.orig_pos.y)
+	end
+	self.drag_item:SetWndPos(pos.x + offset.x, pos.y + offset.y)
 end
 
 function ActorMenuOverlay:ServiceOnLButtonUp()

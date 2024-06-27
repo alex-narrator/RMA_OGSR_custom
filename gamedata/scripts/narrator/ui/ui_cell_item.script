@@ -18,6 +18,7 @@ function UICellItem:__init(owner, item, cell_pos, cell_size, owner_list) super()
 	self.cell_size = cell_size
 	self.childs = {}
 	self.selected = false
+	self.interactive = true
 	self.sm = ogse_signals.get_mgr()
 	self:Subscribe()
 	self:InitControls(cell_pos)
@@ -104,7 +105,8 @@ end
 
 function UICellItem:Update()
 	CUIScriptWnd.Update(self)
-	
+	if not self.interactive then
+	return end
 	self.sm:call("on_cell_item_update", self.item, self.icon, self:GetCount())
 end
 
@@ -114,6 +116,8 @@ function UICellItem:OnIconShow()
 end
 
 function UICellItem:OnFocusReceived()
+	if not self.interactive then
+	return end
 	if ui_actor_menu.get_prop_box():IsShown() then
 	return end
 	
@@ -122,6 +126,8 @@ function UICellItem:OnFocusReceived()
 end
 
 function UICellItem:OnFocusLost()
+	if not self.interactive then
+	return end
 	if ui_actor_menu.get_prop_box():IsShown() then
 	return end
 	
@@ -130,6 +136,8 @@ function UICellItem:OnFocusLost()
 end
 
 function UICellItem:OnLButtonDown()
+	if not self.interactive then
+	return end
 	self.sm:call("on_cell_item_select", self.item, self)
 	self.sm:call("on_cell_item_lb_click", self.item, self)
 	
@@ -138,11 +146,15 @@ function UICellItem:OnLButtonDown()
 end
 
 function UICellItem:OnLButtonUp()
+	if not self.interactive then
+	return end
 	self.l_button_down = false
 	self.start_drag = false
 end
 
 function UICellItem:OnRButtonDown()
+	if not self.interactive then
+	return end
 	self.sm:call("on_cell_item_select", self.item, self)
 	self.sm:call("on_cell_item_rb_click", self.item, self)
 	
@@ -150,10 +162,16 @@ function UICellItem:OnRButtonDown()
 end
 
 function UICellItem:OnDBClick()
+	if not self.interactive then
+	return end
 	if ui_actor_menu.get_prop_box():IsShown() then
 	return end
 	
 	self.sm:call("on_cell_item_db_click", self.item, self)
+end
+
+function UICellItem:SetInteractive(val)
+	self.interactive = val
 end
 
 function UICellItem:GetIcon()
@@ -237,6 +255,8 @@ function UICellItem:GetCount()
 end
 
 function UICellItem:SetSelected(val)
+	if not self.interactive then
+	return end
 	self.selected = val
 	self.back:Show(self:GetSelected())
 end
