@@ -594,16 +594,15 @@ function ActorMenuOverlay:DestroyDragItem()
 end
 
 function ActorMenuOverlay:OnDragItemDrop(cell_item)
+	self.cell_item_selected = nil
+	self.selected_item_tip:SetText("")
+	
 	local item = cell_item:GetItem()
 	local parent = cell_item:GetOwnerList()
 	
 	local ci_f = self.cell_item_focused
 	if ci_f then
-		local on_item = ci_f:GetItem()
-		for id,v in pairs(ci_f:GetChilds()) do
-			on_item = level.object_by_id(id)
-			break
-		end
+		local on_item = ci_f:GetAnyItem()
 		self.sm:call( "inv_drag_drop", item, on_item )
 		return
 	end
@@ -1468,14 +1467,11 @@ function ActorMenuOverlay:OnKeyboard(dik, keyboard_action)
 				return true
 			end
 			if self.cell_item_selected then
-				local item = self.cell_item_selected:GetItem()
-				for id,v in pairs(self.cell_item_selected:GetChilds()) do
-					item = level.object_by_id(id)
-					break
-				end
+				local item = self.cell_item_selected:GetAnyItem()
 				if script_actions.can_eat(item) then
 					actor:eat(item)
 					self.cell_item_selected = nil
+					self.selected_item_tip:SetText("")
 					return true
 				end
 			end
