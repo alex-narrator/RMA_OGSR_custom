@@ -56,6 +56,7 @@ function switch_nvd(item)
 end
 
 function enable_nvd(item, power_on)
+	--log3("~enable_nvd for item %s | power_on %s", item:name(), power_on)
 	local sobj = alife():object(item:id())
 	sobj.is_nvd_on = power_on
 	local snd_name = sobj.is_nvd_on and on_snd or off_snd
@@ -64,7 +65,7 @@ function enable_nvd(item, power_on)
 end
 
 function set_nvd_effector(sect, enable)
-	--log3("set_nvd_effector item %s, enable %s", item:name(), enable)
+	--log3("~set_nvd_effector item %s, enable %s", sect, enable)
 	if not enable then
 		set_pnv_color(0,0,0,0)
 		set_pnv_params(0,0,0,0)
@@ -78,6 +79,7 @@ end
 function on_slot(obj, prev_place)
 	if obj:is_weapon() then return end
 	local sobj = alife():object(obj:id())
+	--log3("~item %s | get_nvd_params %s", obj:section(), not not get_nvd_params(obj:section()))
 	if get_nvd_params(obj:section()) then
 		if not xr_conditions.black_screen() then
 			sobj.is_nvd_on = false
@@ -101,6 +103,11 @@ end
 function is_nvd_on()
 	local nvd = get_current_nvd()
 	return nvd and alife():object(nvd:id()).is_nvd_on
+end
+
+function is_item_nvd_on(item)
+	local nvd = get_current_nvd()
+	return nvd and nvd:id() == item:id() and alife():object(nvd:id()).is_nvd_on
 end
 
 --//scope night vision

@@ -125,7 +125,7 @@ function device_binder:decrease_power()
 		if self.object:is_power_on() then
 			self.object:switch_power(false)
 		end
-		if nvd.is_nvd_on(self.object) then
+		if nvd.is_item_nvd_on(self.object) then
 			nvd.enable_nvd(self.object, false)
 		end
 	return end
