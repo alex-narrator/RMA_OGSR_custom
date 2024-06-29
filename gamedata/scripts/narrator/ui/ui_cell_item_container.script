@@ -1,9 +1,10 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 local color_highlight 	= GetARGB(100, 200, 200, 200)
 
-local back_texture 		= "square_light_grey"
-local grid_texture 		= "ui\\ui_grid_array"
-local TEXTURE_CELL_SIZE = 64
+local back_texture 					= "square_light_grey"
+local grid_texture 					= "ui\\ui_grid_array"
+local grid_texture_highlight 		= "ui\\ui_grid_array_translucent"
+local TEXTURE_CELL_SIZE 			= 64
 
 class "UICellItemContainer" (CUIScriptWnd)
 
@@ -110,11 +111,12 @@ function UICellItemContainer:InitControls()
 	self.back:SetHeight(grid_size.y)
 	self.back:SetWndPos(pos.x, pos.y)
 	
+	self.show_grid = self.xml:ReadAttribInt(self.path, "show_grid", 1) > 0 and true or false
 	self.grid_back:SetWidth(grid_size.x)
 	self.grid_back:SetHeight(grid_size.y)
 	self.grid_back:SetWndPos(pos.x, pos.y)
 	self.grid_back:SetOriginalRect(0, 0, self.cols * TEXTURE_CELL_SIZE, self.rows * TEXTURE_CELL_SIZE)
-	self.grid_back:Show(self.xml:ReadAttribInt(self.path, "show_grid", 1) > 0)
+	self.grid_back:Show(self.show_grid)
 	
 	local name = self.ID.."service_back"
 	self:Register(self.service_back, name)
@@ -176,7 +178,8 @@ end
 
 function UICellItemContainer:Highlight(enable)
 	--log3("~highlight %s for list %s", enable, self.ID)
-	self.back:Show(enable)
+	self.back:Show(enable and not self.show_grid)
+	self.grid_back:InitTexture(enable and grid_texture_highlight or grid_texture)
 end
 
 function UICellItemContainer:GetID()

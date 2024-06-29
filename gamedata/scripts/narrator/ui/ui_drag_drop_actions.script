@@ -19,6 +19,18 @@ function on_drag_drop(obj, drop_on_obj)
 			end
 		end
 	end
+	--//драгдроп на предмет на поясі
+	if parent_is_actor(obj) and actor:is_on_belt(drop_on_obj) then
+		if read_if_exists(sys_ini, "r_bool", obj:section(), "belt", false) then
+			local params_obj = CIconParams(obj:section())
+			local params_drop_on_obj = CIconParams(drop_on_obj:section())
+			if params_obj.grid_width <= params_drop_on_obj.grid_width then
+				actor:move_to_ruck(drop_on_obj)
+				actor:move_to_belt(obj)
+				return
+			end
+		end
+	end
 
 	local iitem = obj:get_inventory_item()
 	local drop_on_iitem = drop_on_obj:get_inventory_item()

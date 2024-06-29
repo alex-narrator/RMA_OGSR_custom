@@ -167,13 +167,16 @@ function ActorMenuOverlay:InitControls()
 	self.ruck_list:SetID("ruck_list")
 	self.belt_list = ui_cell_item_container.UICellItemContainer(xml, "dragdrop_belt", self)
 	self.belt_list:SetID("belt_list")
+	--//loadout
+	self.loadout_list = ui_cell_item_container.UICellItemContainer(xml, "dragdrop_loadout", self)
+	self.loadout_list:SetID("loadout_list")	
 	--//actor slots
 	local inv = actor.inventory
 	self.slot_list = {}
 	for i = 0, sys_ini:r_u32("inventory","slots") - 1 do
 		self.slot_list[i] = ui_cell_item_container.UICellItemContainer(xml, "dragdrop_slot_"..i, self)
 		self.slot_list[i]:SetID("slot_"..i)
-	end	
+	end
 	--//carbody/trade_partner
 	self.target_list = ui_cell_item_container.UICellItemContainer(xml, "dragdrop_target", self)
 	self.target_list:SetID("target_list")
@@ -500,6 +503,9 @@ function ActorMenuOverlay:OnCellItemFocus(obj, cell_item)
 	if read_if_exists(sys_ini, "r_bool", sect, "belt", false) and not actor:is_on_belt(obj) then
 		self.belt_list:Highlight(true)
 	end
+	if loadout.is_loadout_item(obj) then
+		self.loadout_list:Highlight(not loadout.can_remove(obj))
+	end
 	local slots = read_if_exists(sys_ini, "r_string", sect, "slot", nil)
 	if slots then
 		slots = split_string(slots, ",", true)
@@ -533,6 +539,7 @@ function ActorMenuOverlay:OnCellItemFocusLost(obj, cell_item)
 	self.cell_item_focused = nil
 	
 	self.belt_list:Highlight(false)
+	self.loadout_list:Highlight(false)
 	for k,v in pairs(self.slot_list) do
 		v:Highlight(false)
 	end
@@ -548,6 +555,7 @@ function ActorMenuOverlay:OnCellItemSelect(item, cell_item)
 	
 	self.ruck_list:ColorizeCompatible(item)
 	self.belt_list:ColorizeCompatible(item)
+	self.loadout_list:ColorizeCompatible(item)
 	for i,list in pairs(self.slot_list) do
 		list:ColorizeCompatible(item)
 	end
@@ -625,6 +633,8 @@ function ActorMenuOverlay:OnDragItemDrop(cell_item)
 						target = self.slot_list[item:get_slot()]
 					elseif actor:is_on_belt(item) then
 						target = self.belt_list
+					elseif loadout.can_remove(item) then
+						target = self.loadout_list						
 					end
 					ui_cell_item_utils.move_cell_item(item, cell_item, parent, target)
 				end
@@ -637,14 +647,6 @@ function ActorMenuOverlay:OnDragItemDrop(cell_item)
 			end
 			self:UpdatePrices()
 			return
-		-- elseif mode == "carbody" then
-			-- if parent_is_actor(item) then
-				-- if cic_f:GetID() == "target_list" then
-					-- ui_cell_item_utils.transfer_cell_item(item, cell_item, self.target)
-				-- end
-			-- else
-				-- ui_cell_item_utils.transfer_cell_item(item, cell_item, actor)
-			-- end
 		else
 			if cic_f:GetID() == "target_list" then
 				ui_cell_item_utils.transfer_cell_item(item, cell_item, self.target)
@@ -656,8 +658,11 @@ function ActorMenuOverlay:OnDragItemDrop(cell_item)
 			end
 			if cic_f:GetID() == "ruck_list" then
 				actor:move_to_ruck(item)
+				loadout.try_set_item(item)
 			elseif cic_f:GetID() == "belt_list" then
 				actor:move_to_belt(item)
+			elseif cic_f:GetID() == "loadout_list" then
+				loadout.try_set_item(item)
 			else
 				local slots = read_if_exists(sys_ini, "r_string", item:section(), "slot", nil)
 				if slots then
@@ -968,8 +973,9 @@ function ActorMenuOverlay:Update()
 	self:UpdateTooltip()
 	self:UpdateDragItem()
 	
-	if self:GetMode() == "carbody" and self.target then
-		aim_camera_to_pos(self.target:center())
+	local mode = self:GetMode()
+	if mode ~= "inventory" and self.target then
+		aim_camera_to_target(self.target)
 		if distance_between_safe(actor, self.target) > actor.inventory.take_dist + self.target:radius() then
 			self:Exit()
 		end
@@ -1006,6 +1012,7 @@ function ActorMenuOverlay:OnShow()
 	self:SetCharacterText()	
 	self:SetCharacterTextNPC()
 	self:UpdatePrices()
+	self:UpdateSlots()
 	
 	self:PlayActionSound("open")
 end
@@ -1269,19 +1276,24 @@ function ActorMenuOverlay:ReinitLists(show_type)
 	
 	self.ruck_list:Reinit()
 	self.belt_list:Reinit()
+	self.loadout_list:Reinit()
 	for i,list in pairs(self.slot_list) do
 		list:Reinit()
 		list:Show(actor.inventory:is_slot_allowed(i))
-	end	
-	
-	local function show_item(item)
-		return not get_inv_item_hidden(item) and (not show_type or show_type == ui_inv_utils.get_type(item) or ui_inv_utils.get_type(item) == 0)
 	end
 	
-	local ruck_items, belt_items = {}, {}
+	local mode = self:GetMode()	
+	
+	local function show_item(item)
+		return not get_inv_item_hidden(item) and (not show_type or show_type == ui_inv_utils.get_type(item) or ui_inv_utils.get_type(item) == 0) and (mode ~= "trade" or trade_manager.tradable(item))--item:can_trade())
+	end
+	
+	local ruck_items, belt_items, loadout_items = {}, {}, {}
 	
 	function fill_list(dummy, item)
-		if actor:is_in_ruck(item) then
+		if loadout.can_remove(item) then
+			table.insert(loadout_items, item)
+		elseif actor:is_in_ruck(item) then
 			if show_item(item) then
 				table.insert(ruck_items, item)
 			end
@@ -1303,13 +1315,17 @@ function ActorMenuOverlay:ReinitLists(show_type)
 		self.belt_list:AddItem(item)
 	end
 	
+	table.sort(loadout_items, ui_inv_utils.sort_by_size)
+	for k, item in pairs(loadout_items) do
+		self.loadout_list:AddItem(item)
+	end	
+	
 	self.target_list:Reinit()
-	local mode = self:GetMode()
 	self.target_list:Show(mode == "carbody" or mode == "trade")
 	if self.target_list:IsShown() then
 		local target_items = {}
 		function fill_target_list(dummy, item)
-			if show_item(item) and (mode ~= "trade" or item:can_trade()) then
+			if show_item(item) then
 				table.insert(target_items, item)
 			end
 		end		
@@ -1426,6 +1442,21 @@ function ActorMenuOverlay:OnBelt(item)
 	end
 	self.belt_list:AddItem(item)
 	self:PlayActionSound("to_belt")
+end
+
+function ActorMenuOverlay:OnMoveLoadout(item, item_in)
+	if not item then return end
+	
+	local ci = self:GetCellItem(item)
+	if ci then
+		ci:GetOwnerList():RemoveItem(item)
+	end
+	
+	if item_in then
+		self.loadout_list:AddItem(item)
+	else
+		self.ruck_list:AddItem(item)
+	end
 end
 
 function ActorMenuOverlay:OnUse(item)
@@ -1701,6 +1732,9 @@ function ActorMenuOverlay:GetCellItem(item)
 	ci = self.belt_list:FindItem(item)
 	if ci then
 	return ci end
+	ci = self.loadout_list:FindItem(item)
+	if ci then
+	return ci end	
 	for i,list in pairs(self.slot_list) do
 		ci = list:FindItem(item)
 		if ci then
@@ -1766,15 +1800,6 @@ function ActorMenuOverlay:UpdatePrices()
 	color = (total_price > self.target:money()) and GetARGB(255, 255, 0, 0) or self.sell_cost.base_color
 	self.sell_cost:SetTextColor(color)
 	self:PlayActionSound("to_ruck")	
-end
-
-function ActorMenuOverlay:OnMoveLoadout(item)
-	if not item then return end
-	
-	local ci = self:GetCellItem(item)
-	if ci then
-		ci:ForceUpdate()
-	end
 end
 
 function ActorMenuOverlay:PlayActionSound(name)

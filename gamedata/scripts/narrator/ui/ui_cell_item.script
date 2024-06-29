@@ -167,7 +167,8 @@ function UICellItem:OnDBClick()
 	if ui_actor_menu.get_prop_box():IsShown() then
 	return end
 	
-	self.sm:call("on_cell_item_db_click", self.item, self)
+	local item = self:GetAnyItem()
+	self.sm:call("on_cell_item_db_click", item, self)
 end
 
 function UICellItem:SetInteractive(val)

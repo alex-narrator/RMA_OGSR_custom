@@ -2115,3 +2115,18 @@ function aim_camera_to_pos(pos)
 		cam.pitch = p
 	end
 end
+
+function aim_camera_to_target(obj)
+	local pos = obj:center()
+	pos.y = pos.y + obj:radius() * 0.5
+	if is_actor_looking_to_pos(pos, 0.5) then
+	return end
+	local dir = vector():sub(pos, device().cam_pos)
+	local h = -dir:getH()
+	local p = -dir:getP()
+	local cam = actor_camera( 0 )
+	if cam then
+		cam.yaw = h
+		cam.pitch = p
+	end
+end

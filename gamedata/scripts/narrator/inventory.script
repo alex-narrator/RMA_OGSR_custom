@@ -109,22 +109,36 @@ end
 
 function take_all(inv_owner)
 	if not inv_owner then return end
+	local items = {}
 	function perform_action(dummy, item)
 		if LIMITED_BOLTS or get_clsid(item) ~= clsid.obj_bolt then
-			inv_owner:transfer_item(item, actor)
+			--inv_owner:transfer_item(item, actor)
+			table.insert(items, item)
 		end
 	end	
 	inv_owner:iterate_inventory(perform_action, nil)
+	
+	table.sort(items, ui_inv_utils.sort_by_size_type)
+	for k, item in pairs(items) do
+		inv_owner:transfer_item(item, actor)
+	end	
 end
 
 function move_all_ruck(inv_owner)
 	if not inv_owner then return end
+	local items = {}
 	function perform_action(dummy, item)
 		if (LIMITED_BOLTS or get_clsid(item) ~= clsid.obj_bolt) and not loadout.can_remove(item) then
-			actor:transfer_item(item, inv_owner)
+			--actor:transfer_item(item, inv_owner)
+			table.insert(items, item)
 		end
 	end	
 	actor:iterate_ruck(perform_action, nil)
+	
+	table.sort(items, ui_inv_utils.sort_by_size_type)
+	for k, item in pairs(items) do
+		actor:transfer_item(item, inv_owner)
+	end	
 end
 
 function get_overweight()
