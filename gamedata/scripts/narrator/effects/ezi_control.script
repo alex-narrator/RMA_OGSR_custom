@@ -83,7 +83,14 @@ function on_zoom_in(weapon)
 		end
 	end
 	
-	hud_add_info_message("item_usage", game.translate_string("st_hold_key_to_hard_hold"), 3)
+	--hud_add_info_message("item_usage", game.translate_string("st_hold_key_to_hard_hold"), 3)
+	add_time_delayed_action(1,
+	function()
+		if not get_actor_obj():is_zoom_aiming_mode() then
+		return end
+		hud_add_info_message("item_usage", game.translate_string("st_hold_key_to_hard_hold"), 2)
+	end
+	)
 end
 
 function on_zoom_out(weapon)
