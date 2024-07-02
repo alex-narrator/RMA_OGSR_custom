@@ -319,16 +319,7 @@ function ActorMenuOverlay:InitControls()
 	self:Register(self.clear_loadout, name)
 	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.ClearLoadout, self)
 
-	self.loadout = {
-		["pistol_ammo"] 	= {},
-		["rifle_ammo"] 		= {},
-		["shotgun_ammo"] 	= {},
-		["heavy_ammo"] 		= {},
-		["grenade"]			= {},
-		["medicine"] 		= {},
-		["scope"] 			= {},
-		["silencer"] 		= {},
-	}
+	self.loadout = loadout.slots_table()
 	for k,v in pairs(self.loadout) do
 		--log3("~%s init loadout slot %s", script_name(), k)
 		v.static = xml:InitStatic(prefix..k.."_static", self.loadout_back)
@@ -1339,6 +1330,7 @@ function ActorMenuOverlay:ReinitLists(show_type)
 	self.buy_list:Reinit()
 	self.sell_list:Reinit()
 	self.sell_buy_back:SetText("")
+	self:UpdatePrices()
 end
 
 function ActorMenuOverlay:OnCellItemRBClick(item, cell_item)
@@ -1585,6 +1577,25 @@ function ActorMenuOverlay:ShowPropertiesBox(item, cell_item)
 	end
 	pbox:AddItem(name, precondition, action, cell_item)
 	
+	--//attach addon
+	for i = 0, sys_ini:r_u32("inventory","slots") - 1 do
+		local slot_item = actor:item_in_slot(i)
+		if slot_item and parent_is_actor(item) then
+			local iitem = item:get_inventory_item()
+			local slot_iitem = slot_item:get_inventory_item()
+			local attach_tip = read_if_exists(sys_ini, "r_string", item:section(), "menu_attach_tip", "st_attach")
+			name = string.format("%s %s", game.translate_string(attach_tip), game.translate_string(get_inv_name_short(slot_item:section())))
+			precondition = function(iitem, slot_iitem)
+				return slot_iitem:can_attach_addon(iitem)
+			end
+			action = function(iitem, slot_iitem)
+				slot_iitem:attach_addon(iitem, true)
+				xr_sound.get_safe_sound_object([[interface\inv_attach_addon]]):play(actor, 0, sound_object.s2d)
+			end
+			pbox:AddItem(name, precondition, action, iitem, slot_iitem)
+		end
+	end
+	
 	--//detach addon
 	local wpn = item:get_weapon_m()
 	if wpn then
@@ -1779,6 +1790,9 @@ function ActorMenuOverlay:UpdatePrices()
 	
 	self.money_from_actor = total_price
 	text = string.format("%s %s", total_price, game.translate_string("ui_st_money_regional"))
+	if total_price > 0 then
+		text = "-"..text
+	end
 	self.buy_cost:SetText(text)
 	color = (total_price > actor:money()) and GetARGB(255, 255, 0, 0) or self.buy_cost.base_color
 	self.buy_cost:SetTextColor(color)
@@ -1796,6 +1810,9 @@ function ActorMenuOverlay:UpdatePrices()
 	
 	self.money_to_actor = total_price
 	text = string.format("%s %s", total_price, game.translate_string("ui_st_money_regional"))
+	if total_price > 0 then
+		text = "+"..text
+	end	
 	self.sell_cost:SetText(text)
 	color = (total_price > self.target:money()) and GetARGB(255, 255, 0, 0) or self.sell_cost.base_color
 	self.sell_cost:SetTextColor(color)

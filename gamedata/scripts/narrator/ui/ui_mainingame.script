@@ -740,7 +740,7 @@ local update_states = {
 }
 function MainIngameOverlay:OnHudStateSwitch(item, state, old_state)
 	if update_states[old_state] then
-		self:UpdatePanelItems()
+		self:SetPanelItemsNeedUpdate()
 	end
 end
 

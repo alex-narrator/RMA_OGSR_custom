@@ -11,21 +11,22 @@ function attach(sm)
 	sm:subscribe({signal = "on_load",   				fun = this.on_load})
 end
 
+local LOADOUT_SECT = "loadout"
 --//loadout slot types and default capacities
-local slots = {
-	pistol_ammo 	= {},
-	rifle_ammo 		= {},
-	shotgun_ammo	= {},
-	heavy_ammo 		= {},
-	grenade			= {},
-	medicine 		= {},
-	scope 			= {},
-	silencer 		= {},
-}
-for k,v in pairs(slots) do
-	v.max_count = read_if_exists(sys_ini, "r_u32", "loadout", k, 0)
-	v.current_count = 0
+function slots_table()
+	local n = sys_ini:line_count(LOADOUT_SECT)
+	local name, value = "", ""
+	local tmp_tbl = {}
+	for i=0,n-1 do
+		result, name, value = sys_ini:r_line(LOADOUT_SECT,i,"","")
+		tmp_tbl[name] = {}
+		tmp_tbl[name].max_count = tonumber(value) or 0
+		tmp_tbl[name].current_count = 0
+	end
+	return tmp_tbl
 end
+
+local slots = slots_table()
 
 function log_slots()
 	for k,v in pairs(slots) do
@@ -108,6 +109,10 @@ end
 function update_item_count(item, item_in)
 	local delta = item_in and 1 or -1
 	local slot_type = get_slot_type(item)
+	if not slots[slot_type] then
+		log3("! not descripted loadout slot type %s", slot_type)
+		return
+	end
 	slots[slot_type].current_count = slots[slot_type].current_count + delta
 	if item_in then
 		loaded_items[item:id()] = true
