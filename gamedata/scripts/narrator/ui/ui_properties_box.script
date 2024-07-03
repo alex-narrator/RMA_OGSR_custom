@@ -116,7 +116,10 @@ function UIPropertiesBox:Activate()
 	--log3("self.actions: %s", self.actions)
 	
 	local show = table.size(self.actions) > 0
-	self:Show(show)
+	--self:Show(show)
+	if show then
+		level.start_stop_menu(self, true)
+	end
 	return show
 end
 
@@ -166,6 +169,6 @@ end
 
 function UIPropertiesBox:OnKeyPress(key, game_action)
 	if self:IsShown() then
-		add_update_delayed_action(1, function() self:Show(false) end)
+		add_update_delayed_action(1, function() level.start_stop_menu(self, true) end)
 	end
 end

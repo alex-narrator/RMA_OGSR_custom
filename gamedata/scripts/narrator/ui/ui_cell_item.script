@@ -118,8 +118,6 @@ end
 function UICellItem:OnFocusReceived()
 	if not self.interactive then
 	return end
-	if ui_actor_menu.get_prop_box():IsShown() then
-	return end
 	
 	self.back:Show(true)
 	self.sm:call("on_cell_item_focus", self.item, self)
@@ -127,8 +125,6 @@ end
 
 function UICellItem:OnFocusLost()
 	if not self.interactive then
-	return end
-	if ui_actor_menu.get_prop_box():IsShown() then
 	return end
 	
 	self.back:Show(self:GetSelected())
@@ -163,8 +159,6 @@ end
 
 function UICellItem:OnDBClick()
 	if not self.interactive then
-	return end
-	if ui_actor_menu.get_prop_box():IsShown() then
 	return end
 	
 	local item = self:GetAnyItem()

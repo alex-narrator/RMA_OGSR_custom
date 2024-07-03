@@ -128,7 +128,7 @@ belt_vertical = false
 ;11 - helmet
 ;12 - backpack
 
-;чи заблоковано слот (не можна класти/зибирати предмет з нього ґ не видно у ґнвентарґ) (false by default)
+;чи заблоковано слот (не можна класти/зибирати предмет з нього і не видно у інвентарі) (false by default)
 ;slot_persistent_5   = true		;bolt
 
 ;чи можна активувати слот (true by default)
@@ -169,6 +169,7 @@ test 				= kTEST
 
 [custom_properties_box_action_item]
 ;any unique action name = propbox tip text (translation string or function), action precondition function (game obj in args), action function (game obj in args)
+eat_item 			= script_actions.eat_item_tip, script_actions.can_eat, script_actions.eat
 ;donate item in trade
 donate_item 		= ui_st_donate, script_actions.can_donate, script_actions.donate
 ;power devices
@@ -213,8 +214,8 @@ shotgun_ammo 		= 1
 medicine 			= 2
 grenade 			= 0
 heavy_ammo 			= 0
-scope 				= 1
-silencer 			= 1
+;scope 				= 1
+;silencer 			= 1
 
 [lights_hanging_lamp]
 GroupControlSection	= spawn_group

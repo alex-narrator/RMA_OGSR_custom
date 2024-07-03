@@ -160,8 +160,6 @@ function UICellItemContainer:OnFocusLost()
 end
 
 function UICellItemContainer:OnCellItemSelect(item)
-	if ui_actor_menu.get_prop_box():IsShown() then
-	return end
 	for cell_item,v in pairs(self.cell_items) do
 		cell_item:SetSelected(cell_item:GetItem():id() == item:id())
 	end
