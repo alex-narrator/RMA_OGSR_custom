@@ -119,6 +119,8 @@ function ActorMenuOverlay:Subscribe()
 			{signal = "on_ruck_trader", self = self, fun = self.OnItemToPartner},
 			
 			{signal = "on_loadout_update_count", self = self, fun = self.OnMoveLoadout},
+			
+			{signal = "on_max_belt_set", self = self, fun = self.OnMaxBeltSet},
 		}
 		for _, s in ipairs( self.subscribed ) do
 			self.sm:subscribe( s )
@@ -1270,7 +1272,7 @@ function ActorMenuOverlay:ReinitLists(show_type)
 	self.loadout_list:Reinit()
 	for i,list in pairs(self.slot_list) do
 		list:Reinit()
-		list:Show(actor.inventory:is_slot_allowed(i))
+		list:SetLocked(not actor.inventory:is_slot_allowed(i))
 	end
 	
 	local mode = self:GetMode()	
@@ -1327,10 +1329,19 @@ function ActorMenuOverlay:ReinitLists(show_type)
 		end
 	end
 	
+	self:UpdateCustomDraw()
+	
 	self.buy_list:Reinit()
 	self.sell_list:Reinit()
 	self.sell_buy_back:SetText("")
 	self:UpdatePrices()
+end
+
+function ActorMenuOverlay:UpdateCustomDraw()
+	for i,list in pairs(self.slot_list) do
+		list:SetLocked(not actor.inventory:is_slot_allowed(i))
+	end
+	self:OnMaxBeltSet(actor.inventory.max_belt)
 end
 
 function ActorMenuOverlay:OnCellItemRBClick(item, cell_item)
@@ -1406,6 +1417,7 @@ function ActorMenuOverlay:OnRuck(item)
 		ci:GetOwnerList():RemoveItem(item)
 	end
 	self.ruck_list:AddItem(item)
+	self:UpdateCustomDraw()
 	self:PlayActionSound("to_ruck")
 end
 
@@ -1415,6 +1427,7 @@ function ActorMenuOverlay:OnDrop(item)
 	if ci then
 		ci:GetOwnerList():RemoveItem(item)
 	end
+	self:UpdateCustomDraw()
 	self:PlayActionSound("drop")
 end
 
@@ -1424,6 +1437,7 @@ function ActorMenuOverlay:OnSlot(item)
 		ci:GetOwnerList():RemoveItem(item)
 	end	
 	self.slot_list[item:get_slot()]:AddItem(item)
+	self:UpdateCustomDraw()
 	self:PlayActionSound("to_slot")
 end
 
@@ -1474,6 +1488,12 @@ function ActorMenuOverlay:OnItemToPartner(partner, item)
 	return end
 	self.target_list:AddItem(item)
 	self:PlayActionSound("to_ruck")
+end
+
+function ActorMenuOverlay:OnMaxBeltSet(max_belt)
+	if self.belt_list:GetColsNum() ~= max_belt then
+		self.belt_list:SetColsNum(max_belt)
+	end
 end
 
 function ActorMenuOverlay:OnKeyboard(dik, keyboard_action)

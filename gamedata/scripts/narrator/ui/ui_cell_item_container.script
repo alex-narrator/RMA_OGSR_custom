@@ -4,6 +4,7 @@ local color_highlight 	= GetARGB(100, 200, 200, 200)
 local back_texture 					= "square_light_grey"
 local grid_texture 					= "ui\\ui_grid_array"
 local grid_texture_highlight 		= "ui\\ui_grid_array_translucent"
+local grid_texture_locked 			= "ui\\ui_grid_array_locked"
 local TEXTURE_CELL_SIZE 			= 64
 
 class "UICellItemContainer" (CUIScriptWnd)
@@ -19,6 +20,7 @@ function UICellItemContainer:__init(xml, path, owner) super()
 	self.last_type = -1
 	self.curr_type = -1
 	self.saved_scroll_pos = nil
+	self.locked = false
 	self:InitControls()
 	self.sm = ogse_signals.get_mgr()
 	self:Subscribe()
@@ -100,6 +102,9 @@ function UICellItemContainer:InitControls()
 	self.rows = self.xml:ReadAttribInt(self.path, "rows_num", 1)
 	self.cols = self.xml:ReadAttribInt(self.path, "cols_num", 1)
 	
+	self.orig_rows = self.rows
+	self.orig_cols = self.cols
+	
 	self.cell_container:SetWidth(self.cols * self.cell_size.w)
 	
 	self:AdjustContainerHeight()
@@ -175,9 +180,17 @@ function UICellItemContainer:GetSelected()
 end
 
 function UICellItemContainer:Highlight(enable)
+	if self.locked then
+	return end
 	--log3("~highlight %s for list %s", enable, self.ID)
 	self.back:Show(enable and not self.show_grid)
 	self.grid_back:InitTexture(enable and grid_texture_highlight or grid_texture)
+end
+
+function UICellItemContainer:SetLocked(locked)
+	self.back:Show(not locked and not self.show_grid)
+	self.grid_back:InitTexture(locked and grid_texture_locked or grid_texture)
+	self.locked = locked
 end
 
 function UICellItemContainer:GetID()
@@ -379,4 +392,34 @@ function UICellItemContainer:ResetTypeRow()
 	self.last_type = -1
 	self.curr_type = -1
 	--log3("~ResetTypeRow for cell container %s", self.ID)
+end
+
+function UICellItemContainer:SetColsNum(width)
+	self.cols = width
+	
+	local grid_size = vector2():set(self.cell_size.w * self.cols, self.cell_size.h * self.rows)
+	local pos = self.scroll:GetWndPos()
+	
+	self.grid_back:SetWidth(grid_size.x)
+	self.grid_back:SetOriginalRect(0, 0, self.cols * TEXTURE_CELL_SIZE, self.rows * TEXTURE_CELL_SIZE)
+	
+	if not self.grid_back_oversize then
+		self.grid_back_oversize = CUIStatic()
+		self.grid_back_oversize:Init(0, 0, 0, 0)
+		self:AttachChild(self.grid_back_oversize)
+		self.grid_back_oversize:SetStretchTexture(true)
+		self.grid_back_oversize:InitTexture(grid_texture_locked)
+		self.grid_back_oversize:SetHeight(grid_size.y)
+	end
+	
+	local delta_cells = self.orig_cols - self.cols
+	self.grid_back_oversize:SetWidth(delta_cells * self.cell_size.w)
+	self.grid_back_oversize:SetWndPos(pos.x + self.grid_back:GetWidth(), pos.y)
+	self.grid_back_oversize:SetOriginalRect(0, 0, delta_cells * TEXTURE_CELL_SIZE, self.rows * TEXTURE_CELL_SIZE)
+	
+	self:ResetTypeRow()
+end
+
+function UICellItemContainer:GetColsNum()
+	return self.cols
 end

@@ -24,11 +24,11 @@ function on_key_press(key, game_action)
 	local curr_nvd = nvd.get_current_nvd()
 	if not nvd_action[game_action] or
 		--level.main_input_receiver() or
-		not actor_hands_free() or
-		nvd.aim_nvd_weapon() or
-		aim_scope() or
-		SCRIPT_ANIM_PLAYING or 
 		not curr_nvd
+		or not actor_hands_free() 
+		or nvd.aim_nvd_weapon() 
+		or (aim_scope() and not curr_nvd:is_outfit())
+		or SCRIPT_ANIM_PLAYING 
 	then
 		if nvd_action[game_action] and curr_nvd and aim_scope() and not nvd.aim_nvd_weapon() then
 			hud_add_info_message("item_usage", game.translate_string("st_scope_aim_block_nvd"), 2)
