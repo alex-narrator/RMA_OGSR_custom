@@ -59,9 +59,9 @@ function UIPropertiesBox:InitControls()
 	self.scroll_view = self.xml:InitScrollView(root..":list", self.back)
 	local root = "properties_box:list"
 	self.scroll_view.indent = {
+		l = self.xml:ReadAttribInt(root, "left_ident", 0),	
 		r = self.xml:ReadAttribInt(root, "right_ident", 0),
-		t = self.xml:ReadAttribInt(root, "top_ident", 0),
-		l = self.xml:ReadAttribInt(root, "left_ident", 0),
+		t = self.xml:ReadAttribInt(root, "top_indent", 0),
 		b = self.xml:ReadAttribInt(root, "bottom_indent", 0),
 	}
 	
@@ -81,6 +81,7 @@ function UIPropertiesBox:Activate()
 	self.back:SetWndPos(self.owner:GetMousePosX(), self.owner:GetMousePosY())
 	
 	local name
+	local max_w = 0
 	for k, v in ipairs(self.actions) do
 		v.list_item = self.xml:InitStatic("properties_box:list:list_item", self.scroll_view)
 		v.list_item:SetText(v.name)
@@ -109,6 +110,14 @@ function UIPropertiesBox:Activate()
 		self.back:SetHeight(self.scroll_view:GetHeight())
 		
 		v.list_item:SetWidth(self.scroll_view:GetPadSize().x)
+		
+		if v.list_item:GetWidth() > max_w then
+			max_w = v.list_item:GetWidth()
+		end
+	end
+	
+	for k, v in ipairs(self.actions) do
+		v.list_item:SetWidth(max_w)
 	end
 	--log3("self.actions: %s", self.actions)
 	
