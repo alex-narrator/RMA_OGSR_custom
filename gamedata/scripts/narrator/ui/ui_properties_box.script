@@ -1,6 +1,8 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 local OVERLAY_XML = "script_overlays\\properties_box.xml"
 
+local CUSTOM_ACTION_SECT = "custom_properties_box_action_item"
+
 local color_default 	= GetARGB(0, 255, 255, 255)
 local color_focused 	= GetARGB(70, 255, 255, 255)
 local text_color_default 	= GetARGB(255, 131, 131, 131)
@@ -147,7 +149,8 @@ function UIPropertiesBox:AddItem(name, precondition, action, ...)
 	if not precondition(unpack(args)) then
 	return end
 	
-	local name = type(name) == "string" and game.translate_string(name) or name(unpack(args))
+	local name = type(name) == "string" and name or name(unpack(args))
+	name = game.translate_string(name)
 	local action_data = {
 		name = name,
 		action = action,
@@ -157,9 +160,16 @@ function UIPropertiesBox:AddItem(name, precondition, action, ...)
 end
 
 function UIPropertiesBox:AddCustomAction(item)
-	for k,v in pairs(ui_properties_box_data.actions) do
-		self:AddItem(v[1], v[2], v[3], item)
-	end	
+	local name, value = "", ""
+	local n = sys_ini:line_count(CUSTOM_ACTION_SECT)	
+	for i=0,n-1 do
+		result, name, value = sys_ini:r_line(CUSTOM_ACTION_SECT,i,"","")
+		local val_tbl = split_string(value, ",")
+		local _name = not not string.find(val_tbl[1], "%.") and loadstring( "return " .. val_tbl[1] .. "( ... )" ) or val_tbl[1]
+		local _precondition = loadstring("return " .. val_tbl[2] .. "( ... )")
+		local _action = loadstring( val_tbl[3] .. "( ... )" )
+		self:AddItem(_name, _precondition, _action, item)
+	end
 end
 
 function UIPropertiesBox:OnKeyPress(key, game_action)

@@ -1544,7 +1544,7 @@ function ActorMenuOverlay:ShowPropertiesBox(item, cell_item)
 	if slots then
 		slots = split_string(slots, ",", true)
 		for k,i in pairs(slots) do
-			name = game.translate_string("st_move_to_slot_"..i)
+			name = "st_move_to_slot_"..i
 			precondition = function(item, i)
 				return actor:can_put_in_slot(item, i)
 			end
@@ -1557,7 +1557,7 @@ function ActorMenuOverlay:ShowPropertiesBox(item, cell_item)
 	end
 	
 	--//move to belt
-	name = game.translate_string("st_move_to_belt")
+	name = "st_move_to_belt"
 	precondition = function(item)
 		return actor:can_put_in_belt(item)
 	end
@@ -1567,7 +1567,7 @@ function ActorMenuOverlay:ShowPropertiesBox(item, cell_item)
 	pbox:AddItem(name, precondition, action, item)
 	
 	--//move to ruck
-	name = game.translate_string("st_move_to_bag")
+	name = "st_move_to_bag"
 	precondition = function(item)
 		return actor:is_in_slot(item) or actor:is_on_belt(item)
 	end
@@ -1577,7 +1577,7 @@ function ActorMenuOverlay:ShowPropertiesBox(item, cell_item)
 	pbox:AddItem(name, precondition, action, item)
 	
 	--//unload weapon
-	name = game.translate_string("st_unload_magazine")
+	name = "st_unload_magazine"
 	precondition = function(item)
 		return (parent_is_actor(item) or mode ~= "trade") and ui_cell_item_utils.can_be_unloaded(item)
 	end
@@ -1587,7 +1587,7 @@ function ActorMenuOverlay:ShowPropertiesBox(item, cell_item)
 	pbox:AddItem(name, precondition, action, item, cell_item)	
 	
 	--//unload all weapon
-	name = game.translate_string("st_unload_magazine_all")
+	name = "st_unload_magazine_all"
 	precondition = function(cell_item)
 		local item = cell_item:GetItem()	
 		return (parent_is_actor(item) or mode ~= "trade") and cell_item:GetChildsCount() > 1 and ui_cell_item_utils.can_be_unloaded(item)
@@ -1641,7 +1641,7 @@ function ActorMenuOverlay:ShowPropertiesBox(item, cell_item)
 	end
 	
 	--//move to carbody
-	name = game.translate_string("st_move")
+	name = "st_move"
 	precondition = function(item) 
 		return not read_if_exists(sys_ini, "r_bool", item:section(), "quest_item", false) and mode == "carbody"
 	end
@@ -1652,7 +1652,7 @@ function ActorMenuOverlay:ShowPropertiesBox(item, cell_item)
 	pbox:AddItem(name, precondition, action, item)
 	
 	--//move all to carbody
-	name = game.translate_string("st_move_all")
+	name = "st_move_all"
 	precondition = function(cell_item)
 		local item = cell_item:GetItem()
 		return cell_item:GetChildsCount() > 0 and not read_if_exists(sys_ini, "r_bool", item:section(), "quest_item", false) and mode == "carbody"
@@ -1664,7 +1664,7 @@ function ActorMenuOverlay:ShowPropertiesBox(item, cell_item)
 	pbox:AddItem(name, precondition, action, cell_item)
 	
 	--//drop item
-	name = game.translate_string("st_drop")
+	name = "st_drop"
 	precondition = function(item) 
 		return ui_cell_item_utils.can_drop(item)
 	end
@@ -1674,7 +1674,7 @@ function ActorMenuOverlay:ShowPropertiesBox(item, cell_item)
 	pbox:AddItem(name, precondition, action, item)
 	
 	--//drop all
-	name = game.translate_string("st_drop_all")
+	name = "st_drop_all"
 	precondition = function(cell_item)
 		local item = cell_item:GetItem()
 		return cell_item:GetChildsCount() > 0 and ui_cell_item_utils.can_drop(item)
@@ -1687,9 +1687,9 @@ function ActorMenuOverlay:ShowPropertiesBox(item, cell_item)
 	--//move to trade
 	name = function(item, cell_item)
 		if parent_is_actor(item) then
-			return cell_item:GetOwnerList():GetID() == "sell_list" and game.translate_string("st_move_back") or game.translate_string("st_move_to_sell")
+			return cell_item:GetOwnerList():GetID() == "sell_list" and "st_move_back" or "st_move_to_sell"
 		else
-			return cell_item:GetOwnerList():GetID() == "buy_list" and game.translate_string("st_move_back") or game.translate_string("st_move_to_buy")
+			return cell_item:GetOwnerList():GetID() == "buy_list" and "st_move_back" or "st_move_to_buy"
 		end
 	end
 	precondition = function(item) 
@@ -1720,9 +1720,9 @@ function ActorMenuOverlay:ShowPropertiesBox(item, cell_item)
 	--//move all to trade
 	name = function(item, cell_item)
 		if parent_is_actor(item, cell_item) then
-			return cell_item:GetOwnerList():GetID() == "sell_list" and game.translate_string("st_move_back_all") or game.translate_string("st_move_to_sell_all")
+			return cell_item:GetOwnerList():GetID() == "sell_list" and "st_move_back_all" or "st_move_to_sell_all"
 		else
-			return cell_item:GetOwnerList():GetID() == "buy_list" and game.translate_string("st_move_back_all") or game.translate_string("st_move_to_buy_all")
+			return cell_item:GetOwnerList():GetID() == "buy_list" and "st_move_back_all" or "st_move_to_buy_all"
 		end
 	end
 	precondition = function(item, cell_item) 

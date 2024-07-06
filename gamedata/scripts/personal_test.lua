@@ -372,8 +372,11 @@ end
 --body_health.try_upper_limbs_injure(0.3)
 --body_health.try_lower_limbs_injure(0.3)
 
-local flist = getFS():file_list_open_ex( "$game_saves$", FS.FS_ListFiles + FS.FS_ClampExt + FS.FS_RootOnly + FS.FS_NoLower, "*.sav" )
-flist:Sort(FS.FS_sort_by_modif_down)
-for file in flist:GetAll() do
-	log3("~savegame %s | modif time %s", file:NameFull(), file:Modif())
-end
+-- local flist = getFS():file_list_open_ex( "$game_saves$", FS.FS_ListFiles + FS.FS_ClampExt + FS.FS_RootOnly + FS.FS_NoLower, "*.sav" )
+-- flist:Sort(FS.FS_sort_by_modif_down)
+-- for file in flist:GetAll() do
+	-- log3("~savegame %s | modif time %s", file:NameFull(), file:Modif())
+-- end
+
+local str = "st_disassemble.1"
+log3("find dot %s", not not string.find(str, "%."))

@@ -15,7 +15,7 @@ end
 
 --//eat item
 function eat_item_tip(item)
-	return game.translate_string(read_if_exists(sys_ini, "r_string", item:section(), "menu_use_tip", "st_use"))
+	return read_if_exists(sys_ini, "r_string", item:section(), "menu_use_tip", "st_use")
 end
 
 function can_eat(item)
