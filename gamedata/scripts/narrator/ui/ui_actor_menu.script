@@ -1518,6 +1518,16 @@ function ActorMenuOverlay:OnKeyboard(dik, keyboard_action)
 					return true
 				end
 			end
+		elseif game_action == key_bindings.kDROP then
+			if mode == "inventory" then
+				if self.cell_item_selected then
+					local item = self.cell_item_selected:GetAnyItem()
+					if ui_cell_item_utils.can_drop(item) then
+						ui_cell_item_utils.drop_cell_item(item)
+						return true
+					end
+				end
+			end
 		end
 	end
 	return self.key_accels[dik]
