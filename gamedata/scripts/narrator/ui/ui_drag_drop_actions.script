@@ -4,6 +4,9 @@ function attach(sm)
 end
 
 function on_drag_drop(obj, drop_on_obj)
+	if obj:id() == drop_on_obj:id() then
+	return end
+	
 	--//драгдроп на предмет в слоті актора
 	if parent_is_actor(obj) and actor:is_in_slot(drop_on_obj) then
 		local slots = read_if_exists(sys_ini, "r_string", obj:section(), "slot", nil)

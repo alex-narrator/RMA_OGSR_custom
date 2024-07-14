@@ -358,18 +358,28 @@ function UICellItemContainer:ColorizeRestricted(item)
 	if not ci then
 	return end
 	local menu = ui_actor_menu.get_menu()
-	if not menu:IsShown() or menu:GetMode() ~= "trade" then
+	if not menu:IsShown() then
 	return end
-	if trade_manager.tradable(item) then
+	local m_mode = menu:GetMode()
+	if m_mode ~= "trade" and m_mode ~= "repair" then
+	return end
+	if m_mode == "trade" and trade_manager.tradable(item) then
+	return end
+	if m_mode == "repair" and menu.repair:RepairAllowed(item) then
 	return end
 	ci:ColorizeRestricted()
 end
 
 function UICellItemContainer:ColorizeCellRestricted(cell_item)
 	local menu = ui_actor_menu.get_menu()
-	if not menu:IsShown() or menu:GetMode() ~= "trade" then
+	if not menu:IsShown() then
 	return end
-	if trade_manager.tradable(cell_item:GetItem()) then
+	local m_mode = menu:GetMode()
+	if m_mode ~= "trade" and m_mode ~= "repair" then
+	return end	
+	if m_mode == "trade" and trade_manager.tradable(cell_item:GetItem()) then
+	return end
+	if m_mode == "repair" and menu.repair:RepairAllowed(cell_item:GetItem()) then
 	return end
 	cell_item:ColorizeRestricted()
 end

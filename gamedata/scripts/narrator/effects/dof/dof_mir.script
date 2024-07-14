@@ -16,14 +16,19 @@ local sg = false
 
 local MIR_DOF = read_if_exists(sys_ini, "r_string", "dof_effect", "dof_mir", nil)
 
+local already_blured = {
+	["trade"] = true,
+	["repair"] = true,
+}
+
 function on_actor_menu_show(mode)
-	if mode ~= "trade" then
+	if not already_blured[mode] then
 		start_dof()
 	end
 end
 
 function on_actor_menu_hide(mode)
-	if mode ~= "trade" then
+	if not already_blured[mode] then
 		stop_dof()
 	end
 end

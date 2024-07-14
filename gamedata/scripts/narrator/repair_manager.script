@@ -1,0 +1,86 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+local repairers = {
+	--//Арні (Арена)
+	[story_ids.bar_arena_locator] = {
+		condition_limit = 0.9,
+		cost_k = 1.5,
+		uniquie_k = 2.5,
+		base_repair_precond = function() return true end,
+		armor_repair_precond = function() return true end,
+	},
+	--//Іванцов (Долг)
+	[story_ids.bar_dolg_captain_ivancov] = {
+		condition_limit = 0.9,
+		cost_k = 2,
+		uniquie_k = 1,
+		base_repair_precond = function() return dialogs.actor_in_dolg() or relation_registry.community_goodwill("dolg", actor:id()) >= 500 end,
+		armor_repair_precond = function() return true end,
+	},
+	--//Шуруп (Воля)
+	[story_ids.mil_Svoboda_engineer] = {
+		condition_limit = 0.9,
+		cost_k = 2,
+		uniquie_k = 1,
+		base_repair_precond = function() return has_alife_info("mil_screw_vodka_given") end,
+		armor_repair_precond = function() return true end,
+	},
+	--//Круглов (Янтар)
+	[story_ids.yan_ecolog_help] = {
+		condition_limit = 0.95,
+		cost_k = 1,
+		uniquie_k = 3,
+		base_repair_precond = function() return true end,
+		armor_repair_precond = function() return true end,
+	},
+	--//Семенов (Янтар)
+	[story_ids.yan_semenov_help] = {
+		condition_limit = 0.95,
+		cost_k = 1,
+		uniquie_k = 3,
+		base_repair_precond = function() return true end,
+		armor_repair_precond = function() return true end,
+	},	
+}
+
+function is_repairer(npc)
+	local repair_data = repairers[npc:story_id()]
+	return repair_data and repair_data.base_repair_precond()
+end
+
+class "RepairManager"
+
+function RepairManager:__init(npc)
+	local rep_data = repairers[npc:story_id()]
+	if not rep_data then
+		log3("![%s] can't find repair data for NPC %s [ID %s | SID %s]", script_name(), npc:character_name(), npc:id(), npc:story_id())
+	return end
+	self.condition_limit = rep_data.condition_limit or 1
+	self.cost_k = rep_data.cost_k or 1
+	self.unique_k = rep_data.uniquie_k or 1
+	self.armor_repair_precond = rep_data.armor_repair_precond or true
+end
+
+function RepairManager:GetRepairCost(item)
+	local item_cost = item:cost() * self.cost_k
+	local item_corruption = 1 - item:condition()
+	local unique_k = read_if_exists(sys_ini, "r_bool", item:section(), "unique_item", false) and self.uniquie_k or 1
+	return math.floor(item_cost * item_corruption * unique_k)
+end
+
+function RepairManager:CanRepair(item)
+	return self:NeedRepair(item) and self:HasMoneyToRepair(item)
+end
+
+function RepairManager:NeedRepair(item)
+	return item:condition() < self.condition_limit
+end
+
+function RepairManager:HasMoneyToRepair(item)
+	return actor:money() >= self:GetRepairCost(item)
+end
+
+function RepairManager:RepairAllowed(item)
+	local outfit_item = item:is_outfit() or item:is_helmet() or item:get_container()
+	local item_allowed = item:is_weapon() or (outfit_item and self.armor_repair_precond())
+	return item_allowed and self:NeedRepair(item)
+end

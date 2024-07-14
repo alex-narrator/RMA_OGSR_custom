@@ -1,10 +1,11 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
+local ENABLED = false
 local ENEMY_CHECK_RADIUS = 50
 local fast_travel_types = {
 }
 
 function fast_travel_allowed()
-	return false--not has_enemy_near(actor, ENEMY_CHECK_RADIUS) and actor:get_inventory_weight() < actor:get_max_weight() and actor:get_bleeding() < 0.1
+	return ENABLED and not has_enemy_near(actor, ENEMY_CHECK_RADIUS) and actor:get_inventory_weight() < actor:get_max_weight() and actor:get_bleeding() < 0.1
 end
 
 function action_tip(id, spot_type, level_name, position)
@@ -16,9 +17,5 @@ function action_check(id, spot_type, level_name, position)
 	return fast_travel_allowed()
 end
 function action(id, spot_type, level_name, position)
-	if level.name() == level_name then
-		actor:set_actor_position(position)
-	else
-		level.change_level(get_any_gvid_by_level(level_name), -1, position, actor:direction())
-	end
+	teleport_actor(position, level_name)
 end

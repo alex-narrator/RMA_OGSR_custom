@@ -1,0 +1,45 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+
+--//by Malandrinus (from AMK-TEAM Forum)
+--Функция учитывает возможное разрешение экрана, режим зума и то, что камера может наклоняться. Можно использовать в различных целеуказателях.
+function point_projection(point)
+--проекция точки в 3д-пространстве игры на экран 
+    local dev = device()
+    local scr_w = dev.width
+    local scr_h = dev.height
+
+    local fov2 = (dev.fov/2) * (math.pi/180)
+    local scr_dist = 0.5 * scr_h / math.tan(fov2)
+
+    local ppp = vector():sub(point, dev.cam_pos)
+    local dp = dev.cam_dir:dotproduct(ppp)
+
+    local x = 512 + dev.cam_right:dotproduct(ppp) * scr_dist / dp * (1024/scr_w)
+    local y = 384 - dev.cam_top:dotproduct(ppp)   * scr_dist / dp * (768/scr_h)
+    return {x, y}
+end
+
+--//by Zander_driver (from AMK-TEAM Forum)
+function add_traectory(start_pos, fin_pos, step_pix)
+-- функция генерирует набор точек, лежащих на прямой, соединяющей точки start_pos {x, y}, fin_pos {x, y}. точки выражены как таблицы с двумя числами.
+-- третий аргумент step_pix - число. величина шага между точками в пикселах.
+-- возвращает таблицу, заполненную элементами вида {x, y}, т.е. координатами точек. 
+    local v1 = vector():set(start_pos[1], start_pos[2], 0)
+    local v2 = vector():set(fin_pos[1], fin_pos[2], 0)
+    local d = v1:distance_to(v2)
+    local vtable = {}
+    if d > step_pix * 2 then
+        local step_count = round(d / step_pix)
+        local x_step_size = (fin_pos[1] - start_pos[1]) / step_count
+        local y_step_size = (fin_pos[2] - start_pos[2]) / step_count
+        local i = 1
+        while i < step_count do
+            local t_x = round(start_pos[1] + (x_step_size * i))
+            local t_y = round(start_pos[2] + (y_step_size * i))
+            local t = {t_x, t_y}
+            table.insert(vtable, t)
+        i = i + 1
+        end
+    end
+    return vtable
+end

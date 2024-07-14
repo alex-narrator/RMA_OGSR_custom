@@ -176,7 +176,7 @@ end
 
 function RepairOverlay:OnItemSelect(item)
 	self.selected_item = item
-	params = CIconParams(item:section())
+	local params = CIconParams(item:section())
 	self.selected_item_st:Show(true)
 	params:set_shader(self.selected_item_st)
 		

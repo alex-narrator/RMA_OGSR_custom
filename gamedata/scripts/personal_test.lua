@@ -331,7 +331,7 @@ end
 	-- end
 	-- level.iterate_nearest(actor:position(), 1, perform_action)
 	
-	-- actor:set_money(10000)
+	actor:set_money(10000)
 -- local tgt = level.get_target_obj()
 -- if tgt then
 	-- tgt:set_money(10000)
@@ -378,5 +378,10 @@ end
 	-- log3("~savegame %s | modif time %s", file:NameFull(), file:Modif())
 -- end
 
-local str = "st_disassemble.1"
-log3("find dot %s", not not string.find(str, "%."))
+-- local str = "st_disassemble.1"
+-- log3("find dot %s", not not string.find(str, "%."))
+
+local tgt = level.get_target_obj()
+if tgt then
+	log3("~actor see %s [%s]", tgt:name(), not not actor:see(tgt))
+end

@@ -1,3 +1,4 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
 --*********************************************************************************************************
 --==============================================================================================
 log1("--LUA version: ["..(jit.version or _VERSION).."]")
@@ -1739,10 +1740,9 @@ function add_time_delayed_action(delay_time, func)
 end
 
 function add_update_delayed_action(updates_count, func)
-	local n = 0
 	function update_count_check()
-		n = n+1 
-		return n >= updates_count 
+		updates_count = updates_count-1 
+		return updates_count == 0
 	end
 	level.add_call(update_count_check, func)
 end
@@ -2129,4 +2129,8 @@ function aim_camera_to_target(obj)
 		cam.yaw = h
 		cam.pitch = p
 	end
+end
+
+function teleport_actor(position, level_name)
+	(not level_name or level.name() == level_name) and actor:set_actor_position(position) or level.change_level(get_any_gvid_by_level(level_name), -1, position, actor:direction())
 end

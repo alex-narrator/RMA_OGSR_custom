@@ -68,7 +68,7 @@ end
 function TalkOverlay:InitControls()
 	self.owner:AttachChild(self)
 	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
-	self:Enable(true)
+	-- self:Enable(true)
 	self:Show(true)
 	
 	local xml = CScriptXmlInit()
@@ -95,6 +95,12 @@ function TalkOverlay:InitControls()
 	name = "to_trade_button"
 	self:Register(self.to_trade_button, name)
 	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.ToTrade, self)	
+	
+	--//to repair button
+	self.to_repair_button = xml:Init3tButton("to_repair_button", self)
+	name = "to_repair_button"
+	self:Register(self.to_repair_button, name)
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.ToRepair, self)	
 end
 
 function TalkOverlay:Update()
@@ -112,6 +118,7 @@ function TalkOverlay:OnShow()
 	self.char_info_back:Show(true)
 	self.char_info_back_npc:Show(true)
 	self.to_trade_button:Show(self.target:is_trade_enabled())
+	self.to_repair_button:Show(repair_manager.is_repairer(self.target))
 	
 	self:OnActorIconUpdate()
 	self:OnNPCIconUpdate()
@@ -208,7 +215,11 @@ function TalkOverlay:SetCharacterTextNPC()
 end
 
 function TalkOverlay:ToTrade()
-	--actor:switch_to_trade()
 	ui_actor_menu.ShowHideMenu("trade", level.get_second_talker())
+	self.owner:Show(false)	
+end
+
+function TalkOverlay:ToRepair()
+	ui_actor_menu.ShowHideMenu("repair", level.get_second_talker())
 	self.owner:Show(false)	
 end
