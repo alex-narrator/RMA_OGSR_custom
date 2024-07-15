@@ -454,7 +454,6 @@ function actor_binder:load(reader)
 	--' Загружаем уровень сложности
 	local game_difficulty = reader:r_u8()
 	get_console():execute("g_game_difficulty "..game_difficulty_by_num[game_difficulty])
-	log3("~ load game_difficulty %s %s", game_difficulty, game_difficulty_by_num[game_difficulty])
 
 	if reader:r_eof() then
 		log3("!SAVE FILE IS CORRUPT")
