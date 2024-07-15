@@ -421,18 +421,13 @@ end
 ----------------------------------------------------------------------------------------------------------------------
 function actor_binder:save(packet)
 	
-	local save_treasure_manager = true
+	--local save_treasure_manager = true
 	
 	printf("actor_binder:save(): self.object:name()='%s'", self.object:name())
 	object_binder.save(self, packet)
 
 	--' Сохраняем уровень сложности
-	if save_treasure_manager == true then
-		packet:w_u8(level.get_game_difficulty() + 128)
-	else
-		packet:w_u8(level.get_game_difficulty())
-	end
-
+	packet:w_u8(level.get_game_difficulty())
 
 	--' Сохраняем данные об отключенном вводе
 	if self.st.disable_input_time == nil then
@@ -445,11 +440,7 @@ function actor_binder:save(packet)
 	xr_logic.pstor_save_all(self.object, packet)
 	self.weather_manager:save(packet)
 
-	sr_psy_antenna.save( packet )
-	
-	if save_treasure_manager == true then
-		treasure_manager.save(packet)      
-	end                                  
+	sr_psy_antenna.save( packet )                         
 
 	task_manager.save(packet)
 	self.actor_detector:save(packet)	
@@ -459,24 +450,17 @@ end
 function actor_binder:load(reader)
 	printf("actor_binder:load(): self.object:name()='%s'", self.object:name())
 	object_binder.load(self, reader)
-	printf("actor_binder:object_binder.load(): self.object:name()='%s'", self.object:name())
 
 	--' Загружаем уровень сложности
 	local game_difficulty = reader:r_u8()
-	
-	local load_treasure_manager = false      
-	if game_difficulty >= 128 then           
-		game_difficulty = game_difficulty - 128
-		load_treasure_manager = true           
-	end                                      
-
 	get_console():execute("g_game_difficulty "..game_difficulty_by_num[game_difficulty])
+	log3("~ load game_difficulty %s %s", game_difficulty, game_difficulty_by_num[game_difficulty])
 
 	if reader:r_eof() then
-		abort("SAVE FILE IS CORRUPT")
+		log3("!SAVE FILE IS CORRUPT")
 	end
 
-	local stored_input_time = reader:r_u8()
+	local stored_input_time = reader:r_bool()
 	if stored_input_time == true then
 		self.st.disable_input_time = utils.r_CTime(reader)
 	end
@@ -484,11 +468,7 @@ function actor_binder:load(reader)
 	xr_logic.pstor_load_all(self.object, reader)
 	self.weather_manager:load(reader)
 
-	sr_psy_antenna.load(reader)
-	
-	if load_treasure_manager == true then
-		treasure_manager.load(reader)      
-	end                                  
+	sr_psy_antenna.load(reader)   
 
 	task_manager.load(reader)
 	self.actor_detector:load(reader)	
