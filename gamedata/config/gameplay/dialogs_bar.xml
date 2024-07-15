@@ -4746,6 +4746,24 @@
             </phrase>
         </phrase_list>
     </dialog>
+	<!-- додаткові діалоги Петренка -->
+	<dialog id="bar_dolg_petrenko_repair">
+        <phrase_list>
+			<phrase id="0">
+				<text>bar_dolg_petrenko_repair_question</text>
+				<next>bar_dolg_petrenko_repair_allowed</next>
+				<next>bar_dolg_petrenko_repair_denied</next>
+			</phrase>
+			<phrase id="bar_dolg_petrenko_repair_allowed">
+				<precondition>bar_dialogs.can_open_storage_dolg</precondition>
+                <text>bar_dolg_petrenko_repair_allowed</text>
+            </phrase>
+			<phrase id="bar_dolg_petrenko_repair_denied">
+				<precondition>bar_dialogs.can_not_open_storage_dolg</precondition>
+                <text>bar_dolg_petrenko_repair_denied</text>
+            </phrase>			
+		</phrase_list>
+	</dialog>	
 	<dialog id="bar_dolg_petrenko_join">
 		<dont_has_info>bar_dolg_community_start</dont_has_info>
 		<has_info>bar_dolg_base_pass</has_info>
