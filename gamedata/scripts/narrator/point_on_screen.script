@@ -3,7 +3,7 @@
 --//by Malandrinus (from AMK-TEAM Forum)
 --Функция учитывает возможное разрешение экрана, режим зума и то, что камера может наклоняться. Можно использовать в различных целеуказателях.
 function point_projection(point)
---проекция точки в 3д-пространстве игры на экран 
+--проекция точки в 3д-пространстве игры на экран
     local dev = device()
     local scr_w = dev.width
     local scr_h = dev.height
@@ -14,9 +14,14 @@ function point_projection(point)
     local ppp = vector():sub(point, dev.cam_pos)
     local dp = dev.cam_dir:dotproduct(ppp)
 
-    local x = 512 + dev.cam_right:dotproduct(ppp) * scr_dist / dp * (1024/scr_w)
-    local y = 384 - dev.cam_top:dotproduct(ppp)   * scr_dist / dp * (768/scr_h)
-    return {x, y}
+    local x = UI_BASE_WIDTH * 0.5 + dev.cam_right:dotproduct(ppp) * scr_dist / dp * (UI_BASE_WIDTH/scr_w)
+    local y = UI_BASE_HEIGHT * 0.5 - dev.cam_top:dotproduct(ppp)   * scr_dist / dp * (UI_BASE_HEIGHT/scr_h)
+	
+	if x < 0 or x > UI_BASE_WIDTH or y < 0 or y > UI_BASE_HEIGHT then
+		return false 
+	end
+	
+    return {x = x, y = y}
 end
 
 --//by Zander_driver (from AMK-TEAM Forum)

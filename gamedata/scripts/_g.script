@@ -1506,6 +1506,12 @@ color_by_reputation = {
 	bad = "%c[red]",
 }
 
+color_by_relation_argb = {
+	[0] = GetARGB(255, 0, 255, 0),
+	[1] = GetARGB(255, 255, 255, 128),
+	[2] = GetARGB(255, 255, 0, 0),
+}
+
 --рушійно-подібні константи
 KNIFE_SLOT 			= 0
 FIRST_WEAPON_SLOT	= 1
@@ -1538,6 +1544,10 @@ UI_BASE_HEIGHT = 768
 UI_BASE_WIDTH = 1024
 function get_current_kx()
     return (device().height / device().width) / (UI_BASE_HEIGHT / UI_BASE_WIDTH)
+end
+
+function get_screen_center()
+	return vector2():set(UI_BASE_WIDTH*0.5, UI_BASE_HEIGHT*0.5)
 end
 
 function read_if_exists(ltx, val_type, section, value, default)

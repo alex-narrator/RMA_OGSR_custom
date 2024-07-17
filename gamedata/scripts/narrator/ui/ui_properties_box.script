@@ -88,7 +88,7 @@ function UIPropertiesBox:Activate()
 		v.list_item:SetText(v.name)
 		--v.list_item:AdjustHeightToText()
 		v.list_item:AdjustWidthToText()
-		v.list_item:SetWidth(v.list_item:GetWidth() + self.xml:ReadAttribInt("properties_box:list:list_item:text", "x", 0) * 2)
+		v.list_item:SetWidth(v.list_item:GetWidth() + v.list_item:GetTextX() * 2)
 		
 		v.list_item:SetColor(color_default)
 		v.list_item:SetTextColor(text_color_default)

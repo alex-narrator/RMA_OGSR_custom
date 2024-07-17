@@ -7,10 +7,25 @@ end
 
 local main_wnd = get_main_window()
 local vision_objects = false
+local vision_static = false
+local vision_params = false
 local subscribed = false
 local DEBUG_DISABLE = false
 
-function has_scope_vision(weapon)
+local found_snd = xr_sound.get_safe_sound_object([[detectors\DA-2_beep1]])
+local lost_snd = xr_sound.get_safe_sound_object([[detectors\DA-2_beep1]])
+
+local end_size = vector2():set(30, 40)
+
+local size_speed_k = 0.1
+
+function create_scope_vision(weapon)
+	if vision_static and main_wnd:IsChild(vision_static) then
+		vision_static:DetachAll()
+		main_wnd:DetachChild(vision_static)
+	end
+	vision_static = false
+	vision_params = false
 	if DEBUG_DISABLE then
 	return false end
 	if weapon:get_gl_mode() then
@@ -20,44 +35,66 @@ function has_scope_vision(weapon)
 	return false end
 	local sect = weapon:section()
 	local scope_vision_sect = wpn:addon_attachable(addon.scope) and wpn:get_addon_name(addon.scope) or sect
-	local scope_vision_forced = (scope_vision_sect ~= sect) and read_if_exists(sys_ini, "r_string", sect, scope_vision_sect.."_scope_vision", nil) or nil
+	local scope_vision_forced = (scope_vision_sect ~= sect) and read_if_exists(sys_ini, "r_bool", sect, scope_vision_sect.."_scope_vision", false) or false
 	if read_if_exists(sys_ini, "r_bool", scope_vision_sect, "ignore_scope_vision", false) and not scope_vision_forced then
 	return false end
-	return true
+	if not read_if_exists(sys_ini, "r_bool", scope_vision_sect, "scope_vision", false) then
+	return false end
+	local static = CUIStatic()
+	static:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
+	
+	local size_k = read_if_exists(sys_ini, "r_float", scope_vision_sect, "size_k", 4)
+	local vision_params = {
+		focus_speed = 1 / read_if_exists(sys_ini, "r_float", scope_vision_sect, "vision_focus_speed", 10),
+		found_snd = xr_sound.get_safe_sound_object(read_if_exists(sys_ini, "r_string", scope_vision_sect, "found_snd", "")),
+		lost_snd = xr_sound.get_safe_sound_object(read_if_exists(sys_ini, "r_string", scope_vision_sect, "lost_snd", "")),
+		startup_size = vector2():set(end_size.x * size_k, end_size.y * size_k),
+		target_info = read_if_exists(sys_ini, "r_bool", scope_vision_sect, "vision_target_info", false),
+		target_relation = read_if_exists(sys_ini, "r_bool", scope_vision_sect, "vision_target_relation", false),
+		show_delay = read_if_exists(sys_ini, "r_float", scope_vision_sect, "vision_show_delay", 0.4) * 1000,
+		area_radius = read_if_exists(sys_ini, "r_float", scope_vision_sect, "vision_area_radius", 180),
+		square_mode = read_if_exists(sys_ini, "r_bool", scope_vision_sect, "vision_square_mode", false),
+		memory_time = read_if_exists(sys_ini, "r_float", scope_vision_sect, "vision_memory_time", 1) * 1000,
+		check_time = memory_time,
+	}
+	
+	return static, vision_params
 end
 
 function on_zoom_in(weapon)
-	if not has_scope_vision(weapon) then
+	vision_static, vision_params = create_scope_vision(weapon)
+	if not vision_static then
 	return end
+	
+	local start_time = time_global()
 	
 	level.add_call(
 		function()
-			return not wpn_IsRotatingToZoom(weapon) or not vision_objects
+			return (not wpn_IsRotatingToZoom(weapon) and time_global() > vision_params.show_delay + start_time) or not vision_static
 		end,
 		function()
-			if not vision_objects then
+			if not vision_static then
 			return end
-			if not subscribed then
-				subscribed = {
-					{ signal = "on_update", fun = this.on_update },
-				}
-			local sm = ogse_signals.get_mgr()
-			for _, s in ipairs( subscribed ) do
-				sm:subscribe( s )
+			if not main_wnd:IsChild(vision_static) then
+				vision_static:DetachAll()
+				main_wnd:AttachChild(vision_static)
+				subscribe()
 			end
-	end			
+			main_wnd:BringToBottom(vision_static)
+			subscribe()			
 		end		
 	)		
 end
 
 function on_zoom_out(weapon)
-	if subscribed then
-		local sm = ogse_signals.get_mgr()
-		for _, s in ipairs( subscribed ) do
-			sm:unsubscribe( s )
-		end
-		subscribed = false
+	if vision_static and main_wnd:IsChild(vision_static) then
+		vision_static:DetachAll()	
+		main_wnd:DetachChild(vision_static)
+		unsubscribe()
 	end
+	vision_objects = false
+	vision_static = false
+	vision_params = false
 end
 
 function on_death(victim, killer)
@@ -68,5 +105,143 @@ function on_death(victim, killer)
 	end
 end
 
-function on_update()
+function subscribe()
+	if not subscribed then
+		subscribed = {
+			{ signal = "on_update", fun = this.on_update },
+		}
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs( subscribed ) do
+			sm:subscribe( s )
+		end
+	end
+end
+
+function unsubscribe()
+	if subscribed then
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs( subscribed ) do
+			sm:unsubscribe( s )
+		end
+		subscribed = false
+	end
+end
+
+function on_update(delta)
+	if not vision_objects then
+		vision_objects = {}
+	end
+	
+	vision_static:DetachAll()
+	
+	local function get_valid_pos(object)
+		local pos = object and point_on_screen.point_projection(object:bone_position("bip01_head")) or nil
+		if not pos then
+		return false end
+		if not point_in_area(pos, vision_params.area_radius, vision_params.square_mode) then
+		return false end
+		return pos
+	end
+	
+	for id, object in pairs(db.creatures) do
+		if object:alive() and actor:see_right_now(object) and get_valid_pos(object) and not vision_objects[id] then
+			vision_objects[id] = {}
+			local vis_mark = CUIStatic()
+			vis_mark:SetWidth(vision_params.startup_size.x)
+			vis_mark:SetHeight(vision_params.startup_size.y)
+			vis_mark:InitTexture("ui\\ui_enemy_frame")
+			vis_mark:SetStretchTexture(true)
+			vis_mark:SetTextComplexMode(true)
+			
+			vision_objects[id].object = object
+			vision_objects[id].mark = vis_mark
+			vision_objects[id].dist = distance_between(actor, object)
+			
+			if vision_params.target_info then
+				local info_static = CUIStatic()
+				info_static:SetStretchTexture(true)
+				info_static:SetTextComplexMode(true)
+				vis_mark:AttachChild(info_static)
+				vision_objects[id].info = info_static				
+			end			
+			
+			vision_params.found_snd:play(actor, 0, sound_object.s2d)
+		end
+	end
+	
+	table.sort(vision_objects, dist_more)
+	
+	for id, v in pairs(vision_objects) do
+		local pos = get_valid_pos(v.object)
+		if v.object and v.object:alive() and pos and (actor:see_right_now(v.object) or vision_params.check_time > 0 ) then
+			vision_static:AttachChild(v.mark)
+			local cur_size = vector2():set(v.mark:GetWidth(), v.mark:GetHeight())
+			if cur_size.x > end_size.x or cur_size.y > end_size.y then
+				cur_size.x = cur_size.x - delta * vision_params.focus_speed * get_current_kx()
+				cur_size.y = cur_size.y - delta * vision_params.focus_speed
+				
+				cur_size.x = math.clamp(cur_size.x, end_size.x, vision_params.startup_size.x)
+				cur_size.y = math.clamp(cur_size.y, end_size.y, vision_params.startup_size.y)
+				
+				v.mark:SetWidth(cur_size.x)
+				v.mark:SetHeight(cur_size.y)
+			end
+			
+			if vision_params.target_relation then
+				v.mark:SetColor(v.object:is_monster() and color_by_relation_argb[2] or color_by_relation_argb[v.object:relation(actor)])
+			end
+			
+			v.mark:SetWndPos(pos.x - v.mark:GetWidth() * 0.5, pos.y - v.mark:GetHeight() * 0.5)
+			v.dist = distance_between(actor, v.object)
+			
+			if v.info then
+				local text = string.format("%.1f %s\\n", v.dist, game.translate_string("st_m"))
+				if v.object:is_stalker() then
+					text = text..string.format("%s\\n%s\\n", game.translate_string(v.object:character_name()), game.translate_string(v.object:character_community()))
+				else
+					text = text..string.format("%s\\n", game.translate_string(get_species(v.object):gsub("^%l", string.upper)))
+				end
+				text = text..string.format("%s: %.0f%s\\n", game.translate_string("ui_inv_health"), v.object.health * 100, "%")
+			
+				local info_pos = v.info:GetWndPos()
+				if info_pos.x ~= v.info:GetWidth() then
+					v.info:SetWndPos(v.mark:GetWidth(), info_pos.y)
+				end
+			
+				v.info:SetText(text)
+				v.info:AdjustWidthToText()
+				v.info:AdjustHeightToText()
+			end
+			
+			--log3("~upd pos: object %s | x %s | y %s", v.object:name(), pos.x, pos.y)
+			if actor:see_right_now(v.object) then
+				--log3("~see object %s", v.object:name())
+				vision_params.check_time = vision_params.memory_time
+			else
+				--log3("~dont see object %s", v.object:name())
+				vision_params.check_time = vision_params.check_time - delta
+			end
+		else
+			--log3("~remove object %s", v.object:name())
+			vision_objects[id] = nil
+			vision_params.lost_snd:play(actor, 0, sound_object.s2d)
+		end
+	end
+end
+
+function dist_more(a1, a2)
+	return a1.dist > a2.dist
+end
+
+function point_in_area(pos, radius, square_mode)
+	if radius <= 0 then
+	return true end
+	
+	local center = get_screen_center()
+	
+	if square_mode then --//square area
+		return math.modf(pos.x - center.x) < radius * get_current_kx() and math.modf(pos.y - center.y) < radius
+	else 		--//circle area
+		return (pos.x - center.x)^2 / (radius * get_current_kx())^2 + (pos.y - center.y)^2 / (radius)^2 < 1
+	end
 end
