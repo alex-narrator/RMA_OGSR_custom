@@ -18,9 +18,9 @@ function on_first_update()
 end
 
 function drop_belt_to_ruck()
-	actor:iterate_belt(function(dummy, item) actor:move_to_ruck(item) end, nil)
-	--//двічі бо чомусь за один прогін перебору на поясі залишається один предмет
-	actor:iterate_belt(function(dummy, item) actor:move_to_ruck(item) end, nil)
+	while actor:belt_count() > 0 do
+		actor:move_to_ruck(actor:item_on_belt(0))
+	end
 end
 
 function set_max_belt(item)

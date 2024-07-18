@@ -52,7 +52,9 @@ function create_scope_vision(weapon)
 		target_info = read_if_exists(sys_ini, "r_bool", scope_vision_sect, "vision_target_info", false),
 		target_relation = read_if_exists(sys_ini, "r_bool", scope_vision_sect, "vision_target_relation", false),
 		show_delay = read_if_exists(sys_ini, "r_float", scope_vision_sect, "vision_show_delay", 0.4) * 1000,
-		area_radius = read_if_exists(sys_ini, "r_float", scope_vision_sect, "vision_area_radius", 180),
+		area_width = read_if_exists(sys_ini, "r_float", scope_vision_sect, "vision_area_width", 180),
+		area_height = read_if_exists(sys_ini, "r_float", scope_vision_sect, "vision_area_height", 180),
+		center_offset = read_if_exists(sys_ini, "r_vector", scope_vision_sect, "vision_center_offset", vector2():set(0,0)),
 		square_mode = read_if_exists(sys_ini, "r_bool", scope_vision_sect, "vision_square_mode", false),
 		memory_time = read_if_exists(sys_ini, "r_float", scope_vision_sect, "vision_memory_time", 1) * 1000,
 		check_time = memory_time,
@@ -138,7 +140,7 @@ function on_update(delta)
 		local pos = object and point_on_screen.point_projection(object:bone_position("bip01_head")) or nil
 		if not pos then
 		return false end
-		if not point_in_area(pos, vision_params.area_radius, vision_params.square_mode) then
+		if not point_in_area(pos, vision_params.area_width, vision_params.area_height, vision_params.center_offset, vision_params.square_mode) then
 		return false end
 		return pos
 	end
@@ -233,15 +235,17 @@ function dist_more(a1, a2)
 	return a1.dist > a2.dist
 end
 
-function point_in_area(pos, radius, square_mode)
-	if radius <= 0 then
+function point_in_area(pos, width, height, offset, square_mode)
+	if width <= 0 or height <= 0 then
 	return true end
 	
 	local center = get_screen_center()
+	center.x = center.x + offset.x
+	center.y = center.y + offset.y
 	
 	if square_mode then --//square area
-		return math.modf(pos.x - center.x) < radius * get_current_kx() and math.modf(pos.y - center.y) < radius
+		return math.modf(pos.x - center.x) < width * get_current_kx() and math.modf(pos.y - center.y) < height
 	else 		--//circle area
-		return (pos.x - center.x)^2 / (radius * get_current_kx())^2 + (pos.y - center.y)^2 / (radius)^2 < 1
+		return (pos.x - center.x)^2 / (width * get_current_kx())^2 + (pos.y - center.y)^2 / (height)^2 < 1
 	end
 end
