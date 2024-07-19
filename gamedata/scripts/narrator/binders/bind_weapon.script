@@ -24,13 +24,14 @@ end
 
 function weapon_binder:reinit()
 	object_binder.reinit(self)
-	self.object:set_callback(callback.update_addons_visibility, self.update_addons_visibility, self)
-	self.object:set_callback(callback.update_hud_addons_visibility, self.update_hud_addons_visibility, self)
+	-- self.object:set_callback(callback.update_addons_visibility, self.update_addons_visibility, self)
+	-- self.object:set_callback(callback.update_hud_addons_visibility, self.update_hud_addons_visibility, self)
 end
 
 function weapon_binder:net_spawn(data)
 	--log3("%s net_spawn for object %s", script_name(), self.object:name())
-    local spawned = object_binder.net_spawn(self, data)	
+    local spawned = object_binder.net_spawn(self, data)
+	log3("~net spawn weapon %s %s %s", self.object:section(), self.object:name(), self.object:id())
 	return spawned
 end
 

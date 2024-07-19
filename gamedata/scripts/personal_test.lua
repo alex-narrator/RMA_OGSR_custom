@@ -127,12 +127,14 @@ end
 	--item:set_show_model_mesh_hud(7, false)
 --end
 
-local item = level.get_target_obj()
+local item = actor:active_item()--level.get_target_obj()
 if item then
 	--item:dump_visual_to_log() --Распечатать в лог информацию о мешах и костях модели - мировой и худовой, если худовая доступна.
-	local mesh_num = 2
+	local mesh_num = 6
+	--log3("~item %s mesh %s is shown %s", item:name(), mesh_num, item:get_show_model_mesh(mesh_num))
 	--log3("--Mesh count of [%s]: [%s]", item:name(), item:get_mesh_count()) --вывести кол-во мешей в худовой модели.
-	item:set_show_model_mesh(mesh_num, not item:get_show_model_mesh(mesh_num)) --Установить видимость меша для худовой модели
+	--item:set_show_model_mesh(mesh_num, not item:get_show_model_mesh(mesh_num)) --Установить видимость меша для худовой модели
+	item:set_show_model_mesh_hud(mesh_num, not item:get_show_model_mesh_hud(mesh_num))
 --local shown = item:get_show_model_mesh_hud(0) --узнать показан ли меш
 end
 
@@ -331,7 +333,7 @@ end
 	-- end
 	-- level.iterate_nearest(actor:position(), 1, perform_action)
 	
-	actor:set_money(10000)
+	--actor:set_money(10000)
 -- local tgt = level.get_target_obj()
 -- if tgt then
 	-- tgt:set_money(10000)
@@ -381,7 +383,15 @@ end
 -- local str = "st_disassemble.1"
 -- log3("find dot %s", not not string.find(str, "%."))
 
-local tgt = level.get_target_obj()
-if tgt then
-	log3("~actor see %s [%s]", tgt:name(), not not actor:see(tgt))
-end
+-- local tgt = level.get_target_obj()
+-- if tgt then
+	-- log3("~actor see %s [%s]", tgt:name(), not not actor:see(tgt))
+-- end
+
+-- local test_table = {
+	-- 6224, --//'wpn_addon_scope_susat' 'cit_wpn_addon_scope_susat' 6224
+-- }
+
+-- for k,v in pairs(test_table) do
+	-- alife():release(alife():object(v), true)
+-- end
