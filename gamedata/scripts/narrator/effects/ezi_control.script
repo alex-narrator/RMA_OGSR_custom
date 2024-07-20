@@ -9,6 +9,8 @@ local base_k = false
 local zoom_factor = false
 local subscribed = false
 
+local DEBUG_DISABLE = false
+
 local actor_obj = get_actor_obj()
 local ZOOM_SOMNOLENCE_K = read_if_exists(sys_ini, "r_float", "actor_condition", "somnolence_zoom_effector_k", 10)
 local CROUCH_K = 0.25
@@ -68,6 +70,9 @@ function on_key_release(key, game_action)
 end
 
 function on_zoom_in(weapon)
+	if DEBUG_DISABLE then
+	return end
+	
 	zoom_factor = weapon:get_zoom_factor()
 	level.add_cam_effector("camera_effects\\actor_actions\\zoom_crp.anm", 1908, false, "")
 	if not subscribed then
