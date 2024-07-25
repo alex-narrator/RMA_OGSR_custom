@@ -127,15 +127,15 @@ end
 	--item:set_show_model_mesh_hud(7, false)
 --end
 
-local item = level.get_target_obj()--actor:active_item()
+local item = actor:active_item()--level.get_target_obj()
 if item then
 	--item:dump_visual_to_log() --Распечатать в лог информацию о мешах и костях модели - мировой и худовой, если худовая доступна.
-	local mesh_num = 0
+	local mesh_num = 1
 	--log3("~item %s mesh %s is shown %s", item:name(), mesh_num, item:get_show_model_mesh(mesh_num))
 	--log3("--Mesh count of [%s]: [%s]", item:name(), item:get_mesh_count()) --вывести кол-во мешей в худовой модели.
-	item:set_show_model_mesh(mesh_num, not item:get_show_model_mesh(mesh_num)) --Установить видимость меша для худовой модели
+	--item:set_show_model_mesh(mesh_num, not item:get_show_model_mesh(mesh_num)) --Установить видимость меша для худовой модели
 	--item:set_bone_visible("magazin", true)
-	--item:set_show_model_mesh_hud(mesh_num, not item:get_show_model_mesh_hud(mesh_num))
+	item:set_show_model_mesh_hud(mesh_num, not item:get_show_model_mesh_hud(mesh_num))
 --local shown = item:get_show_model_mesh_hud(0) --узнать показан ли меш
 end
 
