@@ -24,24 +24,27 @@ end
 
 function make_quick_save()
 	local save_name = user_name().."_quicksave_"
-	
-	local user_quicks = {}
+		
+	local last_quick_name = false
 	
 	local flist = getFS():file_list_open_ex( "$game_saves$", FS.FS_ListFiles + FS.FS_ClampExt + FS.FS_RootOnly + FS.FS_NoLower, "*.sav" )
 	flist:Sort(FS.FS_sort_by_modif_down)
 	for file in flist:GetAll() do
 		if string.find(file:NameFull(), save_name) then
-			user_quicks[file:NameFull()] = true
-		end
-	end
-	
-	local next_save_name = save_name..1
-	for i=1, QUICK_SAVE_MAX do
-		if not user_quicks[save_name..i] then
-			next_save_name = save_name..i
+			last_quick_name = file:NameFull()
 			break
 		end
 	end
+
+	local i = 1
+	if last_quick_name then
+		local last_quick_num = last_quick_name:gsub(save_name, "")
+		last_quick_num = tonumber(last_quick_num)
+		if last_quick_num < QUICK_SAVE_MAX then
+			i = last_quick_num + 1
+		end		
+	end
+	local next_save_name = save_name..i
 	
 	local save_cmd = string.format("save %s", next_save_name)
 	get_console():execute(save_cmd)
