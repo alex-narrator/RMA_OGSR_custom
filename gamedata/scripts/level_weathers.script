@@ -1,5 +1,30 @@
+function attach(sm)
+	sm:subscribe({signal = "on_spawn",   			fun = this.on_spawn})
+	sm:subscribe({signal = "on_update",   			fun = this.on_update})
+	sm:subscribe({signal = "on_save",   			fun = this.on_save})
+	sm:subscribe({signal = "on_load",   			fun = this.on_load})
+end
+
 local weather_manager = nil
 --18.02.2008 - added dynamic weather
+
+local weather_data = {}
+
+function on_spawn()
+	get_weather_manager():reset()
+end
+
+function on_update()
+	get_weather_manager():update()
+end
+
+function on_save()
+	get_weather_manager():save_weather()
+end
+
+function on_load()
+	get_weather_manager():load_weather()
+end
 
 class "WeatherManager"
 function WeatherManager:__init()
@@ -9,7 +34,7 @@ function WeatherManager:__init()
 	self.update_level = ""
 	self.forced_weather_change_on_time_change = false
 	self.last_hour = 0
-		self.state={}
+	self.state={}
 	self.graphs={}
 	self.graphs_ini = ini_file("environment\\dynamic_weather_graphs.ltx")
 	if not self.graphs_ini then
@@ -95,6 +120,7 @@ function WeatherManager:select_weather(now)
 	if not(self.weather_fx) then
 		level.set_weather(weather_section_name,now)
 	else
+		--log3("~self.weather_fx is %s now", self.weather_fx)
 		level.start_weather_fx_from_time(self.weather_fx, self.wfx_time)
 	end
 	printf("WEATHER: '%s' now '%s'", weather_section_name, tostring(now))
@@ -213,40 +239,27 @@ function WeatherManager:unpack_graph_name(grn)
 	return grn
 end
 
-function WeatherManager:load(F)
-	--set_save_marker(F, "load", false, "WeatherManager")
-	printf("WEATHER LOAD")
-	--self.update_level  = F:r_stringZ();
-	local state_string = F:r_stringZ();
-	printf("str = "..state_string)
-	if state_string == "" then
-		printf("str = empty string")
+function WeatherManager:load_weather()
+	local weather_data = xr_vars.load_var("weather_data", {})
+	--log3("~on load weather - weather data %s", weather_data)	
+	self:set_state_as_string(weather_data.state_string or "")
+	self.update_time = weather_data.update_time or 0
+	if weather_data.weather_fx then
+		self.weather_fx = weather_data.weather_fx
+		self.wfx_time = weather_data.wfx_time
 	end
-	self:set_state_as_string(state_string)
-	self.update_time = F:r_u32();
-	local str = F:r_stringZ()
-	if(str~="nil") then
-		self.weather_fx = str
-		self.wfx_time = F:r_float()
-	end
-	--set_save_marker(F, "load", true, "WeatherManager")
 end
 
-function WeatherManager:save(F)
-	--set_save_marker(F, "save", false, "WeatherManager")
-	printf("WEATHER SAVE")
-	--F:w_stringZ(self.update_level);
-	printf("str = "..tostring(self:get_state_as_string()))
-	if self:get_state_as_string() == "" then
-		printf("str = empty string")
-	end
-	F:w_stringZ(self:get_state_as_string())
-	F:w_u32(self.update_time)
-	F:w_stringZ(tostring(self.weather_fx))
-	if(self.weather_fx) then
-		F:w_float(level.get_wfx_time())
-	end
-	--set_save_marker(F, "save", true, "WeatherManager")
+function WeatherManager:save_weather()
+	local weather_data = {}
+	weather_data.state_string = self:get_state_as_string()
+	weather_data.update_time = self.update_time
+	weather_data.weather_fx = self.weather_fx or nil
+	if (self.weather_fx) then
+		weather_data.wfx_time = level.get_wfx_time()
+	end	
+	xr_vars.save_var("weather_data", weather_data)
+	--log3("~on save weather - weather data %s", weather_data)
 end
 
 function get_weather_manager ()
