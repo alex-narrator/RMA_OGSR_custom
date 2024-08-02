@@ -2157,3 +2157,8 @@ function check_obj_has_method(obj, method_name)
     if obj and obj[method_name] and type(obj[method_name]) == 'function' then return true end
   return false
 end
+
+function change_game_time(days, hours, minutes)
+	level.change_game_time(days, hours, minutes)
+	level_weathers.get_weather_manager():select_weather(true)
+end
