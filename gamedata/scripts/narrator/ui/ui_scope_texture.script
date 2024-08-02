@@ -5,15 +5,47 @@ function attach(sm)
 	sm:subscribe({signal = "on_death",   					fun = this.on_death})
 end
 
+local LOW_LUMINOCITY = 0.031
+
 local main_wnd = get_main_window()
 local scope_static = false
 local DEBUG_DISABLE = false
+
+local texture_name = false
+local texture_ilum_name = false
+local is_illuminated = false
+
+local subscribed = false
+function subscribe()
+	if not subscribed then
+		subscribed = {
+			{ signal = "on_key_press", fun = this.on_key_press },
+		}
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs( subscribed ) do
+			sm:subscribe( s )
+		end
+	end
+end
+
+function unsubscribe()
+	if subscribed then
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs( subscribed ) do
+			sm:unsubscribe( s )
+		end
+		subscribed = false
+	end
+end
 
 function create_scope_static(weapon)
 	if scope_static and main_wnd:IsChild(scope_static) then
 		main_wnd:DetachChild(scope_static)
 	end
 	scope_static = false
+	texture_name = false
+	texture_ilum_name = false
+	is_illuminated = false
 	if DEBUG_DISABLE then
 	return false end
 	if weapon:get_gl_mode() then
@@ -27,12 +59,19 @@ function create_scope_static(weapon)
 	if read_if_exists(sys_ini, "r_bool", scope_tex_sect, "ignore_scope_texture", false) and not scope_texture_forced then
 	return false end
 	local scope_tex_type = wpn:scope_mode_second() and "scope_texture_second" or "scope_texture"	
-	local texture_name = scope_texture_forced or read_if_exists(sys_ini, "r_string", scope_tex_sect, scope_tex_type, nil)
+	texture_name = scope_texture_forced or read_if_exists(sys_ini, "r_string", scope_tex_sect, scope_tex_type, nil)
 	if not texture_name then
 	return false end
+	texture_ilum_name = read_if_exists(sys_ini, "r_string", scope_tex_sect, "scope_texture_illum", nil)
 	local static = CUIStatic()
 	static:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
-	static:InitTexture(texture_name)
+	--log3("~actor luminocity %s", actor:get_luminocity())
+	if texture_ilum_name and actor:get_luminocity() < LOW_LUMINOCITY then
+		static:InitTexture(texture_ilum_name)
+		is_illuminated = true
+	else
+		static:InitTexture(texture_name)
+	end
 	static:SetStretchTexture(true)
 	return static
 end
@@ -52,7 +91,8 @@ function on_zoom_in(weapon)
 			if not main_wnd:IsChild(scope_static) then
 				main_wnd:AttachChild(scope_static)
 			end
-			main_wnd:BringToBottom(scope_static)		
+			main_wnd:BringToBottom(scope_static)
+			subscribe()
 		end		
 	)		
 end
@@ -61,6 +101,7 @@ function on_zoom_out(weapon)
 	level.show_item_hud(true)
 	if scope_static and main_wnd:IsChild(scope_static) then
 		main_wnd:DetachChild(scope_static)
+		unsubscribe()
 	end
 	scope_static = false
 end
@@ -71,4 +112,21 @@ function on_death(victim, killer)
 	if actor:active_item() then
 		actor:drop_item(actor:active_item())
 	end
+end
+
+local enable_illumination_action = {
+	[key_bindings.kNIGHT_VISION] = true,
+}
+function on_key_press(key, game_action)
+	if not enable_illumination_action[game_action] then
+	return end
+	if not scope_static then
+	return end
+	if not texture_ilum_name then
+	return end
+	is_illuminated = not is_illuminated
+	scope_static:InitTexture(is_illuminated and texture_ilum_name or texture_name)
+	level.add_complex_effector("fire_mode", 1912)
+	local switch_snd = read_if_exists(sys_ini, "r_string", actor:active_item():section(), "snd_firemode", "")
+	xr_sound.get_safe_sound_object(switch_snd):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)	
 end

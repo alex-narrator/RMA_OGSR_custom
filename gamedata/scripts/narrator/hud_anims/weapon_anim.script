@@ -39,7 +39,7 @@ function on_mouse_wheel()
 	
 	local act_item = actor:active_item()
 	local act_wpn = act_item and act_item:get_weapon_m() or nil
-	if not act_wpn or not has_fire_modes(act_item) or (get_zoom_data(act_item) and table.size(get_zoom_data(act_item)) > 1) then
+	if not act_wpn or not has_fire_modes(act_item) or (get_zoom_data(act_item) and table.size(get_zoom_data(act_item)) > 1 and actor_obj:is_zoom_aiming_mode()) then
 	return end
 	
 	play_switch_anim(act_item)
