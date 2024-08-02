@@ -1,9 +1,33 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
+local subscribed = false
+
 local hud_effector_id = 5555
-
 local ANIM_FAST = false
-
 local ANM_SND_SLOWDOWN = 1.1
+local anim_sound = nil
+local FORCE_STOP = false
+
+function subscribe()
+	if not subscribed then
+		subscribed = {
+			{ signal = "on_key_press", fun = this.on_key_press },
+		}
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs( subscribed ) do
+			sm:subscribe( s )
+		end
+	end
+end
+
+function unsubscribe()
+	if subscribed then
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs( subscribed ) do
+			sm:unsubscribe( s )
+		end
+		subscribed = false
+	end
+end
 
 function anm_snd_speed()
 	local inj_limb = body_health.get_injured_limb()
@@ -28,11 +52,16 @@ function play(item)
 			return not actor:active_item() and not actor:active_device()
 		end,
 		function()
+			subscribe()
+			
 			actor:hide_crosshair(true)
 			
 			game.play_hud_motion(2, hud_sect, "anm_use", false, anm_snd_speed(), true)
+			
+			hud_add_info_message("item_usage", game.translate_string("st_key_to_stop_anim"), 5)
+			
 			_G.SCRIPT_ANIM_PLAYING = true
-			play_hud_sound(hud_sect)
+			anim_sound = play_hud_sound(hud_sect)
 			play_hud_effector(hud_sect)
 			set_use_delay(hud_sect, item)
 			block_non_move_action(true)
@@ -58,13 +87,14 @@ function play(item)
 end
 
 function play_hud_sound(sect)
-	local sound
+	local sound = nil
 	local snd_name = read_if_exists(sys_ini, "r_string", sect, "hud_sound", nil)
 	if snd_name then
 		sound = xr_sound.get_safe_sound_object(snd_name,sound_object.s2d)
 		sound:play(actor, 0, sound_object.s2d)
 		sound.frequency = anm_snd_speed()
 	end
+	return sound
 end
 
 function play_hud_effector(sect)
@@ -78,10 +108,35 @@ end
 function set_use_delay(sect, item)
 	add_time_delayed_action(
 		read_if_exists(sys_ini, "r_float", sect, "use_delay", 1.5) * 1 / anm_snd_speed(), 
-		function() 
+		function()
+			unsubscribe()
+			hud_remove_info_message("item_usage")
+			if FORCE_STOP then
+				FORCE_STOP = false
+			return end
 			use_item_effects.delay_use = true
 			item:get_eatable_item().can_be_eaten = true
 			actor:eat(item) 
 		end
 	)
+end
+
+local force_stop_action = {
+	[key_bindings.kACCEL] = true,
+	[key_bindings.kSPRINT] = true,
+	[key_bindings.kCROUCH] = true,	
+}
+function on_key_press(key, game_action)
+	if not SCRIPT_ANIM_PLAYING then
+	return end
+	if level.main_input_receiver() then
+	return end
+	if not force_stop_action[game_action] then
+	return end
+	FORCE_STOP = true
+	level.remove_complex_effector(hud_effector_id)
+	game.stop_hud_motion()
+	if anim_sound then
+		anim_sound:stop()
+	end
 end
