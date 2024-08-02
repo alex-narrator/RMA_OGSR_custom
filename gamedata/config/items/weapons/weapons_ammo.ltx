@@ -78,12 +78,13 @@ inv_grid_height    = 1
 inv_grid_x         = 0
 inv_grid_y         = 16
 
-k_dist			= 1
-k_disp			= 3
-k_hit			= -0.1
+k_dist			= 0
+k_disp			= 0
+k_speed 		= 0.65
+k_hit			= 0.67
 k_impulse		= 2.5
 k_pierce		= 1.35
-impair			= 1.15
+impair			= 0
 buck_shot		= 1
 
 k_ap 			= 2
@@ -114,7 +115,8 @@ inv_grid_height    = 1
 inv_grid_x         = 0
 inv_grid_y         = 14
 
-k_speed 		= 0.75
+k_speed 		= 0.38
+k_hit			= 0.81
 k_pierce		= 1.5
 k_ap 			= 2
 
@@ -173,10 +175,10 @@ inv_grid_x         = 1
 inv_grid_y         = 16
 
 k_speed 		= 0.53
-k_hit			= -0.2
+k_hit			= 0.285
 k_impulse		= 0.2
 k_pierce		= 1.35
-impair 			= 1.2
+;impair 			= 0.5
 k_ap 			= 2
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -257,8 +259,8 @@ inv_grid_height    = 1
 inv_grid_x         = 1
 inv_grid_y         = 8
 
-k_hit 			= 0.2
-k_speed 		= 0.26
+k_hit 			= 0.15
+k_speed 		= 0.255
 k_impulse		= 0.2
 k_pierce		= 1.35
 
@@ -318,8 +320,8 @@ inv_grid_height    = 1
 inv_grid_x         = 1
 inv_grid_y         = 1
 
-k_hit 			= -0.2
-k_speed 		= 0.02
+k_hit 			= 0.1
+k_speed 		= 0.01
 k_pierce		= 1.75
 k_ap 			= 3
 
@@ -379,8 +381,9 @@ inv_grid_height    = 1
 inv_grid_x         = 1
 inv_grid_y         = 4
 
-k_hit 			= -0.2
-k_speed 		= 0.02
+k_hit 			= 0.01
+k_speed 		= 0.09
+k_disp 			= -0.51
 k_pierce		= 1.75
 k_ap 			= 3
 
@@ -485,7 +488,8 @@ k_pierce		= 1.25
 k_ap 			= 3
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;7Н26
+;7Н26 - цей був би доречніший але моделька коробки набоїв більше схожа на той що нижче
+;7,62 БЗТ гл (57-БЗТ-322)
 [ammo_7.62x54_ap]:rifle_ammo
 GroupControlSection	= spawn_group
 discovery_dependency = 
@@ -511,19 +515,21 @@ inv_grid_height    = 1
 inv_grid_x         = 3
 inv_grid_y         = 1
 
-k_hit 			= -0.2
-k_impulse		= -0.05
 k_pierce		= 2.25
-k_disp 			= 1.25
+;k_disp 			= 1.25
+k_speed 		= -0.02
+k_hit 			= 0.03
+k_disp 			= 2.75
+impair			= 2
 k_ap 			= 4
+
+tracer				= on
+tracer_color_ID 	= color_0
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;СПЕЦІАЛЬНИЙ НАБІЙ ДЛЯ СТАНКОВОГО КУЛЕМЕТА
 [ammo_7.62x54_statmgun]:ammo_7.62x54_7h1
 k_hit 				= 2
-tracer				= on
-tracer_color_ID 	= color_4
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;7Н14
@@ -552,40 +558,6 @@ inv_grid_height    = 1
 inv_grid_x         = 3
 inv_grid_y         = 2
 
-k_hit 			= -0.2
-k_impulse		= -0.05
-k_pierce		= 1.75
-k_ap 			= 4
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-[ammo_9x39_ap]:rifle_ammo
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn			= "weapons\ammo\ammo_9x39_ap" ; option for Level Editor
-class			= AMMO
-cform                   = skeleton
-visual                  = weapons\ammo\ammo_9x39_ap
-
-$prefetch 		= 64
-
-cost					 = 400
-
-box_size		= 30	;60
-
-inv_name		= st_ammo_9x39_ap_name
-inv_name_short	= st_ammo_9x39_ap_short
-description		= st_ammo_9x39_ap_descr
-
-inv_weight		= .7
-
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 3
-inv_grid_y         = 7
-
-k_hit 			= -0.15
-k_disp 			= 0.87
-k_pierce		= 2.25
 k_ap 			= 4
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -618,6 +590,38 @@ k_pierce		= 1.35
 k_ap 			= 2
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+[ammo_9x39_ap]:rifle_ammo
+GroupControlSection	= spawn_group
+discovery_dependency = 
+$spawn			= "weapons\ammo\ammo_9x39_ap" ; option for Level Editor
+class			= AMMO
+cform                   = skeleton
+visual                  = weapons\ammo\ammo_9x39_ap
+
+$prefetch 		= 64
+
+cost					 = 400
+
+box_size		= 30	;60
+
+inv_name		= st_ammo_9x39_ap_name
+inv_name_short	= st_ammo_9x39_ap_short
+description		= st_ammo_9x39_ap_descr
+
+inv_weight		= .7
+
+inv_grid_width     = 1
+inv_grid_height    = 1
+inv_grid_x         = 3
+inv_grid_y         = 7
+
+k_speed 		= -0.05
+k_hit 			= -0.1
+k_disp 			= 1.75
+k_pierce		= 2.25
+k_ap 			= 4
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [ammo_gauss]:heavy_ammo
 GroupControlSection	= spawn_group
 discovery_dependency = 
@@ -644,42 +648,11 @@ inv_grid_y         = 15
 
 k_impulse		= 2
 k_pierce		= 2.5
-k_ap 			= 5
+k_ap 			= 6
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-[ammo_12x70_buck]:shotgun_ammo
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn			= "weapons\ammo\ammo_12x70_buck" ; option for Level Editor
-class			= AMMO
-cform                   = skeleton
-visual                  = weapons\ammo\ammo_12x70_buck
-
-$prefetch 		= 64
-
-cost					 = 50
-
-box_size		= 10
-
-inv_name		= st_ammo_12x70_buck_name
-inv_name_short	= st_ammo_12x70_buck_short
-description		= st_ammo_12x70_buck_descr
-
-inv_weight		= .45
-
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 0
-inv_grid_y         = 0
-
-;k_dist 			= -0.2
-k_speed 		= -0.08
-;k_hit 			= -0.3
-k_disp 			= 1.15
-k_pierce		= 0.8
-buck_shot		= 10
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ЕТАЛОННИЙ БОЄПРИПАС ДЛЯ РУШНИЦІ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ІНШІ НАБОЇ РАХУЮТЬСЯ У КОЕФІЦІЄНТАХ ДО ЦЬОГО;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [ammo_12x76_zhekan]:shotgun_ammo
 GroupControlSection	= spawn_group
 discovery_dependency = 
@@ -705,12 +678,47 @@ inv_grid_height    = 1
 inv_grid_x         = 0
 inv_grid_y         = 2
 
-k_dist 			= 1
-k_hit 			= 0.1
-k_disp			= -0.2
-k_impulse		= 1.3
+k_dist 			= 0
+k_hit 			= 0
+k_disp			= 0
+k_speed 		= 0
+k_impulse		= 0
 k_pierce		= 1.25
-k_ap 			= 2
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;12/70 картеч 6,2 мм 20 картечин в патроні
+[ammo_12x70_buck]:shotgun_ammo
+GroupControlSection	= spawn_group
+discovery_dependency = 
+$spawn			= "weapons\ammo\ammo_12x70_buck" ; option for Level Editor
+class			= AMMO
+cform                   = skeleton
+visual                  = weapons\ammo\ammo_12x70_buck
+
+$prefetch 		= 64
+
+cost					 = 50
+
+box_size		= 10
+
+inv_name		= st_ammo_12x70_buck_name
+inv_name_short	= st_ammo_12x70_buck_short
+description		= st_ammo_12x70_buck_descr
+
+inv_weight		= .45
+
+inv_grid_width     = 1
+inv_grid_height    = 1
+inv_grid_x         = 0
+inv_grid_y         = 0
+
+k_dist 			= -0.5
+k_speed 		= -0.17
+k_hit 			= -0.95
+k_disp 			= 1.15
+k_impulse		= -0.5
+k_pierce		= 0.8
+buck_shot		= 20
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [ammo_12x76_dart]:shotgun_ammo
@@ -738,10 +746,11 @@ inv_grid_height    = 1
 inv_grid_x         = 0
 inv_grid_y         = 4
 
-k_dist 			= 2
-k_hit 			= 0.2
-k_disp			= -0.3
-k_impulse		= 1.3
+k_dist 			= 0.5
+k_speed 		= -0.14
+k_hit 			= -0.21
+k_disp			= -0.2
+k_impulse		= 0
 k_pierce		= 2.25
 k_ap 			= 4
 
