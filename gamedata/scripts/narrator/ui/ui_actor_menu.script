@@ -1275,7 +1275,8 @@ end
 
 function ActorMenuOverlay:TakeAll()
 	inventory.take_all(self.target)
-	self:Exit()
+	add_update_delayed_action(1, function() self:Exit() end)
+--	self:Exit()
 end
 function ActorMenuOverlay:MoveAllRuck()
 	inventory.move_all_ruck(self.target)
@@ -1497,12 +1498,14 @@ end
 function ActorMenuOverlay:OnUse(item)
 	if parent_is_actor(item) then
 		self:UpdateSlots()
-	return end
-	if item:get_eatable_item().eat_portions_num > 0 then
-	return end
-	local ci = self:GetCellItem(item)
+	end
+	local ci = self:GetCellItem(item)	
 	if ci then
-		ci:GetOwnerList():RemoveItem(item)
+		if item:get_eatable_item().eat_portions_num > 0 then
+			ci:ForceUpdate()
+		else
+			ci:GetOwnerList():RemoveItem(item)
+		end
 	end
 end
 

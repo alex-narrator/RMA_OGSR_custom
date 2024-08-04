@@ -1,0 +1,68 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_monster_update",   fun = this.on_update})
+end
+
+local dog_attack = {
+	enabled = false,
+	timer = 0,
+	max_dist = 20,
+	delay = 2 * 1000,
+	cam_eff_time = 700,
+	sound = xr_sound.get_safe_sound_object("monsters\\pseudodog\\psy_affect_0",sound_object.s2d),
+	eff_id_1 = 395,
+	eff_id_2 = 396,
+	eff_id_3 = 397,
+}
+
+local attack_func = {
+	[clsid.pseudodog_s] = function(obj) this.pseudodog_attack(obj) end,
+}
+
+function on_update(object)
+	if not attack_func[object:clsid()] then
+	return end
+	attack_func[object:clsid()](object)
+end
+
+function pseudodog_attack(object)
+	---------------------Атака псевдособаки из билда 1935 (Автор: Charsi)
+	if dog_attack.timer < time_global() then
+		local oTarget = object:get_enemy()
+        local v1 = object:direction()
+		local v2 = actor:direction()
+        if oTarget and (oTarget:id()==0) and (v1.x*v2.x)+(v1.z*v2.z)<-0.6 and object:see(actor) and object:position():distance_to(actor:position()) < dog_attack.max_dist then
+			dog_attack.enabled = true
+			--level.add_cam_effector("camera_effects\\pseudodog_effect.anm", dog_attack.eff_id_1, false, "")
+			--level.add_pp_effector("duality_circle.ppe", dog_attack.eff_id_2, false)
+			level.add_pp_effector("psy_antenna.ppe", dog_attack.eff_id_3, false)
+			local h = hit()
+			h.draftsman = object 
+			h.type = hit.telepatic 
+			h.direction = vector():set(0,0,0) 
+			h.power = 0.1 
+			h.impulse = 0.0 
+			actor:hit(h)
+			dog_attack.sound:play_at_pos(actor,actor:position())
+			local active_item = actor:active_item()
+			local rnd = math.random(0, 5)
+			local prob = (level.get_game_difficulty() + 1) * (1 - actor.alcohol)
+			--log3("~rnd %s | prob %s", rnd, prob)
+			if active_item and rnd < prob then 
+				actor:drop_item(active_item)
+				level.add_cam_effector("camera_effects\\pseudodog_effect.anm", dog_attack.eff_id_1, false, "")
+			else
+				level.add_pp_effector("duality_circle.ppe", dog_attack.eff_id_2, false)
+			end
+			dog_attack.timer = time_global() + dog_attack.delay * (1+math.random(-0.2,0.2)) + dog_attack.cam_eff_time
+			
+			--log3("~pseudodog %s attack", object:name())
+        end
+    elseif dog_attack.enabled and dog_attack.timer < time_global() + dog_attack.delay then 
+		level.remove_cam_effector(dog_attack.eff_id_1)
+		level.remove_pp_effector(dog_attack.eff_id_2)
+		level.remove_pp_effector(dog_attack.eff_id_3)	
+		dog_attack.enabled = false
+	end
+	---------------------	
+end
