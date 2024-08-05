@@ -227,6 +227,8 @@ script_binding  		= bind_monster.bind
 bone_torso				= bip01_spine1 			; bone name
 bone_head				= bip01_head				; bone name
 bone_fire				= bip01_head				; bone name
+bone_eye_left	   		= bip01_ponytail1
+bone_eye_right	   		= bip01_ponytail2
 weapon_usage			= 0						; boolean
 
 actor_restrictor		= medium_monster ;medium_monster,stalker,none
@@ -244,6 +246,19 @@ terrain							= boar_terrain
 
 material				= creatures\hoof
 DynamicObjectsCount		= 32
+
+;-------------------------------------------------------------------------
+; Attack on move
+;-------------------------------------------------------------------------
+aom_enabled            = 1
+aom_animation_left     = stand_attack_ ;stand_attack_run_left_
+aom_animation_right    = stand_attack_ ;stand_attack_run_right_
+aom_far_radius         = 8
+aom_max_go_close_time  = 8
+aom_prepare_time       = 4
+aom_attack_radius      = 1
+aom_update_side_period = 3
+aom_prediction_factor  = 1.2
 
 ;species of monster
 species				= boar
