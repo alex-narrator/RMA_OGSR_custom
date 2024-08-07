@@ -401,3 +401,10 @@ end
 -- for k,v in pairs(test_table) do
 	-- alife():release(alife():object(v), true)
 -- end
+
+local ac10632_text = [[wpn\wpn_addons\wpn_addon_scope_ac10632_new\wpn_addon_scope_ac10632_crosshair_dot]]
+local kobra_text = [[wpn\wpn_addons\wpn_addon_scope_kobra_new\wpn_addon_scope_kobra_crosshair_dot]]
+local textures = texture_find(ac10632_text)
+local texture = textures[texture_name]
+texture_name = [[wpn\wpn_addons\wpn_addon_scope_ac10632_new\wpn_addon_scope_ac10632_crosshair_dot]]
+texture:load(texture_name)

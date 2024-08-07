@@ -188,7 +188,8 @@ function prepair(item)
 		for k,v in pairs(addon_type) do
 			local i = k-1
 			if wpn:is_addon_attached(i) and wpn:addon_attachable(i) then
-				wpn:detach_addon(wpn:get_addon_name(i), true)
+				--wpn:detach_addon(wpn:get_addon_name(i), true)
+				detach_addon(item, wpn:get_addon_name(i))
 			end
 		end
 	end

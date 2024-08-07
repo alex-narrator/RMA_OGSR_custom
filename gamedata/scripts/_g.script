@@ -2162,3 +2162,9 @@ function change_game_time(days, hours, minutes)
 	level.change_game_time(days, hours, minutes)
 	level_weathers.get_weather_manager():select_weather(true)
 end
+
+function detach_addon(item, addon_sect, not_spawn_addon)
+	ogse_signals.get_mgr():call("on_before_addon_detach", item, addon_sect)	
+	item:get_weapon_m():detach_addon(addon_sect, not not_spawn_addon)
+	ogse_signals.get_mgr():call("on_addon_detach", item, addon_sect)
+end

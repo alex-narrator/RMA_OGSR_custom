@@ -1,0 +1,145 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_key_press", 				fun = this.on_key_press})
+	sm:subscribe({signal = "on_first_update", 			fun = this.on_first_update})
+	sm:subscribe({signal = "on_slot",   				fun = this.on_slot})	
+	sm:subscribe({signal = "on_save", 					fun = this.on_save})
+	sm:subscribe({signal = "on_load",   				fun = this.on_load})
+	sm:subscribe({signal = "on_before_addon_detach", 	fun = this.on_before_addon_detach})
+end
+
+local switch_mark_action = {
+	[key_bindings.kSWITCH_MARK] = true,
+}
+
+local effector_id = 5559
+local effector_name = [[camera_effects\item_use\mark_adjust.anm]]
+local sound = xr_sound.get_safe_sound_object("interface\\mark_adjust")
+
+local mark_prefix = "collimator_mark_"
+local mark_max = 20 --максимальна кількість прицільних марок
+
+local selected_marks = {}
+
+function on_save(packet)
+	xr_vars.save_var("selected_marks", selected_marks)
+end
+
+function on_load(reader)
+	selected_marks = xr_vars.load_var("selected_marks", selected_marks)
+end
+
+function get_current_mark_num(id)
+	return selected_marks[id]
+end
+
+function set_current_mark_num(id, mark_num)
+	selected_marks[id] = mark_num
+end
+
+function on_slot(item)
+	if not can_switch_marks(item) then
+	return end
+	if not get_current_mark_num(item:id()) then
+		get_current_mark_num(item:id(), 1)
+	end
+	apply_mark(item, get_current_mark_num(item:id()))
+end
+
+function on_before_addon_detach(item, addon_sect)
+	if not can_switch_marks(item) then
+	return end
+	set_current_mark_num(item:id(), 1)
+	apply_mark(item, get_current_mark_num(item:id()))
+	--log3("~weapon %s set default mark on detach", item:name())
+end
+
+function on_first_update()
+	for id,_ in pairs(selected_marks) do
+		local se_item = alife():object(id)
+		if not se_item or not se_item:get_weapon() then
+			set_current_mark_num(id, nil)
+			log3("~remove item id %s from marks list", id)
+		end
+	end
+end
+
+function can_switch_marks(item)
+	local mark_sect = get_mark_sect(item)
+	if not mark_sect then
+	return false end
+	return get_marks(mark_sect)
+end
+
+function get_mark_sect(item)
+	local wpn = item:get_weapon()
+	if not wpn then
+	return false end
+	if not wpn:is_addon_attached(addon.scope) then
+	return false end	
+	return wpn:addon_attachable(addon.scope) and wpn:get_addon_name(addon.scope) or item:section()
+end
+
+function get_marks(sect)
+	if not read_if_exists(sys_ini, "r_string", sect, mark_prefix.."base", false) then
+		log3("![%s]: not found %s param in section [%s]", script_name(), mark_prefix.."base", sect)
+	return false end
+	local marks = {}
+	for i=1, mark_max do
+		local texture_name = read_if_exists(sys_ini, "r_string", sect, mark_prefix..i, false)
+		if texture_name then
+			table.insert(marks, texture_name)
+		end
+	end
+	return table.size(marks) > 0 and marks or nil
+end
+
+function apply_mark(item, mark_num)
+	local mark_sect = get_mark_sect(item)
+	local texture_base = read_if_exists(sys_ini, "r_string", mark_sect, mark_prefix.."base", false)
+	local textures = texture_find(texture_base)
+	local texture = textures[texture_base]
+	local marks = get_marks(mark_sect)
+	local new_mark = marks[mark_num]
+	texture:load(new_mark)
+	--log3("~weapon [%s], mark sect [%s] - apply mark %s", item:name(), mark_sect, mark_num)
+end
+
+function reset_mark(mark_sect)
+	local texture_base = read_if_exists(sys_ini, "r_string", mark_sect, mark_prefix.."base", false)
+	local textures = texture_find(texture_base)
+	local texture = textures[texture_base]
+	texture:load(texture_base)
+end
+
+function on_key_press(key, game_action)
+	if not switch_mark_action[game_action] then
+	return end
+	local act_item = actor:active_item()
+	if not act_item then
+	return end
+	if not can_switch_marks(act_item) then
+	return end
+	local marks = get_marks(get_mark_sect(act_item))
+	if not marks then
+	return end
+	
+	local fwd = not level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION))
+	
+	local mark_num = get_current_mark_num(act_item:id())
+	
+	mark_num = fwd and mark_num + 1 or mark_num - 1
+	
+	if mark_num > table.size(marks) then
+		mark_num = 1
+	elseif mark_num < 1 then
+		mark_num = table.size(marks)
+	end
+	
+	apply_mark(act_item, mark_num)
+	
+	set_current_mark_num(act_item:id(), mark_num)
+	
+	level.add_cam_effector(effector_name, effector_id, false, "")	
+	sound:play(actor, 0, sound_object.s2d)		
+end

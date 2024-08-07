@@ -725,7 +725,8 @@ function SlotSelectorOverlay:OnDetachClick(sect)
 	loadout.set_marked_sect(sect)
 	
 	if actor:active_slot() ~= self.selected_slot then
-		slot_wpn:detach_addon(sect, true)
+		--slot_wpn:detach_addon(sect, true)
+		detach_addon(slot_item, sect)
 		xr_sound.get_safe_sound_object([[interface\inv_detach_addon]]):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 		actor:activate_slot(self.selected_slot, false)
 	else
@@ -735,7 +736,8 @@ function SlotSelectorOverlay:OnDetachClick(sect)
 				return not actor:active_item()
 			end,
 			function()
-				slot_wpn:detach_addon(sect, true)
+				--slot_wpn:detach_addon(sect, true)
+				detach_addon(slot_item, sect)
 				xr_sound.get_safe_sound_object([[interface\inv_detach_addon]]):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 				actor:restore_weapon()
 			end

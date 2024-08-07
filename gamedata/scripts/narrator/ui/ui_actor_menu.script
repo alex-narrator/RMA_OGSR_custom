@@ -1670,7 +1670,8 @@ function ActorMenuOverlay:ShowPropertiesBox(item, cell_item)
 					return parent_is_actor(item) or mode ~= "trade"
 				end
 				action = function(item, cell_item)
-					wpn:detach_addon(addon_sect, true)
+					--wpn:detach_addon(addon_sect, true)
+					detach_addon(item, addon_sect)
 					xr_sound.get_safe_sound_object([[interface\inv_detach_addon]]):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 					cell_item:ForceUpdate()
 					if mode == "trade" then
