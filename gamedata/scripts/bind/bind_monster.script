@@ -123,6 +123,9 @@ function generic_object_binder:death_callback(victim, who)
 	self.object:hit(h)
 
 	self.sm:call("on_death", victim, who)
+	if self.object:clsid() ~= clsid.script_trader then
+		self.sm:call("on_monster_death", victim)
+	end
 end
 
 function generic_object_binder:hit_callback(obj, amount, local_direction, who, bone_index, hit_type)

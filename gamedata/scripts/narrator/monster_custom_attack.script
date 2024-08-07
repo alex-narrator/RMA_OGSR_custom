@@ -3,10 +3,10 @@ function attach(sm)
 	sm:subscribe({signal = "on_monster_update",   fun = this.on_update})
 end
 
-local dog_attack = {
+local pseudodog_attack_data = {
 	enabled = false,
 	timer = 0,
-	max_dist = 20,
+	max_dist = 30,
 	delay = 2 * 1000,
 	cam_eff_time = 700,
 	sound = xr_sound.get_safe_sound_object("monsters\\pseudodog\\psy_affect_0",sound_object.s2d),
@@ -15,8 +15,17 @@ local dog_attack = {
 	eff_id_3 = 397,
 }
 
+local controller_attack_data = {
+	dist = 60,
+	delay = 2 * 1000,
+	timer = 0,
+	prob = 0.5,
+	sound = xr_sound.get_safe_sound_object("monsters\\controller\\controller_control2",sound_object.s2d),
+}
+
 local attack_func = {
 	[clsid.pseudodog_s] = function(obj) this.pseudodog_attack(obj) end,
+	[clsid.controller_s] = function(obj) this.controller_attack(obj) end,
 }
 
 function on_update(object)
@@ -26,43 +35,118 @@ function on_update(object)
 end
 
 function pseudodog_attack(object)
+	if not object:alive() then
+	return end
+	local dist = object:position():distance_to(actor:position())
+	local attack_dist = pseudodog_attack_data.max_dist
+	ogse_signals.get_mgr():reschedule((dist < attack_dist and 500) or (dist < object:range() and 1000) or 2000)
+	if dist > attack_dist then	
+	return end
+	local enemy = object:get_enemy()	
+	if not (enemy and enemy:is_actor() and object:see(enemy)) then
+    return end
+	if not enemy:alive() then 
+	return end
+    local v1 = object:direction()
+	local v2 = actor:direction()
+	if (v1.x*v2.x)+(v1.z*v2.z) >= -0.6 then
+	return end	
 	---------------------Атака псевдособаки из билда 1935 (Автор: Charsi)
-	if dog_attack.timer < time_global() then
-		local oTarget = object:get_enemy()
-        local v1 = object:direction()
-		local v2 = actor:direction()
-        if oTarget and (oTarget:id()==0) and (v1.x*v2.x)+(v1.z*v2.z)<-0.6 and object:see(actor) and object:position():distance_to(actor:position()) < dog_attack.max_dist then
-			dog_attack.enabled = true
-			--level.add_cam_effector("camera_effects\\pseudodog_effect.anm", dog_attack.eff_id_1, false, "")
-			--level.add_pp_effector("duality_circle.ppe", dog_attack.eff_id_2, false)
-			level.add_pp_effector("psy_antenna.ppe", dog_attack.eff_id_3, false)
-			local h = hit()
-			h.draftsman = object 
-			h.type = hit.telepatic 
-			h.direction = vector():set(0,0,0) 
-			h.power = 0.1 
-			h.impulse = 0.0 
-			actor:hit(h)
-			dog_attack.sound:play_at_pos(actor,actor:position())
-			local active_item = actor:active_item()
-			local rnd = math.random(0, 5)
-			local prob = (level.get_game_difficulty() + 1) * (1 - actor.alcohol)
-			--log3("~rnd %s | prob %s", rnd, prob)
-			if active_item and rnd < prob then 
-				actor:drop_item(active_item)
-				level.add_cam_effector("camera_effects\\pseudodog_effect.anm", dog_attack.eff_id_1, false, "")
-			else
-				level.add_pp_effector("duality_circle.ppe", dog_attack.eff_id_2, false)
-			end
-			dog_attack.timer = time_global() + dog_attack.delay * (1+math.random(-0.2,0.2)) + dog_attack.cam_eff_time
-			
-			--log3("~pseudodog %s attack", object:name())
-        end
-    elseif dog_attack.enabled and dog_attack.timer < time_global() + dog_attack.delay then 
-		level.remove_cam_effector(dog_attack.eff_id_1)
-		level.remove_pp_effector(dog_attack.eff_id_2)
-		level.remove_pp_effector(dog_attack.eff_id_3)	
-		dog_attack.enabled = false
+	local h = hit()
+	h.draftsman = object 
+	h.type = hit.telepatic 
+	h.direction = vector():set(0,0,0) 
+	h.power = 0.1 
+	h.impulse = 0.0 
+	actor:hit(h)
+	pseudodog_attack_data.sound:play_at_pos(actor,actor:position())
+	local active_item = actor:active_item()
+	local rnd = math.random(0, 5)
+	local prob = (level.get_game_difficulty() + 1) * (1 - actor.alcohol)
+	level.add_pp_effector("psy_antenna.ppe", pseudodog_attack_data.eff_id_3, false)		
+	if active_item and rnd < prob then 
+		actor:drop_item(active_item)
+		level.add_cam_effector("camera_effects\\pseudodog_effect.anm", pseudodog_attack_data.eff_id_1, false, "")
+	else
+		level.add_pp_effector("duality_circle.ppe", pseudodog_attack_data.eff_id_2, false)
 	end
+	add_time_delayed_action(pseudodog_attack_data.cam_eff_time * 0.001,
+		function()
+			level.remove_cam_effector(pseudodog_attack_data.eff_id_1)
+			level.remove_pp_effector(pseudodog_attack_data.eff_id_2)
+			level.remove_pp_effector(pseudodog_attack_data.eff_id_3)				
+		end
+	)
+	ogse_signals.get_mgr():reschedule( pseudodog_attack_data.delay * (1+math.random(-0.2,0.2)) + pseudodog_attack_data.cam_eff_time )
+	--log3("~pseudodog %s attack", object:name())
 	---------------------	
+end
+
+function controller_attack(object)
+	if not object:alive() then
+	return end
+	local dist = object:position():distance_to( actor:position() )
+	local attack_dist = controller_attack_data.dist
+	ogse_signals.get_mgr():reschedule((dist < attack_dist and 500) or (dist < object:range() and 1000) or 2000)
+	if dist > attack_dist then	
+	return end
+	local enemy = object:get_enemy()	
+	if not (enemy and enemy:is_actor() and object:see(enemy)) then
+    return end
+	if not enemy:alive() then 
+	return end
+    local v1 = object:direction()
+	local v2 = actor:direction()
+	if (v1.x*v2.x)+(v1.z*v2.z) >= -0.6 then
+	return end
+	
+	local dir = device().cam_dir
+	local x   = dir.x - ( 1.5 - 3 * math.random() )
+	local y   = dir.y
+	local z   = dir.z - ( 1.5 - 3 * math.random() )
+	dir = vector():set( x, y, z )
+	local h   = -dir:getH()
+	local p   = -dir:getP()
+	local cam = actor_camera( 0 )
+	if cam then
+		cam.yaw   = h
+		cam.pitch = p
+	end
+	controller_attack_data.sound:play_at_pos(actor,actor:position())
+	local rnd = math.random(0, 5)
+	local prob = (level.get_game_difficulty() + 1) * (1 - actor.alcohol)
+	if rnd < prob then
+		start_fire()
+	end
+	ogse_signals.get_mgr():reschedule( controller_attack_data.delay * (1+math.random(-0.2,0.2)) )
+end
+
+function start_fire()
+	local wpn = actor:active_item()
+	if not ( wpn and wpn:is_weapon_magazined() ) then return end
+	wpn:get_weapon():start_fire()
+	local stop_time = math.random( 1, 3 )
+	local wpn_id = wpn:id()
+	local wpn_name = wpn:name()
+	add_time_delayed_action(stop_time, 
+		function()
+			local wpn = actor:active_item()
+			if wpn and wpn:id() == wpn_id and wpn:name() == wpn_name then
+				wpn:get_weapon():stop_fire()
+				block_fire()
+			end
+		end
+	)
+end
+
+function block_fire()
+	local wpn = actor:active_item()
+	if not ( wpn and wpn:is_weapon_magazined() ) then return end
+	get_actor_obj():block_action(key_bindings.kWPN_FIRE)
+	local stop_time = math.random( 1, 3 )
+	add_time_delayed_action(stop_time, 
+		function()
+			get_actor_obj():unblock_action(key_bindings.kWPN_FIRE)
+		end
+	)	
 end
