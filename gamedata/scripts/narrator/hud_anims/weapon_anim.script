@@ -33,13 +33,19 @@ function get_zoom_data(item)
 	return split_string(read_if_exists(sys_ini, "r_string", zoom_sect, "scope_zoom_factor", nil), ",")
 end
 
-function on_mouse_wheel()
+function on_mouse_wheel(forward)
 	if is_switch_slot() or not actor_hands_free() then
 	return end
 	
 	local act_item = actor:active_item()
 	local act_wpn = act_item and act_item:get_weapon_m() or nil
 	if not act_wpn or not has_fire_modes(act_item) or (get_zoom_data(act_item) and table.size(get_zoom_data(act_item)) > 1 and actor_obj:is_zoom_aiming_mode()) then
+	return end
+	
+	local fire_modes = get_fire_modes(act_item)
+	local cur_f_mode = act_wpn.cur_fire_mode
+			
+	if (cur_f_mode == 0 and not forward) or (cur_f_mode + 1 == table.size(fire_modes) and forward) then
 	return end
 	
 	play_switch_anim(act_item)

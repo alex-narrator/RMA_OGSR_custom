@@ -1772,11 +1772,21 @@ function get_fire_mode_str(wpn)
 		return ""
 	end
 	local firemode_tbl = split_string(f_modes_str, ",")
-    local wpn_m = wpn:get_weapon_m()
 	local cur_firemode = wpn:get_weapon_m().cur_fire_mode
 	local res = firemode_tbl[cur_firemode+1]
 	res = (tonumber(res) ~= -1) and res or "A"
 	return string.format("(%s)", res)
+end
+
+function get_fire_modes(wpn)
+	if wpn:get_gl_mode() then
+	return false end
+	if not wpn:get_weapon_m() then
+	return false end
+	local f_modes_str = read_if_exists(sys_ini, "r_string", wpn:section(), "fire_modes", nil)
+	if not f_modes_str then
+	return false end
+	return split_string(f_modes_str, ",")
 end
 
 function get_cur_ammo_sect(obj)
