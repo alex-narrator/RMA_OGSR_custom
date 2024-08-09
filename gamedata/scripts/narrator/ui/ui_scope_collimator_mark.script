@@ -82,7 +82,7 @@ end
 
 function get_marks(sect)
 	if not read_if_exists(sys_ini, "r_string", sect, mark_prefix.."base", false) then
-		log3("![%s]: not found %s param in section [%s]", script_name(), mark_prefix.."base", sect)
+		--log3("![%s]: not found %s param in section [%s]", script_name(), mark_prefix.."base", sect)
 	return false end
 	local marks = {}
 	for i=1, mark_max do
@@ -126,7 +126,7 @@ function on_key_press(key, game_action)
 	
 	local fwd = not level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION))
 	
-	local mark_num = get_current_mark_num(act_item:id())
+	local mark_num = get_current_mark_num(act_item:id()) or 1
 	
 	mark_num = fwd and mark_num + 1 or mark_num - 1
 	

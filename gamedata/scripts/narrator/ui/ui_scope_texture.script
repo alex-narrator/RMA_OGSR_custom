@@ -114,8 +114,12 @@ function on_death(victim, killer)
 	end
 end
 
+
+local effector_id = 5559
+local effector_name = [[camera_effects\item_use\mark_adjust.anm]]
+local sound = xr_sound.get_safe_sound_object("interface\\mark_adjust")
 local enable_illumination_action = {
-	[key_bindings.kNIGHT_VISION] = true,
+	[key_bindings.kSWITCH_MARK] = true,
 }
 function on_key_press(key, game_action)
 	if not enable_illumination_action[game_action] then
@@ -126,7 +130,10 @@ function on_key_press(key, game_action)
 	return end
 	is_illuminated = not is_illuminated
 	scope_static:InitTexture(is_illuminated and texture_ilum_name or texture_name)
-	level.add_complex_effector("fire_mode", 1912)
-	local switch_snd = read_if_exists(sys_ini, "r_string", actor:active_item():section(), "snd_firemode", "")
-	xr_sound.get_safe_sound_object(switch_snd):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)	
+	level.add_cam_effector(effector_name, effector_id, false, "")	
+	sound:play(actor, 0, sound_object.s2d)
+end
+
+function has_illum()
+	return scope_static and texture_ilum_name
 end

@@ -1,0 +1,23 @@
+[logic]
+active = ph_sound@on
+on_hit = hit
+
+[ph_sound@on]
+snd = mil_cook_music
+volume = 0.25
+tips = ui_st_turn_off
+on_use = %+mil_cook_radio_off%
+on_info = {+mil_cook_radio_off} ph_idle@off
+on_info2 = {+mil_cook_radio_broken} ph_idle@broken
+
+[ph_idle@off]
+tips = ui_st_turn_on
+on_use = %-mil_cook_radio_off%
+on_info = {-mil_cook_radio_off} ph_sound@on
+on_info2 = {+mil_cook_radio_broken} ph_idle@broken
+
+[ph_idle@broken]
+on_info = {+mil_cook_radio_broken} nil
+
+[hit]
+on_info = %+mil_cook_radio_broken%

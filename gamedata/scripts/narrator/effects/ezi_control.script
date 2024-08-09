@@ -93,7 +93,12 @@ function on_zoom_in(weapon)
 	function()
 		if not get_actor_obj():is_zoom_aiming_mode() then
 		return end
-		local tip = ui_scope_collimator_mark.can_switch_marks(weapon) and "st_hold_key_to_hard_hold_with_marks" or "st_hold_key_to_hard_hold"
+		local tip = "st_hold_key_to_hard_hold"
+		if ui_scope_collimator_mark.can_switch_marks(weapon) then
+			tip = "st_hold_key_to_hard_hold_with_marks"
+		elseif ui_scope_texture.has_illum() then
+			tip = "st_hold_key_to_hard_hold_with_illum"
+		end
 		hud_add_info_message("item_usage", game.translate_string(tip), 2)
 	end
 	)

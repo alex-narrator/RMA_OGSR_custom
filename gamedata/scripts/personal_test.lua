@@ -25,8 +25,6 @@
 
 --db.actor:set_character_rank(299)
 
---db.actor:give_info_portion("escape_sidor_box_open")
-
 -- local _hour = 24
 -- local _min = 90
 -- local time_to_advance = (_hour*3600 + _min*60) * 1000
@@ -127,22 +125,22 @@ end
 	--item:set_show_model_mesh_hud(7, false)
 --end
 
-local item = actor:active_item()
-if item then
-	log3("~mesh count before %s", item:get_mesh_count_hud())
-	local mesh_num = 2
-	item:set_show_model_mesh_hud(mesh_num, not item:get_show_model_mesh_hud(mesh_num))
-	log3("~mesh count after %s", item:get_mesh_count_hud())
-end
+-- local item = actor:active_item()
+-- if item then
+	-- log3("~mesh count before %s", item:get_mesh_count_hud())
+	-- local mesh_num = 2
+	-- item:set_show_model_mesh_hud(mesh_num, not item:get_show_model_mesh_hud(mesh_num))
+	-- log3("~mesh count after %s", item:get_mesh_count_hud())
+-- end
 
-local item = level.get_target_obj()
-if item then
-	log3("~mesh count before %s", item:get_mesh_count())
-	local mesh_num = 1
-	--item:set_bone_visible("wpn_silencer", false)
-	--item:set_show_model_mesh(mesh_num, not item:get_show_model_mesh(mesh_num)) --Установить видимость меша для худовой модели
-	log3("~mesh count after %s", item:get_mesh_count())
-end
+-- local item = level.get_target_obj()
+-- if item then
+	-- log3("~mesh count before %s", item:get_mesh_count())
+	-- local mesh_num = 1
+	-- --item:set_bone_visible("wpn_silencer", false)
+	-- --item:set_show_model_mesh(mesh_num, not item:get_show_model_mesh(mesh_num)) --Установить видимость меша для худовой модели
+	-- log3("~mesh count after %s", item:get_mesh_count())
+-- end
 
 -- if actor:active_item() then
 	-- actor:active_item():stop_aim_inertion(false)
@@ -402,9 +400,12 @@ end
 	-- alife():release(alife():object(v), true)
 -- end
 
-local ac10632_text = [[wpn\wpn_addons\wpn_addon_scope_ac10632_new\wpn_addon_scope_ac10632_crosshair_dot]]
-local kobra_text = [[wpn\wpn_addons\wpn_addon_scope_kobra_new\wpn_addon_scope_kobra_crosshair_dot]]
-local textures = texture_find(ac10632_text)
-local texture = textures[texture_name]
-texture_name = [[wpn\wpn_addons\wpn_addon_scope_ac10632_new\wpn_addon_scope_ac10632_crosshair_dot]]
-texture:load(texture_name)
+-- local ac10632_text = [[wpn\wpn_addons\wpn_addon_scope_ac10632_new\wpn_addon_scope_ac10632_crosshair_dot]]
+-- local kobra_text = [[wpn\wpn_addons\wpn_addon_scope_kobra_new\wpn_addon_scope_kobra_crosshair_dot]]
+-- local textures = texture_find(ac10632_text)
+-- local texture = textures[texture_name]
+-- texture_name = [[wpn\wpn_addons\wpn_addon_scope_ac10632_new\wpn_addon_scope_ac10632_crosshair_dot]]
+-- texture:load(texture_name)
+
+--actor:give_info_portion("mil_freedom_under_attack")
+actor:disable_info_portion("mil_freedom_under_attack")
