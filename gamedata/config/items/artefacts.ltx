@@ -123,37 +123,12 @@ hit_effector 				= af_hit
 ;af_rank = 4
 cost						= 7500
 
-[artefact_hud]:hud_base
-item_visual                 = dynamics\artefacts\artefact_electra_blue_hud
-attach_place_idx			= 0
-
-hands_position          	= 0,0,0
-hands_orientation       	= 0,0,0
-hands_position_16x9 		= 0.000000,0.000000,0.000000
-hands_orientation_16x9 		= -1.639999,-12.980202,0.000000
-
-item_position				= 0,0,0
-item_orientation			= 0,0,0
-aim_hud_offset_pos			= 0,0,0
-aim_hud_offset_rot			= 0,0,0
-
-gl_hud_offset_pos			= 0,0,0
-gl_hud_offset_rot			= 0,0,0
-
-lean_hud_offset_pos			= 0,0,0
-lean_hud_offset_rot			= 0,0,0
-
-anm_idle					= dev_artefact_idle
-anm_idle_sprint				= dev_artefact_idle
-anm_hide					= dev_artefact_holster
-anm_show					= dev_artefact_draw
-anm_activate				= dev_artefact_use
-
 ; Артефакты для аномалии "Комариная плешь"
 [af_medusa]:af_simple
 $spawn					= "artifacts\moscito medusa"
 
 visual					= physics\anomaly\artefact_blackdrip
+hud 					= af_medusa_hud
 
 description				= st_af_medusa_descr
 inv_name				= st_af_medusa_name
@@ -176,7 +151,8 @@ hit_type				= strike
 [af_cristall_flower]:af_medium
 $spawn					= "artifacts\moscito flower"
 
-visual					= physics\anomaly\artefact_blackdrip_2  
+visual					= physics\anomaly\artefact_blackdrip_2
+hud 					= af_cristall_flower_hud
 
 description				= st_af_cristall_flower_descr
 inv_name				= st_af_cristall_flower_name
@@ -202,7 +178,8 @@ hit_type				= strike
 [af_night_star]:af_high
 $spawn					= "artifacts\moscito star"
 
-visual					= physics\anomaly\artefact_blackdrip_1  
+visual					= physics\anomaly\artefact_blackdrip_1
+hud 					= af_night_star_hud
 
 description				= st_af_night_star_descr
 inv_name				= st_af_night_star_name
@@ -229,7 +206,8 @@ hit_type				= strike
 [af_vyvert]:af_simple
 $spawn					= "artifacts\gravy vyvert"
 
-visual					= physics\anomaly\artefact_gravy1 
+visual					= physics\anomaly\artefact_gravy1
+hud 					= af_vyvert_hud
 
 description				= st_af_vyvert_descr
 inv_name				= st_af_vyvert_name
@@ -253,7 +231,8 @@ hit_type				= strike
 [af_gravi]:af_medium
 $spawn					= "artifacts\gravy gravi"
 
-visual					= physics\anomaly\artefact_gravy2  
+visual					= physics\anomaly\artefact_gravy2
+hud 					= af_gravi_hud
 
 description				= st_af_gravi_descr
 inv_name				= st_af_gravi_name
@@ -279,6 +258,7 @@ hit_type				= strike
 $spawn					= "artifacts\gravy fish"
 
 visual					= physics\anomaly\artefact_gravy3
+hud 					= af_gold_fish_hud
 
 description				= st_af_gold_fish_descr
 inv_name				= st_af_gold_fish_name
@@ -306,6 +286,7 @@ hit_type				= strike
 $spawn 					= "artifacts\zharka drops"
 
 visual					= physics\anomaly\artefact_kaply
+hud 					= af_drops_hud
 
 description				= st_af_drops_descr
 inv_name				= st_af_drops_name
@@ -330,6 +311,7 @@ hit_type 				= burn
 $spawn 					= "artifacts\zharka fireball"
 
 visual					= physics\anomaly\artefact_fire
+hud 					= af_fireball_hud
 
 description				= st_af_fireball_descr
 inv_name				= st_af_fireball_name
@@ -358,6 +340,7 @@ hit_type 				= burn
 $spawn 					= "artifacts\zharka cristall"
 
 visual					= physics\anomaly\artefact_cristall
+hud 					= af_cristall_hud
 
 description				= st_af_cristall_descr
 inv_name				= st_af_cristall_name
@@ -385,6 +368,7 @@ hit_type 				= burn
 $spawn					= "artifacts\mincer blood"
 
 visual					= physics\anomaly\artefact_myasorubka1
+hud 					= af_blood_hud
 
 description				= st_af_blood_descr
 inv_name				= st_af_blood_name
@@ -410,6 +394,7 @@ hit_type				= strike
 $spawn					= "artifacts\mincer meatloaf"
 
 visual					= physics\anomaly\artefact_myasorubka2
+hud 					= af_mincer_meat_hud
 
 description				= st_af_mincer_meat_descr
 inv_name				= st_af_mincer_meat_name
@@ -436,6 +421,7 @@ hit_type				= strike
 $spawn					= "artifacts\mincer soul"
 
 visual					= physics\anomaly\artefact_myasorubka3 
+hud 					= af_soul_hud
 
 description				= st_af_soul_descr
 inv_name				= st_af_soul_name
@@ -464,6 +450,7 @@ hit_type				= strike
 $spawn					= "artifacts\electra sparkler"
 
 visual					= physics\anomaly\artefact_electra4
+hud 					= af_electra_sparkler_hud
 
 description				= st_af_electra_sparkler_descr
 inv_name				= st_af_electra_sparkler_name
@@ -489,6 +476,7 @@ hit_type				= shock
 $spawn					= "artifacts\electra flash"
 
 visual					= physics\anomaly\artefact_electra3
+hud 					= af_electra_flash_hud
 
 description				= st_af_electra_flash_descr
 inv_name				= st_af_electra_flash_name
@@ -515,6 +503,7 @@ hit_type				= shock
 $spawn					= "artifacts\electra moonlight"
 
 visual					= physics\anomaly\artefact_electra1 
+hud 					= af_electra_moonlight_hud
 
 description				= st_af_electra_moonlight_descr
 inv_name				= st_af_electra_moonlight_name
@@ -542,6 +531,7 @@ hit_type				= shock
 $spawn					= "artifacts\ameba slime"
 
 visual					= physics\anomaly\artefact_ameba3
+hud 					= af_ameba_slime_hud
 
 description				= st_af_ameba_slime_descr
 inv_name				= st_af_ameba_slime_name
@@ -566,6 +556,7 @@ hit_type				= chemical_burn
 $spawn					= "artifacts\ameba slug"
 
 visual					= physics\anomaly\artefact_ameba2
+hud 					= af_ameba_slug_hud
 
 description				= st_af_ameba_slug_descr
 inv_name				= st_af_ameba_slug_name
@@ -592,6 +583,7 @@ hit_type				= chemical_burn
 $spawn					= "artifacts\ameba mica"
 
 visual					= physics\anomaly\artefact_ameba1
+hud 					= af_ameba_mica_hud
 
 description				= st_af_ameba_mica_descr
 inv_name				= st_af_ameba_mica_name
@@ -619,6 +611,7 @@ hit_type				= chemical_burn
 $spawn 					= "artifacts\rusty thorn"
 
 visual					= physics\anomaly\artefact_needles1
+hud 					= af_rusty_thorn_hud
 
 description				= st_af_rusty_thorn_descr
 inv_name				= st_af_rusty_thorn_name
@@ -640,6 +633,7 @@ hit_type				= chemical_burn
 $spawn 					= "artifacts\rusty cristall"
 
 visual					= physics\anomaly\artefact_needles2
+hud 					= af_rusty_kristall_hud
 
 description				= st_af_rusty_kristall_descr
 inv_name				= st_af_rusty_kristall_name
@@ -661,6 +655,7 @@ hit_type				= chemical_burn
 $spawn 					= "artifacts\rusty sea-urchin"
 
 visual					= physics\anomaly\artefact_rusty_hairs
+hud 					= af_rusty_sea_urchin_hud
 
 description				= st_af_rusty_sea_urchin_descr
 inv_name				= st_af_rusty_sea_urchin_name
@@ -684,6 +679,7 @@ hit_type				= chemical_burn
 $spawn 					= "artifacts\dummy spring"
 
 visual					= physics\anomaly\artefact_pustishka
+hud 					= af_dummy_spring_hud
 
 description				= st_af_dummy_spring_descr
 inv_name				= st_af_dummy_spring_name
@@ -702,6 +698,7 @@ strike_protection 		= 0.3
 $spawn 					= "artifacts\dummy dummy"
 
 visual					= physics\anomaly\artefact_pustishka1
+hud 					= af_dummy_dummy_hud
 
 description				= st_af_dummy_dummy_descr
 inv_name				= st_af_dummy_dummy_name
@@ -720,6 +717,7 @@ burn_protection 		= 0.3
 $spawn 					= "artifacts\dummy battery"
 
 visual					= physics\anomaly\artefact_battery
+hud 					= af_dummy_battery_hud
 
 description				= st_af_dummy_battery_descr
 inv_name				= st_af_dummy_battery_name
@@ -740,6 +738,7 @@ shock_protection 		= 0.3
 $spawn 					= "artifacts\dummy pellicle"
 
 visual					= physics\anomaly\artefact_plenka
+hud 					= af_dummy_pellicle_hud
 
 description				= st_af_dummy_pellicle_descr
 inv_name				= st_af_dummy_pellicle_name
@@ -760,6 +759,7 @@ chemical_burn_protection = 0.3
 $spawn 					= "artifacts\dummy glassbeads"
 
 visual					= physics\anomaly\artefact_spiral
+hud 					= af_dummy_glassbeads_hud
 
 description				= st_af_dummy_glassbeads_descr
 inv_name				= st_af_dummy_glassbeads_name
@@ -782,6 +782,7 @@ fire_wound_protection  	= 0.05
 $spawn 					= "artifacts\fuzz kolobok"
 
 visual					= physics\anomaly\artefact_rusty_hairs
+hud 					= af_fuzz_kolobok_hud
 
 description				= st_af_fuzz_kolobok_descr
 inv_name				= st_af_fuzz_kolobok_name

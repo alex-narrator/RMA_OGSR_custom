@@ -61,6 +61,8 @@ function pseudodog_attack(object)
 	actor:hit(h)
 	pseudodog_attack_data.sound:play_at_pos(actor,actor:position())
 	local active_item = actor:active_item()
+	if get_clsid(active_item) ~= clsid.obj_bolt then
+	return end
 	local rnd = math.random(0, 5)
 	local prob = (level.get_game_difficulty() + 1) * (1 - actor.alcohol)
 	level.add_pp_effector("psy_antenna.ppe", pseudodog_attack_data.eff_id_3, false)		
@@ -116,14 +118,18 @@ function controller_attack(object)
 	local rnd = math.random(0, 5)
 	local prob = (level.get_game_difficulty() + 1) * (1 - actor.alcohol)
 	if rnd < prob then
-		start_fire()
+		start_fire(object)
 	end
 	ogse_signals.get_mgr():reschedule( controller_attack_data.delay * (1+math.random(-0.2,0.2)) )
 end
 
-function start_fire()
+function start_fire(object)
 	local wpn = actor:active_item()
 	if not ( wpn and wpn:is_weapon_magazined() ) then return end
+	local tgt = level.get_target_obj()
+	if tgt and tgt:id() == object:id() then
+		block_fire()
+	return end
 	wpn:get_weapon():start_fire()
 	local stop_time = math.random( 1, 3 )
 	local wpn_id = wpn:id()

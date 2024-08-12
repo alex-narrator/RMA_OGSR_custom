@@ -8,6 +8,7 @@ function attach(sm)
 end
 
 local detector_enabled = {}
+local ENABLED = true
 
 --//community які НЕ детектують аномалії
 local disabled_communities = {
@@ -22,6 +23,10 @@ local disabled_profiles = {
 local disabled_names = {
 	["esc_suicidal_flesh"] = true,
 }
+
+function enabled()
+	return ENABLED
+end
 
 function is_disabled(npc)
 	return (npc:is_stalker() and disabled_communities[npc:character_community()]) or disabled_profiles[npc:profile_name()] or disabled_names[npc:name()]
@@ -40,6 +45,8 @@ local rank_prob = {
 }
 
 function on_spawn(npc)
+	if not enabled() then
+	return end
 	if not npc:alive() then return end
 	local anomaly_detector = npc:get_custom_monster():anomaly_detector()
 	if is_disabled(npc) then
@@ -51,6 +58,8 @@ function on_spawn(npc)
 end
 
 function on_death(npc)
+	if not enabled() then
+	return end
 	if not detector_enabled[npc:id()] then return end
 	local anomaly_detector = npc:get_custom_monster():anomaly_detector()
 	anomaly_detector:deactivate(true)
