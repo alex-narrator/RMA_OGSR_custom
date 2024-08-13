@@ -17,10 +17,17 @@ trader				= nil
 info_restr          = {}
 strn_by_respawn     = {}
 creatures 			= {}
+stalkers 			= {}
+monsters 			= {}
 
 function add_obj( obj )
 	if obj:is_stalker() or obj:is_monster() then
 		creatures[obj:id()] = obj
+		if obj:is_stalker() then
+			stalkers[obj:id()] = obj
+		else
+			monsters[obj:id()] = obj
+		end
 	end
 end
 
@@ -28,6 +35,11 @@ function del_obj( obj )
 	storage   [obj:id()] = nil
 	if creatures[obj:id()] then
 		creatures[obj:id()] = nil
+		if obj:is_stalker() then
+			stalkers[obj:id()] = nil
+		else
+			monsters[obj:id()] = nil
+		end		
 	end
 end
 

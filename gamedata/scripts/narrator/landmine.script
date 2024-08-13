@@ -1,0 +1,73 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+local spawn_dist = 1
+
+function get_mine_zone_sect(item)
+	return read_if_exists(sys_ini, "r_string", item:section(), "spawn_mine_zone", nil)
+end
+
+function deploy_tip(item)
+	return string.format("%s %s", game.translate_string("st_deploy"), game.translate_string(get_inv_name_short(item:section())))
+end
+
+function can_deploy(item)
+	return not not get_mine_zone_sect(item) and parent_is_actor(item) --and actor:has_info("deploy_"..item:section())
+end
+
+function deploy(item)
+	local mine_zone_sect = get_mine_zone_sect(item)
+	if not mine_zone_sect then
+	return end
+	
+	local zone_radius = read_if_exists(sys_ini, "r_float", mine_zone_sect, "effective_radius", 1)
+	
+	if item:parent() and parent_is_actor(item) then
+		actor:drop_item(item)
+		local has_witness = false
+		for id, object in pairs(db.stalkers) do
+			if object:alive() and object:see_right_now(actor) then
+				has_witness = true
+				break
+			end
+		end
+		level.add_call(
+			function()
+				return (distance_between_safe(item, actor) > actor:radius() + zone_radius) or item:parent()
+			end,
+			function()
+				if item:parent() then
+				return end
+				local mine_zone = spawn_to_level(mine_zone_sect, item:position(), level.name())
+				if has_witness then
+					alife():object(mine_zone.id):get_custom_zone().owner_id = actor:id()
+					--log3("~set actor owner_id for mine zone")
+				end
+				local pk = get_netpk( mine_zone, 1 )
+				local data = pk:get()
+				data.shapes:addSphere(zone_radius, vector():set(0, 0, 0))
+				pk:set( data )
+				give_deploy_msg(item:section(), mine_zone.id)
+				alife():release(alife():object(item:id()), true)	
+			end
+		)
+	end
+end
+
+local spot = "red_location"
+local snd = [[device\pda\pda_tip]]
+
+function give_deploy_msg(item_sect, mine_zone_id)
+	local inv_name = game.translate_string(get_inv_name(item_sect))
+	local news_text = string.format("%s%s\\n%s%s", 
+		"%c[red]",
+		game.translate_string("st_mine_deployed"),
+		"%c[UI_orange]",
+		inv_name
+	)
+	actor:give_game_news(news_text, "ui\\ui_iconstotal", Frect():set(747, 517, 83, 47), 0, 3000)
+	xr_sound.get_safe_sound_object(snd):play(actor, 0, sound_object.s2d)
+	local text = string.format("%s%s", 
+		"%c[UI_orange]",
+		inv_name
+	)
+	level.map_add_object_spot_ser(mine_zone_id, spot, text)	
+end

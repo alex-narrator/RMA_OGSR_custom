@@ -354,11 +354,15 @@ end
 	-- end
 -- end
 
--- local spawn_pos = vector():set(-235.69061279297, -20.170392990112, -146.9228515625)
--- local spawn_dir = vector():set(0, -1.57, 0)
--- local level_name = "l01_escape"
--- local spawn_sect = "stationary_mgun"
--- spawn_to_level(spawn_sect, spawn_pos, level_name, spawn_dir)
+-- local pos = actor:position()
+-- local dir = actor:direction()
+-- dir:set_length(actor:radius() + 0.5)
+-- pos.x = pos.x - 0.5
+-- local spawn_pos = pos:add(dir)--vector():set(-235.69061279297, -20.170392990112, -146.9228515625)
+-- --local spawn_dir = vector():set(0, -1.57, 0)
+-- local level_name = level.name()
+-- local spawn_sect = "zone_mine_field"
+-- spawn_to_level(spawn_sect, spawn_pos, level_name)
 
 -- spawn_pos = vector():set(-72.884278869629, -6.0554096603394, -74.048715209961)
 -- spawn_dir = vector():set(-0.91856408119202, 0.011560671962798, 0.39510345458984)
@@ -407,5 +411,5 @@ end
 -- texture_name = [[wpn\wpn_addons\wpn_addon_scope_ac10632_new\wpn_addon_scope_ac10632_crosshair_dot]]
 -- texture:load(texture_name)
 
---actor:give_info_portion("mil_freedom_under_attack")
-actor:disable_info_portion("mil_freedom_under_attack")
+actor:give_info_portion("explosive_pmn_manual")
+--actor:disable_info_portion("mil_freedom_under_attack")
