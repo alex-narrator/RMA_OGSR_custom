@@ -1638,7 +1638,8 @@ end
 
 function actor_hands_free()
 	local act_item = actor:active_item()
-	return (not act_item or not act_item:is_pending()) and game.hud_motion_allowed() and not actor:ph_capture()
+	local act_device = actor:active_device()
+	return (not act_item or not act_item:is_pending()) and (not act_device or not act_device:is_pending()) and game.hud_motion_allowed() and not actor:ph_capture()
 end
 function actor_cant_walk()
 	return get_actor_obj().condition.cant_walk

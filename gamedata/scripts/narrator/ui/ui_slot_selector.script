@@ -748,8 +748,8 @@ end
 function SlotSelectorOverlay:TrySignalHide()
 	if self.was_shown and not self:IsShown() then
 		self.was_shown = false
-		self:Unsubscribe()
 		sm:call("on_slot_selector_hide")
+		self:Unsubscribe()
 	end
 end
 
@@ -762,8 +762,8 @@ function SlotSelectorOverlay:ShowHideSelector()
 			self:Subscribe()
 			sm:call("on_slot_selector_show")
 		else
-			self:Unsubscribe()
 			sm:call("on_slot_selector_hide")
+			self:Unsubscribe()
 		end
 	end
 end
