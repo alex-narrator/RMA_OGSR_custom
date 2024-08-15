@@ -167,3 +167,21 @@ function se_zone_campfire:STATE_Read( packet, size )
 	return end	
 	self.usable_campfire_id = packet:r_u32()	
 end
+
+--//МІНИ
+class "se_zone_mine" (cse_anomalous_zone)
+function se_zone_mine:__init (section) super (section)
+end
+function se_zone_mine:on_register()
+	cse_anomalous_zone.on_register(self)
+end
+function se_zone_mine:update()
+	cse_anomalous_zone.update(self)
+end
+function se_zone_mine:STATE_Write(packet)
+	cse_anomalous_zone.STATE_Write(self, packet)
+end
+-- восстановление
+function se_zone_mine:STATE_Read( packet, size )
+	cse_anomalous_zone.STATE_Read( self, packet, size )
+end

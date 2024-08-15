@@ -1,6 +1,4 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
-local spawn_dist = 1
-
 function get_mine_zone_sect(item)
 	return read_if_exists(sys_ini, "r_string", item:section(), "spawn_mine_zone", nil)
 end
@@ -10,7 +8,8 @@ function deploy_tip(item)
 end
 
 function can_deploy(item)
-	return not not get_mine_zone_sect(item) and parent_is_actor(item) --and actor:has_info("deploy_"..item:section())
+	local deploy_info = read_if_exists(sys_ini, "r_string", item:section(), "need_for_use_info", nil)
+	return not not get_mine_zone_sect(item) and parent_is_actor(item) and (not deploy_info or actor:has_info(deploy_info))
 end
 
 function deploy(item)
@@ -24,7 +23,7 @@ function deploy(item)
 		actor:drop_item(item)
 		local has_witness = false
 		for id, object in pairs(db.stalkers) do
-			if object:alive() and object:see_right_now(actor) then
+			if object:alive() and object:see_right_now(actor) and not object:is_relation_enemy(actor) then
 				has_witness = true
 				break
 			end
@@ -52,14 +51,14 @@ function deploy(item)
 	end
 end
 
-local spot = "red_location"
+local spot = "anomaly_zone_location"
 local snd = [[device\pda\pda_tip]]
 
 function give_deploy_msg(item_sect, mine_zone_id)
 	local inv_name = game.translate_string(get_inv_name(item_sect))
 	local news_text = string.format("%s%s\\n%s%s", 
 		"%c[red]",
-		game.translate_string("st_mine_deployed"),
+		game.translate_string("st_explosive_deployed"),
 		"%c[UI_orange]",
 		inv_name
 	)

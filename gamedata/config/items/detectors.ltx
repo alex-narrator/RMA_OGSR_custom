@@ -226,6 +226,29 @@ custom_ui_bone 			= cover
 snd_draw        		= weapons\detector\detector_8_draw
 snd_holster     		= weapons\detector\detector_8_holster
 
+[detector_receiver_cop]:detector_cop_base
+$spawn 					= "devices\detector_simple"
+class					= S_DEV_CSTM
+visual					= dynamics\devices\dev_detector_09\dev_detector_09
+hud						= detector_receiver_hud
+
+inv_name				= st_detector_receiver_cop_name
+inv_name_short			= st_detector_receiver_cop_short
+description				= st_detector_receiver_cop_descr
+
+inv_grid_x         		= 2
+inv_grid_y         		= 2
+cost					= 500
+
+detect_radius 			= 50
+
+custom_ui_pos           = -0.0228,0.0225,0.0415
+custom_ui_rot           = 0,88.5,0
+custom_ui_func			= ui_receiver.get_UI
+
+snd_draw        		= weapons\detector\detector_8_draw
+snd_holster     		= weapons\detector\detector_8_holster
+
 [detector_simple_cop]:detector_cop_base,detect_non_radiation,detect_af_simple
 
 $spawn 					= "devices\detector_simple"

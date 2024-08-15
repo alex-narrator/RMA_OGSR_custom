@@ -3,23 +3,26 @@ local OVERLAY_XML = "message_box.xml"
 
 class "MessageBoxWnd" (CUIScriptWnd)
 
-function MessageBoxWnd:__init() super()
+local msg_box_type_prefix = "message_box_accept_decline_"
+
+function MessageBoxWnd:__init(box_type) super()
 	self.owner = level.main_input_receiver()
-	self:InitWnd()
+	self:InitWnd(box_type)
 end
 
 function MessageBoxWnd:DetachWnd()
 	self:ClearCallbacks()
 end
 
-function MessageBoxWnd:InitWnd()
+function MessageBoxWnd:InitWnd(box_type)
 	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
 	local xml = CScriptXmlInit()
 	xml:ParseFile(OVERLAY_XML)
 
 	self.message_box = CUIMessageBox()
-	self:AttachChild(self.message_box)	
-	self.message_box:Init("message_box_accept_decline")
+	self:AttachChild(self.message_box)
+	if not box_type then box_type = "info" end
+	self.message_box:Init(msg_box_type_prefix..box_type)
 	self:Register(self.message_box, "message_box")
 	
 	self:AddCallback("message_box", ui_events.MESSAGE_BOX_YES_CLICKED, self.ProcessAction, self)

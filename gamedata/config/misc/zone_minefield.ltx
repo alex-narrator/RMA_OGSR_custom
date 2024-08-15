@@ -2,7 +2,7 @@
 GroupControlSection	= spawn_group_zone
 $spawn 			= "zones\mine_field"
 $prefetch 		= 16
-class			= Z_MBALD
+class			= ZS_MINE
 hit_impulse_scale	= 0.15;0.5 ;0.1
 effective_radius	= 1 ;размер радиуса в процентах от оригинального, где действует зона
 sound			= 
@@ -86,6 +86,9 @@ blowout_wind_time_end		= 1001;999
 blowout_wind_power			= 0.5			;сила поднимаего ветра (от 0 до 1), в момент blowout_wind_time_peak 
 
 DestroyAfterBlowout = true
+
+[zone_mine_field_strong]:zone_mine_field
+max_start_power		= 1.5
 
 [zone_death]
 GroupControlSection	= spawn_group_zone

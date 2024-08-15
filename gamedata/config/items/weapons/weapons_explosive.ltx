@@ -434,28 +434,15 @@ chemical_burn_immunity	= 1.0
 explosion_immunity		= 0.0
 fire_wound_immunity		= 0.0
 
-[explosive_pmn]:identity_immunities,delayed_action_fuse
-$spawn 				= "weapons\explosive\pmm"
+[explosive_usable_base]:identity_immunities,delayed_action_fuse
 $prefetch			= 16
 class				= II_EXPLO
 cform				= skeleton
-visual		 		= weapons\grenade\wpn_mines_1
-
-inv_name	        = st_explosive_pmn_name
-inv_name_short		= st_explosive_pmn_short
-description			= st_explosive_pmn_descr
-
-inv_weight			= .55
 
 icon_group 			= 1
-
 inv_grid_width		= 1
 inv_grid_height		= 1
-inv_grid_x			= 6
-inv_grid_y			= 19
 
-cost				= 500
-;-----------------------------------------------------------------------------------
 blast				= 1.50
 blast_r				= 8
 blast_impulse		= 250
@@ -492,4 +479,64 @@ wallmark_section	= explosion_marks
 snd_explode 		= weapons\f1_explode
 immunities_sect		= explosive_fuelcan_immunities_sect
 
+[explosive_pmn]:explosive_usable_base
+$spawn 				= "weapons\explosive\pmm"
+visual		 		= weapons\grenade\wpn_mines_1
+
+inv_name	        = st_explosive_pmn_name
+inv_name_short		= st_explosive_pmn_short
+description			= st_explosive_pmn_descr
+
+inv_weight			= .55
+
+inv_grid_x			= 6
+inv_grid_y			= 19
+
+cost				= 500
+;-----------------------------------------------------------------------------------
+;аномалія яка спавниться при використанні
 spawn_mine_zone 	= zone_mine_field
+;інфопорція яка потрібна акторові щоб користуватися вибухівкою
+need_for_use_info 	= explosive_pmn_manual
+
+[explosive_ozm72]:explosive_pmn
+$spawn 				= "weapons\explosive\ozm72"
+visual		 		= weapons\grenade\wpn_mines_2
+
+inv_grid_x         	= 6
+inv_grid_y         	= 18
+
+inv_name	        = st_explosive_ozm72_name
+inv_name_short		= st_explosive_ozm72_short
+description			= st_explosive_ozm72_descr
+
+inv_weight			= 5
+cost				= 1500
+
+up_throw_factor		= 2.0
+
+frags				= 20
+frags_r				= 25
+frag_hit			= 0.9
+
+;аномалія яка спавниться при використанні
+spawn_mine_zone 	= zone_mine_field_strong
+;інфопорція яка потрібна акторові щоб користуватися вибухівкою
+need_for_use_info 	= explosive_ozm72_manual
+
+[explosive_svp]:explosive_usable_base
+$spawn 				= "weapons\explosive\svp"
+visual		 		= dynamics\equipments\bomb_c4
+
+inv_grid_x         	= 9
+inv_grid_y         	= 18
+
+inv_name	        = st_explosive_svp_name
+inv_name_short		= st_explosive_svp_short
+description			= st_explosive_svp_descr
+
+inv_weight			= .3
+cost				= 500
+
+rc_explosive 		= true
+need_for_use_info 	= explosive_svp_manual

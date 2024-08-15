@@ -42,6 +42,9 @@ function on_take(item)
 	if item:get_detector() and not has_alife_info("enc_detectors") then
 		actor:give_info_portion("enc_detectors")
 	end
+	if item:section() == "detector_receiver_cop" and not has_alife_info("enc_receiver") then
+		actor:give_info_portion("enc_receiver")
+	end	
 end
 
 function on_npc_use(npc)

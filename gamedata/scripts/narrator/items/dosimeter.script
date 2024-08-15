@@ -3,12 +3,16 @@ function attach(sm)
 	sm:subscribe({signal = "on_slot", fun = this.enable})
 	sm:subscribe({signal = "on_belt", fun = this.enable})
 	sm:subscribe({signal = "on_ruck", fun = this.disable})
+	sm:subscribe({signal = "on_drop", fun = this.disable})	
 end
 
 local subscribed = false
 local detect_radius, min_freq, max_freq
 local detector = nil
 local result_power = 0
+local detector_sect = {
+	["detector_geiger_cop"] = true,
+}
 
 local sound_time = {}
 function play_sound(anomaly, power, dt)
@@ -19,12 +23,12 @@ function play_sound(anomaly, power, dt)
 
 	local snd = xr_sound.get_safe_sound_object("detectors\\geiger_"..math.random(1,8))
 	local cur_freq = min_freq + (max_freq - min_freq) * power * power * power * power
-	local current_snd_time = 1000 / cur_freq;
+	local current_snd_time = 1000 / cur_freq
 
 	if snd_time > current_snd_time then
 		if not snd:playing() then
 			sound_time[anomaly:id()] = 0
-			snd:play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+			snd:play(actor, 0, sound_object.s2d)--play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 		end
 	else
 		sound_time[anomaly:id()] = sound_time[anomaly:id()] + dt
@@ -32,15 +36,15 @@ function play_sound(anomaly, power, dt)
 end
 
 function enable(item, prev_place)
-	if item:section() == "detector_geiger_cop" then
+	if detector_sect[item:section()] then
 		if not is_power_device(item) or item:binded_object():get_power_level() > 0 then	
 			detector = item
 			detector:switch_power(true)
 			
 			local sect = detector:section()
-			detect_radius = read_if_exists(sys_ini, "r_float", sect, "radius", 10)
+			detect_radius = read_if_exists(sys_ini, "r_float", sect, "detect_radius", 10)
 			min_freq = read_if_exists(sys_ini, "r_float", sect, "min_snd_freq", 0.5)
-			max_freq = read_if_exists(sys_ini, "r_float", sect, "min_snd_freq", 30)
+			max_freq = read_if_exists(sys_ini, "r_float", sect, "max_snd_freq", 30)
 			
 			result_power = 0
 			sound_time = {}
@@ -58,7 +62,7 @@ function enable(item, prev_place)
 end
 
 function disable(item, prev_place)
-	if item:section() == "detector_geiger_cop" and detector and item:id() == detector:id() then
+	if detector_sect[item:section()] and detector and item:id() == detector:id() then
 		if prev_place ~= item_place.undefined then
 			detector:switch_power(false)
 			detector = nil
@@ -112,13 +116,13 @@ function can_detect_radiation()
 	
 	local sect = item:section()
 	
-	if not item:get_detector() and sect ~= "detector_geiger_cop" then
+	if not item:get_detector() and not detector_sect[sect] then
 		--log3("~item %s is not detector", item:name())
 	return false end
 
 	local can_detect = item:is_power_on()
 	
-	if sect == "detector_geiger_cop" and can_detect then
+	if detector_sect[sect] and can_detect then
 	return true end
 	
 	local detect_radzone = false

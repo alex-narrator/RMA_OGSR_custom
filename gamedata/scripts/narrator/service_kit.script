@@ -280,7 +280,7 @@ function can_disassemble_item(item)
 end
 
 function show_disassemble_wnd(obj, drop_on_obj)
-	local service_msg_box = ui_message_box.MessageBoxWnd()
+	local service_msg_box = ui_message_box.MessageBoxWnd("red")
 	local msg_text = string.format(
 		"%s %s?\\n%s\\n", 
 		game.translate_string(read_if_exists(sys_ini, "r_string", drop_on_obj:section(), "disassemble_tip", "st_disassemble_item")), 
@@ -346,7 +346,7 @@ function saw_off_item(tool, item)
 end
 
 function show_saw_off_wnd(obj, drop_on_obj)
-	local service_msg_box = ui_message_box.MessageBoxWnd()
+	local service_msg_box = ui_message_box.MessageBoxWnd("red")
 	local msg_text = string.format(
 		"%s %s\\n%s %s ?", 
 		game.translate_string("st_saw_off_remove"), 

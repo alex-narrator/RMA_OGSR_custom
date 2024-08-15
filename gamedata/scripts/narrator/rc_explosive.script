@@ -1,0 +1,143 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_take", fun = this.on_take})
+	sm:subscribe({signal = "on_save", fun = this.on_save})
+	sm:subscribe({signal = "on_load", fun = this.on_load})
+	sm:subscribe({signal = "on_first_update", fun = this.on_first_update})
+	sm:subscribe({signal = "on_receiver_signal", fun = this.on_receiver_signal})
+end
+
+local explosive_frequency = {}
+
+function on_save(packet)
+	xr_vars.save_var("explosive_frequency", explosive_frequency)
+end
+
+function on_load(reader)
+	explosive_frequency = xr_vars.load_var("explosive_frequency", explosive_frequency)
+end
+
+function on_first_update()
+	for id,_ in pairs(explosive_frequency) do
+		local se_item = alife():object(id)
+		if not se_item or not read_if_exists(sys_ini, "r_bool", se_item:section_name(), "rc_explosive", false) then
+			set_frequency(id, nil)
+			log3("~remove item id %s from explosive frequency list", id)
+		end
+	end
+end
+
+function deploy_tip(item)
+	return string.format("%s %s", game.translate_string("st_deploy"), game.translate_string(get_inv_name_short(item:section())))
+end
+
+function can_deploy(item)
+	local deploy_info = read_if_exists(sys_ini, "r_string", item:section(), "need_for_use_info", nil)
+	return read_if_exists(sys_ini, "r_bool", item:section(), "rc_explosive", false) and parent_is_actor(item) and (not deploy_info or actor:has_info(deploy_info))
+end
+
+local explosive
+
+function deploy(item)
+	explosive = nil
+	if not item:parent() and not parent_is_actor(item) then
+	return end
+	explosive = item
+	--//numpad for freq input
+	local freq_min, freq_max = receiver.get_min_max_freq()
+	local tip_text = string.format("%s %s - %s %s", game.translate_string("st_input_frequency"), freq_min, freq_max, game.translate_string("st_frequency_units"))
+    level.start_stop_menu(ui_numpad.numpad(this, tip_text),true)
+end
+
+function OnNumberReceive(this, text)
+	local explode_freq = tonumber(text)
+	if not explode_freq then
+	return end
+	local freq_min, freq_max = receiver.get_min_max_freq()
+	if explode_freq < freq_min or explode_freq > freq_max then
+	return end
+	
+	set_frequency(explosive:id(), explode_freq)
+	actor:drop_item(explosive)
+	give_deploy_msg(explosive, explode_freq)
+end
+
+local spot = "anomaly_zone_location"
+local snd = [[device\pda\pda_tip]]
+
+function give_deploy_msg(item, explode_freq)
+	local inv_name = game.translate_string(get_inv_name(item:section()))
+	local news_text = string.format("%s%s\\n%s%s\\n%s %s %s", 
+		"%c[red]",
+		game.translate_string("st_explosive_deployed"),
+		"%c[UI_orange]",
+		inv_name,
+		game.translate_string("st_explode_freq"),
+		explode_freq,
+		game.translate_string("st_frequency_units")		
+	)
+	actor:give_game_news(news_text, "ui\\ui_iconstotal", Frect():set(747, 517, 83, 47), 0, 3000)
+	xr_sound.get_safe_sound_object(snd):play(actor, 0, sound_object.s2d)
+	local text = string.format("%s%s\\n%s %s %s", 
+		"%c[UI_orange]",
+		inv_name,
+		game.translate_string("st_explode_freq"),
+		explode_freq,
+		game.translate_string("st_frequency_units")
+	)
+	level.map_add_object_spot_ser(item:id(), spot, text)	
+end
+
+function set_frequency(id, freq)
+	explosive_frequency[id] = freq
+end
+function get_frequency(id)
+	return explosive_frequency[id]
+end
+
+function on_receiver_signal(item, frequency, radius)
+	local has_witness = false
+	for id, object in pairs(db.stalkers) do
+		if object:alive() and object:see_right_now(actor) and not object:is_relation_enemy(actor) then
+			has_witness = true
+			break
+		end
+	end
+	local actor_id = actor:id()
+	function perform_action(obj)
+		local id = obj:id()
+		local freq = get_frequency(id)
+		if freq == frequency then
+			if has_witness then
+				obj:explode_initiator(actor_id)
+			else
+				obj:explode()
+			end
+			defuse_landmines(obj)
+			set_frequency(id, nil)
+		end
+	end
+	level.iterate_nearest(actor:position(), radius, perform_action)
+end
+
+function defuse_landmines(explosive)
+	local radius = read_if_exists(sys_ini, "r_float", explosive:section(), "blast_r", 1)
+	local sim = alife()
+	function perform_action(obj)
+		if get_clsid(obj) == clsid.zone_mine_s then
+			local sobj = sim:object(obj:id())
+			if sobj then
+				sim:release(sobj, true)
+			end
+		end
+	end	
+	level.iterate_nearest(explosive:position(), radius, perform_action)
+end
+
+function on_take(item)
+	local id = item:id()
+	if not get_frequency(id) then
+	return end
+	set_frequency(id, nil)
+	level.map_remove_object_spot(id, spot)
+end

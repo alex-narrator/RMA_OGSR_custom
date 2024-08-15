@@ -412,4 +412,7 @@ end
 -- texture:load(texture_name)
 
 actor:give_info_portion("explosive_pmn_manual")
+actor:give_info_portion("explosive_ozm72_manual")
+actor:give_info_portion("explosive_svp_manual")
+actor:give_info_portion("enc_receiver")
 --actor:disable_info_portion("mil_freedom_under_attack")

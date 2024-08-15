@@ -1,0 +1,133 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+--[[
+
+	Made by Tronex
+	2018/10/15
+	
+	RF Receiver and sources management
+	2020/4/26: Added 3D UI to the detector
+	
+	modified 13/08/2024 by alex.narrator
+--]]
+----------------------------------------------------------------------
+-- UI
+----------------------------------------------------------------------
+local detector_rf_ui = nil
+local tg_led = 0
+local tg_emission = 0
+local curr_freq = nil
+local led_upd_time = 1000
+
+local OVERLAY_XML = "script_overlays\\ui_detector_rf.xml"
+
+class "UI3D_RF" (CUIScriptWnd)
+function UI3D_RF:__init(item) super()
+	self:Show					(true)
+	self:Enable					(true)
+	self.freq					= nil
+
+	local xml					= CScriptXmlInit()
+	xml:ParseFile				(OVERLAY_XML)
+	xml:InitWindow				("detector_rfproxy", 0, self)
+	
+	self.m_wrk_area				= xml:InitStatic("detector_rfproxy:wrk_area", self)	
+
+	--self.m_area_b				= xml:InitStatic("detector_rfproxy:area_b", self)
+	self.m_area_r				= xml:InitStatic("detector_rfproxy:area_r", self.m_wrk_area)
+	
+	self.m_seg1					= xml:InitStatic("detector_rfproxy:seg1", self.m_wrk_area)
+	self.m_seg2					= xml:InitStatic("detector_rfproxy:seg2", self.m_wrk_area)
+	self.m_seg3					= xml:InitStatic("detector_rfproxy:seg3", self.m_wrk_area)
+	
+	self.m_led					= xml:InitStatic("detector_rfproxy:led", self.m_wrk_area)
+	
+	self.ui_enabled 			= true
+	
+	self.item 					= item	
+end
+
+function UI3D_RF:__finalize() 
+	detector_rf_ui = nil
+end
+
+function UI3D_RF:Update()
+	
+	CUIScriptWnd.Update(self)
+	
+	if is_power_device(self.item) then
+		local power_lvl = self.item:binded_object():get_power_level()
+		if power_lvl > 0 and not self.ui_enabled then
+			self.ui_enabled = true
+		elseif power_lvl == 0 and self.ui_enabled then
+			self.ui_enabled = false
+		end
+		self.m_wrk_area:Show(self.ui_enabled)
+	end
+		
+	if not self.ui_enabled then
+	return end	
+	
+	local tg = time_global()
+	
+	-- LED flashing
+	if (tg > tg_led + led_upd_time) then
+		tg_led = tg
+		self.m_led:Show(not self.m_led:IsShown())
+	end
+	
+	curr_freq = receiver.get_frequency(self.item:id())
+	
+	-- Emissions
+	local emission = false
+	if emission then
+		if (tg > tg_emission + 200) then
+			tg_emission = tg
+			
+			self.m_led:Show((math.random(1,100) < 50) and true or false)
+			local _min,_max = receiver.get_min_max_freq()
+			curr_freq = math.random(_min,_max)
+		else
+			return
+		end
+		
+	-- Normal readings
+	else
+		if self.freq == curr_freq then
+			return
+		end
+		self.freq = curr_freq
+	end
+
+	local s_freq = tostring(curr_freq)
+	local seg1, seg2, seg3
+	
+	if (curr_freq > 99) then
+		seg1 = string.format("green_%s", s_freq:sub(1, 1))
+		seg2 = string.format("green_%s", s_freq:sub(2, 2))
+		seg3 = string.format("green_%s", s_freq:sub(3, 3))
+	elseif (curr_freq > 9) then
+		seg1 = "green_0"
+		seg2 = string.format("green_%s", s_freq:sub(1, 1))
+		seg3 = string.format("green_%s", s_freq:sub(2, 2))
+	elseif (curr_freq > 0) then
+		seg1 = "green_0"
+		seg2 = "green_0"
+		seg3 = string.format("green_%s", s_freq:sub(1, 1))
+	else
+		seg1 = "green_0"
+		seg2 = "green_0"
+		seg3 = "green_0"
+	end
+	
+	self.m_seg1:InitTextureEx(seg1, "hud\\p3d")
+	self.m_seg2:InitTextureEx(seg2, "hud\\p3d")
+	self.m_seg3:InitTextureEx(seg3, "hud\\p3d")
+end
+
+function get_UI(item)
+	if (detector_rf_ui == nil) then
+		detector_rf_ui = UI3D_RF(item)
+	end
+	
+	return detector_rf_ui
+end

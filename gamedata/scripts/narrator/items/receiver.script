@@ -1,0 +1,280 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_slot", fun = this.enable})
+	sm:subscribe({signal = "on_belt", fun = this.enable})
+	sm:subscribe({signal = "on_ruck", fun = this.disable})
+	sm:subscribe({signal = "on_drop", fun = this.disable})
+	sm:subscribe({signal = "on_save", fun = this.on_save})
+	sm:subscribe({signal = "on_load", fun = this.on_load})
+	sm:subscribe({signal = "on_first_update", fun = this.on_first_update})
+	sm:subscribe({signal = "on_receiver_signal", fun = this.on_receiver_signal})
+end
+
+local freq_min, freq_max = 1, 999
+
+local subscribed = false
+local detect_radius, min_snd_freq, max_snd_freq
+local receiver = nil
+local curr_freq = math.random(freq_min, freq_max)
+local tg_random = math.random(20,40)*1000
+local snd_random_now
+
+local misc_sounds_volume = 0.25
+
+-- Sounds
+function get_snd_obj(path)
+	return xr_sound.get_safe_sound_object(path)
+end
+
+local snd_path_prefix = "detectors\\rf\\"
+
+local snd_on = get_snd_obj(snd_path_prefix.."on")
+local snd_off = get_snd_obj(snd_path_prefix.."off")
+local snd_detect = get_snd_obj(snd_path_prefix.."beep")
+
+local snd_noise = get_snd_obj(snd_path_prefix.."noise")
+local snd_emission = {}
+for i=1,8 do snd_emission[i] = get_snd_obj(snd_path_prefix.."emission\\noise_emission_" .. tostring(i)) end
+local snd_random = {}
+for i=1,13 do snd_random[i] = get_snd_obj(snd_path_prefix.."random\\random_" .. tostring(i)) end
+local snd_talk = {}
+for i=1,33 do snd_talk[i] = get_snd_obj(snd_path_prefix.."talk\\talk_" .. tostring(i)) end
+
+local receiver_sect = {
+	["detector_receiver_cop"] = true,
+}
+
+local switch_freq_keys = {
+	[key_bindings.kWPN_FIREMODE_NEXT] = true,
+	[key_bindings.kWPN_FIREMODE_PREV] = true,
+}
+
+local switch_freq_keys_mod = {
+	[bind_to_dik(key_bindings.kADDITIONAL_ACTION)] 	= 10,
+	[bind_to_dik(key_bindings.kSPRINT)] 			= 100,
+}
+
+local send_signal_key = {
+	[key_bindings.kWPN_FUNC] = true,
+}
+
+--// frequency by story ID
+local freqs_by_sid = {
+}
+
+function on_key_press(key, game_action)
+	if not switch_freq_keys[game_action] 
+	and not send_signal_key[game_action]
+	then return end
+	if not receiver then
+	return end
+	local act_device = actor:active_device()
+	if not act_device or act_device:id() ~= receiver:id() then
+	return end
+	
+	if not receiver:is_power_on() then
+	return end
+	
+	if send_signal_key[game_action] then
+		ogse_signals.get_mgr():call("on_receiver_signal", receiver, get_frequency(receiver:id()), detect_radius)
+	return end
+	
+	local add_val = 1
+	for k,v in pairs(switch_freq_keys_mod) do
+		if level.get_key_state(k) then
+			add_val = v
+			break
+		end
+	end
+	
+	local fwd_k = (game_action == key_bindings.kWPN_FIREMODE_NEXT) and 1 or -1
+	add_val = add_val * fwd_k
+	
+	local freq = get_frequency(receiver:id())
+	freq = freq + add_val
+	if freq > freq_max then
+		freq = freq_min
+	elseif freq < freq_min then
+		freq = freq_max
+	end
+	set_frequency(receiver:id(), freq)
+	
+	stop_sounds()
+end
+
+function stop_sounds()
+	snd_noise:stop()
+	snd_random_now:stop()
+	-- if snd_noise:playing() then
+		-- snd_noise:stop()
+	-- end
+	-- if snd_random_now:playing() then
+		-- snd_random_now:stop()
+	-- end
+end
+
+function on_receiver_signal(item, frequency, radius)
+	snd_on:play(actor, 0, sound_object.s2d)
+end
+
+local receiver_frequency = {}
+
+function on_save(packet)
+	xr_vars.save_var("receiver_frequency", receiver_frequency)
+end
+
+function on_load(reader)
+	receiver_frequency = xr_vars.load_var("receiver_frequency", receiver_frequency)
+end
+
+function on_first_update()
+	for id,_ in pairs(receiver_frequency) do
+		local se_item = alife():object(id)
+		if not se_item or not receiver_sect[se_item:section_name()] then
+			set_frequency(id, nil)
+			log3("~remove item id %s from receiver frequency list", id)
+		end
+	end
+end
+
+function get_frequency(id)
+	if not receiver_frequency[id] then
+		receiver_frequency[id] = math.random(freq_min, freq_max)
+	end
+	return receiver_frequency[id]
+end
+
+function set_frequency(id, val)
+	if val then
+		val = math.clamp(val, freq_min, freq_max)
+	end
+	receiver_frequency[id] = val
+end
+
+function get_min_max_freq()
+	return freq_min, freq_max
+end
+
+function get_receiver()
+	return receiver
+end
+
+local sound_time = {}
+function play_sound(object, power, dt)
+	local snd_time = sound_time[object:id()]
+	if not snd_time or power == 0 then 
+		sound_time[object:id()] = 0
+	return end
+
+
+	local cur_snd_freq = min_snd_freq + (max_snd_freq - min_snd_freq) * power * power * power * power
+	local current_snd_time = 1000 / cur_snd_freq
+
+	if snd_time > current_snd_time then
+		if not snd_detect:playing() then
+			sound_time[object:id()] = 0
+			snd_detect:play(actor, 0, sound_object.s2d)
+		end
+	else
+		sound_time[object:id()] = sound_time[object:id()] + dt
+	end
+end
+
+function enable(item, prev_place)
+	if receiver_sect[item:section()] then
+		if not is_power_device(item) or item:binded_object():get_power_level() > 0 then	
+			receiver = item
+			receiver:switch_power(true)
+			
+			local sect = receiver:section()
+			detect_radius = read_if_exists(sys_ini, "r_float", sect, "detect_radius", 10)
+			min_snd_freq = read_if_exists(sys_ini, "r_float", sect, "min_snd_freq", 0.5)
+			max_snd_freq = read_if_exists(sys_ini, "r_float", sect, "max_snd_freq", 30)
+			
+			sound_time = {}
+			if not subscribed then
+				subscribed = {
+					{ signal = "on_update", fun = this.detect_radio_sources },
+					{ signal = "on_key_press", fun = this.on_key_press },
+				}
+				local sm = ogse_signals.get_mgr()
+				for _, s in ipairs( subscribed ) do
+					sm:subscribe( s )
+				end
+			end
+		end
+	end
+end
+
+function disable(item, prev_place)
+	if receiver_sect[item:section()] and receiver and item:id() == receiver:id() then
+		if prev_place ~= item_place.undefined then
+			receiver:switch_power(false)
+			receiver = nil
+			sound_time = {}
+			stop_sounds()
+			if subscribed then
+				local sm = ogse_signals.get_mgr()
+				for _, s in ipairs( subscribed ) do
+					sm:unsubscribe( s )
+				end
+				subscribed = false
+			end
+		end
+	end
+end
+
+function detect_radio_sources(dt)
+	if not receiver or not receiver:is_power_on() then
+		stop_sounds()
+	return end
+	
+	if not snd_noise:playing() then
+		snd_noise:play(actor, 0, sound_object.s2d)
+		snd_noise.volume = misc_sounds_volume
+	end
+	
+	local curr_freq = get_frequency(receiver:id())
+	
+	function perform_action(obj)
+		local sect = obj:section()
+		local obj_freq = get_object_freq(obj)
+		if obj_freq == curr_freq then
+			--log3("~detect object %s with freq %s", obj:name(), obj_freq)
+			local dist = distance_between_safe(actor, obj) - obj:radius()
+			if dist <= detect_radius then
+				if dist < 0 then
+					dist = 0
+				end
+				local power = 1 - dist/detect_radius
+				power = math.clamp(power, 0.1, 1)
+				
+				play_sound(obj, power, dt)
+			end
+		end
+	end		
+	
+	level.iterate_nearest(actor:position(), detect_radius, perform_action)
+	
+	local tg = time_global()
+	-- Random sounds
+	if (tg > tg_random) then
+		tg_random = tg + math.random(20,40)*1000
+		snd_random_now = (math.random(100) > 50) and snd_random[math.random(#snd_random)] or snd_talk[math.random(#snd_talk)]
+		snd_random_now:play(actor, 0, sound_object.s2d)
+		snd_random_now.volume = misc_sounds_volume--math.random(10,100)/100
+	end	
+end
+
+function get_object_freq(object)
+	local sect = object:section()
+	local freq_by_cfg = read_if_exists(sys_ini, "r_float", sect, "radio_frequency", nil)
+	if freq_by_cfg then
+		return freq_by_cfg
+	end
+	local freq_by_sid = freqs_by_sid[object:story_id()]
+	if freq_by_sid then
+		return freq_by_sid
+	end
+	return nil
+end
