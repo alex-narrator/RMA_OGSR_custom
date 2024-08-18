@@ -68,7 +68,7 @@ function use_quick_item(slot_num)
 	end
 
 	if actor_get_backpack() and item:id() == actor_get_backpack():id() and not sect then
-		backpack.try_drop()
+		backpack.drop()--backpack.try_drop()
 		sect = item:section()
 	end
 	

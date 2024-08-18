@@ -24,6 +24,7 @@ function on_slot(obj, prev_place)
 			obj:transfer_item(item, actor)
 		end	
 		obj:iterate_inventory(perform_action, nil)
+		backpack_anim.play("equip")
 	end
 end
 
@@ -40,6 +41,7 @@ function on_drop(obj, prev_place)
 			if idle_playing then
 				game.stop_hud_motion()
 			end
+			--backpack_anim.play("unequip")
 		end
 	end
 end
@@ -49,6 +51,7 @@ function on_ruck(obj, prev_place)
 		if idle_playing then
 			game.stop_hud_motion()
 		end
+		backpack_anim.play("unequip")
 	end
 end
 
@@ -56,27 +59,41 @@ function on_key_press(key, game_action)
 	if level.main_input_receiver() or 
 		game_action ~= key_bindings.kDROP_BACKPACK then
 	return end
-	
-	try_drop()
+	drop()
 end
 
-function try_drop()
+function drop()
 	local backpack = actor_get_backpack()
 	if not backpack then 
-	return false end
+	return end
 	
 	local has_quick_drop = read_if_exists(sys_ini, "r_bool", backpack:section(), "quick_drop", false)
-	if not has_quick_drop then
-	return false end
 	
-	drop_item_to_angle(actor, backpack, 180)
+	local menu_shown = ui_actor_menu.get_menu():IsShown()
 	
-	xr_sound.get_safe_sound_object("interface\\inv_open"):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+	if has_quick_drop and not menu_shown then
+		drop_item_to_angle(actor, backpack, 180)
+		xr_sound.get_safe_sound_object("interface\\inv_open"):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+		set_map_spot(backpack)
+	return end
+	
+	backpack_anim.play("unequip")
+	level.add_call(
+		function()
+			return not actor.inventory:is_active_slot_blocked() or (menu_shown and actor_hands_free())
+		end,
+		function()
+			actor:drop_item(backpack)
+			set_map_spot(backpack)
+		end
+	)
+end
+
+function set_map_spot(backpack)
 	local name_short = read_if_exists(sys_ini, "r_string", backpack:section(), "inv_name_short", read_if_exists(sys_ini, "r_string", backpack:section(), "inv_name", nil))
 	local text = string.format("%s: %s", game.translate_string("ui_st_dropped_backpack"), game.translate_string(name_short))
 	hud_add_info_message("item_usage", text)
 	level.map_add_object_spot_ser(backpack:id(), backpack_spot, text)
-	return true
 end
 
 local actor_obj = get_actor_obj()

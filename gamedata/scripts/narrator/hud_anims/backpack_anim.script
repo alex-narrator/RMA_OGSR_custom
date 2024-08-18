@@ -1,0 +1,82 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+local hud_effector_id = 5555
+
+local ANIM_FAST = false
+local ANM_SND_SLOWDOWN = 1.5
+
+local DEF_HUD_SECT = {
+	["equip"] 	= "backpack_equip_hud",
+	["unequip"] = "backpack_unequip_hud",
+}
+
+function anm_snd_speed()
+	local inj_limb = body_health.get_injured_limb()
+	local has_injure_pain = (inj_limb == "hand" or inj_limb == "leg_hand") and body_health.get_pain_effect() >= 0
+	local speed = has_injure_pain and ANM_SND_SLOWDOWN or 1
+	return 1 / speed
+end
+
+function play(_type)
+	local community_hud_sect = DEF_HUD_SECT[_type].."_"..actor:character_community()
+	local hud_sect = sys_ini:section_exist(community_hud_sect) and community_hud_sect or DEF_HUD_SECT[_type]
+	
+	if not sys_ini:section_exist(hud_sect) then
+		log3("~[%s] can't find hud section %s", script_name(), hud_sect)
+	return end
+	
+	local already_blocked = actor.inventory:is_active_slot_blocked()
+	
+	if not already_blocked then
+		actor:hide_weapon(ANIM_FAST)
+	end
+	
+	level.add_call(
+		function() 
+			return not actor:active_item() and not actor:active_device()
+		end,
+		function()
+			actor:hide_crosshair(true)
+			
+			game.play_hud_motion(2, hud_sect, "anm_use", false, anm_snd_speed(), true)
+			_G.SCRIPT_ANIM_PLAYING = true
+			play_hud_sound(hud_sect)
+			play_hud_effector(hud_sect)
+			block_non_move_action(true)
+			level.add_call(
+				function()
+					return game.hud_motion_allowed()
+				end,
+				function()
+					block_non_move_action(false)
+					_G.SCRIPT_ANIM_PLAYING = false
+					if not already_blocked then
+						actor:restore_weapon(ANIM_FAST)
+					end
+					local mode = ui_actor_menu.get_menu():GetMode()
+					if mode == "inventory" or mode == "carbody"	then
+						backpack.play_anim(3)
+					end
+					actor:hide_crosshair(false)
+				end
+			)
+		end
+	)
+end
+
+function play_hud_sound(sect)
+	local sound
+	local snd_name = read_if_exists(sys_ini, "r_string", sect, "hud_sound", nil)
+	if snd_name then
+		sound = xr_sound.get_safe_sound_object(snd_name)
+		sound.frequency = anm_snd_speed()
+		sound:play(actor, 0, sound_object.s2d)
+	end
+end
+
+function play_hud_effector(sect)
+	local eff_name = read_if_exists(sys_ini, "r_string", sect, "hud_effector", nil)
+	if eff_name then
+		level.remove_complex_effector(hud_effector_id)
+		level.add_complex_effector(eff_name, hud_effector_id)
+	end
+end

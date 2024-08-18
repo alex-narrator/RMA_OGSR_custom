@@ -156,7 +156,7 @@ function SlotSelectorOverlay:UpdateSlots()
 			local params = CIconParams(item:section())
 			params:set_shader(self.slots[i].icon)
 			
-			if self.slots[i].icon_scale then
+			if self.slots[i].icon_scale ~= 1 then
 				local icon_size = vector2():set(params.grid_width * CELL_W * get_current_kx() * self.slots[i].icon_scale, params.grid_height * CELL_H * self.slots[i].icon_scale)
 				self.slots[i].icon:SetWidth(icon_size.x)
 				self.slots[i].icon:SetHeight(icon_size.y)
@@ -179,7 +179,7 @@ function SlotSelectorOverlay:UpdateSlots()
 			local params = CIconParams(sect)
 			params:set_shader(self.quick_slots[i].icon)
 			
-			if self.quick_slots[i].icon_scale then
+			if self.quick_slots[i].icon_scale ~= 1 then
 				local icon_size = vector2():set(params.grid_width * CELL_W * get_current_kx() * self.quick_slots[i].icon_scale, params.grid_height * CELL_H * self.quick_slots[i].icon_scale)
 				self.quick_slots[i].icon:SetWidth(icon_size.x)
 				self.quick_slots[i].icon:SetHeight(icon_size.y)
@@ -257,10 +257,10 @@ function SlotSelectorOverlay:OnSlotClick(slot_num)
 		self:UpdateSlots()
 		return
 	end
-	if slot_num == BACKPACK_SLOT and backpack.try_drop() then
-		--add_update_delayed_action(1, function() self:UpdateSlots() end)	
-		return
-	end
+	-- if slot_num == BACKPACK_SLOT and backpack.try_drop() then
+		-- --add_update_delayed_action(1, function() self:UpdateSlots() end)	
+		-- return
+	-- end
 	if slot_num == TORCH_SLOT then
 		if nvd.get_current_nvd() and nvd.get_current_nvd():id() == slot_item:id() then
 			switch_nvd_anim.on_key_press(nil, key_bindings.kNIGHT_VISION)

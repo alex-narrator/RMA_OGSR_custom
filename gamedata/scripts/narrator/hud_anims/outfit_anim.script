@@ -56,7 +56,7 @@ function play_hud_sound(sect)
 	local snd_name = read_if_exists(sys_ini, "r_string", sect, "hud_sound", nil)
 	if snd_name then
 		sound = xr_sound.get_safe_sound_object(snd_name)
-		sound:play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+		sound:play(actor, 0, sound_object.s2d)
 	end
 end
 
@@ -92,7 +92,7 @@ function play_gasmask(item, is_on)
 
 			local snd_name = read_if_exists(sys_ini, "r_string", hud_sect, is_on and "sound_on" or "sound_off", nil)
 			if snd_name then
-				xr_sound.get_safe_sound_object(snd_name):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+				xr_sound.get_safe_sound_object(snd_name):play(actor, 0, sound_object.s2d)
 			end
 
 			local eff_name = read_if_exists(sys_ini, "r_string", hud_sect, is_on and "hud_effector_on" or "hud_effector_off", nil)

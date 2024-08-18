@@ -30,7 +30,11 @@ function drop_cell_item(item, cell_item, for_all)
 		item = cell_item:GetItem()
 		item:parent():drop_item(item)
 	else
-		item:parent():drop_item(item)
+		if actor_get_backpack() and actor_get_backpack():id() == item:id() then
+			backpack.drop()
+		else
+			item:parent():drop_item(item)
+		end
 	end			
 end
 
