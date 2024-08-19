@@ -10,6 +10,8 @@ local actor_obj = get_actor_obj()
 local MOTION_TEXTURE_PREFIX = "ui_hud_soldier_"
 local MOTION_TEXTURE_POSTFIX = "_warning"
 
+local SHOW_FPS = false
+
 function visibility()
 	return USE_LUMINOCITY and actor:get_luminocity() or actor_obj:get_visibility()
 end
@@ -102,6 +104,8 @@ function MainIngameOverlay:InitControls()
 	
 	local xml = CScriptXmlInit()
 	xml:ParseFile(OVERLAY_XML)
+	
+	self.fps_counter = xml:InitStatic("fps_counter", self)
 	
 	self.actor_params = xml:InitStatic("actor_params", self)
 	self.conditions = {
@@ -796,6 +800,14 @@ function MainIngameOverlay:UpdateMinimap()
 	self.time_text:SetText(text)	
 end
 
+function MainIngameOverlay:UpdateFPS()
+	self.fps_counter:Show(SHOW_FPS)
+	if not self.fps_counter:IsShown() then
+	return end
+	local fps = string.format("FPS: %7.2f", ogse_benchmark.get_fps())
+	self.fps_counter:SetText(fps)
+end
+
 function MainIngameOverlay:OnKeyPress(key, game_action)
 	if game_action == key_bindings.kSCORES then
 	
@@ -866,6 +878,7 @@ function MainIngameOverlay:Update()
 	self:UpdateWarningIcons()
 	self:UpdatePickupItem()
 	self:UpdateMinimap()
+	self:UpdateFPS()
 	
 	self.slot_selector:TrySignalHide()
 end

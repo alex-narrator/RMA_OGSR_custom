@@ -162,8 +162,8 @@ end
 
 --alife():teleport_object(16531, actor:position(), actor:level_vertex_id(), actor:game_vertex_id())
 
---log3("actor position (%s, %s, %s), lvid %s, gvid %s", actor:position().x, actor:position().y, actor:position().z, actor:level_vertex_id(), actor:game_vertex_id())
---log3("actor direction (%s, %s, %s)", actor:direction().x, actor:direction().y, actor:direction().z)
+log3("actor position (%s, %s, %s), lvid %s, gvid %s", actor:position().x, actor:position().y, actor:position().z, actor:level_vertex_id(), actor:game_vertex_id())
+log3("actor direction (%s, %s, %s)", actor:direction().x, actor:direction().y, actor:direction().z)
 
 --dis_consciousness
 --dream
@@ -417,4 +417,5 @@ end
 -- actor:give_info_portion("enc_receiver")
 --actor:disable_info_portion("mil_freedom_under_attack")
 
-actor.psy_health = -0.9
+--actor.psy_health = -0.9
+level.map_add_object_spot_ser(id_by_sid(736), "spot_secondary_cop", "mil_watertower_hint")

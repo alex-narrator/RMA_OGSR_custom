@@ -96,6 +96,8 @@ function on_state_switch(item, state, old_state)
 		add_update_delayed_action(1,
 			function()
 				item:play_hud_motion("anm_empty")
+				local snd_name = read_if_exists(sys_ini, "r_string", item:section(), "snd_empty", nil)
+				xr_sound.get_safe_sound_object(snd_name):play(actor, 0, sound_object.s2d)
 			end
 		)
 	end

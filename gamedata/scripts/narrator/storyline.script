@@ -44,6 +44,22 @@ function new_game_spawn()
 				if v.custom_data then
 					se_item.custom_data = v.custom_data
 				end
+				if v.shape then
+					local pk = get_netpk( se_item, 1 )
+					local data = pk:get()
+					data.restrictor_type = v.restrictor_type or 0
+					local offset = v.shape._offset and vector():set(v.shape._offset[1], v.shape._offset[2], v.shape._offset[3]) or vector():set(0, 0, 0)
+					if v.shape._type == "sphere" then
+						local radius = v.shape._radius or 1
+						data.shapes:addSphere(radius, offset)
+					else
+						local axis_x = v.shape._axis_x and vector():set(v.shape._axis_x[1], v.shape._axis_x[2], v.shape._axis_x[3]) or vector():set(0, 0, 0)
+						local axis_y = v.shape._axis_x and vector():set(v.shape._axis_y[1], v.shape._axis_y[2], v.shape._axis_y[3]) or vector():set(0, 0, 0)
+						local axis_z = v.shape._axis_z and vector():set(v.shape._axis_z[1], v.shape._axis_z[2], v.shape._axis_z[3]) or vector():set(0, 0, 0)
+						data.shapes:addBox(matrix():set(axis_x, axis_y, axis_z, offset))
+					end
+					pk:set( data )					
+				end
 			end
 			if v.owner_sid then
 				level.add_call(

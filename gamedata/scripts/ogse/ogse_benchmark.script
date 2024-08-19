@@ -1,0 +1,58 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+
+function attach(sm)
+	sm:subscribe({signal = "on_spawn", fun = this.on_actor_spawn})
+	sm:subscribe({signal = "on_update", fun = this.on_actor_update})
+end
+auto_attach = false
+
+
+local fps = 0
+
+function get_fps()
+	return fps
+end
+
+local last_time = 0
+local check_interval = 0.1
+local last_frame = 0
+local dev
+local last_time_global = 0
+
+function on_actor_spawn()
+	dev = device()
+	last_time = os.time()
+	last_frame = dev.frame 
+end
+function on_actor_update()
+	local t = os.time()
+	local dt = os.difftime(t, last_time)
+	local tg = time_global()
+	local dtg = tg - last_time_global
+	if dt > check_interval then
+		if dt == 0 then return end
+		local fr = dev.frame 
+		if 1e-3 * dtg / dt > 0.97 then
+			fps = (fr - last_frame) / dt
+		end
+		last_frame = fr
+		last_time = t
+		last_time_global = tg
+	end
+
+	local s = string.format("FPS: %7.2f", fps)
+end
+
+
+local subscribed
+function subscribe()
+  on_actor_spawn()
+  subscribed = { signal = "on_update", fun = this.on_actor_update }
+  ogse_signals.get_mgr():subscribe( subscribed )
+end
+
+
+function unsubscribe()
+  ogse_signals.get_mgr():unsubscribe( subscribed )
+  subscribed = nil
+end
