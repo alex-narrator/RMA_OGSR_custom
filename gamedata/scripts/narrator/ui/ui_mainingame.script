@@ -326,6 +326,21 @@ function MainIngameOverlay:UpdateMotionIcon()
 		self.current_motion_texture = texture
 		--log3("~current state %s", state)
 	end
+	
+	--//empty hands sprint anim
+	local play_sprint = state == "sprint" and not actor:active_item() and not actor:active_device()
+	if play_sprint and not self.sprint_anim_playing then
+		self.sprint_anim_playing = true
+		game.play_hud_motion(2, "sprint_hud", "anm_sprint", false, 1, true)
+	elseif not play_sprint and self.sprint_anim_playing then
+		self.sprint_anim_playing = false
+		if actor:active_device() then
+			local hud_sect = get_hud_sect(actor:active_device())
+			local anm_show = read_if_exists(sys_ini, "r_string", hud_sect, "anm_show", "anm_show_16x9")
+			game.play_hud_motion(2, hud_sect, anm_show, false, 1, false)
+		end
+		game.stop_hud_motion()
+	end
 end
 
 function MainIngameOverlay:UpdateWarningIcons()

@@ -418,4 +418,5 @@ log3("actor direction (%s, %s, %s)", actor:direction().x, actor:direction().y, a
 --actor:disable_info_portion("mil_freedom_under_attack")
 
 --actor.psy_health = -0.9
-level.map_add_object_spot_ser(id_by_sid(736), "spot_secondary_cop", "mil_watertower_hint")
+--level.map_add_object_spot_ser(id_by_sid(736), "spot_secondary_cop", "mil_watertower_hint")
+game.stop_hud_motion()
