@@ -2,6 +2,7 @@
 function attach(sm)
 	sm:subscribe({signal = "on_slot", fun = this.enable})
 	sm:subscribe({signal = "on_belt", fun = this.enable})
+	sm:subscribe({signal = "on_device_recharge", fun = this.enable})
 	sm:subscribe({signal = "on_ruck", fun = this.disable})
 	sm:subscribe({signal = "on_drop", fun = this.disable})
 	sm:subscribe({signal = "on_save", fun = this.on_save})
@@ -181,7 +182,7 @@ function play_sound(object, power, dt)
 end
 
 function enable(item, prev_place)
-	if receiver_sect[item:section()] then
+	if receiver_sect[item:section()] and actor:is_in_slot(item) then
 		if not is_power_device(item) or item:binded_object():get_power_level() > 0 then	
 			receiver = item
 			receiver:switch_power(true)

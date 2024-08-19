@@ -234,9 +234,11 @@ function device_binder:recharge(obj_battery)
 	self:init_power_source()
 	
 	alife():release(alife():object(obj_battery:id()), true)
-	if not self.object:is_power_on() and not self.object:get_flashlight() then
+	if not self.object:is_power_on() and (actor:is_in_slot(self.object) or actor:is_on_belt(self.object)) then--not self.object:get_flashlight() then
 		self.object:switch_power(true)
 	end
+	
+	ogse_signals.get_mgr():call("on_device_recharge", self.object)
 	
 	self.b_was_sended = false
 end

@@ -778,6 +778,10 @@ function MainIngameOverlay:UpdatePickupItem()
 end
 
 function MainIngameOverlay:UpdateMinimap()
+	local pda = actor_get_pda()
+	local pda_workable = pda and pda:is_power_on() and pda:condition() > 0
+	self.owner.show_zone_map = pda_workable and (SHOW_GEAR_INFO or outfit_effects.get_show_minimap())
+	
 	local h = device().cam_dir:getH()
 	self.compass_arrow:SetHeading(-h)
 	local dist = self.minimap:GetActivePointDist()

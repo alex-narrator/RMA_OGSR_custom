@@ -126,9 +126,9 @@ function enable_effects(obj)
 	end
 	
 	show_minimap = read_if_exists(sys_ini, "r_bool", sect, "show_minimap", false)
-	if show_minimap then
-		sm:subscribe({signal = "on_update", fun = this.on_update_minimap})
-	end
+	-- if show_minimap then
+		-- sm:subscribe({signal = "on_update", fun = this.on_update_minimap})
+	-- end
 	
 	if read_if_exists(sys_ini, "r_bool", sect, "hud_shader", false) then
 		switch_shader_effects(true)
@@ -157,9 +157,10 @@ function disable_effects(obj, prev_place)
 		sm:call("on_actor_icon_update", default_icon)
 	end
 	
-	if show_minimap and get_main_window().show_zone_map then
-		get_main_window().show_zone_map = false
-		sm:unsubscribe({signal = "on_update", fun = this.on_update_minimap})
+	if show_minimap then--and get_main_window().show_zone_map then
+		show_minimap = false
+		-- get_main_window().show_zone_map = false
+		-- sm:unsubscribe({signal = "on_update", fun = this.on_update_minimap})
 	end
 	
 	if read_if_exists(sys_ini, "r_bool", sect, "hud_shader", false) then
@@ -304,8 +305,12 @@ function on_update_mask(delta)
 	--log3("breathe_val %s", breathe_val)
 end
 
-function on_update_minimap()
-	if show_minimap then
-		get_main_window().show_zone_map = actor_get_pda() and actor_get_pda():is_power_on()
-	end
+-- function on_update_minimap()
+	-- if show_minimap then
+		-- get_main_window().show_zone_map = actor_get_pda() and actor_get_pda():is_power_on()
+	-- end
+-- end
+
+function get_show_minimap()
+	return show_minimap
 end
