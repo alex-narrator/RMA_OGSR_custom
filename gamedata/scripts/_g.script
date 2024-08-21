@@ -2163,10 +2163,8 @@ end
 
 --//перевірка наявності метода у об'єкту
 --//by Zander_driver (amk-team форум)
-function check_obj_has_method(obj, method_name) 
-	if not obj then return false end
-    if obj and obj[method_name] and type(obj[method_name]) == 'function' then return true end
-  return false
+function check_obj_has_method(obj, method_name)
+	return obj and obj[method_name] and type(obj[method_name]) == 'function'
 end
 
 function change_game_time(days, hours, minutes)

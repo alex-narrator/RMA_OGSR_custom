@@ -36,7 +36,7 @@ function WeatherManager:__init()
 	self.last_hour = 0
 	self.state={}
 	self.graphs={}
-	self.graphs_ini = ini_file("environment\\dynamic_weather_graphs.ltx")
+	self.graphs_ini = ini_file_cached("environment\\dynamic_weather_graphs.ltx")
 	if not self.graphs_ini then
 		abort("error when open weather_dynamic_graphs.ltx")
 	end
@@ -191,7 +191,7 @@ function WeatherManager:get_state_as_string()
 end
 
 
-local --выпарсиваем секцию инифайла в табличку
+--выпарсиваем секцию инифайла в табличку
 function parse_ini_section_to_array(ini,section)
 	local tmp=nil
 	if ini and ini:section_exist(section) then

@@ -15,6 +15,12 @@ local detector_sect = {
 	["detector_geiger_cop"] = true,
 }
 
+local hidden_device_vol_k = 0.7
+function get_cur_volume(sound)
+	local shown_device = actor:active_device() and actor:active_device():id() == detector:id()
+	return shown_device and sound.volume or sound.volume * hidden_device_vol_k
+end
+
 local sound_time = {}
 function play_sound(anomaly, power, dt)
 	local snd_time = sound_time[anomaly:id()]
@@ -29,7 +35,8 @@ function play_sound(anomaly, power, dt)
 	if snd_time > current_snd_time then
 		if not snd:playing() then
 			sound_time[anomaly:id()] = 0
-			snd:play(actor, 0, sound_object.s2d)--play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+			snd:play(actor, 0, sound_object.s2d)
+			snd.volume = get_cur_volume(snd)
 		end
 	else
 		sound_time[anomaly:id()] = sound_time[anomaly:id()] + dt

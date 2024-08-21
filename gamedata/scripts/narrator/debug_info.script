@@ -49,7 +49,7 @@ function on_key_press(key, game_action)
 				tgt:story_id() == NO_STORY_ID and "NO STORY ID" or tgt:story_id(), 
 				tgt:name(), 
 				tgt:profile_name() and tgt:profile_name() or "NO PROFILE", 
-				tgt:character_community() or "NO COMMUNITY",
+				check_obj_has_method(tgt, character_community) and tgt:character_community() or "NO COMMUNITY",
 				get_species(tgt),
 				tgt:is_nonscript_usable(),
 				tgt:position().x, tgt:position().y, tgt:position().z,

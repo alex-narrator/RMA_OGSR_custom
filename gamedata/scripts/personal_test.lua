@@ -419,4 +419,5 @@ log3("actor direction (%s, %s, %s)", actor:direction().x, actor:direction().y, a
 
 --actor.psy_health = -0.9
 --level.map_add_object_spot_ser(id_by_sid(736), "spot_secondary_cop", "mil_watertower_hint")
-game.stop_hud_motion()
+--game.stop_hud_motion()
+level.set_weather_fx ("fx_surge_day_3")

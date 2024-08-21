@@ -176,7 +176,7 @@ function PDAOverlay:UpdateRelationSpotText()
 		if not obj:is_actor() and (obj:is_stalker() or obj:is_trader()) then
 			for spot, v in pairs(spot_type) do
 				if level.map_has_object_spot(obj:id(), spot) then
-					local hint_text = string.format("%s%s\\n%s[%s]", color_by_relation[obj:relation(actor)], obj:character_name(), "%c[white]", game.translate_string(obj:character_community()))
+					local hint_text = string.format("%s%s\\n%s%s\\n%s", color_by_relation[obj:relation(actor)], obj:character_name(), "%c[white]", game.translate_string(obj:character_community()), game.translate_string(ranks.get_obj_rank_name(obj)))
 					level.map_change_spot_hint(obj:id(), spot, hint_text)
 				end
 			end			
