@@ -4,9 +4,10 @@ function osoznanie_decline(npc, actor)
     db.actor:disable_info_portion("oso_init_dialog")
 	npc:stop_talk()
     actor:stop_talk()
-	xr_effects.enable_ui(db.actor, nil)	  
-	local point = patrol("mon_jump_aes2_walk")
-	local look = patrol("mon_jump_aes2_look")
+	--xr_effects.enable_ui(db.actor, nil)	  
+	add_update_delayed_action(10, function() xr_effects.enable_ui(db.actor, nil) end)
+	local point = patrol("mon_oso_decline_walk")--("mon_jump_aes2_walk")
+	local look = patrol("mon_oso_decline_look")--("mon_jump_aes2_look")
 	
 	db.actor:set_actor_position(point:point(0))
 	local dir = look:point(0):sub(point:point(0))
@@ -21,7 +22,6 @@ function osoznanie_agree(npc, actor)
     actor:stop_talk()
 	xr_effects.enable_ui(db.actor, nil)	  
 	game.start_tutorial("mov_join_osoznanie")
-	
 end
 
 

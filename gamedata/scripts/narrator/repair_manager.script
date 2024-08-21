@@ -1,6 +1,6 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 local repairers = {
-	--//јрн≥ (јрена)
+	--//Арні (Арена)
 	[story_ids.bar_arena_locator] = {
 		condition_limit = 0.9,
 		cost_k = 1.5,
@@ -8,7 +8,7 @@ local repairers = {
 		base_repair_precond = function() return true end,
 		armor_repair_precond = function() return true end,
 	},
-	--//≤ванцов (ƒолг)
+	--//Іванцов (Долг)
 	[story_ids.bar_dolg_captain_ivancov] = {
 		condition_limit = 0.9,
 		cost_k = 2,
@@ -16,7 +16,7 @@ local repairers = {
 		base_repair_precond = function() return dialogs.actor_in_dolg() or relation_registry.community_goodwill("dolg", actor:id()) >= 500 end,
 		armor_repair_precond = function() return true end,
 	},
-	--//Ўуруп (¬ол€)
+	--//Шуруп (Воля)
 	[story_ids.mil_Svoboda_engineer] = {
 		condition_limit = 0.9,
 		cost_k = 2,
@@ -24,7 +24,7 @@ local repairers = {
 		base_repair_precond = function() return has_alife_info("mil_screw_vodka_given") end,
 		armor_repair_precond = function() return true end,
 	},
-	--// руглов (янтар)
+	--//Круглов (янтар)
 	[story_ids.yan_ecolog_help] = {
 		condition_limit = 0.95,
 		cost_k = 1,
@@ -32,7 +32,7 @@ local repairers = {
 		base_repair_precond = function() return true end,
 		armor_repair_precond = function() return true end,
 	},
-	--//—еменов (янтар)
+	--//Семенов (янтар)
 	[story_ids.yan_semenov_help] = {
 		condition_limit = 0.95,
 		cost_k = 1,

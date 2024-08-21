@@ -55,14 +55,14 @@ function disable_ui(actor, npc)
     db.actor:hide_weapon()
     level.disable_input()
     level.hide_indicators()
-    --printf("xr_effects <disable_ui>")
+    --log3("~xr_effects <disable_ui>")
 end
 
 function enable_ui(actor, npc)
     level.show_indicators()
     level.enable_input()
     db.actor:restore_weapon()
-    --printf("xr_effects <enable_ui>")
+    --log3("~xr_effects <enable_ui>")
 end
 
 function run_cam_effector(actor, npc, p)
@@ -2018,16 +2018,18 @@ end
 -- Функции для работы с погодными эффектами
 -------------------------------------------------------------------------------------
 function start_small_reject (actor, npc)
-    level.set_weather_fx ("surge_day")
+    level.set_weather_fx ("fx_surge_day_3_stancia")--("surge_day")
 	level.add_pp_effector ("vibros_p.ppe", 1974, false)
 	this.aes_earthshake (npc)
+	log3("~start_small_reject")
     --set_postprocess ("scripts\\postprocess1.ltx")
 end
 
 function start_full_reject (actor, npc)
-    level.set_weather_fx ("surge_day")
+    level.set_weather_fx ("full_fx_surge_day")--("surge_day")
     level.remove_pp_effector (1974)
     level.add_pp_effector ("vibros.ppe", 1974, false)
+	log3("~start_full_reject")
     --set_postprocess ("scripts\\postprocess.ltx")
 end
 
