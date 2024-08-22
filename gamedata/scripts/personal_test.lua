@@ -423,4 +423,9 @@ log3("actor direction (%s, %s, %s)", actor:direction().x, actor:direction().y, a
 --level.set_weather_fx ("fx_surge_day_2")
 --xr_effects.start_full_reject()
 
-ui_hud_info.try_show_gear_info()
+-- ui_hud_info.try_show_gear_info()
+
+-- local comms = "freedom,dolg,stalker"
+-- local tbl = split_string(comms, ",", false, true)
+-- log3("~tbl %s",tbl)
+debug_info.show_patrol_points("aes_btr_walk5")

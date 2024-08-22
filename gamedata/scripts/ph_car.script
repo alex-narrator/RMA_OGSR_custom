@@ -130,6 +130,7 @@ function action_car:reset_scheme(loading)
 	        if not self.path_walk then
 		        abort("object '%s': unable to find path_walk '%s' on the map", self.object:name(), self.st.path_walk)
 	        end
+			--log3("~car %s get path walk %s", self.object:name(), self.st.path_walk)
 
             self:start_car()
 	        self.path_walk_count = self.path_walk:count()
@@ -173,7 +174,7 @@ function action_car:reset_scheme(loading)
     	
 	    self.target_fire_pt = nil
 	    self.target_fire_pt_idx = 0
-	    self.target_obj = nil
+	    self.target_id = nil
     	
 	    self.on_target_vis = nil
 	    self.on_target_nvis = nil
@@ -188,18 +189,18 @@ function action_car:reset_scheme(loading)
 
 	        --printf("car <fire>: target = %s", self.st.fire_target)
 	        local n = 0
-	        if self.st.fire_target == "points" then
+			if self.st.fire_target == "points" then
 	            self.state_firetarget = state_firetarget_points
 	        else
 	            if self.st.fire_target == "actor" and db.actor:alive() then
-	                self.target_obj = db.actor
+	                self.target_id = db.actor:id()
 	                self.state_firetarget = state_firetarget_enemy
 	            else
 	                n = tonumber(self.st.fire_target)
 	                if n then
 	                    obj = level_object_by_sid(n)
 	                    if obj and obj:alive() then
-	                        self.target_obj = obj
+	                        self.target_id = obj:id()
 	                        self.state_firetarget = state_firetarget_enemy
 	                    end
 	                end
@@ -302,7 +303,7 @@ function action_car:reset_scheme(loading)
 	            self.state_shooting = state_none
 	            self.state_cannon = state_cannon_follow
 	            --self.target_fire_pt = db.actor:position()
-		        --self:rot_to_firepoint(self.target_fire_pt)
+		        --self:rot_to_firepoint(self.target_fire_pt)	
 	        else
 	            printf("car <state>: firetarget = none")
 	            self.state_firetarget = state_none
@@ -336,6 +337,44 @@ function action_car:save()
 	    xr_logic.pstor_store(self.object, "state_moving", self.state_moving)
 	    xr_logic.pstor_store(self.object, "target_walk_pt", self.target_walk_pt) -- or -2)
 	    printf("car <save>: target_walk_pt(%d)", self.target_walk_pt)
+	end
+end
+
+function action_car:get_nearest_custom_enemy(last_tgt_id)
+	local target = nil
+	local target_dist = self.st.fire_range + 0.01
+	for id, object in pairs(db.stalkers) do
+		local obj = level.object_by_id( id )
+		if obj and self.st.fire_target_communities[obj:character_community()] then
+			local dist = obj:position():distance_to(obj:position())
+			if dist < target_dist and (not last_tgt_id or id ~= last_tgt_id) and self:target_valid(obj) then
+				target_dist = dist
+				target = obj
+			end
+		end
+	end
+	return target
+end
+
+function action_car:target_valid(target)
+	return target and target:alive() and self.object:position():distance_to_sqr(target:position()) <= self.fire_range_sqr and self.car:IsObjectVisible(target)
+end
+
+function action_car:update_custom_target()
+	if self.st.fire_target ~= "communities" or not self.st.fire_target_communities then
+	return end
+	
+	local target = self.target_id and level.object_by_id(self.target_id)
+	if not target or not self:target_valid(target) then
+		target = self:get_nearest_custom_enemy(self.target_id)
+	end
+	
+	if target then
+		self.target_id = target:id()
+		self.state_firetarget = state_firetarget_enemy
+	else
+		self.target_id = nil
+		self.state_firetarget = state_none
 	end
 end
 
@@ -925,6 +964,8 @@ function action_car:fastcall()
 end
 
 function action_car:update(delta)
+	self:update_custom_target()
+	
 	if xr_logic.try_switch_to_another_section(self.object, self.st, db.actor) then
 		return
 	end
@@ -1082,28 +1123,30 @@ function action_car:fast_update()
 	
 	--printf("car <fire>: TEST")
 	if self.hasWeapon then
-	    --printf("car <fire>: target(%d)", self.state_firetarget)
+	    --log3("~car %s <fire>: state_firetarget(%s)", self.object:name(), self.state_firetarget)
 		if self.on_target_vis and self.on_target_vis.v1:alive() and self.car:IsObjectVisible(self.on_target_vis.v1) then
 	        --printf("car <vis>: try")
+			--log3("~car %s <vis>: try %s", self.object:name(), self.state_firetarget)
 		    local new_section = xr_logic.pick_section_from_condlist(db.actor, self.object, self.on_target_vis.condlist)
 		    if new_section then
-	            printf("car <vis>: switch to section [%s]", new_section)
+				--log3("~car %s <vis>: switch to section [%s]", self.object:name(), new_section)
 		        xr_logic.switch_to_section(self.object, self.st, new_section)
 		    end
 		end
 
 		if self.on_target_nvis and self.on_target_nvis.v1:alive() and not self.car:IsObjectVisible(self.on_target_nvis.v1) then
 	        --printf("car <nvis>: try")
+			--log3("~car %s <nvis>: try  %s", self.object:name(), self.state_firetarget)
 		    local new_section = xr_logic.pick_section_from_condlist(db.actor, self.object, self.on_target_nvis.condlist)
 		    if new_section then
-	            printf("car <nvis>: switch to section [%s]", new_section)
+	            --log3("~car %s <nvis>: switch to section [%s]", self.object:name(), new_section)
 		        xr_logic.switch_to_section(self.object, self.st, new_section)
 		    end
 		end
 
 	    if self.state_firetarget == state_firetarget_points then
 	        if self.fire_pt_count > 0 and self.state_cannon ~= state_cannon_stop then
-	            --printf("car <fire>: shooting points")
+	            --log3("car %s <fire>: shooting points", self.object:name())
 	            if self.state_cannon == state_cannon_delay then
 	                if self.fire_start_time + self.fire_time < cur_time then
 	                    --printf("car <fire>: stop delaying(%.2f + %.2f < %.2f)", self.fire_start_time, self.fire_time, time_global())
@@ -1121,17 +1164,18 @@ function action_car:fast_update()
 	            end
 	        end
 	    elseif self.state_firetarget == state_firetarget_enemy then
-	        if self.target_obj:alive() and
-	           self.object:position():distance_to_sqr(self.target_obj:position()) <= self.fire_range_sqr and
-	           self.car:IsObjectVisible(self.target_obj)
-	        then
-	            printf("car <fire>: enemy(%s) is visible.", self.target_obj:name())
-
-		        self.target_fire_pt = self.target_obj:position()
-		        if self.target_obj:id() ~= db.actor:id() then
-		            if self.target_obj:target_body_state() == move.crouch then
+			local target_obj = self.target_id and level.object_by_id(self.target_id)
+			local target_valid = self:target_valid(target_obj)
+			--log3("~car %s prepair to fire", self.object:name())
+	        if target_valid then
+	            printf("car <fire>: enemy(%s) is visible.", target_obj:name())
+				--log3("~car %s fire to %s", self.object:name(), target_obj:name())
+				
+		        self.target_fire_pt = target_obj:position()
+		        if self.target_id ~= db.actor:id() then
+		            if target_obj:target_body_state() == move.crouch then
 		                self.target_fire_pt.y = self.target_fire_pt.y + 0.6 -- FAKE
-		            elseif not xr_wounded.is_heavy_wounded_by_id(self.target_obj:id()) then
+		            elseif not xr_wounded.is_heavy_wounded_by_id(self.target_id) then
 		                self.target_fire_pt.y = self.target_fire_pt.y + 1.4 -- FAKE
 		            else
 		                self.target_fire_pt.y = self.target_fire_pt.y + 0.15 -- FAKE
@@ -1156,7 +1200,7 @@ function action_car:fast_update()
 		            end
 	                printf("car <fire>: targeting enemy.")
 		        end
-		    else
+		    else	
 		        if self.state_shooting ~= state_none then
 	                printf("car <fire>: enemy isn't visible (first).")
 		            self.state_shooting = state_none
@@ -1166,7 +1210,7 @@ function action_car:fast_update()
 	            printf("car <fire>: enemy isn't visible.")
 
 	            if self.fire_track_target then
-		            self.target_fire_pt = self.target_obj:position()
+		            self.target_fire_pt = target_obj and target_obj:position() or vector()
                     self.target_fire_pt.y = self.target_fire_pt.y + 1.4 -- FAKE
 		            self:rot_to_firepoint(self.target_fire_pt)
 	                printf("car <fire>: target tracking.")
@@ -1220,6 +1264,8 @@ function set_scheme(npc, ini, scheme, section, gulag_name)
 	    st.fire_range       = utils.cfg_get_number(ini, section, "fire_range",      npc, false, def_fire_range)
 	    st.fire_target      = utils.cfg_get_string(ini, section, "target",          npc, false, gulag_name, "points")
 	    st.fire_track_target= utils.cfg_get_bool(ini,   section, "track_target",    npc, false, false)
+		
+		st.fire_target_communities = split_string(read_if_exists(ini, "r_string", section, "target_communities", nil), ",", false, true)
 
 	    st.on_target_vis    = xr_logic.cfg_get_string_and_condlist(ini, section, "on_target_vis", npc)
 	    st.on_target_nvis   = xr_logic.cfg_get_string_and_condlist(ini, section, "on_target_nvis", npc)
@@ -1235,4 +1281,5 @@ function set_scheme(npc, ini, scheme, section, gulag_name)
 	st.invulnerable     = utils.cfg_get_bool(ini,   section, "invulnerable",    npc, false, false)
 	st.headlights       = utils.cfg_get_string(ini, section, "headlights",      npc, false, gulag_name, "off")
 	st.on_death_info    = utils.cfg_get_string(ini, section, "on_death_info",   npc, false, gulag_name, nil)
+
 end

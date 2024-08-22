@@ -1730,7 +1730,7 @@ function hud_remove_info_message(static_id)
 	end
 end
 
-function split_string(inputstr, sep, tonum)
+function split_string(inputstr, sep, tonum, tokeys)
 	if not inputstr then
 	return nil end
 	if sep == nil then
@@ -1738,7 +1738,11 @@ function split_string(inputstr, sep, tonum)
 	end
 	local t={}
 	for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
-		table.insert(t, tonum and tonumber(str) or str)
+		if tokeys then
+			t[tonum and tonumber(str) or string.trim(str)] = true
+		else
+			table.insert(t, tonum and tonumber(str) or str)
+		end
 	end
 	return t
 end
@@ -2164,7 +2168,7 @@ end
 --//перевірка наявності метода у об'єкту
 --//by Zander_driver (amk-team форум)
 function check_obj_has_method(obj, method_name)
-	return obj and obj[method_name] and type(obj[method_name]) == 'function'
+	return not not (obj and obj[method_name] and type(obj[method_name]) == 'function')
 end
 
 function change_game_time(days, hours, minutes)

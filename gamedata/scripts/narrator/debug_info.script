@@ -66,3 +66,15 @@ function on_key_press(key, game_action)
 		hud_add_info_message("debug_msg", tgt_info, 10)
 	end
 end
+
+local dbg_particle_name = "anomaly2\\plasma_generator_death"
+function show_patrol_points(path_name)
+	local path = patrol(path_name)
+	if not path then return end
+	local count = path:count()
+	for i=0, count - 1 do
+		local pos = path:point(i)
+		local dbg_particle = particles_object(dbg_particle_name)
+		dbg_particle:play_at_pos(pos)
+	end
+end
