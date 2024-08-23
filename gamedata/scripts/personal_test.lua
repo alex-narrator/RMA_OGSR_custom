@@ -411,7 +411,7 @@ log3("actor direction (%s, %s, %s)", actor:direction().x, actor:direction().y, a
 -- texture_name = [[wpn\wpn_addons\wpn_addon_scope_ac10632_new\wpn_addon_scope_ac10632_crosshair_dot]]
 -- texture:load(texture_name)
 
--- actor:give_info_portion("explosive_pmn_manual")
+actor:give_info_portion("yan_kill_brain_done")
 -- actor:give_info_portion("explosive_ozm72_manual")
 -- actor:give_info_portion("explosive_svp_manual")
 -- actor:give_info_portion("enc_receiver")
@@ -428,4 +428,4 @@ log3("actor direction (%s, %s, %s)", actor:direction().x, actor:direction().y, a
 -- local comms = "freedom,dolg,stalker"
 -- local tbl = split_string(comms, ",", false, true)
 -- log3("~tbl %s",tbl)
-debug_info.show_patrol_points("aes_btr_walk5")
+--debug_info.show_patrol_points("aes_btr_walk5")
