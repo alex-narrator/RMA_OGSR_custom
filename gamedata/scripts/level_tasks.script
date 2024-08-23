@@ -129,176 +129,188 @@ function add_lchanger_location()
 	local sim = alife()
 	if sim then
 		-- escape
-		local obj = sim:story_object(91)
+		local obj = sim:story_object(story_ids.esc_exit_to_garbage_01)
 		if obj then
-			level.map_add_object_spot(obj.id, "level_changer", "to_garbage")
+			level.map_add_object_spot(obj.id, "level_changer_up", "to_garbage")
 		end
 
 		-- garbage
-		obj = sim:story_object(191)
+		obj = sim:story_object(story_ids.gar_exit_to_agroprom_01)
 		if obj then
-			level.map_add_object_spot(obj.id, "level_changer", "to_agroprom")
+			level.map_add_object_spot(obj.id, "level_changer_left", "to_agroprom")
 		end
-		obj = sim:story_object(192)
+		obj = sim:story_object(story_ids.gar_exit_to_agroprom_02)
 		if obj then
-			level.map_add_object_spot(obj.id, "level_changer", "to_agroprom")
+			level.map_add_object_spot(obj.id, "level_changer_left", "to_agroprom")
 		end
-		obj = sim:story_object(193)
+		obj = sim:story_object(story_ids.gar_exir_to_escape)
 		if obj then
-			level.map_add_object_spot(obj.id, "level_changer", "to_escape")
+			level.map_add_object_spot(obj.id, "level_changer_down", "to_escape")
 		end
-		obj = sim:story_object(194)
+		obj = sim:story_object(story_ids.gar_exit_to_bar)
 		if obj then
-			level.map_add_object_spot(obj.id, "level_changer", "to_bar")
+			level.map_add_object_spot(obj.id, "level_changer_up", "to_bar")
 		end
-		obj = sim:story_object(195)
+		obj = sim:story_object(story_ids.gar_exit_to_darkvalley_low)
 		if obj then
-			level.map_add_object_spot(obj.id, "level_changer", "to_darkvalley")
+			level.map_add_object_spot(obj.id, "level_changer_right", "to_darkvalley")
 		end
-		obj = sim:story_object(196)
+		obj = sim:story_object(story_ids.gar_exit_to_darkvalley_high)
 		if obj then
-			level.map_add_object_spot(obj.id, "level_changer", "to_darkvalley")
+			level.map_add_object_spot(obj.id, "level_changer_right", "to_darkvalley")
 		end
 		
 		-- agroprom
-		obj = sim:story_object(391)
+		obj = sim:story_object(story_ids.agr_exit_to_garbage_01)
 		if obj then
-			level.map_add_object_spot(obj.id, "level_changer", "to_garbage")
+			level.map_add_object_spot(obj.id, "level_changer_up_right", "to_garbage")
 		end
-		obj = sim:story_object(392)
+		obj = sim:story_object(story_ids.agr_exit_to_garbage_02)
 		if obj then
-			level.map_add_object_spot(obj.id, "level_changer", "to_garbage")
+			level.map_add_object_spot(obj.id, "level_changer_up_right", "to_garbage")
 		end
 
 		-- darkvalley
-		obj = sim:story_object(415)
+		obj = sim:story_object(story_ids.val_lvl_changer1)
 		if obj then
-			level.map_add_object_spot(obj.id, "level_changer", "to_garbage")
+			level.map_add_object_spot(obj.id, "level_changer_left", "to_garbage")
 		end
-		obj = sim:story_object(416)
+		obj = sim:story_object(story_ids.val_lvl_changer2)
 		if obj then
-			level.map_add_object_spot(obj.id, "level_changer", "to_garbage")
+			level.map_add_object_spot(obj.id, "level_changer_left", "to_garbage")
 		end
-		obj = sim:story_object(417)
+		obj = sim:story_object(story_ids.val_lvl_changer3)
 		if obj then
-			level.map_add_object_spot(obj.id, "level_changer", "to_darkscape")
+			level.map_add_object_spot(obj.id, "level_changer_down", "to_darkscape")
 		end
 
 		-- rostok
-		obj = sim:story_object(608)
+		obj = sim:story_object(story_ids.rostok_exit_to_yantar)
 		if obj then
-			level.map_add_object_spot(obj.id, "level_changer", "to_yantar")
+			level.map_add_object_spot(obj.id, "level_changer_down_left", "to_yantar")
 		end
 		
 		-- bar
-		obj = sim:story_object(592)
+		obj = sim:story_object(story_ids.bar_exit_to_military)
 		if obj then
-			level.map_add_object_spot(obj.id, "level_changer", "to_military")
+			level.map_add_object_spot(obj.id, "level_changer_up", "to_military")
 		end
-		obj = sim:story_object(593)
+		obj = sim:story_object(story_ids.bar_exit_to_garbage)
 		if obj then
-			level.map_add_object_spot(obj.id, "level_changer", "to_garbage")
+			level.map_add_object_spot(obj.id, "level_changer_right_down", "to_garbage")
 		end
-		obj = sim:story_object(594)
+		obj = sim:story_object(story_ids.bar_exit_to_rostok)
 		if obj then
-			level.map_add_object_spot(obj.id, "level_changer", "bar_rostok")
+			level.map_add_object_spot(obj.id, "level_changer_left", "bar_rostok")
 		end
 
 		-- military
-		obj = sim:story_object(771)
+		obj = sim:story_object(story_ids.Mil_Exit_to_Bar)
 		if obj then
-			level.map_add_object_spot(obj.id, "level_changer", "to_bar")
+			level.map_add_object_spot(obj.id, "level_changer_left", "to_bar")
 		end
 		if has_alife_info("agr_cit_doctor_meet_start") then
-			obj = sim:story_object(772)
+			obj = sim:story_object(story_ids.Mil_Exit_to_DeadCity)
 			if obj then
-				level.map_add_object_spot(obj.id, "level_changer", "to_deadcity")
+				level.map_add_object_spot(obj.id, "level_changer_left", "to_deadcity")
 			end
 		end
-		obj = sim:story_object(773)
+		obj = sim:story_object(story_ids.Mil_Exit_to_Radar)
 		if obj then
-			level.map_add_object_spot(obj.id, "level_changer", "to_radar")
+			level.map_add_object_spot(obj.id, "level_changer_right", "to_radar")
 		end
 		
 		-- yantar
-		obj = sim:story_object(925)
+		obj = sim:story_object(story_ids.yan_exit_to_rostok)
 		if obj then
-			level.map_add_object_spot(obj.id, "level_changer", "to_rostok")
+			level.map_add_object_spot(obj.id, "level_changer_right_down", "to_rostok")
 		end
-		obj = sim:story_object(926)
+		obj = sim:story_object(story_ids.yan_exit_to_swamp)
 		if obj then
-			level.map_add_object_spot(obj.id, "level_changer", "to_swamp")
+			level.map_add_object_spot(obj.id, "level_changer_left", "to_swamp")
 		end
 		
 		-- deadcity
 		if has_alife_info("cit_doctor_shows_deadcity_zones") then
-			obj = sim:story_object(1211)
+			obj = sim:story_object(story_ids.cit_exit_to_military)
 			if obj then
-				level.map_add_object_spot(obj.id, "level_changer", "to_military")
+				level.map_add_object_spot(obj.id, "level_changer_right", "to_military")
 			end
-			obj = sim:story_object(1212)
+			obj = sim:story_object(story_ids.cit_exit_to_yantar)
 			if obj then
-				level.map_add_object_spot(obj.id, "level_changer", "to_yantar")
+				level.map_add_object_spot(obj.id, "level_changer_down", "to_yantar")
 			end
 		end
 
 		-- radar
-		obj = sim:story_object(1007)
+		obj = sim:story_object(story_ids.rad_exit_to_pripyat)
 		if obj then
-			level.map_add_object_spot(obj.id, "level_changer", "to_pripyat")
+			level.map_add_object_spot(obj.id, "level_changer_up", "to_pripyat")
 		end
-		obj = sim:story_object(1008)
+		obj = sim:story_object(story_ids.rad_exit_to_military)
 		if obj then
-			level.map_add_object_spot(obj.id, "level_changer", "to_military")
+			level.map_add_object_spot(obj.id, "level_changer_down", "to_military")
 		end
 --		if has_alife_info("cit_vp_info") then
-		obj = sim:story_object(1011)
+		obj = sim:story_object(story_ids.rad_exit_to_secrert_lab)
 		if obj then
-			level.map_add_object_spot(obj.id, "level_changer", "to_secrert_lab")
+			level.map_add_object_spot(obj.id, "level_changer_right", "to_secrert_lab")
 		end
 --		end
 
 		-- pripyat
-		obj = sim:story_object(833)
+		obj = sim:story_object(story_ids.pri_exit_to_radar)
 		if obj then
-			level.map_add_object_spot(obj.id, "level_changer", "to_radar")
+			level.map_add_object_spot(obj.id, "level_changer_down", "to_radar")
 		end
-		obj = sim:story_object(832)
+		obj = sim:story_object(story_ids.pri_exit_to_aes)
 		if obj then
-			level.map_add_object_spot(obj.id, "level_changer", "to_aes")
+			level.map_add_object_spot(obj.id, "level_changer_up", "to_aes")
+		end
+		
+		--aes
+		obj = sim:story_object(story_ids.aes_exit_to_pripyat)
+		if obj then
+			level.map_add_object_spot(obj.id, "level_changer_down", "to_pripyat")
+		end
+		if has_alife_info("aes_found_sarcofag") then
+			obj = sim:story_object(story_ids.aes_exit_to_sarcofag)
+			if obj then
+				level.map_add_object_spot(obj.id, "level_changer_down", "to_sarcofag")
+			end
 		end
 		
 		-- generators
 		if has_alife_info("gen_find_exit_lab_done") then
-			obj = sim:story_object(1420)
+			obj = sim:story_object(story_ids.gen_exit_to_warlab)
 			if obj then
-				level.map_add_object_spot(obj.id, "level_changer", "to_warlab")
+				level.map_add_object_spot(obj.id, "level_changer_down", "to_warlab")
 			end
 		end
 		
 		-- darkscape
-		obj = sim:story_object(1551)
+		obj = sim:story_object(story_ids.ds_exit_to_darkvalley)
 		if obj then
-			level.map_add_object_spot(obj.id, "level_changer", "to_darkvalley")
+			level.map_add_object_spot(obj.id, "level_changer_left_up", "to_darkvalley")
 		end
-		obj = sim:story_object(1552)
+		obj = sim:story_object(story_ids.ds_exit_to_escape)
 		if obj then
-			level.map_add_object_spot(obj.id, "level_changer", "to_escape")
+			level.map_add_object_spot(obj.id, "level_changer_left_up", "to_escape")
 		end
 		
 		-- болота (swamp)
-		obj = sim:story_object(1601)
+		obj = sim:story_object(story_ids.swm_exit_to_yantar)
 		if obj then
-			level.map_add_object_spot(obj.id, "level_changer", "to_yantar")
+			level.map_add_object_spot(obj.id, "level_changer_right_down", "to_yantar")
 		end
-		obj = sim:story_object(1602)
+		obj = sim:story_object(story_ids.swm_exit_to_rostok)
 		if obj then
-			level.map_add_object_spot(obj.id, "level_changer", "to_rostok")
+			level.map_add_object_spot(obj.id, "level_changer_right", "to_rostok")
 		end
 		if has_alife_info("swm_actor_know_exit_to_cit") then
-			obj = sim:story_object(1603)
+			obj = sim:story_object(story_ids.swm_exit_to_deadcity)
 			if obj then
-				level.map_add_object_spot(obj.id, "level_changer", "to_deadcity")
+				level.map_add_object_spot(obj.id, "level_changer_right", "to_deadcity")
 			end
 		end
 

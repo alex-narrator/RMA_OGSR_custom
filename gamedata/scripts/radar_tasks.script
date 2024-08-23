@@ -36,3 +36,10 @@ function process_info_portion(info_id)
 	end
 	return false
 end
+
+function set_lc_sarcofag_spot()
+	local obj = alife():story_object(story_ids.aes_exit_to_sarcofag)
+	if obj then
+		level.map_add_object_spot(obj.id, "level_changer_down", "to_sarcofag")
+	end	
+end

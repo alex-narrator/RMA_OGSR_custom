@@ -1928,11 +1928,12 @@ function drop_item_to_angle(owner, item, angle)
 end
 
 function is_actor_looking_to_pos(pos, radius)
-	local k = vector():sub(pos, device().cam_pos)
-	local b = k:dotproduct(device().cam_dir)
-	local c = k:dotproduct(k) - radius * radius
-	local d = b * b - c
-	return d >= 0
+	-- local k = vector():sub(pos, device().cam_pos)
+	-- local b = k:dotproduct(device().cam_dir)
+	-- local c = k:dotproduct(k) - radius * radius
+	-- local d = b * b - c
+	-- return d >= 0
+	return level.is_ray_intersect_sphere(device().cam_pos, device().cam_dir, pos, radius) >= 0	
 end
 
 function get_custom_logic_ini(obj)
