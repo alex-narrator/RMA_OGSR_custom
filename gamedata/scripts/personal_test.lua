@@ -429,3 +429,28 @@ actor:give_info_portion("yan_kill_brain_done")
 -- local tbl = split_string(comms, ",", false, true)
 -- log3("~tbl %s",tbl)
 --debug_info.show_patrol_points("aes_btr_walk5")
+local target_profiles = {
+	["sim_stalker_general_upir"] = true,
+	["sim_stalker_veteran_umnik"] = true,
+	["sim_stalker_novice_neumeha"] = true,
+}
+local sim = alife()
+for id = 1, 65534 do
+	local obj = sim:object(id)
+	if obj and obj:section_name() == "stalker" and target_profiles[obj:profile_name()] then
+		level.map_add_object_spot_ser(id, "spot_stalker_cop", obj.character_name)
+		log3("~profile %s - ID %s", obj:profile_name(), id)
+	end
+end
+
+-- local sobj = sim:story_object(story_ids.rad_monolith_master)
+-- if sobj then
+	-- level.map_add_object_spot_ser(sobj.id, "spot_stalker_cop", sobj.character_name)
+-- end
+
+-- local obj = sim:object(15840)
+-- if obj then
+	-- log3("~upir on location %s", obj.level_name)
+-- end
+
+-- change_game_time(0, 24, 0)

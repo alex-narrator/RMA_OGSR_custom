@@ -121,7 +121,7 @@ function TalkOverlay:OnShow()
 	self.char_info_back_npc:Show(true)
 	self.to_trade_button:Show(self.target:is_trade_enabled())
 	self.to_repair_button:Show(repair_manager.is_repairer(self.target))
-	log3("~repair_manager.is_repairer(self.target) %s", repair_manager.is_repairer(self.target))
+	log3("~repair_manager.is_repairer(self.target) %s", not not repair_manager.is_repairer(self.target))
 	
 	self:OnActorIconUpdate()
 	self:OnNPCIconUpdate()
