@@ -41,6 +41,18 @@ local function delete_save_game(filename)
 	end
 end
 
+function delete_all_game_saves()
+	local f = getFS()
+	local flist = f:file_list_open_ex( "$game_saves$", FS.FS_ListFiles + FS.FS_ClampExt + FS.FS_RootOnly + FS.FS_NoLower, "*.sav" )
+	for file in flist:GetAll() do
+		f:file_delete("$game_saves$", file:NameFull()..".sav")
+		local dds = file:NameFull()..".dds"
+		if f:exist("$game_saves$", dds) then
+			f:file_delete("$game_saves$", dds)
+		end
+	end
+end
+
 local function AddTimeDigit(dig)
 	return dig > 9 and dig or "0"..dig
 end
@@ -134,6 +146,9 @@ function save_load_dialog:InitControlsSave()
 	ctrl = xml:Init3tButton("form:btn_cancel", self.form)
 	self:Register(ctrl, "button_cancel")	
 
+	ctrl = xml:Init3tButton("form:btn_delete_all", self.form)	
+	self:Register(ctrl, "button_del_all")
+
 	self.message_box = CUIMessageBoxEx()
 	self:Register(self.message_box, "message_box")
 end
@@ -173,7 +188,10 @@ function save_load_dialog:InitControlsLoad()
 	self:Register(ctrl, "button_del")
 
 	ctrl = xml:Init3tButton("form:btn_cancel", self.form)
-	self:Register(ctrl, "button_back")	
+	self:Register(ctrl, "button_back")
+	
+	ctrl = xml:Init3tButton("form:btn_delete_all", self.form)	
+	self:Register(ctrl, "button_del_all")	
 
 	self.message_box = CUIMessageBoxEx()
 	self:Register(self.message_box,"message_box")
@@ -183,6 +201,7 @@ end
 function save_load_dialog:InitCallBacks()
 	self:AddCallback("list_window", ui_events.LIST_ITEM_CLICKED, self.OnListItemClicked, self)
 	self:AddCallback("button_del", ui_events.BUTTON_CLICKED, self.OnButton_del_clicked, self)
+	self:AddCallback("button_del_all", ui_events.BUTTON_CLICKED, self.OnButton_del_all_clicked, self)
 	self:AddCallback("message_box", ui_events.MESSAGE_BOX_YES_CLICKED, self.OnMsgYes, self)
 	if self.is_save_dlg then
 		self:AddCallback("button_ok", ui_events.BUTTON_CLICKED, self.OnButton_ok_clicked, self)
@@ -253,6 +272,10 @@ end
 
 
 function save_load_dialog:OnMsgYes()
+	if self.msgbox_id == 3 then
+		delete_all_game_saves()
+		self:GetListWnd("list_window"):RemoveAll()
+	return end
 	if self.is_save_dlg then
 		if self.msgbox_id == 1 then
 			self:SaveFile(self.new_save)
@@ -393,6 +416,14 @@ function save_load_dialog:OnButton_del_clicked()
 
 	self.msgbox_id = self.is_save_dlg and 2 or 1
 	self.message_box:Init("message_box_delete_file_name")
+	self:GetHolder():start_stop_menu(self.message_box, true)
+end
+
+function save_load_dialog:OnButton_del_all_clicked()
+	local list = self:GetListWnd("list_window")
+	if list:GetSize() == 0 then return end
+	self.msgbox_id = 3
+	self.message_box:Init("message_box_delete_all_saves")
 	self:GetHolder():start_stop_menu(self.message_box, true)
 end
 

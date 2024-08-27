@@ -454,3 +454,5 @@ end
 -- end
 
 -- change_game_time(0, 24, 0)
+
+sleep_manager.write_prop_pos_to_file()
