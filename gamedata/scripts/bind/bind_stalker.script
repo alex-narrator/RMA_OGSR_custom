@@ -272,12 +272,12 @@ end
 ----------------------------------------------------------------------------------------------------------------------
 
 function actor_binder:task_callback(_task, _objective, _state)
-	task_manager.task_callback(_task:get_id(), _objective:get_idx(), _state)
+	--task_manager.task_callback(_task:get_id(), _objective:get_idx(), _state)
 	if _objective:get_idx() == 0 then
 		if _state == task.fail then
 			news_manager.send_task(db.actor, "fail", _task, _objective)
 		elseif _state == task.completed then
-			task_manager.reward_by_task(_task)
+			--task_manager.reward_by_task(_task)
 			news_manager.send_task(db.actor, "complete", _task, _objective)
 		else
 			news_manager.send_task(db.actor, "new", _task, _objective)
@@ -366,7 +366,7 @@ function actor_binder:update(delta)
 
 		self.next_restrictors_update_time = time + 200
 
-		task_manager.actor_update()
+		--task_manager.actor_update()
 	end
 
 	-- обновление постпроцессов
@@ -433,7 +433,6 @@ function actor_binder:save(packet)
 
 	sr_psy_antenna.save( packet )                         
 
-	task_manager.save(packet)
 	self.actor_detector:save(packet)	
 	self.sm:call("on_save", packet)
 end
@@ -459,7 +458,6 @@ function actor_binder:load(reader)
 
 	sr_psy_antenna.load(reader)   
 
-	task_manager.load(reader)
 	self.actor_detector:load(reader)	
 	self.sm:call("on_load", reader)
 end

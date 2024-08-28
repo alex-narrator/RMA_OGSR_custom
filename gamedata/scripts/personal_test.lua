@@ -411,7 +411,7 @@ log3("actor direction (%s, %s, %s)", actor:direction().x, actor:direction().y, a
 -- texture_name = [[wpn\wpn_addons\wpn_addon_scope_ac10632_new\wpn_addon_scope_ac10632_crosshair_dot]]
 -- texture:load(texture_name)
 
-actor:give_info_portion("yan_kill_brain_done")
+--actor:give_info_portion("yan_kill_brain_done")
 -- actor:give_info_portion("explosive_ozm72_manual")
 -- actor:give_info_portion("explosive_svp_manual")
 -- actor:give_info_portion("enc_receiver")
@@ -429,19 +429,19 @@ actor:give_info_portion("yan_kill_brain_done")
 -- local tbl = split_string(comms, ",", false, true)
 -- log3("~tbl %s",tbl)
 --debug_info.show_patrol_points("aes_btr_walk5")
-local target_profiles = {
-	["sim_stalker_general_upir"] = true,
-	["sim_stalker_veteran_umnik"] = true,
-	["sim_stalker_novice_neumeha"] = true,
-}
-local sim = alife()
-for id = 1, 65534 do
-	local obj = sim:object(id)
-	if obj and obj:section_name() == "stalker" and target_profiles[obj:profile_name()] then
-		level.map_add_object_spot_ser(id, "spot_stalker_cop", obj.character_name)
-		log3("~profile %s - ID %s", obj:profile_name(), id)
-	end
-end
+-- local target_profiles = {
+	-- ["sim_stalker_general_upir"] = true,
+	-- ["sim_stalker_veteran_umnik"] = true,
+	-- ["sim_stalker_novice_neumeha"] = true,
+-- }
+-- local sim = alife()
+-- for id = 1, 65534 do
+	-- local obj = sim:object(id)
+	-- if obj and obj:section_name() == "stalker" and target_profiles[obj:profile_name()] then
+		-- level.map_add_object_spot_ser(id, "spot_stalker_cop", obj.character_name)
+		-- log3("~profile %s - ID %s", obj:profile_name(), id)
+	-- end
+-- end
 
 -- local sobj = sim:story_object(story_ids.rad_monolith_master)
 -- if sobj then
@@ -455,4 +455,5 @@ end
 
 -- change_game_time(0, 24, 0)
 
-sleep_manager.write_prop_pos_to_file()
+--sleep_manager.write_prop_pos_to_file()
+--game.stop_hud_motion()

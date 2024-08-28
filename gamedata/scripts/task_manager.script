@@ -1,4 +1,14 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_save",   fun = this.save})
+	sm:subscribe({signal = "on_load",   fun = this.load})
+	sm:subscribe({signal = "on_update",   fun = this.actor_update})
+	sm:subscribe({signal = "on_task",   fun = this.on_task})
+end
+
 local random_task = nil
+local cfg = ini_file_cached("misc\\task_manager.ltx")
+local TASK_UPD_INTERVAL = 3 * 1000
 
 local parent_by_story = {
 	[003] = "trader",
@@ -73,7 +83,7 @@ local receiver_sid_by_alias = {
 class "CRandomTask"
 function CRandomTask:__init()
 	--' На конструкторе вычитываем LTX и создаем заготовки квестов.
-	self.task_ini = ini_file_cached("misc\\task_manager.ltx")
+	self.task_ini = cfg
 	self.task_phrase_id = 100
 
 	--' Итерируемся по всем настройкам фраз
@@ -122,14 +132,14 @@ function CRandomTask:__init()
 		end
 		curr_task_info.time				= read_if_exists(self.task_ini, "r_u32", id, "time", nil)
 
-		curr_task_info.idle_time		= utils.cfg_get_number(self.task_ini, id, "idle_time", nil, false, 24*60*60) --' Время между выдачами задания (в игровых секундах)
-		curr_task_info.prior			= utils.cfg_get_number(self.task_ini, id, "prior", nil, false, 0) --' Приоритет квеста, выдаются доступные квесты с наименьшим приоритетом
+		curr_task_info.idle_time		= read_if_exists(self.task_ini, "r_u32", id, "idle_time", 24*60*60) --' Время между выдачами задания (в игровых секундах)
+		curr_task_info.prior			= read_if_exists(self.task_ini, "r_u32", id, "prior", 0) --' Приоритет квеста, выдаются доступные квесты с наименьшим приоритетом
 	
 		if self.task_ini:line_exist(id, "init_condition") then
 			curr_task_info.init_condition = xr_logic.parse_condlist(db.actor, "task_manager", "init_condition", self.task_ini:r_string(id, "init_condition"))
 		end
 
-		local sss = utils.cfg_get_string(self.task_ini, id, "reward_item", nil, false, "")
+		local sss = read_if_exists(self.task_ini, "r_string", id, "reward_item", nil)
 		if sss ~= nil then
 			curr_task_info.reward_item = se_respawn.parse_names(sss)
 			curr_task_info.reward_item_receiver = read_if_exists(self.task_ini, "r_string", id, "reward_item_receiver", nil)
@@ -205,9 +215,10 @@ function CRandomTask:__init()
 		end
 	end
 end
+
 --' Сохранение
 function CRandomTask:save(p)
-	printf("^^^ SAVE")
+	--log3("~%s save", script_name())
 	--' Считаем количество записей
 	local i = 0
 	for k,v in pairs(self.task_info) do
@@ -236,7 +247,7 @@ function CRandomTask:save(p)
 end
 --' Загрузка
 function CRandomTask:load(p)
-	printf("^^^ LOAD")
+	--log3("~%s load", script_name())
 	--' Считаем количество записей
 	
 	local i = p:r_u8()
@@ -259,9 +270,6 @@ function CRandomTask:load(p)
 		end                                                                                                         
 
 	end
-	
-	
-	
 	
 	--' Та же самая процедура с активными тасками
 	local i = p:r_u8()	
@@ -436,14 +444,16 @@ function CRandomTask:task_complete(p1, p2)
 	if p2 == 0 then
 		if not sel_task.need_return and sel_task.status == "completed" then
 			self.task_info[self.active_task_by_type[p1]].last_task_time = game.get_game_time()
+			--log3("~task completed: task %s has last_task_time %s", self.task_info[self.active_task_by_type[p1]].name, self.task_info[self.active_task_by_type[p1]].last_task_time)
 			if sel_task.remote_reward then
-				--log3("~remote rewarded task %s completed, vendor %s", sel_task.name, alife():story_object(story_by_parent[sel_task.parent]):name())
+				----log3("~remote rewarded task %s completed, vendor %s", sel_task.name, alife():story_object(story_by_parent[sel_task.parent]):name())
 				self:task_reward_remote(sel_task)
 			end
 			return true
 		end
 		if sel_task.status == "rewarded" then
 			self.task_info[self.active_task_by_type[p1]].last_task_time = game.get_game_time()
+			--log3("~task rewarded: task %s has last_task_time %s", self.task_info[self.active_task_by_type[p1]].name, self.task_info[self.active_task_by_type[p1]].last_task_time)
 			return true
 		end
 	end
@@ -515,17 +525,20 @@ function CRandomTask:task_fail(p1, p2)
 		if parent == nil or (parent.alive ~= nil and not parent:alive()) then
 			self.task_info[self.active_task_by_type[p1]].status = "failed"
 			self.task_info[self.active_task_by_type[p1]].last_task_time = game.get_game_time()
+			--log3("~task failed by vendor death: task %s has last_task_time %s", self.task_info[self.active_task_by_type[p1]].name, self.task_info[self.active_task_by_type[p1]].last_task_time)
 			return true		
 		end
 
 		if sel_task.status == "refused" or sel_task.status == "failed" then
 			self.task_info[self.active_task_by_type[p1]].last_task_time = game.get_game_time()
+			--log3("~task failed or refused: task %s has last_task_time %s", self.task_info[self.active_task_by_type[p1]].name, self.task_info[self.active_task_by_type[p1]].last_task_time)
 			return true
 		end
 		if string.find(p1, "defend_lager") ~= nil then
 			if alife():object(sel_task.selected_target).gulag:get_population_comed() == 0 then
 				self.task_info[self.active_task_by_type[p1]].status = "failed"
 				self.task_info[self.active_task_by_type[p1]].last_task_time = game.get_game_time()
+				--log3("~defend lager are all dead: task %s has last_task_time %s", self.task_info[self.active_task_by_type[p1]].name, self.task_info[self.active_task_by_type[p1]].last_task_time)
 				return true
 			end
 		end
@@ -692,9 +705,10 @@ function CRandomTask:check_task_props(task_id)
 		
 			--' Проверка бага
 			if obj ~= nil and obj.alive == nil then	
-				printf("OBJ.ALIVE = nil for task %s", task_id)
-				print_table(self.task_info[task_id].target_objects)
-				abort("OBJ.NAME = %s", obj:name())				
+				log3("!OBJ.ALIVE = nil for task %s", task_id)
+				log3("!target objects %s", self.task_info[task_id].target_objects)
+				log3("!OBJ.NAME = %s | obj id %s", obj:name(), v)
+				abort("OBJ.NAME = %s", obj:name())
 			end			
 
 			if obj ~= nil and
@@ -797,11 +811,11 @@ end
 
 function CRandomTask:ShowRewardText(actor, npc, p1, p2)
 	local task_info = self.task_info[self.task_id_by_desc_phrase_id[p2]]
-	--log3("~vendor %s, task %s, target %s", alife():story_object(story_by_parent[task_info.parent]):name(), task_info.name, task_info.selected_target)
+	----log3("~vendor %s, task %s, target %s", alife():story_object(story_by_parent[task_info.parent]):name(), task_info.name, task_info.selected_target)
 	--' Выбираем текущую цель квеста
 	if task_info.target_objects and not self:target_valid(task_info.selected_target) then
 		self.task_info[self.task_id_by_desc_phrase_id[p2]].selected_target = task_info.target_objects[math.random(table.getn(task_info.target_objects))]
-		--log3("~vendor %s, task %s, target %s", alife():story_object(story_by_parent[task_info.parent]):name(), task_info.name, task_info.selected_target)
+		----log3("~vendor %s, task %s, target %s", alife():story_object(story_by_parent[task_info.parent]):name(), task_info.name, task_info.selected_target)
 	end	
 	local icon_type = (task_info.type == "eliminate_lager") and (mob_lagers[task_info.target] and "eliminate_layer" or "eliminate_lager") or task_info.type
 	local task_texture, task_rect = get_texture_info("ui_icons_task_"..icon_type, "ui_iconsTotal_locations")
@@ -894,9 +908,9 @@ function CRandomTask:GetLocationText(task_info)
 	local list_prefix = "%c[UI_orange]•"
 	if task_info.target_objects then
 		if not self:target_valid(task_info.selected_target) then
-			log3("~vendor %s, task %s, target %s - target non valid, reselect target", alife():story_object(story_by_parent[task_info.parent]):name(), task_info.name, task_info.selected_target)
+			--log3("~vendor %s, task %s, target %s - target non valid, reselect target", alife():story_object(story_by_parent[task_info.parent]):name(), task_info.name, task_info.selected_target)
 			task_info.selected_target = task_info.target_objects[math.random(table.getn(task_info.target_objects))]
-			log3("~new target %s", task_info.selected_target)
+			--log3("~new target %s", task_info.selected_target)
 		end
 		local sim = alife()
 		local target = sim:object(task_info.selected_target)
@@ -1027,9 +1041,9 @@ function CRandomTask:task_reward(npc, actor, p1, p2)
 end
 --//видача винагороди за "віддалені" квести
 function CRandomTask:task_reward_remote(task_desc)
-	--log3("~task_reward_remote remote rewarded task %s completed, vendor %s", task_desc.name, alife():story_object(story_by_parent[task_desc.parent]):name())
+	----log3("~task_reward_remote remote rewarded task %s completed, vendor %s", task_desc.name, alife():story_object(story_by_parent[task_desc.parent]):name())
 	if task_desc.reward_money ~= nil then
-		--log3("~reward money %s", task_desc.reward_money)
+		----log3("~reward money %s", task_desc.reward_money)
 		--dialogs.relocate_money(npc, task_desc.reward_money, "in")
 		actor:give_money(task_desc.reward_money)
 		game_stats.money_quest_update(task_desc.reward_money)
@@ -1039,7 +1053,7 @@ function CRandomTask:task_reward_remote(task_desc)
 	if task_desc.reward_item ~= nil then
 		local receiver = task_desc.reward_item_receiver and alife():story_object(receiver_sid_by_alias[task_desc.reward_item_receiver]) or alife():actor()
 		for k,v in pairs(task_desc.reward_item) do
-			--log3("~reward item %s", v)
+			----log3("~reward item %s", v)
 			spawn_to_owner(v, receiver.id)
 			--news_manager.relocate_item(actor, "in", v)
 		end
@@ -1049,19 +1063,19 @@ function CRandomTask:task_reward_remote(task_desc)
 	end
 
 	if task_desc.reward_reputation ~= nil then
-		--log3("~reward reputation %s", task_desc.reward_reputation)
+		----log3("~reward reputation %s", task_desc.reward_reputation)
 		actor:change_character_reputation(task_desc.reward_reputation)
 	end
 
 	if task_desc.reward_relation ~= nil then
 		for k,v in pairs(task_desc.reward_relation) do
-			--log3("~reward relation of %s amount %s", k, v)
+			----log3("~reward relation of %s amount %s", k, v)
 			relation_registry.change_community_goodwill(k, actor:id(), tonumber(v))
 		end
 	end
 
 	if task_desc.reward_rank ~= nil then
-		--log3("~reward rank %s", task_desc.reward_rank)
+		----log3("~reward rank %s", task_desc.reward_rank)
 		actor_stats.add_points("quests", task_desc.name, 1, 1)--task_desc.reward_rank)
 		actor:change_character_rank(task_desc.reward_rank)--set_character_rank(db.actor:character_rank() + task_desc.reward_rank)
 	end
@@ -1368,6 +1382,8 @@ function task_callback(p1, p2, state)
 end
 
 function actor_update()
+	ogse_signals.get_mgr():reschedule(TASK_UPD_INTERVAL)
+	--log3("~%s actor update called", script_name())
 	get_random_task():actor_update()
 end
 
@@ -1380,4 +1396,11 @@ function load(p)
 end
 function clear_task_manager()
 	random_task	 = nil
+end
+
+function on_task(_task, _objective, _state)
+	task_callback(_task:get_id(), _objective:get_idx(), _state)
+	if _objective:get_idx() == 0 and _state == task.completed then
+		reward_by_task(_task)
+	end
 end

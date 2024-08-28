@@ -2,10 +2,10 @@
 active = ph_car1
 
 [ph_car1]
-path_walk = aes_btr_walk5
-target = communities;actor
-target_communities = monolith
-on_signal = arrive | ph_car2
+path_walk 	= aes_btr_walk5
+target 		= enemy
+community 	= military
+on_signal 	= arrive | ph_car2
 
 [ph_car2]
 path_fire       = aes_btr_look5
@@ -14,7 +14,7 @@ auto_fire       = true
 on_target_vis   = actor | ph_car3
 
 [ph_car3]
-target = communities;actor
-target_communities = monolith
+target 			= enemy
+community 		= military
 track_target    = true
 on_target_nvis  = actor | ph_car2
