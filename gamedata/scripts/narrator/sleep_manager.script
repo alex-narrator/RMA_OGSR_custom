@@ -8,7 +8,6 @@ function attach(sm)
 	sm:subscribe({signal = "on_new_game_start",   fun = this.create_mattresses})
 end
 
-local cfg = ini_file_cached("misc\\sleep_manager.ltx")
 local sleep_spot = "spot_place_to_rest_cop"
 local sleep_h, sleep_m = 0, 0
 local dream_name = nil
@@ -22,6 +21,7 @@ local DEBUG_SPOT = false
 
 local ADD_SPOT = false
 local PROP_SECT = 'mattress'
+local spwn_prop_prefix = "sleep_prop_"
 
 --//пише координати спавну матрасу у файл sleeping_props.txt
 --//файл буде лежати у каталозі bin_x64
@@ -30,7 +30,7 @@ function write_prop_pos_to_file()
 	local pos = actor:position()
 	local file = io.open("sleeping_props.txt", "a")
 	--local text = string.format("{level = '%s', pos = {%.2f, %.2f, %.2f}},\n", level.name(), pos.x, pos.y, pos.z)
-	local text = string.format("[%s]\nprop_id_%s = %.2f, %.2f, %.2f\n", level.name(), prop_num, pos.x, pos.y, pos.z)
+	local text = string.format("[%s]\nprop_id_%s = %.2f, %.2f, %.2f\n", spwn_prop_prefix..level.name(), prop_num, pos.x, pos.y, pos.z)
 	prop_num = prop_num + 1
 	file:write(text)
 	file:close()
@@ -43,7 +43,7 @@ function write_place_pos_to_file(radius)
 	local pos = actor:position()
 	local file = io.open("sleeping_places.txt", "a")
 	--local text = string.format("{level = '%s', pos = {%.2f, %.2f, %.2f}, radius = %s},\n", level.name(), pos.x, pos.y, pos.z, radius)
-	local text = string.format("[%s]\nplace_id_%s = %.2f, %.2f, %.2f, %.2f\n", level.name(), prop_num, pos.x, pos.y, pos.z, radius)
+	local text = string.format("[%s]\nplace_id_%s = %.2f, %.2f, %.2f, %.2f\n", spwn_prop_prefix..level.name(), prop_num, pos.x, pos.y, pos.z, radius)
 	place_id = place_id + 1
 	file:write(text)
 	file:close()
@@ -71,10 +71,11 @@ function create_mattresses()
 		fill_vertex_data()
 	end
 	for level_name, _ in pairs(gv_ids) do
-		if cfg:section_exist(level_name) then
-			local n = cfg:line_count(level_name)
+		local sect = spwn_prop_prefix..level_name
+		if sys_ini:section_exist(sect) then
+			local n = sys_ini:line_count(sect)
 			for i=0,n-1 do
-				result, name, value = cfg:r_line(level_name,i,"","")
+				result, name, value = sys_ini:r_line(sect,i,"","")
 				local coord_tbl = split_string(value, ",", true)
 				local pos = vector():set(coord_tbl[1], coord_tbl[2], coord_tbl[3])
 				local obj = spawn_to_level(PROP_SECT, pos, level_name)
