@@ -794,7 +794,7 @@ function CRandomTask:init_task_dialog(dlg, parent)
 		phrase_script = phr:GetPhraseScript()
 		phrase_script:AddPrecondition("task_manager.precondition_task_avail")
 
-		phr = dlg:AddPhrase(task_info.text, tostring(task_info.desc_phrase_id), tostring(task_info.init_phrase_id), -10000)
+		phr = dlg:AddPhrase(task_info.description, tostring(task_info.desc_phrase_id), tostring(task_info.init_phrase_id), -10000)
 		--phr:SetText(self:GetDescriptionTextEx(task_info))
 		phrase_script = phr:GetPhraseScript()
 		phrase_script:AddAction("task_manager.show_reward_text")
