@@ -814,7 +814,10 @@ function CRandomTask:ShowRewardText(actor, npc, p1, p2)
 	----log3("~vendor %s, task %s, target %s", alife():story_object(story_by_parent[task_info.parent]):name(), task_info.name, task_info.selected_target)
 	--' Выбираем текущую цель квеста
 	if task_info.target_objects and not self:target_valid(task_info.selected_target) then
-		self.task_info[self.task_id_by_desc_phrase_id[p2]].selected_target = task_info.target_objects[math.random(table.getn(task_info.target_objects))]
+		while not self:target_valid(task_info.selected_target) do
+			task_info.selected_target = task_info.target_objects[math.random(table.getn(task_info.target_objects))]
+			--log3("~reselect target - vendor %s, task %s, target %s", alife():story_object(story_by_parent[task_info.parent]):name(), task_info.name, task_info.selected_target)
+		end
 		----log3("~vendor %s, task %s, target %s", alife():story_object(story_by_parent[task_info.parent]):name(), task_info.name, task_info.selected_target)
 	end	
 	local icon_type = (task_info.type == "eliminate_lager") and (mob_lagers[task_info.target] and "eliminate_layer" or "eliminate_lager") or task_info.type
@@ -907,11 +910,6 @@ function CRandomTask:GetLocationText(task_info)
 	local reward_text = ""
 	local list_prefix = "%c[UI_orange]•"
 	if task_info.target_objects then
-		if not self:target_valid(task_info.selected_target) then
-			--log3("~vendor %s, task %s, target %s - target non valid, reselect target", alife():story_object(story_by_parent[task_info.parent]):name(), task_info.name, task_info.selected_target)
-			task_info.selected_target = task_info.target_objects[math.random(table.getn(task_info.target_objects))]
-			--log3("~new target %s", task_info.selected_target)
-		end
 		local sim = alife()
 		local target = sim:object(task_info.selected_target)
 		local level = target and sim:level_name( game_graph():vertex( target.m_game_vertex_id ):level_id() ) or "ui_st_unknown"
