@@ -3,7 +3,7 @@
 --//donate item
 function can_donate(item)
 	local quest_item = read_if_exists(sys_ini, "r_bool", item:section(), "quest_item", false)
-	return not quest_item and parent_is_actor(item) and ui_actor_menu.get_menu():GetMode() == "trade"
+	return not quest_item and parent_is_actor(item) and actor_menu:GetMode() == "trade"
 end
 function donate(item)
 	actor:transfer_item(item, level.get_second_talker())
@@ -19,7 +19,7 @@ function eat_item_tip(item)
 end
 
 function can_eat(item)
-	return item:is_eatable_item() and ui_actor_menu:get_menu():GetMode() ~= "trade"
+	return item:is_eatable_item() and actor_menu:GetMode() ~= "trade"
 end
 
 function eat(item)

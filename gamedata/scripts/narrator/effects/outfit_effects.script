@@ -109,7 +109,7 @@ function on_non_slot(obj, prev_place)
 		outfit_anim.play_gasmask(obj, false)
 	end	
 
-	local mode = ui_actor_menu.get_menu():GetMode()
+	local mode = actor_menu:GetMode()
 	if obj:is_outfit() and actor:alive() and (mode == "inventory" or mode == "carbody") then
 		add_update_delayed_action(1, function() backpack.play_anim(3) end)
 	end

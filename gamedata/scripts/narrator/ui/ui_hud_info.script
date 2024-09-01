@@ -20,7 +20,7 @@ local GEAR_INFO_TTL 		= read_if_exists(sys_ini, "r_u32", "actor", "gear_info_ttl
 
 function on_key_press(key, game_action)
 	if level.main_input_receiver() or 
-		ui_actor_menu.get_menu():IsShown() or
+		actor_menu:IsShown() or
 		not info_action[game_action] or 
 		not actor_hands_free() then
 	return end

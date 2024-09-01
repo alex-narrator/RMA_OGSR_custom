@@ -1434,7 +1434,7 @@ function can_send_tutorial(actor, npc, p)
 	if game.has_active_tutorial() then
 		return false
 	end
-	if ui_actor_menu.get_menu():IsShown() then
+	if actor_menu:IsShown() then
 		return false
 	end
 	if db.actor:has_info("ui_pda") then

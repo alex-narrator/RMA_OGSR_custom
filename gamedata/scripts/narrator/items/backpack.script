@@ -69,7 +69,7 @@ function drop()
 	
 	local has_quick_drop = read_if_exists(sys_ini, "r_bool", backpack:section(), "quick_drop", false)
 	
-	local menu_shown = ui_actor_menu.get_menu():IsShown()
+	local menu_shown = actor_menu:IsShown()
 	
 	if has_quick_drop and not menu_shown then
 		drop_item_to_angle(actor, backpack, 180)

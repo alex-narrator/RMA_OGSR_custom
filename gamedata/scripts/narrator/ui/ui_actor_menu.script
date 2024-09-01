@@ -6,7 +6,7 @@
 --"trade"
 --"repair"
 
-local overlay = nil
+_G.actor_menu = nil
 local OVERLAY_XML = "script_overlays\\actor_menu_overlay.xml"
 
 function attach(sm)
@@ -18,49 +18,43 @@ end
 local subscribed = false
 
 function create_window()
-	if overlay then
+	if actor_menu then
 		destroy_window()
 	end
-	overlay = ActorMenuOverlay()
+	_G.actor_menu = ActorMenuOverlay()
 end
 
 function destroy_window()
-	if overlay then
-		overlay:DetachWnd()
-		overlay = nil
+	if actor_menu then
+		actor_menu:DetachWnd()
+		_G.actor_menu = nil
 	end
 end
 
 function on_update()
-	local menu = get_menu()
-	if menu.was_shown and not menu:IsShown() then
-		menu.was_shown = false
-		local mode = menu:GetMode()
+	if actor_menu.was_shown and not actor_menu:IsShown() then
+		actor_menu.was_shown = false
+		local mode = actor_menu:GetMode()
 		if mode == "trade" or mode == "repair" then
 			level.get_talk_wnd():Show(true)
 		end
-		menu:OnHide()
+		actor_menu:OnHide()
 	end	
 end
 
 function get_menu()
-	return overlay
-end
-
-function get_prop_box()
-	return overlay.properties_box
+	return actor_menu
 end
 
 function ShowHideMenu(mode, target)
-	local menu = get_menu()
-	level.start_stop_menu(menu, true)
-	menu.was_shown = menu:IsShown()
-	if menu.was_shown then
-		menu:SetMode(mode)
-		menu:SetTarget(target)
-		menu:OnShow()
+	level.start_stop_menu(actor_menu, true)
+	actor_menu.was_shown = actor_menu:IsShown()
+	if actor_menu.was_shown then
+		actor_menu:SetMode(mode)
+		actor_menu:SetTarget(target)
+		actor_menu:OnShow()
 	else
-		menu:OnHide()
+		actor_menu:OnHide()
 	end
 end
 
