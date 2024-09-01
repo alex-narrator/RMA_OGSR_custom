@@ -903,8 +903,8 @@ function ActorMenuOverlay:UpdateEffectsInfo()
 				sn = "%"
 				sn_boost = "%"
 			else
-				sn = game.translate_string("st_rad")
-				sn_boost = game.translate_string("st_rad")
+				sn = string.format(" %s", game.translate_string("st_rad"))
+				sn_boost = string.format(" %s", game.translate_string("st_rad"))
 			end
 		
 			local color = val > 0 and "%c[green]" or "%c[red]"

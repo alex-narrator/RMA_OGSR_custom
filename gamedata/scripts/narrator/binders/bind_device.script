@@ -3,9 +3,11 @@
 --біндер приладів що використовують джерела живлення
 ------------------------------------------------------------------------------------------
 
-local POWER_CONSUMING_UPDATE_TIME = 10 --//час оновлення декременту у ігрових секундах
-local DEF_WORK_TIME = 8
-local LOW_POWER_LEVEL = 0.1
+local POWER_CONSUMING_UPDATE_TIME 	= 10 --//час оновлення декременту у ігрових секундах
+local DEF_WORK_TIME 				= 8
+local LOW_POWER_LEVEL 				= 0.1
+
+local DEBUG_DISABLED = false
 
 function init(obj)
 	if not is_power_device(obj) then
@@ -91,6 +93,9 @@ end
 
 function device_binder:update(delta)
     object_binder.update(self, delta)
+	
+	if DEBUG_DISABLED then
+	return end
 	
 	if self:is_working() then
 		--local item = self.object

@@ -2177,8 +2177,45 @@ function change_game_time(days, hours, minutes)
 	level_weathers.select_weather(true)
 end
 
+function wait_game_time (days, hours, minutes, on_start_f, on_stop_f, forced_stop_f)
+    local current_time_factor = level.get_time_factor ()
+
+    local current_time = game.get_game_time()
+	
+	local new_time = game.CTime()
+	local _h = days * 24 + hours
+	new_time:setHMS(_h, minutes, 0)
+	
+	local desirable_time = game.get_game_time()
+	desirable_time:add(new_time)
+	
+	if on_start_f then
+		on_start_f()
+	end
+	
+    level.set_time_factor (10000)
+	--get_console():execute("time_factor 250")
+
+	level.add_call(
+		function()
+			return game.get_game_time() >= desirable_time or (forced_stop_f and forced_stop_f())
+		end,
+		function()
+			level.set_time_factor (current_time_factor)
+			--get_console():execute("time_factor 1")
+			if on_stop_f then
+				on_stop_f()
+			end
+		end
+	)
+end
+
 function detach_addon(item, addon_sect, not_spawn_addon)
 	ogse_signals.get_mgr():call("on_before_addon_detach", item, addon_sect)	
 	item:get_weapon_m():detach_addon(addon_sect, not not_spawn_addon)
 	ogse_signals.get_mgr():call("on_addon_detach", item, addon_sect)
+end
+
+function is_god_mode()
+	return get_console():get_bool("g_god")
 end

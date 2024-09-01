@@ -33,6 +33,8 @@ function on_load(reader)
 end
 
 function on_update()
+	if is_god_mode() then
+	return end
 	local conds = actor.conditions
 	if not conds.has_valid_time or sleep_manager.is_sleeping_now() then 
 	return end

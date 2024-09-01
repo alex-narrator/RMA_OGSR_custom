@@ -5,23 +5,31 @@
 --edited by narrator @ 2023
 
 function attach(sm)
-	sm:subscribe({signal = "on_new_game_start",   fun = this.create_mattresses})
+	sm:subscribe({signal = "on_new_game_start", fun = this.create_mattresses})
 end
 
-local sleep_spot = "spot_place_to_rest_cop"
+local DEBUG_SPOT = false
+local ADD_SPOT = false
+
 local sleep_h, sleep_m = 0, 0
 local dream_name = nil
-local ENEMY_CHECK_RADIUS = 50
-local SLEEP_COND_K = 0.5
-local SOMNOLENCE_K = 3
-
 local is_sleeping = false
 
-local DEBUG_SPOT = false
-
-local ADD_SPOT = false
-local PROP_SECT = 'mattress'
-local spwn_prop_prefix = "sleep_prop_"
+local params_sect 			= "sleep_params"
+local cond_sect 			= "sleep_conditions"
+--//params
+local ENEMY_CHECK_RADIUS 	= read_if_exists(sys_ini, "r_float", 	params_sect, 	"enemy_radius", 	50)
+local SLEEP_SPOT 			= read_if_exists(sys_ini, "r_string", 	params_sect, 	"spot", 			"spot_place_to_rest_cop")
+local PROP_SECT 			= read_if_exists(sys_ini, "r_string", 	params_sect, 	"prop_sect", 		"mattress")
+local PROP_PREFIX 			= read_if_exists(sys_ini, "r_string", 	params_sect, 	"prop_prefix", 		"sleep_prop_")
+local SAVE_AFTER_SLEEP 		= read_if_exists(sys_ini, "r_bool", 	params_sect, 	"save_after_sleep", true)
+--//conditions
+local SOMNOLENCE_K 			= read_if_exists(sys_ini, "r_float", 	cond_sect, 		"somnolence_k", 	0.5)
+local HEALTH_K 				= read_if_exists(sys_ini, "r_float", 	cond_sect, 		"health_k", 		0.5)
+local POWER_K 				= read_if_exists(sys_ini, "r_float", 	cond_sect, 		"power_k", 			0.5)
+local SATIETY_K 			= read_if_exists(sys_ini, "r_float", 	cond_sect, 		"satiety_k", 		0.5)
+local ALCOHOL_K 			= read_if_exists(sys_ini, "r_float", 	cond_sect, 		"alcohol_k", 		0.5)
+local PSY_HEALTH_K 			= read_if_exists(sys_ini, "r_float", 	cond_sect, 		"psy_health_k", 	0.5)
 
 --//пише координати спавну матрасу у файл sleeping_props.txt
 --//файл буде лежати у каталозі bin_x64
@@ -30,7 +38,7 @@ function write_prop_pos_to_file()
 	local pos = actor:position()
 	local file = io.open("sleeping_props.txt", "a")
 	--local text = string.format("{level = '%s', pos = {%.2f, %.2f, %.2f}},\n", level.name(), pos.x, pos.y, pos.z)
-	local text = string.format("[%s]\nprop_id_%s = %.2f, %.2f, %.2f\n", spwn_prop_prefix..level.name(), prop_num, pos.x, pos.y, pos.z)
+	local text = string.format("[%s]\nprop_id_%s = %.2f, %.2f, %.2f\n", PROP_PREFIX..level.name(), prop_num, pos.x, pos.y, pos.z)
 	prop_num = prop_num + 1
 	file:write(text)
 	file:close()
@@ -43,7 +51,7 @@ function write_place_pos_to_file(radius)
 	local pos = actor:position()
 	local file = io.open("sleeping_places.txt", "a")
 	--local text = string.format("{level = '%s', pos = {%.2f, %.2f, %.2f}, radius = %s},\n", level.name(), pos.x, pos.y, pos.z, radius)
-	local text = string.format("[%s]\nplace_id_%s = %.2f, %.2f, %.2f, %.2f\n", spwn_prop_prefix..level.name(), prop_num, pos.x, pos.y, pos.z, radius)
+	local text = string.format("[%s]\nplace_id_%s = %.2f, %.2f, %.2f, %.2f\n", PROP_PREFIX..level.name(), prop_num, pos.x, pos.y, pos.z, radius)
 	place_id = place_id + 1
 	file:write(text)
 	file:close()
@@ -52,8 +60,8 @@ end
 
 
 function on_mattress_use(obj)
-	if ADD_SPOT and level.map_has_object_spot(obj:id(), sleep_spot) == 0 then
-		level.map_add_object_spot_ser(obj:id(), sleep_spot, game.translate_string("ui_st_place_to_rest"))
+	if ADD_SPOT and level.map_has_object_spot(obj:id(), SLEEP_SPOT) == 0 then
+		level.map_add_object_spot_ser(obj:id(), SLEEP_SPOT, game.translate_string("ui_st_place_to_rest"))
 	end
 	if can_sleep() then
 		ui_sleep.show_sleep_window()
@@ -71,7 +79,7 @@ function create_mattresses()
 		fill_vertex_data()
 	end
 	for level_name, _ in pairs(gv_ids) do
-		local sect = spwn_prop_prefix..level_name
+		local sect = PROP_PREFIX..level_name
 		if sys_ini:section_exist(sect) then
 			local n = sys_ini:line_count(sect)
 			for i=0,n-1 do
@@ -82,7 +90,7 @@ function create_mattresses()
 				--log3("~level name %s | param name %s | x=%s, y=%s, z=%s", level_name, name, pos.x, pos.y, pos.z)
 				if DEBUG_SPOT then
 					local txt = string.format("level: [%s]\\nparam name: [%s]\\npos: [%.2f, %.2f, %.2f]",level_name, name, pos.x, pos.y, pos.z)
-					level.map_add_object_spot_ser(obj.id, sleep_spot, txt)
+					level.map_add_object_spot_ser(obj.id, SLEEP_SPOT, txt)
 				end
 			end		
 		end
@@ -128,60 +136,68 @@ end
 
 function perform_sleep()
 	dream_name = dream.sleep_video_name_callback()
-	if dream_name ~= "" then 
-		game.start_tutorial(dream_name)
-	else 
-		game.start_tutorial("without_dream") 
-	end
+	local dream = dream_name ~= "" and dream_name or "without_dream"
+	game.start_tutorial(dream)
 end
 
 function change_time()
+	log3("~change time")
 	if sleep_h <= 0 and sleep_m <= 0 then
 		log3("!can`t perform sleep because sleep timer is %s:%s", sleep_h, sleep_m)
 	return end
 	change_game_time(0, sleep_h, sleep_m)
-	local sleep_time = (sleep_h * 60 * 60) + (sleep_m * 60)
-	heal_actor(sleep_time)
-	sleep_h, sleep_m = 0, 0
+	local sleep_time = ((sleep_h * 3600) + (sleep_m * 60))
+	sleep_conditions(sleep_time)
+	sleep_h, sleep_m = 0, 0	
 	play_awake_effects()
 end
 
-function heal_actor(sleep_time)
+function sleep_conditions(sleep_time)
 	local actor_cond = get_actor_obj().condition
+	local delta
+	
+	log3("~sleep_time %s", sleep_time)
+	
 	--штатна регенерація здоров'я за час сну
-	local delta = sleep_time * actor_cond.health_restore_v
-	--додамо половину від штатного регену здоров'я
-	actor.health = delta * SLEEP_COND_K
+	delta = sleep_time * actor_cond.radiation_v * HEALTH_K
+	--додатковий реген уві сні
+	actor.health = delta
+	log3("~change health %s", delta)
 
 	--штатна регенерація псі-здоров'я за час сну
-	local delta = sleep_time * actor_cond.psy_health_v
-	--додамо половину від штатного регену псі-здоров'я
-	actor.psy_health = delta * SLEEP_COND_K
+	delta = sleep_time * actor_cond.psy_health_v * PSY_HEALTH_K
+	--додатковий реген уві сні
+	actor.psy_health = delta
+	log3("~change psy_health %s", delta)
 	
 	--штатна регенерація витривалості за час сну
-	local delta = sleep_time * actor_cond.power_v
-	--додамо половину від штатного регену витривалості
-	actor.power = delta * SLEEP_COND_K
+	delta = sleep_time * actor_cond.power_v * POWER_K
+	--додатковий реген уві сні
+	actor.power = delta
+	log3("~change power %s", delta)
 	
 	--штатна зменшення рівня алкоголю за час сну
-	local delta = sleep_time * actor_cond.alcohol_v
-	--зменшимо рівень алкоголю на половину від штатного значення
-	actor.alcohol = delta * SLEEP_COND_K
+	delta = sleep_time * actor_cond.alcohol_v * ALCOHOL_K
+	--додаткове тверезіння уві сні
+	actor.alcohol = delta
+	log3("~change alcohol %s", delta)
 	
 	--штатне зменшення ситості за час сну
-	delta = sleep_time * actor_cond.satiety_v
-	--компенсуємо половину втрати ситості
-	actor.satiety = delta * SLEEP_COND_K
+	delta = sleep_time * actor_cond.satiety_v * SATIETY_K
+	--компенсація втрати ситості
+	actor.satiety = delta
+	log3("~change satiety %s", delta)
 	
-	delta = sleep_time * somnolence.get_v()
+	delta = sleep_time * somnolence.get_v() * SOMNOLENCE_K
 	--компенсуємо надбаня сонливості та зменшуємо сонливість
-	somnolence.change_val(-delta * SOMNOLENCE_K)
+	somnolence.change_val(-delta)
+	log3("~change somnolence %s", -delta)
 end
 
 local nightmare = {
-	aes_sky_red = true,
-	dream_4 = true,
-	dream_5 = true,
+	["aes_sky_red"] = true,
+	["dream_4"] 	= true,
+	["dream_5"] 	= true,
 }
 function play_awake_effects()
 	level.add_cam_effector("camera_effects\\prison_1.anm", 25, false, "sleep_manager.restore_control")
@@ -193,14 +209,13 @@ function play_awake_effects()
 		somnolence.play_yawn()
 	end
 	dream_name = nil
-	make_sleep_savegame()
 end
 
 function restore_control()
 	actor:restore_weapon()
 	level.enable_input()
+	make_sleep_savegame()
 	is_sleeping = false
-	outfit_anim.play_outfit("inspect")
 end
 
 local reason
@@ -224,6 +239,8 @@ function is_sleeping_now()
 end
 
 function make_sleep_savegame()
-	local save_cmd = string.format("save %s_%s - %s", user_name(), game.translate_string("ui_st_after_sleep"), game.translate_string(level.name()))
+	if not SAVE_AFTER_SLEEP then
+	return end
+	local save_cmd = string.format("save %s - %s", user_name(), game.translate_string("ui_st_after_sleep"))
 	get_console():execute(save_cmd)
 end

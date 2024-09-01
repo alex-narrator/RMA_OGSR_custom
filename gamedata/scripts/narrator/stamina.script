@@ -34,6 +34,8 @@ function on_shell_drop(wpn, pos, vel)
 end
 
 function change_val(val)
+	if is_god_mode() then
+	return end
 	stamina = stamina + val
 	stamina = math.clamp(stamina, 0, 1)
 end

@@ -4,8 +4,23 @@ local ENEMY_CHECK_RADIUS = 50
 local fast_travel_types = {
 }
 
+function refuse_reason()
+	if has_enemy_near(actor, ENEMY_CHECK_RADIUS) then
+	return "st_enemies_nearby" end
+	if actor:get_inventory_weight() >= actor:get_max_weight() then
+	return "st_has_overweight" end
+	if actor:get_inventory_weight() >= actor:get_max_weight() then
+	return "st_has_bleeding" end
+	return nil
+end
+
+function show_refuse_msg(reason)
+	local refuse_text = string.format("%s: %s", game.translate_string("ui_st_cant_fast_travel"), game.translate_string(reason))
+	hud_add_info_message("item_usage", refuse_text)
+end
+
 function fast_travel_allowed()
-	return ENABLED and not has_enemy_near(actor, ENEMY_CHECK_RADIUS) and actor:get_inventory_weight() < actor:get_max_weight() and actor:get_bleeding() < 0.1
+	return ENABLED --and not has_enemy_near(actor, ENEMY_CHECK_RADIUS) and actor:get_inventory_weight() < actor:get_max_weight() and actor:get_bleeding() < 0.1
 end
 
 function action_tip(id, spot_type, level_name, position)
@@ -17,5 +32,9 @@ function action_check(id, spot_type, level_name, position)
 	return fast_travel_allowed()
 end
 function action(id, spot_type, level_name, position)
+	local reason = refuse_reason()
+	if reason then
+		show_refuse_msg(reason)
+	return end
 	teleport_actor(position, level_name)
 end
