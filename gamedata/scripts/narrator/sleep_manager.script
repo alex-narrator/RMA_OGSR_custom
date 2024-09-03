@@ -159,7 +159,7 @@ function sleep_conditions(sleep_time)
 	log3("~sleep_time %s", sleep_time)
 	
 	--штатна регенерація здоров'я за час сну
-	delta = sleep_time * actor_cond.radiation_v * HEALTH_K
+	delta = sleep_time * actor_cond.health_restore_v * HEALTH_K
 	--додатковий реген уві сні
 	actor.health = delta
 	log3("~change health %s", delta)

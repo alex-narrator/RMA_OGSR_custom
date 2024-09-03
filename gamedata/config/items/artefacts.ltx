@@ -94,7 +94,7 @@ af_rank 					= 0
 ;рандомный множитель для свойств артефакта 
 ;если указано два значения - в диапазоне [знач_1, знач_2]
 ;если указано одно значение - в диапазоне [0, знач_1]
-random_k 					= -1.5, 1.5
+;random_k 					= -1.5, 1.5
 
 lights_enabled 				= false
 
@@ -106,18 +106,21 @@ det_hide_snd 				= monsters\poltergeist\tele_damage_0
 
 [af_simple]:af_base
 ;af_rank = 1
+random_k 					= 0.5, 1.5
 cost						= 1000
 hit_power 					= 0.1
 hit_effector 				= af_hit
 
 [af_medium]:af_base
 ;af_rank = 2
+random_k 					= 0.75, 1.15
 cost						= 2500
 hit_power 					= 0.2
 hit_effector 				= af_hit
 
 [af_high]:af_base
 ;af_rank = 3
+random_k 					= 0.9, 1.1
 cost						= 5000
 hit_power 					= 0.3
 hit_effector 				= af_hit
@@ -126,8 +129,22 @@ hit_effector 				= af_hit
 ;af_rank = 4
 cost						= 7500
 
+[add_rad_small]
+radiation_restore_speed		= 0.000003858024691
+[add_rad_medium]
+radiation_restore_speed 	= 0.000005787037037
+[add_rad_high]
+radiation_restore_speed 	= 0.00001157407407
+
+[sub_rad_small]
+radiation_restore_speed		= -0.000003858024691
+[sub_rad_medium]
+radiation_restore_speed 	= -0.000005787037037
+[sub_rad_high]
+radiation_restore_speed 	= -0.00001157407407
+
 ; Артефакты для аномалии "Комариная плешь"
-[af_medusa]:af_simple
+[af_medusa]:af_simple,add_rad_small
 $spawn					= "artifacts\moscito medusa"
 
 visual					= physics\anomaly\artefact_blackdrip
@@ -146,12 +163,11 @@ inv_grid_y         		= 5
 
 artefact_activation_seq	= af_activation_bold
 ;скорости увеличения (уменьшения) 
-radiation_restore_speed	= 5.0
 fire_wound_protection  	= 0.02
 
 hit_type				= strike
 
-[af_cristall_flower]:af_medium
+[af_cristall_flower]:af_medium,add_rad_medium
 $spawn					= "artifacts\moscito flower"
 
 visual					= physics\anomaly\artefact_blackdrip_2
@@ -172,13 +188,13 @@ inv_grid_y         		= 5
 
 artefact_activation_seq	= af_activation_bold
 ;скорости увеличения (уменьшения) 		
-radiation_restore_speed = 5
+
 fire_wound_protection  	= 0.03
 
 hit_type				= strike
 
 
-[af_night_star]:af_high
+[af_night_star]:af_high,add_rad_high
 $spawn					= "artifacts\moscito star"
 
 visual					= physics\anomaly\artefact_blackdrip_1
@@ -199,14 +215,13 @@ inv_grid_y				= 5
 
 artefact_activation_seq	= af_activation_bold
 ;скорости увеличения (уменьшения) 
-radiation_restore_speed = 5
 fire_wound_protection  	= 0.05
 
 hit_type				= strike
 
 ; Артефакты для аномалии "Грави"
 
-[af_vyvert]:af_simple
+[af_vyvert]:af_simple,add_rad_small
 $spawn					= "artifacts\gravy vyvert"
 
 visual					= physics\anomaly\artefact_gravy1
@@ -226,12 +241,12 @@ inv_grid_y				= 3
 artefact_activation_seq	= af_activation_gravi
 
 ;скорости увеличения (уменьшения) 
-radiation_restore_speed = 5
+
 wound_protection 		= 0.02
 
 hit_type				= strike
 
-[af_gravi]:af_medium
+[af_gravi]:af_medium,add_rad_medium
 $spawn					= "artifacts\gravy gravi"
 
 visual					= physics\anomaly\artefact_gravy2
@@ -252,12 +267,11 @@ inv_grid_y				= 3
 
 artefact_activation_seq	= af_activation_gravi
 ;скорости увеличения (уменьшения) 	
-radiation_restore_speed = 5
 wound_protection 		= 0.03
 
 hit_type				= strike
 
-[af_gold_fish]:af_high
+[af_gold_fish]:af_high,add_rad_high
 $spawn					= "artifacts\gravy fish"
 
 visual					= physics\anomaly\artefact_gravy3
@@ -278,14 +292,13 @@ inv_grid_y				= 3
 
 artefact_activation_seq	= af_activation_gravi
 ;скорости увеличения (уменьшения) 		
-radiation_restore_speed = 5
 wound_protection 		= 0.05
 
 hit_type				= strike
 
 ; Артефакты для аномалии "Жарка"
 
-[af_drops]:af_simple
+[af_drops]:af_simple,sub_rad_small
 $spawn 					= "artifacts\zharka drops"
 
 visual					= physics\anomaly\artefact_kaply
@@ -305,12 +318,11 @@ inv_grid_y				= 6
 ; trail_light_range 		= 0.5
 
 ;скорости увеличения (уменьшения) 
-radiation_restore_speed = -1
 power_restore_speed 	= -1
 
 hit_type 				= burn
 
-[af_fireball]:af_medium
+[af_fireball]:af_medium,sub_rad_medium
 $spawn 					= "artifacts\zharka fireball"
 
 visual					= physics\anomaly\artefact_fire
@@ -333,13 +345,12 @@ strike_impulse			= 20
 ; trail_light_range 		= 3.0
 
 ;скорости увеличения (уменьшения) 
-radiation_restore_speed = -2
 power_restore_speed 	= -1
 
 hit_type 				= burn
 
 
-[af_cristall]:af_high
+[af_cristall]:af_high,sub_rad_high
 $spawn 					= "artifacts\zharka cristall"
 
 visual					= physics\anomaly\artefact_cristall
@@ -360,7 +371,6 @@ inv_grid_y				= 6
 
 artefact_activation_seq	= af_activation_mincer
 ;скорости увеличения (уменьшения) 	
-radiation_restore_speed = -3
 power_restore_speed 	= -1
 
 hit_type 				= burn
@@ -610,7 +620,7 @@ chemical_burn_protection = -0.1
 hit_type				= chemical_burn
 
 ; " Ржавые волосы аномалия "
-[af_rusty_thorn]:af_simple
+[af_rusty_thorn]:af_simple,sub_rad_small
 $spawn 					= "artifacts\rusty thorn"
 
 visual					= physics\anomaly\artefact_needles1
@@ -627,12 +637,12 @@ inv_grid_y				= 2
 ; lights_enabled 			= false
 
 ;скорости увеличения (уменьшения) 		
-radiation_restore_speed = -1
+
 wounds_heal_speed 		= -3
 
 hit_type				= chemical_burn
 
-[af_rusty_kristall]:af_medium
+[af_rusty_kristall]:af_medium,sub_rad_medium
 $spawn 					= "artifacts\rusty cristall"
 
 visual					= physics\anomaly\artefact_needles2
@@ -649,12 +659,12 @@ inv_grid_y				= 2
 ; lights_enabled 			= false
 
 ;скорости увеличения (уменьшения) 		
-radiation_restore_speed = -2
+
 wounds_heal_speed 		= -3
 
 hit_type				= chemical_burn
 
-[af_rusty_sea_urchin]:af_high
+[af_rusty_sea_urchin]:af_high,sub_rad_high
 $spawn 					= "artifacts\rusty sea-urchin"
 
 visual					= physics\anomaly\artefact_rusty_hairs
@@ -671,7 +681,7 @@ inv_grid_y				= 2
 ; lights_enabled 			= false
 
 ;скорости увеличения (уменьшения) 			
-radiation_restore_speed = -3
+
 wounds_heal_speed 		= -3
 
 hit_type				= chemical_burn

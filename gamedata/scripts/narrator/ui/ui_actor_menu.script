@@ -200,15 +200,40 @@ function ActorMenuOverlay:InitControls()
 	self.conditions_background = xml:InitStatic("conditions_background", self)
 	
 	--// actor condition progressbars
+	local actor_cond = get_actor_obj().condition
 	self.conditions = {
-		["health_"] 	= { condition = function() return actor.health end },
-		["psy_"] 		= { condition = function() return actor.psy_health end },
-		["power_"] 		= { condition = function() return actor.power end },
-		["satiety_"] 	= { condition = function() return actor.satiety end },
-		["alcohol_"] 	= { condition = function() return actor.alcohol end },
-		["radiation_"] 	= { condition = function() return dosimeter.can_detect_radiation() and actor.radiation or 0 end },
-		["somnolence_"] = { condition = function() return somnolence.get_val() end },
-		["bleeding_"] 	= { condition = function() return actor:get_bleeding() end },
+		["health_"] 	= { 
+			condition = function() return actor.health end,
+			restore_speed = function() return 3600 * actor_cond.health_restore_v end,
+		},
+		["psy_health_"] = { 
+			condition = function() return actor.psy_health end,
+			restore_speed = function() return 3600 * actor_cond.psy_health_v end,
+		},
+		["power_"] 		= { 
+			condition = function() return actor.power end,
+			restore_speed = function() return 3600 * actor_cond.power_v end,
+		},
+		["satiety_"] 	= { 
+			condition = function() return actor.satiety end,
+			restore_speed = function() return 3600 * -actor_cond.satiety_v end,
+		},
+		["alcohol_"] 	= { 
+			condition = function() return actor.alcohol end,
+			restore_speed = function() return 3600 * actor_cond.alcohol_v end,
+		},
+		["radiation_"] 	= { 
+			condition = function() return dosimeter.can_detect_radiation() and actor.radiation or 0 end,
+			restore_speed = function() return 3600 * actor_cond.radiation_v end,
+		},
+		["somnolence_"] = { 
+			condition = function() return somnolence.get_val() end,
+			restore_speed = function() return 3600 * somnolence.get_v() end,
+		},
+		["bleeding_"] 	= { 
+			condition = function() return actor:get_bleeding() end,
+			restore_speed = function() return 3600 * actor_cond.wound_incarnation_v end,
+		},
 		["injure_"] 	= { condition = function() return body_health.get_injured_limb() end },
 	}
 	local prefix = "conditions_background:"
@@ -748,6 +773,20 @@ function ActorMenuOverlay:ConditionOnFocusReceived(cond_name)
 	if cond_name == "injure_" then
 		cond_descr = game.translate_string(string.format("%s%s%s%s","st_", cond_name, self.conditions[cond_name].condition(), "_hint"))
 	end
+	local cond_restore_text = ""
+	local restore_speed = self.conditions[cond_name].restore_speed and self.conditions[cond_name].restore_speed() or nil
+	if restore_speed then
+		if restore_speed > 1 then
+			restore_speed = math.round(restore_speed/60*100, 1)
+			cond_restore_text = string.format("%s: %s %s", game.translate_string("st_"..cond_name.."restore_hint"), restore_speed, game.translate_string("st_percent_per_minute"))
+		elseif cond_name == "radiation_" and is_rad_absolute() then
+			restore_speed = math.round(restore_speed*get_rad_absolute_eqivalent(), 2)
+			cond_restore_text = string.format("%s: %s %s", game.translate_string("st_"..cond_name.."restore_hint"), restore_speed, game.translate_string("st_rad"))
+		else
+			restore_speed = math.round(restore_speed*100, 1)
+			cond_restore_text = string.format("%s: %s %s", game.translate_string("st_"..cond_name.."restore_hint"), restore_speed, game.translate_string("st_percent_per_hour"))
+		end
+	end
 	local cond_text = game.translate_string(string.format("%s%s%s","st_", cond_name, "hint_text"))
 	if cond_name == "injure_" then
 		local pain_eff = body_health.get_pain_effect()
@@ -755,7 +794,7 @@ function ActorMenuOverlay:ConditionOnFocusReceived(cond_name)
 		cond_text = game.translate_string(string.format("%s%s%s%s%s","st_", cond_name, self.conditions[cond_name].condition(), pain, "_hint_text"))
 		--log3("~hint string: %s", cond_text)
 	end
-	local tip_text = string.format("%s\\n---------------------------------\\n%s", cond_descr, cond_text)	
+	local tip_text = string.format("%s\\n---------------------------------\\n%s\\n---------------------------------\\n%s", cond_descr, cond_restore_text, cond_text)	
 	self:SetTooltip(tip_text)
 end
 
@@ -810,6 +849,51 @@ function ActorMenuOverlay:UpdateTooltip()
         pos.y = pos.y - delta.y
 	end		
 	self.tooltip_frame:SetWndPos(pos.x, pos.y)	
+end
+
+function ActorMenuOverlay:UpdateConditions()
+	local val
+	for k,v in pairs(self.conditions) do
+		val = k ~= "injure_" and math.clamp(v.condition(), 0, 1) or v.condition()
+		if k ~= "bleeding_" and k ~= "injure_" then
+			v.progress:SetProgressPos(val)
+		else
+			if k == "injure_" then
+				v.static:Show(val ~= "none")
+				if v.static:IsShown() then
+					local actual_icon = "ui_hud_trauma_"..val
+					if self.limbs_injure_icon ~= actual_icon then
+						v.static:InitTexture(actual_icon)
+						self.limbs_injure_icon = actual_icon
+					end
+					color = GetARGB(100, 238, 153, 26)
+					local pain_eff = body_health.get_pain_effect()
+					if pain_eff > 0 then
+						color = GetARGB(100, 255, 0, 0)
+					elseif pain_eff < 0 then
+						color = GetARGB(100, 0, 255, 0)
+					end
+					v.static:SetColor(color)					
+				end
+			else
+				v.static:Show(val>0)
+				if val>0 then
+					v.static:SetColor(GetARGB(255,val*255,(1-val)*255,0))
+				else
+					if self.conditions[k].percent:IsShown() then
+						self.conditions[k].percent:Show(false)
+					end
+				end
+			end
+		end
+		if k ~= "injure_" then
+			if k == "radiation_" and is_rad_absolute() then
+				v.percent:SetText(string.format("%.2f %s", val*get_rad_absolute_eqivalent(), get_rad_absolute_name()))
+			else
+				v.percent:SetText(string.format("%.0f%s", val*100, game.translate_string("st_percent")))
+			end
+		end
+	end
 end
 
 local account_slots = {
@@ -891,14 +975,20 @@ function ActorMenuOverlay:UpdateEffectsInfo()
 				
 		if not math.fsimilar(val, 0) or not math.fsimilar(val_boost, 0) then
 		
-			if t.param ~= "radiation_restore_speed" then
-				val = val * 100
-				val_boost = val_boost * 100
-				sn = "%"
-				sn_boost = "%"
-			else
+			if t.param == "radiation_restore_speed" and is_rad_absolute() then
 				sn = string.format(" %s", game.translate_string("st_rad"))
 				sn_boost = string.format(" %s", game.translate_string("st_rad"))
+				if not math.fsimilar(val, 0) then
+					val = val*get_rad_absolute_eqivalent()*3600
+				end
+				if not math.fsimilar(val_boost, 0) then
+					val_boost = val_boost*get_rad_absolute_eqivalent()*3600
+				end				
+			else
+				val = val * 100
+				val_boost = val_boost * 100
+				sn = game.translate_string("st_percent")
+				sn_boost = game.translate_string("st_percent")
 			end
 		
 			local color = val > 0 and "%c[green]" or "%c[red]"
@@ -929,45 +1019,7 @@ end
 function ActorMenuOverlay:Update()
 	CUIScriptWnd.Update(self)
 	
-	local val
-	for k,v in pairs(self.conditions) do
-		val = k ~= "injure_" and math.clamp(v.condition(), 0, 1) or v.condition()
-		if k ~= "bleeding_" and k ~= "injure_" then
-			v.progress:SetProgressPos(val)
-		else
-			if k == "injure_" then
-				v.static:Show(val ~= "none")
-				if v.static:IsShown() then
-					local actual_icon = "ui_hud_trauma_"..val
-					if self.limbs_injure_icon ~= actual_icon then
-						v.static:InitTexture(actual_icon)
-						self.limbs_injure_icon = actual_icon
-					end
-					color = GetARGB(100, 238, 153, 26)
-					local pain_eff = body_health.get_pain_effect()
-					if pain_eff > 0 then
-						color = GetARGB(100, 255, 0, 0)
-					elseif pain_eff < 0 then
-						color = GetARGB(100, 0, 255, 0)
-					end
-					v.static:SetColor(color)					
-				end
-			else
-				v.static:Show(val>0)
-				if val>0 then
-					v.static:SetColor(GetARGB(255,val*255,(1-val)*255,0))
-				else
-					if self.conditions[k].percent:IsShown() then
-						self.conditions[k].percent:Show(false)
-					end
-				end
-			end
-		end
-		if k ~= "injure_" then
-			v.percent:SetText(string.format("%.0f%s", val*100, "%"))
-		end
-	end
-	
+	self:UpdateConditions()
 	self:UpdateEffectsInfo()
 	self:UpdateWeightText()
 	self:UpdateDateTimeText()

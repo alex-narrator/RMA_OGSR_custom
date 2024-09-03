@@ -1629,6 +1629,15 @@ function math.fsimilar(val1, val2, cmp)
 	return math.abs( val1 - val2 ) < cmp
 end
 
+function math.round(v, _exp)
+    if v then
+        if not _exp then
+            _exp = 0
+        end
+        return tonumber(string.format("%.".._exp.."f", v))
+    end
+end
+
 --//службове акторське
 
 function parent_is_actor(item)
@@ -2218,4 +2227,14 @@ end
 
 function is_god_mode()
 	return get_console():get_bool("g_god")
+end
+
+function is_rad_absolute()
+	return read_if_exists(sys_ini, "r_bool", "features", "absolute_radiation", false)
+end
+function get_rad_absolute_eqivalent()
+	return read_if_exists(sys_ini, "r_float", "features", "absolute_radiation_equivalent", 1)
+end
+function get_rad_absolute_name()
+	return game.translate_string(read_if_exists(sys_ini, "r_string", "features", "absolute_radiation_name", "absolute_radiation_name"))
 end

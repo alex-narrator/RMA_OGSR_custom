@@ -39,6 +39,8 @@ function on_state_switch(item, state, old_state)
 end
 
 function try_show_active_item_info(game_action)
+	if actor_menu:IsShown() then
+	return end
 	local act_item = actor:active_item()
 	local act_item_2 = actor:active_device()
 	
