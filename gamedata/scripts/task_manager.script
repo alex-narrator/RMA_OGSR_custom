@@ -7,90 +7,79 @@ function attach(sm)
 end
 
 local random_task = nil
-local cfg = ini_file_cached("misc\\task_manager.ltx")
+local LIST_SECT = "task_list"
 local TASK_UPD_INTERVAL = 3 * 1000
 
 local parent_by_story = {
-	[003] = "trader",
-	[500] = "barman",
-	[902] = "ecolog",
-	[507] = "dolg",
-	[707] = "freedom",
-	[006] = "wolf",
-	[088] = "shustriy",
-	[510] = "drunk_dolg",
-	[504] = "hunter",
-	[518] = "zastava_commander",
-	[506] = "petrenko",
-	[607] = "lisiy",
-	[515] = "mercenary"
+	[story_ids.Escape_Trader] 				= "trader",
+	[story_ids.bar_Barman] 					= "barman",
+	[story_ids.yan_general_ecolog] 			= "ecolog",
+	[story_ids.bar_dolg_general_voronin] 	= "dolg",
+	[story_ids.Mil_Lukash] 					= "freedom",
+	[story_ids.Escape_novice_lager_volk] 	= "wolf",
+	[story_ids.Escape_shustryi] 			= "shustriy",
+	[story_ids.bar_drunk_dolg] 				= "drunk_dolg",
+	[story_ids.bar_hunter] 					= "hunter",
+	[story_ids.bar_zastava_commander] 		= "zastava_commander",
+	[story_ids.bar_dolg_polkovnik_petrenko] = "petrenko",
+	[story_ids.bar_lisiy] 					= "lisiy",
+	[story_ids.bar_bar_osvedomitel] 		= "mercenary",
 }
 
-local story_by_parent = {
-	trader						= 003,
-	barman						= 500,
-	ecolog						= 902,
-	dolg						= 507,
-	freedom						= 707,
-	wolf						= 006,
-	shustriy					= 088,
-	drunk_dolg					= 510,
-	hunter						= 504,
-	zastava_commander			= 518,
-	petrenko					= 506,
-	lisiy						= 607,
-	mercenary					= 515
-}
+local story_by_parent = {}
+for sid, parent in pairs(parent_by_story) do
+	story_by_parent[parent] = sid
+end
 
 local return_task_by_type = {
 	eliminate_lager = "return_for_reward",
-	defend_lager = "return_for_reward",
-	kill_stalker = "return_for_reward",
-	artefact = "return_for_reward_bring",
-	monster_part = "return_for_reward_bring",
-	find_item = "return_for_reward_bring"}
+	defend_lager 	= "return_for_reward",
+	kill_stalker 	= "return_for_reward",
+	artefact 		= "return_for_reward_bring",
+	monster_part 	= "return_for_reward_bring",
+	find_item 		= "return_for_reward_bring",
+}
 	
 local mob_lagers = {
-	["esc_bridge_boar"] = true,
-	["esc2_dogs_lair"] = true,
-	["esc_flesh_2"] = true,
-	["gar_smart_monster_lair2"] = true,
-	["gar_nest_flesh"] = true,
-	["val_smart_bloodsucker_lair_2"] = true,
-	["val_snork_lair_1"] = true,
-	["bar_zastava_dogs_lair"] = true,
-	["ros_smart_monster1"] = true,
-	["ros_smart_monster2"] = true,
-	["ros_smart_monster5"] = true,
-	["yan_smart_controler1"] = true,
-	["yantar2_snork_small4"] = true,
-	["yan_tonnel_snorks"] = true,
-	["mil_hunters_bloodsucker"] = true,
-	["mil_lair2"] = true,
-	["mil_lair3"] = true,
-	["mil_village_lair"] = true,
+	["esc_bridge_boar"] 				= true,
+	["esc2_dogs_lair"] 					= true,
+	["esc_flesh_2"] 					= true,
+	["gar_smart_monster_lair2"] 		= true,
+	["gar_nest_flesh"] 					= true,
+	["val_smart_bloodsucker_lair_2"] 	= true,
+	["val_snork_lair_1"] 				= true,
+	["bar_zastava_dogs_lair"] 			= true,
+	["ros_smart_monster1"] 				= true,
+	["ros_smart_monster2"] 				= true,
+	["ros_smart_monster5"] 				= true,
+	["yan_smart_controler1"] 			= true,
+	["yantar2_snork_small4"] 			= true,
+	["yan_tonnel_snorks"] 				= true,
+	["mil_hunters_bloodsucker"] 		= true,
+	["mil_lair2"] 						= true,
+	["mil_lair3"] 						= true,
+	["mil_village_lair"] 				= true,
 }	
 
 local receiver_sid_by_alias = {
-	sidor_box 		= 2004,
-	barman_box 		= 2040,
-	sakharov_box 	= 2041,
-	voronin_box 	= 2020,
-	max_box 		= 2015,
+	["sidor_box"] 		= story_ids.esc_sidor_store_box,
+	["barman_box"] 		= story_ids.bar_barman_store_box,
+	["sakharov_box"] 	= story_ids.yan_sakharov_store_box,
+	["voronin_box"] 	= story_ids.bar_voronin_store_box,
+	["max_box"] 		= story_ids.mil_volya_max_box,
 }
 
 
 class "CRandomTask"
 function CRandomTask:__init()
 	--' На конструкторе вычитываем LTX и создаем заготовки квестов.
-	self.task_ini = cfg
 	self.task_phrase_id = 100
 
 	--' Итерируемся по всем настройкам фраз
-	if not self.task_ini:section_exist("list") then
-		abort("There is no section [list] in task_manager.ltx")
+	if not sys_ini:section_exist(LIST_SECT) then
+		abort("There is no section [%s] in task_manager.ltx", LIST_SECT)
 	end
-	local n = self.task_ini:line_count("list")
+	local n = sys_ini:line_count(LIST_SECT)
 	local id, value = "",""
 	local category = ""
 
@@ -98,74 +87,74 @@ function CRandomTask:__init()
 	self.task_info = {}
 	
 	for i=0,n-1 do
-		result, id, value	= self.task_ini:r_line("list",i,"","")
+		result, id, value	= sys_ini:r_line(LIST_SECT,i,"","")
 		
-		if not self.task_ini:section_exist(id) then
+		if not sys_ini:section_exist(id) then
 			abort("There is no section [%s] in task_manager.ltx", id)
 		end		
 
 		self.task_info[tostring(id)]			= {}
 		local curr_task_info					= self.task_info[tostring(id)]
 		
-		if not self.task_ini:line_exist(id, "type") then
+		if not sys_ini:line_exist(id, "type") then
 			abort("Task manager error: no type in section [%s]", id)
 		end
 
-		curr_task_info.type			= self.task_ini:r_string(id, "type")			
+		curr_task_info.type			= sys_ini:r_string(id, "type")			
 
 		curr_task_info.name			= id
-		if self.task_ini:line_exist(id, "parent") then
-			curr_task_info.parent		= self.task_ini:r_string(id, "parent")
+		if sys_ini:line_exist(id, "parent") then
+			curr_task_info.parent		= sys_ini:r_string(id, "parent")
 			curr_task_info.complex_type = curr_task_info.type .. "_" .. self.task_info[id].parent
 		else
 			curr_task_info.parent		= "nil"
 			curr_task_info.complex_type = curr_task_info.type
 		end
-		if self.task_ini:line_exist(id, "target") then
-			curr_task_info.target		= self.task_ini:r_string(id, "target")
+		if sys_ini:line_exist(id, "target") then
+			curr_task_info.target		= sys_ini:r_string(id, "target")
 		end
-		if self.task_ini:line_exist(id, "text") then
-			curr_task_info.text			= self.task_ini:r_string(id, "text")
+		if sys_ini:line_exist(id, "text") then
+			curr_task_info.text			= sys_ini:r_string(id, "text")
 		end
-		if self.task_ini:line_exist(id, "description") then
-			curr_task_info.description	= self.task_ini:r_string(id, "description")				
+		if sys_ini:line_exist(id, "description") then
+			curr_task_info.description	= sys_ini:r_string(id, "description")				
 		end
-		curr_task_info.time				= read_if_exists(self.task_ini, "r_u32", id, "time", nil)
+		curr_task_info.time				= read_if_exists(sys_ini, "r_u32", id, "time", nil)
 
-		curr_task_info.idle_time		= read_if_exists(self.task_ini, "r_u32", id, "idle_time", 24*60*60) --' Время между выдачами задания (в игровых секундах)
-		curr_task_info.prior			= read_if_exists(self.task_ini, "r_u32", id, "prior", 0) --' Приоритет квеста, выдаются доступные квесты с наименьшим приоритетом
+		curr_task_info.idle_time		= read_if_exists(sys_ini, "r_u32", id, "idle_time", 24*60*60) --' Время между выдачами задания (в игровых секундах)
+		curr_task_info.prior			= read_if_exists(sys_ini, "r_u32", id, "prior", 0) --' Приоритет квеста, выдаются доступные квесты с наименьшим приоритетом
 	
-		if self.task_ini:line_exist(id, "init_condition") then
-			curr_task_info.init_condition = xr_logic.parse_condlist(db.actor, "task_manager", "init_condition", self.task_ini:r_string(id, "init_condition"))
+		if sys_ini:line_exist(id, "init_condition") then
+			curr_task_info.init_condition = xr_logic.parse_condlist(db.actor, "task_manager", "init_condition", sys_ini:r_string(id, "init_condition"))
 		end
 
-		local sss = read_if_exists(self.task_ini, "r_string", id, "reward_item", nil)
-		if sss ~= nil then
+		local sss = read_if_exists(sys_ini, "r_string", id, "reward_item", nil)
+		if sss then
 			curr_task_info.reward_item = se_respawn.parse_names(sss)
-			curr_task_info.reward_item_receiver = read_if_exists(self.task_ini, "r_string", id, "reward_item_receiver", nil)
+			curr_task_info.reward_item_receiver = read_if_exists(sys_ini, "r_string", id, "reward_item_receiver", nil)
 		else
 			curr_task_info.reward_item = sss
 		end
-		curr_task_info.reward_money 		= read_if_exists(self.task_ini, "r_s32", id, "reward_money", nil)		
+		curr_task_info.reward_money 		= read_if_exists(sys_ini, "r_s32", id, "reward_money", nil)		
 	
-		curr_task_info.community 			= read_if_exists(self.task_ini, "r_string", id, "community", nil)
+		curr_task_info.community 			= read_if_exists(sys_ini, "r_string", id, "community", nil)
 
-		curr_task_info.reward_rank			= read_if_exists(self.task_ini, "r_u32", id, "reward_rank", nil)
-		curr_task_info.reward_reputation	= read_if_exists(self.task_ini, "r_s32", id, "reward_reputation", nil)
-		curr_task_info.reward_relation		= parse_key_value(read_if_exists(self.task_ini, "r_string", id, "reward_relation", nil))
-		curr_task_info.reward_info			= parse_key_value(read_if_exists(self.task_ini, "r_string", id, "reward_info", nil))
+		curr_task_info.reward_rank			= read_if_exists(sys_ini, "r_u32", id, "reward_rank", nil)
+		curr_task_info.reward_reputation	= read_if_exists(sys_ini, "r_s32", id, "reward_reputation", nil)
+		curr_task_info.reward_relation		= parse_key_value(read_if_exists(sys_ini, "r_string", id, "reward_relation", nil))
+		curr_task_info.reward_info			= parse_key_value(read_if_exists(sys_ini, "r_string", id, "reward_info", nil))
 		
-		curr_task_info.penalty_reputation	= read_if_exists(self.task_ini, "r_s32", id, "penalty_reputation", nil)
-		curr_task_info.penalty_relation		= parse_key_value(read_if_exists(self.task_ini, "r_string", id, "penalty_relation", nil))
+		curr_task_info.penalty_reputation	= read_if_exists(sys_ini, "r_s32", id, "penalty_reputation", nil)
+		curr_task_info.penalty_relation		= parse_key_value(read_if_exists(sys_ini, "r_string", id, "penalty_relation", nil))
 		
-		if self.task_ini:line_exist(id, "condlist") then
-			curr_task_info.condlist			= xr_logic.parse_condlist(db.actor, "task_manager", "condlist", self.task_ini:r_string(id, "condlist"))
+		if sys_ini:line_exist(id, "condlist") then
+			curr_task_info.condlist			= xr_logic.parse_condlist(db.actor, "task_manager", "condlist", sys_ini:r_string(id, "condlist"))
 		else
 			curr_task_info.condlist			= xr_logic.parse_condlist(db.actor, "task_manager", "condlist", "true")
 		end		
 	
-		curr_task_info.need_return			= read_if_exists(self.task_ini, "r_bool", id, "need_return", true)
-		curr_task_info.remote_reward		= read_if_exists(self.task_ini, "r_bool", id, "remote_reward", false)
+		curr_task_info.need_return			= read_if_exists(sys_ini, "r_bool", id, "need_return", true)
+		curr_task_info.remote_reward		= read_if_exists(sys_ini, "r_bool", id, "remote_reward", false)
 
 		curr_task_info.init_phrase_id		= self:gen_phrase_id()
 		curr_task_info.desc_phrase_id		= self:gen_phrase_id()
