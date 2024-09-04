@@ -198,12 +198,13 @@ function UICellItem:GetChilds()
 end
 
 function UICellItem:GetAnyItem()
-	local item = self:GetItem()
 	for k,v in pairs(self:GetChilds()) do
-		item = level.object_by_id(k)
-		break
+		local item = level.object_by_id(k)
+		if item then
+			return item
+		end
 	end
-	return item
+	return self:GetItem()
 end
 
 function UICellItem:IsChild(item)

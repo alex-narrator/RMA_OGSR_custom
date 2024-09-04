@@ -61,7 +61,13 @@ function similar_item(item1, item2)
 	
 	local function same_effect(item1, item2)
 		for i=0,10 do
-			if not fsim(iitem1:item_effect(i), iitem2:item_effect(i), cmp) then
+			local eff1 = iitem1:item_effect(i)
+			local eff2 = iitem2:item_effect(i)
+			if i == 4 and is_rad_absolute() then
+				eff1 = eff1*get_rad_absolute_eqivalent()*3600
+				eff2 = eff2*get_rad_absolute_eqivalent()*3600
+			end
+			if not fsim(eff1, eff2, cmp) then
 				return false 
 			end
 		end

@@ -111,9 +111,13 @@ function ActorMenuOverlay:Subscribe()
 			{signal = "on_belt", self = self, fun = self.OnBelt},
 			{signal = "on_use", self = self, fun = self.OnUse},
 			{signal = "on_place_item_to_box", self = self, fun = self.OnItemToPartner},
+			
 			{signal = "on_ruck_npc", self = self, fun = self.OnItemToPartner},
 			{signal = "on_slot_npc", self = self, fun = self.OnItemToPartner},
 			{signal = "on_ruck_trader", self = self, fun = self.OnItemToPartner},
+			
+			{signal = "on_drop_npc", self = self, fun = self.OnItemFromPartner},
+			{signal = "on_take_from_box", self = self, fun = self.OnItemFromPartner},			
 			
 			{signal = "on_loadout_update_count", self = self, fun = self.OnMoveLoadout},
 			
@@ -901,6 +905,13 @@ local account_slots = {
 	[HELMET_SLOT] = true,
 	[BACKPACK_SLOT] = true,
 }
+local plus_are_bad = {
+	["radiation_restore_speed"] = true,
+	["alcohol_restore_speed"] = true,
+	["boost_somnolence"] = true,
+	["boost_pain"] = true,
+	["power_loss"] = true,
+}
 function ActorMenuOverlay:UpdateEffectsInfo()
 	self.effects_info:Show(self:GetMode() == "inventory")
 	if not self.effects_info:IsShown() then
@@ -972,41 +983,42 @@ function ActorMenuOverlay:UpdateEffectsInfo()
 			end
 		
 		end
-				
+
+		if t.param == "radiation_restore_speed" and is_rad_absolute() then
+			sn = string.format(" %s", game.translate_string("st_rad"))
+			sn_boost = string.format(" %s", game.translate_string("st_rad"))
+			val = val*get_rad_absolute_eqivalent()*3600
+			val_boost = val_boost*get_rad_absolute_eqivalent()*3600
+		else
+			val = val * 100
+			val_boost = val_boost * 100
+			sn = game.translate_string("st_percent")
+			sn_boost = game.translate_string("st_percent")
+		end		
+		
 		if not math.fsimilar(val, 0) or not math.fsimilar(val_boost, 0) then
-		
-			if t.param == "radiation_restore_speed" and is_rad_absolute() then
-				sn = string.format(" %s", game.translate_string("st_rad"))
-				sn_boost = string.format(" %s", game.translate_string("st_rad"))
-				if not math.fsimilar(val, 0) then
-					val = val*get_rad_absolute_eqivalent()*3600
-				end
-				if not math.fsimilar(val_boost, 0) then
-					val_boost = val_boost*get_rad_absolute_eqivalent()*3600
-				end				
-			else
-				val = val * 100
-				val_boost = val_boost * 100
-				sn = game.translate_string("st_percent")
-				sn_boost = game.translate_string("st_percent")
-			end
-		
+				
 			local color = val > 0 and "%c[green]" or "%c[red]"
 			local color_boost = val_boost > 0 and "%c[green]" or "%c[red]"
 		
-			if t.param == "radiation_restore_speed" or t.param == "alcohol_restore_speed" or t.param == "boost_somnolence" or t.param == "boost_pain" or t.param == "power_loss" then
+			if plus_are_bad[t.param] then
 				color = val > 0 and "%c[red]" or "%c[green]"
 				color_boost = val_boost > 0 and "%c[red]" or "%c[green]"
 			end
 		
 			local name = game.translate_string(t.name)
-		
+			
+			local fmt
+			
 			if val ~= 0 and val_boost ~= 0 then
-				text = string.format("%s %s%+.f%s %s%+.f%s [%.f %s]", name, color, val, sn, color_boost, val_boost, sn_boost, boost_time, sn_time)
+				fmt = "%s %s%+.1f%s %s%+.1f%s [%.f %s]"
+				text = string.format(fmt, name, color, val, sn, color_boost, val_boost, sn_boost, boost_time, sn_time)
 			elseif val ~= 0 then
-				text = string.format("%s %s%+.f%s", name, color, val, sn)
+				fmt = "%s %s%+.1f%s"
+				text = string.format(fmt, name, color, val, sn)
 			elseif val_boost ~= 0 then
-				text = string.format("%s %s%+.f%s [%.f %s]", name, color_boost, val_boost, sn_boost, boost_time, sn_time)
+				fmt = "%s %s%+.1f%s [%.f %s]"
+				text = string.format(fmt, name, color_boost, val_boost, sn_boost, boost_time, sn_time)
 			end
 		
 			t.static:SetText(text)
@@ -1566,6 +1578,19 @@ function ActorMenuOverlay:OnItemToPartner(partner, item)
 	return end
 	self.target_list:AddItem(item)
 	self:PlayActionSound("to_ruck")
+end
+
+function ActorMenuOverlay:OnItemFromPartner(partner, item)
+	if not self.target then
+	return end
+	if partner:id() ~= self.target:id() then
+	return end
+	if not self.target_list:IsShown() then
+	return end
+	if self:GetMode() == "trade" and not trade_manager.tradable(item) then
+	return end
+	self.target_list:RemoveItem(item)
+	self:PlayActionSound("drop")
 end
 
 function ActorMenuOverlay:OnMaxBeltSet(max_belt)

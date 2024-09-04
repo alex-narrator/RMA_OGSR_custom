@@ -804,14 +804,16 @@ function MainIngameOverlay:UpdateMinimap()
 	
 	if not pda_workable then
 	end
-	self.dist_text:Show(pda_workable)
+	local dist = self.minimap:GetActivePointDist()
+	local dist_show = dist >= 0.5
+	
+	self.dist_text:Show(pda_workable and dist_show)
 	self.time_text:Show(pda_workable)
 	
 	local h = device().cam_dir:getH()
 	self.compass_arrow:SetHeading(-h)
-	local dist = self.minimap:GetActivePointDist()
 	local text = ""
-	if dist >= 0.5 then
+	if dist_show then
 		text = string.format("%.f %s", dist, game.translate_string("st_m"))
 	end
 	self.dist_text:SetText(text)

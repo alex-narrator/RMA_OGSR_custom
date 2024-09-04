@@ -6,7 +6,7 @@ function attach(sm)
 	sm:subscribe({signal = "on_slot",   				fun = this.on_slot})
 	sm:subscribe({signal = "on_belt",   				fun = this.on_belt})
 	sm:subscribe({signal = "on_grenade_type_switch",   	fun = this.on_grenade_type_switch})
-	sm:subscribe({signal = "on_cell_item_db_click",   	fun = this.try_set_item})
+	sm:subscribe({signal = "on_cell_item_db_click",   	fun = this.on_db_click})
 	sm:subscribe({signal = "on_save",   				fun = this.on_save})
 	sm:subscribe({signal = "on_load",   				fun = this.on_load})
 end
@@ -297,4 +297,10 @@ function try_set_item(obj)
 	elseif can_remove(obj) then
 		remove(obj)
 	end
+end
+
+function on_db_click(obj)
+	if actor_menu:GetMode() ~= "inventory" then
+	return end
+	try_set_item(obj)
 end

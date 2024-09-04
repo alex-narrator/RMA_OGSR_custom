@@ -95,6 +95,7 @@ function motivator_binder:net_spawn(sobject)
 	
 	self.object:set_callback(callback.on_ruck, motivator_binder.on_ruck, self)
 	self.object:set_callback(callback.on_slot, motivator_binder.on_slot, self)
+	self.object:set_callback(callback.on_item_drop, motivator_binder.on_item_drop, self)
 	--memusage.collect_info(self.object, "after__callback")
 
 	--self.object:set_callback(callback.sound, motivator_binder.hear_callback, self)
@@ -155,6 +156,7 @@ function motivator_binder:clear_callbacks(on_destroy)
 	return end
 	self.object:set_callback(callback.on_ruck, nil)
 	self.object:set_callback(callback.on_slot, nil)
+	self.object:set_callback(callback.on_item_drop, nil)
 end
 
 function motivator_binder:hit_callback(obj, amount, local_direction, who, bone_index, hit_type)
@@ -237,6 +239,10 @@ end
 
 function motivator_binder:on_slot(item, prev_place)
 	self.sm:call("on_slot_npc", self.object, item, prev_place)	
+end
+
+function motivator_binder:on_item_drop(item, prev_place)
+	self.sm:call("on_drop_npc", self.object, item, prev_place)	
 end
 
 function motivator_binder:update(delta)

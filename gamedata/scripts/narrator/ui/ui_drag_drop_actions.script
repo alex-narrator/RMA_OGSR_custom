@@ -7,6 +7,17 @@ function on_drag_drop(obj, drop_on_obj)
 	if obj:id() == drop_on_obj:id() then
 	return end
 	
+	local function update_cell_items()
+		local ci = actor_menu:GetCellItem(obj)
+		if ci then
+			ci:ForceUpdate()
+		end
+		local drop_on_ci = actor_menu:GetCellItem(drop_on_obj)
+		if drop_on_ci then
+			drop_on_ci:ForceUpdate()
+		end	
+	end
+	
 	--//драгдроп на предмет в слоті актора
 	if parent_is_actor(obj) and actor:is_in_slot(drop_on_obj) then
 		local slots = read_if_exists(sys_ini, "r_string", obj:section(), "slot", nil)
@@ -55,12 +66,5 @@ function on_drag_drop(obj, drop_on_obj)
 		end
 	end
 	
-	local ci = actor_menu:GetCellItem(obj)
-	if ci then
-		ci:ForceUpdate()
-	end
-	local drop_on_ci = actor_menu:GetCellItem(drop_on_obj)
-	if drop_on_ci then
-		drop_on_ci:ForceUpdate()
-	end	
+	update_cell_items()
 end
