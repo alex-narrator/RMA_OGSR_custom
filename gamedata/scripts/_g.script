@@ -1241,6 +1241,10 @@ local car_clsids = {}
 local zone_clsids = {}
 
 function init_clsid_tables()
+	trader_clsids = {
+		[clsid.trader] 				= true,
+	}
+	--
 	monster_clsids = {
 		[clsid.boar_s] 				= true,
 		[clsid.bloodsucker_s] 		= true,
@@ -1289,7 +1293,12 @@ function init_clsid_tables()
 	}
 end
 
-
+-------------------------------------------------------------------------------------------
+function IsTrader (object, class_id)
+    local id = class_id or get_clsid (object)
+	return trader_clsids[id]
+end
+-------------------------------------------------------------------------------------------
 function IsMonster (object, class_id)
     local id = class_id or get_clsid (object)
 	return monster_clsids[id]

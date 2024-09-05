@@ -9,8 +9,6 @@ function se_item:__init (section) super (section)
 end
 function se_item:on_register()
 	cse_alife_item.on_register( self )
-	-- Регистрация в таскменеджере
-	task_manager.get_random_task():register_target(self)
 
 	-- Собираем статистику по предметам.
 	if registred_items[self:section_name()] == nil then
@@ -20,8 +18,6 @@ function se_item:on_register()
 	end	
 end
 function se_item:on_unregister()
-	--' Отрегистрация в таскменеджере
-	task_manager.get_random_task():unregister_target(self)
 end
 function se_item:STATE_Write (packet)
 	cse_alife_item.STATE_Write (self, packet)

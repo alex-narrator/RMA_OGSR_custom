@@ -2,8 +2,9 @@
 function attach(sm)
 	sm:subscribe({signal = "on_save",   fun = this.save})
 	sm:subscribe({signal = "on_load",   fun = this.load})
-	sm:subscribe({signal = "on_update",   fun = this.actor_update})
+	sm:subscribe({signal = "on_update", fun = this.actor_update})
 	sm:subscribe({signal = "on_task",   fun = this.on_task})
+	sm:subscribe({signal = "on_first_update",   fun = this.on_first_update})
 end
 
 local random_task = nil
@@ -76,9 +77,7 @@ function CRandomTask:__init()
 	self.task_phrase_id = 100
 
 	--' Итерируемся по всем настройкам фраз
-	if not sys_ini:section_exist(LIST_SECT) then
-		abort("There is no section [%s] in task_manager.ltx", LIST_SECT)
-	end
+	ASSERT(sys_ini:section_exist(LIST_SECT), "There is no section [%s] in task_manager.ltx", LIST_SECT)
 	local n = sys_ini:line_count(LIST_SECT)
 	local id, value = "",""
 	local category = ""
@@ -89,18 +88,13 @@ function CRandomTask:__init()
 	for i=0,n-1 do
 		result, id, value	= sys_ini:r_line(LIST_SECT,i,"","")
 		
-		if not sys_ini:section_exist(id) then
-			abort("There is no section [%s] in task_manager.ltx", id)
-		end		
+		ASSERT(sys_ini:section_exist(id), "There is no task section [%s] in task_manager.ltx", id)
 
 		self.task_info[tostring(id)]			= {}
 		local curr_task_info					= self.task_info[tostring(id)]
 		
-		if not sys_ini:line_exist(id, "type") then
-			abort("Task manager error: no type in section [%s]", id)
-		end
-
-		curr_task_info.type			= sys_ini:r_string(id, "type")			
+		curr_task_info.type			= read_if_exists(sys_ini, "r_string", id, "type", nil)
+		ASSERT(curr_task_info.type, "There is no type in task section [%s] in task_manager.ltx", id)
 
 		curr_task_info.name			= id
 		if sys_ini:line_exist(id, "parent") then
@@ -275,9 +269,7 @@ end
 --' Возвращает идентификатор вендора, с которым мы говорим
 function CRandomTask:get_parent(npc)
 	local story_id = npc:story_id()
-	if parent_by_story[story_id] == nil then
-		abort("Task manager error: wrong parent story_id[%s]", story_id)
-	end
+	ASSERT(parent_by_story[story_id], "Task manager error: wrong parent story_id[%s]", story_id)
 	return parent_by_story[story_id]
 end
 --' Может ли вендор выдать квест
@@ -422,20 +414,14 @@ function CRandomTask:task_complete(p1, p2)
 	end
 
 	local sel_task = self.task_info[self.active_task_by_type[p1]]
-	if sel_task == nil then
-		printf("!!!")
-		print_table(self.active_task_by_type)
-		printf("!!!")
-		print_table(self.task_info)
-		abort("WRONG RANDOM TASK %s %s", tostring(p1), tostring(p2))
-	end
+	ASSERT(sel_task, "WRONG RANDOM TASK %s %s", p1, p2)
 
 	if p2 == 0 then
 		if not sel_task.need_return and sel_task.status == "completed" then
 			self.task_info[self.active_task_by_type[p1]].last_task_time = game.get_game_time()
 			--log3("~task completed: task %s has last_task_time %s", self.task_info[self.active_task_by_type[p1]].name, self.task_info[self.active_task_by_type[p1]].last_task_time)
 			if sel_task.remote_reward then
-				----log3("~remote rewarded task %s completed, vendor %s", sel_task.name, alife():story_object(story_by_parent[sel_task.parent]):name())
+				--log3("~remote rewarded task %s completed, vendor %s", sel_task.name, alife():story_object(story_by_parent[sel_task.parent]):name())
 				self:task_reward_remote(sel_task)
 			end
 			return true
@@ -464,15 +450,9 @@ function CRandomTask:task_complete(p1, p2)
 			local oo = alife():object(sel_task.selected_target)
 
 			--' Проверка бага
-			if oo == nil then
-				printf("selected_target = %s", tostring(sel_task.selected_target))
-				abort("OBJ = nil for task %s", tostring(self.active_task_by_type[p1]))
-			elseif oo.alive == nil then	
-				printf("OBJ.ALIVE = nil for task %s", tostring(self.active_task_by_type[p1]))
-				abort("OBJ.NAME = %s", oo:name())				
-			end		
+			ASSERT(oo, "selected target %s for task %s is not exist", sel_task.selected_target, self.active_task_by_type[p1])
 
-			if oo and oo:alive() == false then
+			if oo and not oo:alive() then
 				self.task_info[self.active_task_by_type[p1]].status = "completed"
 				return true
 			end
@@ -501,17 +481,12 @@ function CRandomTask:task_fail(p1, p2)
 	if p2 == 0 then
 		local sel_task = self.task_info[self.active_task_by_type[p1]]
 		
-		if sel_task == nil then
-			printf("!!!")
-			print_table(self.active_task_by_type)
-			printf("!!!")
-			print_table(self.task_info)
-			abort("WRONG RANDOM TASK %s %s", tostring(p1), tostring(p2))
-		end
+		ASSERT(sel_task, "WRONG RANDOM TASK %s %s", p1, p2)
 
 		--' Проверяем что жив, выдавший квест.
 		local parent = alife():story_object(story_by_parent[sel_task.parent])
-		if parent == nil or (parent.alive ~= nil and not parent:alive()) then
+		local parent_alive = parent and (parent:get_trader() or parent:alive())
+		if not parent_alive then
 			self.task_info[self.active_task_by_type[p1]].status = "failed"
 			self.task_info[self.active_task_by_type[p1]].last_task_time = game.get_game_time()
 			--log3("~task failed by vendor death: task %s has last_task_time %s", self.task_info[self.active_task_by_type[p1]].name, self.task_info[self.active_task_by_type[p1]].last_task_time)
@@ -557,9 +532,9 @@ function CRandomTask:task_callback(p1, p2, state)
 	elseif state == task.fail then
 		local task_data = self.task_info[self.active_task_by_type[p1]]
 		
-		--' Проверяем что жив, выдавший квест.
-		local parent = alife():story_object(story_by_parent[task_data.parent])	
-		local parent_alive = parent and (parent.alive or parent:alive())
+		--' Проверяем что жив, выдавший квест (хтонічний Сидорович-trader живий завжди).
+		local parent = alife():story_object(story_by_parent[task_data.parent])
+		local parent_alive = parent and (parent:get_trader() or parent:alive())
 		if task_data.status ~= "refused" and parent_alive then
 			self:task_penalty(task_data)
 		end
@@ -685,58 +660,42 @@ function CRandomTask:check_task_props(task_id)
 		self.task_info[task_id].enabled_props = false
 		return
 	elseif self.task_info[task_id].type == "kill_stalker" then
-		if self.task_info[task_id].target_objects == nil then
-			self.task_info[task_id].enabled_props = false
-			return
-		end
-		for k,v in pairs(self.task_info[task_id].target_objects) do
-			local obj = alife():object(v)
-		
-			--' Проверка бага
-			if obj ~= nil and obj.alive == nil then	
-				log3("!OBJ.ALIVE = nil for task %s", task_id)
-				log3("!target objects %s", self.task_info[task_id].target_objects)
-				log3("!OBJ.NAME = %s | obj id %s", obj:name(), v)
-				abort("OBJ.NAME = %s", obj:name())
-			end			
-
-			if obj ~= nil and
-			   obj:alive() == true 
-			then
-				self.task_info[task_id].enabled_props = true
-				return
-			else
-				table.remove(self.task_info[task_id].target_objects, k)
-			end
-		end
-		self.task_info[task_id].enabled_props = false
-		return
+        for id, sobj in alife():objects() do -- KRodin: лучше немного тормозов тут, чем регистрация 100500 объектов из se_* при каждой загрузке сейва
+            if sobj:clsid() == clsid.script_stalker and sobj:alive() and sobj:profile_name() == self.task_info[task_id].target then
+                if not self.task_info[task_id].target_objects then
+                    self.task_info[task_id].target_objects = {}
+                end
+                table.insert(self.task_info[task_id].target_objects, id)
+                self.task_info[task_id].enabled_props = true
+                return
+            end
+        end
+        self.task_info[task_id].enabled_props = false
 	elseif self.task_info[task_id].type == "find_item" then
-		if self.task_info[task_id].target_objects == nil or table.getn(self.task_info[task_id].target_objects) == 0 then
-			self.task_info[task_id].enabled_props = false
-			return
-		end
-		for k,v in pairs(self.task_info[task_id].target_objects) do
-			local obj = alife():object(v)
-			if obj ~= nil then
-				--' Нужно игнорировать предметы, которые находяться у вендоров.
-				if obj.parent_id ~= nil then
-					for kk,vv in pairs(parent_by_story) do
-						local parent = alife():story_object(kk)
-						if parent ~= nil and obj.parent_id == parent.id then
-							--' Игнорим предмет
-							self.task_info[task_id].enabled_props = false
-							return							
-						end
-					end
-				end
-
-				self.task_info[task_id].enabled_props = true
-				return
-			end	
-			self.task_info[task_id].enabled_props = false
-			return
-		end
+        for id, sobj in alife():objects() do -- KRodin: лучше немного тормозов тут, чем регистрация 100500 объектов из se_* при каждой загрузке сейва
+            if sobj:section_name() == self.task_info[task_id].target then
+                -- Нужно игнорировать предметы, которые находяться у вендоров.
+                local ignore = false
+                if sobj.parent_id then
+                    for kk, vv in pairs(parent_by_story) do
+                        local parent = alife():story_object(kk)
+                        if parent and sobj.parent_id == parent.id then
+                            ignore = true
+                        end
+                    end
+                end
+                --
+                if not ignore then
+                    if not self.task_info[task_id].target_objects then
+                        self.task_info[task_id].target_objects = {}
+                    end
+                    table.insert(self.task_info[task_id].target_objects, id)
+                    self.task_info[task_id].enabled_props = true
+                    return
+                end
+            end
+        end
+        self.task_info[task_id].enabled_props = false
 	else
 		self.task_info[task_id].enabled_props = true
 		return		
@@ -800,14 +759,14 @@ end
 
 function CRandomTask:ShowRewardText(actor, npc, p1, p2)
 	local task_info = self.task_info[self.task_id_by_desc_phrase_id[p2]]
-	----log3("~vendor %s, task %s, target %s", alife():story_object(story_by_parent[task_info.parent]):name(), task_info.name, task_info.selected_target)
+	--log3("~vendor %s, task %s, target %s", alife():story_object(story_by_parent[task_info.parent]):name(), task_info.name, task_info.selected_target)
 	--' Выбираем текущую цель квеста
 	if task_info.target_objects and not self:target_valid(task_info.selected_target) then
 		while not self:target_valid(task_info.selected_target) do
 			task_info.selected_target = task_info.target_objects[math.random(table.getn(task_info.target_objects))]
 			--log3("~reselect target - vendor %s, task %s, target %s", alife():story_object(story_by_parent[task_info.parent]):name(), task_info.name, task_info.selected_target)
 		end
-		----log3("~vendor %s, task %s, target %s", alife():story_object(story_by_parent[task_info.parent]):name(), task_info.name, task_info.selected_target)
+		--log3("~vendor %s, task %s, target %s", alife():story_object(story_by_parent[task_info.parent]):name(), task_info.name, task_info.selected_target)
 	end	
 	local icon_type = (task_info.type == "eliminate_lager") and (mob_lagers[task_info.target] and "eliminate_layer" or "eliminate_lager") or task_info.type
 	local task_texture, task_rect = get_texture_info("ui_icons_task_"..icon_type, "ui_iconsTotal_locations")
@@ -1028,9 +987,9 @@ function CRandomTask:task_reward(npc, actor, p1, p2)
 end
 --//видача винагороди за "віддалені" квести
 function CRandomTask:task_reward_remote(task_desc)
-	----log3("~task_reward_remote remote rewarded task %s completed, vendor %s", task_desc.name, alife():story_object(story_by_parent[task_desc.parent]):name())
+	--log3("~task_reward_remote remote rewarded task %s completed, vendor %s", task_desc.name, alife():story_object(story_by_parent[task_desc.parent]):name())
 	if task_desc.reward_money ~= nil then
-		----log3("~reward money %s", task_desc.reward_money)
+		--log3("~reward money %s", task_desc.reward_money)
 		--dialogs.relocate_money(npc, task_desc.reward_money, "in")
 		actor:give_money(task_desc.reward_money)
 		game_stats.money_quest_update(task_desc.reward_money)
@@ -1040,7 +999,7 @@ function CRandomTask:task_reward_remote(task_desc)
 	if task_desc.reward_item ~= nil then
 		local receiver = task_desc.reward_item_receiver and alife():story_object(receiver_sid_by_alias[task_desc.reward_item_receiver]) or alife():actor()
 		for k,v in pairs(task_desc.reward_item) do
-			----log3("~reward item %s", v)
+			--log3("~reward item %s", v)
 			spawn_to_owner(v, receiver.id)
 			--news_manager.relocate_item(actor, "in", v)
 		end
@@ -1050,21 +1009,21 @@ function CRandomTask:task_reward_remote(task_desc)
 	end
 
 	if task_desc.reward_reputation ~= nil then
-		----log3("~reward reputation %s", task_desc.reward_reputation)
+		--log3("~reward reputation %s", task_desc.reward_reputation)
 		actor:change_character_reputation(task_desc.reward_reputation)
 	end
 
 	if task_desc.reward_relation ~= nil then
 		for k,v in pairs(task_desc.reward_relation) do
-			----log3("~reward relation of %s amount %s", k, v)
+			--log3("~reward relation of %s amount %s", k, v)
 			relation_registry.change_community_goodwill(k, actor:id(), tonumber(v))
 		end
 	end
 
 	if task_desc.reward_rank ~= nil then
-		----log3("~reward rank %s", task_desc.reward_rank)
-		actor_stats.add_points("quests", task_desc.name, 1, 1)--task_desc.reward_rank)
-		actor:change_character_rank(task_desc.reward_rank)--set_character_rank(db.actor:character_rank() + task_desc.reward_rank)
+		--log3("~reward rank %s", task_desc.reward_rank)
+		actor_stats.add_points("quests", task_desc.name, 1, 1)
+		actor:change_character_rank(task_desc.reward_rank)
 	end
 	
 	local icon_type = (task_desc.type == "eliminate_lager") and (mob_lagers[task_desc.target] and "eliminate_layer" or "eliminate_lager") or task_desc.type
@@ -1079,7 +1038,7 @@ function CRandomTask:task_reward_storyline(task)
 	end
 
 	if task_desc.reward_reputation ~= nil then
-		db.actor:change_character_reputation(task_desc.reward_reputation)
+		actor:change_character_reputation(task_desc.reward_reputation)
 	end
 
 	if task_desc.reward_relation ~= nil then
@@ -1089,8 +1048,8 @@ function CRandomTask:task_reward_storyline(task)
 	end
 
 	if task_desc.reward_rank ~= nil then
-		actor_stats.add_points("quests", task_desc.name, 1, 1)--task_desc.reward_rank)
-		db.actor:change_character_rank(task_desc.reward_rank)--set_character_rank(db.actor:character_rank() + task_desc.reward_rank)
+		actor_stats.add_points("quests", task_desc.name, 1, 1)
+		actor:change_character_rank(task_desc.reward_rank)
 	end
 end
 --' Создается диалог актера, в котором будут приниматься задания
@@ -1129,9 +1088,7 @@ function CRandomTask:register_target(obj)
 	if IsStalker(obj) then
 		--' Возможно регистрируется цель для квеста "убить сталкера"
 		for k,v in pairs(self.task_id_by_type["kill_stalker"]) do	
-			if obj.alive ~= nil and obj:alive() == true and
-				obj:profile_name() == self.task_info[v].target 
-			then
+			if obj:alive() and obj:profile_name() == self.task_info[v].target then
 				if self.task_info[v].target_objects == nil then
 					self.task_info[v].target_objects = {}
 				end
@@ -1216,6 +1173,31 @@ function CRandomTask:stats(obj)
 		end
 	end
 end
+
+function CRandomTask:on_first_update()
+    for _, _type in ipairs({"eliminate_lager", "defend_lager"}) do
+        for k, v in pairs(self.task_id_by_type[_type]) do
+            local name = self.task_info[v].target
+            local sobj = name and alife():object(name)
+            if sobj and sobj:clsid() == clsid.smart_terrain then
+                if _type == "defend_lager" then
+                    local sm_ini = sobj:spawn_ini()
+                    self.task_info[v].defend_target = read_if_exists(sm_ini, "r_u32", "random_task", "defend_target", nil)
+                    if not self.task_info[v].defend_target then
+						log3("~to continue")
+                        goto CONTINUE
+                    end
+                end
+                if not self.task_info[v].target_objects then
+                    self.task_info[v].target_objects = {}
+                end
+                table.insert(self.task_info[v].target_objects, sobj.id)
+                ::CONTINUE::
+            end
+        end
+    end
+end
+
 function get_random_task()
 	if random_task == nil then
 		random_task = CRandomTask()
@@ -1390,4 +1372,8 @@ function on_task(_task, _objective, _state)
 	if _objective:get_idx() == 0 and _state == task.completed then
 		reward_by_task(_task)
 	end
+end
+
+function on_first_update()
+	get_random_task():on_first_update()
 end
