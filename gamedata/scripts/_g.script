@@ -957,32 +957,9 @@ function get_clsid(npc)
 --    end
 end
 
--- проверяет оружие ли это (передавать game_object)
+--//ёєф ўш яю ь│ёЎ ь фх Ўшь ъюЁшёЄє■Є№ё  ЄєЄ ьр║Єё№  эр єтрч│ ъы│║эЄё№ъшщ юс'║ъЄ
 function isWeapon(object)
-    local id = get_clsid(object)
-    if id == nil then return false end
-
-    if id == clsid.wpn_vintorez_s then return true
-    elseif id == clsid.wpn_ak74_s then return true
-    elseif id == clsid.wpn_lr300_s then return true
-    elseif id == clsid.wpn_hpsa_s then return true
-    elseif id == clsid.wpn_pm_s then return true
-    elseif id == clsid.wpn_shotgun_s then return true
-    elseif id == clsid.wpn_bm16_s then return true
-    elseif id == clsid.wpn_svd_s then return true
-    elseif id == clsid.wpn_svu_s then return true
-    elseif id == clsid.wpn_rpg7_s then return true
-    elseif id == clsid.wpn_val_s then return true
-    elseif id == clsid.wpn_walther_s then return true
-    elseif id == clsid.wpn_usp45_s then return true
-    elseif id == clsid.wpn_groza_s then return true
-    elseif id == clsid.wpn_knife_s then return true
-    elseif id == clsid.wpn_grenade_launcher then return true
-    elseif id == clsid.wpn_grenade_f1 then return true
-    elseif id == clsid.wpn_grenade_rpg7 then return true
-    elseif id == clsid.wpn_grenade_rgd5 then return true
-    elseif id == clsid.wpn_grenade_fake then return true
-    else return false end
+	return object and ((object:is_weapon() and get_clsid(object) ~= clsid.wpn_binocular_s) or object:is_grenade())
 end
 
 --Tvўшёы хЄ yaw т Ёрфшрэрї
@@ -1127,29 +1104,6 @@ function object_type(obj)
 end
 
 
-// ▀ты хЄё  ыш юbj ьюэёЄЁюь
-function is_object_monster(obj)
-	local otype = get_clsid(obj)
-	if(otype == clsid.crow			or
-		otype == clsid.cat			or
-		otype == clsid.zombie		or
-		otype == clsid.flesh		or
-		otype == clsid.controller	or
-		otype == clsid.bloodsucker	or
-		otype == clsid.burer		or
-		otype == clsid.chimera		or
-		otype == clsid.boar			or
-		otype == clsid.dog_red		or
-		otype == clsid.dog_black	or
-		otype == clsid.poltergeist	or
-		otype == clsid.pseudo_gigant  )
-	then
-		return true
-	end
-
-	return false
-end
-
 --возвращает произвольную точку пути у которой установлен бит
 function point_with_bit(patrol_path, bit, old_point)      -- old_point - индекс точки, которую не надо выбирать,
   local points = {}                                       -- параметр не обязательный( например текущей точки )
@@ -1280,70 +1234,85 @@ function get_actor_id()
 	return level.actor():id()
 end
 -------------------------------------------------------------------------------------------
+local monster_clsids = {}
+local stalker_clsids = {}
+local heli_clsids = {}
+local car_clsids = {}
+local zone_clsids = {}
+
+function init_clsid_tables()
+	monster_clsids = {
+		[clsid.boar_s] 				= true,
+		[clsid.bloodsucker_s] 		= true,
+		[clsid.dog_s] 				= true,
+		[clsid.flesh_s] 			= true,
+		[clsid.pseudodog_s] 		= true,	
+		[clsid.psy_dog_s] 			= true,
+		[clsid.burer_s] 			= true,
+		[clsid.cat_s] 				= true,
+		[clsid.chimera_s] 			= true,
+		[clsid.controller_s] 		= true,
+		[clsid.fracture_s] 			= true,
+		[clsid.poltergeist_s] 		= true,
+		[clsid.gigant_s] 			= true,
+		[clsid.zombie_s] 			= true,
+		[clsid.tushkano_s] 			= true,
+		[clsid.snork_s] 			= true,
+	}
+	--
+	stalker_clsids = {
+		[clsid.actor] 				= true,
+		[clsid.script_stalker] 		= true,
+	}
+	--
+	zone_clsids = {
+		[clsid.ameba_zone] 			= true,
+		[clsid.zone_mosquito_bald] 	= true,
+		[clsid.zone_radioactive] 	= true,
+		[clsid.nogravity_zone] 		= true,
+		[clsid.zone_rusty_hair] 	= true,
+		[clsid.torrid_zone] 		= true,
+		[clsid.zone_bfuzz_s] 		= true,
+		[clsid.zone_mbald_s] 		= true,
+		[clsid.zone_galant_s] 		= true,
+		[clsid.zone_mincer_s] 		= true,
+		[clsid.zone_campfire_s] 	= true,
+		[clsid.zone_mine_s] 		= true,	
+	}
+	--
+	heli_clsids = {
+		[clsid.script_heli] 		= true,
+	}
+	--
+	car_clsids = {
+		[clsid.car_s] 				= true,
+	}
+end
+
+
 function IsMonster (object, class_id)
     local id = class_id or get_clsid (object)
-    if id == clsid.boar_s or
-       id == clsid.bloodsucker_s or
-       id == clsid.dog_s or
-       id == clsid.flesh_s or
-       id == clsid.pseudodog_s or
-       id == clsid.psy_dog_s or
-       id == clsid.burer_s or
-       id == clsid.cat_s or
-       id == clsid.chimera_s or
-       id == clsid.controller_s or
-       id == clsid.fracture_s or
-       id == clsid.poltergeist_s or
-       id == clsid.gigant_s or
-       id == clsid.zombie_s or
-       id == clsid.tushkano_s or
-       id == clsid.snork_s
-    then
-	    return true
-	end
-    return false
+	return monster_clsids[id]
 end
 -------------------------------------------------------------------------------------------
 function IsStalker (object, class_id)
     local id = class_id or get_clsid (object)
-    if id == clsid.actor or id == clsid.script_stalker then
-       return true
-    end
-    return false
+	return stalker_clsids[id]
 end
 -------------------------------------------------------------------------------------------
 function IsHelicopter (object, class_id)
     local id = class_id or get_clsid (object)
-    if id == clsid.script_heli then
-       return true
-    end
-    return false
+	return heli_clsids[id]
 end
 -------------------------------------------------------------------------------------------
 function IsCar (object, class_id)
     local id = class_id or get_clsid (object)
-    if id == clsid.car_s then
-       return true
-    end
-    return false
+	return car_clsids[id]
 end
 -------------------------------------------------------------------------------------------
 function IsZone (object, class_id)
     local id = class_id or get_clsid (object)
-    if id == clsid.zone_bfuzz_s or
-       id == clsid.zone_mbald_s or
-       id == clsid.zone_galant_s or
-       id == clsid.zone_mincer_s or
-	   id == clsid.Z_AMEBA or
-	   id == clsid.Z_MBALD or
-	   id == clsid.Z_RADIO or
-	   id == clsid.Z_NOGRAV or
-	   id == clsid.Z_RUSTYH or
-	   id == clsid.Z_TORRID
-    then
-	    return true
-	end
-    return false
+	return zone_clsids[id]
 end
 -------------------------------------------------------------------------------------------
 function level_object_by_sid( sid )
@@ -1477,16 +1446,6 @@ function get_texture_info(id_name, id_default)
 	r.x2 = r.x2 - r.x1
 	r.y2 = r.y2 - r.y1
 	return task_info:get_file_name(), r
-end
-
-function start_game_callback()
-	--
-	m_netpk.attach()
-	--
-	task_manager.clear_task_manager()
-	treasure_manager.clear_treasure_manager()
-	xr_sound.clear_all_sound_object()
-	dialog_manager.fill_phrase_table()
 end
 
 color_by_relation = {
@@ -2237,4 +2196,18 @@ function get_rad_absolute_eqivalent()
 end
 function get_rad_absolute_name()
 	return game.translate_string(read_if_exists(sys_ini, "r_string", "features", "absolute_radiation_name", "absolute_radiation_name"))
+end
+
+function start_game_callback()
+	--
+	m_netpk.attach()
+	--
+	init_clsid_tables()
+	--
+	task_manager.clear_task_manager()
+	treasure_manager.clear_treasure_manager()
+	xr_sound.clear_all_sound_object()
+	dialog_manager.fill_phrase_table()
+	--
+	log3("--engine version %s", _G.main_menu.get_main_menu():GetGSVer())
 end

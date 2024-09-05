@@ -1,17 +1,9 @@
-prefetch("_G")
-
-function cs_register(factory,client_object_class,server_object_class,clsid,script_clsid)
-	factory:register	(client_object_class,server_object_class,clsid,script_clsid)
-end
-
-function c_register(factory,client_object_class,clsid,script_clsid)
-	if (editor() == false) then
-		factory:register(client_object_class,clsid,script_clsid)
-	end
+function cs_register(factory, ...)
+	factory:register(...)
 end
 
 function register(object_factory)
-	c_register	(object_factory, "ui_main_menu.main_menu",								"MAIN_MNU", "main_menu")
+	cs_register	(object_factory, "ui_main_menu.main_menu",								"MAIN_MNU", "main_menu")
 	
 	cs_register	(object_factory, "ce_smart_zone", "smart_terrain.se_smart_terrain",		"SMRTTRRN",	"smart_terrain")
 	cs_register	(object_factory, "ce_smart_zone", "se_respawn.se_respawn",				"RE_SPAWN", "respawn")
@@ -29,6 +21,7 @@ function register(object_factory)
 
 	cs_register	(object_factory, "CCar",            "se_car.se_car",            "SCRPTCAR",	"car_s")
 	
+	--//monsters
 	cs_register	(object_factory, "CAI_Bloodsucker",	"se_monster.se_monster",    "SM_BLOOD",	"bloodsucker_s")
 	cs_register	(object_factory, "CAI_Boar",        "se_monster.se_monster",	"SM_BOARW",	"boar_s")
 	cs_register	(object_factory, "CAI_Dog",         "se_monster.se_monster",    "SM_DOG_S",	"dog_s")
@@ -89,10 +82,11 @@ function register(object_factory)
 	cs_register	(object_factory, "CWeaponVintorez",	"se_weapon.se_weapon_magazined",		"WP_VINT",	"wpn_vintorez_s")
 	cs_register	(object_factory, "CWeaponWalther",	"se_weapon.se_weapon_magazined",		"WP_WALTH",	"wpn_walther_s")
 	
+	--//anomalous zones
 	cs_register	(object_factory, "CHairsZone",		"se_zones.se_zone_visual",	"ZS_BFUZZ",	"zone_bfuzz_s")
 	cs_register	(object_factory, "CMosquitoBald",	"se_zones.se_zone_anom",	"ZS_MBALD",	"zone_mbald_s")
 	cs_register	(object_factory, "CMincer",			"se_zones.se_zone_anom",	"ZS_GALAN",	"zone_galant_s")
 	cs_register	(object_factory, "CMincer",			"se_zones.se_zone_anom",	"ZS_MINCE",	"zone_mincer_s")
-	cs_register	(object_factory, "CMosquitoBald",	"se_zones.se_zone_campfire",	"ZS_CAMPFIRE",	"zone_campfire_s")
+	cs_register	(object_factory, "CMosquitoBald",	"se_zones.se_zone_campfire","ZS_CAMPFIRE",	"zone_campfire_s")
 	cs_register	(object_factory, "CMosquitoBald",	"se_zones.se_zone_mine",	"ZS_MINE",	"zone_mine_s")
 end
