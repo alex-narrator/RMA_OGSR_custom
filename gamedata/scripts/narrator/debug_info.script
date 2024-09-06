@@ -83,3 +83,22 @@ function show_patrol_points(path_name)
 		dbg_particle:play_at_pos(pos)
 	end
 end
+
+class "p_timer"
+function p_timer:__init(timer_name)
+	self.p_timer = profile_timer()
+	self.p_timer:start()
+	self.p_name = timer_name
+	return self
+end
+
+function p_timer:start()
+	self.p_timer:start()
+end
+
+function p_timer:stop()
+	self.p_timer:stop()
+	local p_time_micro_s = self.p_timer:time()
+	local p_time_s = p_time_micro_s * 0.000001
+	log3("~[%s] profiled time %s micro-seconds | %s seconds", self.p_name, p_time_micro_s, p_time_s)
+end

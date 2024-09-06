@@ -95,6 +95,9 @@ function CRandomTask:__init()
 		
 		curr_task_info.type			= read_if_exists(sys_ini, "r_string", id, "type", nil)
 		ASSERT(curr_task_info.type, "There is no type in task section [%s] in task_manager.ltx", id)
+		
+		--//заголовок завдання
+		curr_task_info.title		= read_if_exists(sys_ini, "r_string", id, "title", nil)
 
 		curr_task_info.name			= id
 		if sys_ini:line_exist(id, "parent") then
@@ -249,7 +252,7 @@ function CRandomTask:load(p)
 		if self.task_info[id].type == "defend_lager" then                                                           
 			local defend_object = alife():object(self.task_info[id].selected_target)                                  
 			local sm_ini = defend_object:spawn_ini()                                                                  
-			self.task_info[id].defend_target = utils.cfg_get_number(sm_ini, "random_task", "defend_target", nil, true)
+			self.task_info[id].defend_target = read_if_exists(sm_ini, "r_u32", "random_task", "defend_target", nil)
 		end                                                                                                         
 
 	end
@@ -327,12 +330,12 @@ function CRandomTask:action_give_task(actor, npc, p1, p2)
 	local task_desc = self.task_info[self.task_id_by_yes_phrase_id[p2]]
 	
 	task:load(task_desc.complex_type)
-	task:set_title(task_desc.type)
+	task:set_title(task_desc.title or task_desc.type)
 
 	local oo = task:get_objective(0)
 	oo:set_article_id(task_desc.description)
 	if mob_lagers[task_desc.target] then
-		oo:set_icon_name("ui_icons_task_eliminate_layer")
+		oo:set_icon_name("ui_icons_task_eliminate_lair")
 	end	
 	
 	local objective = SGameTaskObjective(task,1)
@@ -356,7 +359,7 @@ function CRandomTask:action_give_task(actor, npc, p1, p2)
 
 		local defend_object = alife():object(task_desc.selected_target)
 		local sm_ini = defend_object:spawn_ini()
-		self.task_info[self.task_id_by_yes_phrase_id[p2]].defend_target = utils.cfg_get_number(sm_ini, "random_task", "defend_target", nil, true)
+		self.task_info[self.task_id_by_yes_phrase_id[p2]].defend_target = read_if_exists(sm_ini, "r_u32", "random_task", "defend_target", nil)
 	elseif task_desc.type == "kill_stalker" then
 		objective:set_map_hint(task_desc.text)
 		objective:set_map_location("kill_stalker_location")
@@ -651,7 +654,7 @@ function CRandomTask:check_task_props(task_id)
 		for k,v in pairs(self.task_info[task_id].target_objects) do
 			local defend_object = alife():object(v)
 			local sm_ini = defend_object:spawn_ini()
-			local defend_target = utils.cfg_get_number(sm_ini, "random_task", "defend_target", nil, true)
+			local defend_target = read_if_exists(sm_ini, "r_u32", "random_task", "defend_target", nil)
 			if xr_gulag.getGulagState(defend_target) == 1 then
 				self.task_info[task_id].enabled_props = true
 				return
@@ -660,42 +663,56 @@ function CRandomTask:check_task_props(task_id)
 		self.task_info[task_id].enabled_props = false
 		return
 	elseif self.task_info[task_id].type == "kill_stalker" then
-        for id, sobj in alife():objects() do -- KRodin: лучше немного тормозов тут, чем регистрация 100500 объектов из se_* при каждой загрузке сейва
-            if sobj:clsid() == clsid.script_stalker and sobj:alive() and sobj:profile_name() == self.task_info[task_id].target then
-                if not self.task_info[task_id].target_objects then
-                    self.task_info[task_id].target_objects = {}
-                end
-                table.insert(self.task_info[task_id].target_objects, id)
-                self.task_info[task_id].enabled_props = true
-                return
-            end
-        end
-        self.task_info[task_id].enabled_props = false
+		local has_targets = self.task_info[task_id].target_objects and table.size(self.task_info[task_id].target_objects) > 0
+	    if not has_targets then
+			if not self.task_info[task_id].target_objects then
+				--log3("~CRandomTask:check_task_props: task %s - target_objects not exists", task_id)
+				self.task_info[task_id].target_objects = {}
+			end
+			-- if not has_targets then
+				-- log3("~CRandomTask:check_task_props: task %s - target_objects empty", task_id)
+			-- end			
+			for id, sobj in alife():objects() do -- KRodin: лучше немного тормозов тут, чем регистрация 100500 объектов из se_* при каждой загрузке сейва
+				if sobj:clsid() == clsid.script_stalker and sobj:alive() and sobj:profile_name() == self.task_info[task_id].target then
+					table.insert(self.task_info[task_id].target_objects, id)
+					self.task_info[task_id].enabled_props = true
+					return
+				end
+			end
+		end
+        self.task_info[task_id].enabled_props = has_targets
 	elseif self.task_info[task_id].type == "find_item" then
-        for id, sobj in alife():objects() do -- KRodin: лучше немного тормозов тут, чем регистрация 100500 объектов из se_* при каждой загрузке сейва
-            if sobj:section_name() == self.task_info[task_id].target then
-                -- Нужно игнорировать предметы, которые находяться у вендоров.
-                local ignore = false
-                if sobj.parent_id then
-                    for kk, vv in pairs(parent_by_story) do
-                        local parent = alife():story_object(kk)
-                        if parent and sobj.parent_id == parent.id then
-                            ignore = true
-                        end
-                    end
-                end
-                --
-                if not ignore then
-                    if not self.task_info[task_id].target_objects then
-                        self.task_info[task_id].target_objects = {}
-                    end
-                    table.insert(self.task_info[task_id].target_objects, id)
-                    self.task_info[task_id].enabled_props = true
-                    return
-                end
-            end
+		local has_targets = self.task_info[task_id].target_objects and table.size(self.task_info[task_id].target_objects) > 0
+		if not has_targets then
+			if not self.task_info[task_id].target_objects then
+				--log3("~CRandomTask:check_task_props: task %s - target_objects not exists", task_id)
+				self.task_info[task_id].target_objects = {}
+			end
+			-- if not has_targets then
+				-- log3("~CRandomTask:check_task_props: task %s - target_objects empty", task_id)
+			-- end
+			for id, sobj in alife():objects() do -- KRodin: лучше немного тормозов тут, чем регистрация 100500 объектов из se_* при каждой загрузке сейва
+				if sobj:section_name() == self.task_info[task_id].target then
+					-- Нужно игнорировать предметы, которые находяться у вендоров.
+					local ignore = false
+					if sobj.parent_id then
+						for kk, vv in pairs(parent_by_story) do
+							local parent = alife():story_object(kk)
+							if parent and sobj.parent_id == parent.id then
+								ignore = true
+							end
+						end
+					end
+					--
+					if not ignore then
+						table.insert(self.task_info[task_id].target_objects, id)
+						self.task_info[task_id].enabled_props = true
+						return
+					end
+				end
+			end
         end
-        self.task_info[task_id].enabled_props = false
+        self.task_info[task_id].enabled_props = has_targets
 	else
 		self.task_info[task_id].enabled_props = true
 		return		
@@ -703,18 +720,21 @@ function CRandomTask:check_task_props(task_id)
 end
 --' Проверяем можем ли мы сейчас выдать какой либо самоинициализующийся таск
 function CRandomTask:actor_update()
+	--local t = debug_info.p_timer("CRandomTask:actor_update()")
 	for k,v in pairs(self.task_id_self_inited) do
-		if self.task_info[v].status == "normal" then
+		local task_info = self.task_info[v]
+		if task_info.status == "normal" then
 			self:check_task_props(v)
-			if self.task_info[v].enabled_props == true and
-			   self.task_info[v].enabled == true and
-			   xr_logic.pick_section_from_condlist(db.actor, db.actor, self.task_info[v].init_condition) ~= nil
+			if task_info.enabled_props == true and
+			   task_info.enabled == true and
+			   xr_logic.pick_section_from_condlist(actor, actor, task_info.init_condition) ~= nil
 			then
 				--' Нужно автоматически выдать квест
-				self:action_give_task(db.actor, nil, nil, self.task_info[v].yes_phrase_id)
+				self:action_give_task(actor, nil, nil, task_info.yes_phrase_id)
 			end
 		end
 	end
+	--t:stop()
 end
 --' Проверяется является ли текущий таск выданным игроку
 function CRandomTask:active_task(actor, npc, p1, p2, p3)
@@ -1112,7 +1132,7 @@ function CRandomTask:register_target(obj)
 			if obj:name() == self.task_info[v].target then
 				--' Проверка что в кастом дате указано от кого защищать
 				local sm_ini = obj:spawn_ini()
-				local defend_target = utils.cfg_get_number(sm_ini, "random_task", "defend_target", nil, true)
+				local defend_target = read_if_exists(sm_ini, "r_u32", "random_task", "defend_target", nil)
 				if self.task_info[v].target_objects == nil then
 					self.task_info[v].target_objects = {}
 				end
@@ -1184,7 +1204,6 @@ function CRandomTask:on_first_update()
                     local sm_ini = sobj:spawn_ini()
                     self.task_info[v].defend_target = read_if_exists(sm_ini, "r_u32", "random_task", "defend_target", nil)
                     if not self.task_info[v].defend_target then
-						log3("~to continue")
                         goto CONTINUE
                     end
                 end

@@ -232,6 +232,9 @@ penalty_reputation = -10
 need_return = false
 remote_reward = true
 
+[monster_lair]
+title = eliminate_lair
+
 [trader_base_task]:task_base
 penalty_relation = trader, -20
 
@@ -315,7 +318,7 @@ time = 86400
 
 penalty_reputation = none
 
-[tm_eliminate_camp_4]:trader_remote_task
+[tm_eliminate_camp_4]:trader_remote_task,monster_lair
 type = eliminate_lager
 
 text = tm_eliminate_camp_4_text
@@ -348,7 +351,7 @@ time = 86400
 ;idle_time = 84000
 prior = 2
 
-[tm_eliminate_camp_6]:trader_remote_task
+[tm_eliminate_camp_6]:trader_remote_task,monster_lair
 type = eliminate_lager
 
 init_condition = {=actor_on_level(l04_darkvalley)}
@@ -663,7 +666,7 @@ reward_item = grenade_f1
 time = 86400
 prior = 2
 
-[barmen_eliminate_camp_7]:barman_remote_task
+[barmen_eliminate_camp_7]:barman_remote_task,monster_lair
 type = eliminate_lager
 
 text = barmen_eliminate_camp_7_text
@@ -1169,7 +1172,7 @@ reward_item = ammo_9x39_ap, ammo_9x39_ap, ammo_vog-25
 time = 86400
 prior = 2
 
-[dolg_eliminate_lager_3]:dolg_remote_task
+[dolg_eliminate_lager_3]:dolg_remote_task,monster_lair
 type = eliminate_lager
 
 text = dolg_eliminate_lager_3_text
@@ -1275,7 +1278,7 @@ reward_item = ammo_9x39_ap, ammo_9x39_ap, ammo_9x39_ap, ammo_vog-25, ammo_vog-25
 time = 86400
 prior = 3
 
-[dolg_eliminate_lager_10]:dolg_base_task
+[dolg_eliminate_lager_10]:dolg_base_task,monster_lair
 type = eliminate_lager
 
 text = dolg_eliminate_lager_10_text
@@ -1438,7 +1441,7 @@ reward_item = ammo_5.56x45_ap, ammo_5.56x45_ap, ammo_5.56x45_ap, ammo_m209, ammo
 time = 86400
 prior = 5
 
-[freedom_eliminate_camp_5]:freedom_remote_task
+[freedom_eliminate_camp_5]:freedom_remote_task,monster_lair
 type = eliminate_lager
 
 text = freedom_eliminate_camp_5_text
@@ -1452,7 +1455,7 @@ reward_item = wpn_sig550, wpn_addon_grenade_launcher_m203, ammo_m209, ammo_m209
 time = 86400
 prior = 3
 
-[freedom_eliminate_camp_6]:freedom_remote_task
+[freedom_eliminate_camp_6]:freedom_remote_task,monster_lair
 type = eliminate_lager
 
 text = freedom_eliminate_camp_6_text
@@ -1948,7 +1951,7 @@ reward_reputation = +5
 ;------------ pl's tasks -----------------
 
 ;tasks for zastava_commander
-[zastava_commander_eliminate_lager]
+[zastava_commander_eliminate_lager]:monster_lair
 type = eliminate_lager
 
 text = zastava_commander_eliminate_lager_text
