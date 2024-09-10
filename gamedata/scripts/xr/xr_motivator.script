@@ -220,6 +220,7 @@ function motivator_binder:death_callback(victim, who)
 		end
 	end
 	self.sm:call("on_death", victim, who)
+	self.sm:call("on_npc_death", victim, who)
 end
 
 function motivator_binder:use_callback(obj, who)
