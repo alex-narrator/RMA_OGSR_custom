@@ -79,8 +79,8 @@ function PDAOverlay:InitControls()
 
 	--//date/time
 	self.date_time = xml:InitFrameLine("time_frame_line", self)
+	self.time = xml:InitStatic("time", self.date_time)	
 	self.date = xml:InitStatic("date", self.date_time)
-	self.time = xml:InitStatic("time", self.date_time)
 	self:Register(self.date, "date")
 	self:AddCallback("date", ui_events.WINDOW_LBUTTON_DOWN, self.ShowSkipTimer, self)
 	self:Register(self.time, "date")
@@ -89,8 +89,8 @@ function PDAOverlay:InitControls()
 	--//power level
 	self.power_static = xml:InitStatic("power_level", self.date_time)
 	self.def_power_color = self.power_static:GetTextColor()
-	self.power_icon = xml:InitStatic("power_level_icon", self.power_static)
-	self.power_progress = xml:InitProgressBar("power_level_progress", self.power_static)
+	self.power_icon = xml:InitStatic("power_level:power_level_icon", self.power_static)
+	self.power_progress = xml:InitProgressBar("power_level:power_level_progress", self.power_static)
 	
 	self.money_static = xml:InitStatic("money", self.date_time)
 	
@@ -158,8 +158,9 @@ function PDAOverlay:Update()
 	self.money_static:SetText(text)
 	
 	local _time = game.get_game_time()
-	self.date:SetText(_time:dateToString(game.CTime.DateToDay))
 	self.time:SetText(_time:timeToString(game.CTime.TimeToMinutes))
+	local date_text = string.format("%s %s", get_current_weekday_name(true), _time:dateToString(game.CTime.DateToDay))
+	self.date:SetText(date_text)
 	
 	self:UpdateRelationSpotText()
 end

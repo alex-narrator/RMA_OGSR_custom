@@ -88,7 +88,8 @@ function SleepOverlay:Update()
 	self.date_time:Show(has_pda_power)
 	
 	local _time = game.get_game_time()
-	self.date:SetText(_time:dateToString(game.CTime.DateToDay))
+	local date_text = string.format("%s %s", get_current_weekday_name(true), _time:dateToString(game.CTime.DateToDay))
+	self.date:SetText(date_text)
 	self.time:SetText(_time:timeToString(game.CTime.TimeToMinutes))
 end
 

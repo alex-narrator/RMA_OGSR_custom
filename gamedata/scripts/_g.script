@@ -2207,6 +2207,26 @@ function get_rad_absolute_name()
 	return game.translate_string(read_if_exists(sys_ini, "r_string", "features", "absolute_radiation_name", "absolute_radiation_name"))
 end
 
+--//http://lua-users.org/wiki/DayOfWeekAndDaysInMonthExample
+function get_day_of_week(dd, mm, yy)
+	dw=os.date('*t',os.time{year=yy,month=mm,day=dd})['wday']
+	return dw,({"st_sunday","st_monday","st_tuesday","st_wednesday","st_thursday","st_friday","st_saturday" })[dw]
+end
+
+function get_current_weekday_num()
+	local _date = game.get_game_time():dateToString(game.CTime.DateToDay)
+	local date_tbl = split_string(_date, "/", true)
+	return get_day_of_week(date_tbl[1], date_tbl[2], date_tbl[3])
+end
+
+local weekdays_name = {"st_sunday","st_monday","st_tuesday","st_wednesday","st_thursday","st_friday","st_saturday" }
+local weekdays_name_short = {"st_sun","st_mon","st_tue","st_wed","st_thu","st_fri","st_sat" }
+function get_current_weekday_name(short_name)
+	local weekday_num = get_current_weekday_num()
+	local weekday = short_name and weekdays_name_short[weekday_num] or weekdays_name[weekday_num]
+	return game.translate_string(weekday)
+end
+
 function start_game_callback()
 	--
 	init_clsid_tables()	
