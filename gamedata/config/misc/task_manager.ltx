@@ -382,7 +382,7 @@ penalty_reputation = none
 [tm_eliminate_camp_2]:trader_remote_task
 type = eliminate_lager
 
-init_condition = {=actor_on_level(l01_Escape) +agroprom_military_case_have}
+init_condition = {=actor_on_level(l01_escape) +agroprom_military_case_have}
 text = tm_eliminate_camp_2_text
 description = tm_eliminate_camp_2_descr
 parent = trader
@@ -2073,7 +2073,7 @@ mapspot_type = mob ;(mob, npc)
 text = wolf_eliminate_lager_1_text
 description = wolf_eliminate_lager_1_descr
 ;condlist = {+esc_serious_talk}
-;condlist = {=actor_on_level(l01_Escape)}
+;condlist = {=actor_on_level(l01_escape)}
 parent = wolf
 target = esc_bridge_boar
 ;reward_money = 1500
@@ -2082,6 +2082,8 @@ reward_rank = 3
 reward_item = wpn_knife, sharpener
 time = 24
 prior = 1
+
+;custom_complete_cond = {=actor_on_level(l01_escape)}
 
 penalty_reputation = -5
 penalty_relation = stalker, -10
@@ -2092,7 +2094,7 @@ type = eliminate_lager
 text = wolf_eliminate_lager_2_text
 description = wolf_eliminate_lager_2_descr
 ;condlist = {+esc_serious_talk}
-;condlist = {=actor_on_level(l01_Escape)}
+;condlist = {=actor_on_level(l01_escape)}
 parent = wolf
 target = esc_flesh_2
 ;reward_money = 2500

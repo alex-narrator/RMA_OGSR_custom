@@ -116,7 +116,7 @@ function parse_tasks()
 		curr_task_info.prior			= read_if_exists(sys_ini, "r_u32", id, "prior", 0) --' Приоритет квеста, выдаются доступные квесты с наименьшим приоритетом
 	
 		if sys_ini:line_exist(id, "init_condition") then
-			curr_task_info.init_condition = xr_logic.parse_condlist(db.actor, "task_manager", "init_condition", sys_ini:r_string(id, "init_condition"))
+			curr_task_info.init_condition = xr_logic.parse_condlist(actor, "task_manager", "init_condition", sys_ini:r_string(id, "init_condition"))
 		end
 
 		curr_task_info.reward_item 			= read_if_exists(sys_ini, "r_string", id, "reward_item", nil)
@@ -137,7 +137,11 @@ function parse_tasks()
 		curr_task_info.penalty_reputation	= read_if_exists(sys_ini, "r_s32", id, "penalty_reputation", nil)
 		curr_task_info.penalty_relation		= parse_key_value(read_if_exists(sys_ini, "r_string", id, "penalty_relation", nil))
 		
-		curr_task_info.condlist				= xr_logic.parse_condlist(db.actor, "task_manager", "condlist", read_if_exists(sys_ini, "r_string", id, "condlist", "true"))	
+		curr_task_info.condlist				= xr_logic.parse_condlist(actor, "task_manager", "condlist", read_if_exists(sys_ini, "r_string", id, "condlist", "true"))
+		
+		if sys_ini:line_exist(id, "custom_complete_cond") then
+			curr_task_info.custom_complete_cond = xr_logic.parse_condlist(actor, "task_manager", "custom_complete_cond", sys_ini:r_string(id, "custom_complete_cond"))
+		end
 	
 		curr_task_info.need_return			= read_if_exists(sys_ini, "r_bool", id, "need_return", true)
 		curr_task_info.remote_reward		= read_if_exists(sys_ini, "r_bool", id, "remote_reward", false)
@@ -284,12 +288,14 @@ function action_give_task(actor, npc, p1, p2)
 	local objective = SGameTaskObjective(task,1)
 	objective:set_description(task_desc.name)
 	
+	local _text = string.format("%s\\n%s\\n%s", game.translate_string(task_desc.text), GetRewardText(task_desc), GetPenaltyText(task_desc))
+	
 	if task_desc.type == "eliminate_lager" then
-		objective:set_map_hint(task_desc.text)
+		objective:set_map_hint(_text)
 		objective:set_map_location(mob_lagers[task_desc.target] and "eliminate_lair_location" or "eliminate_lager_location")
 		objective:set_object_id(task_desc.selected_target)
 	elseif task_desc.type == "defend_lager" then
-		objective:set_map_hint(task_desc.text)
+		objective:set_map_hint(_text)
 		objective:set_map_location("defend_lager_location")
 		objective:set_object_id(task_desc.selected_target)
 
@@ -297,11 +303,11 @@ function action_give_task(actor, npc, p1, p2)
 		local sm_ini = defend_object:spawn_ini()
 		task_info[task_id_by_yes_phrase_id[p2]].defend_target = read_if_exists(sm_ini, "r_u32", "random_task", "defend_target", nil)
 	elseif task_desc.type == "kill_stalker" then
-		objective:set_map_hint(task_desc.text)
+		objective:set_map_hint(_text)
 		objective:set_map_location("kill_stalker_location")
 		objective:set_object_id(task_desc.selected_target)
 	elseif task_desc.type == "find_item" then
-		objective:set_map_hint(task_desc.text)
+		objective:set_map_hint(_text)
 		objective:set_map_location("find_item_location")
 		objective:set_object_id(task_desc.selected_target)
 	end
@@ -373,6 +379,13 @@ function task_complete(p1, p2)
 	end
 
 	if p2 == 1 then
+		
+		--//кастомні умови виконання завдання
+		if task_info[active_task_by_type[p1]].custom_complete_cond and xr_logic.pick_section_from_condlist(actor, actor, task_info[active_task_by_type[p1]].custom_complete_cond) ~= nil then
+			task_info[active_task_by_type[p1]].status = "completed"
+			return true
+		end
+		
 		if string.find(p1, "eliminate_lager") ~= nil then
 			--log3("~task_complete check task %s - sel_task.selected_target %s", sel_task.name, sel_task.selected_target or "NIL")
 			local oo = alife():object(sel_task.selected_target)
@@ -541,7 +554,7 @@ function check_task_props(task_id)
 	end
 
 	--' Проверка по кондлисту
-	if xr_logic.pick_section_from_condlist(db.actor, db.actor, task_info[task_id].condlist) == nil then
+	if xr_logic.pick_section_from_condlist(actor, actor, task_info[task_id].condlist) == nil then
 		task_info[task_id].enabled_props = false
 		return
 	end
