@@ -93,48 +93,38 @@ function parse_tasks()
 		
 		ASSERT(sys_ini:section_exist(id), "There is no task section [%s] in task_manager.ltx", id)
 
-		task_info[id]			= {}
-		local curr_task_info	= task_info[tostring(id)]
+		task_info[id]					= {}
+		local curr_task_info			= task_info[tostring(id)]
 		
-		curr_task_info.type			= read_if_exists(sys_ini, "r_string", id, "type", nil)
+		curr_task_info.type				= read_if_exists(sys_ini, "r_string", id, "type", nil)
 		ASSERT(curr_task_info.type, "There is no type in task section [%s] in task_manager.ltx", id)
 		
 		--//заголовок завдання
-		curr_task_info.title		= read_if_exists(sys_ini, "r_string", id, "title", nil)
+		curr_task_info.title			= read_if_exists(sys_ini, "r_string", id, "title", nil)
 
-		curr_task_info.name			= id
-		if sys_ini:line_exist(id, "parent") then
-			curr_task_info.parent		= sys_ini:r_string(id, "parent")
-			curr_task_info.complex_type = curr_task_info.type .. "_" .. task_info[id].parent
-		else
-			curr_task_info.parent		= "nil"
-			curr_task_info.complex_type = curr_task_info.type
-		end
-		if sys_ini:line_exist(id, "target") then
-			curr_task_info.target		= sys_ini:r_string(id, "target")
-		end
-		if sys_ini:line_exist(id, "text") then
-			curr_task_info.text			= sys_ini:r_string(id, "text")
-		end
-		if sys_ini:line_exist(id, "description") then
-			curr_task_info.description	= sys_ini:r_string(id, "description")				
-		end
-		curr_task_info.time				= read_if_exists(sys_ini, "r_u32", id, "time", nil)
+		curr_task_info.name				= id
+		curr_task_info.parent 			= read_if_exists(sys_ini, "r_string", id, "parent", nil)
+		curr_task_info.complex_type 	= curr_task_info.parent and curr_task_info.type .. "_" .. task_info[id].parent or curr_task_info.type
 
-		curr_task_info.idle_time		= read_if_exists(sys_ini, "r_u32", id, "idle_time", 24*60*60) --' Время между выдачами задания (в игровых секундах)
+		curr_task_info.target			= read_if_exists(sys_ini, "r_string", id, "target", nil)
+		
+		curr_task_info.text				= read_if_exists(sys_ini, "r_string", id, "text", "[NO_TEXT]")
+		curr_task_info.description		= read_if_exists(sys_ini, "r_string", id, "description", "[NO_DESCRIPTION]")
+		
+		curr_task_info.time				= read_if_exists(sys_ini, "r_u32", id, "time", nil) --//час на виконання завдання у ігрових годинах
+		curr_task_info.idle_time		= read_if_exists(sys_ini, "r_u32", id, "idle_time", 24) * 60 * 60 --' Время между выдачами задания (у ігрових годинах)
 		curr_task_info.prior			= read_if_exists(sys_ini, "r_u32", id, "prior", 0) --' Приоритет квеста, выдаются доступные квесты с наименьшим приоритетом
 	
 		if sys_ini:line_exist(id, "init_condition") then
 			curr_task_info.init_condition = xr_logic.parse_condlist(db.actor, "task_manager", "init_condition", sys_ini:r_string(id, "init_condition"))
 		end
 
-		local sss = read_if_exists(sys_ini, "r_string", id, "reward_item", nil)
-		if sss then
-			curr_task_info.reward_item = se_respawn.parse_names(sss)
+		curr_task_info.reward_item 			= read_if_exists(sys_ini, "r_string", id, "reward_item", nil)
+		if curr_task_info.reward_item then
+			curr_task_info.reward_item 		= se_respawn.parse_names(curr_task_info.reward_item)
 			curr_task_info.reward_item_receiver = read_if_exists(sys_ini, "r_string", id, "reward_item_receiver", nil)
-		else
-			curr_task_info.reward_item = sss
 		end
+		
 		curr_task_info.reward_money 		= read_if_exists(sys_ini, "r_s32", id, "reward_money", nil)		
 	
 		curr_task_info.community 			= read_if_exists(sys_ini, "r_string", id, "community", nil)
@@ -147,11 +137,7 @@ function parse_tasks()
 		curr_task_info.penalty_reputation	= read_if_exists(sys_ini, "r_s32", id, "penalty_reputation", nil)
 		curr_task_info.penalty_relation		= parse_key_value(read_if_exists(sys_ini, "r_string", id, "penalty_relation", nil))
 		
-		if sys_ini:line_exist(id, "condlist") then
-			curr_task_info.condlist			= xr_logic.parse_condlist(db.actor, "task_manager", "condlist", sys_ini:r_string(id, "condlist"))
-		else
-			curr_task_info.condlist			= xr_logic.parse_condlist(db.actor, "task_manager", "condlist", "true")
-		end		
+		curr_task_info.condlist				= xr_logic.parse_condlist(db.actor, "task_manager", "condlist", read_if_exists(sys_ini, "r_string", id, "condlist", "true"))	
 	
 		curr_task_info.need_return			= read_if_exists(sys_ini, "r_bool", id, "need_return", true)
 		curr_task_info.remote_reward		= read_if_exists(sys_ini, "r_bool", id, "remote_reward", false)
@@ -173,16 +159,18 @@ function parse_tasks()
 
 	for k,v in pairs(task_info) do
 		--' По типу квеста
-		if task_id_by_type[v.type] == nil then
+		if not task_id_by_type[v.type] then
 			task_id_by_type[v.type] = {}
 		end
 		table.insert(task_id_by_type[v.type], k)
 
 		--' По типу вендора
-		if task_id_by_parent[v.parent] == nil then
-			task_id_by_parent[v.parent] = {}
+		if v.parent then
+			if not task_id_by_parent[v.parent] then
+				task_id_by_parent[v.parent] = {}
+			end
+			table.insert(task_id_by_parent[v.parent], k)
 		end
-		table.insert(task_id_by_parent[v.parent], k)
 
 		--' По id фразы согласия на квест
 		task_id_by_yes_phrase_id[tostring(v.yes_phrase_id)] = k
@@ -191,7 +179,7 @@ function parse_tasks()
 		--' По id фрази опису
 		task_id_by_desc_phrase_id[tostring(v.desc_phrase_id)] = k
 		--' По самовыдаваемости
-		if v.init_condition ~= nil then
+		if v.init_condition then
 			table.insert(task_id_self_inited, k)
 		end
 	end
@@ -209,11 +197,11 @@ parse_tasks()
 --' Сохранение
 function on_save()
 	local task_processed = {}
-	task_processed = table.copy(task_info)
-	for k,v in pairs(task_processed) do
-		if v.last_task_time then
-			v.last_task_time = ctime_to_table(v.last_task_time)
-		end
+	for k,v in pairs(task_info) do
+		task_processed[k] = {}
+		task_processed[k].status = v.status
+		task_processed[k].last_task_time = ctime_to_table(v.last_task_time)
+		task_processed[k].selected_target = (v.selected_target and v.status == "selected") and v.selected_target or nil		
 	end
 	xr_vars.save_var("task_processed", task_processed)
 	--log3("~on_save task_processed %s", task_processed)
@@ -223,16 +211,11 @@ end
 --' Загрузка
 function on_load()
 	local task_processed = xr_vars.load_var("task_processed", {})
-	for k,v in pairs(task_processed) do
-		if v.last_task_time then
-			v.last_task_time = table_to_ctime(v.last_task_time)
-		end
-	end	
 	--log3("~on_load task_processed %s", task_processed)
 	for k,v in pairs (task_processed) do
-		if task_info[k] then
-			task_info[k] = v
-		end
+		task_info[k].status = v.status
+		task_info[k].last_task_time = table_to_ctime(v.last_task_time)
+		task_info[k].selected_target = v.selected_target or nil
 	end
 	--//завантажуємо активні таски
 	active_task_by_type = xr_vars.load_var("active_task_by_type", active_task_by_type)
@@ -334,12 +317,9 @@ function action_give_task(actor, npc, p1, p2)
 		objective:set_object_id(alife():story_object(tonumber(story_by_parent[task_desc.parent])).id)
 		task:add_objective(objective)
 	end
-
-	local time = 0
-	if task_desc.time ~= nil then
-		time = task_desc.time * 1000
-	end
-	db.actor:give_task(task,time,false)
+	
+	local task_time = task_desc.time * 60 * 60 * 1000
+	db.actor:give_task(task, task_time, false)
 
 	--' дизаблим все остальные задания данного типа, так как игрок не может одновременно обладать двумя заданиями одного типа.
 	task_info[task_id_by_yes_phrase_id[p2]].status = "selected"
@@ -417,17 +397,17 @@ function task_complete(p1, p2)
 				return true
 			end
 		elseif string.find(p1, "artefact") ~= nil then
-			if db.actor:object(sel_task.target) ~= nil then
+			if actor:object(sel_task.target) ~= nil then
 				task_info[active_task_by_type[p1]].status = "completed"
 				return true
 			end
 		elseif string.find(p1, "monster_part") ~= nil then
-			if db.actor:object(sel_task.target) ~= nil then
+			if actor:object(sel_task.target) ~= nil then
 				task_info[active_task_by_type[p1]].status = "completed"
 				return true
 			end
 		elseif string.find(p1, "find_item") ~= nil then
-			if db.actor:object(sel_task.target) ~= nil then
+			if actor:object(sel_task.target) ~= nil then
 				task_info[active_task_by_type[p1]].status = "completed"
 				return true
 			end
@@ -747,7 +727,7 @@ function GetTaskTimeText(task_info)
 	local list_prefix = "%c[UI_orange]•"
 	if task_time then
 		local time_header = string.format("%s%s\\n", "%c[white]", game.translate_string("ui_st_task_time"))
-		task_time = string.format("%s %s %s\\n",list_prefix, task_time / 3600, game.translate_string("ui_st_hours"))
+		task_time = string.format("%s %s %s\\n",list_prefix, task_time, game.translate_string("ui_st_hours"))
 		time_text = string.format("%s%s", time_text, time_header..task_time)
 	end
 	return time_text
@@ -773,7 +753,7 @@ function GetPersonalText(task_info)
 	if task_info.selected_target and task_info.type == "kill_stalker" then
 		local sim = alife()
 		local target = sim:object(task_info.selected_target)
-		local name_community = string.format("%s%s (%s)\\n",list_prefix, target.character_name, game.translate_string(target:community()))
+		local name_community = string.format("%s%s (%s, %s)\\n",list_prefix, target.character_name, game.translate_string(target:community()), game.translate_string(ranks.get_obj_rank_name(target)))
 		local personal_header = string.format("%s%s\\n", "%c[white]", game.translate_string("ui_st_task_personal"))		
 		personal_text = string.format("%s%s%s", personal_text, personal_header, name_community)
 	end
@@ -1086,7 +1066,8 @@ function select_target(task)
 	for id, sobj in alife():objects() do
 		if task.type == "kill_stalker" then
 			if sobj:clsid() == clsid.script_stalker and sobj:alive() and sobj:profile_name() == task.target then
-				task.selected_target = id 
+				task.selected_target = id
+				--log3("~[%s] task %s select target %s", script_name(), task.name, sobj.character_name)
 				return
 			end
 		elseif task.type == "find_item" then

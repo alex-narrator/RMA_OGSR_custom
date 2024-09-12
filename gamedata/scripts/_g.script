@@ -2041,12 +2041,16 @@ function give_ammo_box_to_actor(section, count, loaded_box, ammo_type)
 end
 
 function ctime_to_table(time_struct)
+	if not time_struct then
+	return nil end
 	local Y, M, D, h, m, s, ms = time_struct:get(Y, M, D, h, m, s, ms)
 	local time_table = {Y, M, D, h, m, s, ms}
 	return time_table
 end
 
 function table_to_ctime(time_table)
+	if not time_table then
+	return nil end
 	local time_struct = game.CTime()
 	time_struct:set(time_table[1], time_table[2], time_table[3], time_table[4], time_table[5], time_table[5], time_table[7])
 	return time_struct
