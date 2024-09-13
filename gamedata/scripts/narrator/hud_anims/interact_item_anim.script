@@ -48,7 +48,8 @@ function play()
 	actor_obj:block_action(key_bindings.kUSE)
 	block_non_move_action(true)
 	
-	actor:hard_crosshair(false)
+	local to_center = is_crosshair_hard()
+	actor:center_crosshair(to_center)
 		
 	local wpn = actor:active_item() and actor:active_item():get_weapon()
 	if wpn and wpn.zoom_mode then
@@ -79,7 +80,9 @@ function play()
 				action_use()
 			end
 			_G.SCRIPT_ANIM_PLAYING = false
-			actor:hard_crosshair(true)
+			if to_center then
+				actor:center_crosshair(false)
+			end
 		end
 	)
 end

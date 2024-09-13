@@ -28,8 +28,8 @@ function on_key_press(key, game_action)
 	return end
 		
 	block_non_move_action(true)
-	
-	actor:hard_crosshair(false)
+	local to_center = is_crosshair_hard()
+	actor:center_crosshair(to_center)
 		
 	local hud_sect = "arm_kick_hud"
 	local act_item = actor:active_item()
@@ -74,7 +74,9 @@ function on_key_press(key, game_action)
 		game.get_motion_length(hud_sect, "anm_use", ANM_SPEED) * 0.001,
 		function()
 			block_non_move_action(false)
-			actor:hard_crosshair(true)
+			if to_center then
+				actor:center_crosshair(false)
+			end
 		end
 	)
 end
