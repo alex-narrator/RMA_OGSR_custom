@@ -3,11 +3,79 @@ local overlay = nil
 local OVERLAY_XML = "script_overlays\\pda_overlay.xml"
 
 function attach(sm)
-	sm:subscribe({signal = "on_spawn",   fun = this.create_window})
-	sm:subscribe({signal = "on_destroy",   fun = this.destroy_window})
+	sm:subscribe({signal = "on_spawn",   	fun = this.create_window})
+	sm:subscribe({signal = "on_destroy",   	fun = this.destroy_window})
+	sm:subscribe({signal = "on_save",   	fun = this.on_save})
+	sm:subscribe({signal = "on_load",   	fun = this.on_load})	
 end
 
 local subscribed = false
+
+local user_notes = {}
+
+function add_note(name, text)
+	if not text then
+	return end
+	
+	if not name or name == "" then
+		name = string.format("%s %s", game.translate_string("st_new_note"), table.size(user_notes) + 1)
+	end
+	
+	local entry = {
+		name = name,
+		text = text,
+		time = game.get_game_time()
+	}
+	
+	table.insert(user_notes, entry)
+	
+	overlay:UpdateNotes()
+end
+
+function remove_note(i)
+	table.remove(user_notes, i)
+	overlay:UpdateNotes()
+end
+
+function edit_note(i, name, text)
+	local entry = user_notes[i]
+	if not entry then
+	return end
+	entry.name = name
+	entry.text = text
+	overlay:UpdateNotes()
+end
+
+function remove_all_notes()
+	user_notes = {}
+	overlay:UpdateNotes()
+end
+
+function on_save()
+	local saved_notes = {}
+	for k,v in ipairs(user_notes) do
+		local entry = {
+			name = v.name,
+			text = v.text,
+			time = ctime_to_table(v.time)
+		}
+		table.insert(saved_notes, entry)
+	end
+	xr_vars.save_var("saved_notes", saved_notes)
+end
+
+function on_load()
+	local saved_notes = xr_vars.load_var("saved_notes", {})
+	user_notes = {}
+	for k,v in ipairs(saved_notes) do
+		local entry = {
+			name = v.name,
+			text = v.text,
+			time = table_to_ctime(v.time)
+		}
+		table.insert(user_notes, entry)
+	end
+end
 
 function create_window()
 	if not overlay then
@@ -76,6 +144,8 @@ function PDAOverlay:InitControls()
 	
 	local xml = CScriptXmlInit()
 	xml:ParseFile(OVERLAY_XML)
+	
+	self.xml = xml
 
 	--//date/time
 	self.date_time = xml:InitFrameLine("time_frame_line", self)
@@ -131,6 +201,35 @@ function PDAOverlay:InitControls()
 	self.clear_time = xml:Init3tButton("clear_button", self.skip_time_frame)
 	self:Register(self.clear_time, "clear_time")
 	self:AddCallback("clear_time", ui_events.BUTTON_CLICKED, self.ClearTime, self)
+	
+	--//personal notes
+	self.notes_left_frame = xml:InitFrame("notes_left_frame", self)
+	--self.notes_left_header = xml:InitFrameLine("notes_left_frame:header_frame_line", self.notes_left_frame)
+	
+	self.add_note_btn = xml:Init3tButton("notes_left_frame:add_note_btn", self.notes_left_frame)
+	self:Register(self.add_note_btn, "add_note")
+	self:AddCallback("add_note", ui_events.BUTTON_CLICKED, self.OnAddNoteClick, self)
+	
+	self.del_all_notes_btn = xml:Init3tButton("notes_left_frame:del_all_notes_btn", self.notes_left_frame)
+	self:Register(self.del_all_notes_btn, "del_all_notes")
+	self:AddCallback("del_all_notes", ui_events.BUTTON_CLICKED, self.OnDelAllNotesClick, self)	
+	
+	self.notes_list = xml:InitScrollView("notes_left_frame:scroll_view", self.notes_left_frame)
+	
+	self.notes_right_frame = xml:InitFrame("notes_right_frame", self)
+	self.notes_right_header = xml:InitStatic("notes_right_frame:header", self.notes_right_frame)--xml:InitFrameLine("notes_right_frame:header_frame_line", self.notes_right_frame)
+	
+	self.del_note_btn = self.xml:Init3tButton("notes_right_frame:del_note_btn", self.notes_right_frame)
+	self:Register(self.del_note_btn, "del_note_btn")
+	self:AddCallback("del_note_btn", ui_events.BUTTON_CLICKED, function() self:OnRemoveNoteBtn() end, self)
+	
+	self.edit_note_btn = self.xml:Init3tButton("notes_right_frame:edit_note_btn", self.notes_right_frame)
+	self:Register(self.edit_note_btn, "edit_note_btn")
+	self:AddCallback("edit_note_btn", ui_events.BUTTON_CLICKED, function() self:OnEditNoteBtn() end, self)	
+	
+	self.notes_text = xml:InitScrollView("notes_right_frame:scroll_view", self.notes_right_frame)
+	
+	self:UpdateNotes()
 end
 
 function PDAOverlay:Update()
@@ -161,6 +260,13 @@ function PDAOverlay:Update()
 	self.time:SetText(_time:timeToString(game.CTime.TimeToMinutes))
 	local date_text = string.format("%s %s", get_current_weekday_name(true), _time:dateToString(game.CTime.DateToDay))
 	self.date:SetText(date_text)
+	
+	local show = has_pda_power and actor:has_info("ui_pda_diary_2")
+	self.notes_left_frame:Show(show)
+	self.notes_right_frame:Show(show)
+	self.del_all_notes_btn:Show(table.size(user_notes) > 0)
+	self.del_note_btn:Show(not not self.selected_note)
+	self.edit_note_btn:Show(not not self.selected_note)
 	
 	self:UpdateRelationSpotText()
 end
@@ -242,6 +348,106 @@ end
 function PDAOverlay:ShowSkipTimer()
 	local is_shown = self.skip_time_frame:IsShown()
 	self.skip_time_frame:Show(not is_shown)
+end
+
+function PDAOverlay:OnNotesClick()
+	--log3("~button state %s", self.notes_btn:GetCheck())
+end
+
+function PDAOverlay:OnAddNoteClick()
+	local msg_box = ui_message_box.MessageBoxUserNoteWnd(true)
+	msg_box:InitAction(game.translate_string("st_add_note"), add_note)
+end
+
+function PDAOverlay:OnDelAllNotesClick()
+	local msg_box = ui_message_box.MessageBoxWnd("red", true)
+	local text = string.format("%s?", game.translate_string("st_del_all_notes"))
+	msg_box:InitAction(text, remove_all_notes)	
+end
+
+function PDAOverlay:UpdateNotes()
+	self.selected_note = nil
+	self.notes_right_header:SetText("")
+	self.notes_list:Clear()
+	self.notes_text:Clear()
+	
+	table.sort( user_notes, function(a,b) return a.time > b.time end )
+	
+	for k,v in ipairs(user_notes) do
+		local list_prefix = "%c[UI_orange]["..k.."]%c[default]"
+		local note_name_st = self.xml:InitStatic("notes_left_frame:scroll_view:static_item", self.notes_list)
+		local text = string.format("%s %s", list_prefix, v.name)
+		note_name_st:SetText(text)
+		note_name_st:AdjustHeightToText()
+		
+		local name = "note_name_"..k
+		self:Register(note_name_st, name)
+		self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnNoteNameLButton(k) end, self)
+		--self:AddCallback(name, ui_events.WINDOW_LBUTTON_DB_CLICK, function() self:OnEditNoteBtn(k) end, self)
+		
+		-- name = "remove_btn_"..k
+		-- local del_note_btn = self.xml:Init3tButton("notes_left_frame:scroll_view:del_note_btn", note_name_st)
+		-- self:Register(del_note_btn, name)
+		-- self:AddCallback(name, ui_events.BUTTON_CLICKED, function() self:OnRemoveNoteBtn(k) end, self)
+		-- --del_note_btn:Show(false)
+		
+		-- name = "edit_btn_"..k
+		-- local edit_note_btn = self.xml:Init3tButton("notes_left_frame:scroll_view:edit_note_btn", note_name_st)
+		-- self:Register(edit_note_btn, name)
+		-- self:AddCallback(name, ui_events.BUTTON_CLICKED, function() self:OnEditNoteBtn(k) end, self)
+		-- --edit_note_btn:Show(false)
+		
+		-- name = "note_name_"..k
+		-- self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnNoteNameFocus(del_note_btn, edit_note_btn, k) end, self)
+		-- self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnNoteNameFocusLost(del_note_btn, edit_note_btn, k) end, self)
+	end
+end
+
+function PDAOverlay:OnNoteNameLButton(i)
+	self.selected_note = i
+	self.notes_text:Clear()
+	local note = user_notes[i]
+	local note_text = self.xml:InitStatic("notes_right_frame:scroll_view:static_item", self.notes_text)
+	note_text:SetText(note.text)
+	note_text:AdjustHeightToText()
+	
+	local text = string.format("[%s] %s\\n%s %s", i, note.name, get_weekday_name(note.time), note.time:dateToString(game.CTime.DateToDay))
+	self.notes_right_header:SetText(text)
+end
+
+function PDAOverlay:OnEditNoteBtn()
+	if not self.selected_note then return end
+	local i = self.selected_note
+	local note = user_notes[i]
+	if not note then
+	return end
+	
+	local msg_box = ui_message_box.MessageBoxUserNoteWnd(true)
+	msg_box:SetEditText(note.name, note.text)
+	msg_box:InitAction(game.translate_string("st_edit_note"), edit_note, i)	
+end
+
+function PDAOverlay:OnRemoveNoteBtn()
+	if not self.selected_note then return end
+	local i = self.selected_note
+	local note = user_notes[i]
+	local msg_box = ui_message_box.MessageBoxWnd("red", true)
+	local text = string.format("%s %s ?", game.translate_string("st_del_note"), note.name)
+	msg_box:InitAction(text, remove_note, i)
+end
+
+function PDAOverlay:OnNoteNameFocus(del_btn, edit_btn, i)
+	if not del_btn or not edit_btn then
+	return end
+	del_btn:Show(true)
+	edit_btn:Show(true)
+end
+
+function PDAOverlay:OnNoteNameFocusLost(del_btn, edit_btn, i)
+	if not del_btn or not edit_btn then
+	return end
+	del_btn:Show(false)
+	edit_btn:Show(false)
 end
 
 function PDAOverlay:HidePda()

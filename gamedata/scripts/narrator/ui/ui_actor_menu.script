@@ -380,13 +380,13 @@ function ActorMenuOverlay:InitControls()
 			v.button:SetAccelerator(keyname_to_dik(v.accel), 0)
 			self.key_accels[v.button:GetAccelerator(0)] = true
 		end
-		v.hint = xml:ReadAttrib(prefix.."show_"..v.name.."_button", "hint", "")
+		--v.hint = xml:ReadAttrib(prefix.."show_"..v.name.."_button", "hint", "")
 		v.st = xml:InitStatic(prefix.."show_"..v.name.."_button:static", v.button)
 		name = "show_"..v.name
 		self:Register(v.button, name)
 		self:AddCallback(name, ui_events.BUTTON_CLICKED, function() self:OnShowButtonClick(k) end, self)
-		self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnShowButtonFocusReceived(k) end)
-		self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnShowButtonFocusLost(k) end)	
+		--self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnShowButtonFocusReceived(k) end)
+		--self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnShowButtonFocusLost(k) end)	
 	end
 	
 	--//floating tooltip

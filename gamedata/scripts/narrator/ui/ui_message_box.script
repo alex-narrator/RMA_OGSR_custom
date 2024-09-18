@@ -1,24 +1,23 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 local OVERLAY_XML = "message_box.xml"
+local msg_box_type_prefix = "message_box_accept_decline_"
 
 class "MessageBoxWnd" (CUIScriptWnd)
 
-local msg_box_type_prefix = "message_box_accept_decline_"
-
-function MessageBoxWnd:__init(box_type) super()
+function MessageBoxWnd:__init(box_type, attach) super()
 	self.owner = level.main_input_receiver()
-	self:InitWnd(box_type)
+	self:InitWnd(box_type, attach)
 end
 
 function MessageBoxWnd:DetachWnd()
 	self:ClearCallbacks()
 end
 
-function MessageBoxWnd:InitWnd(box_type)
+function MessageBoxWnd:InitWnd(box_type, attach)
 	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
 	local xml = CScriptXmlInit()
 	xml:ParseFile(OVERLAY_XML)
-
+	
 	self.message_box = CUIMessageBox()
 	self:AttachChild(self.message_box)
 	if not box_type then box_type = "info" end
@@ -28,7 +27,13 @@ function MessageBoxWnd:InitWnd(box_type)
 	self:AddCallback("message_box", ui_events.MESSAGE_BOX_YES_CLICKED, self.ProcessAction, self)
 	self:AddCallback("message_box", ui_events.MESSAGE_BOX_NO_CLICKED, self.HideWnd, self)
 	
-	level.start_stop_menu(self, true)
+	if not attach then
+		level.start_stop_menu(self, true)
+	else
+		self.owner:AttachChild(self)
+		self:Enable(true)
+		self:Show(true)
+	end
 end
 
 function MessageBoxWnd:InitAction(message_text, action_func, ...)
@@ -43,6 +48,95 @@ function MessageBoxWnd:ProcessAction()
 end
 
 function MessageBoxWnd:HideWnd()
-	level.start_stop_menu(self, true)
+	if self.owner:IsChild(self) then
+		self.owner:DetachChild(self)
+	else
+		level.start_stop_menu(self, true)
+	end
+	self:DetachWnd()
+end
+
+
+
+class "MessageBoxUserNoteWnd" (CUIScriptWnd)
+local msg_box_type = "message_box_accept_decline_user_note"
+
+function MessageBoxUserNoteWnd:__init(attach) super()
+	self.owner = level.main_input_receiver()
+	self:InitWnd(attach)
+end
+
+function MessageBoxUserNoteWnd:DetachWnd()
+	self:ClearCallbacks()
+end
+
+function MessageBoxUserNoteWnd:InitWnd(attach)
+	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
+	local xml = CScriptXmlInit()
+	xml:ParseFile(OVERLAY_XML)
+	
+	self.message_box = CUIMessageBox()
+	self:AttachChild(self.message_box)
+	self.message_box:Init(msg_box_type)
+	self:Register(self.message_box, "message_box")
+	
+	self:AddCallback("message_box", ui_events.MESSAGE_BOX_YES_CLICKED, self.ProcessAction, self)
+	self:AddCallback("message_box", ui_events.MESSAGE_BOX_NO_CLICKED, self.HideWnd, self)
+	
+	self.edit_note_name = xml:InitEditBoxEx(msg_box_type..":edit_note_name", self.message_box)
+	self:Register(self.edit_note_name, "note_name")
+	self:AddCallback("note_name", ui_events.EDIT_TEXT_COMMIT, self.EditNameChange, self)
+	--self:AddCallback("note_name", ui_events.EDIT_TEXT_CHANGED, self.EditNameChange, self)
+	self.cap_note_name = xml:InitStatic(msg_box_type..":cap_note_name", self.message_box)
+		
+	self.edit_note_text = xml:InitEditBoxEx(msg_box_type..":edit_note_text", self.message_box)
+	self:Register(self.edit_note_text, "note_text")
+	self:AddCallback("note_text", ui_events.EDIT_TEXT_COMMIT, self.EditTextChange, self)
+	--self:AddCallback("note_text", ui_events.EDIT_TEXT_CHANGED, self.EditTextChange, self)
+	self.cap_note_text = xml:InitStatic(msg_box_type..":cap_note_text", self.message_box)
+	
+	if not attach then
+		level.start_stop_menu(self, true)
+	else
+		self.owner:AttachChild(self)
+		self:Enable(true)
+		self:Show(true)
+	end
+end
+
+function MessageBoxUserNoteWnd:InitAction(message_text, action_func, ...)
+	self.action = action_func
+	self.args = {...}
+	self.message_box:SetText(message_text)
+end
+
+function MessageBoxUserNoteWnd:ProcessAction()
+	table.insert(self.args, self.edit_note_name:GetText())
+	table.insert(self.args, self.edit_note_text:GetText())
+	self.action(unpack(self.args))
+	self:HideWnd()
+end
+
+function MessageBoxUserNoteWnd:EditNameChange()
+	local text = self.edit_note_name:GetText()
+	self.edit_note_name:SetText(text)
+end
+
+function MessageBoxUserNoteWnd:EditTextChange()
+	local text = self.edit_note_text:GetText()
+	self.edit_note_text:SetText(text)
+end
+
+function MessageBoxUserNoteWnd:SetEditText(text1, text2)
+	self.edit_note_name:SetText(text1)
+	self.edit_note_text:SetText(text2)
+end
+
+function MessageBoxUserNoteWnd:HideWnd()
+	if self.owner:IsChild(self) then
+		self.owner:DetachChild(self)
+	else
+		level.start_stop_menu(self, true)
+	end
 	self:DetachWnd()
 end

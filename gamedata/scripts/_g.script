@@ -2235,6 +2235,18 @@ function get_current_weekday_name(short_name)
 	return game.translate_string(weekday)
 end
 
+function get_weekday_num(c_time)
+	local _date = c_time:dateToString(game.CTime.DateToDay)
+	local date_tbl = split_string(_date, "/", true)
+	return get_day_of_week(date_tbl[1], date_tbl[2], date_tbl[3])
+end
+
+function get_weekday_name(c_time, short_name)
+	local weekday_num = get_weekday_num(c_time)
+	local weekday = short_name and weekdays_name_short[weekday_num] or weekdays_name[weekday_num]
+	return game.translate_string(weekday)
+end
+
 function start_game_callback()
 	--
 	init_clsid_tables()	
