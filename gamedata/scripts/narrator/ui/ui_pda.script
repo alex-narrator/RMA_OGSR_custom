@@ -261,7 +261,7 @@ function PDAOverlay:Update()
 	local date_text = string.format("%s %s", get_current_weekday_name(true), _time:dateToString(game.CTime.DateToDay))
 	self.date:SetText(date_text)
 	
-	local show = has_pda_power and actor:has_info("ui_pda_diary_2")
+	local show = has_pda_power and actor:has_info("ui_pda_notes")
 	self.notes_left_frame:Show(show)
 	self.notes_right_frame:Show(show)
 	self.del_all_notes_btn:Show(table.size(user_notes) > 0)

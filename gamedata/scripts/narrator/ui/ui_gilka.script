@@ -1,0 +1,144 @@
+local displayr_ui = nil
+local workIndicatorTimer = 0
+local updateTimer = 0
+local updateFreq = 555 -- in milliseconds
+
+local OVERLAY_XML = "script_overlays\\ui_gilka.xml"
+
+local excluded_zones = {
+	["clsid.zone_campfire_s"] = true,
+	["clsid.zone_radioactive"] = true,
+}
+
+class "ui_display" (CUIScriptWnd)
+function ui_display:__init(item) super()
+	self:Show					(true)
+	self:Enable					(true)
+
+	local xml					= CScriptXmlInit()
+	self.xml = xml
+	xml:ParseFile				(OVERLAY_XML)
+	xml:InitWindow				("display", 0, self)
+
+	self.m_wrk_area				= xml:InitStatic("display:wrk_area", self)
+	
+	self.m_seg1					= xml:InitStatic("display:seg1", self.m_wrk_area)
+	self.m_seg2					= xml:InitStatic("display:seg2", self.m_wrk_area)
+	self.m_seg3					= xml:InitStatic("display:seg3", self.m_wrk_area)
+	self.m_seg4					= xml:InitStatic("display:seg4", self.m_wrk_area)
+	
+	self.m_workIndicator		= xml:InitStatic("display:work", self.m_wrk_area)
+	
+	self.ui_enabled 			= true
+	
+	self.item 					= item
+	self.item_sect 				= item:section()
+	self.detect_r 				= read_if_exists(sys_ini, "r_float", self.item_sect, "detect_radius", 10)
+end
+
+function ui_display:__finalize() 
+	displayr_ui = nil
+end
+
+function ui_display:Update()
+	
+	CUIScriptWnd.Update(self)
+	
+	if is_power_device(self.item) then
+		local power_lvl = self.item:binded_object():get_power_level()
+		if power_lvl > 0 and not self.ui_enabled then
+			self.ui_enabled = true
+		elseif power_lvl == 0 and self.ui_enabled then
+			self.ui_enabled = false
+		end
+		self.m_wrk_area:Show(self.ui_enabled)
+	end
+	
+	if not self.ui_enabled then
+	return end
+	
+	local tg = time_global()
+	
+	if (tg > workIndicatorTimer + 1000) then
+		workIndicatorTimer = tg
+		self.m_workIndicator:Show(not self.m_workIndicator:IsShown())
+	end
+	
+	if (tg < updateTimer) then
+		return
+	else
+		updateTimer = tg + updateFreq
+	end
+
+	local near_anom_dist = 10000
+	function perform_action(obj)
+		if obj:is_anomaly() and not excluded_zones[get_clsid(obj)] then
+			local dist = distance_between_safe(self.item, obj) - obj:radius()
+			if dist < near_anom_dist then
+				near_anom_dist = dist
+			end
+		end
+	end
+	level.iterate_nearest(self.item:position(), self.detect_r, perform_action)	
+
+	local value = near_anom_dist <= self.detect_r and math.floor(near_anom_dist) or 0
+	
+	
+	-- -- Emissions: the closer the wave, the higher the psi influnces
+	-- if GetEvent("surge", "state") then
+		-- local surge_time = GetEvent("surge", "time") or 0
+		-- local val_glitch = (surge_time > 168) and normalize(surge_time, 220, 168) or normalize(surge_time, 20, 168)
+		-- value = (value + 500) * math.random(0.5, 10) * clamp(val_glitch,0,1)
+		
+	-- -- Psi-storms: huge spike when a vortex hits the ground
+	-- elseif GetEvent("psi_storm", "state") then
+		-- if GetEvent("psi_storm", "vortex") then
+			-- value = (value + 1000) * math.random(0.7, 1.3)
+		-- else
+			-- value = value * math.random(0.9, 1.1)
+		-- end
+	-- end
+	
+	local s_value = tostring(value)
+	local seg1, seg2, seg3, seg4
+	
+	if (value > 999) then
+		seg1 = string.format("green_%s", s_value:sub(1, 1))
+		seg2 = string.format("green_%s", s_value:sub(2, 2))
+		seg3 = string.format("green_%s", s_value:sub(3, 3))
+		seg4 = string.format("green_%s", s_value:sub(4, 4))
+	elseif (value > 99) then
+		seg1 = "green_0"
+		seg2 = string.format("green_%s", s_value:sub(1, 1))
+		seg3 = string.format("green_%s", s_value:sub(2, 2))
+		seg4 = string.format("green_%s", s_value:sub(3, 3))
+	elseif (value > 9) then
+		seg1 = "green_0"
+		seg2 = "green_0"
+		seg3 = string.format("green_%s", s_value:sub(1, 1))
+		seg4 = string.format("green_%s", s_value:sub(2, 2))
+	elseif (value > 0) then
+		seg1 = "green_0"
+		seg2 = "green_0"
+		seg3 = "green_0"
+		seg4 = string.format("green_%s", s_value:sub(1, 1))
+	else
+		seg1 = "green_0"
+		seg2 = "green_0"
+		seg3 = "green_0"
+		seg4 = "green_0"
+	end
+	
+	self.m_seg1:InitTextureEx(seg1, "hud\\p3d")
+	self.m_seg2:InitTextureEx(seg2, "hud\\p3d")
+	self.m_seg3:InitTextureEx(seg3, "hud\\p3d")
+	self.m_seg4:InitTextureEx(seg4, "hud\\p3d")
+end
+
+function get_UI(item)
+	if(displayr_ui==nil) then
+		displayr_ui = ui_display(item)
+	end
+	
+	return displayr_ui
+end

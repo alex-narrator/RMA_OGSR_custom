@@ -482,6 +482,7 @@ function ActorMenuOverlay:InitControls()
 		"drop",
 		"repair_weapon",
 		"repair_armor",
+		"trade",
 	}
 	for k,snd_name in pairs(sound_names) do
 		self.sounds[snd_name] = xr_sound.get_safe_sound_object(xml:ReadAttrib(name, snd_name, ""))
@@ -1295,7 +1296,8 @@ function ActorMenuOverlay:PerformTrade()
 	end	
 
 	self.sm:call("on_perform_trade", self.target, money_give, money_take)
-
+	self:PlayActionSound("trade")
+	
 	self:UpdateCharInfos()
 	self:UpdatePrices()
 end

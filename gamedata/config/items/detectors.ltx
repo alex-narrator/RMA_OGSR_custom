@@ -176,7 +176,6 @@ animation_slot			= 7
 ef_detector_type		= 1
 slot					= 8
 belt 					= true
-vest 					= true
 night_vision_particle	= nature\flies_light
 
 inv_grid_width     		= 1
@@ -184,6 +183,8 @@ inv_grid_height    		= 1
 icon_group 				= 6
 
 inv_weight				= 0.3
+
+cost					= 500
 
 detect_radius 			= 10
 
@@ -219,7 +220,7 @@ inv_grid_y         		= 2
 cost					= 500
 
 custom_ui_pos 			= -0.0281,-0.0101,0.0375
-custom_ui_rot 			= 0,63,0
+custom_ui_rot 			= 0,1.09955743,0
 custom_ui_func 			= ui_dosimeter.get_UI
 custom_ui_bone 			= cover
 
@@ -243,11 +244,36 @@ cost					= 500
 detect_radius 			= 50
 
 custom_ui_pos           = -0.0228,0.0225,0.0415
-custom_ui_rot           = 0,88.5,0
+custom_ui_rot           = 0,1.54461639,0
 custom_ui_func			= ui_receiver.get_UI
 
 snd_draw        		= weapons\detector\detector_8_draw
 snd_holster     		= weapons\detector\detector_8_holster
+
+[detector_gilka_cop]:detector_cop_base,detect_non_radiation
+class					= S_DET_SIMP
+
+visual					= dynamics\devices\dev_detector_gilka\dev_detector_gilka
+hud						= detector_gilka_hud
+
+inv_name				= st_detector_gilka_cop_name
+inv_name_short			= st_detector_gilka_cop_short
+description				= st_detector_gilka_cop_descr
+
+inv_grid_x				= 4
+inv_grid_y				= 1
+
+detect_radius 			= 20
+
+inv_weight				= 0.5
+
+custom_ui_pos           = -0.023360,-0.009420,0.047000
+custom_ui_rot           = -1.157002,2.513963,1.004800
+custom_ui_bone 			= lid
+custom_ui_func			= ui_gilka.get_UI
+
+snd_draw				= device\glowstick_draw
+snd_holster				= device\glowstick_holster
 
 [detector_simple_cop]:detector_cop_base,detect_non_radiation,detect_af_simple
 
