@@ -458,5 +458,6 @@ log3("actor direction (%s, %s, %s)", actor:direction().x, actor:direction().y, a
 --sleep_manager.write_prop_pos_to_file()
 --game.stop_hud_motion()
 
-local day, hour, minute = 0, 4, 0
-sleep_manager.sleep_game_time(day, hour, minute)
+-- local day, hour, minute = 0, 4, 0
+-- sleep_manager.sleep_game_time(day, hour, minute)
+--actor:give_info_portion("esc_serious_talk")

@@ -355,12 +355,12 @@ function PDAOverlay:OnNotesClick()
 end
 
 function PDAOverlay:OnAddNoteClick()
-	local msg_box = ui_message_box.MessageBoxUserNoteWnd(true)
+	local msg_box = ui_message_box.MessageBoxUserNoteWnd(is_3d_pda())
 	msg_box:InitAction(game.translate_string("st_add_note"), add_note)
 end
 
 function PDAOverlay:OnDelAllNotesClick()
-	local msg_box = ui_message_box.MessageBoxWnd("red", true)
+	local msg_box = ui_message_box.MessageBoxWnd("red", is_3d_pda())
 	local text = string.format("%s?", game.translate_string("st_del_all_notes"))
 	msg_box:InitAction(text, remove_all_notes)	
 end
@@ -422,7 +422,7 @@ function PDAOverlay:OnEditNoteBtn()
 	if not note then
 	return end
 	
-	local msg_box = ui_message_box.MessageBoxUserNoteWnd(true)
+	local msg_box = ui_message_box.MessageBoxUserNoteWnd(is_3d_pda())
 	msg_box:SetEditText(note.name, note.text)
 	msg_box:InitAction(game.translate_string("st_edit_note"), edit_note, i)	
 end
@@ -431,7 +431,7 @@ function PDAOverlay:OnRemoveNoteBtn()
 	if not self.selected_note then return end
 	local i = self.selected_note
 	local note = user_notes[i]
-	local msg_box = ui_message_box.MessageBoxWnd("red", true)
+	local msg_box = ui_message_box.MessageBoxWnd("red", is_3d_pda())
 	local text = string.format("%s %s ?", game.translate_string("st_del_note"), note.name)
 	msg_box:InitAction(text, remove_note, i)
 end

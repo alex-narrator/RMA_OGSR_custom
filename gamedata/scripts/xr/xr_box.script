@@ -196,16 +196,17 @@ function r_items( spawn_ini, section, line)
 	return nil
 end
 
-function create_obligatory_items(obj, item , count)
+function create_obligatory_items(obj, section , count)
+	local level = level.name()
 	for i = 1,count do
 				local position = vector():set(0,0,0)
 				position.x = obj:position().x + math.random(-30,30)/100
 				position.z = obj:position().z + math.random(-30,30)/100
 				position.y = obj:position().y + math.random(30,50)/100
-				--Bak--
-				local obj_itm 	= alife():create( item, position, obj:level_vertex_id(), obj:game_vertex_id() )
-				local sobj_item = alife():object( obj_itm.id )
-				alife():use_ai_locations(sobj_item, false)
-				--Bak--
+				local sobj = spawn_to_level(section, position, level)
+				--//артефакти з ящиків не "кусаютсья"
+				if sobj:clsid() == clsid.artefact_s then
+					alife():object( sobj.id ).is_taken = true
+				end
 			end
 end

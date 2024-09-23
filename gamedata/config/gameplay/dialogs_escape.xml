@@ -1438,24 +1438,49 @@
                 <text>escape_trader_start_dialog_231111</text>
 				<next>2311111</next>
 				<next>2311112</next>
+				<next>2311113</next>
+				<next>2311114</next>
             </phrase>
             <phrase id="2311111">
                 <text>escape_trader_start_dialog_2311111</text>
 				<precondition>escape_dialog.actor_dont_has_weapon</precondition>
+				<precondition>escape_dialog.actor_dont_has_detector</precondition>
 				<give_info>escape_stalker_meet</give_info>				
 				<give_info>esc_find_railroad_passage_start</give_info>
 				<action>escape_dialog.give_weapon_to_actor</action>
+				<action>escape_dialog.give_detector_to_actor</action>
 				<!-- <action>escape_dialog.give_knife_to_actor</action> -->
 				<next>23111111</next>
             </phrase>
             <phrase id="2311112">
                 <text>escape_trader_start_dialog_2311112</text>
 				<precondition>escape_dialog.actor_has_weapon</precondition>
+				<precondition>escape_dialog.actor_has_detector</precondition>
 				<give_info>escape_stalker_meet</give_info>				
 				<give_info>esc_find_railroad_passage_start</give_info>
 				<!-- <action>escape_dialog.give_knife_to_actor</action> -->
 				<next>23111111</next>
             </phrase>
+            <phrase id="2311113">
+                <text>escape_trader_start_dialog_2311113</text>
+				<precondition>escape_dialog.actor_has_weapon</precondition>
+				<precondition>escape_dialog.actor_dont_has_detector</precondition>
+				<give_info>escape_stalker_meet</give_info>				
+				<give_info>esc_find_railroad_passage_start</give_info>
+				<action>escape_dialog.give_detector_to_actor</action>
+				<!-- <action>escape_dialog.give_knife_to_actor</action> -->
+				<next>23111111</next>
+            </phrase>
+            <phrase id="2311114">
+                <text>escape_trader_start_dialog_2311114</text>
+				<precondition>escape_dialog.actor_dont_has_weapon</precondition>
+				<precondition>escape_dialog.actor_has_detector</precondition>
+				<give_info>escape_stalker_meet</give_info>				
+				<give_info>esc_find_railroad_passage_start</give_info>
+				<action>escape_dialog.give_weapon_to_actor</action>
+				<!-- <action>escape_dialog.give_knife_to_actor</action> -->
+				<next>23111111</next>
+            </phrase>			
             <phrase id="23111111">
                 <text>escape_trader_start_dialog_23111111</text>
 				<next>231111111</next>
@@ -1582,7 +1607,7 @@
             </phrase>
             <phrase id="32111">
                 <text>escape_trader_start_dialog_32111</text>
-				<action>escape_dialog.give_detector_to_actor</action>
+				<action>escape_dialog.give_tutorial_detector_to_actor</action>
                 <give_info>esc_trader_can_leave</give_info>
                 <give_info>tutorial_artefact_start</give_info>
                 <next>321111</next>
