@@ -1,8 +1,8 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
-	sm:subscribe({signal = "on_take",   		fun = this.on_take})
-	sm:subscribe({signal = "on_pda_hack",   	fun = this.on_pda_hack})
-	sm:subscribe({signal = "on_hud_state_switch",   	fun = this.on_state_switch})
+	sm:subscribe({signal = "on_take",   			fun = this.on_take})
+	sm:subscribe({signal = "on_pda_hack",   		fun = this.on_pda_hack})
+	sm:subscribe({signal = "on_hud_state_switch", 	fun = this.on_state_switch})
 end
 
 function on_take(item)
@@ -95,9 +95,17 @@ function on_state_switch(item, state, old_state)
 	if not item:is_power_on() then
 		add_update_delayed_action(1,
 			function()
-				item:play_hud_motion("anm_empty")
+				block_non_move_action(true)
+				local length = item:play_hud_motion("anm_empty")
 				local snd_name = read_if_exists(sys_ini, "r_string", item:section(), "snd_empty", nil)
 				xr_sound.get_safe_sound_object(snd_name):play(actor, 0, sound_object.s2d)
+				add_time_delayed_action(
+					length * 0.001 - 0.9,
+					function() 
+						block_non_move_action(false)
+						actor:activate_slot(NO_ACTIVE_SLOT)
+					end
+				)
 			end
 		)
 	end
