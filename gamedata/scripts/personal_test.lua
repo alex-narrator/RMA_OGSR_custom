@@ -39,8 +39,8 @@
 --db.actor.power = -10
 
 local tgt = level.get_target_obj()
-show_dbg_info = false
-if tgt and show_dbg_info then
+if tgt then
+	--tgt:play_cycle("work")
 	-- log3("~ target section: %s | id %s| story_id %s | name: %s | profile: %s | species %s | nonscript usable %s | position (%s, %s, %s) | lvid %s | gvid %s | visual %s | gulag %s", 
 		-- tgt:section(), 
 		-- tgt:id(), 
@@ -74,6 +74,18 @@ if tgt and show_dbg_info then
 		-- log3( "~is_active = %s", anomaly_detector.is_active )
 		-- anomaly_detector:activate()
 	-- end
+	
+	-- local particle_name = "vehiclefx\\exhaust_1"
+	-- --local particle_name = "anomaly2\\plasma_generator_death"
+	-- local particle = particles_object(particle_name)
+	-- local obj = tgt
+	-- local pos = obj:position()--tgt:bone_position("l_rotor")--obj:position()
+	-- -- local dir = obj:direction()
+	-- -- pos:sub(dir:normalize())
+	-- local particle_pos = vector():set(0.7,0.2,1.1)
+	-- pos:add(particle_pos)
+	-- particle:play_at_pos(pos)	
+	
 end
 
 -- local torch = actor_get_torch()
@@ -461,3 +473,52 @@ log3("actor direction (%s, %s, %s)", actor:direction().x, actor:direction().y, a
 -- local day, hour, minute = 0, 4, 0
 -- sleep_manager.sleep_game_time(day, hour, minute)
 --actor:give_info_portion("esc_serious_talk")
+
+local spawn_switcher = false
+if spawn_switcher then
+	local spawn_pos = vector():set(-255.2, -19.8, -126.17)
+	local spawn_dir = vector():set(1.17, 0, 0)
+	local level_name = level.name()
+	local spawn_sect = "cut_out_switch"
+	local se_obj = spawn_to_level(spawn_sect, spawn_pos, level_name, spawn_dir)
+	se_obj.custom_data = [[
+	[collide]
+	ignore_static
+	[logic]
+	active      = ph_button@enabled
+	[ph_button@enabled]
+	anim        = lab_primary_switcher_idle
+	tooltip 	= st_switch_off
+	on_press    = ph_button@disabled %=cut_out_switch_off%
+	[ph_button@disabled]
+	anim        = lab_primary_switcher_off
+	tooltip 	= st_switch_on
+	on_press    = ph_button@enabled %=cut_out_switch_on%
+	]]
+end
+
+-- local sobj = alife():object(se_obj.id)
+-- if sobj then
+	-- log3("~startup_animation %s", sobj.startup_animation)
+	-- sobj.startup_animation = "work"
+-- end
+
+-- local log_radius = 5
+-- local log_sect = {
+	-- ["lights_hanging_lamp"] = true,
+-- }
+-- function perform_action(obj)
+	-- if log_sect[obj:section()] then
+		-- log3("obj name %s, id %s, section %s, visual %s", obj:name(), obj:id(), obj:section(), obj:get_visual_name() or "NO VISUAL")
+	-- end
+-- end
+-- level.iterate_nearest(actor:position(), log_radius, perform_action)
+
+local particle = "destroy_fx\\destroy_el_box"
+local particle_pos = vector():set(0.05,-0.8,0.1)
+local target = level.get_target_obj()
+if target then
+	local pos = target:position()
+	pos:add(particle_pos)
+	particles_object(particle):play_at_pos(pos)
+end

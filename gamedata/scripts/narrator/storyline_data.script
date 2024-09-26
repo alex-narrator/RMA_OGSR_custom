@@ -20,8 +20,170 @@ custom_spawn_sections = {
 		section="backpack_sack", 
 		pos={21.879632949829, 10.801671981812, 92.216606140137}, 
 		level="l01_escape"
-	},	
+	},
 
+	--//генератор біля бункеру Сидоровича
+	{
+		section="diesel_generator", 
+		pos={-234.23892211914, -20.028675079346, -153.28335571289},
+		dir={0, -1.58, 0},
+		level="l01_escape",
+		custom_data = [[
+		[collide]
+		ignore_static		
+		[logic]
+		active      = ph_button@enabled
+		[ph_button@enabled]
+		anim_blend  = false
+		anim        = work
+		tooltip 	= st_use_generator
+		on_press    = ph_button@disabled %=diesel_generator_snd_off%
+		sound 		= car\car1
+		particle 	= vehiclefx\exhaust_1
+		particle_pos = -1.07,0.2,0.7
+		[ph_button@disabled]
+		anim_blend  = false
+		anim        = idle
+		tooltip 	= st_use_generator
+		on_press    = ph_button@enabled %=diesel_generator_snd_on%
+		]]		
+	},
+	--//генератор у селищі новачків
+	{
+		section="diesel_generator", 
+		pos={-202.24659729004, -19.896629333496, -159.2135925293},
+		dir={0, -3.14, 0},
+		level="l01_escape",
+		custom_data = [[
+		[collide]
+		ignore_static		
+		[logic]
+		active      = ph_button@enabled
+		[ph_button@enabled]
+		anim_blend  = false
+		anim        = work
+		tooltip 	= st_use_generator
+		on_press    = ph_button@disabled %=diesel_generator_snd_off%
+		sound 		= car\car1
+		particle 	= vehiclefx\exhaust_1
+		particle_pos = 0.7,0.2,1.1
+		[ph_button@disabled]
+		anim_blend  = false
+		anim        = idle
+		tooltip 	= st_use_generator
+		on_press    = ph_button@enabled %=diesel_generator_snd_on%
+		]]		
+	},
+
+	--//перемикач у бункері Сидоровича
+	{
+		section="cut_out_switch", 
+		pos={-256.25, -22.2, -135.5},
+		dir={1.2, 3.14, 0},
+		level="l01_escape",
+		story_id = 95,
+		custom_data = [[
+		[collide]
+		ignore_static
+		[logic]
+		active      = ph_button@enabled
+		[ph_button@enabled]
+		anim        = lab_primary_switcher_idle
+		tooltip 	= ui_st_turn_off
+		on_press    = ph_button@disabled %=cut_out_switch_off%
+		[ph_button@disabled]
+		anim        = lab_primary_switcher_off
+		tooltip 	= ui_st_turn_on
+		on_press    = ph_button@enabled %=cut_out_switch_on%
+		]]		
+	},
+	{
+		section="cut_out_switch", 
+		pos={-255.2, -19.8, -126.17},
+		dir={1.17, 0, 0},
+		level="l01_escape",
+		story_id = 96,
+		custom_data = [[
+		[collide]
+		ignore_static
+		[logic]
+		active      = ph_button@enabled
+		[ph_button@enabled]
+		anim        = lab_primary_switcher_idle
+		tooltip 	= ui_st_turn_off
+		on_press    = ph_button@disabled %=cut_out_switch_off%
+		[ph_button@disabled]
+		anim        = lab_primary_switcher_off
+		tooltip 	= ui_st_turn_on
+		on_press    = ph_button@enabled %=cut_out_switch_on%
+		]]		
+	},		
+	{
+		section="cut_out_switch", 
+		pos={-251.25, -23.4, -133.2},
+		dir={1.2, 1.51, 0},
+		level="l01_escape",
+		story_id = 97,
+		custom_data = [[
+		[collide]
+		ignore_static
+		[logic]
+		active      = ph_button@enabled
+		[ph_button@enabled]
+		anim        = lab_primary_switcher_idle
+		tooltip 	= ui_st_turn_off
+		on_press    = ph_button@disabled %=cut_out_switch_off%
+		[ph_button@disabled]
+		anim        = lab_primary_switcher_off
+		tooltip 	= ui_st_turn_on
+		on_press    = ph_button@enabled %=cut_out_switch_on%
+		]]		
+	},	
+	--//перемикач у селищі новачків - підвал зліва
+	{
+		section="cut_out_switch", 
+		pos={-212.37987121582, -21.7, -127.75781097412},
+		dir={1.2, 3.14, 0},
+		level="l01_escape",
+		story_id = 98,
+		custom_data = [[
+		[collide]
+		ignore_static
+		[logic]
+		active      = ph_button@enabled
+		[ph_button@enabled]
+		anim        = lab_primary_switcher_idle
+		tooltip 	= ui_st_turn_off
+		on_press    = ph_button@disabled %=cut_out_switch_off%
+		[ph_button@disabled]
+		anim        = lab_primary_switcher_off
+		tooltip 	= ui_st_turn_on
+		on_press    = ph_button@enabled %=cut_out_switch_on%
+		]]		
+	},
+	--//перемикач у селищі новачків - підвал справа
+	{
+		section="cut_out_switch", 
+		pos={-204.32, -21.1, -129.15460205078},
+		dir={1.2, -1.55, 0},
+		level="l01_escape",
+		story_id = 99,
+		custom_data = [[
+		[collide]
+		ignore_static
+		[logic]
+		active      = ph_button@enabled
+		[ph_button@enabled]
+		anim        = lab_primary_switcher_idle
+		tooltip 	= ui_st_turn_off
+		on_press    = ph_button@disabled %=cut_out_switch_off%
+		[ph_button@disabled]
+		anim        = lab_primary_switcher_off
+		tooltip 	= ui_st_turn_on
+		on_press    = ph_button@enabled %=cut_out_switch_on%
+		]]		
+	},	
+	
 	--//ЗВАЛИЩЕ
 	--//MP5 у трупі на Звалищі, у кінці жд-тонелю
 	{

@@ -13,6 +13,16 @@ function action_idle:reset_scheme()
 	printf("_hr: action_idle:reset_scheme: self.object:name()='%s'", self.object:name())
 	
 	self.object:set_nonscript_usable(self.st.nonscript_usable)
+	
+	if self.sound then
+		self.sound:stop()
+		self.sound = nil
+	end
+	
+	if self.st.sound then
+		self.sound = xr_sound.get_safe_sound_object(self.st.sound)
+		self.sound:play_at_pos(self.object, self.object:position(), 0, sound_object.s3d)
+	end	
 end
 function action_idle:update(delta)
 	--printf("_hr: action_idle:update()")
@@ -20,9 +30,10 @@ function action_idle:update(delta)
 	--if not xr_logic.is_active(self.object, self.st) then
 	--	return
 	--end
-
-	local actor = db.actor
-
+	if self.sound and not self.sound:playing() then
+		self.sound:play_at_pos(self.object, self.object:position(), 0, sound_object.s3d)
+	end
+	
 	if xr_logic.try_switch_to_another_section(self.object, self.st, actor) then
 		return
 	end	
@@ -52,6 +63,10 @@ function action_idle:use_callback(obj, actor)
 end
 function action_idle:deactivate()
 	self.object:set_tip_text("")
+	if self.sound then
+		self.sound:stop()
+		self.sound = nil
+	end	
 end
 ---------------------------------------------------------------------------------------------------------------------
 function add_to_binder(npc, ini, scheme, section, storage)
@@ -74,4 +89,6 @@ function set_scheme(npc, ini, scheme, section, gulag_name)
 	st.tips  = utils.cfg_get_string(ini, section, "tips", npc, false, "", "")
 	
 	npc:set_tip_text(st.tips)
+	
+	st.sound = read_if_exists(ini, "r_string", section, "sound", nil)
 end

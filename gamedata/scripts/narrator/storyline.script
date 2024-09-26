@@ -60,6 +60,9 @@ function new_game_spawn()
 					end
 					pk:set( data )					
 				end
+				if v.startup_anim then
+					sim:object(se_item.id).startup_animation = v.startup_anim
+				end
 			end
 			if v.owner_sid then
 				level.add_call(

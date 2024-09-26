@@ -22,42 +22,6 @@ inv_grid_x			= 6
 inv_grid_y			= 13
 cost				= 5000
 
-
-[inventory_box]
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn 				= "devices\inventory box"
-class				= S_INVBOX
-cform				= skeleton
-visual				= physics\box\expl_dinamit
-script_binding      = bind_physic_object.init
-unlock_snd 			= device\door_servomotor
-
-[inventory_box_blue]:inventory_box
-visual				= physics\equipment_cache\equipment_box_01_case
-
-[physical_box_blue]
-GroupControlSection	= spawn_group
-$spawn 				= "physics\object"
-$prefetch 			= 8
-class				= O_PHYS_S
-remove_time			= 60; after this time  unbreaked removable bone will be removed
-script_binding      = bind_physic_object.init
-visual				= equipments\item_box_01_visual
-
-[inventory_box_blue_deadcity]:inventory_box_blue
-custom_data = scripts\cit\cit_actor_weapon_box.ltx
-
-[physical_box_blue_deadcity]:physical_box_blue
-custom_data = scripts\cit\cit_actor_weapon_physical_box.ltx
-
-[decor_box_tara]:inventory_box
-visual				= physics\box\box_wood_tara
-
-[mil_dynamite]:explosive_dinamit
-script_binding      = bind_physic_object.init
-custom_data 		= scripts\mil_dynamite.ltx
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;	DEVICES
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

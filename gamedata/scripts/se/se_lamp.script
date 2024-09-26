@@ -1,0 +1,20 @@
+
+class "se_hanging_lamp" (cse_alife_object_hanging_lamp)
+function se_hanging_lamp:__init (section) super (section)
+	self.is_on = true
+end
+function se_hanging_lamp:on_register()
+	cse_alife_object_hanging_lamp.on_register( self )
+end
+function se_hanging_lamp:on_unregister()
+end
+function se_hanging_lamp:STATE_Write (packet)
+	cse_alife_object_hanging_lamp.STATE_Write (self, packet)
+	packet:w_bool(self.is_on)
+end
+function se_hanging_lamp:STATE_Read (packet, size)
+	cse_alife_object_hanging_lamp.STATE_Read (self, packet, size)
+	if packet:r_eof() then
+	return end	
+	self.is_on = packet:r_bool()
+end

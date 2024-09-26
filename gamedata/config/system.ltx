@@ -233,7 +233,7 @@ heavy_ammo 			= 0
 [lights_hanging_lamp]
 GroupControlSection	= spawn_group
 $spawn 				= "physics\hanging lamp"
-class				= O_HLAMP
+class				= S_HLAMP
 script_binding      = bind_physic_object.init
 
 [physic_object]
@@ -254,6 +254,47 @@ script_binding      = bind_physic_object.init
 
 [surprize_box_metal]:physic_destroyable_object
 visual = physics\box\box_metall_01
+
+;;;;;;;;SOME STUFF;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+[inventory_box]
+GroupControlSection	= spawn_group
+discovery_dependency = 
+$spawn 				= "devices\inventory box"
+class				= S_INVBOX
+cform				= skeleton
+visual				= physics\box\expl_dinamit
+script_binding      = bind_physic_object.init
+unlock_snd 			= device\door_servomotor
+
+[inventory_box_blue]:inventory_box
+visual				= physics\equipment_cache\equipment_box_01_case
+
+[physical_box_blue]:physic_object
+visual				= equipments\item_box_01_visual
+
+[inventory_box_blue_deadcity]:inventory_box_blue
+custom_data = scripts\cit\cit_actor_weapon_box.ltx
+
+[physical_box_blue_deadcity]:physical_box_blue
+custom_data = scripts\cit\cit_actor_weapon_physical_box.ltx
+
+[decor_box_tara]:inventory_box
+visual				= physics\box\box_wood_tara
+
+[mil_dynamite]:explosive_dinamit
+script_binding      = bind_physic_object.init
+custom_data 		= scripts\mil_dynamite.ltx
+
+[diesel_generator]:physic_object
+visual				= physics\technica\disel_generator
+startup_animation 	= idle
+fixed_bones 		= body
+;custom_data 		= scripts\diesel_generator.ltx
+
+[cut_out_switch]:physic_object
+visual 				= physics\keyboard\lab_primary_switcher
+startup_animation 	= lab_primary_switcher_idle
+fixed_bones 		= link
 
 [search_light]
 GroupControlSection	= spawn_group

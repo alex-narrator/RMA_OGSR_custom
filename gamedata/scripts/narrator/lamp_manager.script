@@ -1,0 +1,100 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_spawn_physics", fun = this.on_spawn_physics})
+end
+
+local lamp_name_by_switch_sid = {
+	[story_ids.esc_trader_bunker_switch_1] = {
+		"light_alarm_glass_0001",
+	},
+	[story_ids.esc_trader_bunker_switch_2] = {
+		"light_alarm_glass_0002",
+	},
+	[story_ids.esc_trader_bunker_switch_3] = {
+		"light_alarm_glass_0003",
+	},	
+	[story_ids.esc_novice_village_switch_left_basement] = {
+		"light_alarm_glass_0000",
+	},
+	[story_ids.esc_novice_village_switch_right_basement] = {
+		"lights_white_glass_0003",
+	},
+}
+
+local effects_by_sid = {
+	[story_ids.esc_trader_bunker_switch_1] = {
+		sound = "car\\car_gearchange",
+		particle = "destroy_fx\\destroy_el_box",
+		particle_pos = vector():set(-0.3,-0.1,0.15),
+	},
+	[story_ids.esc_trader_bunker_switch_2] = {
+		sound = "car\\car_gearchange",
+		particle = "destroy_fx\\destroy_el_box",
+		particle_pos = vector():set(0.35,-0.1,-0.1),
+	},
+	[story_ids.esc_trader_bunker_switch_3] = {
+		sound = "car\\car_gearchange",
+		particle = "destroy_fx\\destroy_el_box",
+		particle_pos = vector():set(0.16,-0.1,0.3),
+	},	
+	[story_ids.esc_novice_village_switch_left_basement] = {
+		sound = "car\\car_gearchange",
+		particle = "destroy_fx\\destroy_el_box",
+		particle_pos = vector():set(0.05,-0.8,0.1),
+	},
+	[story_ids.esc_novice_village_switch_right_basement] = {
+		sound = "car\\car_gearchange",
+		--particle = "destroy_fx\\destroy_el_box",
+		--particle_pos = vector():set(0,0,0),
+	},	
+}
+
+function switch_lamp(switcher, enable)
+	local lamps = lamp_name_by_switch_sid[switcher:story_id()]
+	if not lamps then
+	return end
+	local effects = effects_by_sid[switcher:story_id()]
+	if effects then
+		local pos = switcher:position()
+		if effects.sound then
+			xr_sound.get_safe_sound_object(effects.sound):play_at_pos(switcher, pos)
+		end
+		if effects.particle then
+			pos:add(effects.particle_pos or vector())
+			particles_object(effects.particle):play_at_pos(pos)
+		end
+	end
+	for k,name in pairs(lamps) do
+		local obj = cobj_by_name(name)
+		if obj then
+			local lamp = obj:get_hanging_lamp()
+			if lamp then
+				if enable then
+					lamp:turn_on()
+				else
+					lamp:turn_off()
+				end
+				alife():object(obj:id()).is_on = enable
+			end
+		end
+	end
+end
+
+function on_spawn_physics(obj)
+	local lamp = obj:get_hanging_lamp()
+	if not lamp then
+	return end
+	
+	local turn_on = alife():object(obj:id()).is_on
+	
+	--//якщо не почекати один апдейт при увімкненні лампи на спавні то буде виліт
+	add_update_delayed_action(1,
+		function()
+			if turn_on then
+				lamp:turn_on()
+			else
+				lamp:turn_off()
+			end		
+		end
+	)
+end

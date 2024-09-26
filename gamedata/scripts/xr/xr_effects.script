@@ -2487,3 +2487,19 @@ function show_device()
 	return end
 	actor:activate_slot(DETECTOR_SLOT, false)
 end
+
+function diesel_generator_snd_on(actor, npc)
+	xr_sound.get_safe_sound_object("car\\car_gearchange"):play_at_pos(npc, npc:position())
+end
+
+function diesel_generator_snd_off(actor, npc)
+	xr_sound.get_safe_sound_object("car\\car_gearchange"):play_at_pos(npc, npc:position())
+end
+
+function cut_out_switch_off(actor, npc, p)
+	lamp_manager.switch_lamp(npc, false)
+end
+
+function cut_out_switch_on(actor, npc, p)
+	lamp_manager.switch_lamp(npc, true)
+end

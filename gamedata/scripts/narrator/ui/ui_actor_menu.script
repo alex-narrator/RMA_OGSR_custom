@@ -1952,7 +1952,10 @@ function ActorMenuOverlay:UpdatePrices()
 	self.sell_cost:SetText(text)
 	color = (total_price > self.target:money()) and GetARGB(255, 255, 0, 0) or self.sell_cost.base_color
 	self.sell_cost:SetTextColor(color)
-	self:PlayActionSound("to_ruck")	
+	
+	self.trade_button:Enable((self.money_from_actor > 0 or self.money_to_actor > 0) and self.money_from_actor <= actor:money() and self.money_to_actor <= self.target:money())	
+	
+	self:PlayActionSound("to_ruck")
 end
 
 function ActorMenuOverlay:PlayActionSound(name)

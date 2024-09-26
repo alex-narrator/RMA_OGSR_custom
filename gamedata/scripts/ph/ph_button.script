@@ -1,0 +1,155 @@
+----------------------------------------------------------------------------------------------------
+-- Button
+----------------------------------------------------------------------------------------------------
+-- Разработчик: Andrey Fidrya (Zmey) af@svitonline.com
+----------------------------------------------------------------------------------------------------
+
+class "ph_button"
+
+function ph_button:__init(obj, storage)
+	self.object = obj
+	self.st = storage
+	--log3("~init for %s", obj:name())
+end
+
+function ph_button:reset_scheme()
+	--log3("~reset_scheme for %s", self.object:name())
+	self.object:play_cycle(self.st.anim, self.st.blending)
+	self.last_hit_tm = time_global()
+	
+	if self.sound then
+		self.sound:stop()
+		self.sound = nil
+	end
+	
+	if self.st.sound then
+		self.sound = xr_sound.get_safe_sound_object(self.st.sound)
+		self.sound:play_at_pos(self.object, self.object:position(), 0, sound_object.s3d)
+		--log3("~create and play new sound for %s", self.object:name())
+	end
+	
+	if self.particle then
+		self.particle:stop()
+		self.particle = nil
+	end
+	
+	if self.st.particle then
+		self.particle = particles_object(self.st.particle)
+		local pos = self.object:position()
+		pos:add(self.st.particle_pos)
+		self.particle:play_at_pos(pos)		
+	end
+end
+
+function ph_button:update(delta)
+--	log3("~update for %s", self.object:name())
+	if self.particle and not self.particle:playing() then
+		local pos = self.object:position()
+		pos:add(self.st.particle_pos)
+		self.particle:play_at_pos(pos)		
+	end
+	if self.sound and not self.sound:playing() then
+		self.sound:play_at_pos(self.object, self.object:position(), 0, sound_object.s3d)
+	end
+	if xr_logic.try_switch_to_another_section(self.object, self.st, db.actor) then
+		return
+	end
+end
+
+function ph_button:try_switch()
+	local st = db.storage[self.object:id()]
+	if st.active_scheme and st.active_scheme == "ph_button" and self.st.on_press then
+		--if xr_logic.try_switch_to_another_section(obj, self.st, db.actor) then
+		if xr_logic.switch_to_section(self.object, self.st,
+		   xr_logic.pick_section_from_condlist(db.actor, self.object, self.st.on_press.condlist)) then
+		   return true
+		end
+	end
+	return false
+end
+
+function ph_button:hit_callback(obj, amount, local_direction, who, bone_index)
+	return
+--[[	local who_name
+	if who then
+		who_name = who:name()
+	else
+		who_name = "nil"
+	end
+
+	printf("_bp: ph_button:hit_callback: obj='%s', amount=%d, who='%s'", obj:name(), amount, who_name)
+
+	if time_global() - self.last_hit_tm > 500 then
+		self.last_hit_tm = time_global()
+		if self:try_switch() then
+			return
+		end
+	end
+	]]
+end
+
+function ph_button:use_callback(victim, who)
+	printf("_bp: ph_button:use_callback: [%s] used by [%s]",
+		victim:name(), who:name())
+
+	if self:try_switch() then
+		if self.st.switch_sound then
+			xr_sound.get_safe_sound_object(self.st.switch_sound):play_at_pos(self.object, self.object:position(), 0, sound_object.s3d)
+		end
+		if self.st.switch_particle then
+			local pos = self.object:position()
+			pos:add(self.st.switch_particle_pos)
+			particles_object(self.st.switch_particle):play_at_pos(pos)		
+		end	
+		return
+	end
+end
+
+function ph_button:deactivate ()
+	if self.sound then
+		self.sound:stop()
+		self.sound = nil
+	end
+	if self.particle then
+		self.particle:stop()
+		self.particle = nil
+	end
+end
+---------------------------------------------------------------------------------------------------------------------
+function add_to_binder(npc, ini, scheme, section, storage)
+	printf("DEBUG: add_to_binder: npc:name()='%s', scheme='%s', section='%s'", npc:name(), scheme, section)
+	--log3("~add_to_binder for %s", npc:name())
+ 	local new_action = ph_button(npc, storage)
+
+	xr_logic.subscribe_action_for_events(npc, storage, new_action)
+end
+
+function set_scheme(npc, ini, scheme, section, gulag_name)
+	local st = xr_logic.assign_storage_and_bind(npc, ini, scheme, section)
+
+	st.logic     = xr_logic.cfg_get_switch_conditions(ini, section, npc)
+	
+	st.on_press  = xr_logic.cfg_get_condlist(ini, section, "on_press", npc)
+
+	st.tooltip  = utils.cfg_get_string(ini, section, "tooltip", npc, false, "")
+	if st.tooltip then
+		npc:set_tip_text(st.tooltip)
+	else
+		npc:set_tip_text("")
+	end
+
+	st.anim = utils.cfg_get_string(ini, section, "anim", npc, true, "")
+	st.blending = utils.cfg_get_bool (ini, section, "anim_blend", npc, false, true)
+    if st.blending == nil then 	
+       st.blending = true 
+    end
+	
+	st.sound = read_if_exists(ini, "r_string", section, "sound", nil)
+	st.particle = read_if_exists(ini, "r_string", section, "particle", nil)
+	st.particle_pos = read_if_exists(ini, "r_vector", section, "particle_pos", vector())
+	
+	st.switch_sound = read_if_exists(ini, "r_string", section, "switch_sound", nil)
+	st.switch_particle = read_if_exists(ini, "r_string", section, "switch_particle", nil)
+	st.switch_particle_pos = read_if_exists(ini, "r_vector", section, "switch_particle_pos", vector())	
+end
+
