@@ -127,107 +127,131 @@ end
 
 function add_lchanger_location()
 	local sim = alife()
+	
+	local db_lc = db.level_changers
+	
 	if sim then
 		-- escape
 		local obj = sim:story_object(story_ids.esc_exit_to_garbage_01)
 		if obj then
 			level.map_add_object_spot(obj.id, "level_changer_up", "to_garbage")
+			db_lc[obj.id] = true
 		end
 
 		-- garbage
 		obj = sim:story_object(story_ids.gar_exit_to_agroprom_01)
 		if obj then
 			level.map_add_object_spot(obj.id, "level_changer_left", "to_agroprom")
+			db_lc[obj.id] = true
 		end
 		obj = sim:story_object(story_ids.gar_exit_to_agroprom_02)
 		if obj then
 			level.map_add_object_spot(obj.id, "level_changer_left", "to_agroprom")
+			db_lc[obj.id] = true
 		end
 		obj = sim:story_object(story_ids.gar_exir_to_escape)
 		if obj then
 			level.map_add_object_spot(obj.id, "level_changer_down", "to_escape")
+			db_lc[obj.id] = true
 		end
 		obj = sim:story_object(story_ids.gar_exit_to_bar)
 		if obj then
 			level.map_add_object_spot(obj.id, "level_changer_up", "to_bar")
+			db_lc[obj.id] = true
 		end
 		obj = sim:story_object(story_ids.gar_exit_to_darkvalley_low)
 		if obj then
 			level.map_add_object_spot(obj.id, "level_changer_right", "to_darkvalley")
+			db_lc[obj.id] = true
 		end
 		obj = sim:story_object(story_ids.gar_exit_to_darkvalley_high)
 		if obj then
 			level.map_add_object_spot(obj.id, "level_changer_right", "to_darkvalley")
+			db_lc[obj.id] = true
 		end
 		
 		-- agroprom
 		obj = sim:story_object(story_ids.agr_exit_to_garbage_01)
 		if obj then
 			level.map_add_object_spot(obj.id, "level_changer_up_right", "to_garbage")
+			db_lc[obj.id] = true
 		end
 		obj = sim:story_object(story_ids.agr_exit_to_garbage_02)
 		if obj then
 			level.map_add_object_spot(obj.id, "level_changer_up_right", "to_garbage")
+			db_lc[obj.id] = true
 		end
 
 		-- darkvalley
 		obj = sim:story_object(story_ids.val_lvl_changer1)
 		if obj then
 			level.map_add_object_spot(obj.id, "level_changer_left", "to_garbage")
+			db_lc[obj.id] = true
 		end
 		obj = sim:story_object(story_ids.val_lvl_changer2)
 		if obj then
 			level.map_add_object_spot(obj.id, "level_changer_left", "to_garbage")
+			db_lc[obj.id] = true
 		end
 		obj = sim:story_object(story_ids.val_lvl_changer3)
 		if obj then
 			level.map_add_object_spot(obj.id, "level_changer_down", "to_darkscape")
+			db_lc[obj.id] = true
 		end
 
 		-- rostok
 		obj = sim:story_object(story_ids.rostok_exit_to_yantar)
 		if obj then
 			level.map_add_object_spot(obj.id, "level_changer_down_left", "to_yantar")
+			db_lc[obj.id] = true
 		end
 		
 		-- bar
 		obj = sim:story_object(story_ids.bar_exit_to_military)
 		if obj then
 			level.map_add_object_spot(obj.id, "level_changer_up", "to_military")
+			db_lc[obj.id] = true
 		end
 		obj = sim:story_object(story_ids.bar_exit_to_garbage)
 		if obj then
 			level.map_add_object_spot(obj.id, "level_changer_right_down", "to_garbage")
+			db_lc[obj.id] = true
 		end
 		obj = sim:story_object(story_ids.bar_exit_to_rostok)
 		if obj then
 			level.map_add_object_spot(obj.id, "level_changer_left", "bar_rostok")
+			db_lc[obj.id] = true
 		end
 
 		-- military
 		obj = sim:story_object(story_ids.Mil_Exit_to_Bar)
 		if obj then
 			level.map_add_object_spot(obj.id, "level_changer_left", "to_bar")
+			db_lc[obj.id] = true
 		end
 		if has_alife_info("agr_cit_doctor_meet_start") then
 			obj = sim:story_object(story_ids.Mil_Exit_to_DeadCity)
 			if obj then
 				level.map_add_object_spot(obj.id, "level_changer_left", "to_deadcity")
+				db_lc[obj.id] = true
 			end
 		end
 		obj = sim:story_object(story_ids.Mil_Exit_to_Radar)
 		if obj then
 			level.map_add_object_spot(obj.id, "level_changer_right", "to_radar")
+			db_lc[obj.id] = true
 		end
 		
 		-- yantar
 		obj = sim:story_object(story_ids.yan_exit_to_rostok)
 		if obj then
 			level.map_add_object_spot(obj.id, "level_changer_right_down", "to_rostok")
+			db_lc[obj.id] = true
 		end
 		obj = sim:story_object(story_ids.yan_exit_to_swamp)
 		if obj then
 			level.map_add_object_spot(obj.id, "level_changer_left", "to_swamp")
+			db_lc[obj.id] = true
 		end
 		
 		-- deadcity
@@ -235,10 +259,12 @@ function add_lchanger_location()
 			obj = sim:story_object(story_ids.cit_exit_to_military)
 			if obj then
 				level.map_add_object_spot(obj.id, "level_changer_right", "to_military")
+				db_lc[obj.id] = true
 			end
 			obj = sim:story_object(story_ids.cit_exit_to_yantar)
 			if obj then
 				level.map_add_object_spot(obj.id, "level_changer_down", "to_yantar")
+				db_lc[obj.id] = true
 			end
 		end
 
@@ -246,15 +272,18 @@ function add_lchanger_location()
 		obj = sim:story_object(story_ids.rad_exit_to_pripyat)
 		if obj then
 			level.map_add_object_spot(obj.id, "level_changer_up", "to_pripyat")
+			db_lc[obj.id] = true
 		end
 		obj = sim:story_object(story_ids.rad_exit_to_military)
 		if obj then
 			level.map_add_object_spot(obj.id, "level_changer_down", "to_military")
+			db_lc[obj.id] = true
 		end
 --		if has_alife_info("cit_vp_info") then
 		obj = sim:story_object(story_ids.rad_exit_to_secrert_lab)
 		if obj then
 			level.map_add_object_spot(obj.id, "level_changer_right", "to_secrert_lab")
+			db_lc[obj.id] = true
 		end
 --		end
 
@@ -262,21 +291,25 @@ function add_lchanger_location()
 		obj = sim:story_object(story_ids.pri_exit_to_radar)
 		if obj then
 			level.map_add_object_spot(obj.id, "level_changer_down", "to_radar")
+			db_lc[obj.id] = true
 		end
 		obj = sim:story_object(story_ids.pri_exit_to_aes)
 		if obj then
 			level.map_add_object_spot(obj.id, "level_changer_up", "to_aes")
+			db_lc[obj.id] = true
 		end
 		
 		--aes
 		obj = sim:story_object(story_ids.aes_exit_to_pripyat)
 		if obj then
 			level.map_add_object_spot(obj.id, "level_changer_down", "to_pripyat")
+			db_lc[obj.id] = true
 		end
 		if has_alife_info("aes_found_sarcofag") then
 			obj = sim:story_object(story_ids.aes_exit_to_sarcofag)
 			if obj then
 				level.map_add_object_spot(obj.id, "level_changer_down", "to_sarcofag")
+				db_lc[obj.id] = true
 			end
 		end
 		
@@ -285,6 +318,7 @@ function add_lchanger_location()
 			obj = sim:story_object(story_ids.gen_exit_to_warlab)
 			if obj then
 				level.map_add_object_spot(obj.id, "level_changer_down", "to_warlab")
+				db_lc[obj.id] = true
 			end
 		end
 		
@@ -292,25 +326,30 @@ function add_lchanger_location()
 		obj = sim:story_object(story_ids.ds_exit_to_darkvalley)
 		if obj then
 			level.map_add_object_spot(obj.id, "level_changer_left_up", "to_darkvalley")
+			db_lc[obj.id] = true
 		end
 		obj = sim:story_object(story_ids.ds_exit_to_escape)
 		if obj then
 			level.map_add_object_spot(obj.id, "level_changer_left_up", "to_escape")
+			db_lc[obj.id] = true
 		end
 		
 		-- болота (swamp)
 		obj = sim:story_object(story_ids.swm_exit_to_yantar)
 		if obj then
 			level.map_add_object_spot(obj.id, "level_changer_right_down", "to_yantar")
+			db_lc[obj.id] = true
 		end
 		obj = sim:story_object(story_ids.swm_exit_to_rostok)
 		if obj then
 			level.map_add_object_spot(obj.id, "level_changer_right", "to_rostok")
+			db_lc[obj.id] = true
 		end
 		if has_alife_info("swm_actor_know_exit_to_cit") then
 			obj = sim:story_object(story_ids.swm_exit_to_deadcity)
 			if obj then
 				level.map_add_object_spot(obj.id, "level_changer_right", "to_deadcity")
+				db_lc[obj.id] = true
 			end
 		end
 

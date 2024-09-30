@@ -12,6 +12,13 @@ local MOTION_TEXTURE_POSTFIX = "_warning"
 
 local SHOW_FPS = false
 
+local relation_color = {
+	[0] = GetARGB(255, 50, 255, 0),
+	[1] = GetARGB(255, 255, 200, 0),
+	[2] = GetARGB(255, 255, 0, 0),
+}
+local dead_color = GetARGB(255, 168, 168, 168)
+
 function visibility()
 	return USE_LUMINOCITY and actor:get_luminocity() or actor_obj:get_visibility()
 end
@@ -95,6 +102,10 @@ function MainIngameOverlay:InitControls()
 	self.owner:AttachChild(self)
 	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
 	self:Show(true)
+	
+	self.screen_debug = CUIStatic()
+	self.screen_debug:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
+	self:AttachChild(self.screen_debug)
 	
 	self.blood_overlay = CUIStatic()
 	self.blood_overlay:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
@@ -271,12 +282,28 @@ function MainIngameOverlay:InitControls()
 		v.threshold = split_string(xml:ReadAttrib("icons_back:"..v.name, "threshold", nil), ",", true)
 	end
 	
+	--//classic top view compass
 	self.minimap = self.owner:GetStatic("minimap")
 	self.minimap_back = self.owner:GetStatic("minimap:background")
-	self.compass = xml:InitStatic("compass", self.minimap_back)
-	self.compass_arrow = xml:InitStatic("compass:arrow", self.compass)
-	self.dist_text = xml:InitStatic("compass:dist_text", self.compass)
-	self.time_text = xml:InitStatic("compass:time_text", self.compass)
+	self.compass = xml:InitStatic("compass_top_view", self.minimap_back)
+	self.compass_arrow = xml:InitStatic("compass_top_view:arrow", self.compass)
+	self.dist_text = xml:InitStatic("compass_top_view:dist_text", self.compass)
+	self.time_text = xml:InitStatic("compass_top_view:time_text", self.compass)
+	
+	--//modern front view compass
+	self.compass_modern = xml:InitStatic("compass_front_view", self)
+	local compass_params = {}
+	compass_params.marker_size = split_string(xml:ReadAttrib("compass_front_view", "mark_size", "8,10"), ",", true)
+	compass_params.quest_marker_size = split_string(xml:ReadAttrib("compass_front_view", "quest_mark_size", "8,10"), ",", true)
+	compass_params.other_marker_size = split_string(xml:ReadAttrib("compass_front_view", "other_mark_size", "8,10"), ",", true)
+	compass_params.scale_texture_w = xml:ReadAttribInt("compass_front_view", "scale_texture_w", 2400)
+	compass_params.scale_texture_h = xml:ReadAttribInt("compass_front_view", "scale_texture_h", 100)
+	compass_params.x_to_angle_k = xml:ReadAttribInt("compass_front_view", "x_to_angle_k", 10)
+	compass_params.vertical_mark_add = xml:ReadAttribInt("compass_front_view", "vertical_mark_add", 16)
+	compass_params.hide_point_off_bound = xml:ReadAttribInt("compass_front_view", "hide_point_off_bound", 1) > 0 and true or false
+	self.compass_modern.params = compass_params
+    self.compass_modern_scale = xml:InitStatic("compass_front_view:scale", self.compass_modern)
+    self.compass_modern_line = xml:InitStatic("compass_front_view:line", self.compass_modern)	
 	
 	--//active task
 	self.active_task = xml:InitStatic("active_task", self)
@@ -796,7 +823,30 @@ function MainIngameOverlay:UpdatePickupItem()
 	self.pickup_item_icon:Show(true)
 end
 
-function MainIngameOverlay:UpdateMinimap()
+local map_spot_to_texture = {
+	["quest_pointer"] = "ui\\front_view_compass\\marker",
+	["eliminate_lager_location"] = "ui_mapQuest_camp_destroy",
+	["eliminate_lair_location"] = "ui_mapQuest_lair_destroy",
+	["defend_lager_location"] = "ui_mapQuest_camp_defend",
+	["artefact_location"] = "ui_mapQuest_artefact",
+	["kill_stalker_location"] = "ui_mapQuest_stalker_destroy",
+	["monster_part_location"] = "ui_mapQuest_monster_find",
+	["find_item_location"] = "ui_mapQuest_item",
+	["general_wounded_location"] = "exclamation_mark",
+	["treasure"] = "ui_mapQuest_gold",
+	["spot_trader_cop"] = "ui_inGame2_PDA_icon_Stalker_Trader",
+	["spot_stalker_cop"] = "ui_inGame2_PDA_icon_Stalker_VIP",
+	["spot_mechanic_cop"] = "ui_inGame2_PDA_icon_Stalker_machanik",
+	["spot_medic_cop"] = "ui_inGame2_PDA_icon_Stalker_Medic",
+	["spot_guide_cop"] = "ui_inGame2_PDA_icon_Stalker_guide",
+	["spot_storebox_cop"] = "ui_inGame2_PDA_icon_Actor_Box",
+	["spot_place_to_rest_cop"] = "ui_inGame2_PDA_icon_Place_to_rest",
+	["spot_treasure_cop"] = "ui_inGame2_PDA_icon_secret",
+	["spot_primary_cop"] = "ui_inGame2_PDA_icon_Primary_mission",
+	["spot_secondary_cop"] = "ui_inGame2_PDA_icon_Secondary_mission",
+}
+
+function MainIngameOverlay:UpdateCompass()
 	self.owner.show_zone_map = SHOW_GEAR_INFO
 
 	local pda = actor_get_pda()
@@ -811,16 +861,128 @@ function MainIngameOverlay:UpdateMinimap()
 	self.time_text:Show(pda_workable)
 	
 	local h = device().cam_dir:getH()
+	
+	--///top view compass
 	self.compass_arrow:SetHeading(-h)
-	local text = ""
+	local target_dist_text = ""
 	if dist_show then
-		text = string.format("%.f %s", dist, game.translate_string("st_m"))
+		target_dist_text = string.format("%.f %s", dist, game.translate_string("st_m"))
 	end
-	self.dist_text:SetText(text)
-
+	self.dist_text:SetText(target_dist_text)
 	local _time = game.get_game_time():timeToString(game.CTime.TimeToMinutes)
 	local text = string.format("%s", _time)
-	self.time_text:SetText(text)	
+	self.time_text:SetText(text)
+	
+	--//front view compass
+	local params = self.compass_modern.params
+	self.compass_modern:Show(pda_workable)-- and SHOW_GEAR_INFO)
+    local angle = math.deg(-h)
+	angle = angle < 0 and angle + 360 or angle
+    --self.compass_modern_line:SetText(math.floor(angle + 0.5))
+	self.compass_modern_line:SetText(target_dist_text)
+    local x = angle * params.x_to_angle_k 	--//Frect x1
+    local y = 0 							--//Frect y1
+    local width = params.scale_texture_w 	--//Frect x2
+    local height = params.scale_texture_h 	--//Frect y2
+    self.compass_modern_scale:SetOriginalRect(x, y, width, height)
+	self:ShowFrontViewMarks()
+end
+
+function MainIngameOverlay:ShowFrontViewMarks()
+	local compass_targets = {}
+	self.compass_modern_scale:DetachAll()
+	--self.screen_debug:DetachAll()
+	if not self.compass_modern:IsShown() then
+	return end
+	local params = self.compass_modern.params
+	local pda = actor_get_pda()
+	--//nearest objects
+	function perform_action(obj)
+		if obj:is_stalker() or obj:is_trader() then
+			local pos = point_on_screen.compass_ui_projection(obj:center(), self.compass_modern_scale:GetWidth(), self.compass_modern_scale:GetHeight() + params.vertical_mark_add, params.hide_point_off_bound)
+			if pos then
+				local marker_data = {
+					pos = pos,
+					dist = distance_between(actor, obj),
+					color = relation_color[obj:relation(actor)],
+				}
+				if not obj:alive() then
+					marker_data.color = dead_color
+					marker_data.texture = "ui_PDA_checker_t"
+				end
+				if not obj:is_relation_enemy(actor) or actor:see_right_now(obj) then
+					table.insert(compass_targets, marker_data)
+				end
+			end
+		end
+		for spot, texture in pairs(map_spot_to_texture) do
+			if level.map_has_object_spot(obj:id(), spot) ~= 0 then
+				local pos = point_on_screen.compass_ui_projection(obj:center(), self.compass_modern_scale:GetWidth(), self.compass_modern_scale:GetHeight() + params.vertical_mark_add, params.hide_point_off_bound)
+				if pos then
+					local marker_data = {
+						pos = pos,
+						dist = distance_between(actor, obj),
+						texture = texture,
+						size = params.other_marker_size,
+					}
+					table.insert(compass_targets, marker_data)
+				end
+			end
+		end
+	end		
+	level.iterate_nearest(actor:position(), read_if_exists(sys_ini, "r_float", pda:section(), "radius", 50), perform_action)
+	--//selected quest target
+	local objective = actor:get_active_objective()
+	if objective then
+		local dist = self.minimap:GetActivePointDist()
+		local sim = alife()
+		local tgt_id = objective:get_object_id()
+		local sobj = sim:object(tgt_id)
+		local obj_pos = nil
+		if sobj then
+			if sobj.level_id == sim:level_id() then
+				local cobj = level.object_by_id(tgt_id)
+				obj_pos = cobj and cobj:center() or sobj.position
+			else
+				for id, _ in pairs(db.level_changers) do
+					local lc = level.object_by_id(id)
+					if lc then
+						local dist_to_lc = distance_between(actor, lc)
+						if dist and math.fsimilar(dist, dist_to_lc, 1) then
+							obj_pos = lc:center()
+							break
+						end
+					end
+				end				
+			end
+			local pos = point_on_screen.compass_ui_projection(obj_pos, self.compass_modern_scale:GetWidth(), self.compass_modern_scale:GetHeight() + params.vertical_mark_add, params.hide_point_off_bound)
+			if pos then
+				local marker_data = {
+					pos = pos,
+					dist = dist,
+					texture = "ui\\front_view_compass\\marker",
+					size = params.quest_marker_size
+				}
+				table.insert(compass_targets, marker_data)
+			end
+		end
+	end
+	table.sort( compass_targets, function(a,b) return a.dist > b.dist end )
+	local marker_size = params.marker_size
+	for k, v in ipairs(compass_targets) do
+		local obj_point = CUIStatic()
+		self.compass_modern_scale:AttachChild(obj_point)
+		--self.screen_debug:AttachChild(obj_point)
+		obj_point:SetStretchTexture(true)
+		obj_point:InitTexture(v.texture or "ui_minimap_point")
+		obj_point:SetWidth(v.size and v.size[1] or marker_size[1])
+		obj_point:SetHeight(v.size and v.size[2] or marker_size[2])
+		if v.color then
+			obj_point:SetColor(v.color)
+		end
+		local offset = ui_inv_utils.GetOffset("center", obj_point, self.compass_modern_scale)
+		obj_point:SetWndPos(v.pos.x - obj_point:GetWidth() / 2, v.pos.y - obj_point:GetHeight() / 2)
+	end
 end
 
 function MainIngameOverlay:UpdateFPS()
@@ -900,7 +1062,7 @@ function MainIngameOverlay:Update()
 	self:UpdateMissileThrow()
 	self:UpdateWarningIcons()
 	self:UpdatePickupItem()
-	self:UpdateMinimap()
+	self:UpdateCompass()
 	self:UpdateFPS()
 	
 	self.slot_selector:TrySignalHide()

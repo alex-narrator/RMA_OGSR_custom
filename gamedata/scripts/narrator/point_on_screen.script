@@ -2,7 +2,7 @@
 
 --//by Malandrinus (from AMK-TEAM Forum)
 --Функция учитывает возможное разрешение экрана, режим зума и то, что камера может наклоняться. Можно использовать в различных целеуказателях.
-function point_projection(point)
+function point_projection(point, show_behind)
 --проекция точки в 3д-пространстве игры на экран
     local dev = device()
     local scr_w = dev.width
@@ -14,12 +14,55 @@ function point_projection(point)
     local ppp = vector():sub(point, dev.cam_pos)
     local dp = dev.cam_dir:dotproduct(ppp)
 
+	--//не показувати точки позаду гравця
+	if dp < 0 and not show_behind then
+		return false
+	end
+
     local x = UI_BASE_WIDTH * 0.5 + dev.cam_right:dotproduct(ppp) * scr_dist / dp * (UI_BASE_WIDTH/scr_w)
     local y = UI_BASE_HEIGHT * 0.5 - dev.cam_top:dotproduct(ppp)   * scr_dist / dp * (UI_BASE_HEIGHT/scr_h)
 	
 	if x < 0 or x > UI_BASE_WIDTH or y < 0 or y > UI_BASE_HEIGHT then
 		return false 
 	end
+	
+    return {x = x, y = y}
+end
+
+function compass_ui_projection(point, ui_w, ui_h, hide_off_bounds)
+	if not point then
+	return false end
+	
+	local UI_BASE_WIDTH = ui_w
+	local UI_BASE_HEIGHT = ui_h
+	
+    local dev = device()
+    local scr_w = dev.width
+    local scr_h = dev.height
+
+    local fov2 = (dev.fov/2) * (math.pi/180)
+    local scr_dist = 0.5 * scr_h / math.tan(fov2)
+
+    local ppp = vector():sub(point, dev.cam_pos)
+    local dp = dev.cam_dir:dotproduct(ppp)
+
+    local x = UI_BASE_WIDTH * 0.5 + dev.cam_right:dotproduct(ppp) * scr_dist / dp * (UI_BASE_WIDTH/scr_w)
+    local y = UI_BASE_HEIGHT * 0.5
+	
+	if hide_off_bounds then
+		if dp < 0 or x < 0 or x > UI_BASE_WIDTH then
+			return false
+		end
+	end
+	
+	if dp < 0 then
+		if x <= UI_BASE_WIDTH * 0.5 then
+			x = 0
+		else
+			x = UI_BASE_WIDTH
+		end
+	end
+	x = math.clamp(x, 0, UI_BASE_WIDTH)
 	
     return {x = x, y = y}
 end
