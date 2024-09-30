@@ -896,6 +896,7 @@ function MainIngameOverlay:ShowFrontViewMarks()
 	return end
 	local params = self.compass_modern.params
 	local pda = actor_get_pda()
+	local pda_radius = read_if_exists(sys_ini, "r_float", pda:section(), "radius", 50)
 	--//nearest objects
 	function perform_action(obj)
 		if obj:is_stalker() or obj:is_trader() then
@@ -925,12 +926,15 @@ function MainIngameOverlay:ShowFrontViewMarks()
 						texture = texture,
 						size = params.other_marker_size,
 					}
+					if spot == "general_wounded_location" then
+						marker_data.color = relation_color[2]
+					end
 					table.insert(compass_targets, marker_data)
 				end
 			end
 		end
 	end		
-	level.iterate_nearest(actor:position(), read_if_exists(sys_ini, "r_float", pda:section(), "radius", 50), perform_action)
+	level.iterate_nearest(actor:position(), pda_radius, perform_action)
 	--//selected quest target
 	local objective = actor:get_active_objective()
 	if objective then
@@ -957,11 +961,16 @@ function MainIngameOverlay:ShowFrontViewMarks()
 			end
 			local pos = point_on_screen.compass_ui_projection(obj_pos, self.compass_modern_scale:GetWidth(), self.compass_modern_scale:GetHeight() + params.vertical_mark_add, params.hide_point_off_bound)
 			if pos then
+				local size = table.copy(params.quest_marker_size)
+				local dist_k = pda_radius / dist
+				dist_k = math.clamp(dist_k, 0.5, 1)
+				size[1] = size[1] * dist_k
+				size[2] = size[2] * dist_k
 				local marker_data = {
 					pos = pos,
 					dist = dist,
 					texture = "ui\\front_view_compass\\marker",
-					size = params.quest_marker_size
+					size = size
 				}
 				table.insert(compass_targets, marker_data)
 			end
