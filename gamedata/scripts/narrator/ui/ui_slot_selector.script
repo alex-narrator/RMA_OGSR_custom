@@ -512,6 +512,24 @@ function SlotSelectorOverlay:ShowWeapon(slot_num)
 		ui_inv_utils.try_add_to_list(item, items, true)
 	end
 	
+	local addon_types = {
+		[addon.scope] = "scope",
+		[addon.silencer] = "silencer",
+	}	
+	
+	for k, addon in pairs(addon_types) do
+		local addons = read_if_exists(sys_ini, "r_string", slot_item:section(), addon.."_name")
+		local addons_list = split_string(addons, ",")
+		if addons_list then
+			for k,addon_sect in pairs(addons_list) do
+				local item = actor:object(addon_sect)
+				if item then
+					ui_inv_utils.try_add_to_list(item, items, true)
+				end
+			end		
+		end
+	end
+	
 	local orig_pos = self.weapon_items_icon.pos
 	local pos = vector2():set(orig_pos.x, orig_pos.y)
 	for k,v in pairs(items) do
@@ -596,46 +614,39 @@ function SlotSelectorOverlay:ShowWeapon(slot_num)
 		end
 	end
 	
-	local addon_types = {
-		[addon.scope] = true,
-		[addon.silencer] = true
-	}
-	
 	for addon_type,v in pairs(addon_types) do
 		if weapon:is_addon_attached(addon_type) and weapon:addon_attachable(addon_type) then
 			
 			local addon_sect = weapon:get_addon_name(addon_type)
 			
-			if loadout.is_loadout_item(addon_sect) then
-				local name = "weapon_"..addon_sect
+			local name = "weapon_"..addon_sect
 				
-				params = CIconParams(addon_sect)
-				local icon_size = vector2():set(params.grid_width * CELL_W * self.weapon_items_icon.scale * get_current_kx(), params.grid_height * CELL_H * self.weapon_items_icon.scale)
+			params = CIconParams(addon_sect)
+			local icon_size = vector2():set(params.grid_width * CELL_W * self.weapon_items_icon.scale * get_current_kx(), params.grid_height * CELL_H * self.weapon_items_icon.scale)
 				
-				item_st = CUIStatic()
-				item_st:Init(pos.x, pos.y, icon_size.x, icon_size.y)
+			item_st = CUIStatic()
+			item_st:Init(pos.x, pos.y, icon_size.x, icon_size.y)
 				
-				if self.weapon_items_icon.scale == 1 then
-					ui_inv_utils.CellItemFitToSize(params, item_st, nil, self.weapon_items_icon.size)
-				end
-				
-				params:set_shader(item_st)
-				--ui_inv_utils.AttachPanelIcons(item, item_st)
-				
-				ui_inv_utils.UpdateAdditionalText(addon_sect, item_st)
-				ui_inv_utils.UpdateDetachAddonIcon(addon_sect, item_st)
-				
-				self.weapon_items_back:AttachChild(item_st)
-				
-				self.weapon_items[addon_sect] = item_st
-				
-				pos.x = pos.x + item_st:GetWidth() + self.weapon_items_icon.indent
-				self:Register(item_st, name)
-				
-				self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnDetachFocusReceived(addon_sect) end)
-				self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnDetachFocusLost(addon_sect) end)
-				self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnDetachClick(addon_sect) end)
+			if self.weapon_items_icon.scale == 1 then
+				ui_inv_utils.CellItemFitToSize(params, item_st, nil, self.weapon_items_icon.size)
 			end
+				
+			params:set_shader(item_st)
+			--ui_inv_utils.AttachPanelIcons(item, item_st)
+				
+			ui_inv_utils.UpdateAdditionalText(addon_sect, item_st)
+			ui_inv_utils.UpdateDetachAddonIcon(addon_sect, item_st)
+				
+			self.weapon_items_back:AttachChild(item_st)
+				
+			self.weapon_items[addon_sect] = item_st
+				
+			pos.x = pos.x + item_st:GetWidth() + self.weapon_items_icon.indent
+			self:Register(item_st, name)
+				
+			self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnDetachFocusReceived(addon_sect) end)
+			self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnDetachFocusLost(addon_sect) end)
+			self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnDetachClick(addon_sect) end)
 		end
 	end
 end
@@ -721,8 +732,6 @@ end
 function SlotSelectorOverlay:OnDetachClick(sect)
 	local slot_item = actor:item_in_slot(self.selected_slot)
 	local slot_wpn = slot_item:get_weapon_m()
-	
-	loadout.set_marked_sect(sect)
 	
 	if actor:active_slot() ~= self.selected_slot then
 		--slot_wpn:detach_addon(sect, true)

@@ -2192,6 +2192,8 @@ function wait_game_time (days, hours, minutes, on_start_f, on_stop_f, forced_sto
 end
 
 function detach_addon(item, addon_sect, not_spawn_addon)
+	if not item then
+	return end
 	ogse_signals.get_mgr():call("on_before_addon_detach", item, addon_sect)	
 	item:get_weapon_m():detach_addon(addon_sect, not not_spawn_addon)
 	ogse_signals.get_mgr():call("on_addon_detach", item, addon_sect)

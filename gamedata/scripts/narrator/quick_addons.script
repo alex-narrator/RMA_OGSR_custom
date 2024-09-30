@@ -33,9 +33,6 @@ function on_key_press(key, game_action)
 	
 	if act_wpn:is_addon_attached(addon_type) and act_wpn:addon_attachable(addon_type) then
 		local addon_sect = act_wpn:get_addon_name(addon_type)
-		if not loadout.is_loadout_item(addon_sect) then
-			return
-		end
 		actor:hide_weapon()
 		level.add_call(
 			function()
@@ -46,16 +43,18 @@ function on_key_press(key, game_action)
 				detach_addon(act_item, addon_sect)
 				actor_break_sprint()
 				xr_sound.get_safe_sound_object([[interface\inv_detach_addon]]):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
-				loadout.set_marked_sect(addon_sect)
 				actor:restore_weapon()
 			end
 		)
 	else
 		if act_wpn:addon_attachable(addon_type) and not act_wpn:is_addon_attached(addon_type) then
-			for k,v in pairs(loadout.get_loaded_items()) do
-				local item = level.object_by_id(k)
-				local iitem = item:get_inventory_item()
-				if check_type(item) and act_wpn_m:can_attach_addon(iitem) then
+			local _type = for_scope and "scope" or "silencer"
+			local addons = read_if_exists(sys_ini, "r_string", act_item:section(), _type.."_name")
+			local addons_list = split_string(addons, ",")
+			for k,addon_sect in pairs(addons_list) do
+				local item = actor:object(addon_sect)
+				local iitem = item and item:get_inventory_item()
+				if item and check_type(item) and act_wpn_m:can_attach_addon(iitem) then
 					actor:hide_weapon()
 					level.add_call(
 						function()
