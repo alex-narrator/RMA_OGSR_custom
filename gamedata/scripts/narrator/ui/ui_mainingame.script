@@ -911,7 +911,7 @@ function MainIngameOverlay:ShowFrontViewMarks()
 					marker_data.color = dead_color
 					marker_data.texture = "ui_PDA_checker_t"
 				end
-				if not obj:is_relation_enemy(actor) or actor:see_right_now(obj) then
+				if not obj:is_relation_enemy(actor) or actor:see(obj) then
 					table.insert(compass_targets, marker_data)
 				end
 			end
