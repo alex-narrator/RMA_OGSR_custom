@@ -296,6 +296,54 @@ cost				= 1000
 
 hud 				= antibiotic_hud
 
+[drug_adrenalin]:drugs_base
+$spawn 				= "food and drugs\drug_anabiotic"
+visual				= dynamics\weapons\wpn_eat\world_models\injectors\itm_stim_adrenaline
+inv_name			= st_drug_adrenalin_name
+inv_name_short		= st_drug_adrenalin_short
+description			= st_drug_adrenalin_descr
+
+inv_grid_x         	= 4
+inv_grid_y         	= 6
+cost				= 2000
+
+eat_health			= 0.2
+eat_power			= 1.0
+eat_somnolence 		= -0.2
+
+boost_somnolence 	= -0.2
+boost_pain 			= -0.2
+boost_power 		= 2
+boost_sprint 		= 0.2
+boost_jump 			= 0.2
+boost_weight 		= 0.2
+
+boost_time			= 10
+
+hud 				= pen_injector_red_hud
+use_effector 		= adrenalin_use
+
+[drug_morphine]:drugs_base
+$spawn 				= "food and drugs\drug_anabiotic"
+visual				= dynamics\weapons\wpn_eat\world_models\injectors\itm_stim_morphine
+inv_name			= st_drug_morphine_name
+inv_name_short		= st_drug_morphine_short
+description			= st_drug_morphine_descr
+
+inv_grid_x         	= 5
+inv_grid_y         	= 6
+cost				= 3000
+
+boost_pain 			= -1
+boost_satiety 		= -0.2
+boost_power 		= -0.5
+
+boost_time			= 120
+
+hud 				= pen_injector_blue_hud
+;use_effector 		= morphine_use
+boost_effector 		= morphine_effect
+
 [splint]:drugs_base
 class 				= II_ATTCH
 visual				= equipments\item_bandage
