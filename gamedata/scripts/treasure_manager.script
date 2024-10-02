@@ -5,6 +5,7 @@ function attach(sm)
 end
 
 local LIST_SECT = "treasure_list"
+local TREASURE_SPOT = "treasure"
 local treasure_info = {}
 
 function parse_spawns(line)
@@ -44,8 +45,10 @@ function parse_spawns(line)
 	return ret_table
 end
 
-function has_treasure_spot(id)
-	return level.map_has_object_spot(id, "treasure") ~= 0
+function has_treasure_spot(treasure_id)
+	local sid = treasure_info[treasure_id].target
+	local s_obj = alife():story_object( sid )
+	return level.map_has_object_spot(s_obj.id, TREASURE_SPOT) ~= 0
 end
 
 function parse_treasures()
@@ -231,9 +234,11 @@ end
 
 --' Выдача тайника
 function give_treasure(k)
+	if has_treasure_spot(k) then
+	return end
 	local v = treasure_info[k]
 	local obj = alife():story_object(v.target)
-	if obj ~= nil then
+	if obj then
 		news_manager.send_treasure(v.name)
 
 		--' Пометить на карте		
@@ -264,7 +269,7 @@ function treasure_empty(box)
 	printf("!!! treasure empty")
 	local k = treasure_by_target[box:story_id()]
 
-	if k == nil or treasure_info[k] == nil then 
+	if not k or not treasure_info[k] then 
 		return
 	end
 

@@ -77,6 +77,8 @@ function create_scope_static(weapon)
 end
 
 function on_zoom_in(weapon)
+	if weapon:get_weapon():second_vp_enabled() then
+	return end
 	scope_static = create_scope_static(weapon)
 	if not scope_static then
 	return end
