@@ -98,6 +98,8 @@ function on_zoom_in(weapon)
 			tip = "st_hold_key_to_hard_hold_with_marks"
 		elseif ui_scope_texture.has_illum() then
 			tip = "st_hold_key_to_hard_hold_with_illum"
+		elseif nvd.get_nv_sect(weapon) then
+			tip = "st_hold_key_to_hard_hold_with_night_vision"			
 		end
 		hud_add_info_message("item_usage", game.translate_string(tip), 2)
 	end
