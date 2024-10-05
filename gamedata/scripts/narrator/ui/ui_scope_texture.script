@@ -9,6 +9,11 @@ local LOW_LUMINOCITY = 0.031
 
 local main_wnd = get_main_window()
 local scope_static = false
+local parallax_static = false
+local parallax_offset = false
+local parallax_params = {}
+
+local PARALLAX_DEBUG = false
 local DEBUG_DISABLE = false
 
 local texture_name = false
@@ -20,6 +25,10 @@ function subscribe()
 	if not subscribed then
 		subscribed = {
 			{ signal = "on_key_press", fun = this.on_key_press },
+			{ signal = "on_mouse_move", fun = this.set_parallax_offset },
+			{ signal = "on_update", fun = this.on_update },
+			{ signal = "on_actor_jump", fun = this.on_actor_jump },
+			{ signal = "on_actor_land", fun = this.on_actor_land },
 		}
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( subscribed ) do
@@ -42,10 +51,16 @@ function create_scope_static(weapon)
 	if scope_static and main_wnd:IsChild(scope_static) then
 		main_wnd:DetachChild(scope_static)
 	end
+	if parallax_static and main_wnd:IsChild(parallax_static) then
+		main_wnd:DetachChild(parallax_static)
+	end	
 	scope_static = false
 	texture_name = false
 	texture_ilum_name = false
 	is_illuminated = false
+	parallax_static = false
+	parallax_offset = false
+	
 	if DEBUG_DISABLE then
 	return false end
 	if weapon:get_gl_mode() then
@@ -73,13 +88,36 @@ function create_scope_static(weapon)
 		static:InitTexture(texture_name)
 	end
 	static:SetStretchTexture(true)
-	return static
+	
+	local static_parallax = nil
+	local parallax_texture_name = read_if_exists(sys_ini, "r_string", scope_tex_sect, "scope_texture_parallax", nil)
+	if parallax_texture_name then
+		static_parallax = CUIStatic()
+		local diameter = read_if_exists(sys_ini, "r_float", scope_tex_sect, "scope_texture_parallax_diameter", 700)
+		static_parallax:Init(0, 0, diameter * get_current_kx(), diameter)
+		local offset = ui_inv_utils.GetOffset("center", static_parallax, main_wnd)
+		static_parallax:SetWndPos(offset.x, offset.y)
+		static_parallax:InitTexture(PARALLAX_DEBUG and "ui_inv_back_green" or parallax_texture_name)
+		static_parallax:SetStretchTexture(true)
+		
+		parallax_params = {
+			speed = read_if_exists(sys_ini, "r_float", scope_tex_sect, "scope_texture_parallax_speed", 0.5),
+			max_shift = read_if_exists(sys_ini, "r_float", scope_tex_sect, "scope_texture_parallax_max_shift", 13),
+			offset_k = read_if_exists(sys_ini, "r_float", scope_tex_sect, "scope_texture_parallax_offset_k", 0.3),
+		}
+		
+		if not PARALLAX_DEBUG then
+			local parallax_rect = split_string(read_if_exists(sys_ini, "r_string", scope_tex_sect, "scope_texture_parallax_rect", "0, 0, 1024, 1024"), ",", true)
+			static_parallax:SetOriginalRect(parallax_rect[1], parallax_rect[2], parallax_rect[3], parallax_rect[4])
+		end
+	end
+	return static, static_parallax
 end
 
 function on_zoom_in(weapon)
 	if weapon:get_weapon():second_vp_enabled() then
 	return end
-	scope_static = create_scope_static(weapon)
+	scope_static, parallax_static = create_scope_static(weapon)
 	if not scope_static then
 	return end
 	level.add_call(
@@ -94,6 +132,10 @@ function on_zoom_in(weapon)
 				main_wnd:AttachChild(scope_static)
 			end
 			main_wnd:BringToBottom(scope_static)
+			if parallax_static and not main_wnd:IsChild(parallax_static) then
+				main_wnd:AttachChild(parallax_static)
+			end
+			main_wnd:BringToBottom(parallax_static)
 			subscribe()
 		end		
 	)		
@@ -105,7 +147,11 @@ function on_zoom_out(weapon)
 		main_wnd:DetachChild(scope_static)
 		unsubscribe()
 	end
+	if parallax_static and main_wnd:IsChild(parallax_static) then
+		main_wnd:DetachChild(parallax_static)
+	end		
 	scope_static = false
+	parallax_static = false
 end
 
 function on_death(victim, killer)
@@ -138,4 +184,50 @@ end
 
 function has_illum()
 	return scope_static and texture_ilum_name
+end
+
+function set_parallax_offset(x,y)
+	if not parallax_static then
+	return end
+	if PARALLAX_DEBUG then
+	return end
+	--log3("~set_parallax_offset x: %s, y: %s", x,y)
+	parallax_offset.x = parallax_offset.x - x * parallax_params.offset_k
+	parallax_offset.y = parallax_offset.y - y * parallax_params.offset_k
+end
+
+function on_update(dt)
+	if not parallax_static then
+	return end
+	if PARALLAX_DEBUG then
+	return end
+	if not parallax_offset then
+		parallax_offset = vector2():set(0,0)
+	return end
+	local k = parallax_offset.x > 0 and 1 or -1
+	dt = dt * parallax_params.speed * 0.1
+	parallax_offset.x = parallax_offset.x - dt * k
+	parallax_offset.x = math.clamp(parallax_offset.x, 0, parallax_params.max_shift * k)	
+	k = parallax_offset.y > 0 and 1 or -1
+	parallax_offset.y = parallax_offset.y - dt * k
+	parallax_offset.y = math.clamp(parallax_offset.y, 0, parallax_params.max_shift * k)
+	local offset = ui_inv_utils.GetOffset("center", parallax_static, main_wnd)
+	parallax_static:SetWndPos(offset.x + parallax_offset.x, offset.y + parallax_offset.y)
+	--log3("~parallax_offset x: %s, y: %s", parallax_offset.x, parallax_offset.y)
+end
+
+function on_actor_jump(actor)
+	if not parallax_static then
+	return end
+	if PARALLAX_DEBUG then
+	return end
+	set_parallax_offset(0, parallax_params.max_shift)
+end
+
+function on_actor_land(actor, contact_speed)
+	if not parallax_static then
+	return end
+	if PARALLAX_DEBUG then
+	return end
+	set_parallax_offset(0, -parallax_params.max_shift * contact_speed)
 end

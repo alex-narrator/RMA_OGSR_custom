@@ -1601,6 +1601,13 @@ function ActorMenuOverlay:OnMaxBeltSet(max_belt)
 	end
 end
 
+local quick_action = {
+	[key_bindings.kQUICK_SLOT_0] = true,
+	[key_bindings.kQUICK_SLOT_1] = true,
+	[key_bindings.kQUICK_SLOT_2] = true,
+	[key_bindings.kQUICK_SLOT_3] = true,
+}
+
 function ActorMenuOverlay:OnKeyboard(dik, keyboard_action)
 	CUIScriptWnd.OnKeyboard(self, dik, keyboard_action)
 	
@@ -1631,6 +1638,16 @@ function ActorMenuOverlay:OnKeyboard(dik, keyboard_action)
 						ui_cell_item_utils.drop_cell_item(item)
 						return true
 					end
+				end
+			end
+		elseif quick_action[game_action] then
+			if self.cell_item_selected then
+				local item = self.cell_item_selected:GetAnyItem()
+				local item_sect = item:section()
+				if read_if_exists(sys_ini, "r_bool", item_sect, "quick_slot", false) then
+					local slot_num = game_action - key_bindings.kQUICK_SLOT_0
+					quick_slots.set_item(item_sect, slot_num)
+					return true
 				end
 			end
 		end
@@ -1971,6 +1988,9 @@ function ActorMenuOverlay:UpdateInvTip(cell_item)
 	local text = ""
 	if self:GetMode() == "inventory" and item then
 		text = game.translate_string(read_if_exists(sys_ini, "r_string", item:section(), "selected_tip", ""))
+		if read_if_exists(sys_ini, "r_bool", item:section(), "quick_slot", false) then
+			text = text.."\\n-\\n"..game.translate_string("st_tip_quick_slot")
+		end		
 	end
 	self.selected_item_tip:SetText(text)
 end

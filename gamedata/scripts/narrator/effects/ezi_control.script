@@ -70,9 +70,6 @@ function on_key_release(key, game_action)
 end
 
 function on_zoom_in(weapon)
-	if DEBUG_DISABLE then
-	return end
-	
 	zoom_factor = weapon:get_zoom_factor()
 	level.add_cam_effector("camera_effects\\actor_actions\\zoom_crp.anm", 1908, false, "")
 	if not subscribed then
@@ -130,7 +127,7 @@ function on_update(delta)
 		base_k = ezi.zoom_aim_disp_k
 	end
 	ezi.zoom_aim_disp_k = base_k * get_zoom_effector_k()
-	ezi.pause_effect = is_hard_hold()
+	ezi.pause_effect = DEBUG_DISABLE or is_hard_hold()
 	
 	if ezi.pause_effect and (force_disable_hard_hold() or actor_obj:is_actor_creep()) then
 		set_hard_hold(false)
