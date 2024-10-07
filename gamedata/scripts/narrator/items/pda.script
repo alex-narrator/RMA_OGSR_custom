@@ -84,29 +84,51 @@ function on_pda_hack(id)
 	end
 end
 
-local anm_state = {
-	[global_flags.eShowing] = true,
-	--[global_flags.eHiding] = true,
-}
-
 function on_state_switch(item, state, old_state)
-	if not item:get_pda() or not anm_state[old_state] then
+	if not item:get_pda() then
 	return end
-	if not item:is_power_on() then
-		add_update_delayed_action(1,
-			function()
-				block_non_move_action(true)
-				local length = item:play_hud_motion("anm_empty")
-				local snd_name = read_if_exists(sys_ini, "r_string", item:section(), "snd_empty", nil)
-				xr_sound.get_safe_sound_object(snd_name):play(actor, 0, sound_object.s2d)
-				add_time_delayed_action(
-					length * 0.001 - 0.9,
-					function() 
-						block_non_move_action(false)
-						actor:activate_slot(NO_ACTIVE_SLOT)
-					end
-				)
-			end
-		)
+	if old_state == global_flags.eHidden then
+		set_pda_params(vector():set(0.5,0,0))
 	end
+	if state == global_flags.eHiding then
+		local delay = read_if_exists(sys_ini, "r_float", item:section(), "screen_off_delay", 0.1)
+		add_time_delayed_action(delay, 
+			function()
+				set_pda_params(vector():set(0.5,0,0))
+			end
+		)		
+		return
+	end
+	if state == global_flags.eShowing then
+		local delay = read_if_exists(sys_ini, "r_float", item:section(), "screen_on_delay", 0.1)
+		add_time_delayed_action(delay, 
+			function()
+				if item:is_power_on() then
+					set_pda_params(vector():set(0,0,0))
+				end
+			end
+		)	
+		return
+	end
+	if not item:is_power_on() and old_state == global_flags.eShowing then
+		play_power_off_anim(item)
+	end
+end
+
+function play_power_off_anim(item)
+	add_update_delayed_action(1,
+		function()
+			block_non_move_action(true)
+			local length = item:play_hud_motion("anm_empty")
+			local snd_name = read_if_exists(sys_ini, "r_string", item:section(), "snd_empty", nil)
+			xr_sound.get_safe_sound_object(snd_name):play(actor, 0, sound_object.s2d)
+			add_time_delayed_action(
+				length * 0.001 - 0.9,
+				function() 
+					block_non_move_action(false)
+					actor:activate_slot(NO_ACTIVE_SLOT)
+				end
+			)
+		end
+	)
 end

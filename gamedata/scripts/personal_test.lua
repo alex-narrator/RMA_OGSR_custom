@@ -514,11 +514,14 @@ end
 -- end
 -- level.iterate_nearest(actor:position(), log_radius, perform_action)
 
-local particle = "destroy_fx\\destroy_el_box"
-local particle_pos = vector():set(0.05,-0.8,0.1)
-local target = level.get_target_obj()
-if target then
-	local pos = target:position()
-	pos:add(particle_pos)
-	particles_object(particle):play_at_pos(pos)
-end
+-- local particle = "destroy_fx\\destroy_el_box"
+-- local particle_pos = vector():set(0.05,-0.8,0.1)
+-- local target = level.get_target_obj()
+-- if target then
+	-- local pos = target:position()
+	-- pos:add(particle_pos)
+	-- particles_object(particle):play_at_pos(pos)
+-- end
+
+local param = vector():set(0.5,0,0)
+set_pda_params(param)
