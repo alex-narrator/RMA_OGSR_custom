@@ -5,27 +5,47 @@ function attach(sm)
 	sm:subscribe({signal = "on_cell_item_show", 		fun = this.update_custom_icons})
 end
 
+function get_val_color(val)
+	local color = ""
+	if not val then
+		return color
+	end
+	if val >= 0.95 then
+		color = "%c[green]"
+	elseif val <= 0.05 then
+		color = "%c[red]"
+	else
+		color = "%c[UI_orange]"
+	end
+	return color
+end
+
 function update_custom_icons(item, cell_item, count)
 	local text = nil
+	local color = ""
 	
 	local ammo = item:get_weapon_ammo()
 	if ammo and ammo:is_magazine() then
-		text = string.format("%s/%s", ammo.box_curr, ammo.box_size)
+		color = get_val_color(ammo.box_curr / ammo.box_size)
+		text = string.format("%s%s/%s", color, ammo.box_curr, ammo.box_size)
 	end
 	
 	local eatable = item:get_eatable_item()
 	if eatable and eatable.eat_start_portions_num > 1 then
-		text = string.format("%s/%s", eatable.eat_portions_num, eatable.eat_start_portions_num)
+		color = get_val_color(eatable.eat_portions_num / eatable.eat_start_portions_num)
+		text = string.format("%s%s/%s", color, eatable.eat_portions_num, eatable.eat_start_portions_num)
 	end
 	
 	local use_count = read_if_exists(sys_ini, "r_float", item:section(), "use_count", 0)
 	if use_count > 1 then
-		text = string.format("%.0f/%s", use_count*item:condition(), use_count)
+		color = get_val_color(use_count*item:condition() / use_count)
+		text = string.format("%s%.0f/%s", color, use_count*item:condition(), use_count)
 	end
 	
 	local weapon_mag = item:get_weapon_m()
 	if weapon_mag and weapon_mag.ammo_mag_size > 0 then
-		text = string.format("%s/%s%s", weapon_mag.ammo_elapsed, weapon_mag.ammo_mag_size, get_fire_mode_str(item))
+		color = get_val_color(weapon_mag.ammo_elapsed / weapon_mag.ammo_mag_size)
+		text = string.format("%s%s/%s%s", color, weapon_mag.ammo_elapsed, weapon_mag.ammo_mag_size, get_fire_mode_str(item))
 	end
 	
 	if item:get_container() and item:get_inventory_item():item_effect(effect.add_weight) > 0 then

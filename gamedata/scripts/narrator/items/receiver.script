@@ -176,7 +176,7 @@ function play_sound(object, power, dt)
 end
 
 function enable(item, prev_place)
-	if receiver_sect[item:section()] and actor:is_in_slot(item) then
+	if receiver_sect[item:section()] then
 		if not is_power_device(item) or item:binded_object():get_power_level() > 0 then	
 			receiver = item
 			receiver:switch_power(true)

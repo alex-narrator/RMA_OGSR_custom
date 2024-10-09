@@ -209,6 +209,8 @@ function add_custom_info(UIDesc, obj)
 	
 	attach_belt_params(UIDesc, obj)
 	
+	attach_repair_params(UIDesc, obj)
+	
 	if obj:is_eatable_item() then
 		attach_eatable_params(UIDesc, obj)
 		attach_booster_params(UIDesc, obj)
@@ -1080,4 +1082,36 @@ function attach_pda_owner_info(UIDesc, item)
 	data_list:AddWindow(rank_st)	
 	
 	data_list:SetHeight(data_list:GetPadSize().y)
+end
+
+-----------------------------------------------------REPAIR PARAMS-----------------------------------------------------------------------------------------------------------
+local repair_params = {
+		{name = "service_type", 			unit = "", default = "", _type = "r_string"},
+		{name = "condition_threshold", 		unit = "%", default = 0, _type = "r_float"},
+		{name = "repair_condition_gain", 	unit = "%", default = 0, _type = "r_float"},
+	}
+function attach_repair_params(UIDesc, item)
+	local sect = item:section()
+	if read_if_exists(sys_ini, "r_float", sect, "repair_condition_gain", 0) <= 0 then
+	return end
+	
+	local xml = CScriptXmlInit()
+	xml:ParseFile("script_overlays\\repair_params.xml")
+	local params_list = xml:InitScrollView("params_list", UIDesc)
+	
+	for k,v in ipairs(repair_params) do
+		local val = read_if_exists(sys_ini, v._type, sect, v.name, v.default)
+		if val ~= v.default then
+			val = v._type == "r_string" and game.translate_string("st_repair_"..val) or math.round(val, 2) * 100
+			v.static = CUIStatic()
+			v.static:SetTextComplexMode(true)
+			v.static:SetWidth(params_list:GetDesiredChildWidth())
+			local color = "%c[UI_orange]"
+			local text = string.format("%s %s: %s%s%s", game.translate_string("st_list_mark"), game.translate_string("st_"..v.name), color, val, v.unit)
+			v.static:SetText(text)
+			v.static:AdjustHeightToText()
+			params_list:AddWindow(v.static)
+			params_list:SetHeight(params_list:GetPadSize().y)
+		end
+	end
 end

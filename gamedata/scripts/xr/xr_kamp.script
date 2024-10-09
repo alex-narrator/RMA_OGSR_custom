@@ -177,7 +177,14 @@ function CKampManager:__init(path)
 		local center_pos = level.vertex_position(self.center)
 		log3("~ self.center %s for camp %s, center pos %s %s %s", self.center, self.kamp_name, center_pos.x, center_pos.y, center_pos.z)
 		local dbg_particle = particles_object("anomaly2\\plasma_generator_death")
-		dbg_particle:play_at_pos(center_pos)
+		level.add_call(
+			function()
+				return not xr_conditions.black_screen()
+			end,
+			function()
+				dbg_particle:play_at_pos(center_pos)
+			end
+		)
 	end
 	
 	self.position = {{dir = vector():set(1, 0, 0),	used = nil},

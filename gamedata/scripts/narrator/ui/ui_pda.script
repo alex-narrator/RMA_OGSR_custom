@@ -451,6 +451,7 @@ function PDAOverlay:OnNoteNameFocusLost(del_btn, edit_btn, i)
 end
 
 function PDAOverlay:HidePda()
+	self.skip_time_frame:Show(false)
 	if is_3d_pda() then
 		actor:activate_slot(NO_ACTIVE_SLOT)
 	else

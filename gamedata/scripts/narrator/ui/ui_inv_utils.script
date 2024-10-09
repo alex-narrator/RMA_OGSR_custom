@@ -265,6 +265,7 @@ function UpdateAdditionalStatic(icon, text)
 	xml:ParseFile(OVERLAY_XML)
 	icon_custom = xml:InitStatic("cell_item_custom", icon)
 	icon_custom:SetWindowName("icon_custom")
+	icon_custom:SetTextComplexMode(true)
 	update(icon_custom)
 end
 
@@ -347,7 +348,12 @@ end
 function UpdateConditionProgress(item, icon)
 	if not read_if_exists(sys_ini, "r_bool", "features", "show_inv_item_condition", false) then
 	return end
-	if not read_if_exists(sys_ini, "r_bool", item:section(), "use_condition", false) and not is_power_device(item) then
+	local condition_progess_bar = icon:FindChild("condition_progess_bar")
+	--if not read_if_exists(sys_ini, "r_bool", item:section(), "use_condition", false) and not is_power_device(item) then
+	if item:condition() == 1 and not is_power_device(item) then
+		if condition_progess_bar then
+			icon:DetachChild(condition_progess_bar)
+		end
 	return end
 	local pos = (is_power_device(item) and not read_if_exists(sys_ini, "r_bool", item:section(), "condition_as_power", false)) and item:binded_object():get_power_level() or item:condition()
 
@@ -364,7 +370,6 @@ function UpdateConditionProgress(item, icon)
 		progress_bar:SetProgressPos(pos)
 	end
 
-	local condition_progess_bar = icon:FindChild("condition_progess_bar")
 	if condition_progess_bar then
 		condition_progess_bar = condition_progess_bar:GetProgressBar()
 		update(condition_progess_bar)
@@ -848,6 +853,9 @@ local check_params = {
 	["extender_name"] = true,
 	["stock_name"] = true,
 	["forend_name"] = true,
+	["power_source"] = true,
+	["plates"] = true,
+	["disassemble_parts"] = true,
 }
 function need_highlight(item1, item2)
 	if item1:id() == item2:id() then
