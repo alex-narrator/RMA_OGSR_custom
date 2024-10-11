@@ -2195,7 +2195,7 @@ function detach_addon(item, addon_sect, not_spawn_addon)
 	if not item then
 	return end
 	ogse_signals.get_mgr():call("on_before_addon_detach", item, addon_sect)	
-	item:get_weapon_m():detach_addon(addon_sect, not not_spawn_addon)
+	item:get_weapon_m():detach_addon(addon_sect, not not_spawn_addon, 1)
 	ogse_signals.get_mgr():call("on_addon_detach", item, addon_sect)
 end
 

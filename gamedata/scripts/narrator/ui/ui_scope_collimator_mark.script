@@ -95,6 +95,8 @@ function get_marks(sect)
 end
 
 function apply_mark(item, mark_num)
+	if not mark_num then
+	return end
 	local mark_sect = get_mark_sect(item)
 	local texture_base = read_if_exists(sys_ini, "r_string", mark_sect, mark_prefix.."base", false)
 	local textures = texture_find(texture_base)
@@ -140,6 +142,6 @@ function on_key_press(key, game_action)
 	
 	set_current_mark_num(act_item:id(), mark_num)
 	
-	level.add_cam_effector(effector_name, effector_id, false, "")	
+	level.add_cam_effector(effector_name, effector_id, false, "")
 	sound:play(actor, 0, sound_object.s2d)		
 end

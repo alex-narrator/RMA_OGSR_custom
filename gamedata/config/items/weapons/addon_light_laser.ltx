@@ -1,16 +1,16 @@
-[wpn_addon_laser_red]:identity_immunities
+[wpn_addon_light_anpeq_16]:identity_immunities
 GroupControlSection	= spawn_group
 discovery_dependency = 
 $spawn			= "weapons\addons\silencer" ; option for Level Editor
 class			= W_LASER
 cform           = skeleton
-visual          = weapons\upgrade\wpn_silencer
-description		= enc_weapons1_wpn-addon-silencer
+visual          = dynamics\weapons\wpn_addon\wpn_light_anpeq_16
 $prefetch 		= 32
 
-cost					 = 100;150
-inv_name		= wpn-addon-laser_red
-inv_name_short	= wpn-addon-laser_red
+cost			= 2000
+inv_name		= st_wpn_addon_light_anpeq_16_name
+inv_name_short	= st_wpn_addon_light_anpeq_16_short
+description 	= st_wpn_addon_light_anpeq_16_descr
 inv_weight		= .1
 
 inv_grid_width     = 1
@@ -18,7 +18,7 @@ inv_grid_height    = 1
 inv_grid_x         = 1
 inv_grid_y         = 0
 
-snd_laser_switch	= weapons\pistol_empty
+snd_laser_switch	= interface\dyn_zoom_sound
 
 laser_light_section = red_laser_definition
 
@@ -26,10 +26,11 @@ breakable = true
 
 icon_group = 10
 
-[wpn_addon_laser_green]:wpn_addon_laser_red
+[wpn_addon_laser_green]:wpn_addon_light_anpeq_16
 
-inv_name		= wpn-addon-laser_green
-inv_name_short	= wpn-addon-laser_green
+inv_name		= st_wpn_addon_laser_green_name
+inv_name_short	= st_wpn_addon_laser_green_short
+description 	= st_wpn_addon_laser_green_descr
 
 laser_light_section = green_laser_definition
 
@@ -82,12 +83,12 @@ glow_radius     = 0.3								; радиус свечения в метрах.
 [red_laser_definition]
 range           = 100	                            ; дальность в метрах
 range_r2        = 100	                            ; дальность в метрах (для динамического освещения)
-color           = 3.0f, 0.0f, 0.0f, 1.0f			; цвет, из 4 компонентов <r,g,b,a> значением от 0 до 3.
-color_r2        = 3.0f, 0.0f, 0.0f, 1.0f			; цвет, из 4 компонентов <r,g,b,a> значением от 0 до 3. (для динамического освещения)
+color           = 3, 0, 0, 1			; цвет, из 4 компонентов <r,g,b,a> значением от 0 до 3.
+color_r2        = 3, 0, 0, 1			; цвет, из 4 компонентов <r,g,b,a> значением от 0 до 3. (для динамического освещения)
 color_animator  = ;battery_low								; цвет аниматора (empty - аниматор не используется). //light_torch_01
 ;spot_texture    = internal\internal_light_torch_r3	; текстура яркой точки (только для динамического освещения).
-spot_angle      = 0.3	                            ; угол разлета света (определяет размер пятна)		; угол освещения в градусах.
+spot_angle      = 0.2	                            ; угол разлета света (определяет размер пятна)		; угол освещения в градусах.
 
 [green_laser_definition]:red_laser_definition
-color           = 0.0f, 0.0f, 3.0f, 1.0f			; цвет, из 4 компонентов <r,g,b,a> значением от 0 до 3.
-color_r2        = 0.0f, 0.0f, 3.0f, 1.0f			; цвет, из 4 компонентов <r,g,b,a> значением от 0 до 3. (для динамического освещения)
+color           = 0, 3, 0, 1			; цвет, из 4 компонентов <r,g,b,a> значением от 0 до 3.
+color_r2        = 0, 3, 0, 1			; цвет, из 4 компонентов <r,g,b,a> значением от 0 до 3. (для динамического освещения)

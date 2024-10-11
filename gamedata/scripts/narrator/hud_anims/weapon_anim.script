@@ -72,6 +72,12 @@ function on_key_press(key, game_action)
 			play_switch_anim(act_item)
 		end
 	end
+	
+	if game_action == key_bindings.kLASER_ON then
+		if act_wpn and act_wpn:is_addon_attached(addon.laser) then
+			level.add_cam_effector([[camera_effects\item_use\mark_adjust.anm]], 1914, false, "")
+		end
+	end	
 end
 
 function play_switch_anim(item)

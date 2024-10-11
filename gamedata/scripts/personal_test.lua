@@ -523,5 +523,5 @@ end
 	-- particles_object(particle):play_at_pos(pos)
 -- end
 
-local param = vector():set(0.5,0,0)
-set_pda_params(param)
+-- local param = vector():set(0.5,0,0)
+-- set_pda_params(param)
