@@ -324,7 +324,7 @@ function action_give_task(actor, npc, p1, p2)
 		task:add_objective(objective)
 	end
 	
-	local task_time = task_desc.time * 60 * 60 * 1000
+	local task_time = task_desc.time and task_desc.time * 60 * 60 * 1000 or nil
 	db.actor:give_task(task, task_time, false)
 
 	--' дизаблим все остальные задания данного типа, так как игрок не может одновременно обладать двумя заданиями одного типа.

@@ -1140,12 +1140,17 @@ function ActorMenuOverlay:OnActorIconUpdate(icon)
 end
 
 function ActorMenuOverlay:OnNPCIconUpdate()
-	local show = self.target and not self.target:get_inventory_box()
+	local show = self.target --and not self.target:get_inventory_box()
 	
-	self.char_info_icon_npc:Show(show)
-	self.char_info_icon_comm_npc:Show(show)
+	self.char_info_icon_npc:Show(self.target)
+	self.char_info_icon_comm_npc:Show(self.target and not self.target:get_inventory_box())
 	
 	if not show then return end
+	
+	if self.target:get_inventory_box() then
+		self.char_info_icon_npc:InitTexture("ui_icon_cardboard_box")
+		return
+	end
 	
 	local npc_icon = self.target:get_character_icon()
 	local icon = npc_icon and npc_icon or read_if_exists(sys_ini, "r_string", self.target:section(), "icon", nil)

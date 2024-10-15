@@ -1,0 +1,37 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_key_press",   		fun = this.on_key_press})
+end
+
+local tactical_light_actions = {
+	[key_bindings.kLASER_ON] = true,
+	[key_bindings.kFLASHLIGHT] = true,
+}
+
+function on_key_press(key, game_action)
+	if not actor_hands_free() then
+	return end
+	local act_item = actor:active_item()
+	if not act_item then
+	return end
+	local act_wpn = act_item:get_weapon_m()
+	if not act_wpn then
+	return end
+	if not tactical_light_actions[game_action] then
+	return end
+	if game_action == key_bindings.kLASER_ON then
+		if act_wpn and act_wpn:is_addon_attached(addon.laser) then
+			level.add_cam_effector([[camera_effects\item_use\mark_adjust.anm]], 1914, false, "")
+			act_wpn:switch_laser(not act_wpn:is_laser_on())
+		end
+	end
+	if game_action == key_bindings.kFLASHLIGHT then
+		if act_wpn and (act_wpn:is_addon_attached(addon.flashlight) or act_wpn:is_addon_attached(addon.laser) and read_if_exists(sys_ini, "r_string", act_wpn:get_addon_name(addon.laser), "light_definition", nil)) then
+			level.add_cam_effector([[camera_effects\item_use\mark_adjust.anm]], 1914, false, "")
+			if level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) then
+			else
+				act_wpn:switch_flashlight(not act_wpn:is_flashlight_on())
+			end
+		end
+	end		
+end

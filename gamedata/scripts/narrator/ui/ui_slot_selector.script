@@ -484,6 +484,17 @@ function SlotSelectorOverlay:OnLoadoutClick(id)
 	self:UpdateSlots()
 end
 
+local addon_types = {
+	"silencer",
+	"scope",
+	"grenade_launcher",
+	"laser",
+	"flashlight",
+	"stock",
+	"extender",
+	"forend",
+}
+
 function SlotSelectorOverlay:ShowWeapon(slot_num)
 	--log3("~ShowCompatible %s", slot_num)
 	
@@ -512,13 +523,8 @@ function SlotSelectorOverlay:ShowWeapon(slot_num)
 		ui_inv_utils.try_add_to_list(item, items, true)
 	end
 	
-	local addon_types = {
-		[addon.scope] = "scope",
-		[addon.silencer] = "silencer",
-	}	
-	
 	for k, addon in pairs(addon_types) do
-		local addons = read_if_exists(sys_ini, "r_string", slot_item:section(), addon.."_name")
+		local addons = read_if_exists(sys_ini, "r_string", slot_item:section(), addon.."_name", nil)
 		local addons_list = split_string(addons, ",")
 		if addons_list then
 			for k,addon_sect in pairs(addons_list) do
@@ -614,7 +620,8 @@ function SlotSelectorOverlay:ShowWeapon(slot_num)
 		end
 	end
 	
-	for addon_type,v in pairs(addon_types) do
+	for k,v in pairs(addon_types) do
+		local addon_type = k - 1
 		if weapon:is_addon_attached(addon_type) and weapon:addon_attachable(addon_type) then
 			
 			local addon_sect = weapon:get_addon_name(addon_type)

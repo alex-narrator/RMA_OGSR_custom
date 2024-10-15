@@ -231,7 +231,7 @@ cost                                                   = 1000
 inv_weight                                             = 0.484
 
 inv_grid_x         										= 0
-inv_grid_y         										= 9;4
+inv_grid_y         										= 9
 
 description			                                   = st_device_flashlight_descr
 inv_name			                                   = st_device_flashlight_name
@@ -248,6 +248,7 @@ torch_inertion_speed_min                               = 0.5
 torch_inertion_speed_max                               = 7.5
 light_definition                                       = device_flashlight_definition
 light_definition_second                                = device_flashlight_definition_second
+flashlight_section 										= device_flashlight_definition_second
 light_trace_bone                                       = light_bone_1
 
 attach_angle_offset                                    = 3.062, 0.008, -1.532
@@ -256,9 +257,12 @@ attach_position_offset                                 = 0.134, -0.007, 0.09
 power_source 										   = battery
 script_binding      								   = bind_device.init
 use_sound 											   = interface\inv_detach_addon
+snd_flashlight_switch									= interface\dyn_zoom_sound
 
 ;highlight_item 											= battery
 belt 													= true
+
+addon_icon_sect 										= addon_flashlight_icon
 
 [device_flashlight_definition]
 type                                                   = 2 ; type  0-Direct 1-Point 2-Spot 3-OMNIPART 4-Reflected
@@ -292,6 +296,35 @@ volumetric_for_actor = true
 spot_angle                                             = 35
 range                                                  = 30 ; range                 <in meters>
 range_r2                                               = 30 ; range                 <in meters>
+
+[device_anpeq_16]:device_flashlight
+visual          										= dynamics\weapons\wpn_addon\wpn_light_anpeq_16
+hud                                                    = device_anpeq_16_hud
+inv_name												= st_wpn_addon_light_anpeq_16_name
+inv_name_short											= st_wpn_addon_light_anpeq_16_short
+description 											= st_wpn_addon_light_anpeq_16_descr
+icon_text 												= st_wpn_addon_light_anpeq_16_text
+inv_weight												= .1
+
+inv_grid_width     										= 1
+inv_grid_height    										= 1
+inv_grid_x         										= 1
+inv_grid_y         										= 0
+icon_group 												= 10
+
+light_trace_bone                                       = wpn_body
+
+light_definition                                       = device_anpeq_16_definition
+light_definition_second                                = device_anpeq_16_definition_second
+
+snd_laser_switch										= interface\dyn_zoom_sound
+laser_light_section 									= red_laser_definition
+addon_icon_sect 										= device_anpeq_16
+
+[device_anpeq_16_definition]:device_flashlight_definition
+guide_bone                                             = wpn_body
+[device_anpeq_16_definition_second]:device_flashlight_definition_second
+guide_bone                                             = wpn_body
 
 ;;;;;;;;;;;;;;;;;;;;;GLOWSTICK;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [device_glowstick_green]:device_base
@@ -412,3 +445,10 @@ cost									= 800
 
 omni_color_r2							= 0.0,0.6,1.0,0.8 ; four color components <r,g,b,a> 0.f<X<3.f
 omni_range_r2							= 8 ; range                 <in meters>
+
+[addon_flashlight_icon]
+inv_grid_width		= 1
+inv_grid_height		= 1
+inv_grid_x			= 5
+inv_grid_y			= 9
+icon_group 			= 6

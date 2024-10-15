@@ -125,6 +125,13 @@ local addon_name = {
 	"forend",
 	"magazine",
 }
+
+function get_addon_offset(i, addon_sect, weapon_sect)
+	local x = read_if_exists(sys_ini, "r_float", weapon_sect, addon_sect.."_x", read_if_exists(sys_ini, "r_float", weapon_sect, addon_name[i].."_x", 0))
+	local y = read_if_exists(sys_ini, "r_float", weapon_sect, addon_sect.."_y", read_if_exists(sys_ini, "r_float", weapon_sect, addon_name[i].."_y", 0))
+	return vector2():set(x,y)
+end
+
 function UpdateWpnIcons(item, icon)
 	local wpn = item:get_weapon_m()
 	if not wpn then
@@ -147,11 +154,12 @@ function UpdateWpnIcons(item, icon)
 					icon:DetachChild(static)
 				end
 			else
-				icon_sect = wpn:get_addon_name(i)
-				offset = wpn:get_addon_offset(i)
+				local addon_sect = wpn:get_addon_name(i)
+				icon_sect = read_if_exists(sys_ini, "r_string", addon_sect, "addon_icon_sect", addon_sect)
+				offset = get_addon_offset(k, addon_sect, sect)
 				--log3("wpn %s, addon %s, offset.x %s, offset.y %s", item:name(), v, offset.x, offset.y)
 				if v == "magazine" then
-					icon_sect = read_if_exists(sys_ini, "r_string", icon_sect, "mag_icon_sect", nil)
+					icon_sect = read_if_exists(sys_ini, "r_string", addon_sect, "addon_icon_sect", nil)
 				end
 				if icon_sect then
 					params = CIconParams(icon_sect)
@@ -205,7 +213,7 @@ function UpdateWpnIcons(item, icon)
 			end
 		else
 			icon_sect = get_cur_ammo_sect(item)
-			offset = vector():set(read_if_exists(sys_ini, "r_float", sect, "grenade_x", 0), read_if_exists(sys_ini, "r_float", sect, "grenade_y", 0),0)
+			offset = vector2():set(read_if_exists(sys_ini, "r_float", sect, "grenade_x", 0), read_if_exists(sys_ini, "r_float", sect, "grenade_y", 0))
 			if icon_sect then
 				params = CIconParams(icon_sect)
 				addon_st = icon:FindChild("grenade")
