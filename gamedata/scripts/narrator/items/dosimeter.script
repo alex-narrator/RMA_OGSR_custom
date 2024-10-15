@@ -4,16 +4,21 @@ function attach(sm)
 	sm:subscribe({signal = "on_belt", fun = this.enable})
 	sm:subscribe({signal = "on_device_recharge", fun = this.enable})
 	sm:subscribe({signal = "on_ruck", fun = this.disable})
-	sm:subscribe({signal = "on_drop", fun = this.disable})	
+	sm:subscribe({signal = "on_drop", fun = this.disable})
 end
 
 local subscribed = false
 local detect_radius, min_freq, max_freq
 local detector = nil
 local result_power = 0
+local show_actor_rad = false
 local detector_sect = {
 	["detector_geiger_cop"] = true,
 }
+
+function is_dosimeter(item)
+	return item and detector_sect[item:section()]
+end
 
 local hidden_device_vol_k = 0.7
 function get_cur_volume(sound)
@@ -44,7 +49,7 @@ function play_sound(anomaly, power, dt)
 end
 
 function enable(item, prev_place)
-	if detector_sect[item:section()] and actor:is_in_slot(item) then
+	if is_dosimeter(item) and (actor:is_in_slot(item) or actor:is_on_belt(item)) then
 		if not is_power_device(item) or item:binded_object():get_power_level() > 0 then	
 			detector = item
 			detector:switch_power(true)
@@ -70,7 +75,7 @@ function enable(item, prev_place)
 end
 
 function disable(item, prev_place)
-	if detector_sect[item:section()] and detector and item:id() == detector:id() then
+	if is_dosimeter(item) and detector and item:id() == detector:id() then
 		if prev_place ~= item_place.undefined then
 			detector:switch_power(false)
 			detector = nil
@@ -91,6 +96,10 @@ function detect_radiation(dt)
 	local dist
 	result_power = 0
 	if not detector or not detector:is_power_on() then
+	return end
+	
+	if show_actor_rad then
+		play_sound(actor, get_result_radiation(), dt)
 	return end
 	
 	function perform_action(obj)
@@ -114,7 +123,15 @@ function detect_radiation(dt)
 end
 
 function get_result_radiation()
-	return result_power
+	if show_actor_rad then
+		if is_rad_absolute() then
+			return actor.radiation * get_rad_absolute_eqivalent()
+		else
+			return actor.radiation
+		end
+	else
+		return result_power
+	end
 end
 
 function can_detect_radiation()
@@ -145,4 +162,13 @@ function can_detect_radiation()
 	end
 	
 	return can_detect and detect_radzone
+end
+
+function show_actor_radiation()
+	show_actor_rad = true
+	add_time_delayed_action(ACTIVE_ITEM_INFO_TTL, function() show_actor_rad = false end)
+end
+
+function is_actor_radiation()
+	return show_actor_rad
 end

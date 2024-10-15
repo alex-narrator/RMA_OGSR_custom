@@ -57,13 +57,18 @@ function ui_dosimeter:Update()
 		self.m_workIndicator:Show(not self.m_workIndicator:IsShown())
 	end
 	
-	if (tg < updateTimer) then
+	if (tg < updateTimer and not dosimeter.is_actor_radiation()) then
 		return
 	else
 		updateTimer = tg + updateFreq
 	end
 		
-	local rads = math.floor(dosimeter.get_result_radiation()*100000*0.387)
+	local rads = 0
+	if dosimeter.is_actor_radiation() then
+		rads = math.floor(dosimeter.get_result_radiation() * 100 + 0.5)
+	else
+		rads = math.floor(dosimeter.get_result_radiation()*100000*0.387)
+	end
 	
 	-- -- Emissions: the closer the wave, the higher the psi influnces
 	-- if GetEvent("surge", "state") then

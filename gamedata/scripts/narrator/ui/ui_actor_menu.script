@@ -1678,7 +1678,7 @@ function ActorMenuOverlay:ShowPropertiesBox(item, cell_item)
 
 	--//move to slot
 	local slots = read_if_exists(sys_ini, "r_string", item:section(), "slot", nil)
-	if slots then
+	if slots and parent_is_actor(item) then
 		slots = split_string(slots, ",", true)
 		for k,i in pairs(slots) do
 			name = "st_move_to_slot_"..i
