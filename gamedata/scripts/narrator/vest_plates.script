@@ -15,6 +15,10 @@ function on_hit(victim, health_lost, direction, draftsman, bone_id, hit_type)
 	end	
 end
 
+function action_allowed(item)
+	return parent_is_actor(item) or actor_menu:GetMode() == "inventory" or actor_menu:GetMode() == "carbody"
+end
+
 function try_change_plate(obj, drop_on_obj)
 	if not can_change_plate(obj, drop_on_obj) then 
 	return end
@@ -22,7 +26,7 @@ function try_change_plate(obj, drop_on_obj)
 end
 
 function can_change_plate(obj, drop_on_obj)
-	return is_plate_carrier(drop_on_obj) and drop_on_obj:binded_object() and drop_on_obj:binded_object():can_attach(obj)
+	return is_plate_carrier(drop_on_obj) and drop_on_obj:binded_object() and drop_on_obj:binded_object():can_attach(obj) and action_allowed(obj) and action_allowed(drop_on_obj)
 end
 
 function show_change_plate_wnd(obj, drop_on_obj)

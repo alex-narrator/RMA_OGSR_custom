@@ -1655,6 +1655,14 @@ function ActorMenuOverlay:OnKeyboard(dik, keyboard_action)
 					return true
 				end
 			end
+		elseif dik == DIK_keys.DIK_X then
+			if self.cell_item_selected then
+				local item = self.cell_item_selected:GetAnyItem()
+				if service_kit.can_disassemble(item) then
+					service_kit.disassemble(item)
+					return true
+				end
+			end
 		end
 	end
 	return self.key_accels[dik]
@@ -1696,7 +1704,7 @@ function ActorMenuOverlay:ShowPropertiesBox(item, cell_item)
 	--//move to belt
 	name = "st_move_to_belt"
 	precondition = function(item)
-		return actor:can_put_in_belt(item)
+		return actor:can_put_in_belt(item) and parent_is_actor(item)
 	end
 	action = function(item)
 		actor:move_to_belt(item)
@@ -1994,7 +2002,10 @@ function ActorMenuOverlay:UpdateInvTip(cell_item)
 	if self:GetMode() == "inventory" and item then
 		text = game.translate_string(read_if_exists(sys_ini, "r_string", item:section(), "selected_tip", ""))
 		if read_if_exists(sys_ini, "r_bool", item:section(), "quick_slot", false) then
-			text = text.."\\n-\\n"..game.translate_string("st_tip_quick_slot")
+			text = text.."\\n"..game.translate_string("st_tip_quick_slot")
+		end
+		if service_kit.can_disassemble(item) then
+			text = text.."\\n"..game.translate_string("st_tip_disassembly")
 		end		
 	end
 	self.selected_item_tip:SetText(text)

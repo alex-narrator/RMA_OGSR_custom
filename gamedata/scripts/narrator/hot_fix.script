@@ -1,0 +1,37 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_before_first_update", 	fun = this.on_before_first_update})
+	sm:subscribe({signal = "on_save",   				fun = this.on_save})
+	sm:subscribe({signal = "on_load",   				fun = this.on_load})	
+	--sm:subscribe({signal = "on_new_game_start", 		fun = this.on_new_game_start})
+end
+
+local fix_funcs = {
+	function() medkit_model_spawn() end,
+}
+
+local last_fix_called = 0
+function on_save(packet)
+	xr_vars.save_var("last_fix_called", last_fix_called)
+end
+function on_load(reader)
+	last_fix_called = xr_vars.load_var("last_fix_called", last_fix_called)
+end
+
+function on_before_first_update()
+	local fix_to_call = last_fix_called + 1
+	for i = fix_to_call, table.size(fix_funcs) do
+		fix_funcs[i]()
+		last_fix_called = i
+		log3("~call fix function %s", i)
+	end
+end
+
+function medkit_model_spawn()
+	local sobj = alife():object("esc_medkit")
+	if sobj and sobj.parent_id == 65535 then
+		local pos = sobj.position
+		pos.y = pos.y + 0.1
+		sobj:set_position(pos)
+	end
+end

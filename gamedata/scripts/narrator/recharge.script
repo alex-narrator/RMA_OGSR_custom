@@ -40,16 +40,23 @@ function recharge(obj, drop_on_obj)
 	end
 end
 
+function action_allowed(item)
+	return parent_is_actor(item) or actor_menu:GetMode() == "inventory" or actor_menu:GetMode() == "carbody"
+end
 
 --//script menu actions
 function detach_power_source_tip(obj)
 	return string.format("%s %s", game.translate_string("st_detach"), game.translate_string(get_inv_name_short(obj:binded_object():get_power_sect())))
 end
 function can_detach_power_source(obj)
-	return is_power_device(obj) and obj:binded_object():can_detach_power_source()
+	return is_power_device(obj) and obj:binded_object():can_detach_power_source() and action_allowed(obj)
 end
 function detach_power_source(obj)
 	obj:binded_object():detach_power_source()
+	local cell_item = actor_menu:GetCellItem(obj)
+	if cell_item then
+		cell_item:ForceUpdate()
+	end
 end
 
 function pda_tip(obj)

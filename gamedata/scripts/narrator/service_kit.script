@@ -13,6 +13,10 @@ function try_service(obj, drop_on_obj)
 	return end
 end
 
+function action_allowed(item)
+	return parent_is_actor(item) or actor_menu:GetMode() == "inventory" or actor_menu:GetMode() == "carbody"
+end
+
 function can_service(obj, drop_on_obj)
 	if not drop_on_obj then
 	return false end
@@ -26,7 +30,7 @@ function can_service(obj, drop_on_obj)
 		(service_type == "weapon" and drop_on_obj:is_weapon_magazined()) or
 		(service_type == "outfit" and (drop_on_obj:is_outfit() or drop_on_obj:is_helmet()))
 	end
-	return can_service and check_condition(obj, drop_on_obj)
+	return can_service and check_condition(obj, drop_on_obj) and action_allowed(drop_on_obj) and action_allowed(obj)
 end
 
 function get_rank_k()
@@ -276,7 +280,7 @@ function can_disassemble_item(item)
 	local sect = item:section()
 	local parts = read_if_exists(sys_ini, "r_string", sect, "disassemble_parts", nil)
 	local tool = get_tool_sect(item)
-	return parts and (not tool or actor:object(tool))
+	return parts and (not tool or actor:object(tool)) and action_allowed(item)
 end
 
 function show_disassemble_wnd(obj, drop_on_obj)
@@ -309,7 +313,7 @@ function can_saw_off_item(item)
 	if not sawed_off_sect then
 	return false end
 	local tool = get_saw_off_tool_sect(item)
-	return not tool or actor:object(tool)
+	return not tool or actor:object(tool) and action_allowed(item)
 end
 
 local def_saw_off_snd = [[interface\item_usage\inv_repair_kit_with_brushes]]
