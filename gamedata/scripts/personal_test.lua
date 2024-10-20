@@ -529,3 +529,46 @@ end
 
 -- local param = vector():set(0.5,0,0)
 -- set_pda_params(param)
+
+-- local spawn_pos = vector():set(53.722770690918, 20.354343414307, 156.74801635742)
+-- local spawn_dir = vector()--:set(1.17, 0, 0)
+-- local level_name = level.name()
+-- local spawn_sect = "zone_mincer_strong"
+-- local radius = 5
+-- local offset = vector()
+-- local se_obj = spawn_to_level(spawn_sect, spawn_pos, level_name, spawn_dir)
+-- sim:assign_story_id(se_obj.id, 90)
+-- local pk = get_netpk( se_obj, 1 )
+-- local data = pk:get()
+-- data.restrictor_type = 0
+-- data.shapes:addSphere(radius, offset)
+-- pk:set( data )
+
+-- local particle = "anomaly2\\plasma_generator_death"
+
+-- function perform_action(obj)
+	-- log3("~obj %s id %s", obj:name(), obj:id())
+	-- local lamp = obj:get_hanging_lamp()
+	-- if lamp then
+		-- lamp:turn_off()
+		-- log3("~disable lamp %s", obj:name())
+		-- local pos = obj:position()
+		-- particles_object(particle):play_at_pos(pos)
+	-- end
+-- end
+-- level.iterate_nearest(actor:position(), 100, perform_action)
+
+local sobj = alife():object("lights_camp_fire_omni_r1_r2_0001")
+if sobj then
+	log3("~sobj %s found", sobj:name())
+	level.map_add_object_spot_ser(sobj.id, "personal_location", sobj:name())
+	local cobj = level.object_by_id(sobj.id)
+	if cobj then
+		log3("~cobj %s found", cobj:name())
+		local lamp = cobj:get_hanging_lamp()
+		if lamp then
+			lamp:turn_off()
+			log3("~disable lamp %s", cobj:name())
+		end
+	end
+end

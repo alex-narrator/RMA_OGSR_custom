@@ -5,10 +5,12 @@ function attach(sm)
 	--sm:subscribe({signal = "on_campfire_update", fun = this.on_campfire_update})
 	--sm:subscribe({signal = "on_update", fun = this.on_update})
 	--sm:subscribe({signal = "on_npc_spawn", fun = this.on_npc_spawn})
+	sm:subscribe({signal = "on_first_update", fun = this.on_first_update})
 end
 
+local CAMPFIRE_LIGHT_DIST = 4
+
 local campfires = {}
-local usable_campfire = false
 
 function on_npc_spawn(npc)
 	local nearest_campfire, nearest_dist = get_nearest_campfire(npc)
@@ -21,15 +23,21 @@ function on_npc_spawn(npc)
 	end
 end
 
-function get_nearest_campfire(target)
+function get_nearest_campfire(target, distance)
 	local campfire, nearest_campfire = false, false
 	local dist, min_dist = false, 100000
 	for id,_ in pairs(campfires) do
 		campfire = level.object_by_id(id)
 		dist = distance_between_safe(target, campfire)
-		if dist < min_dist then
-			nearest_campfire = campfire
-			min_dist = dist
+		if distance then
+			if dist <= distance then
+				return campfire
+			end
+		else
+			if dist < min_dist then
+				nearest_campfire = campfire
+				min_dist = dist
+			end
 		end
 	end
 	return nearest_campfire, min_dist
@@ -43,13 +51,21 @@ function on_campfire_spawn(campfire)
 		se_campfire.usable_campfire_id = fireplace_usable.id
 		--log3("~create usable fireplace %s for campfire %s", fireplace_usable:name(), campfire:name())
 	end
-	-- campfire:disable_anomaly()
 	-- add_time_delayed_action(10, function() campfire:enable_anomaly() end)
 end
 
-function on_campfire_use(campfire)
-	ogse_signals.get_mgr():call( "on_campfire_use", campfire )
-	log3("~use campfire %s", campfire:name())
+function on_campfire_use(campfire_usable)
+	local zone_campfire
+	for id,v in pairs(campfires) do
+		local se_campfire = alife():object(id)
+		if se_campfire and se_campfire.usable_campfire_id == campfire_usable:id() then
+			zone_campfire = level.object_by_id(id)
+			break
+		end
+	end
+	ogse_signals.get_mgr():call( "on_campfire_use", campfire_usable, zone_campfire )
+	log3("~use campfire %s, campfire zone %s", campfire_usable:name(), zone_campfire:id())
+	--zone_campfire:disable_anomaly()
 end
 
 function on_campfire_destroy(campfire)
@@ -76,4 +92,26 @@ function on_update()
 		hud_remove_info_message("quick_info")
 		usable_campfire = false
 	end
+end
+
+function get_campfires()
+	return campfires
+end
+
+function on_first_update()
+	--//вимикаємо всі лампочки в багаттях - idle_light аномалії світить достатньо
+	for k,v in pairs(campfires) do
+		local campfire = level.object_by_id(k)
+		for kk,vv in pairs(light_manager.get_lights()) do
+			local light = level.object_by_id(kk)
+			if distance_between_safe(light, campfire) <= CAMPFIRE_LIGHT_DIST then
+				local se_light = alife():object(light:id())
+				if se_light and se_light.is_on then
+					light:get_hanging_lamp():turn_off()
+					se_light.is_on = false
+					--log3("~switch off light %s", light:name())
+				end
+			end
+		end
+	end	
 end

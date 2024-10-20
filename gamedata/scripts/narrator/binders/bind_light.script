@@ -1,0 +1,55 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+------------------------------------------------------------------------------------------
+--біндер джерел світла
+------------------------------------------------------------------------------------------
+
+function init(obj)
+    local new_binder = light_binder(obj)
+    obj:bind_object(new_binder)
+end
+
+--послідовність викликів:
+--__init
+--reload
+--load (if save was called before)
+--net_spawn
+
+class "light_binder" (object_binder)
+function light_binder:__init(obj) super(obj)
+	self.sm = ogse_signals.get_mgr()
+	self.is_active = false
+end
+ 
+function light_binder:reload(section)
+end
+
+function light_binder:reinit()
+	object_binder.reinit(self)
+end
+
+function light_binder:net_spawn(data)
+	self.sm:call("on_light_spawn", self.object)
+    local spawned = object_binder.net_spawn(self, data)	
+	return spawned
+end
+
+function light_binder:net_destroy()
+	--log3("%s net_destroy for object %s", script_name(), self.object:name())
+	self.sm:call("on_light_destroy", self.object)
+	object_binder.net_destroy(self)
+end
+ 
+function light_binder:update(delta)
+    object_binder.update(self, delta)
+	self.sm:call("on_light_update", self.object, delta)
+end
+
+function light_binder:save(packet)
+	object_binder.save(self, packet)
+	self.sm:call("on_clight_save", packet)
+end
+----------------------------------------------------------------------------------------------------------------------
+function light_binder:load(reader)
+	object_binder.load(self, reader)
+	self.sm:call("on_light_load", reader)
+end

@@ -31,6 +31,9 @@ function on_spawn()
 	prefetch_sounds()
 end
 
+function get_camps()
+	return kamps
+end
 
 local known_stories = {}
 function load_stories()
@@ -170,7 +173,7 @@ function CKampManager:__init(path)
 	self.kamp_name = path
 	self.patrol = patrol(path)
 	self.center = self.patrol:level_vertex_id(0)
-	
+		
 	if DBG_CENTER_SHOW then
 		--level.disable_vertex(self.center)
 		--game_graph():accessible(self.center, false)
