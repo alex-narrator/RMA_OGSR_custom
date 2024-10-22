@@ -1,0 +1,89 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_campfire_use", fun = this.on_campfire_use})
+end
+
+local CAMPFIRE_EFFECT_DIST = actor.inventory.take_dist
+local PSY_RESTORE_K = 0.5
+local actor_obj = get_actor_obj()
+
+local matches_sound = "interface\\inv_matches"
+
+local actor_use_campfire = false
+local subscribed = false
+
+function on_campfire_use(campfire_usable, campfire_zone)
+	if not alife():object(campfire_zone:id()).enabled then
+		actor:hide_weapon(true)
+		level.disable_input()
+		local sound = xr_sound.get_safe_sound_object(matches_sound)
+		sound:play(actor, 0, sound_object.s2d)
+		level.add_call(
+			function()
+				return not sound:playing()
+			end,
+			function()
+				campfire_zone:enable_anomaly()
+				alife():object(campfire_zone:id()).enabled = true
+				actor:restore_weapon(true)
+				level.enable_input()
+			end
+		)
+	return end
+	
+	if actor_use_campfire and actor_use_campfire:id() == campfire_zone:id() then
+		unsubscribe()
+	return end
+	
+	actor_use_campfire = campfire_zone
+	--actor:hide_weapon()
+	backpack.force_crouch(true)
+	subscribe()	
+end
+
+function actor_used_campfire()
+	return actor_use_campfire
+end
+
+function subscribe()
+	if subscribed then
+	return end
+	subscribed = {
+		{ signal = "update_items_effect", fun = this.update_items_effect },
+	}
+	local sm = ogse_signals.get_mgr()
+	for _, s in ipairs( subscribed ) do
+		sm:subscribe( s )
+	end
+end
+
+function unsubscribe()
+	if not subscribed then
+	return end
+	local sm = ogse_signals.get_mgr()
+	for _, s in ipairs( subscribed ) do
+		sm:unsubscribe( s )
+	end
+	subscribed = false
+	actor_use_campfire = false
+	backpack.force_crouch(false)
+	--actor:restore_weapon()
+end
+
+function update_items_effect(delta)
+	local used_now = actor_use_campfire 
+		and distance_between_safe(actor, actor_use_campfire) <= CAMPFIRE_EFFECT_DIST 
+		and (actor_obj:is_actor_crouch() or actor_obj:is_actor_crouching() or actor_obj:is_actor_creep() or actor_obj:is_actor_creeping())
+		--and is_actor_looking_to_pos(actor_use_campfire:position(), actor_use_campfire:radius())
+	if not used_now then
+		unsubscribe()
+	return end
+	--aim_camera_to_target(actor_use_campfire)
+	local pos = actor_use_campfire:center()
+	pos.y = pos.y + 0.5
+	aim_camera_to_pos(pos)
+	local conds = actor_obj.condition
+	local psy_add = conds.psy_health_v * PSY_RESTORE_K * delta
+	actor.psy_health = psy_add
+	--log3("~psy_add %s", psy_add)
+end

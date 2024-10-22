@@ -1,106 +1,75 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
-	sm:subscribe({signal = "on_campfire_spawn", fun = this.on_campfire_spawn})
-	--sm:subscribe({signal = "on_campfire_destroy", fun = this.on_campfire_destroy})
-	--sm:subscribe({signal = "on_campfire_update", fun = this.on_campfire_update})
-	--sm:subscribe({signal = "on_update", fun = this.on_update})
-	--sm:subscribe({signal = "on_npc_spawn", fun = this.on_npc_spawn})
+	sm:subscribe({signal = "on_campfire_zone_spawn", fun = this.on_campfire_zone_spawn})
+	sm:subscribe({signal = "on_campfire_zone_destroy", fun = this.on_campfire_zone_destroy})
+	sm:subscribe({signal = "on_campfire_usable_spawn", fun = this.on_campfire_usable_spawn})
+	sm:subscribe({signal = "on_campfire_usable_destroy", fun = this.on_campfire_usable_destroy})	
 	sm:subscribe({signal = "on_first_update", fun = this.on_first_update})
 end
 
+local campfire_zones = {}
+local campfire_usable = {}
 local CAMPFIRE_LIGHT_DIST = 4
 
-local campfires = {}
-
-function on_npc_spawn(npc)
-	local nearest_campfire, nearest_dist = get_nearest_campfire(npc)
-	
-	local MAX_DIST = 2
-	if nearest_campfire and nearest_dist <= nearest_campfire:radius() then
-		log3("~saving npc %s from spawn into campfire %s", npc:character_name(), nearest_campfire:name())
-		local lv_id = level.vertex_in_direction(npc:level_vertex_id(), npc:direction(), MAX_DIST)
-		alife():teleport_object(npc:id(), level.vertex_position(lv_id), lv_id, npc:game_vertex_id())
-	end
-end
-
-function get_nearest_campfire(target, distance)
-	local campfire, nearest_campfire = false, false
-	local dist, min_dist = false, 100000
-	for id,_ in pairs(campfires) do
+function get_nearest_campfire_zone(pos, distance)
+	for id,_ in pairs(campfire_zones) do
 		campfire = level.object_by_id(id)
-		dist = distance_between_safe(target, campfire)
-		if distance then
-			if dist <= distance then
-				return campfire
-			end
-		else
-			if dist < min_dist then
-				nearest_campfire = campfire
-				min_dist = dist
-			end
+		local dist = pos:distance_to(campfire:position())
+		if dist <= distance then
+			return campfire
 		end
 	end
-	return nearest_campfire, min_dist
+	return nil
 end
 
-function on_campfire_spawn(campfire)
-	campfires[campfire:id()] = true
+function get_nearest_campfire_usable(pos, distance)
+	for id,_ in pairs(campfire_usable) do
+		campfire = level.object_by_id(id)
+		local dist = pos:distance_to(campfire:position())
+		if dist <= distance then
+			return campfire
+		end
+	end
+	return nil
+end
+
+function on_campfire_zone_spawn(campfire)
 	local se_campfire = alife():object(campfire:id())
 	if se_campfire.usable_campfire_id == 0 then
 		local fireplace_usable = spawn_to_level("fireplace", campfire:position(), level.name(), campfire:direction())
 		se_campfire.usable_campfire_id = fireplace_usable.id
 		--log3("~create usable fireplace %s for campfire %s", fireplace_usable:name(), campfire:name())
 	end
-	-- add_time_delayed_action(10, function() campfire:enable_anomaly() end)
+	campfire_zones[campfire:id()] = se_campfire.usable_campfire_id
 end
 
-function on_campfire_use(campfire_usable)
-	local zone_campfire
-	for id,v in pairs(campfires) do
-		local se_campfire = alife():object(id)
-		if se_campfire and se_campfire.usable_campfire_id == campfire_usable:id() then
-			zone_campfire = level.object_by_id(id)
-			break
-		end
-	end
-	ogse_signals.get_mgr():call( "on_campfire_use", campfire_usable, zone_campfire )
-	log3("~use campfire %s, campfire zone %s", campfire_usable:name(), zone_campfire:id())
-	--zone_campfire:disable_anomaly()
-end
-
-function on_campfire_destroy(campfire)
-	if not campfires[campfire:id()] then
+function on_campfire_zone_destroy(campfire)
+	if not campfire_zones[campfire:id()] then
 	return end
-	campfires[campfire:id()] = nil
+	campfire_zones[campfire:id()] = nil
 end
 
-function on_campfire_update(campfire, delta)
-	local nearest_campfire = get_nearest_campfire(actor)
-	if not nearest_campfire or nearest_campfire:id() ~= campfire:id() then
+function get_campfire_zones()
+	return campfire_zones
+end
+
+function on_campfire_usable_spawn(campfire)
+	campfire_usable[campfire:id()] = true
+end
+
+function on_campfire_usable_destroy(campfire)
+	if not campfire_usable[campfire:id()] then
 	return end
+	campfire_usable[campfire:id()] = nil
 end
 
-function on_update()
-	local nearest_campfire, nearest_dist = get_nearest_campfire(actor)
-	if nearest_campfire and 
-		is_actor_looking_to_pos(nearest_campfire:position(), nearest_campfire:radius()) and 
-		nearest_dist <= get_actor_obj().inventory.take_dist 
-	then
-		hud_add_info_message("quick_info", game.translate_string("ui_use_campfire"))
-		usable_campfire = nearest_campfire
-	elseif usable_campfire then
-		hud_remove_info_message("quick_info")
-		usable_campfire = false
-	end
-end
-
-function get_campfires()
-	return campfires
+function get_campfire_usable()
+	return campfire_usable
 end
 
 function on_first_update()
 	--//вимикаємо всі лампочки в багаттях - idle_light аномалії світить достатньо
-	for k,v in pairs(campfires) do
+	for k,v in pairs(campfire_zones) do
 		local campfire = level.object_by_id(k)
 		for kk,vv in pairs(light_manager.get_lights()) do
 			local light = level.object_by_id(kk)

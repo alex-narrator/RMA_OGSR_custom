@@ -48,7 +48,7 @@ function lock(box)
 	log3("~lock box sid %s", box:story_id())
 	local sobj = alife():object(box:id())
 	sobj.is_opened = false
-	if level.map_has_object_spot(sobj.id, store_box_spot) ~= 0 then
+	while level.map_has_object_spot(sobj.id, store_box_spot) ~= 0 do
 		level.map_remove_object_spot(sobj.id, store_box_spot)
 	end
 end

@@ -16,6 +16,8 @@ local kamp_states = xr_kamp_data.kamp_states
 local trans_kamp = xr_kamp_data.trans_kamp
 local shared_sounds = xr_kamp_data.shared_sounds
 
+local CAMPFIRE_DIST = 4
+
 kamps = {}
 kamp_stalkers = {} -- могут ли сталкеры в лагере юзаться игроком.
 
@@ -659,11 +661,26 @@ function CKampManager:removeNpc(npc)
 		self.npc[npc_id] = nil
 	end
 end
+
 function CKampManager:increasePops(npc)
 	self.population = self.population + 1
+	local campfire = campfire_manager.get_nearest_campfire_usable(level.vertex_position(self.center), CAMPFIRE_DIST)
+	if campfire then
+		--log3("~increasePops found campfire %s for kamp %s", campfire:name(), self.kamp_name)
+		if self.population == 1 then
+			campfire:binded_object().has_user = true
+		end
+	end
 end
 function CKampManager:decreasePops(npc)
 	self.population = self.population - 1
+	local campfire = campfire_manager.get_nearest_campfire_usable(level.vertex_position(self.center), CAMPFIRE_DIST)
+	if campfire then
+		--log3("~decreasePops found campfire %s for kamp %s", campfire:name(), self.kamp_name)
+		if self.population == 0 then
+			campfire:binded_object().has_user = false
+		end
+	end	
 end
 
 function CKampManager:select_story(npc)

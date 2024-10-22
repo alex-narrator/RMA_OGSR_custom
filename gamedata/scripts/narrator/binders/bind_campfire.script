@@ -1,10 +1,9 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 ------------------------------------------------------------------------------------------
---біндер багать
+--біндер аномалій багать
 ------------------------------------------------------------------------------------------
-
-function init(obj)
-    local new_binder = campfire_binder(obj)
+function init_zone(obj)
+    local new_binder = campfire_zone_binder(obj)
     obj:bind_object(new_binder)
 end
 
@@ -14,44 +13,111 @@ end
 --load (if save was called before)
 --net_spawn
 
-class "campfire_binder" (object_binder)
-function campfire_binder:__init(obj) super(obj)
+class "campfire_zone_binder" (object_binder)
+function campfire_zone_binder:__init(obj) super(obj)
 	self.sm = ogse_signals.get_mgr()
-	self.is_active = false
-end
- 
-function campfire_binder:reload(section)
+	self.se_object = alife():object(obj:id())
 end
 
-function campfire_binder:reinit()
-	object_binder.reinit(self)
-end
-
-function campfire_binder:net_spawn(data)
+function campfire_zone_binder:net_spawn(data)
 	--log3("%s net_spawn for object %s", script_name(), self.object:name())
 	--self.object:disable_anomaly()
-	self.sm:call("on_campfire_spawn", self.object)
+	self.sm:call("on_campfire_zone_spawn", self.object)
+	if not self.se_object.enabled then
+		self.object:disable_anomaly()
+	end
     local spawned = object_binder.net_spawn(self, data)	
 	return spawned
 end
 
-function campfire_binder:net_destroy()
+function campfire_zone_binder:net_destroy()
 	--log3("%s net_destroy for object %s", script_name(), self.object:name())
-	self.sm:call("on_campfire_destroy", self.object)
+	self.sm:call("on_campfire_zone_destroy", self.object)	
+	object_binder.net_destroy(self)
+end
+
+------------------------------------------------------------------------------------------
+--біндер юзабельних багать
+------------------------------------------------------------------------------------------
+function init_usable(obj)
+    local new_binder = campfire_usable_binder(obj)
+    obj:bind_object(new_binder)
+end
+
+local CAMPFIRE_DIST = 1
+local DISABLE_TIME = 30 * 60 --//час затухання багаття без користувачів у ігрових хвилинах
+local planned_to_disable = {}
+
+class "campfire_usable_binder" (object_binder)
+function campfire_usable_binder:__init(obj) super(obj)
+	self.sm = ogse_signals.get_mgr()
+	self.se_campfire_zone = nil
+	self.has_user = false
+end
+
+function campfire_usable_binder:net_spawn(data)
+	--log3("%s net_spawn for object %s", script_name(), self.object:name())
+	--self.object:disable_anomaly()
+	self.sm:call("on_campfire_usable_spawn", self.object)	
+	self.object:set_callback(callback.use_object, campfire_usable_binder.on_use, self)
+    local spawned = object_binder.net_spawn(self, data)	
+	return spawned
+end
+
+function campfire_usable_binder:net_destroy()
+	self.object:set_callback(callback.use_object, nil)
+	self.se_campfire_zone = nil
+	--log3("%s net_destroy for object %s", script_name(), self.object:name())
+	self.sm:call("on_campfire_usable_destroy", self.object)	
 	object_binder.net_destroy(self)
 end
  
-function campfire_binder:update(delta)
+function campfire_usable_binder:update(delta)
     object_binder.update(self, delta)
-	self.sm:call("on_campfire_update", self.object, delta)
+	self.sm:call("on_campfire_usable_update", self.object, delta)
+	if not self.se_campfire_zone then
+		for k,v in pairs(campfire_manager.get_campfire_zones()) do
+			if v == self.object:id() then
+				self.se_campfire_zone = alife():object(k)
+				break
+			end
+		end
+	end
+	
+	local actor_campfire = campfire_effects.actor_used_campfire()
+	local campfire_has_user = self.has_user or (actor_campfire and actor_campfire:id() == self.se_campfire_zone.id)
+	
+	local text = (actor_campfire and actor_campfire:id() == self.se_campfire_zone.id) and "ui_st_leave_campfire" or (self.se_campfire_zone and self.se_campfire_zone.enabled) and "ui_st_use_campfire" or "ui_st_light_campfire"
+	self.object:set_tip_text(text)
+	
+	if self.se_campfire_zone.enabled and not campfire_has_user and not planned_to_disable[self.object:id()] then
+		planned_to_disable[self.object:id()] = game.get_game_time()
+	end
+	
+	if not self.se_campfire_zone.enabled and campfire_has_user then
+		self.se_campfire_zone.enabled = true
+		local c_campfire_zone = level.object_by_id(self.se_campfire_zone.id)
+		if c_campfire_zone then
+			c_campfire_zone:enable_anomaly()
+		end		
+	end
+	
+	if self.se_campfire_zone.enabled and planned_to_disable[self.object:id()] and game.get_game_time():diffSec(planned_to_disable[self.object:id()]) > DISABLE_TIME then
+		planned_to_disable[self.object:id()] = nil
+		self.se_campfire_zone.enabled = false
+		local c_campfire_zone = level.object_by_id(self.se_campfire_zone.id)
+		if c_campfire_zone then
+			c_campfire_zone:disable_anomaly()
+		end
+	end
+	
+	if self.se_campfire_zone.enabled and campfire_has_user then
+		if planned_to_disable[self.object:id()] then
+			planned_to_disable[self.object:id()] = nil
+		end
+	end
 end
 
-function campfire_binder:save(packet)
-	object_binder.save(self, packet)
-	self.sm:call("on_campfire_save", packet)
-end
-----------------------------------------------------------------------------------------------------------------------
-function campfire_binder:load(reader)
-	object_binder.load(self, reader)
-	self.sm:call("on_campfire_load", reader)
+function campfire_usable_binder:on_use(obj, who)
+	self.sm:call( "on_campfire_use", obj, level.object_by_id(self.se_campfire_zone.id) )
 end

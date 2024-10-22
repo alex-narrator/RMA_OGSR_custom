@@ -149,6 +149,7 @@ end
 class "se_zone_campfire" (cse_anomalous_zone)
 function se_zone_campfire:__init (section) super (section)
 	self.usable_campfire_id = 0
+	self.enabled = false
 end
 function se_zone_campfire:on_register()
 	cse_anomalous_zone.on_register(self)
@@ -159,13 +160,15 @@ end
 function se_zone_campfire:STATE_Write(packet)
 	cse_anomalous_zone.STATE_Write(self, packet)
 	packet:w_u32(self.usable_campfire_id)
+	packet:w_bool(self.enabled)
 end
 -- восстановление
 function se_zone_campfire:STATE_Read( packet, size )
 	cse_anomalous_zone.STATE_Read( self, packet, size )
 	if packet:r_eof() then
 	return end	
-	self.usable_campfire_id = packet:r_u32()	
+	self.usable_campfire_id = packet:r_u32()
+	self.enabled = packet:r_bool()
 end
 
 --//МІНИ

@@ -275,6 +275,7 @@ function MainIngameOverlay:InitControls()
 		{ name = "godmode", 	val = function() return is_god_mode() end },
 		{ name = "safehouse", 	val = function() return actor:has_info("safehouse") end },
 		{ name = "limbs_injure", val = function() return body_health.get_injured_limb() end },
+		{ name = "use_campfire", val = function() return campfire_effects.actor_used_campfire() end },
 	}
 	for k,v in ipairs(self.warning_icons) do
 		v.icon = xml:InitStatic("icons_back:"..v.name, self.warning_icons_back)
