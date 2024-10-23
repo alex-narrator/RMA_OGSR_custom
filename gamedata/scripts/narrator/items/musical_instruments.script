@@ -5,12 +5,16 @@ local instruments = {
 	["guitar"] = {
 		sound_prefix = [[characters_voice\music\guitar\guitar_]], 
 		hud = "guitar_hud",
+		draw_anm_speed = 2.5,
+		draw_anm_delay = 1.5,
 		max_rnd = 13,
 		psy_restore_k = 0.1,
 	},
 	["harmonica"] = {
 		sound_prefix = [[characters_voice\music\harmonica\harmonica_]], 
 		hud = "harmonica_hud",
+		draw_anm_speed = 1.5,
+		draw_anm_delay = 1,
 		max_rnd = 9,
 		psy_restore_k = 0.3,
 	},	
@@ -20,45 +24,51 @@ local sm = ogse_signals.get_mgr()
 local subscribed = false
 local play_anim = false
 local sound = false
+local instrument = false
 
-local stop_keys = {
-	[key_bindings.kUSE] = true,
-	[key_bindings.kINVENTORY] = true,
-}
-
-function play(instrument)
+function play(item)
 	actor:hide_weapon(true)
 	block_non_move_action(true)
 	actor:hide_crosshair(true)
+	
+	instrument = item
+	local data = instruments[instrument]
 	
 	level.add_call(
 		function() 
 			return not actor:active_item() and not actor:active_device()
 		end,
 		function()
-			--level.send_event_key_press(DIK_keys.DIK_ESCAPE)
 			if actor_menu:IsShown() then
 				ui_actor_menu.ShowHideMenu()
 			end
-			if not subscribed then
-				subscribed = { signal = "on_key_press", fun = this.on_key_press }
-				sm:subscribe( subscribed )
-			end
-			hud_add_info_message("item_usage", game.translate_string("st_key_to_stop_anim"), 99)
-			local data = instruments[instrument]
-			game.play_hud_motion(2, data.hud, "anm_play", false, 1, true)
+			
+			game.play_hud_motion(2, data.hud, "anm_draw", false, data.draw_anm_speed or 1, true)
 			_G.SCRIPT_ANIM_PLAYING = true
-			sound = xr_sound.get_safe_sound_object(data.sound_prefix..math.random(1, data.max_rnd))
-			sound:play(actor, 0, sound_object.s2d)
-			level.add_call(
+			
+			add_time_delayed_action(data.draw_anm_delay or 1,
 				function()
-					local conds = get_actor_obj().condition
-					local f_dt = conds:fdelta_time()
-					actor.psy_health = conds.psy_health_v * data.psy_restore_k * f_dt
-					return not sound or not sound:playing()
-				end,
-				function()
-					stop_music()
+
+				if not subscribed then
+					subscribed = { signal = "on_key_press", fun = this.on_key_press }
+					sm:subscribe( subscribed )
+				end
+				hud_add_info_message("item_usage", game.translate_string("st_key_to_stop_anim"), 99)
+				game.play_hud_motion(2, data.hud, "anm_play", false, 1, true)
+				sound = xr_sound.get_safe_sound_object(data.sound_prefix..math.random(1, data.max_rnd))
+				sound:play(actor, 0, sound_object.s2d)
+				level.add_call(
+					function()
+						local conds = get_actor_obj().condition
+						local f_dt = conds:fdelta_time()
+						actor.psy_health = conds.psy_health_v * data.psy_restore_k * f_dt
+						return not sound or not sound:playing()
+					end,
+					function()
+						stop_music()
+					end
+				)			
+			
 				end
 			)
 		end
@@ -68,15 +78,23 @@ end
 function stop_music()
 	if not sound then
 	return end
+	hud_remove_info_message("item_usage")
 	game.stop_hud_motion()
-	_G.SCRIPT_ANIM_PLAYING = false
-	restore_control()
 	sound:stop()
 	sound = false
+	local data = instruments[instrument]
+	game.play_hud_motion(2, data.hud, "anm_draw", false, data.draw_anm_speed or 1, true)
+	add_time_delayed_action(data.draw_anm_delay or 1,
+		function()
+			game.stop_hud_motion()
+			_G.SCRIPT_ANIM_PLAYING = false
+			restore_control()
+			instrument = false
+		end
+	)
 end
 
 function restore_control()
-	hud_remove_info_message("item_usage")
 	actor:restore_weapon()
 	block_non_move_action(false)
 	actor:hide_crosshair(true)

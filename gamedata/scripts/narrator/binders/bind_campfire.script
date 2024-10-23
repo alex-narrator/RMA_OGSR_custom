@@ -87,7 +87,7 @@ function campfire_usable_binder:update(delta)
 	local actor_campfire = campfire_effects.actor_used_campfire()
 	local campfire_has_user = self.has_user or (actor_campfire and actor_campfire:id() == self.se_campfire_zone.id)
 	
-	local text = (actor_campfire and actor_campfire:id() == self.se_campfire_zone.id) and "ui_st_leave_campfire" or (self.se_campfire_zone and self.se_campfire_zone.enabled) and "ui_st_use_campfire" or "ui_st_light_campfire"
+	local text = (actor_campfire and actor_campfire:id() == self.se_campfire_zone.id) and "ui_st_leave_campfire" or (self.se_campfire_zone and self.se_campfire_zone.enabled) and "ui_st_use_campfire" or campfire_effects.get_matches() and "ui_st_light_campfire" or "ui_st_light_campfire_need_matches"
 	self.object:set_tip_text(text)
 	
 	if self.se_campfire_zone.enabled and not campfire_has_user and not planned_to_disable[self.object:id()] then

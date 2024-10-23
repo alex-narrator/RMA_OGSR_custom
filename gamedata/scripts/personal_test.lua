@@ -558,17 +558,21 @@ end
 -- end
 -- level.iterate_nearest(actor:position(), 100, perform_action)
 
-local sobj = alife():object("lights_camp_fire_omni_r1_r2_0001")
-if sobj then
-	log3("~sobj %s found", sobj:name())
-	level.map_add_object_spot_ser(sobj.id, "personal_location", sobj:name())
-	local cobj = level.object_by_id(sobj.id)
-	if cobj then
-		log3("~cobj %s found", cobj:name())
-		local lamp = cobj:get_hanging_lamp()
-		if lamp then
-			lamp:turn_off()
-			log3("~disable lamp %s", cobj:name())
-		end
-	end
-end
+-- local sobj = alife():object("lights_camp_fire_omni_r1_r2_0001")
+-- if sobj then
+	-- log3("~sobj %s found", sobj:name())
+	-- level.map_add_object_spot_ser(sobj.id, "personal_location", sobj:name())
+	-- local cobj = level.object_by_id(sobj.id)
+	-- if cobj then
+		-- log3("~cobj %s found", cobj:name())
+		-- local lamp = cobj:get_hanging_lamp()
+		-- if lamp then
+			-- lamp:turn_off()
+			-- log3("~disable lamp %s", cobj:name())
+		-- end
+	-- end
+-- end
+
+log3("~actor:is_actor_outdoors() %s", actor:is_actor_outdoors())
+log3("~actor:is_ActorHide() %s", actor:is_ActorHide())
+log3("~is_pos_under_roof() %s", is_pos_under_roof(actor:position()))

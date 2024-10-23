@@ -7,26 +7,58 @@ local CAMPFIRE_EFFECT_DIST = actor.inventory.take_dist
 local PSY_RESTORE_K = 0.5
 local actor_obj = get_actor_obj()
 
-local matches_sound = "interface\\inv_matches"
+local LIGHT_UP_PROB = 3
+local OUTDOOR_K = 1
+local RAIN_K = 1
 
 local actor_use_campfire = false
 local subscribed = false
 
+function get_matches()
+	return actor:object("matches")
+end
+
 function on_campfire_use(campfire_usable, campfire_zone)
 	if not alife():object(campfire_zone:id()).enabled then
+		
+		local matches = get_matches()
+		
+		if not matches then
+		return end
+		
+		local cond_dec = 1 / read_if_exists(sys_ini, "r_u32", matches:section(), "use_count", 10)
+		matches:change_condition(-cond_dec)
+		
+		if matches:condition() <= 0 then
+			actor:drop_item(matches)
+			alife():release(alife():object(matches:id()), true)
+		end
+		
 		actor:hide_weapon(true)
 		level.disable_input()
-		local sound = xr_sound.get_safe_sound_object(matches_sound)
-		sound:play(actor, 0, sound_object.s2d)
+		local sound = xr_sound.get_safe_sound_object(read_if_exists(sys_ini, "r_string", matches:section(), "use_sound", nil))
+		if sound then
+			sound:play(actor, 0, sound_object.s2d)
+		end
+			
 		level.add_call(
 			function()
-				return not sound:playing()
+				return not sound or not sound:playing()
 			end,
 			function()
-				campfire_zone:enable_anomaly()
-				alife():object(campfire_zone:id()).enabled = true
 				actor:restore_weapon(true)
 				level.enable_input()
+				local prob = LIGHT_UP_PROB
+				--if not actor:is_ActorHide() then
+				if not is_pos_under_roof(campfire_zone:position()) then
+					prob = prob + level.rain_factor()
+					log3("~rain factor %s", level.rain_factor())
+				end
+				log3("~light up prob %s", prob)
+				if math.random(0, 10) > prob then
+					campfire_zone:enable_anomaly()
+					alife():object(campfire_zone:id()).enabled = true
+				end
 			end
 		)
 	return end

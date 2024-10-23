@@ -2248,6 +2248,11 @@ function get_weekday_name(c_time, short_name)
 	return game.translate_string(weekday)
 end
 
+function is_pos_under_roof(pos)
+	local rq = level.ray_query(pos, vector():set(0, 1, 0), 200, rq_target.rqtStatic, nil)
+	return rq.result
+end
+
 ACTIVE_ITEM_INFO_TTL 	= read_if_exists(sys_ini, "r_u32", "actor", "active_item_info_ttl", 3)
 GEAR_INFO_TTL 			= read_if_exists(sys_ini, "r_u32", "actor", "gear_info_ttl", 3)
 
