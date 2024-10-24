@@ -119,3 +119,7 @@ function update_items_effect(delta)
 	actor.psy_health = psy_add
 	--log3("~psy_add %s", psy_add)
 end
+
+function service_bonus()
+	return actor_used_campfire() and 0.5 or 0
+end

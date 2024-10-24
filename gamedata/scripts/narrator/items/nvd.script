@@ -7,9 +7,6 @@ function attach(sm)
 	sm:subscribe({signal = "on_death",   				fun = this.on_death})
 end
 
-local on_snd = [[device\torch\nv_start]]
-local off_snd = [[device\torch\nv_off]]
-
 --//слоти в яких можуть бути предмети з ПНБ
 local nvd_slots = {
 	6,
@@ -50,7 +47,11 @@ end
 function switch_nvd(item)
 	local sobj = alife():object(item:id())
 	sobj.is_nvd_on = not sobj.is_nvd_on
-	local snd_name = sobj.is_nvd_on and on_snd or off_snd
+	
+	local snd_on = read_if_exists(sys_ini, "r_string", item:section(), "snd_night_vision_on", nil)
+	local snd_off = read_if_exists(sys_ini, "r_string", item:section(), "snd_night_vision_off", nil)	
+	
+	local snd_name = sobj.is_nvd_on and snd_on or snd_off
 	xr_sound.get_safe_sound_object(snd_name):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
 	set_nvd_effector(item:section(), sobj.is_nvd_on)
 end
@@ -59,7 +60,11 @@ function enable_nvd(item, power_on)
 	--log3("~enable_nvd for item %s | power_on %s", item:name(), power_on)
 	local sobj = alife():object(item:id())
 	sobj.is_nvd_on = power_on
-	local snd_name = sobj.is_nvd_on and on_snd or off_snd
+	
+	local snd_on = read_if_exists(sys_ini, "r_string", item:section(), "snd_night_vision_on", nil)
+	local snd_off = read_if_exists(sys_ini, "r_string", item:section(), "snd_night_vision_off", nil)
+	
+	local snd_name = sobj.is_nvd_on and snd_on or snd_off	
 	xr_sound.get_safe_sound_object(snd_name):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
 	set_nvd_effector(item:section(), sobj.is_nvd_on)
 end

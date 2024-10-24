@@ -41,8 +41,6 @@ local meat_type = {
 
 function play_harvest(monster)
 	local knife = actor_get_knife()--actor:active_item()
-	local cond_dec = read_if_exists(sys_ini, "r_float", monster:section(), "knife_harvest_cond_k", 1) * 
-						read_if_exists(sys_ini, "r_float", knife:section(), "condition_shot_dec_on_hit", 0)
 	
 	local meat_hud = meat_type[get_species(monster)] or default_hud
 	
@@ -67,14 +65,7 @@ function play_harvest(monster)
 					return game.hud_motion_allowed()
 				end,
 				function()
-					for i = 0, monster:ruck_count() - 1 do
-						local item = monster:item_in_ruck(i)
-						if item then
-							knife:change_condition(-cond_dec)
-							monster:transfer_item(item, actor)
-							news_manager.item_tip(item, "harvest")
-						end
-					end
+					harvest.take_loot(monster, knife)
 					_G.SCRIPT_ANIM_PLAYING = false
 					backpack.force_crouch(false)
 					level.enable_input()

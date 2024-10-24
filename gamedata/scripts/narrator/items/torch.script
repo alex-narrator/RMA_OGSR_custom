@@ -42,13 +42,16 @@ end
 
 function switch_mode(item)
 	alife():object(item:id()).is_second_mode = not alife():object(item:id()).is_second_mode
-	xr_sound.get_safe_sound_object("torch\\snd_switch_on"):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+	local snd_mode = read_if_exists(sys_ini, "r_string", item:section(), "snd_switch_mode", nil)
+	xr_sound.get_safe_sound_object(snd_mode):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 	set_torch_params(item)
 end
 
 function switch_torch(item)
 	set_torch_params(item)
-	xr_sound.get_safe_sound_object(item:is_power_on() and "torch\\snd_switch_on" or "torch\\snd_switch_off"):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+	local snd_on = read_if_exists(sys_ini, "r_string", item:section(), "snd_torch_on", nil)
+	local snd_off = read_if_exists(sys_ini, "r_string", item:section(), "snd_torch_off", nil)
+	xr_sound.get_safe_sound_object(item:is_power_on() and snd_on or snd_off):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 	if can_switch(item) then
 		item:get_torch():switch()
 	end

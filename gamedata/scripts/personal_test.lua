@@ -573,6 +573,8 @@ end
 	-- end
 -- end
 
-log3("~actor:is_actor_outdoors() %s", actor:is_actor_outdoors())
-log3("~actor:is_ActorHide() %s", actor:is_ActorHide())
-log3("~is_pos_under_roof() %s", is_pos_under_roof(actor:position()))
+--log3("~actor:is_actor_outdoors() %s", actor:is_actor_outdoors())
+--log3("~actor:is_ActorHide() %s", actor:is_ActorHide())
+--log3("~is_pos_under_roof() %s", is_pos_under_roof(actor:position()))
+
+game.start_tutorial("campfire_tutorial")

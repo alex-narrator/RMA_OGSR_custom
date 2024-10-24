@@ -35,7 +35,6 @@ end
 
 function get_rank_k()
 	local rank = actor:character_rank()
-	
 	if rank < 300 then 		--novice
 		return 0.8
 	elseif rank < 600 then 	--experienced
@@ -53,18 +52,35 @@ function check_condition(obj, drop_on_obj)
 	return victim_cond > 0 and victim_cond < 1 and victim_cond > min_cond
 end
 
+function max_cond_add(obj, drop_on_obj)
+	local cond_gain = read_if_exists(sys_ini, "r_float", obj:section(), "repair_condition_gain", 0)
+	local cond_add = cond_gain * get_rank_k()
+	local parts = read_if_exists(sys_ini, "r_string", drop_on_obj:section(), "disassemble_parts", nil)
+	if parts and string.find(parts, obj:section()) then
+		cond_add = cond_add * obj:condition()
+	end
+	cond_add = math.clamp(cond_add, 0.01, 1)
+	cond_add = cond_add + cond_add * campfire_effects.service_bonus()
+	cond_add = math.round(cond_add, 3)
+	return cond_add
+end
+
 function show_service_wnd(obj, drop_on_obj)
 	local service_msg_box = ui_message_box.MessageBoxWnd()
 	local msg_text = string.format(
-		"%s %s\\n%s %s ?", 
+		"%s %s\\n%s %s ?\\n-\\n%s %s%s",
 		game.translate_string(read_if_exists(sys_ini, "r_string", drop_on_obj:section(), "service_tip", "st_service_item")), 
 		game.translate_string(get_inv_name(drop_on_obj:section())), 
 		game.translate_string("st_service_with"), 
-		game.translate_string(get_inv_name(obj:section())))
+		game.translate_string(get_inv_name(obj:section())),
+		game.translate_string("st_max_codition_gain"),
+		max_cond_add(obj, drop_on_obj) * 100,
+		game.translate_string("st_percent")
+	)
 	service_msg_box:InitAction(msg_text, service, obj, drop_on_obj)
 end
 
-repair_effector_id = 20000
+local repair_effector_id = 20000
 
 function service(obj, drop_on_obj)
 	local rep_kit_sect = obj:section()
@@ -83,13 +99,13 @@ function service(obj, drop_on_obj)
 	end	
 	
 	local function make_service()
-		local cond_gain = read_if_exists(sys_ini, "r_float", rep_kit_sect, "repair_condition_gain", 0)
-		local cond_add = cond_gain * get_rank_k()
+		local cond_add = max_cond_add(obj, drop_on_obj)
 		local cond_start = drop_on_obj:condition()
 		drop_on_obj:change_condition(cond_add)
 		local cond_end = drop_on_obj:condition()
-		local text = string.format("%s %s %.1f%s", game.translate_string(get_inv_name(drop_on_obj:section())), game.translate_string("st_codition_gain"), (cond_end-cond_start)*100, "%")
+		local text = string.format("%s %s %.1f%s", game.translate_string(get_inv_name(drop_on_obj:section())), game.translate_string("st_codition_gain"), (cond_end-cond_start)*100, game.translate_string("st_percent"))
 		news_manager.custom_news(game.translate_string("st_service_news_header"), text, "ui_icon_repair_tool")
+		
 		local use_count = read_if_exists(sys_ini, "r_float", rep_kit_sect, "use_count", 0)
 		if use_count > 0 then
 			obj:change_condition(-1/use_count)
@@ -112,7 +128,8 @@ function can_service_0(obj)
 	return can_service(obj, actor:item_in_slot(0))
 end
 function service_0(obj)
-	service(obj, actor:item_in_slot(0))
+	--service(obj, actor:item_in_slot(0))
+	show_service_wnd(obj, actor:item_in_slot(0))
 end
 
 function service_1_tip(obj)
@@ -122,7 +139,8 @@ function can_service_1(obj)
 	return can_service(obj, actor:item_in_slot(1))
 end
 function service_1(obj)
-	service(obj, actor:item_in_slot(1))
+	--service(obj, actor:item_in_slot(1))
+	show_service_wnd(obj, actor:item_in_slot(1))
 end
 
 function service_2_tip(obj)
@@ -132,7 +150,8 @@ function can_service_2(obj)
 	return can_service(obj, actor:item_in_slot(2))
 end
 function service_2(obj)
-	service(obj, actor:item_in_slot(2))
+	--service(obj, actor:item_in_slot(2))
+	show_service_wnd(obj, actor:item_in_slot(2))
 end
 
 function service_4_tip(obj)
@@ -142,7 +161,8 @@ function can_service_4(obj)
 	return can_service(obj, actor:item_in_slot(4))
 end
 function service_4(obj)
-	service(obj, actor:item_in_slot(4))
+	--service(obj, actor:item_in_slot(4))
+	show_service_wnd(obj, actor:item_in_slot(4))
 end
 
 function service_6_tip(obj)
@@ -152,7 +172,8 @@ function can_service_6(obj)
 	return can_service(obj, actor:item_in_slot(6))
 end
 function service_6(obj)
-	service(obj, actor:item_in_slot(6))
+	--service(obj, actor:item_in_slot(6))
+	show_service_wnd(obj, actor:item_in_slot(6))
 end
 
 
@@ -217,6 +238,7 @@ function disassemble_item(tool, item)
 	prepair(item)
 	
 	local function make_disassemble()
+		local item_cond = item:condition()
 		parent:drop_item(item)
 		alife():release(alife():object(item:id()), true)
 	
@@ -229,11 +251,12 @@ function disassemble_item(tool, item)
 				end
 			end		
 		end
-	
 		local parts = parse_parts(sys_ini:r_string(sect, "disassemble_parts"))
 		for k,v in pairs(parts) do
 			while v.count > 0 do
-				spawn_to_owner(v.section)
+				local se_part = spawn_to_owner(v.section)
+				local sobj_iitem = alife():object(se_part.id):get_inventory_item()
+				sobj_iitem.item_condition = item_cond
 				v.count = v.count - 1
 			end
 		end

@@ -22,6 +22,19 @@ function try_harvest(target)
 	return true
 end
 
+function take_loot(monster, knife)
+	local cond_dec = read_if_exists(sys_ini, "r_float", monster:section(), "knife_harvest_cond_k", 1) * 
+						read_if_exists(sys_ini, "r_float", knife:section(), "condition_shot_dec_on_hit", 0)
+	for i = 0, monster:ruck_count() - 1 do
+		local item = monster:item_in_ruck(i)
+		if item then
+			knife:change_condition(-cond_dec)
+			monster:transfer_item(item, actor)
+			news_manager.item_tip(item, "harvest")
+		end
+	end
+end
+
 function has_loot(monster)
 	return monster:ruck_count() > 0
 end
