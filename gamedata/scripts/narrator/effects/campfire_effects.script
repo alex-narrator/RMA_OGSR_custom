@@ -19,6 +19,7 @@ function get_matches()
 end
 
 function on_campfire_use(campfire_usable, campfire_zone)
+	--log3("~use zone section %s, ID %s", campfire_zone:section(), campfire_zone:id())
 	if not alife():object(campfire_zone:id()).enabled then
 		
 		local matches = get_matches()
@@ -69,6 +70,7 @@ function on_campfire_use(campfire_usable, campfire_zone)
 	
 	actor_use_campfire = campfire_zone
 	--actor:hide_weapon()
+	actor:activate_slot(NO_ACTIVE_SLOT)
 	backpack.force_crouch(true)
 	subscribe()	
 end

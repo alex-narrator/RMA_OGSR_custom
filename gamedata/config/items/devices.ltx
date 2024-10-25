@@ -267,8 +267,8 @@ addon_icon_sect 										= addon_flashlight_icon
 
 [device_flashlight_definition]
 type                                                   = 2 ; type  0-Direct 1-Point 2-Spot 3-OMNIPART 4-Reflected
-range                                                  = 20 ; range                 <in meters>
-range_r2                                               = 20 ; range                 <in meters>
+range                                                  = 30 ; range                 <in meters>
+range_r2                                               = 30 ; range                 <in meters>
 color                                                  = 0.8,0.7,0.8,0.2 ; four color components <r,g,b,a> 0.f<X<3.f
 color_r2                                               = 1.0,0.9,1.0,0.9 ; four color components <r,g,b,a> 0.f<X<3.f
 color_animator                                         = empty ; color animator name   (empty - not using animator) //light_torch_01
@@ -283,8 +283,8 @@ omni_range_r2                                          = 0.1 ; range            
 omni_color                                             = 0.35,0.3,0.35,0.1 ; four color components <r,g,b,a> 0.f<X<3.f
 omni_color_r2                                          = 0.45,0.4,0.45,0.1 ; four color components <r,g,b,a> 0.f<X<3.f
 
-spot_texture                                           = internal\internal_tactical_torch ; spot texture name     (using only in Second Render)
-spot_angle                                             = 65 ; spot angle            <in gradus>
+spot_texture                                           = internal\internal_tactical_torch_new ; spot texture name     (using only in Second Render)
+spot_angle                                             = 60 ; spot angle            <in gradus>
 
 glow_texture                                           = glow\glow_tactical_torch ; glow texture name     (required)
 glow_radius                                            = 0.2 ; glow radius           <in meters>
@@ -294,9 +294,9 @@ volumetric_enabled = true
 volumetric_for_actor = true
 
 [device_flashlight_definition_second]:device_flashlight_definition
-spot_angle                                             = 35
-range                                                  = 30 ; range                 <in meters>
-range_r2                                               = 30 ; range                 <in meters>
+spot_angle                                             = 30
+range                                                  = 60 ; range                 <in meters>
+range_r2                                               = 60 ; range                 <in meters>
 
 [device_anpeq_16]:device_flashlight
 visual          										= dynamics\weapons\wpn_addon\wpn_light_anpeq_16
