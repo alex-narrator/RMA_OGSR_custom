@@ -21,7 +21,7 @@ function fill_owner_info(id)
 	if od == nil then
 	return end
 	
-	if od.name ~= "" then
+	if od.name ~= "" and od.name ~= actor:character_name() then
 	return end
 	
 	od.name = parent:character_name()

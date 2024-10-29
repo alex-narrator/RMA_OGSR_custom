@@ -80,15 +80,15 @@ function TalkOverlay:InitControls()
 	self.char_info_back = xml:InitStatic("char_info_back_talk", self)
 	self.char_info_icon = xml:InitStatic("char_info_icon_talk", self.char_info_back)
 	self.char_info_icon_comm = xml:InitStatic("char_info_icon_comm_talk", self.char_info_back)
+	self.char_info_icon_rank = xml:InitStatic("char_info_icon_rank_talk", self.char_info_back)
 	self.char_info_text = xml:InitStatic("char_info_text_talk", self.char_info_back)
-	self.char_info_text_header = xml:InitStatic("char_info_text_header_talk", self.char_info_back)
 	
 	--//character info NPC
 	self.char_info_back_npc = xml:InitStatic("char_info_back_npc_talk", self)
 	self.char_info_icon_npc = xml:InitStatic("char_info_icon_npc_talk", self.char_info_back_npc)
 	self.char_info_icon_comm_npc = xml:InitStatic("char_info_icon_comm_npc_talk", self.char_info_back_npc)
+	self.char_info_icon_rank_npc = xml:InitStatic("char_info_icon_rank_npc_talk", self.char_info_back_npc)
 	self.char_info_text_npc = xml:InitStatic("char_info_text_npc_talk", self.char_info_back_npc)
-	self.char_info_text_header_npc = xml:InitStatic("char_info_text_header_npc_talk", self.char_info_back_npc)	
 	
 	--//to trade button
 	self.to_trade_button = xml:Init3tButton("to_trade_button", self)
@@ -145,6 +145,7 @@ function TalkOverlay:OnActorIconUpdate(icon)
 	end
 	self.char_info_icon:InitTexture(icon)
 	self.char_info_icon_comm:InitTexture(community.get_icon_sect(actor:character_community()))
+	self.char_info_icon_rank:InitTexture(ranks.get_icon_sect(actor))
 end
 
 function TalkOverlay:OnNPCIconUpdate()
@@ -155,65 +156,20 @@ function TalkOverlay:OnNPCIconUpdate()
 	return end
 	self.char_info_icon_npc:InitTexture(icon)
 	self.char_info_icon_comm_npc:InitTexture(community.get_icon_sect(self.target:character_community()))
+	self.char_info_icon_rank_npc:InitTexture(ranks.get_icon_sect(self.target))
 end
 
 function TalkOverlay:SetCharacterText()
-	local name_header = game.translate_string("ui_st_name")
 	local name = game.translate_string(actor:character_name())
-	
-	local comm_header = game.translate_string("ui_st_community")
-	local comm = game.translate_string(actor:character_community())
-	
-	local rank_header = game.translate_string("ui_st_rank")
-	local rank = game.translate_string(ranks.get_obj_rank_name(actor))
-	
-	local rept_header = game.translate_string("ui_st_reputation")
 	local rept_color = game.translate_string(reputation.get_obj_reputation_color(actor))
-	local rept = game.translate_string(reputation.get_obj_reputation_name(actor))
-	
-	local char_text_header = string.format("%s:\\n%s:\\n%s:\\n%s:", 
-									name_header,
-									comm_header,
-									rank_header,
-									rept_header)
-	
-	local char_text = string.format("%s\\n%s\\n%s\\n%s%s", 
-									name,
-									comm,
-									rank,
-									rept_color,rept)
-									
-	self.char_info_text_header:SetText(char_text_header)
+	local char_text = string.format("%s%s", rept_color, name)
 	self.char_info_text:SetText(char_text)
 end
 
 function TalkOverlay:SetCharacterTextNPC()
-	local name_header = game.translate_string("ui_st_name")
 	local name = game.translate_string(self.target:character_name())
-	
-	local comm_header = game.translate_string("ui_st_community")
-	local comm = game.translate_string(self.target:character_community())
-	
-	local rank_header = game.translate_string("ui_st_rank")
-	local rank = game.translate_string(self.target:is_trader() and "experienced" or ranks.get_obj_rank_name(self.target))
-	
-	local rel_header = game.translate_string("ui_st_relation")
 	local rel_color = color_by_relation[self.target:relation(actor)]
-	local rel = game.translate_string(name_by_relation[self.target:relation(actor)])
-	
-	local char_text_header = string.format("%s:\\n%s:\\n%s:\\n%s:", 
-									name_header,
-									comm_header,
-									rank_header,
-									rel_header)
-	
-	local char_text = string.format("%s\\n%s\\n%s\\n%s%s", 
-									name,
-									comm,
-									rank,
-									rel_color,rel)
-									
-	self.char_info_text_header_npc:SetText(char_text_header)
+	local char_text = string.format("%s%s", rel_color, name)
 	self.char_info_text_npc:SetText(char_text)
 end
 

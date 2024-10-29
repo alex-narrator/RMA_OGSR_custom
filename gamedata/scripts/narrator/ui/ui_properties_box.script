@@ -79,8 +79,6 @@ function UIPropertiesBox:Update()
 end
 
 function UIPropertiesBox:Activate()
-	self.back:SetWndPos(self.owner:GetMousePosX(), self.owner:GetMousePosY())
-	
 	local name
 	local max_w = 0
 	for k, v in ipairs(self.actions) do
@@ -123,6 +121,16 @@ function UIPropertiesBox:Activate()
 	local show = table.size(self.actions) > 0
 	--self:Show(show)
 	if show then
+		local pos = vector2():set(self.owner:GetMousePosX(), self.owner:GetMousePosY())
+		local wnd_size = {x = self.scroll_view:GetWidth(), y = self.scroll_view:GetHeight()}
+		local delta = {x = pos.x + wnd_size.x - UI_BASE_WIDTH, y = pos.y + wnd_size.y - UI_BASE_HEIGHT}
+		if delta.x > 0 then
+			pos.x = pos.x - delta.x
+		end		
+		if delta.y > 0 then
+			pos.y = pos.y - delta.y
+		end	
+		self.back:SetWndPos(pos.x, pos.y)
 		level.start_stop_menu(self, true)
 	end
 	return show

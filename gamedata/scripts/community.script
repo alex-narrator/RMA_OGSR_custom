@@ -36,6 +36,25 @@ local comm_icons = {
 	trader			= "ui_stalker",
 	arena_enemy 	= "ui_stalker",
 }
+local comm_icons_square = {
+	default 		= "ui_stalker_square",
+	actor			= "ui_stalker_square",
+	actor_dolg		= "ui_dolg_square",
+	actor_freedom 	= "ui_freedom_square",
+
+	stalker			= "ui_stalker_square",
+	monolith		= "ui_monolith_square",
+	military		= "ui_army_square",
+	killer			= "ui_killer_square",
+	ecolog			= "ui_ecolog_square",
+	dolg			= "ui_dolg_square",
+	freedom			= "ui_freedom_square",
+	bandit			= "ui_bandit_square",
+	zombied			= "ui_zombied_square",
+	stranger		= "ui_stalker_square",
+	trader			= "ui_stalker_square",
+	arena_enemy 	= "ui_stalker_square",
+}
 local comm_news_icons = { 
 	default 	= {x=747, y=705},
 	stalker 	= {x=747, y=705}, 
@@ -57,7 +76,7 @@ local non_ranked_comms = {
 }
 
 function get_icon_sect(comm)
-	return comm_icons[comm] or comm_icons["default"]
+	return comm_icons_square[comm] or comm_icons_square["default"]
 end
 
 function get_news_icon(comm)

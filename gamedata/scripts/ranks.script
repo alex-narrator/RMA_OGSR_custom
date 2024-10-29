@@ -106,3 +106,15 @@ function set_actor_rank_str(rank)
 		db.actor:set_character_rank(900)
 	end
 end
+
+local rank_icons = {
+	novice 		= "ui_hud_status_blue_01",
+	experienced	= "ui_hud_status_blue_02",
+	veteran		= "ui_hud_status_blue_03",
+	master 		= "ui_hud_status_blue_04",
+}
+
+function get_icon_sect(obj)
+	--log3("~obj %s, rank %s, icon_sect %s", obj and obj:name() or "none", get_obj_rank_name(obj) or "none", rank_icons[get_obj_rank_name(obj)] or "none")
+	return obj:is_trader() and rank_icons["experienced"] or rank_icons[get_obj_rank_name(obj)] or ""
+end

@@ -37,6 +37,14 @@ function on_update()
 		local mode = actor_menu:GetMode()
 		if mode == "trade" or mode == "repair" then
 			level.get_talk_wnd():Show(true)
+			level.add_call(
+				function()
+					return level.get_talk_wnd():IsShown()
+				end,
+				function()
+					level.start_stop_menu(level.main_input_receiver(), true)
+				end
+			)
 		end
 		actor_menu:OnHide()
 	end	
@@ -342,10 +350,10 @@ function ActorMenuOverlay:InitControls()
 	-- self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, self.LoadoutBackOnFocusReceived)
 	-- self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, self.LoadoutBackOnFocusLost)
 	
-	self.clear_loadout = xml:Init3tButton(prefix.."clear_loadout_button", self.loadout_back)
-	name = "clear_loadout"
-	self:Register(self.clear_loadout, name)
-	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.ClearLoadout, self)
+	-- self.clear_loadout = xml:Init3tButton(prefix.."clear_loadout_button", self.loadout_back)
+	-- name = "clear_loadout"
+	-- self:Register(self.clear_loadout, name)
+	-- self:AddCallback(name, ui_events.BUTTON_CLICKED, self.ClearLoadout, self)
 
 	self.loadout = loadout.slots_table()
 	for k,v in pairs(self.loadout) do
@@ -401,15 +409,15 @@ function ActorMenuOverlay:InitControls()
 	self.char_info_back = xml:InitStatic("char_info_back", self)
 	self.char_info_icon = xml:InitStatic("char_info_icon", self.char_info_back)
 	self.char_info_icon_comm = xml:InitStatic("char_info_icon_comm", self.char_info_back)
+	self.char_info_icon_rank = xml:InitStatic("char_info_icon_rank", self.char_info_back)
 	self.char_info_text = xml:InitStatic("char_info_text", self.char_info_back)
-	self.char_info_text_header = xml:InitStatic("char_info_text_header", self.char_info_back)
 	
 	--//character info NPC or date/time/money in inventory mode
 	self.char_info_back_npc = xml:InitStatic("char_info_back_npc", self)
 	self.char_info_icon_npc = xml:InitStatic("char_info_icon_npc", self.char_info_back_npc)
 	self.char_info_icon_comm_npc = xml:InitStatic("char_info_icon_comm_npc", self.char_info_back_npc)
+	self.char_info_icon_rank_npc = xml:InitStatic("char_info_icon_rank_npc", self.char_info_back_npc)
 	self.char_info_text_npc = xml:InitStatic("char_info_text_npc", self.char_info_back_npc)
-	self.char_info_text_header_npc = xml:InitStatic("char_info_text_header_npc", self.char_info_back_npc)	
 	
 	--//weight static
 	self.inv_weight = xml:InitStatic("weight_static", self)
@@ -1075,9 +1083,9 @@ function ActorMenuOverlay:OnShow()
 	self.repair_back:Show(mode == "repair")
 	self.to_talk_button:Show(mode == "trade" or mode == "repair")
 	self.sell_buy_back:Show(mode == "trade")
-	self.conditions_background:Show(mode ~= "trade")
-	self.loadout_back:Show(mode ~= "trade")
-	self.quick_slots:Show(mode ~= "trade")
+	--self.conditions_background:Show(mode ~= "trade")
+	--self.loadout_back:Show(mode ~= "trade")
+	--self.quick_slots:Show(mode ~= "trade")
 	self:OnShowButtonClick(0)
 	self:OnActorIconUpdate()
 	self:OnNPCIconUpdate()
@@ -1137,18 +1145,20 @@ function ActorMenuOverlay:OnActorIconUpdate(icon)
 	end
 	self.char_info_icon:InitTexture(icon)
 	self.char_info_icon_comm:InitTexture(community.get_icon_sect(actor:character_community()))
+	self.char_info_icon_rank:InitTexture(ranks.get_icon_sect(actor))
 end
 
 function ActorMenuOverlay:OnNPCIconUpdate()
-	local show = self.target --and not self.target:get_inventory_box()
 	
-	self.char_info_icon_npc:Show(self.target)
+	--self.char_info_icon_npc:Show(self.target)
 	self.char_info_icon_comm_npc:Show(self.target and not self.target:get_inventory_box())
-	
-	if not show then return end
-	
-	if self.target:get_inventory_box() then
-		self.char_info_icon_npc:InitTexture("ui_icon_cardboard_box")
+	self.char_info_icon_rank_npc:Show(self.target and not self.target:get_inventory_box())
+
+	if not self.target then
+		self.char_info_icon_npc:InitTexture("ui_icon_backpack")
+		return	
+	elseif self.target and self.target:get_inventory_box() then
+		self.char_info_icon_npc:InitTexture("ui_icon_chest")
 		return
 	end
 	
@@ -1159,84 +1169,27 @@ function ActorMenuOverlay:OnNPCIconUpdate()
 	return end
 	self.char_info_icon_npc:InitTexture(icon)
 	self.char_info_icon_comm_npc:InitTexture(community.get_icon_sect(self.target:character_community()))
+	self.char_info_icon_rank_npc:InitTexture(ranks.get_icon_sect(self.target))
 end
 
 function ActorMenuOverlay:SetCharacterText()
-	local name_header = game.translate_string("ui_st_name")
 	local name = game.translate_string(actor:character_name())
-	
-	local comm_header = game.translate_string("ui_st_community")
-	local comm = game.translate_string(actor:character_community())
-	
-	local rank_header = game.translate_string("ui_st_rank")
-	local rank = game.translate_string(ranks.get_obj_rank_name(actor))
-	
-	local rept_header = game.translate_string("ui_st_reputation")
 	local rept_color = game.translate_string(reputation.get_obj_reputation_color(actor))
-	local rept = game.translate_string(reputation.get_obj_reputation_name(actor))
-	
-	local money_header = game.translate_string("ui_inv_money")
 	local money = actor:money()
 	local money_unit = game.translate_string("ui_st_money_regional")
-	
-	local char_text_header = string.format("%s:\\n%s:\\n%s:\\n%s:\\n%s:", 
-									name_header,
-									comm_header,
-									rank_header,
-									rept_header,
-									money_header)
-	
-	local char_text = string.format("%s\\n%s\\n%s\\n%s%s\\n%s%s %s", 
-									name,
-									comm,
-									rank,
-									rept_color,rept,
-									"%c[default]",money, money_unit)
-									
-	self.char_info_text_header:SetText(char_text_header)
+	local char_text = string.format("%s%s\\n%s%s %s", rept_color, name, "%c[default]", money, money_unit)
 	self.char_info_text:SetText(char_text)
 end
 
 function ActorMenuOverlay:SetCharacterTextNPC()
 	local show = self.target and not self.target:get_inventory_box()
-	
-	self.char_info_text_header_npc:Show(show)
 	self.char_info_text_npc:Show(show)
-	
 	if not show then return end
-	
-	local name_header = game.translate_string("ui_st_name")
 	local name = game.translate_string(self.target:character_name())
-	
-	local comm_header = game.translate_string("ui_st_community")
-	local comm = game.translate_string(self.target:character_community())
-	
-	local rank_header = game.translate_string("ui_st_rank")
-	local rank = game.translate_string(self.target:is_trader() and "experienced" or ranks.get_obj_rank_name(self.target))
-	
-	local rel_header = game.translate_string("ui_st_relation")
 	local rel_color = color_by_relation[self.target:relation(actor)]
-	local rel = game.translate_string(name_by_relation[self.target:relation(actor)])
-	
-	local money_header = game.translate_string("ui_inv_money")
 	local money = (self.target:infinitive_money() or not self.target:alive()) and "---" or self.target:money()
 	local money_unit = game.translate_string("ui_st_money_regional")
-	
-	local char_text_header = string.format("%s:\\n%s:\\n%s:\\n%s:\\n%s:", 
-									name_header,
-									comm_header,
-									rank_header,
-									rel_header,
-									money_header)
-	
-	local char_text = string.format("%s\\n%s\\n%s\\n%s%s\\n%s%s %s", 
-									name,
-									comm,
-									rank,
-									rel_color,rel,
-									"%c[default]",money, money_unit)
-									
-	self.char_info_text_header_npc:SetText(char_text_header)
+	local char_text = string.format("%s%s\\n%s%s %s", rel_color, name, "%c[default]", money, money_unit)
 	self.char_info_text_npc:SetText(char_text)
 end
 
@@ -1312,7 +1265,8 @@ end
 
 function ActorMenuOverlay:SwitchToTalk()
 	--actor:switch_to_talk()
-	self:Exit()
+	--self:Exit()
+	ShowHideMenu()
 	level.get_talk_wnd():Show(true)
 end
 
@@ -1322,10 +1276,14 @@ function ActorMenuOverlay:UpdateCharInfos()
 end
 
 function ActorMenuOverlay:UpdateDateTimeText()
-	local _time = game.get_game_time()
-	local date = _time:dateToString(game.CTime.DateToDay)
-	local time = _time:timeToString(game.CTime.TimeToMinutes)
-	local time_text = string.format("%s %s", date, time)
+	if not actor_get_pda() or not actor_get_pda():is_power_on() then
+		self.time_static:SetText("")
+		return
+	end
+	local game_time = game.get_game_time()
+	local _date = string.format("%s %s", get_current_weekday_name(true), game_time:dateToString(game.CTime.DateToDay))
+	local _time = game_time:timeToString(game.CTime.TimeToMinutes)
+	local time_text = string.format("%s %s", _time, _date)
 	self.time_static:SetText(time_text)
 end
 
@@ -1335,7 +1293,7 @@ function ActorMenuOverlay:Organize()
 	if self.target then
 		self.target:repack_ammo()
 	end
-	add_update_delayed_action(1, function() self:ReinitLists() end)
+	add_update_delayed_action(1, function() self:OnShowButtonClick(0) end)
 end
 
 function ActorMenuOverlay:TakeAll()
