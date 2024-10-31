@@ -1,9 +1,5 @@
 local comm_icons_news = {
 	default 		= "icon_stranger_framed",
-	actor			= "icon_stalker_framed",
-	actor_dolg		= "icon_duty_framed",
-	actor_freedom 	= "icon_freedom_framed",
-
 	stalker			= "icon_stranger_framed",
 	monolith		= "icon_monolith_framed",
 	military		= "icon_military_framed",
@@ -12,17 +8,9 @@ local comm_icons_news = {
 	dolg			= "icon_duty_framed",
 	freedom			= "icon_freedom_framed",
 	bandit			= "icon_bandit_framed",
-	zombied			= "icon_stranger_framed",
-	stranger		= "icon_stranger_framed",
-	trader			= "icon_stranger_framed",
-	arena_enemy 	= "icon_stranger_framed",
 }
 local comm_icons = {
 	default 		= "ui_stalker",
-	actor			= "ui_stalker",
-	actor_dolg		= "ui_dolg",
-	actor_freedom 	= "ui_freedom",
-
 	stalker			= "ui_stalker",
 	monolith		= "ui_monolith",
 	military		= "ui_army",
@@ -32,16 +20,9 @@ local comm_icons = {
 	freedom			= "ui_freedom",
 	bandit			= "ui_bandit",
 	zombied			= "ui_zombied",
-	stranger		= "ui_stalker",
-	trader			= "ui_stalker",
-	arena_enemy 	= "ui_stalker",
 }
 local comm_icons_square = {
 	default 		= "ui_stalker_square",
-	actor			= "ui_stalker_square",
-	actor_dolg		= "ui_dolg_square",
-	actor_freedom 	= "ui_freedom_square",
-
 	stalker			= "ui_stalker_square",
 	monolith		= "ui_monolith_square",
 	military		= "ui_army_square",
@@ -51,9 +32,17 @@ local comm_icons_square = {
 	freedom			= "ui_freedom_square",
 	bandit			= "ui_bandit_square",
 	zombied			= "ui_zombied_square",
-	stranger		= "ui_stalker_square",
-	trader			= "ui_stalker_square",
-	arena_enemy 	= "ui_stalker_square",
+}
+local comm_patches = {
+	default 		= "ui_patch_stalker",
+	stalker			= "ui_patch_stalker",
+	monolith		= "ui_patch_monolith",
+	military		= "ui_patch_army",
+	killer			= "ui_patch_killer",
+	ecolog			= "ui_patch_ecolog",
+	dolg			= "ui_patch_duty",
+	freedom			= "ui_patch_freedom",
+	bandit			= "ui_patch_bandit",
 }
 local comm_news_icons = { 
 	default 	= {x=747, y=705},
@@ -76,7 +65,7 @@ local non_ranked_comms = {
 }
 
 function get_icon_sect(comm)
-	return comm_icons_square[comm] or comm_icons_square["default"]
+	return comm_patches[comm] or comm_patches["default"]
 end
 
 function get_news_icon(comm)

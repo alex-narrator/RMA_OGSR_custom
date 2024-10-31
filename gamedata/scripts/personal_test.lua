@@ -577,4 +577,11 @@ end
 --log3("~actor:is_ActorHide() %s", actor:is_ActorHide())
 --log3("~is_pos_under_roof() %s", is_pos_under_roof(actor:position()))
 
-game.start_tutorial("campfire_tutorial")
+--game.start_tutorial("campfire_tutorial")
+-- local id = 1362
+-- local cobj = level.object_by_id(id)
+-- local pos = cobj:position()
+-- pos.y = pos.y - 0.3
+-- alife():teleport_object(id, pos, cobj:level_vertex_id(), cobj:game_vertex_id())
+
+actor:give_info_portion("encyclopedy_social_military_army")
