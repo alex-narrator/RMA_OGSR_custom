@@ -665,7 +665,7 @@ function ActorMenuOverlay:OnDragItemDrop(cell_item)
 			return end
 			if parent_is_actor(item) then
 				if cic_f:GetID() == "sell_list" then
-					ui_cell_item_utils.move_cell_item(item, cell_item, parent, cic_f)
+					ui_cell_item_utils.move_cell_item(cell_item, parent, cic_f)
 				elseif parent:GetID() == "sell_list" then
 					local target = self.ruck_list
 					if actor:is_in_slot(item) then
@@ -675,24 +675,24 @@ function ActorMenuOverlay:OnDragItemDrop(cell_item)
 					elseif loadout.can_remove(item) then
 						target = self.loadout_list						
 					end
-					ui_cell_item_utils.move_cell_item(item, cell_item, parent, target)
+					ui_cell_item_utils.move_cell_item(cell_item, parent, target)
 				end
 			else
 				if cic_f:GetID() == "buy_list" then
-					ui_cell_item_utils.move_cell_item(item, cell_item, parent, self.buy_list)
+					ui_cell_item_utils.move_cell_item(cell_item, parent, self.buy_list)
 				else
-					ui_cell_item_utils.move_cell_item(item, cell_item, parent, self.target_list)
+					ui_cell_item_utils.move_cell_item(cell_item, parent, self.target_list)
 				end
 			end
 			self:UpdatePrices()
 			return
 		else
 			if cic_f:GetID() == "target_list" then
-				ui_cell_item_utils.transfer_cell_item(item, cell_item, self.target)
+				ui_cell_item_utils.transfer_cell_item(cell_item, self.target)
 				return
 			end
 			if not parent_is_actor(item) then
-				ui_cell_item_utils.transfer_cell_item(item, cell_item, actor)
+				ui_cell_item_utils.transfer_cell_item(cell_item, actor)
 				return
 			end
 			if cic_f:GetID() == "ruck_list" then
@@ -1431,7 +1431,7 @@ function ActorMenuOverlay:OnCellItemDBClick(item, cell_item)
 		end
 	elseif mode == "carbody" then
 		local new_owner = parent_is_actor(item) and self.target or actor
-		ui_cell_item_utils.transfer_cell_item(item, cell_item, new_owner, key_all)
+		ui_cell_item_utils.transfer_cell_item(cell_item, new_owner, key_all)
 		return
 	else
 		local parent = cell_item:GetOwnerList()
@@ -1456,7 +1456,7 @@ function ActorMenuOverlay:OnCellItemDBClick(item, cell_item)
 		end		
 		
 		if target then
-			ui_cell_item_utils.move_cell_item(item, cell_item, parent, target, key_all)
+			ui_cell_item_utils.move_cell_item(cell_item, parent, target, key_all)
 			self:UpdatePrices()
 		end
 		return
@@ -1596,9 +1596,8 @@ function ActorMenuOverlay:OnKeyboard(dik, keyboard_action)
 		elseif game_action == key_bindings.kDROP then
 			if mode == "inventory" then
 				if self.cell_item_selected then
-					local item = self.cell_item_selected:GetAnyItem()
-					if ui_cell_item_utils.can_drop(item) then
-						ui_cell_item_utils.drop_cell_item(item)
+					if ui_cell_item_utils.can_drop(self.cell_item_selected) then
+						ui_cell_item_utils.drop_cell_item(self.cell_item_selected)
 						return true
 					end
 				end
@@ -1636,225 +1635,63 @@ function ActorMenuOverlay:ShowPropertiesBox(item, cell_item)
 	local cell_item = cell_item
 	
 	local pbox = self.properties_box
-	local mode = self:GetMode()
 	
 	pbox:Clear()
 	
-	local name, precondition, action
-
 	--//move to slot
-	local slots = read_if_exists(sys_ini, "r_string", item:section(), "slot", nil)
-	if slots and parent_is_actor(item) then
-		slots = split_string(slots, ",", true)
-		for k,i in pairs(slots) do
-			name = "st_move_to_slot_"..i
-			precondition = function(item, i)
-				return actor:can_put_in_slot(item, i)
-			end
-			action = function(item, i)
-				item:set_slot(i)
-				actor:move_to_slot(item)
-			end
-			pbox:AddItem(name, precondition, action, item, i)
-		end
-	end
-	
+	ui_cell_item_utils.add_move_to_slot(pbox, item)
 	--//move to belt
-	name = "st_move_to_belt"
-	precondition = function(item)
-		return actor:can_put_in_belt(item) and parent_is_actor(item)
-	end
-	action = function(item)
-		actor:move_to_belt(item)
-	end
-	pbox:AddItem(name, precondition, action, item)
-	
+	ui_cell_item_utils.add_move_to_belt(pbox, item)
 	--//move to ruck
-	name = "st_move_to_bag"
-	precondition = function(item)
-		return actor:is_in_slot(item) or actor:is_on_belt(item)
-	end
-	action = function(item)
-		actor:move_to_ruck(item)
-	end
-	pbox:AddItem(name, precondition, action, item)
-	
+	ui_cell_item_utils.add_move_to_ruck(pbox, item)
+	--//eat
+	ui_cell_item_utils.add_eat(pbox, item)
+	--//heal injure
+	ui_cell_item_utils.add_heal_injure(pbox, item)
+	--//play music
+	ui_cell_item_utils.add_play_music(pbox, item)
+	--//deploy landmine
+	ui_cell_item_utils.add_deploy_landmine(pbox, item)
+	--//deploy rc explosive
+	ui_cell_item_utils.add_deploy_rc_explosive(pbox, item)
+	--//set quick slot
+	ui_cell_item_utils.add_set_quick_slot(pbox, item)
+	--//to loadout
+	ui_cell_item_utils.add_to_loadout(pbox, item)
+	--//from loadout
+	ui_cell_item_utils.add_from_loadout(pbox, item)
+	--//service
+	ui_cell_item_utils.add_service(pbox, item)
 	--//unload weapon
-	name = "st_unload_magazine"
-	precondition = function(item)
-		return (parent_is_actor(item) or mode ~= "trade") and ui_cell_item_utils.can_be_unloaded(item)
-	end
-	action = function(item, cell_item)
-		ui_cell_item_utils.unload_magazine(item, cell_item)
-	end
-	pbox:AddItem(name, precondition, action, item, cell_item)	
-	
-	--//unload all weapon
-	name = "st_unload_magazine_all"
-	precondition = function(cell_item)
-		local item = cell_item:GetItem()	
-		return (parent_is_actor(item) or mode ~= "trade") and cell_item:GetChildsCount() > 1 and ui_cell_item_utils.can_be_unloaded(item)
-	end	
-	action = function(cell_item)
-		ui_cell_item_utils.unload_magazine(nil, cell_item, true)
-	end
-	pbox:AddItem(name, precondition, action, cell_item)
-	
+	ui_cell_item_utils.add_unload_weapon(pbox, cell_item)
 	--//attach addon
-	for i = 0, sys_ini:r_u32("inventory","slots") - 1 do
-		local slot_item = actor:item_in_slot(i)
-		if slot_item and parent_is_actor(item) then
-			local iitem = item:get_inventory_item()
-			local slot_iitem = slot_item:get_inventory_item()
-			local attach_tip = read_if_exists(sys_ini, "r_string", item:section(), "menu_attach_tip", "st_attach")
-			name = string.format("%s %s", game.translate_string(attach_tip), game.translate_string(get_inv_name_short(slot_item:section())))
-			precondition = function(iitem, slot_iitem)
-				return slot_iitem:can_attach_addon(iitem)
-			end
-			action = function(iitem, slot_iitem)
-				slot_iitem:attach_addon(iitem, true)
-				xr_sound.get_safe_sound_object([[interface\inv_attach_addon]]):play(actor, 0, sound_object.s2d)
-			end
-			pbox:AddItem(name, precondition, action, iitem, slot_iitem)
-		end
-	end
-	
+	ui_cell_item_utils.add_attach_addon(pbox, cell_item)	
 	--//detach addon
-	local wpn = item:get_weapon_m()
-	if wpn then
-		for i=0,7 do --//all addons escept magazine
-			if wpn:addon_attachable(i) and wpn:is_addon_attached(i) then
-				local addon_sect = wpn:get_addon_name(i)
-				local detach_tip = read_if_exists(sys_ini, "r_string", addon_sect, "menu_detach_tip", "st_detach")
-				name = string.format("%s %s", game.translate_string(detach_tip), game.translate_string(get_inv_name_short(addon_sect)))
-				precondition = function(item)
-					return parent_is_actor(item) or mode ~= "trade"
-				end
-				action = function(item, cell_item)
-					--wpn:detach_addon(addon_sect, true)
-					detach_addon(item, addon_sect)
-					xr_sound.get_safe_sound_object([[interface\inv_detach_addon]]):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
-					cell_item:ForceUpdate()
-					if mode == "trade" then
-						self:UpdatePrices()
-					end
-				end
-				pbox:AddItem(name, precondition, action, item, cell_item)
-			end
-		end
-	end
-	
+	ui_cell_item_utils.add_detach_addon(pbox, cell_item)
+	--//download info
+	ui_cell_item_utils.add_download_info(pbox, item)
+	--//attach power source
+	ui_cell_item_utils.add_attach_power_source(pbox, cell_item)
+	--//detach power source
+	ui_cell_item_utils.add_detach_power_source(pbox, cell_item)
+	--//attach armor plate
+	ui_cell_item_utils.add_attach_armor_plate(pbox, item)
+	--//detach armor plate
+	ui_cell_item_utils.add_detach_armor_plate(pbox, cell_item)
 	--//move to carbody
-	name = "st_move"
-	precondition = function(item) 
-		return not read_if_exists(sys_ini, "r_bool", item:section(), "quest_item", false) and mode == "carbody"
-	end
-	action = function(item)
-		local new_owner = parent_is_actor(item) and self.target or actor
-		ui_cell_item_utils.transfer_cell_item(item, nil, new_owner)
-	end
-	pbox:AddItem(name, precondition, action, item)
-	
-	--//move all to carbody
-	name = "st_move_all"
-	precondition = function(cell_item)
-		local item = cell_item:GetItem()
-		return cell_item:GetChildsCount() > 0 and not read_if_exists(sys_ini, "r_bool", item:section(), "quest_item", false) and mode == "carbody"
-	end
-	action = function(cell_item)
-		local new_owner = parent_is_actor(item) and self.target or actor
-		ui_cell_item_utils.transfer_cell_item(item, cell_item, new_owner, true)
-	end
-	pbox:AddItem(name, precondition, action, cell_item)
-	
-	--//drop item
-	name = "st_drop"
-	precondition = function(item) 
-		return ui_cell_item_utils.can_drop(item)
-	end
-	action = function(item)
-		ui_cell_item_utils.drop_cell_item(item)
-	end
-	pbox:AddItem(name, precondition, action, item)
-	
-	--//drop all
-	name = "st_drop_all"
-	precondition = function(cell_item)
-		local item = cell_item:GetItem()
-		return cell_item:GetChildsCount() > 0 and ui_cell_item_utils.can_drop(item)
-	end
-	action = function(cell_item)
-		ui_cell_item_utils.drop_cell_item(nil, cell_item, true)
-	end
-	pbox:AddItem(name, precondition, action, cell_item)
-	
+	ui_cell_item_utils.add_move_to_carbody(pbox, cell_item)
 	--//move to trade
-	name = function(item, cell_item)
-		if parent_is_actor(item) then
-			return cell_item:GetOwnerList():GetID() == "sell_list" and "st_move_back" or "st_move_to_sell"
-		else
-			return cell_item:GetOwnerList():GetID() == "buy_list" and "st_move_back" or "st_move_to_buy"
-		end
-	end
-	precondition = function(item) 
-		return trade_manager.tradable(item)
-	end
-	action = function(item, cell_item)
-		local parent = cell_item:GetOwnerList()
-		local target = nil
-		if parent_is_actor(item) then
-			if parent:GetID() ~= "sell_list" then
-				target = self.sell_list
-			else
-				target = self.ruck_list
-				if actor:is_in_slot(item) then
-					target = self.slot_list[item:get_slot()]
-				elseif actor:is_on_belt(item) then
-					target = self.belt_list
-				end					
-			end
-		else
-			target = parent:GetID() == "buy_list" and self.target_list or self.buy_list
-		end
-		ui_cell_item_utils.move_cell_item(item, cell_item, parent, target)
-		self:UpdatePrices()
-	end
-	pbox:AddItem(name, precondition, action, item, cell_item)
+	ui_cell_item_utils.add_move_to_trade(pbox, cell_item)
+	--//donate
+	ui_cell_item_utils.add_donate(pbox, cell_item)
+	--//saw off
+	ui_cell_item_utils.add_saw_off(pbox, item)
+	--//disassemble
+	ui_cell_item_utils.add_disassemble(pbox, item)
+	--//drop item
+	ui_cell_item_utils.add_drop(pbox, cell_item)	
 	
-	--//move all to trade
-	name = function(item, cell_item)
-		if parent_is_actor(item, cell_item) then
-			return cell_item:GetOwnerList():GetID() == "sell_list" and "st_move_back_all" or "st_move_to_sell_all"
-		else
-			return cell_item:GetOwnerList():GetID() == "buy_list" and "st_move_back_all" or "st_move_to_buy_all"
-		end
-	end
-	precondition = function(item, cell_item) 
-		return trade_manager.tradable(item) and cell_item:GetChildsCount() > 0
-	end
-	action = function(item, cell_item)
-		local parent = cell_item:GetOwnerList()
-		local target = nil
-		if parent_is_actor(item) then
-			if parent:GetID() ~= "sell_list" then
-				target = self.sell_list
-			else
-				target = self.ruck_list
-				if actor:is_in_slot(item) then
-					target = self.slot_list[item:get_slot()]
-				elseif actor:is_on_belt(item) then
-					target = self.belt_list
-				end					
-			end
-		else
-			target = parent:GetID() == "buy_list" and self.target_list or self.buy_list
-		end
-		ui_cell_item_utils.move_cell_item(item, cell_item, parent, target, true)
-		self:UpdatePrices()		
-	end
-	pbox:AddItem(name, precondition, action, item, cell_item)
-	
-	pbox:AddCustomAction(item)
+	--pbox:AddCustomAction(item)
 	if pbox:Activate() then
 		self:PlayActionSound("properties")
 	end
