@@ -50,7 +50,7 @@ end
 function MessageBoxWnd:HideWnd()
 	if self.owner:IsChild(self) then
 		self.owner:DetachChild(self)
-	else
+	elseif self:IsShown() then
 		level.start_stop_menu(self, true)
 	end
 	self:DetachWnd()
@@ -135,7 +135,7 @@ end
 function MessageBoxUserNoteWnd:HideWnd()
 	if self.owner:IsChild(self) then
 		self.owner:DetachChild(self)
-	else
+	elseif self:IsShown() then
 		level.start_stop_menu(self, true)
 	end
 	self:DetachWnd()

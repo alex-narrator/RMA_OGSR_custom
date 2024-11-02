@@ -220,7 +220,7 @@ function prepair(item)
 	end
 end
 
-function disassemble_item(tool, item)
+function disassemble_item(tool, item, cell_item)
 	local sect = item:section()
 	local parent = item:parent()
 	
@@ -235,18 +235,33 @@ function disassemble_item(tool, item)
 	snd:play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 	local action_delay = snd:length() * 0.001
 	
-	prepair(item)
+	if cell_item then
+		for k,v in pairs(cell_item:GetChilds()) do
+			item = level.object_by_id(k)
+			prepair(item)
+		end
+		item = cell_item:GetItem()
+		prepair(item)
+	else
+		prepair(item)
+	end
 	
-	local function make_disassemble()
+	local function action(item)
+		if tool and tool:condition() <= 0 then
+		return end
+		
 		local item_cond = item:condition()
 		parent:drop_item(item)
 		alife():release(alife():object(item:id()), true)
 	
 		if tool then
-			local use_count = read_if_exists(sys_ini, "r_float", tool:section(), "use_count", 0)
+			local use_count = read_if_exists(sys_ini, "r_float", tool:section(), "use_count", 0)			
 			if use_count > 0 then
 				tool:change_condition(-1/use_count)
 				if tool:condition() == 0 then
+					if tool:parent() then
+						tool:parent():drop_item(tool)
+					end
 					alife():release(alife():object(tool:id()), true)
 				end
 			end		
@@ -259,6 +274,23 @@ function disassemble_item(tool, item)
 				sobj_iitem.item_condition = item_cond
 				v.count = v.count - 1
 			end
+		end	
+	end
+	
+	local function make_disassemble()
+		if cell_item then
+			for k,v in pairs(cell_item:GetChilds()) do
+				item = level.object_by_id(k)
+				if can_disassemble_item(item) then
+					action(item)
+				end
+			end
+			item = cell_item:GetItem()
+			if can_disassemble_item(item) then
+				action(item)
+			end
+		else
+			action(item)
 		end
 		block_non_move_action(false)
 	end
@@ -306,11 +338,16 @@ function can_disassemble_item(item)
 	return parts and (not tool or actor:object(tool)) and action_allowed(item)
 end
 
-function show_disassemble_wnd(obj, drop_on_obj)
+function show_disassemble_wnd(obj, drop_on_obj, cell_item)
+	local count = 1
+	if cell_item then
+		count = count + cell_item:GetChildsCount()
+	end
 	local service_msg_box = ui_message_box.MessageBoxWnd("red")
 	local msg_text = string.format(
-		"%s %s?\\n%s\\n", 
+		"%s %s%s?\\n%s\\n", 
 		game.translate_string(read_if_exists(sys_ini, "r_string", drop_on_obj:section(), "disassemble_tip", "st_disassemble_item")), 
+		count > 1 and string.format("%s ", count) or "",
 		game.translate_string(get_inv_name(drop_on_obj:section())),
 		game.translate_string("st_disassemble_parts")
 	)
@@ -320,11 +357,11 @@ function show_disassemble_wnd(obj, drop_on_obj)
 		part_str = string.format("%s %s x%s\\n", 
 			game.translate_string("st_list_mark"),
 			game.translate_string(get_inv_name(v.section)),
-			v.count
+			tonumber(v.count) * count
 		)
 		msg_text = msg_text..part_str
 	end
-	service_msg_box:InitAction(msg_text, disassemble_item, obj, drop_on_obj)
+	service_msg_box:InitAction(msg_text, disassemble_item, obj, drop_on_obj, cell_item)
 end
 
 function get_saw_off_tool_sect(item)
@@ -361,6 +398,9 @@ function saw_off_item(tool, item)
 			if use_count > 0 then
 				tool:change_condition(-1/use_count)
 				if tool:condition() == 0 then
+					if tool:parent() then
+						tool:parent():drop_item(tool)
+					end				
 					alife():release(alife():object(tool:id()), true)
 				end
 			end		
@@ -388,10 +428,10 @@ end
 function can_disassemble(obj)
 	return can_disassemble_item(obj)
 end
-function disassemble(obj)
+function disassemble(obj, cell_item)
 	--disassemble_item(obj)
 	local tool = get_tool_sect(obj) and actor:object(get_tool_sect(obj))
-	show_disassemble_wnd(tool, obj)
+	show_disassemble_wnd(tool, obj, cell_item)
 end
 
 function can_saw_off(obj)

@@ -35,18 +35,19 @@ function on_key_press(key, game_action)
 	local act_item = actor:active_item()
 	local wpn = act_item and act_item:get_weapon() or nil
 	
-	if act_item and wpn then
+	if act_item then
 		if wpn and wpn.zoom_mode then
 			wpn:zoom_out()
 		end			
 		
 		hud_sect = "rifle_kick_hud"
 		
-		if get_clsid(act_item) == clsid.wpn_bm16_s then
-			hud_sect = "sawed_kick_hud"
-		elseif act_item:is_pistol() then
+		-- if get_clsid(act_item) == clsid.wpn_bm16_s then
+			-- hud_sect = "sawed_kick_hud"
+		-- elseif act_item:is_pistol() then
+		if act_item:is_pistol() then
 			hud_sect = "pistol_kick_hud"
-		elseif act_item:is_knife() then
+		elseif act_item:is_knife() or act_item:is_missile() then
 			hud_sect = "knife_kick_hud"
 		end
 	end
@@ -64,7 +65,7 @@ function on_key_press(key, game_action)
 		read_if_exists(sys_ini, "r_float", hud_sect, "use_delay", 0.5) / ANM_SPEED,
 		function()
 			kick(kick_forward)
-			if act_item and act_item:is_knife() then
+			if act_item and (act_item:is_knife() or act_item:is_missile()) then
 				game.stop_hud_motion()
 			end
 			_G.SCRIPT_ANIM_PLAYING = false

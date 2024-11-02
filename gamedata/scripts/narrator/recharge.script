@@ -38,6 +38,14 @@ function recharge(obj, drop_on_obj)
 		level.remove_complex_effector(recharge_effector_id)
 		level.add_complex_effector(recharge_effector, recharge_effector_id)
 	end
+	local cell_item = actor_menu:GetCellItem(obj)
+	if cell_item then
+		cell_item:ForceUpdate()
+	end
+	cell_item = actor_menu:GetCellItem(drop_on_obj)
+	if cell_item then
+		cell_item:ForceUpdate()
+	end	
 end
 
 function action_allowed(item)

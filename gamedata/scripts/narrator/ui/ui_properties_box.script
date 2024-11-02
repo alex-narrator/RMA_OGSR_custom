@@ -8,43 +8,28 @@ local color_focused 	= GetARGB(70, 255, 255, 255)
 local text_color_default 	= GetARGB(255, 131, 131, 131)
 local text_color_focused 	= GetARGB(255, 255, 255, 255)
 
+local back_colors = {
+	["red"] = GetARGB(175, 255, 0, 0),
+	["green"] = GetARGB(255, 0, 255, 0),
+	["blue"] = GetARGB(255, 0, 0, 255),
+	["UI_orange"] = GetARGB(255, 238, 153, 26),
+	["white"] = GetARGB(255, 255, 255, 255),
+	["gray"] = GetARGB(255, 128, 128, 128),
+	["ui_clr_1"] = GetARGB(255, 240, 217, 182),
+	["ui_clr_2"] = GetARGB(255, 216, 186, 140),
+	["ui_clr_3"] = GetARGB(255, 135, 123, 116),
+}
+
 class "UIPropertiesBox" (CUIScriptWnd)
 
 function UIPropertiesBox:__init(owner) super()
 	self.owner = owner
 	self:InitControls()
-	self.sm = ogse_signals.get_mgr()
-	self:Subscribe()
 end
 
 function UIPropertiesBox:DetachWnd()
 	self:ClearCallbacks()
 	self.owner:DetachChild(self)
-	self:Unsubscribe()
-end
-
-function UIPropertiesBox:Subscribe()
-	self.subscribed = false
-	if not self.subscribed then
-		self.subscribed = {
-			-- {signal = "on_cell_item_select", self = self, fun = self.OnCellItemSelect},
-			-- {signal = "on_cell_item_focus", self = self, fun = self.OnCellItemFocus},
-			-- {signal = "on_cell_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
-			{signal = "on_key_press", self = self, fun = self.OnKeyPress},
-		}
-		for _, s in ipairs( self.subscribed ) do
-			self.sm:subscribe( s )
-		end
-	end
-end
-
-function UIPropertiesBox:Unsubscribe()
-	if self.subscribed then
-		for _, s in ipairs( self.subscribed ) do
-			self.sm:unsubscribe( s )
-		end
-		self.subscribed = false
-	end
 end
 
 function UIPropertiesBox:InitControls()
@@ -137,7 +122,7 @@ function UIPropertiesBox:Activate()
 end
 
 function UIPropertiesBox:OnFocusReceived(i)
-	self.actions[i].list_item:SetColor(color_focused)
+	self.actions[i].list_item:SetColor(self.actions[i].color_focused or color_focused)
 	self.actions[i].list_item:SetTextColor(text_color_focused)
 	--log3("~UIPropertiesBox:OnFocusReceived(%s)", i)
 end
@@ -173,6 +158,16 @@ function UIPropertiesBox:AddItem(name, precondition, action, ...)
 		args = args,
 	}
 	table.insert(self.actions, action_data)
+	return table.size(self.actions)
+end
+
+function UIPropertiesBox:SetItemColorFocused(i, color_def)
+	local v = self.actions[i]
+	if not v then
+	return end
+	if not back_colors[color_def] then
+	return end
+	v.color_focused = back_colors[color_def]
 end
 
 function UIPropertiesBox:AddCustomAction(item)
@@ -188,8 +183,11 @@ function UIPropertiesBox:AddCustomAction(item)
 	end
 end
 
-function UIPropertiesBox:OnKeyPress(key, game_action)
-	if self:IsShown() then
-		add_update_delayed_action(1, function() level.start_stop_menu(self, true) end)
+function UIPropertiesBox:OnKeyboard(dik, keyboard_action)
+	CUIScriptWnd.OnKeyboard(self, dik, keyboard_action)
+	if keyboard_action == ui_events.WINDOW_KEY_PRESSED and dik ~= DIK_keys.MOUSE_2 then
+		level.start_stop_menu(self, true)
+		return true
 	end
+	return false
 end

@@ -101,37 +101,38 @@ class "PDAOverlay" (CUIScriptWnd)
 function PDAOverlay:__init(owner) super()
 	self.owner = owner
 	self:InitControls()
-	--self:Subscribe()
+	self:Subscribe()
 	self.wait_h = 0
 	self.wait_m = 0
 	self:UpdateTimer()
 end
 
--- function PDAOverlay:Subscribe()
-	-- self.subscribed = false
-	-- if not self.subscribed then
-		-- self.subscribed = {
-			-- {signal = "on_update", self = self, fun = self.Update},
-		-- }
-		-- local sm = ogse_signals.get_mgr()
-		-- for _, s in ipairs( self.subscribed ) do
-			-- sm:subscribe( s )
-		-- end
-	-- end
--- end
+function PDAOverlay:Subscribe()
+	self.subscribed = false
+	if not self.subscribed then
+		self.subscribed = {
+			{signal = "on_pda_show", self = self, fun = self.OnShow},
+			{signal = "on_pda_hide", self = self, fun = self.OnHide},
+		}
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs( self.subscribed ) do
+			sm:subscribe( s )
+		end
+	end
+end
 
--- function PDAOverlay:Unsubscribe()
-	-- if self.subscribed then
-		-- local sm = ogse_signals.get_mgr()
-		-- for _, s in ipairs( self.subscribed ) do
-			-- sm:unsubscribe( s )
-		-- end
-		-- self.subscribed = false
-	-- end
--- end
+function PDAOverlay:Unsubscribe()
+	if self.subscribed then
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs( self.subscribed ) do
+			sm:unsubscribe( s )
+		end
+		self.subscribed = false
+	end
+end
 
 function PDAOverlay:DetachWnd()
-	--self:Unsubscribe()
+	self:Unsubscribe()
 	self:ClearCallbacks()
 	self.owner:DetachChild(self)
 end
@@ -355,14 +356,20 @@ function PDAOverlay:OnNotesClick()
 end
 
 function PDAOverlay:OnAddNoteClick()
-	local msg_box = ui_message_box.MessageBoxUserNoteWnd(is_3d_pda())
-	msg_box:InitAction(game.translate_string("st_add_note"), add_note)
+	if self.msg_box then
+		self.msg_box:HideWnd()
+	end
+	self.msg_box = ui_message_box.MessageBoxUserNoteWnd(is_3d_pda())
+	self.msg_box:InitAction(game.translate_string("st_add_note"), add_note)
 end
 
 function PDAOverlay:OnDelAllNotesClick()
-	local msg_box = ui_message_box.MessageBoxWnd("red", is_3d_pda())
+	if self.msg_box then
+		self.msg_box:HideWnd()
+	end
+	self.msg_box = ui_message_box.MessageBoxWnd("red", is_3d_pda())
 	local text = string.format("%s?", game.translate_string("st_del_all_notes"))
-	msg_box:InitAction(text, remove_all_notes)	
+	self.msg_box:InitAction(text, remove_all_notes)	
 end
 
 function PDAOverlay:UpdateNotes()
@@ -421,19 +428,24 @@ function PDAOverlay:OnEditNoteBtn()
 	local note = user_notes[i]
 	if not note then
 	return end
-	
-	local msg_box = ui_message_box.MessageBoxUserNoteWnd(is_3d_pda())
-	msg_box:SetEditText(note.name, note.text)
-	msg_box:InitAction(game.translate_string("st_edit_note"), edit_note, i)	
+	if self.msg_box then
+		self.msg_box:HideWnd()
+	end	
+	self.msg_box = ui_message_box.MessageBoxUserNoteWnd(is_3d_pda())
+	self.msg_box:SetEditText(note.name, note.text)
+	self.msg_box:InitAction(game.translate_string("st_edit_note"), edit_note, i)	
 end
 
 function PDAOverlay:OnRemoveNoteBtn()
 	if not self.selected_note then return end
 	local i = self.selected_note
 	local note = user_notes[i]
-	local msg_box = ui_message_box.MessageBoxWnd("red", is_3d_pda())
+	if self.msg_box then
+		self.msg_box:HideWnd()
+	end	
+	self.msg_box = ui_message_box.MessageBoxWnd("red", is_3d_pda())
 	local text = string.format("%s %s ?", game.translate_string("st_del_note"), note.name)
-	msg_box:InitAction(text, remove_note, i)
+	self.msg_box:InitAction(text, remove_note, i)
 end
 
 function PDAOverlay:OnNoteNameFocus(del_btn, edit_btn, i)
@@ -451,10 +463,29 @@ function PDAOverlay:OnNoteNameFocusLost(del_btn, edit_btn, i)
 end
 
 function PDAOverlay:HidePda()
-	self.skip_time_frame:Show(false)
 	if is_3d_pda() then
 		actor:activate_slot(NO_ACTIVE_SLOT)
 	else
 		level.start_stop_menu(level.main_input_receiver(), true)
+	end	
+end
+
+function PDAOverlay:OnShow()
+	self.prev_active_slot = actor:active_slot()
+end
+
+function PDAOverlay:OnHide()
+	self.skip_time_frame:Show(false)
+	if self.msg_box then
+		self.msg_box:HideWnd()
 	end
+	self.msg_box = nil
+	level.add_call(
+		function()
+			return actor:active_slot() == NO_ACTIVE_SLOT
+		end,
+		function()
+			actor:activate_slot(self.prev_active_slot)
+		end
+	)
 end

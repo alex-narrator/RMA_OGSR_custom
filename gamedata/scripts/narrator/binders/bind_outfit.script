@@ -185,7 +185,7 @@ function outfit_binder:is_plate_bone(bone_id)
 end
 
 function outfit_binder:hit(victim, health_lost, direction, draftsman, bone_id, hit_type)
-	--log3("~hit outfit %s actor hitted in bone %s", self.object:name(), actor:get_bone_name(bone_id))
+	log3("~hit outfit %s actor hitted in bone %s", self.object:name(), actor:get_bone_name(bone_id))
 	if not actor_get_outfit() or actor_get_outfit():id() ~= self.object:id() then
 	return end
 	

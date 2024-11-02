@@ -250,7 +250,8 @@ function add_drop(pbox, cell_item)
 	action = function(cell_item)
 		drop_cell_item(cell_item)
 	end
-	pbox:AddItem(name, precondition, action, cell_item)
+	local idx = pbox:AddItem(name, precondition, action, cell_item)
+	pbox:SetItemColorFocused(idx, "red")	
 	
 	if cell_item:GetChildsCount() == 0 then
 	return end	
@@ -259,7 +260,8 @@ function add_drop(pbox, cell_item)
 	action = function(cell_item)
 		drop_cell_item(cell_item, true)
 	end
-	pbox:AddItem(name, precondition, action, cell_item)
+	local idx = pbox:AddItem(name, precondition, action, cell_item)
+	pbox:SetItemColorFocused(idx, "red")
 end
 
 function add_move_to_trade(pbox, cell_item)
@@ -340,7 +342,8 @@ function add_eat(pbox, item)
 	name = script_actions.eat_item_tip
 	precondition = script_actions.can_eat
 	action = script_actions.eat
-	pbox:AddItem(name, precondition, action, item)
+	local idx = pbox:AddItem(name, precondition, action, item)
+	pbox:SetItemColorFocused(idx, "UI_orange")
 end
 
 function add_donate(pbox, cell_item)
@@ -497,12 +500,23 @@ function add_service(pbox, item)
 	end	
 end
 
-function add_disassemble(pbox, item)
+function add_disassemble(pbox, cell_item)
 	local name, precondition, action
+	local item = cell_item:GetAnyItem()
 	name = "st_disassemble"
 	precondition = service_kit.can_disassemble
 	action = service_kit.disassemble
-	pbox:AddItem(name, precondition, action, item)
+	local idx = pbox:AddItem(name, precondition, action, item)
+	pbox:SetItemColorFocused(idx, "red")
+	
+	if cell_item:GetChildsCount() == 0 then
+	return end
+	--//all
+	name = "st_disassemble_all"
+	precondition = service_kit.can_disassemble
+	action = service_kit.disassemble
+	local idx = pbox:AddItem(name, precondition, action, item, cell_item)
+	pbox:SetItemColorFocused(idx, "red")
 end
 
 function add_saw_off(pbox, item)
