@@ -6,7 +6,7 @@ end
 local ezi = false
 local hard_hold = false
 local base_k = false
-local zoom_factor = false
+local zoom_factor = 1
 local subscribed = false
 
 local DEBUG_DISABLE = false
@@ -71,7 +71,6 @@ end
 
 function on_zoom_in(weapon)
 	zoom_factor = weapon:get_zoom_factor()
-	level.add_cam_effector("camera_effects\\actor_actions\\zoom_crp.anm", 1908, false, "")
 	if not subscribed then
 		subscribed = {
 			{ signal = "on_update", 				fun = this.on_update },
@@ -104,7 +103,6 @@ function on_zoom_in(weapon)
 end
 
 function on_zoom_out(weapon)
-	level.add_cam_effector("camera_effects\\actor_actions\\zoom_crp.anm", 1907, false, "")
 	if subscribed then
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( subscribed ) do
@@ -115,7 +113,7 @@ function on_zoom_out(weapon)
 	ezi = false
 	hard_hold = false
 	base_k = false
-	zoom_factor = false
+	zoom_factor = 1
 	hud_remove_info_message("item_usage")
 end
 
@@ -127,7 +125,7 @@ function on_update(delta)
 		base_k = ezi.zoom_aim_disp_k
 	end
 	ezi.zoom_aim_disp_k = base_k * get_zoom_effector_k()
-	ezi.pause_effect = DEBUG_DISABLE or is_hard_hold()
+	ezi.pause_effect = not ui_scope_texture.has_scope_static() or DEBUG_DISABLE or is_hard_hold()
 	
 	if ezi.pause_effect and (force_disable_hard_hold() or actor_obj:is_actor_creep()) then
 		set_hard_hold(false)

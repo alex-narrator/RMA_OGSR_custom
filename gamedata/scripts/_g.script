@@ -2253,6 +2253,19 @@ function is_pos_under_roof(pos)
 	return rq.result
 end
 
+function IsMoveState(state, compare_state)
+	if (not state) then 
+		printf("~IsMoveState | state {%s) not found ", state)
+		return false 
+	end
+	
+	if (not compare_state) then
+		compare_state = get_actor_obj():get_body_state()
+	end
+	
+	return (bit_and(compare_state, state) ~= 0)
+end
+
 ACTIVE_ITEM_INFO_TTL 	= read_if_exists(sys_ini, "r_u32", "actor", "active_item_info_ttl", 3)
 GEAR_INFO_TTL 			= read_if_exists(sys_ini, "r_u32", "actor", "gear_info_ttl", 3)
 

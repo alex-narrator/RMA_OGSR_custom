@@ -4,6 +4,9 @@ function attach(sm)
 	sm:subscribe({signal = "on_mouse_wheel",   			fun = this.on_mouse_wheel})
 	sm:subscribe({signal = "on_actor_weapon_zoom_in",   fun = this.on_zoom_in})
 	sm:subscribe({signal = "on_actor_weapon_zoom_out", 	fun = this.on_zoom_out})
+	sm:subscribe({signal = "on_update",   				fun = this.on_update})
+	sm:subscribe({signal = "on_actor_jump",   			fun = this.on_actor_jump})
+	sm:subscribe({signal = "on_actor_land",   			fun = this.on_actor_land})	
 end
 
 local actor_obj = get_actor_obj()
@@ -12,16 +15,24 @@ local firemode_switch = {
 	[key_bindings.kWPN_FIREMODE_NEXT] = true,
 }
 
+local aim = "camera_effects\\actor_actions\\zoom_crp.anm"
+local jammed = "camera_effects\\actor_actions\\jammed_crp.anm"
+local fire_mode = "camera_effects\\actor_actions\\fmode_crp.anm"
+
 function is_switch_slot()
 	return get_console():get_bool("g_mouse_wheel_switch_slot")
 end
 
 function on_zoom_in(weapon)
-	level.add_complex_effector("aim", 1908)
+	--level.add_complex_effector("aim", 1908)
+	game.play_hud_anm(aim, 2, 1, 1, false, true)
+	level.add_cam_effector(aim, 1908, false, "")
 end
 
 function on_zoom_out(weapon)
-	level.add_complex_effector("aim", 1907)
+	--level.add_complex_effector("aim", 1907)
+	game.play_hud_anm(aim, 2, 1, 1, false, true)
+	level.add_cam_effector(aim, 1907, false, "")
 end
 
 function get_zoom_data(item)
@@ -63,7 +74,8 @@ function on_key_press(key, game_action)
 		
 	if game_action == key_bindings.kWPN_FIRE then
 		if act_wpn and act_wpn:is_misfire() then
-			level.add_complex_effector("jammed", 1913)
+			--level.add_complex_effector("jammed", 1913)
+			level.add_cam_effector(jammed, 1913, false, "")
 		end
 	end
 	
@@ -75,11 +87,87 @@ function on_key_press(key, game_action)
 end
 
 function play_switch_anim(item)
-	level.add_complex_effector("fire_mode", 1912)
+	--level.add_complex_effector("fire_mode", 1912)
+	level.add_cam_effector(fire_mode, 1912, false, "")	
 	local switch_snd = read_if_exists(sys_ini, "r_string", item:section(), "snd_firemode", "")
 	xr_sound.get_safe_sound_object(switch_snd):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 	ui_hud_info.try_show_active_item_info()
 	-- if hud_anim_exists(item, "anm_switch") then
 		-- game.play_hud_motion(2, get_hud_sect(item), "anm_switch", false, 1, false)
 	-- end
+end
+
+--//additional hands anim
+local anim_crouch_begin = "liz\\liz_hands_crouch_end_additive.anm"
+local anim_crouch_end 	= "liz\\liz_hands_crouch_start_additive.anm"
+local anim_crouch 		= "liz\\liz_hands_crouch_additive.anm"
+local anim_r_look 		= "liz\\liz_hands_lean_r_additive.anm"
+local anim_l_look 		= "liz\\liz_hands_lean_l_additive.anm"
+local anim_jump 		= "liz\\liz_hands_jump_additive.anm"
+local anim_land 		= "liz\\liz_hands_landing_additive.anm"
+local anim_breath 		= "liz\\liz_hands_breathing_additive.anm"
+local anim_shake 		= "liz\\liz_hands_noise_additive.anm"
+local shake_speed_k 	= 0.5
+local shake_force_k 	= 0.25
+local crouch_k 			= 0.5
+
+local crouch_played = actor_obj and actor_obj:is_actor_crouch()
+function is_crouch()
+	return actor_obj:is_actor_crouch() or actor_obj:is_actor_crouching()
+end
+function zoom_factor()
+	return actor:active_item() and actor:active_item():get_zoom_factor() or 1
+end
+function shake_force()
+	if not actor_obj:is_zoom_aiming_mode() or ezi_control.is_hard_hold() then
+	return 0 end
+	local res = shake_force_k + shake_force_k * somnolence.get_val()
+	if actor_obj:is_actor_crouch() then
+		res = res * crouch_k
+	end
+	return res
+end
+function shake_speed()
+	return shake_speed_k + shake_speed_k * (1 - stamina.get_val())
+end
+
+function on_update(dt)
+	local power_k = level.main_input_receiver() and 0 or 1 - actor.power
+	game.play_hud_anm(anim_breath, 2, 1, power_k, true, true)
+	game.play_hud_anm(anim_shake, 2, shake_speed(), shake_force(), true, true)
+
+	if not actor_obj:is_zoom_aiming_mode() and (actor_obj:is_actor_crouching() or actor_obj:is_actor_creeping()) then
+		game.play_hud_anm(anim_crouch, 2, 1, 1, true, true)
+	else
+		game.stop_hud_anm(anim_crouch, false)
+	end
+	
+	if not crouch_played and is_crouch() then
+		game.play_hud_anm(anim_crouch_begin, 2, 1, 1, false, true)
+		crouch_played = true
+	elseif not is_crouch() and crouch_played then
+		game.play_hud_anm(anim_crouch_end, 2, 1, 1, false, true)
+		crouch_played = false
+	end		
+	
+	if actor_obj:is_zoom_aiming_mode() or (not (IsMoveState(move_command.mcLLookout) or IsMoveState(move_command.mcRLookout))) then
+		game.stop_hud_anm(anim_r_look, false)
+		game.stop_hud_anm(anim_l_look, false)
+	else
+		if IsMoveState(move_command.mcLLookout) then
+			game.play_hud_anm(anim_l_look, 2, 1, 1, true, true)
+			log3("~llook")
+		elseif IsMoveState(move_command.mcRLookout) then
+			log3("~rlook")
+			game.play_hud_anm(anim_r_look, 2, 1, -1, true, true)
+		end		
+	end
+end
+
+function on_actor_jump(actor, jump_power)
+	game.play_hud_anm(anim_jump, 2, 1, 1, false, true)
+end
+
+function on_actor_land(actor, contact_speed)
+	game.play_hud_anm(anim_land, 2, 1, 1, false, true)
 end

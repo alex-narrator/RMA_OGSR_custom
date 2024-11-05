@@ -17,14 +17,15 @@ function is_enemy_comm(target_comm)
 end
 
 function get_nearest_comm_member(npc)
+	local result = nil
 	local target_comm = npc:character_community()
 	function perform_action(obj)
 		if obj:is_stalker() and obj:alive() and obj:character_community() == target_comm then
-			return obj
+			result = obj
 		end
 	end
 	level.iterate_nearest(npc:position(), CHECK_RADIUS, perform_action)
-	return nil
+	return result
 end
 
 function on_npc_use(npc)

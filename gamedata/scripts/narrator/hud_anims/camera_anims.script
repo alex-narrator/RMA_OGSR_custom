@@ -51,8 +51,5 @@ local show_hide = {
 function on_state_switch(item, state, old_state)
 	if not show_hide[state] then
 	return end
-	
-	if not level.check_complex_effector(1919) then
-		level.add_complex_effector("jammed", 1919)
-	end
+	level.add_complex_effector("jammed", 1919)
 end
