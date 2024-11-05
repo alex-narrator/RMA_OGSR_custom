@@ -6,7 +6,8 @@ function attach(sm)
 	sm:subscribe({signal = "on_actor_weapon_zoom_out", 	fun = this.on_zoom_out})
 	sm:subscribe({signal = "on_update",   				fun = this.on_update})
 	sm:subscribe({signal = "on_actor_jump",   			fun = this.on_actor_jump})
-	sm:subscribe({signal = "on_actor_land",   			fun = this.on_actor_land})	
+	sm:subscribe({signal = "on_actor_land",   			fun = this.on_actor_land})
+	sm:subscribe({signal = "on_hit_actor",   			fun = this.on_actor_hit})
 end
 
 local actor_obj = get_actor_obj()
@@ -111,6 +112,12 @@ local shake_speed_k 	= 0.5
 local shake_force_k 	= 0.25
 local crouch_k 			= 0.5
 
+local hit_anims = {
+    "liz\\liz_hands_hit1_additive.anm",
+    "liz\\liz_hands_hit2_additive.anm",
+    "liz\\liz_hands_hit3_additive.anm",
+}
+
 local crouch_played = actor_obj and actor_obj:is_actor_crouch()
 function is_crouch()
 	return actor_obj:is_actor_crouch() or actor_obj:is_actor_crouching()
@@ -170,4 +177,9 @@ end
 
 function on_actor_land(actor, contact_speed)
 	game.play_hud_anm(anim_land, 2, 1, 1, false, true)
+end
+
+function on_actor_hit(victim, health_lost, direction, draftsman, bone_id, hit_type)
+    local hit_anim = hit_anims[math.random(1, #hit_anims)]
+    game.play_hud_anm(hit_anim, 2, 1, 1, false, false)
 end

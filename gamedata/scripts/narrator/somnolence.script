@@ -19,6 +19,9 @@ local START_YAWN_VAL = 0.5
 local eff_name = "snd_shock.ppe"
 local eff_id = 3000
 
+local wake_up_sound = [[actor\wakeup]]
+local heavy_breath_sound = [[characters_voice\human_01\stalker\states\breath\breath_1]]
+
 local yawn_prefix = [[actor\yawn\yawn_]]
 function on_spawn()
 	level.prefetch_many_sounds(yawn_prefix)
@@ -97,7 +100,11 @@ function play_yawn()
 end
 
 function play_heavy_breath_nightmare()
-	xr_sound.get_safe_sound_object([[characters_voice\human_01\stalker\states\breath\breath_1]]):play_no_feedback(actor, sound_object.s2d, 0, vector(), 15.0)
+	xr_sound.get_safe_sound_object(heavy_breath_sound):play_no_feedback(actor, sound_object.s2d, 0, vector(), 15.0)
+end
+
+function play_wake_up()
+	xr_sound.get_safe_sound_object(wake_up_sound):play_no_feedback(actor, sound_object.s2d, 0, vector(), 15.0)
 end
 
 function proceed_effect()
