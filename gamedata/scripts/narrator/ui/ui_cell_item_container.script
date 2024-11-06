@@ -94,6 +94,7 @@ function UICellItemContainer:InitControls()
 	self.group_by_type = self.xml:ReadAttribInt(self.path, "group_by_type", 0) > 0 and true or false
 	self.group_similar = self.xml:ReadAttribInt(self.path, "group_similar", 0) > 0 and true or false
 	self.vertical = self.xml:ReadAttribInt(self.path, "vertical", 0) > 0 and true or false
+	self.centered = self.xml:ReadAttribInt(self.path, "centered", 0) > 0 and true or false
 	self.ID = self.xml:ReadAttribInt(self.path, "ID", "")
 	
 	self.cell_size = {}
@@ -132,7 +133,8 @@ end
 
 function UICellItemContainer:AdjustContainerHeight()
 	self.scroll:Clear()
-	self.cell_container:SetHeight(table.size(self.grid) * self.cell_size.h)
+	local container_h = (self.centered and self.rows or table.size(self.grid)) * self.cell_size.h
+	self.cell_container:SetHeight(container_h)
 	self.scroll:AddWindow(self.cell_container)
 end
 
@@ -437,4 +439,8 @@ end
 
 function UICellItemContainer:IsVertical()
 	return self.vertical
+end
+
+function UICellItemContainer:IsCentered()
+	return self.centered
 end

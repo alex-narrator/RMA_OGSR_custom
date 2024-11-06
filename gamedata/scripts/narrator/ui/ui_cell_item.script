@@ -6,7 +6,7 @@ local color_restricted 	= GetARGB(150, 124, 0, 0)
 
 local back_texture 		= "square_light_grey"
 local back_color 		= GetARGB(150, 255, 255, 255)
-local VERTICAL_HEADIND 	= 1.57
+local VERTICAL_HEADING 	= -math.pi * 0.5 --// додатнє значення - крутимо проти годинникової стрілки, від'ємне значення - крутимо за годинниковою стрілкою
 
 class "UICellItem" (CUIScriptWnd)
 
@@ -59,12 +59,13 @@ function UICellItem:InitControls(cell_pos)
 	local params = CIconParams(self.item:section())	
 	
 	local vertical = self.owner_list:IsVertical()
+	local centered = self.owner_list:IsCentered()
 	
 	local cell_size = self.cell_size
-	local pos_x = (cell_pos.x - 1) * cell_size.w
-	local pos_y = (cell_pos.y - 1) * cell_size.h
 	local icon_w = cell_size.w * (vertical and params.grid_height or params.grid_width)
 	local icon_h = cell_size.h * (vertical and params.grid_width or params.grid_height)
+	local pos_x = centered and (self.owner:GetWidth() / 2) - (icon_w / 2) or (cell_pos.x - 1) * cell_size.w
+	local pos_y = centered and (self.owner:GetHeight() / 2) - (icon_h / 2) or (cell_pos.y - 1) * cell_size.h	
 	
 	self.owner:AttachChild(self)
 	self:Init(pos_x, pos_y, icon_w, icon_h)
@@ -92,9 +93,9 @@ function UICellItem:InitControls(cell_pos)
 	params:set_shader(self.icon)
 	if vertical then
 		self.icon:EnableHeading(true)
-		self.icon:SetHeading(VERTICAL_HEADIND)
+		self.icon:SetHeading(VERTICAL_HEADING)
 		local pivot = vector2():set(cell_size.w * 0.5, cell_size.h * 0.5) --//обертаємо навколо центру лівої верхньої клітинки сітки
-		local offset = vector2():set(0, icon_h - cell_size.h)
+		local offset = VERTICAL_HEADING > 0 and vector2():set(0, icon_h - cell_size.h) or vector2():set(icon_w - cell_size.w, 0)
 		self.icon:SetHeadingPivot(pivot, offset, true)
 	end	
 	
