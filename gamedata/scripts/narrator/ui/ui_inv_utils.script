@@ -178,16 +178,17 @@ function UpdateWpnIcons(item, icon)
 					if rotate then
 						cell_w = icon:GetHeight() / wpn_params.grid_width
 						cell_h = icon:GetWidth() / wpn_params.grid_height
-						width = params.grid_width * cell_w
-						height = params.grid_height * cell_h
+						width = params.grid_height * cell_w
+						height = params.grid_width * cell_h
 						addon_st:SetWidth(width)
 						addon_st:SetHeight(height)
 					
-						addon_st:SetWndPos(offset.y * (cell_w/CELL_W) * get_current_kx(), icon:GetHeight() - offset.x * (cell_h/CELL_H))
+						addon_st:SetWndPos(offset.y * (cell_w/CELL_W) * get_current_kx(), icon:GetHeight() - height - offset.x * (cell_h/CELL_H))
 					
 						addon_st:SetHeading(heading)
-						local zero_vec = vector2():set(0,0)
-						addon_st:SetHeadingPivot(zero_vec, zero_vec, false)
+						local pivot = vector2():set(cell_w * 0.5, cell_h * 0.5) --//обертаємо навколо центру лівої верхньої клітинки сітки
+						local offset = vector2():set(0, height - cell_h)
+						addon_st:SetHeadingPivot(pivot, offset, true)						
 					
 						--log3("~item %s | width %s | height %s | params.grid_width %s | params.grid_height %s | wpn_params.grid_width %s | wpn_params.grid_height %s", item:section(), width, height, params.grid_width, params.grid_height, wpn_params.grid_width, wpn_params.grid_height)
 					else
@@ -231,14 +232,18 @@ function UpdateWpnIcons(item, icon)
 				if rotate then
 					cell_w = icon:GetHeight() / wpn_params.grid_width
 					cell_h = icon:GetWidth() / wpn_params.grid_height
-					width = params.grid_width * cell_w
-					height = params.grid_height * cell_h
+					width = params.grid_height * cell_w
+					height = params.grid_width * cell_h
 					addon_st:SetWidth(width)
 					addon_st:SetHeight(height)
-					addon_st:SetWndPos(offset.y * (cell_w/CELL_W) * get_current_kx(), icon:GetHeight() - offset.x * (cell_h/CELL_H) - cell_w)
+					
+					addon_st:SetWndPos(offset.y * (cell_w/CELL_W) * get_current_kx(), icon:GetHeight() - height - offset.x * (cell_h/CELL_H))
 					
 					addon_st:SetHeading(heading)
-					addon_st:SetHeadingPivot(vector2():set(0,0), vector2():set(0,icon:GetWidth() - cell_w), false)
+
+					local pivot = vector2():set(cell_w * 0.5, cell_h * 0.5) --//обертаємо навколо центру лівої верхньої клітинки сітки
+					local offset = vector2():set(0, height - cell_h)
+					addon_st:SetHeadingPivot(pivot, offset, true)	
 				else
 					cell_w = icon:GetWidth() / wpn_params.grid_width
 					cell_h = icon:GetHeight() / wpn_params.grid_height

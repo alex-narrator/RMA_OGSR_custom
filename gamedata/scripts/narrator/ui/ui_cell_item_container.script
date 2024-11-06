@@ -93,7 +93,7 @@ function UICellItemContainer:InitControls()
 	
 	self.group_by_type = self.xml:ReadAttribInt(self.path, "group_by_type", 0) > 0 and true or false
 	self.group_similar = self.xml:ReadAttribInt(self.path, "group_similar", 0) > 0 and true or false
-	self.vertical = self.xml:ReadAttribInt(self.path, "vertical", 0)
+	self.vertical = self.xml:ReadAttribInt(self.path, "vertical", 0) > 0 and true or false
 	self.ID = self.xml:ReadAttribInt(self.path, "ID", "")
 	
 	self.cell_size = {}
@@ -228,8 +228,8 @@ function UICellItemContainer:AddItem(item)
 	if cell_pos then
 		local ci = ui_cell_item.UICellItem(self.cell_container, item, cell_pos, self.cell_size, self)
 		local params = CIconParams(item:section())
-		local w = self.vertical > 0 and params.grid_height or params.grid_width
-		local h = self.vertical > 0 and params.grid_width or params.grid_height
+		local w = self.vertical and params.grid_height or params.grid_width
+		local h = self.vertical and params.grid_width or params.grid_height
 		self.cell_items[ci] = {x=cell_pos.x, y=cell_pos.y, w=w, h=h}
 		self:ColorizeRestricted(item)
 	end
@@ -277,8 +277,8 @@ end
 function UICellItemContainer:FindFreeCell(item)
 	local params = CIconParams(item:section())
 	
-	local w = self.vertical > 0 and params.grid_height or params.grid_width
-	local h = self.vertical > 0 and params.grid_width or params.grid_height
+	local w = self.vertical and params.grid_height or params.grid_width
+	local h = self.vertical and params.grid_width or params.grid_height
 	
 	if w > self.cols then
 	return false end
@@ -435,6 +435,6 @@ function UICellItemContainer:GetColsNum()
 	return self.cols
 end
 
-function UICellItemContainer:GetVertical()
+function UICellItemContainer:IsVertical()
 	return self.vertical
 end

@@ -58,13 +58,13 @@ end
 function UICellItem:InitControls(cell_pos)
 	local params = CIconParams(self.item:section())	
 	
-	local vertical = self.owner_list:GetVertical()
+	local vertical = self.owner_list:IsVertical()
 	
 	local cell_size = self.cell_size
 	local pos_x = (cell_pos.x - 1) * cell_size.w
 	local pos_y = (cell_pos.y - 1) * cell_size.h
-	local icon_w = cell_size.w * (vertical > 0 and params.grid_height or params.grid_width)
-	local icon_h = cell_size.h * (vertical > 0 and params.grid_width or params.grid_height)
+	local icon_w = cell_size.w * (vertical and params.grid_height or params.grid_width)
+	local icon_h = cell_size.h * (vertical and params.grid_width or params.grid_height)
 	
 	self.owner:AttachChild(self)
 	self:Init(pos_x, pos_y, icon_w, icon_h)
@@ -85,19 +85,17 @@ function UICellItem:InitControls(cell_pos)
 	self.back:SetColor(back_color)
 	self.back:Show(false)
 	
-	self.icon = CUIStatic()
+	self.icon = CUIStatic()	
 	self:AttachChild(self.icon)	
 	self.icon:Init(0, 0, icon_w, icon_h)
 	self.icon:SetStretchTexture(true)
 	params:set_shader(self.icon)
-	if vertical > 0 then
+	if vertical then
 		self.icon:EnableHeading(true)
-		self.icon:SetHeading(vertical == 1 and VERTICAL_HEADIND or -VERTICAL_HEADIND)
-		if vertical == 1 then
-			self.icon:SetHeadingPivot(vector2():set(0,0), vector2():set(params.grid_height / get_current_kx(), icon_h), true)
-		else
-			self.icon:SetHeadingPivot(vector2():set(0,0), vector2():set(icon_w * get_current_kx(), 0), true)
-		end
+		self.icon:SetHeading(VERTICAL_HEADIND)
+		local pivot = vector2():set(cell_size.w * 0.5, cell_size.h * 0.5) --//обертаємо навколо центру лівої верхньої клітинки сітки
+		local offset = vector2():set(0, icon_h - cell_size.h)
+		self.icon:SetHeadingPivot(pivot, offset, true)
 	end	
 	
 	local name = "cell_item"
