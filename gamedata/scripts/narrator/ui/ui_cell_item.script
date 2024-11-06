@@ -6,6 +6,7 @@ local color_restricted 	= GetARGB(150, 124, 0, 0)
 
 local back_texture 		= "square_light_grey"
 local back_color 		= GetARGB(150, 255, 255, 255)
+local VERTICAL_HEADIND 	= 1.57
 
 class "UICellItem" (CUIScriptWnd)
 
@@ -57,11 +58,13 @@ end
 function UICellItem:InitControls(cell_pos)
 	local params = CIconParams(self.item:section())	
 	
+	local vertical = self.owner_list:GetVertical()
+	
 	local cell_size = self.cell_size
 	local pos_x = (cell_pos.x - 1) * cell_size.w
 	local pos_y = (cell_pos.y - 1) * cell_size.h
-	local icon_w = cell_size.w * params.grid_width
-	local icon_h = cell_size.h * params.grid_height
+	local icon_w = cell_size.w * (vertical > 0 and params.grid_height or params.grid_width)
+	local icon_h = cell_size.h * (vertical > 0 and params.grid_width or params.grid_height)
 	
 	self.owner:AttachChild(self)
 	self:Init(pos_x, pos_y, icon_w, icon_h)
@@ -87,6 +90,15 @@ function UICellItem:InitControls(cell_pos)
 	self.icon:Init(0, 0, icon_w, icon_h)
 	self.icon:SetStretchTexture(true)
 	params:set_shader(self.icon)
+	if vertical > 0 then
+		self.icon:EnableHeading(true)
+		self.icon:SetHeading(vertical == 1 and VERTICAL_HEADIND or -VERTICAL_HEADIND)
+		if vertical == 1 then
+			self.icon:SetHeadingPivot(vector2():set(0,0), vector2():set(params.grid_height / get_current_kx(), icon_h), true)
+		else
+			self.icon:SetHeadingPivot(vector2():set(0,0), vector2():set(icon_w * get_current_kx(), 0), true)
+		end
+	end	
 	
 	local name = "cell_item"
 	self:Register(self.icon, name)
