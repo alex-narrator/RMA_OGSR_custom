@@ -34,6 +34,12 @@ end
 function send_tip(victim, killer)
 	if not victim:is_actor() and not victim:is_stalker() or victim:relation(actor) == game_object.enemy then
 	return end
+	local pda = actor_get_pda()
+	if not pda or not pda:is_power_on() then
+	return end
+	local pda_radius = read_if_exists(sys_ini, "r_float", pda:section(), "radius", 50)
+	if distance_between(actor, victim) > pda_radius then
+	return end
 	
 	local tip_header = game.translate_string("st_stalker_death") 						--/заголовок загальний
 	local victim_header = game.translate_string("st_victim_header") 					--/заголовок жертви
