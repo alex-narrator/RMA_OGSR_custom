@@ -139,7 +139,7 @@ function shake_speed()
 end
 
 function on_update(dt)
-	local power_k = level.main_input_receiver() and 0 or 1 - actor.power
+	local power_k = (level.main_input_receiver() or ezi_control.is_hard_hold()) and 0 or 1 - actor.power
 	game.play_hud_anm(anim_breath, 2, 1, power_k, true, true)
 	game.play_hud_anm(anim_shake, 2, shake_speed(), shake_force(), true, true)
 
@@ -179,5 +179,6 @@ end
 
 function on_actor_hit(victim, health_lost, direction, draftsman, bone_id, hit_type)
     local hit_anim = hit_anims[math.random(1, #hit_anims)]
-    game.play_hud_anm(hit_anim, 2, 1, 1, false, false)
+	local power = health_lost
+    game.play_hud_anm(hit_anim, 2, 1, power, false, false)
 end

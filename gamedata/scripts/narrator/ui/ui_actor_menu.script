@@ -496,6 +496,29 @@ function ActorMenuOverlay:InitControls()
 		self.sounds[snd_name] = xr_sound.get_safe_sound_object(xml:ReadAttrib(name, snd_name, ""))
 	end
 	
+	--//operate sounds
+	name = "operate_sounds"
+	self.operate_sounds = {}
+	local sound_names = {
+		"ammo",
+		"grenade",
+		"bottle",
+		"cloth",
+		"generic",
+		"key",
+		"knife",
+		"parts",
+		"pills",
+		"weapon",
+		"weapon_heavy",
+	}
+	for k,snd_name in pairs(sound_names) do
+		local params = split_string(xml:ReadAttrib(name, snd_name, nil), ",")
+		if params then
+			self.operate_sounds[snd_name] = {sound_name = params[1], rnd_count = params[2]}
+		end
+	end	
+	
 	--//selected item tip
 	self.selected_item_tip = xml:InitStatic("selected_item_tip", self)
 end
@@ -615,6 +638,7 @@ function ActorMenuOverlay:OnCellItemStartDrag(cell_item)
 	self.drag_item = ui_cell_item.UICellItem(self, item, cell_pos, cell_item:GetCellSize(), cell_item:GetOwnerList())
 	self.drag_item:SetInteractive(false)
 	self.drag_item.orig_pos = vector2():set(cell_item:GetMousePosX(), cell_item:GetMousePosY())
+	self:PlayOperateSound(item)
 end
 
 function ActorMenuOverlay:UpdateDragItem()
@@ -637,7 +661,7 @@ function ActorMenuOverlay:DestroyDragItem()
 	if not self.drag_item then
 	return end
 	self.drag_item:DetachWnd()
-	self.drag_item = nil	
+	self.drag_item = nil
 end
 
 function ActorMenuOverlay:OnDragItemDrop(cell_item)
@@ -646,6 +670,8 @@ function ActorMenuOverlay:OnDragItemDrop(cell_item)
 	
 	local item = cell_item:GetItem()
 	local parent = cell_item:GetOwnerList()
+	
+	self:PlayOperateSound(item)
 	
 	local ci_f = self.cell_item_focused
 	if ci_f then
@@ -1471,7 +1497,8 @@ function ActorMenuOverlay:OnRuck(item)
 	end
 	self.ruck_list:AddItem(item)
 	self:UpdateCustomDraw()
-	self:PlayActionSound("to_ruck")
+	--self:PlayActionSound("to_ruck")
+	self:PlayOperateSound(item)
 end
 
 function ActorMenuOverlay:OnDrop(item)
@@ -1482,6 +1509,7 @@ function ActorMenuOverlay:OnDrop(item)
 	end
 	self:UpdateCustomDraw()
 	self:PlayActionSound("drop")
+	self:PlayOperateSound(item)
 end
 
 function ActorMenuOverlay:OnSlot(item)
@@ -1491,7 +1519,8 @@ function ActorMenuOverlay:OnSlot(item)
 	end	
 	self.slot_list[item:get_slot()]:AddItem(item)
 	self:UpdateCustomDraw()
-	self:PlayActionSound("to_slot")
+	--self:PlayActionSound("to_slot")
+	self:PlayOperateSound(item)
 end
 
 function ActorMenuOverlay:OnBelt(item)
@@ -1500,7 +1529,8 @@ function ActorMenuOverlay:OnBelt(item)
 		ci:GetOwnerList():RemoveItem(item)
 	end
 	self.belt_list:AddItem(item)
-	self:PlayActionSound("to_belt")
+	--self:PlayActionSound("to_belt")
+	self:PlayOperateSound(item)
 end
 
 function ActorMenuOverlay:OnMoveLoadout(item, item_in)
@@ -1543,7 +1573,8 @@ function ActorMenuOverlay:OnItemToPartner(partner, item)
 	if self:GetMode() == "trade" and not trade_manager.tradable(item) then
 	return end
 	self.target_list:AddItem(item)
-	self:PlayActionSound("to_ruck")
+	--self:PlayActionSound("to_ruck")
+	self:PlayOperateSound(item)
 end
 
 function ActorMenuOverlay:OnItemFromPartner(partner, item)
@@ -1556,6 +1587,7 @@ function ActorMenuOverlay:OnItemFromPartner(partner, item)
 	if self:GetMode() == "trade" and not trade_manager.tradable(item) then
 	return end
 	self.target_list:RemoveItem(item)
+	self:PlayOperateSound(item)
 	self:PlayActionSound("drop")
 end
 
@@ -1789,6 +1821,36 @@ function ActorMenuOverlay:PlayActionSound(name)
 	if not snd then
 		log3("![%s]: action sound name [%s] not found in self.sounds", script_name(), name)
 	return end
+	snd:play(actor, 0, sound_object.s2d)
+end
+
+function ActorMenuOverlay:PlayOperateSound(item)
+	local sound_type = "generic"
+	if item:is_ammo() then
+		sound_type = "ammo"
+	elseif item:is_grenade() then
+		sound_type = "grenade"
+	elseif item:is_outfit() then
+		sound_type = "cloth"
+	elseif item:is_knife() then
+		sound_type = "knife"
+	elseif item:is_weapon() then
+		sound_type = "weapon"
+	elseif item:is_bottle_item() then
+		sound_type = "bottle"
+	elseif item:is_medkit() then
+		if get_clsid(item) ~= clsid.obj_bandage then
+			sound_type = "pills"
+		end
+	end
+	local sound_data = self.operate_sounds[sound_type]
+	if not sound_data then
+	return end
+	local sound_name = sound_data.sound_name
+	if sound_data.rnd_count then
+		sound_name = sound_name..math.random(1, tonumber(sound_data.rnd_count))
+	end
+	local snd = xr_sound.get_safe_sound_object(sound_name)
 	snd:play(actor, 0, sound_object.s2d)
 end
 

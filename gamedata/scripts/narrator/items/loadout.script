@@ -247,13 +247,15 @@ function add(item)
 	--log3("~add item %s | %s", item:name(), item:id())
 	update_item_count(item, true)
 	
-	xr_sound.get_safe_sound_object("interface\\inv_slot"):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+	--xr_sound.get_safe_sound_object("interface\\inv_slot"):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+	actor_menu:PlayOperateSound(item)
 	--ogse_signals.get_mgr():call("on_item_to_loadout", item)
 end
 
 function remove(item)
 	update_item_count(item, false)
-	xr_sound.get_safe_sound_object("interface\\inv_ruck"):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+	--xr_sound.get_safe_sound_object("interface\\inv_ruck"):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+	actor_menu:PlayOperateSound(item)
 	--ogse_signals.get_mgr():call("on_item_from_loadout", item)
 end
 

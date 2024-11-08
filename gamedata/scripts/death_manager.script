@@ -46,13 +46,14 @@ end
 
 function on_death(victim, killer)
 	if victim:is_monster() then
-		spawn_monster_loot(victim)
+		spawn_monster_loot(victim, killer)
 	elseif victim:is_stalker() then
 		spawn_npc_loot(victim)
 	end
 end
 
-function spawn_monster_loot(monster)
+local loot_to_killer = true
+function spawn_monster_loot(monster, killer)
 	if get_species(monster) == "arena_monstr" then
 	return end
 	local sect = monster:section()
@@ -64,7 +65,14 @@ function spawn_monster_loot(monster)
 	-- if prob < spawn_prob or  math.fsimilar(spawn_prob, 1) then
 	-- end
 	if prob > spawn_prob then return end
-	spawn_to_owner(spawn_sect, monster:id())
+	local loot_owner_id = monster:id()
+	if loot_to_killer then
+		if killer:is_monster() or killer:is_stalker() then
+			loot_owner_id = killer:id()
+			--log3("~killer %s receives loot from victim %s", killer:name(), monster:name())
+		end
+	end
+	spawn_to_owner(spawn_sect, loot_owner_id)
 	--log3("~monster %s - spawn part %s with probability %s | spawn_prob %s", monster:name(), spawn_sect, prob, spawn_prob)
 end
 
