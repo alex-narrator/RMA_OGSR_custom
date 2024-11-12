@@ -52,7 +52,9 @@ function switch_nvd(item)
 	local snd_off = read_if_exists(sys_ini, "r_string", item:section(), "snd_night_vision_off", nil)	
 	
 	local snd_name = sobj.is_nvd_on and snd_on or snd_off
-	xr_sound.get_safe_sound_object(snd_name):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
+	if snd_name then
+		xr_sound.get_safe_sound_object(snd_name):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
+	end
 	set_nvd_effector(item:section(), sobj.is_nvd_on)
 end
 
@@ -200,6 +202,8 @@ function on_key_press(key, game_action)
 	if not nvd_action[game_action] then
 	return end
 	switch_nvd(actor:active_item())
+	if actor:active_item() and actor:active_item():get_weapon() and actor:active_item():get_weapon():second_vp_enabled() then
+	return end
 	level.add_complex_effector("fire_mode", 1918)
 end
 

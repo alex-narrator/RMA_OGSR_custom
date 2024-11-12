@@ -27,6 +27,8 @@ end
 function on_zoom_in(weapon)
 	--level.add_complex_effector("aim", 1908)
 	game.play_hud_anm(aim, 2, 1, 1, false, true)
+	if weapon:get_weapon():second_vp_enabled() then
+	return end
 	level.add_cam_effector(aim, 1908, false, "")
 end
 
@@ -99,6 +101,8 @@ function play_switch_anim(item)
 end
 
 --//additional hands anim
+local DEBUG_DISABLED 	= true
+
 local anim_crouch_begin = "liz\\liz_hands_crouch_end_additive.anm"
 local anim_crouch_end 	= "liz\\liz_hands_crouch_start_additive.anm"
 local anim_crouch 		= "liz\\liz_hands_crouch_additive.anm"
@@ -126,7 +130,7 @@ function zoom_factor()
 	return actor:active_item() and actor:active_item():get_zoom_factor() or 1
 end
 function shake_force()
-	if not actor_obj:is_zoom_aiming_mode() or ezi_control.is_hard_hold() then
+	if not actor_obj:is_zoom_aiming_mode() or ezi_control.is_hard_hold() or DEBUG_DISABLED then
 	return 0 end
 	local res = shake_force_k + shake_force_k * somnolence.get_val()
 	if actor_obj:is_actor_crouch() then
@@ -143,7 +147,7 @@ function on_update(dt)
 	game.play_hud_anm(anim_breath, 2, 1, power_k, true, true)
 	game.play_hud_anm(anim_shake, 2, shake_speed(), shake_force(), true, true)
 
-	if not actor_obj:is_zoom_aiming_mode() and (actor_obj:is_actor_crouching() or actor_obj:is_actor_creeping()) then
+	if not DEBUG_DISABLED and not actor_obj:is_zoom_aiming_mode() and (actor_obj:is_actor_crouching() or actor_obj:is_actor_creeping()) then
 		game.play_hud_anm(anim_crouch, 2, 1, 1, true, true)
 	else
 		game.stop_hud_anm(anim_crouch, false)
@@ -173,7 +177,7 @@ function on_actor_jump(actor, jump_power)
 	game.play_hud_anm(anim_jump, 2, 1, 1, false, true)
 end
 
-function on_actor_land(actor, contact_speed)
+function on_actor_land(actor, contact_speed)	
 	game.play_hud_anm(anim_land, 2, 1, 1, false, true)
 end
 

@@ -722,7 +722,7 @@ function MainIngameOverlay:UpdateActiveItem()
 	if self.zoom_counter:IsShown() then
 		local fov = get_console():get_float("fov")
 		local cur_fov = device().fov
-		local zoom = fov / cur_fov
+		local zoom = wpn:second_vp_enabled() and wpn.scope_lense_fov_factor or  fov / cur_fov
 		-- if zoom > 2 then
 			-- zoom = math.floor(zoom+0.1)
 		-- end
