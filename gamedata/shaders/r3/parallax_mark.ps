@@ -4,11 +4,12 @@
 	Link       : https://www.moddb.com/mods/stalker-anomaly/addons/parallax-reflex-sights
 	Authors    : LVutner, party_50
 	Date       : 06.02.2024
-	Last Edit  : 06.02.2024
+	Last Edit  : 03.09.2024
 	=====================================================================
 */
 
 #include "common.h"
+#include "mark_adjust.h"
 
 // Important:
 // In perfect world OFFSET constants should be 0, but most of reflex sight lenses
@@ -21,8 +22,8 @@
 // Then you will have to adjust models so that mark texture point is exactly in center
 // and edit aim position in configs.
 
-#define OFFSET_X 0.00			// (default 0.004) Normal vector x coordinate max absolute value which is considered 0
-#define OFFSET_Y 0.00			// (default 0.05) Normal vector y coordinate max absolute value which is considered 0
+#define OFFSET_X 0.004			// (default 0.004) Normal vector x coordinate max absolute value which is considered 0
+#define OFFSET_Y 0.05			// (default 0.05) Normal vector y coordinate max absolute value which is considered 0
 #define PROJECT_DISTANCE 20.0	// (default 20.0) Distance to projected mark
 #define SIZE_FACTOR 4.0			// (default 4.0) Mark size factor
 
@@ -91,11 +92,15 @@ float4 main(vf I): SV_Target
 	// Upscaling the texture
 	parallax_tc.x = (parallax_tc.x + (SIZE_FACTOR - 1) / 2) / SIZE_FACTOR;
 	parallax_tc.y = (parallax_tc.y + (SIZE_FACTOR - 1) / 2) / SIZE_FACTOR;
+	
+	#ifdef MARK_ADJUST
+	parallax_tc = mark_adjust(parallax_tc);
+	#endif
 
     // Fetch the mark texture
     // Important: We do not want texture to repeat itself, so we use sampler with CLAMP address
     // Important2: We do not want to sample mip levels of the mark texture, let's keep this thing sharp as fuck
-    float4 mark_texture = s_base.SampleLevel(smp_rtlinear, parallax_tc, 0.0);
+    float4 color = s_base.SampleLevel(smp_rtlinear, parallax_tc, 0.0);
 
-    return mark_texture;
+    return color;
 }

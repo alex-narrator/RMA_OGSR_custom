@@ -33,6 +33,12 @@ float2 aspect_ratio_correction(float2 tc)
     return tc;
 }
 
+float4 calc_vignette(float2 tc0, float4 color)
+{
+	color *= smoothstep(0.55f, 0.4f, pnv_params.z * distance(aspect_ratio_correction(tc0), float2(0.5f, 0.5f)));
+	return color;
+}
+
 float4 calc_night_vision_effect(float2 tc0, float4 color)
 {
     float lum = dot(color.rgb, float3(0.3f, 0.38f, 0.22f) * pnv_color.w); // instead of float3 use LUMINANCE_floatTOR in stalker

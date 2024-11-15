@@ -95,7 +95,7 @@ c2_out main(v2p_aa_AA I)
     if (addon_VControl.w == 1)
         img = visor_reflection(img, center);
 
-	if ( pnv_color.w > 1.f ) {
+	if ( pnv_color.w > 1.f && !isSecondVPActive() ) {
 		img = calc_night_vision_effect(center, float4( img, 0 ));
 	}
 
