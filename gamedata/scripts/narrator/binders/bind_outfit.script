@@ -177,6 +177,8 @@ function outfit_binder:detach_plate()
 end
 
 function outfit_binder:is_plate_bone(bone_id)
+	if not actor:get_bone_name(bone_id) then
+	return false end
 	local bone_protect_str = read_if_exists(sys_ini, "r_string", get_bone_protection_sect(self:get_plate_sect()), actor:get_bone_name(bone_id), nil)
 	if not bone_protect_str then
 	return false end
@@ -185,10 +187,9 @@ function outfit_binder:is_plate_bone(bone_id)
 end
 
 function outfit_binder:hit(victim, health_lost, direction, draftsman, bone_id, hit_type)
-	log3("~hit outfit %s actor hitted in bone %s", self.object:name(), actor:get_bone_name(bone_id))
 	if not actor_get_outfit() or actor_get_outfit():id() ~= self.object:id() then
 	return end
-	
+	--log3("~hit outfit %s actor hitted in bone %s", self.object:name(), actor:get_bone_name(bone_id) or "BI_NONE")	
 	if not self:is_plate_attached() or not self:is_plate_bone(bone_id) then
 	return end
 	

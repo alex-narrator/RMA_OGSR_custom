@@ -122,9 +122,9 @@ if item then
 	if not wpn then
 	return end
 	--wpn.scope_lense_fov_k = 3.9
-	log3("~second VP fov K %s", wpn.scope_lense_fov_k)
+	--log3("~second VP fov K %s", wpn.scope_lense_fov_k)
 	--wpn.scope_lense_fov_factor = 1.6
-	log3("~second VP fov %s", wpn.scope_lense_fov_factor)
+	--log3("~second VP fov %s", wpn.scope_lense_fov_factor)
 end
 --item:dump_visual_to_log() --Распечатать в лог информацию о мешах и костях модели - мировой и худовой, если худовая доступна.
 	--log3("--HUD Mesh count of [%s]: [%s]", item:name(), item:get_mesh_count_hud())
@@ -581,4 +581,8 @@ end
 -- pos.y = pos.y - 0.3
 -- alife():teleport_object(id, pos, cobj:level_vertex_id(), cobj:game_vertex_id())
 
-actor:give_info_portion("encyclopedy_social_military_army")
+--actor:give_info_portion("encyclopedy_social_military_army")
+
+--set_pnv_params(0, 0, 1.25, 0)
+--set_markswitch_current(3)
+set_markswitch_color(1, 1, 0, 0)

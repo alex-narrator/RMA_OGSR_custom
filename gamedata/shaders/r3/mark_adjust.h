@@ -2,11 +2,12 @@
 
 uniform int markswitch_current;
 uniform int markswitch_count;
+uniform float4 markswitch_color;
 
 int mark_sides()
 {
 	int sides = 1;
-	while (sides * sides < int(markswitch_count.x))
+	while (sides * sides < markswitch_count)
 	{
 		sides += 1;
 	}

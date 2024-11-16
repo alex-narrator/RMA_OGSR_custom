@@ -1,5 +1,5 @@
 function normal   (shader, t_base, t_second, t_detail)
-      shader:begin  ("parallax_mark", "parallax_mark")
+      shader:begin  ("models_lfo_light_dot_weapons", "models_lfo_light_dot_weapons")
       : fog    (true)
       : zb    (true,false)
       : blend    (true,blend.srcalpha,blend.one)

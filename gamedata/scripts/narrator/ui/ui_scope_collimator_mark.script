@@ -94,14 +94,15 @@ function on_key_press(key, game_action)
 end
 
 function on_state_switch(item, state, old_state)
-	if not state == global_flags.eShowing then
+	local process = state == global_flags.eIdle and old_state == global_flags.eShowing
+	if not process then
 	return end
 	local marks_count = get_marks_count(item)
 	if marks_count == 0 then
 		apply_mark(0, 0)
 	return end
-	
 	local current_mark = get_current_mark_num(item:id()) or 0
+	--log3("~apply mark %s", current_mark)
 	apply_mark(current_mark, marks_count)
 end
 
