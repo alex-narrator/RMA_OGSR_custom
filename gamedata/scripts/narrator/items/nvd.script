@@ -55,7 +55,12 @@ function switch_nvd(item)
 	if snd_name then
 		xr_sound.get_safe_sound_object(snd_name):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
 	end
-	set_nvd_effector(item:section(), sobj.is_nvd_on)
+	local sect = item:section()
+	local wpn = item:get_weapon()
+	if wpn and wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope) then
+		sect = wpn:get_addon_name(addon.scope)
+	end
+	set_nvd_effector(sect, sobj.is_nvd_on)
 end
 
 function enable_nvd(item, power_on)

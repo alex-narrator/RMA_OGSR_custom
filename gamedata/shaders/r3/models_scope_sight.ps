@@ -1,0 +1,92 @@
+#include "common.h"
+
+// uniform float4x4 m_script_params; //Не используется, зарезервировано на будущее.
+
+uniform float4 m_hud_params; // zoom_rotate_factor, secondVP_zoom_factor, NULL, NULL
+
+#include "pnv.h"
+#include "mark_adjust.h"
+
+Texture2D s_vp2;
+
+float4 scope_params; // fake_zoom, vignette, chromatic_aberration, crosshair_size_k
+float4 scope_color; // RGBA
+
+struct v2p
+{
+    float2 tc0 : TEXCOORD0; // base
+    float3 tc1 : TEXCOORD1; // environment
+    float4 c0 : COLOR0; // sun.(fog*fog)
+	float4 pos2d: SV_Position; // position
+};
+
+//////////////////////////////////////////////////////////////////////////////////////////
+
+float resize(float input, float factor, float offset) { return (input - 0.5f + offset) / factor + 0.5f - offset; }
+
+float4 calc_vignette(float2 tc0, float4 color, float vignette_size)
+{
+	color *= smoothstep(0.55f, 0.4f, vignette_size * distance(tc0, float2(0.5f, 0.5f)));
+	return color;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+
+float4 main(v2p I) : SV_Target
+{
+	float FAKE_ZOOM_K = scope_params.x;
+	float VIGNETTE = scope_params.y;
+	float CHROM_ABBER = scope_params.z;
+	float CROSSHAIR_SIZE_K = scope_params.w;
+	
+	float2 crosshair_tc = I.tc0;
+	if (CROSSHAIR_SIZE_K != 0)
+	{
+		crosshair_tc.x = resize(crosshair_tc.x, CROSSHAIR_SIZE_K, 0);
+		crosshair_tc.y = resize(crosshair_tc.y, CROSSHAIR_SIZE_K, 0);
+	}	
+	if(markswitch_count > 0)
+		crosshair_tc = mark_adjust(crosshair_tc);
+
+	float4 t_base = s_base.Sample(smp_base, crosshair_tc); // Текстура сетки
+
+    // Растягиваем картинку в линзе так, чтобы на любом разрешении экрана были правильные пропорции
+    //I.tc0.x = resize(I.tc0.x, screen_res.x / screen_res.y, 0);
+	
+	if(FAKE_ZOOM_K > 0.f)
+	{
+		// масштабуємо зображення
+		I.pos2d.x = resize(I.pos2d.x, FAKE_ZOOM_K, -screen_res.x * 0.5f);
+		I.pos2d.y = resize(I.pos2d.y, FAKE_ZOOM_K, -screen_res.y * 0.5f);
+	}
+	
+	// Изображение со второго вьюпорта
+	float4 t_vp2 = s_vp2.Load(I.pos2d.xyz);
+	
+	if(m_hud_params.x < 1.f)
+	{
+		return float4(0, 0, 0, 1);
+	}
+	else
+	{
+		if(CHROM_ABBER > 0.f)
+		{
+			t_vp2.r = s_vp2.Load(I.pos2d.xyz + (float3(-CHROM_ABBER, 0, 0))).r;
+			t_vp2.g = s_vp2.Load(I.pos2d.xyz).g;
+			t_vp2.b = s_vp2.Load(I.pos2d.xyz + (float3(CHROM_ABBER, 0, 0))).b;
+			t_vp2.a = s_vp2.Load(I.pos2d.xyz).a;
+		}
+		if (VIGNETTE > 0.f)
+			t_vp2.rgb = calc_vignette(I.tc0, t_vp2, VIGNETTE);
+		if (pnv_color.w > 1.f)
+			t_vp2.rgb = calc_night_vision_effect(I.tc0, t_vp2);
+	}
+
+	t_vp2.rgb += scope_color.xyz;
+
+    // Миксуем всё и собираем финальную картинку
+    float3 final = lerp(t_vp2, t_base, t_base.a); // Сетку с вьюпортом
+
+    // out
+    return float4(final.r, final.g, final.b, m_hud_params.x);
+}

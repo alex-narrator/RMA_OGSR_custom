@@ -11,6 +11,13 @@ function attach(sm)
 	--sm:subscribe({signal = "on_take", fun = this.on_take})
 	sm:subscribe({signal = "on_key_press", fun = this.on_key_press})
 	--sm:subscribe({signal = "update_items_effect", fun = this.update_items_effect})
+	--sm:subscribe({signal = "on_update", fun = this.on_update})
+end
+
+local show_hud = false
+function on_update(dt)
+	show_hud = not show_hud
+	level.show_item_hud(show_hud)
 end
 
 function on_take(item)

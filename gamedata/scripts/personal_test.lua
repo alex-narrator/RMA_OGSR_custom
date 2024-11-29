@@ -583,6 +583,11 @@ end
 
 --actor:give_info_portion("encyclopedy_social_military_army")
 
---set_pnv_params(0, 0, 1.25, 0)
+--set_pnv_params(0, 0, 1.4, 0)
 --set_markswitch_current(3)
-set_markswitch_color(1, 1, 0, 0)
+--set_markswitch_color(1, 1, 0, 0)
+
+--log3("~is accel %s", IsMoveState(move_command.mcAccel))
+
+--set_markswitch_count(0)
+set_scope_params(1, 1.3, 0, 0.9)

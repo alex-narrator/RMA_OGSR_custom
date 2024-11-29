@@ -58,7 +58,8 @@ end
 
 function apply_mark(current, count)
 	set_markswitch_current(current)
-	set_markswitch_count(count)	
+	set_markswitch_count(count)
+	--log3("~apply mark %s | count %s", current, count)
 end
 
 function on_key_press(key, game_action)
@@ -73,7 +74,7 @@ function on_key_press(key, game_action)
 	
 	local fwd = not level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION))
 	
-	local mark_num = get_current_mark_num(act_item:id()) or 1
+	local mark_num = get_current_mark_num(act_item:id()) or 0
 	
 	mark_num = fwd and mark_num + 1 or mark_num - 1
 	
@@ -102,7 +103,6 @@ function on_state_switch(item, state, old_state)
 		apply_mark(0, 0)
 	return end
 	local current_mark = get_current_mark_num(item:id()) or 0
-	--log3("~apply mark %s", current_mark)
 	apply_mark(current_mark, marks_count)
 end
 
