@@ -108,7 +108,7 @@ function SlotSelectorOverlay:InitControls()
 	end
 	
 	path = root..":belt_items"
-	self.belt_items_back = xml:InitStatic(path, self.back)
+	self.belt_items_back = xml:InitStatic(path, self)
 	self.belt_items_back:Show(false)
 	path = path..":icon"
 	self.belt_items_icon = {}
@@ -118,7 +118,7 @@ function SlotSelectorOverlay:InitControls()
 	self.belt_items_icon.pos = vector2():set(xml:ReadAttribFlt(path, "x", 0), xml:ReadAttribFlt(path, "y", 0))
 	
 	path = root..":weapon_items"
-	self.weapon_items_back = xml:InitStatic(path, self.back)
+	self.weapon_items_back = xml:InitStatic(path, self)
 	self.weapon_items_back:Show(false)
 	path = path..":icon"
 	self.weapon_items_icon = {}
@@ -208,7 +208,7 @@ function SlotSelectorOverlay:UpdateSlots()
 	self.weapon_items_back:DetachAll()
 	self.weapon_items_back:Show(false)	
 	
-	add_update_delayed_action(1, function() self.quick_slots_back:Show(true) end)
+	--add_update_delayed_action(1, function() self.quick_slots_back:Show(true) end)
 end
 
 function SlotSelectorOverlay:OnSlotFocusReceived(slot_num)
@@ -225,7 +225,7 @@ function SlotSelectorOverlay:OnSlotFocusReceived(slot_num)
 	self:ShowWeapon(slot_num)
 	local has_weapon = table.size(self.weapon_items) > 0
 	self.weapon_items_back:Show(has_weapon)
-	self.quick_slots_back:Show(not has_compat and not has_weapon)
+	--self.quick_slots_back:Show(not has_compat and not has_weapon)
 	
 	self.center_tip:Show(true)
 	local action = (slot_num == actor:active_slot()) and "ui_st_hide" or "ui_st_show"
@@ -354,8 +354,9 @@ function SlotSelectorOverlay:ShowCompatible(slot_num)
 			self.belt_items[i] = item_st
 			
 			pos.x = pos.x + item_st:GetWidth() + self.belt_items_icon.indent
+			
 			self:Register(item_st, name)
-				
+			
 			self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnBeltFocusReceived(i) end)
 			self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnBeltFocusLost(i) end)
 			self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnBeltClick(i) end)		
@@ -412,7 +413,10 @@ function SlotSelectorOverlay:ShowCompatible(slot_num)
 			self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnLoadoutFocusLost(id) end)
 			self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnLoadoutClick(id) end)			
 		end
-	end		
+	end
+	
+	self.belt_items_back:SetWidth(pos.x)
+	self.belt_items_back:SetWndPos(ui_inv_utils.GetOffset("center", self.belt_items_back, self).x, self.belt_items_back:GetWndPos().y)
 end
 
 function SlotSelectorOverlay:OnBeltFocusReceived(idx)
@@ -656,6 +660,9 @@ function SlotSelectorOverlay:ShowWeapon(slot_num)
 			self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnDetachClick(addon_sect) end)
 		end
 	end
+	
+	self.weapon_items_back:SetWidth(pos.x)
+	self.weapon_items_back:SetWndPos(ui_inv_utils.GetOffset("center", self.weapon_items_back, self).x, self.weapon_items_back:GetWndPos().y)
 end
 
 function SlotSelectorOverlay:OnWeaponFocusReceived(id)
