@@ -1510,6 +1510,7 @@ CELL_W = 50
 CELL_H = 50
 UI_BASE_HEIGHT = 768
 UI_BASE_WIDTH = 1024
+
 function get_current_kx()
     return (device().height / device().width) / (UI_BASE_HEIGHT / UI_BASE_WIDTH)
 end
@@ -2265,6 +2266,17 @@ function IsMoveState(state, compare_state)
 	
 	return (bit_and(compare_state, state) ~= 0)
 end
+
+ADDON_TYPES = {
+	"silencer",
+	"scope",
+	"grenade_launcher",
+	"laser",
+	"flashlight",
+	"stock",
+	"extender",
+	"forend",
+}
 
 ACTIVE_ITEM_INFO_TTL 	= read_if_exists(sys_ini, "r_u32", "actor", "active_item_info_ttl", 3)
 GEAR_INFO_TTL 			= read_if_exists(sys_ini, "r_u32", "actor", "gear_info_ttl", 3)

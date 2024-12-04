@@ -136,15 +136,6 @@ function SlotSelectorOverlay:Update()
 	CUIScriptWnd.Update(self)
 end
 
-function SlotSelectorOverlay:OnKeyboard( dik, keyboard_action )
-	CUIScriptWnd.OnKeyboard( self, dik, keyboard_action )
-	-- if keyboard_action == ui_events.WINDOW_KEY_PRESSED then
-		-- local action = dik_to_bind(dik)
-		-- if action == 
-	-- end
-	-- return true
-end
-
 function SlotSelectorOverlay:UpdateSlots()
 	if level.is_removing_objects() then
 	return end
@@ -483,21 +474,11 @@ function SlotSelectorOverlay:OnLoadoutClick(id)
 	
 	actor:move_to_ruck(slot_item)
 	actor:move_to_slot(desired_item)
-	sm:call("on_grenade_type_switch", slot_item, desired_item)	
+	actor:activate_slot(self.selected_slot, false)
+	sm:call("on_grenade_type_switch", slot_item, desired_item)
 	
 	self:UpdateSlots()
 end
-
-local addon_types = {
-	"silencer",
-	"scope",
-	"grenade_launcher",
-	"laser",
-	"flashlight",
-	"stock",
-	"extender",
-	"forend",
-}
 
 function SlotSelectorOverlay:ShowWeapon(slot_num)
 	--log3("~ShowCompatible %s", slot_num)
@@ -527,7 +508,7 @@ function SlotSelectorOverlay:ShowWeapon(slot_num)
 		ui_inv_utils.try_add_to_list(item, items, true)
 	end
 	
-	for k, addon in pairs(addon_types) do
+	for k, addon in pairs(ADDON_TYPES) do
 		local addons = read_if_exists(sys_ini, "r_string", slot_item:section(), addon.."_name", nil)
 		local addons_list = split_string(addons, ",")
 		if addons_list then
@@ -577,7 +558,7 @@ function SlotSelectorOverlay:ShowWeapon(slot_num)
 		
 		local ammo = item:get_weapon_ammo()
 		if ammo then
-			can_set = can_set and (item:section() ~= get_cur_ammo_sect(slot_item) or slot_item:get_ammo_in_magazine() == 0) and ammo.box_curr > 0
+			can_set = can_set and ammo.box_curr > 0 and ( (item:section() ~= get_cur_ammo_sect(slot_item) and (item:get_weapon_ammo():is_magazine() or slot_item:get_ammo_in_magazine() < slot_item:get_magazine_size()) ) or slot_item:get_ammo_in_magazine() == 0)
 		end
 		
 		if slot_item:get_inventory_item():can_attach_addon(item:get_inventory_item()) then
@@ -603,7 +584,7 @@ function SlotSelectorOverlay:ShowWeapon(slot_num)
 			ui_inv_utils.AttachPanelIcons(item, item_st)
 			
 			if slot_item:get_inventory_item():can_attach_addon(item:get_inventory_item()) then
-				ui_inv_utils.UpdateAttachAddonIcon(item, item_st)
+				ui_inv_utils.UpdateAttachAddonIcon(item_st)
 			end			
 
 			if v.count > 1 then
@@ -624,7 +605,7 @@ function SlotSelectorOverlay:ShowWeapon(slot_num)
 		end
 	end
 	
-	for k,v in pairs(addon_types) do
+	for k,v in pairs(ADDON_TYPES) do
 		local addon_type = k - 1
 		if weapon:is_addon_attached(addon_type) and weapon:addon_attachable(addon_type) then
 			
@@ -646,7 +627,7 @@ function SlotSelectorOverlay:ShowWeapon(slot_num)
 			--ui_inv_utils.AttachPanelIcons(item, item_st)
 				
 			ui_inv_utils.UpdateAdditionalText(addon_sect, item_st)
-			ui_inv_utils.UpdateDetachAddonIcon(addon_sect, item_st)
+			ui_inv_utils.UpdateDetachAddonIcon(item_st)
 				
 			self.weapon_items_back:AttachChild(item_st)
 				

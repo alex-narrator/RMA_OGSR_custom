@@ -304,6 +304,7 @@ function UICellItem:ForceUpdate()
 			self.owner_list:AddItem(item)
 		end
 	end
+	self.icon:DetachAll()
 	self.sm:call("on_cell_item_show", self.item, self.icon, self:GetCount())
 end
 

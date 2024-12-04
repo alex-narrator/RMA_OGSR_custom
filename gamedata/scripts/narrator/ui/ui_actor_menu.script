@@ -1090,6 +1090,9 @@ function ActorMenuOverlay:OnShow()
 	self.sm:call("on_actor_menu_show", self:GetMode(), self:GetTarget())
 	self:Subscribe()
 	
+	local cursor_pos = vector2():set(UI_BASE_WIDTH * 0.5, UI_BASE_HEIGHT * 0.7)
+	level.set_cursor_pos(cursor_pos)	
+	
 	local mode = self:GetMode()
 	self.target = self:GetTarget()
 	

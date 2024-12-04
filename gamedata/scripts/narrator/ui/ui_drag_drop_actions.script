@@ -46,9 +46,6 @@ function on_drag_drop(obj, drop_on_obj)
 		end
 	end
 
-	local iitem = obj:get_inventory_item()
-	local drop_on_iitem = drop_on_obj:get_inventory_item()
-	
 	if not drop_on_obj:get_weapon() or actor:is_in_slot(drop_on_obj) then
 		if drop_on_obj:is_direct_reload(obj) then
 			if drop_on_obj:get_weapon_ammo() then
@@ -59,10 +56,33 @@ function on_drag_drop(obj, drop_on_obj)
 			end
 		end
 	end
+
+	local iitem = obj:get_inventory_item()
+	local drop_on_iitem = drop_on_obj:get_inventory_item()
 	
 	if drop_on_iitem:can_attach_addon(iitem) then
 		if drop_on_iitem:attach_addon(iitem, true) then
 			xr_sound.get_safe_sound_object([[interface\inv_attach_addon]]):play(actor, 0, sound_object.s2d)
+		end
+	else
+		detach_addon_type = nil
+		for k, addon in pairs(ADDON_TYPES) do
+			local addons = read_if_exists(sys_ini, "r_string", drop_on_obj:section(), addon.."_name", nil)
+			local addons_list = split_string(addons, ",")
+			if addons_list then
+				for _, addon_sect in pairs(addons_list) do
+					if addon_sect == obj:section() then
+						detach_addon_type = k-1
+						break
+					end
+				end		
+			end
+		end
+		if detach_addon_type and drop_on_obj:get_weapon() then
+			detach_addon(drop_on_obj, drop_on_obj:get_weapon():get_addon_name(detach_addon_type))
+			if drop_on_iitem:attach_addon(iitem, true) then
+				xr_sound.get_safe_sound_object([[interface\inv_attach_addon]]):play(actor, 0, sound_object.s2d)
+			end			
 		end
 	end
 	

@@ -688,23 +688,15 @@ function UpdateQuickSlotStatic(item, icon)
 	update(icon_quick)
 end
 
-function UpdateAttachAddonIcon(item, icon)
-	local sect = item:section()
+function UpdateAttachAddonIcon(icon)
 	local attach_addon_icon = icon:FindChild("attach_addon_icon")
-	
 	local params = CIconParams("addon_attach_icon")
-	local icon_params = CIconParams(sect)
-
-	local cell_w = icon:GetWidth() / icon_params.grid_width
-	local cell_h = icon:GetHeight() / icon_params.grid_height
-	local width = params.grid_width * cell_w
-	local height = params.grid_height * cell_h
 	
 	attach_addon_icon = CUIStatic()
 	params:set_shader(attach_addon_icon)
 	
-	attach_addon_icon:SetWidth(width)
-	attach_addon_icon:SetHeight(height)
+	attach_addon_icon:SetWidth(icon:GetWidth())
+	attach_addon_icon:SetHeight(icon:GetHeight())
 	
 	local offset = GetOffset("left_top", attach_addon_icon, icon)
 	
@@ -713,25 +705,17 @@ function UpdateAttachAddonIcon(item, icon)
 	icon:AttachChild(attach_addon_icon)	
 end
 
-function UpdateDetachAddonIcon(sect, icon)
+function UpdateDetachAddonIcon(icon)
 	local detach_addon_icon = icon:FindChild("detach_addon_icon")
-	
 	local params = CIconParams("addon_detach_icon")
-	local icon_params = CIconParams(sect)
-
-	local cell_w = icon:GetWidth() / icon_params.grid_width
-	local cell_h = icon:GetHeight() / icon_params.grid_height
-	local width = params.grid_width * cell_w
-	local height = params.grid_height * cell_h
 	
 	detach_addon_icon = CUIStatic()
 	params:set_shader(detach_addon_icon)
 	
-	detach_addon_icon:SetWidth(width)
-	detach_addon_icon:SetHeight(height)
+	detach_addon_icon:SetWidth(icon:GetWidth())
+	detach_addon_icon:SetHeight(icon:GetHeight())
 	
 	local offset = GetOffset("left_top", detach_addon_icon, icon)
-	
 	detach_addon_icon:SetWndPos(offset.x, offset.y)
 	detach_addon_icon:SetWindowName("detach_addon_icon")
 	icon:AttachChild(detach_addon_icon)	

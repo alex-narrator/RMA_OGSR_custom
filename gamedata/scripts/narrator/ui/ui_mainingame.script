@@ -317,6 +317,9 @@ function MainIngameOverlay:InitControls()
 	
 	--//slot selector
 	self.slot_selector = ui_slot_selector.SlotSelectorOverlay()
+	
+	--//quick addon
+	self.quick_addon = ui_quick_addon.QuickAddonOverlay()
 end
 
 function MainIngameOverlay:UpdateConditions()
@@ -1029,6 +1032,9 @@ function MainIngameOverlay:OnKeyPress(key, game_action)
 		end
 	end
 	
+	if game_action == key_bindings.kQUICK_ADDON then
+		self.quick_addon:ShowHide()
+	end
 	-- if game_action == key_bindings.kCHECKGEAR then
 		-- if not level.main_input_receiver() or self.slot_selector:IsShown() then
 			-- level.start_stop_menu(self.slot_selector,false)
@@ -1075,4 +1081,5 @@ function MainIngameOverlay:Update()
 	self:UpdateFPS()
 	
 	self.slot_selector:TrySignalHide()
+	self.quick_addon:TrySignalHide()
 end
