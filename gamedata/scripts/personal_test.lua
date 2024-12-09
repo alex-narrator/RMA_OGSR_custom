@@ -590,4 +590,4 @@ end
 --log3("~is accel %s", IsMoveState(move_command.mcAccel))
 
 --set_markswitch_count(0)
-set_scope_params(1, 1.3, 0, 0.9)
+set_scope_params(1, 1.8, 0, 0.9)

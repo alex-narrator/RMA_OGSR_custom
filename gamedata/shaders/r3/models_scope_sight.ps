@@ -8,6 +8,9 @@ uniform float4 m_hud_params; // zoom_rotate_factor, secondVP_zoom_factor, NULL, 
 #include "mark_adjust.h"
 
 Texture2D s_vp2;
+Texture2D s_inside;
+Texture2D s_dirt;
+Texture2D s_lens;
 
 float4 scope_params; // fake_zoom, vignette, chromatic_aberration, crosshair_size_k
 float4 scope_color; // RGBA
@@ -34,7 +37,14 @@ float4 calc_vignette(float2 tc0, float4 color, float vignette_size)
 
 float4 main(v2p I) : SV_Target
 {
+	if(m_hud_params.x < 0.85f)
+	{
+		float4 t_lense = s_lens.Sample(smp_rtlinear, I.tc0);
+		return t_lense;
+	}
+	
 	float FAKE_ZOOM_K = scope_params.x;
+	float DIRT = scope_params.x;
 	float VIGNETTE = scope_params.y;
 	float CHROM_ABBER = scope_params.z;
 	float CROSSHAIR_SIZE_K = scope_params.w;
@@ -62,25 +72,18 @@ float4 main(v2p I) : SV_Target
 	
 	// Изображение со второго вьюпорта
 	float4 t_vp2 = s_vp2.Load(I.pos2d.xyz);
-	
-	if(m_hud_params.x < 1.f)
+
+	if(CHROM_ABBER > 0.f)
 	{
-		return float4(0, 0, 0, 1);
+		t_vp2.r = s_vp2.Load(I.pos2d.xyz + (float3(-CHROM_ABBER, 0, 0))).r;
+		t_vp2.g = s_vp2.Load(I.pos2d.xyz).g;
+		t_vp2.b = s_vp2.Load(I.pos2d.xyz + (float3(CHROM_ABBER, 0, 0))).b;
+		t_vp2.a = s_vp2.Load(I.pos2d.xyz).a;
 	}
-	else
-	{
-		if(CHROM_ABBER > 0.f)
-		{
-			t_vp2.r = s_vp2.Load(I.pos2d.xyz + (float3(-CHROM_ABBER, 0, 0))).r;
-			t_vp2.g = s_vp2.Load(I.pos2d.xyz).g;
-			t_vp2.b = s_vp2.Load(I.pos2d.xyz + (float3(CHROM_ABBER, 0, 0))).b;
-			t_vp2.a = s_vp2.Load(I.pos2d.xyz).a;
-		}
-		if (VIGNETTE > 0.f)
-			t_vp2.rgb = calc_vignette(I.tc0, t_vp2, VIGNETTE);
-		if (pnv_color.w > 1.f)
-			t_vp2.rgb = calc_night_vision_effect(I.tc0, t_vp2);
-	}
+	if (VIGNETTE > 0.f)
+		t_vp2.rgb = calc_vignette(I.tc0, t_vp2, VIGNETTE);
+	if (pnv_color.w > 1.f)
+		t_vp2.rgb = calc_night_vision_effect(I.tc0, t_vp2);
 
 	t_vp2.rgb += scope_color.xyz;
 
@@ -88,5 +91,5 @@ float4 main(v2p I) : SV_Target
     float3 final = lerp(t_vp2, t_base, t_base.a); // Сетку с вьюпортом
 
     // out
-    return float4(final.r, final.g, final.b, m_hud_params.x);
+    return float4(final, 1.0);
 }

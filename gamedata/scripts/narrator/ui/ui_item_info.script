@@ -926,7 +926,7 @@ local addon_params = {
 		{name = "fire_dispersion_base_k", 		unit = "%", default = 0, invert = true},
 		{name = "cam_dispersion_k", 			unit = "%", default = 0, invert = true},
 		{name = "condition_shot_dec_silencer", 	unit = "%", default = 0, invert = true},
-		{name = "zoom_rotate_time_k", 			unit = "%", default = 0, invert = true},
+		{name = "zoom_rotate_time_k", 			unit = "%", default = 0, invert = false, multiplier = -1},
 	}
 function attach_addon_params(UIDesc, item)
 	local xml = CScriptXmlInit()
@@ -943,6 +943,9 @@ function attach_addon_params(UIDesc, item)
 			v.static:SetWidth(params_list:GetDesiredChildWidth())
 			if v.unit == "%" then
 				val = val * 100
+			end
+			if v.multiplier then
+				val = val * v.multiplier
 			end
 			color = (val > 0 ) and "%c[green]" or "%c[red]"
 			if v.invert then

@@ -73,6 +73,9 @@ end
 
 function QuickAddonOverlay:Update()
 	CUIScriptWnd.Update(self)
+	if not actor_hands_free() then
+		self.target_item_id = nil
+	end
 	if not self.target_item_id then
 		self:ShowHide()
 	end
