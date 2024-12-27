@@ -43,7 +43,7 @@ float4 main(v2p I) : SV_Target
 		crosshair_tc.x = resize(crosshair_tc.x, CROSSHAIR_SIZE_K, 0);
 		crosshair_tc.y = resize(crosshair_tc.y, CROSSHAIR_SIZE_K, 0);
 	}	
-	if(markswitch_count > 0)
+	if(markswitch_params.y > 0)
 	{
 		crosshair_tc = mark_adjust(crosshair_tc);
 	}

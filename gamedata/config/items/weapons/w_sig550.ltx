@@ -184,7 +184,7 @@ cost									= 16000
 
 fire_modes 								 = 1
 scope_status 							 = 1
-grenade_launcher_status					 = 0
+;grenade_launcher_status					 = 0
 
 ;scope_texture                            = wpn\crosshairs\extravaganza\wpn_crosshair_marchf
 scope_texture_parallax                   = wpn\crosshairs\parallax\wpn_crosshair_parallax
@@ -205,9 +205,11 @@ magazine_y = 54
 ;nv_vignette 	= 1.15
 
 shader_scope_zoom 			= 1
-shader_scope_vignette 		= 1.4
+shader_scope_vignette 		= 1.15
 shader_scope_chroma 		= 0
-shader_scope_mark_scale 	= 0.9
+shader_scope_mark_scale 	= 1
+
+const_zoom_hud_fov 			= 30
 
 hit_power        		= 1.921
 fire_distance           = 500
@@ -222,12 +224,14 @@ inv_grid_height    			= 2
 inv_grid_x         			= 12
 inv_grid_y         			= 6
 
-inv_name                                 = st_wpn_sig552_name
-inv_name_short                           = st_wpn_sig552_short
-description                              = st_wpn_sig552_descr
+inv_name                    = st_wpn_sig552_name
+inv_name_short              = st_wpn_sig552_short
+description                 = st_wpn_sig552_descr
 
-hud                                      = wpn_sig552_hud
-visual                                   = dynamics\weapons\wpn_sig552\wpn_sig552
+hud                         = wpn_sig552_hud
+visual                      = dynamics\weapons\wpn_sig552\wpn_sig552
+
+grenade_launcher_status		= 0
 
 silencer_x                  = 180		; offset in inventory icon
 silencer_y                  = 20
@@ -235,8 +239,8 @@ silencer_y                  = 20
 magazine_x 					= 108
 magazine_y 					= 54
 
-cost									= 10000
+cost						= 10000
 
-hit_power        		= 1.051
-fire_distance           = 400
-bullet_speed			= 725
+hit_power        			= 1.051
+fire_distance           	= 400
+bullet_speed				= 725

@@ -6,6 +6,7 @@ function attach(sm)
 	sm:subscribe({signal = "on_load",   				fun = this.on_load})
 	sm:subscribe({signal = "on_hud_state_switch",   	fun = this.on_state_switch})
 	sm:subscribe({signal = "on_before_addon_detach", 	fun = this.on_before_addon_detach})
+	sm:subscribe({signal = "on_actor_weapon_scope_mode_change",  fun = this.on_scope_mode_change})
 end
 
 local switch_mark_action = {
@@ -46,7 +47,7 @@ end
 
 function get_marks_count(item)
 	local wpn = item:get_weapon()
-	if not wpn then
+	if not wpn or wpn:scope_mode_second() then
 	return 0 end
 	local sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or item:section()
 	return read_if_exists(sys_ini, "r_u32", sect, "collimator_mark_count", 0)
@@ -57,8 +58,9 @@ function can_switch_marks(item)
 end
 
 function apply_mark(current, count)
-	set_markswitch_current(current)
-	set_markswitch_count(count)
+	set_markswitch_params(current, count, 0, 0)
+	--set_markswitch_current(current)
+	--set_markswitch_count(count)
 	--log3("~apply mark %s | count %s", current, count)
 end
 
@@ -94,16 +96,20 @@ function on_key_press(key, game_action)
 	sound:play(actor, 0, sound_object.s2d)		
 end
 
+function try_apply_mark(weapon)
+	local marks_count = get_marks_count(weapon)
+	if marks_count == 0 then
+		apply_mark(0, 0)
+	return end
+	local current_mark = get_current_mark_num(weapon:id()) or 0
+	apply_mark(current_mark, marks_count)
+end
+
 function on_state_switch(item, state, old_state)
 	local process = state == global_flags.eIdle and old_state == global_flags.eShowing
 	if not process then
 	return end
-	local marks_count = get_marks_count(item)
-	if marks_count == 0 then
-		apply_mark(0, 0)
-	return end
-	local current_mark = get_current_mark_num(item:id()) or 0
-	apply_mark(current_mark, marks_count)
+	try_apply_mark(item)
 end
 
 function on_before_addon_detach(item, addon_sect)
@@ -118,4 +124,8 @@ function on_before_addon_detach(item, addon_sect)
 	if get_current_mark_num(item:id()) then
 		set_current_mark_num(item:id(), nil)
 	end
+end
+
+function on_scope_mode_change(weapon)
+	try_apply_mark(weapon)
 end

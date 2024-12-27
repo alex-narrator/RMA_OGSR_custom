@@ -14,6 +14,9 @@ Texture2D s_lens;
 
 float4 scope_params; // fake_zoom, vignette, chromatic_aberration, crosshair_size_k
 float4 scope_color; // RGBA
+float4 weapon_params;
+
+#define SMOOTH_MODE bool (false)
 
 struct v2p
 {
@@ -29,7 +32,14 @@ float resize(float input, float factor, float offset) { return (input - 0.5f + o
 
 float4 calc_vignette(float2 tc0, float4 color, float vignette_size)
 {
-	color *= smoothstep(0.55f, 0.4f, vignette_size * distance(tc0, float2(0.5f, 0.5f)));
+	if(SMOOTH_MODE)
+	{
+		color *= smoothstep(0.55f, 0.4f, vignette_size * distance(aspect_ratio_correction(tc0), float2(0.5f, 0.5f)));
+	}
+	else
+	{
+		color *= smoothstep(0.55f, 0.4f, vignette_size * distance(tc0, float2(0.5f, 0.5f)));
+	}
 	return color;
 }
 
@@ -37,14 +47,13 @@ float4 calc_vignette(float2 tc0, float4 color, float vignette_size)
 
 float4 main(v2p I) : SV_Target
 {
-	if(m_hud_params.x < 0.85f)
+	if(m_hud_params.x < 0.85f || m_hud_params.w > 0.f || weapon_params.x > 0.f || weapon_params.y > 0.f)
 	{
 		float4 t_lense = s_lens.Sample(smp_rtlinear, I.tc0);
 		return t_lense;
 	}
 	
 	float FAKE_ZOOM_K = scope_params.x;
-	float DIRT = scope_params.x;
 	float VIGNETTE = scope_params.y;
 	float CHROM_ABBER = scope_params.z;
 	float CROSSHAIR_SIZE_K = scope_params.w;
@@ -55,40 +64,78 @@ float4 main(v2p I) : SV_Target
 		crosshair_tc.x = resize(crosshair_tc.x, CROSSHAIR_SIZE_K, 0);
 		crosshair_tc.y = resize(crosshair_tc.y, CROSSHAIR_SIZE_K, 0);
 	}	
-	if(markswitch_count > 0)
+	if(markswitch_params.y > 0)
 		crosshair_tc = mark_adjust(crosshair_tc);
 
 	float4 t_base = s_base.Sample(smp_base, crosshair_tc); // Текстура сетки
 
-    // Растягиваем картинку в линзе так, чтобы на любом разрешении экрана были правильные пропорции
-    //I.tc0.x = resize(I.tc0.x, screen_res.x / screen_res.y, 0);
+	if(SMOOTH_MODE)
+	{
+		// Растягиваем картинку в линзе так, чтобы на любом разрешении экрана были правильные пропорции
+		I.tc0.x = resize(I.tc0.x, screen_res.x / screen_res.y, 0);
+	}
 	
 	if(FAKE_ZOOM_K > 0.f)
 	{
 		// масштабуємо зображення
-		I.pos2d.x = resize(I.pos2d.x, FAKE_ZOOM_K, -screen_res.x * 0.5f);
-		I.pos2d.y = resize(I.pos2d.y, FAKE_ZOOM_K, -screen_res.y * 0.5f);
+		if(SMOOTH_MODE)
+		{
+			I.tc0.x = resize(I.tc0.x, FAKE_ZOOM_K, 0);
+			I.tc0.y = resize(I.tc0.y, FAKE_ZOOM_K, 0);
+		}
+		else
+		{
+			I.pos2d.x = resize(I.pos2d.x, FAKE_ZOOM_K, -screen_res.x * 0.5f);
+			I.pos2d.y = resize(I.pos2d.y, FAKE_ZOOM_K, -screen_res.y * 0.5f);
+		}
 	}
 	
 	// Изображение со второго вьюпорта
-	float4 t_vp2 = s_vp2.Load(I.pos2d.xyz);
+	float4 t_vp2;
+	if(SMOOTH_MODE)
+	{
+		t_vp2 = s_vp2.Sample(smp_base, I.tc0);
+	}
+	else
+	{
+		t_vp2 = s_vp2.Load(I.pos2d.xyz);
+	}
 
 	if(CHROM_ABBER > 0.f)
 	{
-		t_vp2.r = s_vp2.Load(I.pos2d.xyz + (float3(-CHROM_ABBER, 0, 0))).r;
-		t_vp2.g = s_vp2.Load(I.pos2d.xyz).g;
-		t_vp2.b = s_vp2.Load(I.pos2d.xyz + (float3(CHROM_ABBER, 0, 0))).b;
-		t_vp2.a = s_vp2.Load(I.pos2d.xyz).a;
+		if(SMOOTH_MODE)
+		{
+			t_vp2.r = s_vp2.Sample(smp_base, I.tc0 + (float2(-CHROM_ABBER, 0))).r;
+			t_vp2.g = s_vp2.Sample(smp_base, I.tc0).g;
+			t_vp2.b = s_vp2.Sample(smp_base, I.tc0 + (float2(CHROM_ABBER, 0))).b;
+			t_vp2.a = s_vp2.Sample(smp_base, I.tc0).a;
+		}
+		else
+		{
+			t_vp2.r = s_vp2.Load(I.pos2d.xyz + (float3(-CHROM_ABBER, 0, 0))).r;
+			t_vp2.g = s_vp2.Load(I.pos2d.xyz).g;
+			t_vp2.b = s_vp2.Load(I.pos2d.xyz + (float3(CHROM_ABBER, 0, 0))).b;
+			t_vp2.a = s_vp2.Load(I.pos2d.xyz).a;
+		}
 	}
 	if (VIGNETTE > 0.f)
+	{
+		if(SMOOTH_MODE)
+			VIGNETTE *= FAKE_ZOOM_K;
 		t_vp2.rgb = calc_vignette(I.tc0, t_vp2, VIGNETTE);
+	}
 	if (pnv_color.w > 1.f)
 		t_vp2.rgb = calc_night_vision_effect(I.tc0, t_vp2);
 
 	t_vp2.rgb += scope_color.xyz;
 
+	float4 t_dirt = s_dirt.Sample(smp_base, I.tc0);
+	t_dirt.a = 0;//1 - m_actor_params.z;
+
     // Миксуем всё и собираем финальную картинку
     float3 final = lerp(t_vp2, t_base, t_base.a); // Сетку с вьюпортом
+	
+	final = lerp(final, t_dirt, t_dirt.a);
 
     // out
     return float4(final, 1.0);

@@ -116,16 +116,7 @@ end
 --block_non_move_action(false)
 --get_actor_obj():block_action(key_bindings.kINVENTORY)
 
-local item = actor:active_item()
-if item then
-	local wpn = item:get_weapon()
-	if not wpn then
-	return end
-	--wpn.scope_lense_fov_k = 3.9
-	--log3("~second VP fov K %s", wpn.scope_lense_fov_k)
-	--wpn.scope_lense_fov_factor = 1.6
-	--log3("~second VP fov %s", wpn.scope_lense_fov_factor)
-end
+
 --item:dump_visual_to_log() --Распечатать в лог информацию о мешах и костях модели - мировой и худовой, если худовая доступна.
 	--log3("--HUD Mesh count of [%s]: [%s]", item:name(), item:get_mesh_count_hud())
 	-- item:set_show_model_mesh_hud(0, false)
@@ -583,11 +574,28 @@ end
 
 --actor:give_info_portion("encyclopedy_social_military_army")
 
---set_pnv_params(0, 0, 1.4, 0)
+--set_pnv_color(0.2, 0.3, 0.2, 10)
+--set_pnv_params(0.1,0.1,0,0.01)
 --set_markswitch_current(3)
 --set_markswitch_color(1, 1, 0, 0)
+--set_pnv_color(0,0,0,0)
 
 --log3("~is accel %s", IsMoveState(move_command.mcAccel))
 
+local item = actor:active_item()
+if item then
+	local wpn = item:get_weapon()
+	if wpn then
+		--wpn.zoom_factor = 1
+		--log3("~const_zoom_hud_fov %s", wpn.const_zoom_hud_fov)
+		wpn.const_zoom_hud_fov = 30
+		--wpn.scope_lense_fov_k = 3.9
+		--log3("~second VP fov K %s", wpn.scope_lense_fov_k)
+		--wpn.scope_lense_fov_factor = 1.6
+		--log3("~second VP fov %s", wpn.scope_lense_fov_factor)		
+	end
+end
+
 --set_markswitch_count(0)
-set_scope_params(1, 1.8, 0, 0.9)
+--set_scope_params(1, 0, 0, 1)
+--set_scope_color(0.1,0.1,0,0)

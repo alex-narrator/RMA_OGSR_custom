@@ -93,7 +93,7 @@ float4 main(vf I): SV_Target
 	parallax_tc.x = (parallax_tc.x + (SIZE_FACTOR - 1) / 2) / SIZE_FACTOR;
 	parallax_tc.y = (parallax_tc.y + (SIZE_FACTOR - 1) / 2) / SIZE_FACTOR;
 	
-	if	(markswitch_count > 0)
+	if	(markswitch_params.y > 0)
 	{
 		parallax_tc = mark_adjust(parallax_tc);
 	}
