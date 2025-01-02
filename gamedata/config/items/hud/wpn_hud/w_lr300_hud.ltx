@@ -21,8 +21,8 @@ gl_hud_offset_rot                       = -0.02, 0.0095, -0.00496
 gl_hud_offset_pos_16x9                  = 0.024621,0.031819,-0.054597
 gl_hud_offset_rot_16x9                  = -0.073940,-0.044380,-0.489455
 
-aim_alt_hud_offset_pos_16x9 			= -0.152981,-0.024880,-0.228200
-aim_alt_hud_offset_rot_16x9 			= -0.036440,0.036620,0.632542
+aim_alt_hud_offset_pos_16x9 			= -0.152981,-0.022180,-0.228200
+aim_alt_hud_offset_rot_16x9 			= -0.025940,0.030620,0.632542
 
 anm_hide                                = lancew_lr300_holster
 anm_hide_g                              = lancew_lr300_holster_g
@@ -81,90 +81,72 @@ fire_bone2                              = wpn_body
 fire_point                              = 0, 0.072761, 0.524496
 fire_point2                             = 0, -0.009, 0.601
 
-device_anpeq_16_attach_visual 			= anomaly_weapons\wpn_addon\wpn_light_anpeq_16_beam_hud
-;wpn_addon_light_anpeq_16_attach_pos 	= 0.002800,0.005400,0.115401
-;right side
 device_anpeq_16_attach_pos 				= -0.001600,0.128202,0.115401
 device_anpeq_16_attach_rot 				= 0.000000,0.000000,3.159953
 
-device_flashlight_attach_visual 		= dynamics\devices\dev_tactical_torch\dev_tactical_torch_hud
 device_flashlight_attach_pos 			= -0.041200,0.068600,0.382402
 device_flashlight_attach_rot 			= 0.000000,0.000000,1.579999
 
-[wpn_lr300_acog_hud]:wpn_lr300_hud
+[wpn_lr300_scope_hud]:wpn_lr300_hud
 item_visual                             = anomaly_weapons\wpn_lr300\wpn_lr300_no_ironsight_hud
 
+[wpn_lr300_acog_hud]:wpn_lr300_scope_hud
 aim_scope_hud_offset_pos_16x9 			= -0.086470,0.075360,-0.304269
 aim_scope_hud_offset_rot_16x9 			= 0.012275,0.001560,0.000000
 
-wpn_addon_scope_acog_attach_visual 		= anomaly_weapons\wpn_addon\wpn_scope_acog_hud
 wpn_addon_scope_acog_attach_pos 		= 0,0,0
 
-[wpn_lr300_eot_hud]:wpn_lr300_hud
-item_visual                             = anomaly_weapons\wpn_lr300\wpn_lr300_eot_hud
-
-aim_scope_hud_offset_pos_16x9 			= -0.085300,0.060390,-0.214490
+[wpn_lr300_eot_hud]:wpn_lr300_scope_hud
+aim_scope_hud_offset_pos_16x9 			= -0.103650,0.023260,-0.250000
 aim_scope_hud_offset_rot_16x9 			= 0.008500,-0.001500,0.000000
 
-[wpn_lr300_ac10632_hud]:wpn_lr300_hud
-item_visual                             = anomaly_weapons\wpn_lr300\wpn_lr300_ac10632_hud
+wpn_addon_scope_eot_attach_pos 			= -0.000200,-0.022300,0.000000
 
+[wpn_lr300_ac10632_hud]:wpn_lr300_scope_hud
 aim_scope_hud_offset_pos_16x9 			= -0.085700,0.074090,-0.265998
 aim_scope_hud_offset_rot_16x9 			= 0.008500,-0.002000,0.000000
 
-[wpn_lr300_c_more_hud]:wpn_lr300_hud
-item_visual                             = anomaly_weapons\wpn_lr300\wpn_lr300_no_ironsight_hud
-
+[wpn_lr300_c_more_hud]:wpn_lr300_scope_hud
 aim_scope_hud_offset_pos_16x9 			= -0.085160,0.075520,-0.269598
 aim_scope_hud_offset_rot_16x9 			= 0.008150,-0.001380,-0.004960
 
-wpn_addon_scope_c_more_attach_visual 	= anomaly_weapons\wpn_addon\wpn_scope_c_more_hud
 wpn_addon_scope_c_more_attach_pos 		= 0,0.03,-0.03
 
-[wpn_lr300_aimpoint_hud]:wpn_lr300_hud
-item_visual                             = anomaly_weapons\wpn_lr300\wpn_lr300_no_ironsight_hud
-
+[wpn_lr300_aimpoint_hud]:wpn_lr300_scope_hud
 aim_scope_hud_offset_pos_16x9 			= -0.085160,0.075520,-0.270798
 aim_scope_hud_offset_rot_16x9 			= 0.007450,-0.000980,-0.004960
 
-wpn_addon_scope_aimpoint_attach_visual 	= anomaly_weapons\wpn_addon\wpn_scope_aimpoint_hud
 wpn_addon_scope_aimpoint_attach_pos 	= 0,-0.011,-0.03
 
-[wpn_lr300_d_pro_hud]:wpn_lr300_hud
-item_visual                             = anomaly_weapons\wpn_lr300\wpn_lr300_no_ironsight_hud
-
+[wpn_lr300_d_pro_hud]:wpn_lr300_scope_hud
 aim_scope_hud_offset_pos_16x9 			= -0.084420,0.082520,-0.295994
 aim_scope_hud_offset_rot_16x9 			= 0.007450,-0.000980,-0.004960
 
-wpn_addon_scope_d_pro_attach_visual 	= anomaly_weapons\wpn_addon\wpn_scope_docter_hud
 wpn_addon_scope_d_pro_attach_pos 		= 0,0.06,0.27;0.02
 
-[wpn_lr300_hunting_3x9_hud]:wpn_lr300_hud
-item_visual                             = anomaly_weapons\wpn_lr300\wpn_lr300_no_ironsight_hud
-
+[wpn_lr300_hunting_3x9_hud]:wpn_lr300_scope_hud
 aim_scope_hud_offset_pos_16x9 			= -0.085625,0.065481,-0.273000
 aim_scope_hud_offset_rot_16x9 			= 0.008150,-0.001380,-0.004960
 
-wpn_addon_scope_hunting_3x9_attach_visual 	= anomaly_weapons\wpn_addon\wpn_scope_hunting_3x9_hud
-wpn_addon_scope_hunting_3x9_attach_pos 		= 0.005000,0.028000,0.020760
+wpn_addon_scope_hunting_3x9_attach_pos 	= 0.005000,0.028000,0.020760
 
-[wpn_lr300_pn23_hud]:wpn_lr300_hud
-item_visual                             = anomaly_weapons\wpn_lr300\wpn_lr300_no_ironsight_hud
-
+[wpn_lr300_pn23_hud]:wpn_lr300_scope_hud
 aim_scope_hud_offset_pos_16x9 			= -0.088180,0.058220,-0.251702
 aim_scope_hud_offset_rot_16x9 			= 0.003940,0.004190,-0.004960
 
-wpn_addon_scope_pn23_attach_visual 		= anomaly_weapons\wpn_addon\wpn_scope_pn23_hud
 wpn_addon_scope_pn23_attach_pos 		= -0.003600,0.023400,-0.005900
 
-[wpn_lr300_specter_hud]:wpn_lr300_hud
-item_visual                             = anomaly_weapons\wpn_lr300\wpn_lr300_no_ironsight_hud
-
+[wpn_lr300_specter_hud]:wpn_lr300_scope_hud
 aim_scope_hud_offset_pos_16x9 			= -0.087370,0.070250,-0.254894
 aim_scope_hud_offset_rot_16x9 			= 0.005560,0.003620,-0.004960
 
 aim_alt_scope_hud_offset_pos_16x9 		= -0.087200,0.049018,-0.167195
 aim_alt_scope_hud_offset_rot_16x9 		= 0.009505,0.003110,-0.004960
 
-wpn_addon_scope_specter_attach_visual 	= anomaly_weapons\wpn_addon\wpn_scope_specter_hud
 wpn_addon_scope_specter_attach_pos 		= -0.003600,0.023400,-0.062600
+
+[wpn_lr300_pks07_hud]:wpn_lr300_scope_hud
+aim_scope_hud_offset_pos_16x9 			= -0.087100,0.069950,-0.253802
+aim_scope_hud_offset_rot_16x9 			= 0.003940,0.004190,-0.004960
+
+wpn_addon_scope_pks07_attach_pos 		= 0.000000,0.137802,0.098501

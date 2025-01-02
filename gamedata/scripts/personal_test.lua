@@ -588,7 +588,7 @@ if item then
 	if wpn then
 		--wpn.zoom_factor = 1
 		--log3("~const_zoom_hud_fov %s", wpn.const_zoom_hud_fov)
-		wpn.const_zoom_hud_fov = 30
+		--wpn.const_zoom_hud_fov = 30
 		--wpn.scope_lense_fov_k = 3.9
 		--log3("~second VP fov K %s", wpn.scope_lense_fov_k)
 		--wpn.scope_lense_fov_factor = 1.6
@@ -597,5 +597,5 @@ if item then
 end
 
 --set_markswitch_count(0)
---set_scope_params(1, 0, 0, 1)
+set_scope_params(1, 1.05, 0, 1)
 --set_scope_color(0.1,0.1,0,0)
