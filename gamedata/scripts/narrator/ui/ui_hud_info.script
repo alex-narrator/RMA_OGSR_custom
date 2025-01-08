@@ -54,9 +54,6 @@ function try_show_active_item_info(game_action)
 		add_update_delayed_action(1,
 			function()
 				local add_str = ""
-				if act_device:get_detector() and act_device:get_detector():can_switch_modes() then
-					add_str = act_device:get_detector():is_af_mode() and "st_af_mode" or "st_zone_mode"
-				end
 				if dosimeter.is_dosimeter(act_device) and act_device:is_power_on() then
 					dosimeter.show_actor_radiation()
 					if is_rad_absolute() then
