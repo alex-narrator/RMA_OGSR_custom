@@ -572,3 +572,11 @@ function add_deploy_rc_explosive(pbox, item)
 	action = rc_explosive.deploy
 	pbox:AddItem(name, precondition, action, item)
 end
+
+function add_info(pbox, item)
+	local name, precondition, action
+	name = "st_detail_info"
+	precondition = ui_detail_info.show_info_separate
+	action = ui_detail_info.show_hide_wnd
+	pbox:AddItem(name, precondition, action, item)
+end

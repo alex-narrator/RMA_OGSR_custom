@@ -1,0 +1,143 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+local overlay = nil
+local OVERLAY_XML = "script_overlays\\ui_detail_info.xml"
+
+function show_info_separate()
+	return false
+end
+
+function show_hide_wnd(item)
+	if not overlay then
+		overlay = UIDetailInfo()
+	end
+	level.start_stop_menu(overlay, false)
+	if item then
+		overlay:SetItem(item)
+	end
+end
+
+function create_window()
+	if not overlay then
+		overlay = UIItemInfo(level.main_input_receiver())
+	end
+end
+
+function destroy_window()
+	if overlay then
+		overlay:DetachWnd()
+		overlay = nil
+	end
+end
+
+------------------------------------------MAIN ITEM INFO WINDOW-----------------------------------------------------------------------------------------------------------------
+
+class "UIDetailInfo" (CUIScriptWnd)
+function UIDetailInfo:__init() super()
+	self:InitControls()
+	self:Subscribe()
+	self.item = false
+end
+
+function UIDetailInfo:Subscribe()
+	self.subscribed = false
+	if not self.subscribed then
+		self.subscribed = {
+			-- {signal = "on_cell_item_focus", self = self, fun = self.OnCellItemFocus},
+			-- {signal = "on_cell_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
+			-- {signal = "on_quick_item_focus", self = self, fun = self.OnCellItemFocus},
+			-- {signal = "on_quick_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
+			-- {signal = "on_repair_list_item_focus", self = self, fun = self.OnCellItemFocus},
+			-- {signal = "on_repair_list_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
+			-- {signal = "on_key_press", self = self, fun = self.OnCellItemFocusLost},
+		}
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs( self.subscribed ) do
+			sm:subscribe( s )
+		end
+	end
+end
+
+function UIDetailInfo:Unsubscribe()
+	if self.subscribed then
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs( self.subscribed ) do
+			sm:unsubscribe( s )
+		end
+		self.subscribed = false
+	end
+end
+
+function UIDetailInfo:InitControls()
+	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
+	self.xml = CScriptXmlInit()
+	self.xml:ParseFile(OVERLAY_XML)
+
+	self.background_frame = self.xml:InitFrame("background_frame", self)
+	
+	local offset = ui_inv_utils.GetOffset("center", self.background_frame, self)
+	self.background_frame:SetWndPos(offset.x, offset.y)
+	
+	local tmp_tbl, def_font, def_color = nil, "letterica16", "255, 255, 255, 255"
+	
+	self.base_height = self.xml:ReadAttribFlt("background_frame", "height", 0)
+	if self.base_height > 0 then
+		self.background_frame:SetHeight(self.base_height)
+	end
+	
+	self.name_st = self.xml:InitStatic("background_frame:static_name", self.background_frame)
+	self.weight_st = self.xml:InitStatic("background_frame:static_weight", self.background_frame)
+	self.cost_st = self.xml:InitStatic("background_frame:static_cost", self.background_frame)
+	self.cost_st.base_color = self.cost_st:GetTextColor()
+	
+	self.descr_list = self.xml:InitScrollView("background_frame:descr_list", self.background_frame)
+	self.descr_list.font = self.xml:ReadAttrib("background_frame:descr_list:descr_text", "font", def_font)
+	tmp_tbl = split_string(self.xml:ReadAttrib("background_frame:descr_list:descr_text", "text_color", def_color), ",")
+	self.descr_list.text_color = GetARGB(tmp_tbl[1], tmp_tbl[2], tmp_tbl[3], tmp_tbl[4])
+	
+	--// quit button
+	name = "quit_button"
+	self.quit_button = self.xml:Init3tButton("background_frame:quit_button", self.background_frame)
+	self:Register(self.quit_button, name)
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.Hide, self)	
+end
+
+function UIDetailInfo:SetItem(item)
+	self.name_st:SetText(game.translate_string(get_inv_name(item:section())))
+	self.weight_st:SetText(string.format("%3.2f %s", item:weight(), game.translate_string("st_kg")))
+	
+	local trade_partner = level.get_second_talker()
+	local cost = trade_manager.get_trade_cost(item)
+	self.cost_st:Show(trade_partner and cost > 0)
+	self.cost_st:SetText(string.format("%d %s", cost, game.translate_string("ui_st_money_regional")))
+	if self.cost_st:IsShown() then
+		if ((parent_is_actor(item) and trade_partner:money() < cost) or (not parent_is_actor(item) and actor:money() < cost)) then
+			self.cost_st:SetTextColor(GetARGB(255, 255, 0, 0))
+		else
+			self.cost_st:SetTextColor(self.cost_st.base_color)
+		end
+	end
+	
+	self.descr_list:Clear()
+	ogse_signals.get_mgr():call("on_item_info_init", self.descr_list, item)
+	local text = read_if_exists(sys_ini, "r_string", item:section(), "description", nil)
+	if text then
+		text = game.translate_string(text)
+		self.descr_text = CUIStatic()
+		self.descr_text:SetWidth(self.descr_list:GetDesiredChildWidth())
+		self.descr_text:SetText(text)
+		self.descr_text:SetTextComplexMode(true)
+		self.descr_text:SetTextColor(self.descr_list.text_color)
+		self.descr_text:SetFont(GetFontCustom(self.descr_list.font))
+		self.descr_text:AdjustHeightToText()
+		self.descr_list:AddWindow(self.descr_text)
+	end
+	self.descr_list:SetHeight(self.descr_list:GetPadSize().y)
+	self.background_frame:SetHeight(self.base_height + self.descr_list:GetHeight())
+	
+	local offset = ui_inv_utils.GetOffset("center", self.background_frame, self)
+	self.background_frame:SetWndPos(offset.x, offset.y)	
+end
+
+function UIDetailInfo:Hide(item)
+	level.start_stop_menu(self, false)
+end

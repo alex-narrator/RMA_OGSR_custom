@@ -14,8 +14,10 @@ end
 local overlay = nil
 local OVERLAY_XML = "script_overlays\\ui_item_info.xml"
 
-
 function create_window()
+	if ui_detail_info.show_info_separate() then
+	return end
+	
 	if not overlay then
 		overlay = UIItemInfo(level.main_input_receiver())
 	end
@@ -90,7 +92,7 @@ function UIItemInfo:InitControls()
 	tmp_tbl = split_string(self.xml:ReadAttrib("background_frame", "offset", "0,0"), ",")
 	self.background_frame.offset = {x = tmp_tbl[1], y = tmp_tbl[2]}
 	
-	self.base_height = self.xml:ReadAttribFlt("background_frame", "base_height", 0)
+	self.base_height = self.xml:ReadAttribFlt("background_frame", "height", 0)
 	if self.base_height > 0 then
 		self.background_frame:SetHeight(self.base_height)
 	end

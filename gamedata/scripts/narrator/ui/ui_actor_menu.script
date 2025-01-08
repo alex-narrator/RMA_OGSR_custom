@@ -1725,7 +1725,9 @@ function ActorMenuOverlay:ShowPropertiesBox(item, cell_item)
 	--//disassemble
 	ui_cell_item_utils.add_disassemble(pbox, cell_item)
 	--//drop item
-	ui_cell_item_utils.add_drop(pbox, cell_item)	
+	ui_cell_item_utils.add_drop(pbox, cell_item)
+	--//item info
+	ui_cell_item_utils.add_info(pbox, item)
 	
 	--pbox:AddCustomAction(item)
 	if pbox:Activate() then
