@@ -303,7 +303,7 @@ function MainIngameOverlay:InitControls()
 	self.compass_modern = xml:InitStatic("compass_front_view", self)
 	local compass_params = {}
 	compass_params.marker_size = split_string(xml:ReadAttrib("compass_front_view", "mark_size", "8,10"), ",", true)
-	compass_params.quest_marker_size = split_string(xml:ReadAttrib("compass_front_view", "quest_mark_size", "8,10"), ",", true)
+	compass_params.selected_marker_size = split_string(xml:ReadAttrib("compass_front_view", "selected_mark_size", "8,10"), ",", true)
 	compass_params.other_marker_size = split_string(xml:ReadAttrib("compass_front_view", "other_mark_size", "8,10"), ",", true)
 	compass_params.scale_texture_w = xml:ReadAttribInt("compass_front_view", "scale_texture_w", 2400)
 	compass_params.scale_texture_h = xml:ReadAttribInt("compass_front_view", "scale_texture_h", 100)
@@ -311,6 +311,7 @@ function MainIngameOverlay:InitControls()
 	compass_params.vertical_mark_add = xml:ReadAttribInt("compass_front_view", "vertical_mark_add", 16)
 	compass_params.hide_point_off_bound = xml:ReadAttribInt("compass_front_view", "hide_point_off_bound", 1) > 0 and true or false
 	compass_params.hide_quest_point_off_bound = xml:ReadAttribInt("compass_front_view", "hide_quest_point_off_bound", 1) > 0 and true or false
+	compass_params.distance_mark_scale = xml:ReadAttribInt("compass_front_view", "distance_mark_scale", 0) > 0 and true or false
 	self.compass_modern.params = compass_params
     self.compass_modern_scale = xml:InitStatic("compass_front_view:scale", self.compass_modern)
     self.compass_modern_line = xml:InitStatic("compass_front_view:line", self.compass_modern)	
@@ -835,7 +836,7 @@ function MainIngameOverlay:UpdatePickupItem()
 end
 
 local map_spot_to_texture = {
-	["quest_pointer"] = "ui\\front_view_compass\\marker",
+	["quest_pointer"] = "ui_map_selected",
 	["eliminate_lager_location"] = "ui_mapQuest_camp_destroy",
 	["eliminate_lair_location"] = "ui_mapQuest_lair_destroy",
 	["defend_lager_location"] = "ui_mapQuest_camp_defend",
@@ -906,6 +907,8 @@ function MainIngameOverlay:ShowFrontViewMarks()
 	local params = self.compass_modern.params
 	local pda = actor_get_pda()
 	local pda_radius = read_if_exists(sys_ini, "r_float", pda:section(), "radius", 50)
+	local objective = actor:get_active_objective()
+	local tgt_id = objective and objective:get_object_id() or nil
 	--//nearest objects
 	function perform_action(obj)
 		if obj:is_stalker() or obj:is_trader() then
@@ -926,7 +929,7 @@ function MainIngameOverlay:ShowFrontViewMarks()
 			end
 		end
 		for spot, texture in pairs(map_spot_to_texture) do
-			if level.map_has_object_spot(obj:id(), spot) ~= 0 then
+			if level.map_has_object_spot(obj:id(), spot) ~= 0 and obj:id() ~= tgt_id then
 				local pos = point_on_screen.compass_ui_projection(obj:center(), self.compass_modern_scale:GetWidth(), self.compass_modern_scale:GetHeight() + params.vertical_mark_add, params.hide_point_off_bound)
 				if pos then
 					local marker_data = {
@@ -945,11 +948,9 @@ function MainIngameOverlay:ShowFrontViewMarks()
 	end		
 	level.iterate_nearest(actor:position(), pda_radius, perform_action)
 	--//selected quest target
-	local objective = actor:get_active_objective()
 	if objective then
 		local dist = self.minimap:GetActivePointDist()
 		local sim = alife()
-		local tgt_id = objective:get_object_id()
 		local sobj = sim:object(tgt_id)
 		local obj_pos = nil
 		if sobj then
@@ -970,15 +971,37 @@ function MainIngameOverlay:ShowFrontViewMarks()
 			end
 			local pos = point_on_screen.compass_ui_projection(obj_pos, self.compass_modern_scale:GetWidth(), self.compass_modern_scale:GetHeight() + params.vertical_mark_add, params.hide_quest_point_off_bound)
 			if pos then
-				local size = table.copy(params.quest_marker_size)
-				local dist_k = pda_radius / dist
+				--target map spot
+				for spot, texture in pairs(map_spot_to_texture) do
+					if level.map_has_object_spot(tgt_id, spot) ~= 0 then
+						local size = table.copy(params.other_marker_size)
+						local dist_k = params.distance_mark_scale and pda_radius / dist or 1
+						dist_k = math.clamp(dist_k, 0.5, 1)
+						size[1] = size[1] * dist_k
+						size[2] = size[2] * dist_k
+						local marker_data = {
+							pos = pos,
+							dist = dist,
+							texture = texture,
+							size = size
+						}
+						if spot == "general_wounded_location" then
+							marker_data.color = relation_color[2]
+						end						
+						table.insert(compass_targets, marker_data)
+						break						
+					end
+				end
+				--additional selected map spot			
+				local size = table.copy(params.selected_marker_size)
+				local dist_k = params.distance_mark_scale and pda_radius / dist or 1
 				dist_k = math.clamp(dist_k, 0.5, 1)
 				size[1] = size[1] * dist_k
 				size[2] = size[2] * dist_k
 				local marker_data = {
 					pos = pos,
 					dist = dist,
-					texture = "ui\\front_view_compass\\marker",
+					texture = map_spot_to_texture["quest_pointer"],
 					size = size
 				}
 				table.insert(compass_targets, marker_data)

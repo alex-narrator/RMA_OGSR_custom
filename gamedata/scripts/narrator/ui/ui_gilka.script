@@ -1,7 +1,8 @@
 local displayr_ui = nil
 local workIndicatorTimer = 0
 local updateTimer = 0
-local updateFreq = 555 -- in milliseconds
+local updateFreq = 500 -- in milliseconds
+local led_turn_off_time = 0
 
 local OVERLAY_XML = "script_overlays\\ui_gilka.xml"
 
@@ -23,6 +24,7 @@ function ui_display:__init(item) super()
 	self.m_seg4					= xml:InitStatic("display:seg4", self.m_wrk_area)
 	
 	self.m_workIndicator		= xml:InitStatic("display:work", self.m_wrk_area)
+	self.m_workIndicator:Show(false)
 	
 	self.ui_enabled 			= true
 	
@@ -47,7 +49,7 @@ function ui_display:__init(item) super()
 		if af_sect then
 			self.detect_artefacts[af_sect] = true
 		end
-	end	
+	end
 end
 
 function ui_display:__finalize() 
@@ -73,16 +75,15 @@ function ui_display:Update()
 	
 	local tg = time_global()
 	
-	if (tg > workIndicatorTimer + 1000) then
-		workIndicatorTimer = tg
-		self.m_workIndicator:Show(not self.m_workIndicator:IsShown())
-	end
+	if (led_turn_off_time > 0 and led_turn_off_time < tg) then
+		self:FlashLed(nil)
+	end	
 	
 	if (tg < updateTimer) then
 		return
 	else
 		updateTimer = tg + updateFreq
-	end
+	end	
 
 	-- local near_anom_dist = 10000
 	-- function perform_action(obj)
@@ -108,23 +109,10 @@ function ui_display:Update()
 	end
 	level.iterate_nearest(self.item:position(), self.detect_r, perform_action)	
 
-	local value = near_artefact_dist <= self.detect_r and math.floor(near_artefact_dist) or 0	
-	
-	
-	-- -- Emissions: the closer the wave, the higher the psi influnces
-	-- if GetEvent("surge", "state") then
-		-- local surge_time = GetEvent("surge", "time") or 0
-		-- local val_glitch = (surge_time > 168) and normalize(surge_time, 220, 168) or normalize(surge_time, 20, 168)
-		-- value = (value + 500) * math.random(0.5, 10) * clamp(val_glitch,0,1)
-		
-	-- -- Psi-storms: huge spike when a vortex hits the ground
-	-- elseif GetEvent("psi_storm", "state") then
-		-- if GetEvent("psi_storm", "vortex") then
-			-- value = (value + 1000) * math.random(0.7, 1.3)
-		-- else
-			-- value = value * math.random(0.9, 1.1)
-		-- end
-	-- end
+	local value = near_artefact_dist <= self.detect_r and math.floor(near_artefact_dist) or 0
+	if value > 0 then
+		self:FlashLed(value/self.detect_r)
+	end
 	
 	local s_value = tostring(value)
 	local seg1, seg2, seg3, seg4
@@ -160,6 +148,20 @@ function ui_display:Update()
 	self.m_seg2:InitTextureEx(seg2, "hud\\p3d")
 	self.m_seg3:InitTextureEx(seg3, "hud\\p3d")
 	self.m_seg4:InitTextureEx(seg4, "hud\\p3d")
+end
+
+function ui_display:FlashLed(dt)
+	if not dt then
+		self.m_workIndicator:Show(false)
+		led_turn_off_time = 0
+	return end
+	self.m_workIndicator:Show(not self.m_workIndicator:IsShown())
+	local light_time = dt*1000
+	log3("~light_time %s", light_time)
+	if math.fsimilar(updateFreq, light_time, 0.1) then
+		light_time = light_time - light_time*0.1
+	end
+	led_turn_off_time = time_global() + light_time
 end
 
 function get_UI(item)
