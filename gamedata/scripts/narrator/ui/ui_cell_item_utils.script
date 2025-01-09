@@ -580,3 +580,11 @@ function add_info(pbox, item)
 	action = ui_detail_info.show_hide_wnd
 	pbox:AddItem(name, precondition, action, item)
 end
+
+function add_custom_info(pbox, item)
+	local name, precondition, action
+	name = ui_custom_info.tip_text
+	precondition = ui_custom_info.has_info
+	action = ui_custom_info.show_hide_wnd
+	pbox:AddItem(name, precondition, action, item)
+end

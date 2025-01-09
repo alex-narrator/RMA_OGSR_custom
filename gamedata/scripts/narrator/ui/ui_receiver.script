@@ -13,10 +13,9 @@
 -- UI
 ----------------------------------------------------------------------
 local detector_rf_ui = nil
-local tg_led = 0
 local tg_emission = 0
 local curr_freq = nil
-local led_upd_time = 1000
+local led_turn_off_time = 0
 
 local OVERLAY_XML = "script_overlays\\ui_detector_rf.xml"
 
@@ -40,10 +39,14 @@ function UI3D_RF:__init(item) super()
 	self.m_seg3					= xml:InitStatic("detector_rfproxy:seg3", self.m_wrk_area)
 	
 	self.m_led					= xml:InitStatic("detector_rfproxy:led", self.m_wrk_area)
+	self.m_led:Show(false)
 	
 	self.ui_enabled 			= true
 	
-	self.item 					= item	
+	self.item 					= item
+	
+	self.min_light_time 		= read_if_exists(sys_ini, "r_float", self.item:section(), "min_light_time", 30)
+	self.max_light_time 		= read_if_exists(sys_ini, "r_float", self.item:section(), "max_light_time", 300)
 end
 
 function UI3D_RF:__finalize() 
@@ -69,10 +72,8 @@ function UI3D_RF:Update()
 	
 	local tg = time_global()
 	
-	-- LED flashing
-	if (tg > tg_led + led_upd_time) then
-		tg_led = tg
-		self.m_led:Show(not self.m_led:IsShown())
+	if (led_turn_off_time > 0 and led_turn_off_time < tg) then
+		self:FlashLed(nil)
 	end
 	
 	curr_freq = receiver.get_frequency(self.item:id())
@@ -122,6 +123,17 @@ function UI3D_RF:Update()
 	self.m_seg1:InitTextureEx(seg1, "hud\\p3d")
 	self.m_seg2:InitTextureEx(seg2, "hud\\p3d")
 	self.m_seg3:InitTextureEx(seg3, "hud\\p3d")
+end
+
+function UI3D_RF:FlashLed(dt)
+	if not dt then
+		self.m_led:Show(false)
+		led_turn_off_time = 0
+	return end
+	
+	dt = math.clamp(dt, self.min_light_time, self.max_light_time)
+	self.m_led:Show(not self.m_led:IsShown())
+	led_turn_off_time = time_global() + dt
 end
 
 function get_UI(item)

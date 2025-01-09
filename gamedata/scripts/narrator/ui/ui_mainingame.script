@@ -270,19 +270,20 @@ function MainIngameOverlay:InitControls()
 	self.warning_icons_back = xml:InitStatic("icons_back", self)
 	self.warning_icons_horz = (xml:ReadAttribInt("icons_back", "horz", 0) > 0) and true or false
 	self.warning_icons = {
-		{ name = "armor", 		val = function() return actor_get_outfit() and 1 - actor_get_outfit():condition() or 0 end },
-		{ name = "weapon", 		val = function() return actor:active_item() and 1 - actor:active_item():condition() or 0 end },
-		{ name = "radiation", 	val = function() return dosimeter.can_detect_radiation() and actor.radiation or 0 end },
-		{ name = "bleeding", 	val = function() return actor:get_bleeding() end },
-		{ name = "starvation", 	val = function() return 1 - actor.satiety end },
-		{ name = "psy_health", 	val = function() return 1 - actor.psy_health end },
-		{ name = "alcohol", 	val = function() return actor.alcohol end },
-		{ name = "overweight", 	val = function() return inventory.get_overweight() end },
-		{ name = "somnolence", 	val = function() return somnolence.get_val() end },		
-		{ name = "godmode", 	val = function() return is_god_mode() end },
-		{ name = "safehouse", 	val = function() return actor:has_info("safehouse") end },
-		{ name = "limbs_injure", val = function() return body_health.get_injured_limb() end },
-		{ name = "use_campfire", val = function() return campfire_effects.actor_used_campfire() end },
+		{ name = "armor", 			val = function() return actor_get_outfit() and 1 - actor_get_outfit():condition() or 0 end },
+		{ name = "weapon", 			val = function() return actor:active_item() and 1 - actor:active_item():condition() or 0 end },
+		{ name = "radiation", 		val = function() return dosimeter.can_detect_radiation() and actor.radiation or 0 end },
+		{ name = "bleeding", 		val = function() return actor:get_bleeding() end },
+		{ name = "starvation", 		val = function() return 1 - actor.satiety end },
+		{ name = "psy_health", 		val = function() return 1 - actor.psy_health end },
+		{ name = "alcohol", 		val = function() return actor.alcohol end },
+		{ name = "overweight", 		val = function() return inventory.get_overweight() end },
+		{ name = "somnolence", 		val = function() return somnolence.get_val() end },		
+		{ name = "godmode", 		val = function() return is_god_mode() end },
+		{ name = "unlimited_ammo", 	val = function() return is_unlimited_ammo() end },
+		{ name = "safehouse", 		val = function() return actor:has_info("safehouse") end },
+		{ name = "limbs_injure", 	val = function() return body_health.get_injured_limb() end },
+		{ name = "use_campfire", 	val = function() return campfire_effects.actor_used_campfire() end },
 	}
 	for k,v in ipairs(self.warning_icons) do
 		v.icon = xml:InitStatic("icons_back:"..v.name, self.warning_icons_back)

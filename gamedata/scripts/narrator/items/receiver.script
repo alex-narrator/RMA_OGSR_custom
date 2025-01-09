@@ -169,6 +169,7 @@ function play_sound(object, power, dt)
 		if not snd_detect:playing() then
 			sound_time[object:id()] = 0
 			snd_detect:play(actor, 0, sound_object.s2d)
+			ui_receiver.get_UI(receiver):FlashLed(current_snd_time)
 		end
 	else
 		sound_time[object:id()] = sound_time[object:id()] + dt
@@ -176,7 +177,7 @@ function play_sound(object, power, dt)
 end
 
 function enable(item, prev_place)
-	if receiver_sect[item:section()] then
+	if receiver_sect[item:section()] and (actor:is_in_slot(item) or actor:is_on_belt(item)) then
 		if not is_power_device(item) or item:binded_object():get_power_level() > 0 then	
 			receiver = item
 			receiver:switch_power(true)
