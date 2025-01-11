@@ -1,0 +1,138 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;МАГАЗИНИ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+[mag_base]:identity_immunities,loadout_item
+class				= AMMO
+cform           	= skeleton
+visual          	= weapons\ammo\ammo_762x54_ap
+$prefetch 			= 64
+
+cost 				= 100
+box_size 			= 30
+
+inv_name			= st_mag_empty_name
+inv_name_short 		= st_mag_empty_short
+description			= st_mag_empty_descr
+
+inv_weight 			= 0.1
+
+inv_grid_width     	= 1
+inv_grid_height    	= 2
+inv_grid_x			= 0
+inv_grid_y			= 0
+
+default_to_ruck 	= true
+
+load_sound 			= interface\magazine\mag_load
+unload_sound 		= interface\magazine\mag_unload
+
+breakable 			= true
+
+icon_group 			= 5
+
+selected_tip 		= st_tip_ammo_magazine
+
+[mag_small]:mag_base
+ammo_icon_scale 	= 0.75
+marked_icon_sect 	= icon_pistol_ammo
+loadout_type 		= pistol_ammo
+
+[mag_large]:mag_base
+marked_icon_sect 	= icon_rifle_ammo
+loadout_type 		= rifle_ammo
+
+[mag_box]:mag_base
+ammo_icon_offset 	= left_down
+marked_icon_sect 	= icon_heavy_ammo
+loadout_type 		= heavy_ammo
+
+[mag_9x18_base]:mag_small
+ammo_types 			= ammo_9x18_fmj, ammo_9x18_pmm
+
+[mag_9x19_base]:mag_small
+ammo_types 			= ammo_9x19_fmj, ammo_9x19_pbp
+
+[mag_45_base]:mag_small
+ammo_types 			= ammo_11.43x23_fmj, ammo_11.43x23_hydro
+ammo_icon_scale 	= 0.5
+
+[mag_357_base]:mag_small
+ammo_types 			= ammo_357_hp
+
+[mag_545x39_base]:mag_large
+ammo_types 			= ammo_5.45x39_fmj, ammo_5.45x39_ap
+
+[mag_556x45_base]:mag_large
+ammo_types 			= ammo_5.56x45_ss190, ammo_5.56x45_ap
+
+[mag_762x54_base]:mag_large
+ammo_types 			= ammo_7.62x54_7h1, ammo_7.62x54_7h14, ammo_7.62x54_ap
+
+[mag_9x39_base]:mag_large
+ammo_types 			= ammo_9x39_sp5, ammo_9x39_ap
+
+[mag_12x76_base]:mag_large
+ammo_types 			= ammo_12x70_buck, ammo_12x76_zhekan, ammo_12x76_dart
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;ІКОНКИ МАГАЗИНІВ НА ІКОНЦІ ЗБРОЇ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+[icon_mag_base]
+inv_grid_width     	= 1
+inv_grid_height    	= 1
+inv_grid_y         	= 9
+icon_group 			= 10
+
+[icon_mag_ak]:icon_mag_base
+inv_grid_x         = 1
+
+[icon_mag_ak_modern]:icon_mag_base
+inv_grid_x         = 11
+
+[icon_mag_45_545]:icon_mag_base
+inv_grid_x         = 2
+
+[icon_mag_stanag]:icon_mag_base
+inv_grid_x         = 3
+
+[icon_mag_g36]:icon_mag_base
+inv_grid_x         = 19
+
+[icon_mag_sig550]:icon_mag_base
+inv_grid_x         = 17
+
+[icon_mag_sig550_sniper]:icon_mag_base
+inv_grid_x         = 18
+
+[icon_mag_mp5]:icon_mag_base
+inv_grid_x         = 0
+
+[icon_mag_vss]:icon_mag_base
+inv_grid_x         = 6
+
+[icon_mag_val]:icon_mag_base
+inv_grid_x         = 7
+
+[icon_mag_groza]:icon_mag_base
+inv_grid_x         = 10
+
+[icon_mag_svd]:icon_mag_base
+inv_grid_x         = 4
+
+[icon_mag_svu]:icon_mag_base
+inv_grid_x         = 14
+
+[icon_mag_sv98]:icon_mag_base
+inv_grid_x         = 14
+
+[icon_mag_pkm]:icon_mag_base
+inv_grid_x         = 8
+
+[icon_mag_saiga]:icon_mag_base
+inv_grid_x         = 15
+
+[icon_mag_vepr]:icon_mag_base
+inv_grid_x         = 16
+
+[icon_mag_gauss]:icon_mag_base
+inv_grid_x         = 9
