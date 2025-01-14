@@ -799,6 +799,7 @@ local addon_type = {
 	"stock",
 	"extender",
 	"forend",
+	"magazine",
 }
 local addons_st = {}
 function attach_weapon_addons(UIDesc, obj)
@@ -823,6 +824,10 @@ function attach_weapon_addons(UIDesc, obj)
 	for _,addon in pairs(addon_type) do
 		addon_str = read_if_exists(sys_ini, "r_string", obj:section(), addon.."_name", nil)
 		addon_status = read_if_exists(sys_ini, "r_u32", obj:section(), addon.."_status", 0)
+		if addon == "magazine" then
+			addon_str = read_if_exists(sys_ini, "r_string", obj:section(), addon.."_class", nil)
+			addon_status = addon_str and 2 or 0
+		end
 		if addon_str and addon_status == 2 then
 			addons = split_string(addon_str, ",")
 			for __,addon_sect in pairs(addons) do

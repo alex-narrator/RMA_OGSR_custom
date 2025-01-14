@@ -312,7 +312,7 @@ function UpdateAdditionalText(item, icon)
 end
 
 function UpdateCellItemCount(item, icon, count)
-	local for_ammo = item:get_weapon_ammo() and not item:get_weapon_ammo():is_magazine()
+	local for_ammo = item:get_weapon_ammo() and not item:get_weapon_ammo():is_magazine() and item:get_weapon_ammo().box_size > 1
 	if not count then
 	return end
 

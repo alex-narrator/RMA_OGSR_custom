@@ -157,7 +157,6 @@ function ui_display:FlashLed(dt)
 	return end
 	self.m_workIndicator:Show(not self.m_workIndicator:IsShown())
 	local light_time = dt*1000
-	log3("~light_time %s", light_time)
 	if math.fsimilar(updateFreq, light_time, 0.1) then
 		light_time = light_time - light_time*0.1
 	end

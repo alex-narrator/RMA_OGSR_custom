@@ -2,6 +2,14 @@
 ;; AMUNITION
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [ammo_base]:identity_immunities,loadout_item
+GroupControlSection	= spawn_group
+class				= AMMO
+cform               = skeleton
+$prefetch 			= 64
+
+inv_grid_width     	= 1
+inv_grid_height    	= 1
+
 default_to_ruck 	= true
 can_be_unlimited 	= true
 icon_group 			= 1
@@ -28,188 +36,135 @@ marked_icon_sect 	= icon_heavy_ammo
 loadout_type 		= heavy_ammo
 
 [ammo_9x18_fmj]:pistol_ammo
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn			= "weapons\ammo\ammo_9x18_fmj" ; option for Level Editor
-class			= AMMO
-cform                   = skeleton
-visual                  = weapons\ammo\ammo_9x18_fmj
-$prefetch 		= 64
+$spawn				= "weapons\ammo\ammo_9x18_fmj" ; option for Level Editor
+visual              = weapons\ammo\ammo_9x18_fmj
+cost				= 70
 
-cost					 = 70
+box_size			= 20
 
-box_size		= 20	;50
+inv_name			= st_ammo_9x18_fmj_name
+inv_name_short		= st_ammo_9x18_fmj_short
+description			= st_ammo_9x18_fmj_descr
+icon_text			= st_ammo_9x18_fmj_text
 
-inv_name		= st_ammo_9x18_fmj_name
-inv_name_short	= st_ammo_9x18_fmj_short
-description		= st_ammo_9x18_fmj_descr
-icon_text		= st_ammo_9x18_fmj_text
+inv_weight			= .2
 
-inv_weight		= .2
-
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 0
-inv_grid_y         = 12
+inv_grid_x         	= 0
+inv_grid_y         	= 12
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;це 9x18 мм ПБМ (7Н25)
 [ammo_9x18_pbp]:pistol_ammo
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn			= "weapons\ammo\ammo_9x18_pbp" ; option for Level Editor
-class			= AMMO
-cform                   = skeleton
-visual                  = weapons\ammo\ammo_9x18_pbp
+$spawn				= "weapons\ammo\ammo_9x18_pbp" ; option for Level Editor
+visual              = weapons\ammo\ammo_9x18_pbp
 
-$prefetch 		= 64
+cost				= 100
 
-cost					 = 100
+box_size			= 20
 
-box_size		= 20	;50
+inv_name			= st_ammo_9x18_pbp_name
+inv_name_short		= st_ammo_9x18_pbp_short
+description			= st_ammo_9x18_pbp_descr
+icon_text			= st_ammo_9x18_pbp_text
 
-inv_name		= st_ammo_9x18_pbp_name
-inv_name_short	= st_ammo_9x18_pbp_short
-description		= st_ammo_9x18_pbp_descr
-icon_text		= st_ammo_9x18_pbp_text
+inv_weight			= .2
 
-inv_weight		= .2
+inv_grid_x 			= 0
+inv_grid_y 			= 16
 
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 0
-inv_grid_y         = 16
-
-k_dist			= 0
-k_disp			= 0
-k_speed 		= 0.65
-k_hit			= 0.67
-k_impulse		= 2.5
-k_pierce		= 1.35
-impair			= 0
-buck_shot		= 1
-
-k_ap 			= 2
+k_speed 			= 0.65
+k_hit				= 0.67
+k_impulse 			= 2.5
+k_pierce			= 1.35
+k_ap 				= 2
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;це 9x18 ПММ 7Н16 - тільки для пістолету ПММ через збільшену навіску пороху у набої
 [ammo_9x18_pmm]:pistol_ammo
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn			= "weapons\ammo\ammo_9x18_pmm" ; option for Level Editor
-class			= AMMO
-cform                   = skeleton
-visual                  = weapons\ammo\ammo_9x18_pmm
-$prefetch 		= 64
+$spawn				= "weapons\ammo\ammo_9x18_pmm" ; option for Level Editor
+visual              = weapons\ammo\ammo_9x18_pmm
 
-cost					 = 80
+cost				= 80
 
-box_size		= 20	;50
+box_size			= 20
 
-inv_name		= st_ammo_9x18_pmm_name
-inv_name_short	= st_ammo_9x18_pmm_short
-description		= st_ammo_9x18_pmm_descr
-icon_text		= st_ammo_9x18_pmm_text
+inv_name			= st_ammo_9x18_pmm_name
+inv_name_short		= st_ammo_9x18_pmm_short
+description			= st_ammo_9x18_pmm_descr
+icon_text			= st_ammo_9x18_pmm_text
 
-inv_weight		= .2
+inv_weight			= .2
 
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 0
-inv_grid_y         = 14
+inv_grid_x          = 0
+inv_grid_y          = 14
 
-k_speed 		= 0.38
-k_hit			= 0.81
-k_pierce		= 1.5
-k_ap 			= 2
+k_speed 			= 0.38
+k_hit				= 0.81
+k_pierce			= 1.5
+k_ap 				= 2
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;Federal FMJ
 [ammo_9x19_fmj]:pistol_ammo
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn			= "weapons\ammo\ammo_9x19_fmj" ; option for Level Editor
-class			= AMMO
-cform                   = skeleton
-visual                  = weapons\ammo\ammo_9x19_fmj
+$spawn				= "weapons\ammo\ammo_9x19_fmj" ; option for Level Editor
+visual              = weapons\ammo\ammo_9x19_fmj
 
-$prefetch 		= 64
+cost				= 100
 
-cost					 = 100
+box_size			= 20
 
-box_size		= 20	;50
+inv_name			= st_ammo_9x19_fmj_name
+inv_name_short		= st_ammo_9x19_fmj_short
+description			= st_ammo_9x19_fmj_descr
+icon_text			= st_ammo_9x19_fmj_text
 
-inv_name		= st_ammo_9x19_fmj_name
-inv_name_short	= st_ammo_9x19_fmj_short
-description		= st_ammo_9x19_fmj_descr
-icon_text		= st_ammo_9x19_fmj_text
+inv_weight			= .24
 
-inv_weight		= .24
-
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 1
-inv_grid_y         = 12
+inv_grid_x         	= 1
+inv_grid_y         	= 12
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;9х19 ПБП гж 7Н31
 [ammo_9x19_pbp]:pistol_ammo
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn			= "weapons\ammo\ammo_9x19_pbp" ; option for Level Editor
-class			= AMMO
-cform                   = skeleton
-visual                  = weapons\ammo\ammo_9x19_pbp
+$spawn				= "weapons\ammo\ammo_9x19_pbp" ; option for Level Editor
+visual              = weapons\ammo\ammo_9x19_pbp
 
-$prefetch 		= 64
+cost				= 120
 
-cost					 = 120
+box_size			= 20
 
-box_size		= 20	;50
+inv_name			= st_ammo_9x19_pbp_name
+inv_name_short		= st_ammo_9x19_pbp_short
+description			= st_ammo_9x19_pbp_descr
+icon_text			= st_ammo_9x19_pbp_text
 
-inv_name		= st_ammo_9x19_pbp_name
-inv_name_short	= st_ammo_9x19_pbp_short
-description		= st_ammo_9x19_pbp_descr
-icon_text		= st_ammo_9x19_pbp_text
+inv_weight			= .24
 
-inv_weight		= .24
+inv_grid_x         	= 1
+inv_grid_y         	= 16
 
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 1
-inv_grid_y         = 16
-
-k_speed 		= 0.53
-k_hit			= 0.285
-k_impulse		= 0.2
-k_pierce		= 1.35
-;impair 			= 0.5
-k_ap 			= 2
+k_speed 			= 0.53
+k_hit				= 0.285
+k_impulse			= 0.2
+k_pierce			= 1.35
+k_ap 				= 2
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [ammo_357_hp]:pistol_ammo
-GroupControlSection	= spawn_group
-discovery_dependency = 
 $spawn				= "weapons\wpn_ammo\ammo_357_hp_mag" ; option for Level Editor
-class				= AMMO
-cform                   = skeleton
-visual                  = dynamics\weapons\wpn_ammo\ammo_357_jhp.ogf
-
-$prefetch 			= 64
+visual              = dynamics\weapons\wpn_ammo\ammo_357_jhp.ogf
 
 cost				= 1430
 
 box_size			= 20	
 
-inv_name		= st_ammo_357_hp_name
-inv_name_short	= st_ammo_357_hp_short
-description		= st_ammo_357_hp_descr
-icon_text		= st_ammo_357_hp_text
+inv_name			= st_ammo_357_hp_name
+inv_name_short		= st_ammo_357_hp_short
+description			= st_ammo_357_hp_descr
+icon_text			= st_ammo_357_hp_text
 
 inv_weight			= 0.314
 
-inv_grid_width     	= 1
-inv_grid_height    	= 1
 inv_grid_x         	= 2
 inv_grid_y         	= 8
 
@@ -217,327 +172,235 @@ k_ap				= 2
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [ammo_11.43x23_fmj]:pistol_ammo
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn			= "weapons\ammo\ammo_11.43x23_fmj" ; option for Level Editor
-class			= AMMO
-cform                   = skeleton
-visual                  = weapons\ammo\ammo_1143x23_fmj
-$prefetch 		= 64
+$spawn				= "weapons\ammo\ammo_11.43x23_fmj" ; option for Level Editor
+visual              = weapons\ammo\ammo_1143x23_fmj
 
-cost					 = 200
+cost				= 200
 
-box_size		= 20	;50
+box_size			= 20
 
-inv_name		= st_ammo_11.43x23_fmj_name
-inv_name_short	= st_ammo_11.43x23_fmj_short
-description		= st_ammo_11.43x23_fmj_descr
-icon_text		= st_ammo_11.43x23_fmj_text
+inv_name			= st_ammo_11.43x23_fmj_name
+inv_name_short		= st_ammo_11.43x23_fmj_short
+description			= st_ammo_11.43x23_fmj_descr
+icon_text			= st_ammo_11.43x23_fmj_text
 
-inv_weight		= .3
+inv_weight			= .3
 
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 1
-inv_grid_y         = 10
+inv_grid_x         	= 1
+inv_grid_y         	= 10
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [ammo_11.43x23_hydro]:pistol_ammo
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn			= "weapons\ammo\ammo_11.43x23_hydro" ; option for Level Editor
-class			= AMMO
-cform                   = skeleton
-visual                  = weapons\ammo\ammo_1143x23_Hydro
-$prefetch 		= 64
+$spawn				= "weapons\ammo\ammo_11.43x23_hydro" ; option for Level Editor
+visual              = weapons\ammo\ammo_1143x23_Hydro
 
-cost					 = 215
+cost				= 215
 
-box_size		= 20	;50
+box_size			= 20
 
-inv_name		= st_ammo_11.43x23_hydro_name
-inv_name_short	= st_ammo_11.43x23_hydro_short
-description		= st_ammo_11.43x23_hydro_descr
-icon_text		= st_ammo_11.43x23_hydro_text
+inv_name			= st_ammo_11.43x23_hydro_name
+inv_name_short		= st_ammo_11.43x23_hydro_short
+description			= st_ammo_11.43x23_hydro_descr
+icon_text			= st_ammo_11.43x23_hydro_text
 
-inv_weight		= .3
+inv_weight			= .3
 
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 1
-inv_grid_y         = 8
+inv_grid_x         	= 1
+inv_grid_y         	= 8
 
-k_hit 			= 0.15
-k_speed 		= 0.255
-k_impulse		= 0.2
-k_pierce		= 1.35
+k_hit 				= 0.15
+k_speed 			= 0.255
+k_impulse			= 0.2
+k_pierce			= 1.35
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;5,45 ПС 7Н6М
 [ammo_5.45x39_fmj]:rifle_ammo
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn			= "weapons\ammo\ammo_5.45x39_fmj" ; option for Level Editor
-class			= AMMO
-cform                   = skeleton
-visual                  = weapons\ammo\ammo_545x39_fmj
+$spawn				= "weapons\ammo\ammo_5.45x39_fmj" ; option for Level Editor
+visual              = weapons\ammo\ammo_545x39_fmj
 
-$prefetch 		= 64
+cost				= 200
 
-cost					 = 200	;150
+box_size			= 30
 
-box_size		= 30	;60
+inv_name			= st_ammo_5.45x39_fmj_name
+inv_name_short		= st_ammo_5.45x39_fmj_short
+description			= st_ammo_5.45x39_fmj_descr
+icon_text			= st_ammo_5.45x39_fmj_text
 
-inv_name		= st_ammo_5.45x39_fmj_name
-inv_name_short	= st_ammo_5.45x39_fmj_short
-description		= st_ammo_5.45x39_fmj_descr
-icon_text		= st_ammo_5.45x39_fmj_text
+inv_weight			= .32
 
-inv_weight		= .32
+inv_grid_x         	= 1
+inv_grid_y         	= 0
 
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 1
-inv_grid_y         = 0
-
-k_ap 			= 2
-k_pierce		= 1.5
+k_ap 				= 2
+k_pierce			= 1.5
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;7Н22
 [ammo_5.45x39_ap]:rifle_ammo
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn			= "weapons\ammo\ammo_5.45x39_ap" ; option for Level Editor
-class			= AMMO
-cform                   = skeleton
-visual                  = weapons\ammo\ammo_545x39_ap
-$prefetch 		= 64
+$spawn				= "weapons\ammo\ammo_5.45x39_ap" ; option for Level Editor
+visual              = weapons\ammo\ammo_545x39_ap
 
-cost					 = 250
+cost				= 250
 
-box_size		= 30	;60
+box_size			= 30
 
-inv_name		= st_ammo_5.45x39_ap_name
-inv_name_short	= st_ammo_5.45x39_ap_short
-description		= st_ammo_5.45x39_ap_descr
-icon_text		= st_ammo_5.45x39_ap_text
+inv_name			= st_ammo_5.45x39_ap_name
+inv_name_short		= st_ammo_5.45x39_ap_short
+description			= st_ammo_5.45x39_ap_descr
+icon_text			= st_ammo_5.45x39_ap_text
 
-inv_weight		= .32
+inv_weight			= .32
 
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 1
-inv_grid_y         = 1
+inv_grid_x         	= 1
+inv_grid_y         	= 1
 
-k_hit 			= 0.1
-k_speed 		= 0.01
-k_pierce		= 1.75
-k_ap 			= 3
+k_hit 				= 0.1
+k_speed 			= 0.01
+k_pierce			= 1.75
+k_ap 				= 3
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;SS109
 [ammo_5.56x45_ss190]:rifle_ammo
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn			= "weapons\ammo\ammo_5.56x45_ss190" ; option for Level Editor
-class			= AMMO
-cform                   = skeleton
-visual                  = weapons\ammo\ammo_556x45_ss190
+$spawn				= "weapons\ammo\ammo_5.56x45_ss190" ; option for Level Editor
+visual              = weapons\ammo\ammo_556x45_ss190
 
-$prefetch 		= 64
+cost				= 320
 
-cost					 = 320
+box_size			= 30
 
-box_size		= 30	;60
+inv_name			= st_ammo_5.56x45_ss190_name
+inv_name_short		= st_ammo_5.56x45_ss190_short
+description			= st_ammo_5.56x45_ss190_descr
+icon_text			= st_ammo_5.56x45_ss190_text
 
-inv_name		= st_ammo_5.56x45_ss190_name
-inv_name_short	= st_ammo_5.56x45_ss190_short
-description		= st_ammo_5.56x45_ss190_descr
-icon_text		= st_ammo_5.56x45_ss190_text
+inv_weight			= .33
 
-inv_weight		= .33
+inv_grid_x         	= 1
+inv_grid_y         	= 3
 
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 1
-inv_grid_y         = 3
-
-k_ap 			= 2
+k_ap 				= 2
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;M995 [Black tip]
 [ammo_5.56x45_ap]:rifle_ammo
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn			= "weapons\ammo\ammo_5.56x45_ap" ; option for Level Editor
-class			= AMMO
-cform                   = skeleton
-visual                  = weapons\ammo\ammo_556x45_ap
+$spawn				= "weapons\ammo\ammo_5.56x45_ap" ; option for Level Editor
+visual              = weapons\ammo\ammo_556x45_ap
 
-$prefetch 		= 64
+cost				= 380
 
-cost					 = 380
+box_size			= 30
 
-box_size		= 30	;60
+inv_name			= st_ammo_5.56x45_ap_name
+inv_name_short		= st_ammo_5.56x45_ap_short
+description			= st_ammo_5.56x45_ap_descr
+icon_text			= st_ammo_5.56x45_ap_text
 
-inv_name		= st_ammo_5.56x45_ap_name
-inv_name_short	= st_ammo_5.56x45_ap_short
-description		= st_ammo_5.56x45_ap_descr
-icon_text		= st_ammo_5.56x45_ap_text
+inv_weight			= .33
 
-inv_weight		= .33
+inv_grid_x         	= 1
+inv_grid_y         	= 4
 
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 1
-inv_grid_y         = 4
+k_hit 				= 0.01
+k_speed 			= 0.09
+k_disp 				= -0.51
+k_pierce			= 1.75
+k_ap 				= 3
 
-k_hit 			= 0.01
-k_speed 		= 0.09
-k_disp 			= -0.51
-k_pierce		= 1.75
-k_ap 			= 3
+;;;;;;;;;;;;;;;;;;;SS195LF;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+[ammo_5.7x28_fmj]:pistol_ammo
+$spawn				= "weapons\ammo\ammo_5.7x28_fmj" ; option for Level Editor
+visual              = weapons\ammo\ammo_57x28_fmj
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-[ammo_5.7x28_fmj]:rifle_ammo
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn			= "weapons\ammo\ammo_5.7x28_fmj" ; option for Level Editor
-class			= AMMO
-cform                   = skeleton
-visual                  = weapons\ammo\ammo_57x28_fmj
-$prefetch 		= 64
+cost				= 50
 
-cost					 = 50
+box_size			= 50
 
-box_size		= 30	;60
+inv_name			= st_ammo_5.7x28_fmj_name
+inv_name_short		= st_ammo_5.7x28_fmj_short
+description			= st_ammo_5.7x28_fmj_descr
+icon_text			= st_ammo_5.7x28_fmj_text
 
-inv_name		= st_ammo_5.7x28_fmj_name
-inv_name_short	= st_ammo_5.7x28_fmj_short
-description		= st_ammo_5.7x28_fmj_descr
-icon_text		= st_ammo_5.7x28_fmj_text
+inv_weight			= .3
 
-inv_weight		= .25
+inv_grid_x         	= 5
+inv_grid_y         	= 2
 
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 5
-inv_grid_y         = 2
+;;;;;;;;;;;;;;;;;;;SS190 AP;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+[ammo_5.7x28_ap]:pistol_ammo
+$spawn				= "weapons\ammo\ammo_5.7x28_ap" ; option for Level Editor
+visual              = weapons\ammo\ammo_57x28_ap
 
+cost				= 50
 
-k_dist			= 1
-k_disp			= 2.5;3
-k_hit			= 1
-k_impulse		= 1
-k_pierce		= 1
-impair			= 1
-buck_shot		= 1
-wm_size         = 0.05
+box_size			= 50
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-[ammo_5.7x28_ap]:rifle_ammo
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn			= "weapons\ammo\ammo_5.7x28_ap" ; option for Level Editor
-class			= AMMO
-cform                   = skeleton
-visual                  = weapons\ammo\ammo_57x28_ap
+inv_name			= st_ammo_5.7x28_ap_name
+inv_name_short		= st_ammo_5.7x28_ap_short
+description			= st_ammo_5.7x28_ap_descr
+icon_text			= st_ammo_5.7x28_ap_text
 
-$prefetch 		= 64
+inv_weight			= .3
 
-cost					 = 50
+inv_grid_x         	= 5
+inv_grid_y         	= 3
 
-box_size		= 30	;60
-
-inv_name		= st_ammo_5.7x28_ap_name
-inv_name_short	= st_ammo_5.7x28_ap_short
-description		= st_ammo_5.7x28_ap_descr
-icon_text		= st_ammo_5.7x28_ap_text
-
-inv_weight		= .25
-
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 5
-inv_grid_y         = 3
-
-k_dist			= 1
-k_disp			= 2.5;3
-k_hit			= 1
-k_impulse		= 1
-k_pierce		= 1.25
-impair			= 1.05
-buck_shot		= 1
-wm_size         = 0.05
+k_hit				= 0.02
+k_speed 			= 0.04
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;7Н1
 [ammo_7.62x54_7h1]:rifle_ammo
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn			= "weapons\ammo\ammo_7.62x54_7h1" ; option for Level Editor
-class			= AMMO
-cform                   = skeleton
-visual                  = weapons\ammo\ammo_762x54_7h1
+$spawn				= "weapons\ammo\ammo_7.62x54_7h1" ; option for Level Editor
+visual             	= weapons\ammo\ammo_762x54_7h1
 
-$prefetch 		= 64
 
-cost					 = 900
+cost				= 900
 
-box_size		= 10
+box_size			= 10
 
-inv_name		= st_ammo_7.62x54_7h1_name
-inv_name_short	= st_ammo_7.62x54_7h1_short
-description		= st_ammo_7.62x54_7h1_descr
-icon_text		= st_ammo_7.62x54_7h1_text
+inv_name			= st_ammo_7.62x54_7h1_name
+inv_name_short		= st_ammo_7.62x54_7h1_short
+description			= st_ammo_7.62x54_7h1_descr
+icon_text			= st_ammo_7.62x54_7h1_text
 
-inv_weight		= .23
+inv_weight			= .23
 
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 3
-inv_grid_y         = 0
+inv_grid_x         	= 3
+inv_grid_y         	= 0
 
-k_pierce		= 1.25
-k_ap 			= 3
+k_pierce			= 1.25
+k_ap 				= 3
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;7Н26 - цей був би доречніший але моделька коробки набоїв більше схожа на той що нижче
 ;7,62 БЗТ гл (57-БЗТ-322)
 [ammo_7.62x54_ap]:rifle_ammo
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn			= "weapons\ammo\ammo_7.62x54_ap" ; option for Level Editor
-class			= AMMO
-cform                   = skeleton
-visual                  = weapons\ammo\ammo_762x54_ap
+$spawn				= "weapons\ammo\ammo_7.62x54_ap" ; option for Level Editor
+visual              = weapons\ammo\ammo_762x54_ap
 
-$prefetch 		= 64
+cost				= 950
 
-cost					 = 950
+box_size			= 10
 
-box_size		= 10
+inv_name			= st_ammo_7.62x54_ap_name
+inv_name_short		= st_ammo_7.62x54_ap_short
+description			= st_ammo_7.62x54_ap_descr
+icon_text			= st_ammo_7.62x54_ap_text
 
-inv_name		= st_ammo_7.62x54_ap_name
-inv_name_short	= st_ammo_7.62x54_ap_short
-description		= st_ammo_7.62x54_ap_descr
-icon_text		= st_ammo_7.62x54_ap_text
+inv_weight			= .23
 
-inv_weight		= .23
+inv_grid_x         	= 3
+inv_grid_y         	= 1
 
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 3
-inv_grid_y         = 1
-
-k_pierce		= 2.25
-;k_disp 			= 1.25
-k_speed 		= -0.02
-k_hit 			= 0.03
-k_disp 			= 2.75
-impair			= 2
-k_ap 			= 4
+k_pierce			= 2.25
+k_speed 			= -0.02
+k_hit 				= 0.03
+k_disp 				= 2.75
+impair				= 2
+k_ap 				= 4
 
 tracer				= on
 tracer_color_ID 	= color_0
@@ -550,273 +413,208 @@ k_hit 				= 2
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;7Н14
 [ammo_7.62x54_7h14]:rifle_ammo
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn			= "weapons\ammo\ammo_7.62x54_7h14" ; option for Level Editor
-class			= AMMO
-cform                   = skeleton
-visual                  = weapons\ammo\ammo_762x54_7h14
+$spawn				= "weapons\ammo\ammo_7.62x54_7h14" ; option for Level Editor
+visual              = weapons\ammo\ammo_762x54_7h14
 
-$prefetch 		= 64
+cost				= 1000
 
-cost					 = 1000
+box_size			= 10
 
-box_size		= 10
+inv_name			= st_ammo_7.62x54_7h14_name
+inv_name_short		= st_ammo_7.62x54_7h14_short
+description			= st_ammo_7.62x54_7h14_descr
+icon_text			= st_ammo_7.62x54_7h14_text
 
-inv_name		= st_ammo_7.62x54_7h14_name
-inv_name_short	= st_ammo_7.62x54_7h14_short
-description		= st_ammo_7.62x54_7h14_descr
-icon_text		= st_ammo_7.62x54_7h14_text
+inv_weight			= .23
 
-inv_weight		= .23
+inv_grid_x         	= 3
+inv_grid_y         	= 2
 
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 3
-inv_grid_y         = 2
-
-k_ap 			= 4
+k_ap 				= 4
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [ammo_9x39_sp5]:rifle_ammo
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn			= "weapons\ammo\ammo_9x39_sp5" ; option for Level Editor
-class			= AMMO
-cform                   = skeleton
-visual                  = weapons\ammo\ammo_9x39_sp5
+$spawn				= "weapons\ammo\ammo_9x39_sp5" ; option for Level Editor
+visual             	= weapons\ammo\ammo_9x39_sp5
 
-$prefetch 		= 64
 
-cost					 = 375
+cost				= 375
 
-box_size		= 30	;60
+box_size			= 30
 
-inv_name		= st_ammo_9x39_sp5_name
-inv_name_short	= st_ammo_9x39_sp5_short
-description		= st_ammo_9x39_sp5_descr
-icon_text		= st_ammo_9x39_sp5_text
+inv_name			= st_ammo_9x39_sp5_name
+inv_name_short		= st_ammo_9x39_sp5_short
+description			= st_ammo_9x39_sp5_descr
+icon_text			= st_ammo_9x39_sp5_text
 
-inv_weight		= .7
+inv_weight			= .7
 
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 3
-inv_grid_y         = 6
+inv_grid_x         	= 3
+inv_grid_y         	= 6
 
-k_pierce		= 1.35
-k_ap 			= 2
+k_pierce			= 1.35
+k_ap 				= 2
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [ammo_9x39_ap]:rifle_ammo
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn			= "weapons\ammo\ammo_9x39_ap" ; option for Level Editor
-class			= AMMO
-cform                   = skeleton
-visual                  = weapons\ammo\ammo_9x39_ap
+$spawn				= "weapons\ammo\ammo_9x39_ap" ; option for Level Editor
+visual              = weapons\ammo\ammo_9x39_ap
 
-$prefetch 		= 64
+cost				= 400
 
-cost					 = 400
+box_size			= 30
 
-box_size		= 30	;60
+inv_name			= st_ammo_9x39_ap_name
+inv_name_short		= st_ammo_9x39_ap_short
+description			= st_ammo_9x39_ap_descr
+icon_text			= st_ammo_9x39_ap_text
 
-inv_name		= st_ammo_9x39_ap_name
-inv_name_short	= st_ammo_9x39_ap_short
-description		= st_ammo_9x39_ap_descr
-icon_text		= st_ammo_9x39_ap_text
+inv_weight			= .7
 
-inv_weight		= .7
+inv_grid_x         	= 3
+inv_grid_y         	= 7
 
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 3
-inv_grid_y         = 7
-
-k_speed 		= -0.05
-k_hit 			= -0.1
-k_disp 			= 1.75
-k_pierce		= 2.25
-k_ap 			= 4
+k_speed 			= -0.05
+k_hit 				= -0.1
+k_disp 				= 1.75
+k_pierce			= 2.25
+k_ap 				= 4
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [ammo_gauss]:heavy_ammo
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn			= "weapons\ammo\ammo_gauss" ; option for Level Editor
-class			= AMMO
-cform                   = skeleton
-visual                  = weapons\ammo\ammo_gauss
-$prefetch 		= 64
+$spawn				= "weapons\ammo\ammo_gauss" ; option for Level Editor
+visual              = weapons\ammo\ammo_gauss
 
-cost			= 550
+cost				= 550
 
-box_size		= 10
+box_size			= 10
 
-inv_name		= st_ammo_gauss_name
-inv_name_short	= st_ammo_gauss_short
-description		= st_ammo_gauss_descr
-icon_text		= st_ammo_gauss_text
+inv_name			= st_ammo_gauss_name
+inv_name_short		= st_ammo_gauss_short
+description			= st_ammo_gauss_descr
+icon_text			= st_ammo_gauss_text
 
-inv_weight		= .5
+inv_weight			= .5
 
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 6
-inv_grid_y         = 15
+inv_grid_x         	= 6
+inv_grid_y         	= 15
 
-k_impulse		= 2
-k_pierce		= 2.5
-k_ap 			= 6
+k_impulse			= 2
+k_pierce			= 2.5
+k_ap 				= 6
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ЕТАЛОННИЙ БОЄПРИПАС ДЛЯ РУШНИЦІ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ІНШІ НАБОЇ РАХУЮТЬСЯ У КОЕФІЦІЄНТАХ ДО ЦЬОГО;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [ammo_12x76_zhekan]:shotgun_ammo
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn			= "weapons\ammo\ammo_12x76_zhekan" ; option for Level Editor
-class			= AMMO
-cform                   = skeleton
-visual                  = weapons\ammo\ammo_12x76_zhekan
+$spawn				= "weapons\ammo\ammo_12x76_zhekan" ; option for Level Editor
+visual              = weapons\ammo\ammo_12x76_zhekan
 
-$prefetch 		= 64
+cost				= 60
 
-cost					 = 60
+box_size			= 10
 
-box_size		= 10
+inv_name			= st_ammo_12x76_zhekan_name
+inv_name_short		= st_ammo_12x76_zhekan_short
+description			= st_ammo_12x76_zhekan_descr
+icon_text			= st_ammo_12x76_zhekan_text
 
-inv_name		= st_ammo_12x76_zhekan_name
-inv_name_short	= st_ammo_12x76_zhekan_short
-description		= st_ammo_12x76_zhekan_descr
-icon_text		= st_ammo_12x76_zhekan_text
+inv_weight			= .50
 
-inv_weight		= .50
+inv_grid_x         	= 0
+inv_grid_y         	= 2
 
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 0
-inv_grid_y         = 2
-
-k_dist 			= 0
-k_hit 			= 0
-k_disp			= 0
-k_speed 		= 0
-k_impulse		= 0
-k_pierce		= 1.25
+k_pierce			= 1.25
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;12/70 картеч 6,2 мм 20 картечин в патроні
 [ammo_12x70_buck]:shotgun_ammo
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn			= "weapons\ammo\ammo_12x70_buck" ; option for Level Editor
-class			= AMMO
-cform                   = skeleton
-visual                  = weapons\ammo\ammo_12x70_buck
+$spawn				= "weapons\ammo\ammo_12x70_buck" ; option for Level Editor
+visual             	= weapons\ammo\ammo_12x70_buck
 
-$prefetch 		= 64
+cost				= 50
 
-cost					 = 50
+box_size			= 10
 
-box_size		= 10
+inv_name			= st_ammo_12x70_buck_name
+inv_name_short		= st_ammo_12x70_buck_short
+description			= st_ammo_12x70_buck_descr
+icon_text			= st_ammo_12x70_buck_text
 
-inv_name		= st_ammo_12x70_buck_name
-inv_name_short	= st_ammo_12x70_buck_short
-description		= st_ammo_12x70_buck_descr
-icon_text		= st_ammo_12x70_buck_text
+inv_weight			= .45
 
-inv_weight		= .45
+inv_grid_x         	= 0
+inv_grid_y         	= 0
 
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 0
-inv_grid_y         = 0
-
-k_dist 			= -0.5
-k_speed 		= -0.17
-k_hit 			= -0.95
-k_disp 			= 1.15
-k_impulse		= -0.5
-k_pierce		= 0.8
-buck_shot		= 20
+k_dist 				= -0.5
+k_speed 			= -0.17
+k_hit 				= -0.95
+k_disp 				= 1.15
+k_impulse			= -0.5
+k_pierce			= 0.8
+buck_shot			= 20
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [ammo_12x76_dart]:shotgun_ammo
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn			= "weapons\ammo\ammo_12x76_dart" ; option for Level Editor
-class			= AMMO
-cform                   = skeleton
-visual                  = weapons\ammo\ammo_12x76_dart
+$spawn				= "weapons\ammo\ammo_12x76_dart" ; option for Level Editor
+visual              = weapons\ammo\ammo_12x76_dart
 
-$prefetch 		= 64
+cost				= 100
 
-cost					 = 100
+box_size			= 10
 
-box_size		= 10
+inv_name			= st_ammo_12x76_dart_name
+inv_name_short		= st_ammo_12x76_dart_short
+description			= st_ammo_12x76_dart_descr
+icon_text			= st_ammo_12x76_dart_text
 
-inv_name		= st_ammo_12x76_dart_name
-inv_name_short	= st_ammo_12x76_dart_short
-description		= st_ammo_12x76_dart_descr
-icon_text		= st_ammo_12x76_dart_text
+inv_weight			= .50
 
-inv_weight		= .50
+inv_grid_x         	= 0
+inv_grid_y         	= 4
 
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 0
-inv_grid_y         = 4
-
-k_dist 			= 0.5
-k_speed 		= -0.14
-k_hit 			= -0.21
-k_disp			= -0.2
-k_impulse		= 0
-k_pierce		= 2.25
-k_ap 			= 4
+k_dist 				= 0.5
+k_speed 			= -0.14
+k_hit 				= -0.21
+k_disp				= -0.2
+k_impulse			= 0
+k_pierce			= 2.25
+k_ap 				= 4
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [ammo_12x76_zhekan_heli]:ammo_12x76_zhekan
-$spawn			= "weapons\ammo\ammo_12x76_zhekan_heli" ; option for Level Editor
-explosive		= on
+$spawn				= "weapons\ammo\ammo_12x76_zhekan_heli" ; option for Level Editor
+explosive			= on
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [ammo_og-7b]:heavy_ammo
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn			= "weapons\ammo\ammo_og-7b" ; option for Level Editor
-class			= A_OG7B
-cform                   = skeleton
-visual                  = weapons\ammo\ammo_og-7b
+$spawn				= "weapons\ammo\ammo_og-7b" ; option for Level Editor
+class				= A_OG7B
+visual              = weapons\ammo\ammo_og-7b
 
-$prefetch 		= 64
+cost				= 1000
 
-cost					 = 1000
+belt 				= false
+vest 				= false
+ruck_reload 		= true
 
-belt 			= false
-vest 			= false
-ruck_reload 	= true
+box_size			= 1
 
-box_size		= 1
+inv_name			= st_ammo_og_7b_name
+inv_name_short		= st_ammo_og_7b_short
+description			= st_ammo_og_7b_descr
+icon_text			= st_ammo_og_7b_text
 
-inv_name		= st_ammo_og_7b_name
-inv_name_short	= st_ammo_og_7b_short
-description		= st_ammo_og_7b_descr
-icon_text		= st_ammo_og_7b_text
+inv_weight			= 1.0
 
-inv_weight		= 1.0
-
-inv_grid_width     = 3
-inv_grid_height    = 1
-inv_grid_x         = 3
-inv_grid_y         = 18
+inv_grid_width     	= 3
+inv_grid_x         	= 3
+inv_grid_y         	= 18
 
 
-k_pierce		= 0.25
-buck_shot		= 0
-wm_size         = 0.1
+k_pierce			= 0.25
+buck_shot			= 0
+wm_size         	= 0.1
 
 ;могут ли боеприпасы быть неограниченными : 1 - могут, 0 - не могут
 can_be_unlimited = true ;false
@@ -828,124 +626,84 @@ marked_icon_sect 	= icon_heavy_ammo
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 [ammo_vog-25p]:ammo_base,loadout_grenade
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn			= "weapons\ammo\ammo_vog-25p" ; option for Level Editor
-class			= A_VOG25
-cform                   = skeleton
-visual                  = weapons\ammo\ammo_vog-25p
+$spawn				= "weapons\ammo\ammo_vog-25p" ; option for Level Editor
+class				= A_VOG25
+visual              = weapons\ammo\ammo_vog-25p
 
-$prefetch 		= 64
+cost				= 170
 
-cost					 = 170
+box_size			= 1
 
-box_size		= 1
+inv_name			= st_ammo_vog_25p_name
+inv_name_short		= st_ammo_vog_25p_short
+description			= st_ammo_vog_25p_descr
+icon_text			= st_ammo_vog_25p_text
 
-inv_name		= st_ammo_vog_25p_name
-inv_name_short	= st_ammo_vog_25p_short
-description		= st_ammo_vog_25p_descr
-icon_text		= st_ammo_vog_25p_text
+inv_weight			= .08
 
-inv_weight		= .08
+inv_grid_x         	= 4
+inv_grid_y         	= 12
 
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 4
-inv_grid_y         = 12
+k_dist				= 0.3
+k_pierce			= 0.25
+buck_shot			= 0
 
-kill_msg_x			= 17
-kill_msg_y			= 232
-kill_msg_width		= 21
-kill_msg_height		= 22
-
-k_dist			= 0.3
-k_pierce		= 0.25
-buck_shot		= 0
-
-jump_height = 1
-fake_grenade_name = wpn_fake_missile1
+jump_height 		= 1
+fake_grenade_name 	= wpn_fake_missile1
 
 marked_icon_sect 	= icon_grenade
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [ammo_vog-25]:ammo_base,loadout_grenade
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn			= "weapons\ammo\ammo_vog-25" ; option for Level Editor
-class			= A_VOG25
-cform                   = skeleton
-visual                  = weapons\ammo\ammo_vog-25
+$spawn				= "weapons\ammo\ammo_vog-25" ; option for Level Editor
+class				= A_VOG25
+visual              = weapons\ammo\ammo_vog-25
 
+cost				= 150
 
-$prefetch 		= 64
+box_size			= 1
 
-cost					 = 150
+inv_name			= st_ammo_vog_25_name
+inv_name_short		= st_ammo_vog_25_short
+description			= st_ammo_vog_25_descr
+icon_text			= st_ammo_vog_25_text
 
-box_size		= 1
+inv_weight			= .08
 
-inv_name		= st_ammo_vog_25_name
-inv_name_short	= st_ammo_vog_25_short
-description		= st_ammo_vog_25_descr
-icon_text		= st_ammo_vog_25_text
+inv_grid_x         	= 6
+inv_grid_y         	= 13
 
-inv_weight		= .08
+k_pierce			= 0.25
+buck_shot			= 0
 
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 6
-inv_grid_y         = 13
-
-kill_msg_x			= 38
-kill_msg_y			= 233
-kill_msg_width		= 21
-kill_msg_height		= 22
-
-
-
-k_pierce		= 0.25
-buck_shot		= 0
-
-fake_grenade_name = wpn_fake_missile
+fake_grenade_name 	= wpn_fake_missile
 
 marked_icon_sect 	= icon_grenade
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [ammo_m209]:ammo_base,loadout_grenade
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn			= "weapons\ammo\ammo_m209" ; option for Level Editor
-class			= A_M209
-cform                   = skeleton
-visual                  = weapons\ammo\ammo_m209
+$spawn				= "weapons\ammo\ammo_m209" ; option for Level Editor
+class				= A_M209
+visual              = weapons\ammo\ammo_m209
 
-$prefetch 		= 64
+cost				= 155
 
-cost					 = 155
+box_size			= 1
 
-box_size		= 1
+inv_name			= st_ammo_m209_name
+inv_name_short		= st_ammo_m209_short
+description			= st_ammo_m209_descr
+icon_text			= st_ammo_m209_text
 
-inv_name		= st_ammo_m209_name
-inv_name_short	= st_ammo_m209_short
-description		= st_ammo_m209_descr
-icon_text		= st_ammo_m209_text
+inv_weight			= .08
 
-inv_weight		= .08
+inv_grid_x         	= 6
+inv_grid_y         	= 14
 
-inv_grid_width     = 1
-inv_grid_height    = 1
-inv_grid_x         = 6
-inv_grid_y         = 14
+k_pierce			= 0.25
+buck_shot			= 0
 
-kill_msg_x			= 61
-kill_msg_y			= 232
-kill_msg_width		= 19
-kill_msg_height		= 22
-
-
-k_pierce		= 0.25
-buck_shot		= 0
-
-fake_grenade_name = wpn_fake_missile2
+fake_grenade_name 	= wpn_fake_missile2
 
 marked_icon_sect 	= icon_grenade
 
