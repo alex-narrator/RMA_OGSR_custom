@@ -1,8 +1,9 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
-	sm:subscribe({signal = "on_actor_weapon_zoom_in",   fun = this.on_zoom_in})
-	sm:subscribe({signal = "on_actor_weapon_zoom_out",   fun = this.on_zoom_out})
+	sm:subscribe({signal = "on_actor_weapon_zoom_in",   	fun = this.on_zoom_in})
+	sm:subscribe({signal = "on_actor_weapon_zoom_out",   	fun = this.on_zoom_out})
 	sm:subscribe({signal = "on_actor_weapon_zoom_change",   fun = this.on_zoom_change})
+	sm:subscribe({signal = "on_spawn",   					fun = this.on_spawn})
 end
 
 local DEBUG_DISABLED = false
@@ -10,8 +11,8 @@ local DEBUG_FFP_FACTOR = 0.34
 local shader_scope_params = false
 
 function on_zoom_in(weapon)	
-	set_scope_params(0, 0, 0, 0)
-	set_scope_color(0, 0, 0, 0)
+	-- set_scope_params(0, 0, 0, 0)
+	-- set_scope_color(0, 0, 0, 0)
 	shader_scope_params = false
 	
 	local wpn = weapon:get_weapon()
@@ -51,6 +52,8 @@ function on_zoom_in(weapon)
 end
 
 function on_zoom_out(weapon)
+	set_scope_params(0, 0, 0, 0)
+	set_scope_color(0, 0, 0, 0)
 end
 
 function on_zoom_change(weapon)
@@ -58,4 +61,9 @@ function on_zoom_change(weapon)
 	if not shader_scope_params then
 	return end
 	set_scope_params(shader_scope_params.zoom, shader_scope_params.vignette, shader_scope_params.chroma, shader_scope_params.mark_scale * shader_scope_params.ffp_factor * weapon:get_weapon().zoom_factor)
+end
+
+function on_spawn()
+	set_scope_params(0, 0, 0, 0)
+	set_scope_color(0, 0, 0, 0)
 end

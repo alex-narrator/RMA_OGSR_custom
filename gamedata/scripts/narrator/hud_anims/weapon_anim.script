@@ -91,7 +91,8 @@ end
 
 function play_switch_anim(item)
 	--level.add_complex_effector("fire_mode", 1912)
-	level.add_cam_effector(fire_mode, 1912, false, "")	
+	level.add_cam_effector(fire_mode, 1912, false, "")
+	--game.play_hud_anm(fire_mode, 2, 1, 1, false, true)
 	local switch_snd = read_if_exists(sys_ini, "r_string", item:section(), "snd_firemode", "")
 	xr_sound.get_safe_sound_object(switch_snd):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 	ui_hud_info.try_show_active_item_info()

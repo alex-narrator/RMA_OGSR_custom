@@ -5,6 +5,7 @@ function attach(sm)
 	sm:subscribe({signal = "on_drop",   				fun = this.on_ruck})
 	sm:subscribe({signal = "on_actor_weapon_zoom_in",   fun = this.on_zoom_in})
 	sm:subscribe({signal = "on_death",   				fun = this.on_death})
+	sm:subscribe({signal = "on_key_press",   			fun = this.on_key_press_check})
 end
 
 --//слоти в яких можуть бути предмети з ПНБ
@@ -152,17 +153,6 @@ function wpn_scope_allow_nvd(weapon)
 end
 
 function on_zoom_in(weapon)
-	local wpn = weapon:get_weapon()
-	
-	local head_on_nvd = actor_get_torch()
-	if head_on_nvd and get_current_nvd() and head_on_nvd:id() == get_current_nvd():id() and is_nvd_on() then
-		if wpn:is_addon_attached(addon.scope) and not wpn_scope_allow_nvd(weapon) then
-			wpn:zoom_out()
-			hud_add_info_message("item_usage", game.translate_string("st_nvd_block_scope_aim"), 2)
-			return
-		end
-	end
-	
 	local nv_sect = get_nv_sect(weapon)
 	if not nv_sect then return end
 	if is_nvd_on() then
@@ -170,7 +160,7 @@ function on_zoom_in(weapon)
 	end
 	level.add_call(
 		function() 
-			return not wpn_IsRotatingToZoom(weapon)--wpn.zoom_rotation_factor == 1
+			return not wpn_IsRotatingToZoom(weapon)
 		end,
 		function() 
 			set_nvd_effector(nv_sect, alife():object(weapon:id()).is_nvd_on)
@@ -218,4 +208,28 @@ function on_death(victim, killer)
 	if get_current_nvd() then
 		on_ruck(get_current_nvd(), item_place.slot)
 	end
+end
+
+local zoom_action = {
+	[key_bindings.kWPN_ZOOM] = true,
+}
+local actor_obj = get_actor_obj()
+
+function on_key_press_check(key, game_action)
+	if not zoom_action[game_action] then
+	return end
+	local head_on_nvd = actor_get_torch()
+	if not head_on_nvd then
+	return end
+	if get_current_nvd() and head_on_nvd:id() == get_current_nvd():id() and is_nvd_on() then
+		local wpn = actor:active_item() and actor:active_item():get_weapon()
+		if not wpn then
+		return end
+		if wpn:is_addon_attached(addon.scope) and not wpn_scope_allow_nvd(actor:active_item()) then
+			hud_add_info_message("item_usage", game.translate_string("st_nvd_block_scope_aim"), 2)
+			actor_obj:block_action(game_action)
+			add_update_delayed_action(1, function() actor_obj:unblock_action(game_action) end)
+			return
+		end
+	end	
 end
