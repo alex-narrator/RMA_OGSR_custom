@@ -1,4 +1,4 @@
-[wpn_mp5]:identity_immunities,weapon_base,wpn_mp5_sounds,scope_visual_mp5
+[wpn_ump45]:identity_immunities,weapon_base,wpn_ump45_sounds,scope_visual_ump45
 GroupControlSection		= spawn_group
 discovery_dependency 	= 
 $spawn                  = "weapons\mp5"					; option for Level Editor
@@ -27,25 +27,25 @@ ammo_limit		 		= 210
 ammo_current			= 30
 ammo_elapsed		 	= 30
 
-ammo_mag_size		 	= 30
-ammo_class		 		= ammo_9x19_fmj, ammo_9x19_pbp 
-magazine_class 			= mag_mp5
-fire_modes				= 1, 2, 3, -1
+ammo_mag_size		 	= 25
+ammo_class		 		= ammo_11.43x23_fmj, ammo_11.43x23_hydro
+magazine_class 			= mag_ump45
+fire_modes				= 1, 2, -1
 
 hand_dependence		 	= 1
 single_handed			= 0
 
-inv_name	        	= st_wpn_mp5_name
-inv_name_short			= st_wpn_mp5_short
-description				= st_wpn_mp5_descr
-icon_text				= st_wpn_mp5_text
+inv_name	        	= st_wpn_ump45_name
+inv_name_short			= st_wpn_ump45_short
+description				= st_wpn_ump45_descr
+icon_text				= st_wpn_ump45_text
 
 inv_weight				= 2.5
 
 inv_grid_width     = 4
 inv_grid_height    = 2
 inv_grid_x         = 12
-inv_grid_y         = 0
+inv_grid_y         = 18
 
 slot 					= 1,2		; // secondary
 animation_slot			= 2		; type of the animation that will be used
@@ -56,11 +56,11 @@ break_sound			= weapons\f1_explode
 control_inertion_factor = 1.6
 ;-----------------------------------------------------------------------------------
 ;базовая дисперсия
-fire_dispersion_base		= 0.115;0.33 	;угол (в градусах) базовой дисперсии оружия (оружия зажатого в тисках)
+fire_dispersion_base		= 0.072;0.33 	;угол (в градусах) базовой дисперсии оружия (оружия зажатого в тисках)
 
 ;отдача
-cam_relax_speed        		= 6.5;0.2	;скорость возврата в исходное положение
-cam_dispersion         		= 0.2	;увеличения угла (в градусах) с каждым выстрелом
+cam_relax_speed        		= 3.5;0.2	;скорость возврата в исходное положение
+cam_dispersion         		= 0.3	;увеличения угла (в градусах) с каждым выстрелом
 cam_dispersion_inc		= 0.05	;увеличениe cam_dispersion с каждым выстрелом
 cam_dispertion_frac		= 0.4	;ствол будет подыматься на cam_dispersion*cam_dispertion_frac +- cam_dispersion*(1-cam_dispertion_frac)
 cam_max_angle			= 6.0	;максимальный угол отдачи
@@ -82,7 +82,7 @@ smoke_particles         = weapons\generic_shoot_00
 
 shell_point					             = 0.0, 0.188, 0.082
 shell_dir					             = 0.0, 1.0, 0.0
-shell_particles	 			             = weapons\9x19
+shell_particles	 			             = weapons\45acp
 
 rpm_empty_click 	 	= 200
 
@@ -93,13 +93,13 @@ PDM_crouch	 		= 1.0
 PDM_crouch_no_acc 		= 1.0
 
 ; ttc
-hit_power        		= 0.596
+hit_power        		= 0.605
 hit_impulse		 		= 17
 hit_type 				= fire_wound
 
-fire_distance          	= 200 ;1000
-bullet_speed			= 400 ;начальная скорость пули
-rpm                     = 800
+fire_distance          	= 65 ;1000
+bullet_speed			= 285 ;начальная скорость пули
+rpm                     = 700
 ; end ttc
 
 use_aim_bullet				= true		;Поддерживается ли первая суппер пуля
@@ -110,7 +110,7 @@ silencer_hit_impulse	 	= 15
 silencer_fire_distance   	= 250
 silencer_bullet_speed	 	= 290
 
-hud                     = wpn_mp5_hud
+hud                     = wpn_ump45_hud
 normal                  = 0, 1, 0
 position                = -0.026, -0.125, 0.0
 orientation             = 0, 0, 0
@@ -122,7 +122,7 @@ strap_bone0					= bip01_spine2
 strap_bone1					= bip01_spine1
 
 startup_ammo            = 1000
-visual                  = dynamics\weapons\wpn_mp5\wpn_mp5
+visual                  = dynamics\weapons\wpn_ump45\wpn_ump45
 
 light_color		 		= 0.6,0.5,0.3
 light_range		 		= 5
@@ -137,12 +137,14 @@ ph_mass			 		= 3
 scope_status			= 2
 silencer_status			= 2
 grenade_launcher_status	= 0
+laser_status 				= 2
+flashlight_status 			= 2
 
 scope_x                     = 79		; offset in inventory icon
 scope_y                     = -6
 
-silencer_name  				= wpn_addon_silencer_9mm
-silencer_x                  = 193		; offset in inventory icon
+silencer_name  				= wpn_addon_silencer_45
+silencer_x                  = 178		; offset in inventory icon
 silencer_y                  = 13
 
 ;silencer_flame_particles 	= weapons\generic_weapon01
@@ -154,11 +156,28 @@ silencer_light_var_color	= 0.05
 silencer_light_var_range	= 0.5
 silencer_light_time 		= 0.2
 
+laser_name 						= device_anpeq_16
+laser_x 						= 126
+laser_y 						= 11
+
+device_anpeq_16_attach_visual 	= dynamics\weapons\wpn_addon\wpn_light_anpeq_16
+device_anpeq_16_attach_pos 		= 0.042600,-0.065802,-0.115001
+device_anpeq_16_attach_rot 		= 0.000000,0.000000,-3.143955
+
+flashlight_name 				= device_flashlight
+flashlight_x 					= 135
+flashlight_y 					= 22
+torch_attach_aim_dist 			= 1
+
+device_flashlight_attach_visual = dynamics\devices\dev_tactical_torch\dev_tactical_torch
+device_flashlight_attach_pos 	= -0.051400,-0.017200,0.216013
+device_flashlight_attach_rot 	= 0.000000,0.000000,1.579999
+
 zoom_enabled			= true
 scope_zoom_factor	    = 50
 
 magazine_x = 120
-magazine_y = 49
+magazine_y = 50
 
 ;params when silencer is attached 
 ;similar to corresponding params without prefix silencer_
@@ -172,33 +191,3 @@ silencer_bullet_speed	 	= 300
 silencer_smoke_particles 	= weapons\generic_shoot_00
 
 disassemble_parts 					= part_smg_9x19, 1
-
-;------------------------------------------------------------------------------------------------
-;-- MP5SD
-;------------------------------------------------------------------------------------------------
-[wpn_mp5sd]:wpn_mp5,wpn_mp5sd_sounds,scope_visual_mp5sd
-inv_grid_x         	= 12
-inv_grid_y         	= 2
-
-hud           		= wpn_mp5sd_hud
-visual        		= dynamics\weapons\wpn_mp5sd\wpn_mp5sd
-
-description 		= st_wpn_mp5sd_descr
-inv_name 			= st_wpn_mp5sd_name
-inv_name_short 		= st_wpn_mp5sd_short
-icon_text			= st_wpn_mp5sd_text
-
-silencer_status 	= 1
-
-scope_x             = 73		; offset in inventory icon
-scope_y             = 1
-
-fire_modes			= 1, 3, -1
-
-magazine_x 			= 105
-magazine_y 			= 48
-
-cost				= 7500
-
-hit_power        	= 0.381
-bullet_speed		= 320
