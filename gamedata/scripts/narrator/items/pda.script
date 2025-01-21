@@ -118,6 +118,7 @@ end
 function play_power_off_anim(item)
 	if not actor:active_item() or actor:active_item():id() ~= item:id() then
 	return end
+	item:zoom_out()
 	add_update_delayed_action(1,
 		function()
 			block_non_move_action(true)

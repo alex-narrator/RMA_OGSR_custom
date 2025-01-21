@@ -515,8 +515,8 @@ end
 	-- particles_object(particle):play_at_pos(pos)
 -- end
 
--- local param = vector():set(0.5,0,0)
--- set_pda_params(param)
+local param = vector():set(0,0,0)
+set_pda_params(param)
 
 -- local spawn_pos = vector():set(53.722770690918, 20.354343414307, 156.74801635742)
 -- local spawn_dir = vector()--:set(1.17, 0, 0)
@@ -597,5 +597,5 @@ if item then
 end
 
 --set_markswitch_count(0)
-set_scope_params(1, 1.05, 0, 1)
+--set_scope_params(1, 1.05, 0, 1)
 --set_scope_color(0.1,0.1,0,0)

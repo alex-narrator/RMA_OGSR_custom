@@ -6,6 +6,7 @@ function attach(sm)
 	sm:subscribe({signal = "on_actor_weapon_zoom_in",   fun = this.on_zoom_in})
 	sm:subscribe({signal = "on_death",   				fun = this.on_death})
 	sm:subscribe({signal = "on_key_press",   			fun = this.on_key_press_check})
+	sm:subscribe({signal = "on_actor_weapon_scope_mode_change",  fun = this.on_scope_mode_change})
 end
 
 --//слоти в яких можуть бути предмети з ПНБ
@@ -149,7 +150,7 @@ end
 function wpn_scope_allow_nvd(weapon)
 	local wpn = weapon:get_weapon()
 	local sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or weapon:section()
-	return read_if_exists(sys_ini, "r_bool", sect, "scope_allow_nvd", false) or wpn:scope_mode_second()
+	return read_if_exists(sys_ini, "r_bool", sect, "scope_allow_nvd", false) or wpn:aim_alt_mode()
 end
 
 function on_zoom_in(weapon)
@@ -207,6 +208,22 @@ function on_death(victim, killer)
 	return end
 	if get_current_nvd() then
 		on_ruck(get_current_nvd(), item_place.slot)
+	end
+end
+
+function on_scope_mode_change(weapon)
+	local head_on_nvd = actor_get_torch()
+	if not head_on_nvd then
+	return end
+	if get_current_nvd() and head_on_nvd:id() == get_current_nvd():id() and is_nvd_on() then
+		local wpn = weapon:get_weapon()
+		if not wpn then
+		return end
+		if wpn:is_addon_attached(addon.scope) and not wpn_scope_allow_nvd(actor:active_item()) then
+			hud_add_info_message("item_usage", game.translate_string("st_nvd_block_scope_aim"), 2)
+			weapon:zoom_out()
+			return
+		end
 	end
 end
 

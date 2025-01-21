@@ -781,10 +781,11 @@ end
 function SlotSelectorOverlay:OnShow()
 	local act_item = actor:active_item()
 	if act_item then
-		local wpn = act_item:get_weapon()
-		if wpn and wpn.zoom_mode then
-			wpn:zoom_out()
-		end		
+		-- local wpn = act_item:get_weapon()
+		-- if wpn and wpn.zoom_mode then
+			-- wpn:zoom_out()
+		-- end		
+		act_item:zoom_out()
 	end
 	self:ProcessSlowMotion()
 end

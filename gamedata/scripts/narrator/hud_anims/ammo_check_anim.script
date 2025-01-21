@@ -27,8 +27,9 @@ function try_play_anim(item)
 	if not sys_ini:line_exist(hud_sect,anim_name) then
 	return end
 
-	if wpn and wpn.zoom_mode then
-		wpn:zoom_out()
-	end	
+	-- if wpn and wpn.zoom_mode then
+		-- wpn:zoom_out()
+	-- end	
+	item:zoom_out()
 	item:play_hud_motion(anim_name)
 end

@@ -51,9 +51,12 @@ function play()
 	local to_center = is_crosshair_hard()
 	actor:center_crosshair(to_center)
 		
-	local wpn = actor:active_item() and actor:active_item():get_weapon()
-	if wpn and wpn.zoom_mode then
-		wpn:zoom_out()
+	-- local wpn = actor:active_item() and actor:active_item():get_weapon()
+	-- if wpn and wpn.zoom_mode then
+		-- wpn:zoom_out()
+	-- end
+	if actor:active_item() then
+		actor:active_item():zoom_out()
 	end
 	
 	game.play_hud_anm("camera_effects\\item_use\\two_handed_weapon_effect.anm", 0, 1.4, 0.5, false)

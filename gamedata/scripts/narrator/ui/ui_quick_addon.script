@@ -704,7 +704,7 @@ function QuickAddonOverlay:CheckFlashlights(check_item)
 			params:set_shader(item_icon)
 			ui_inv_utils.UpdateAttachAddonIcon(item_back)				
 
-			self.launcher_items[id] = {back = item_back, icon = item_icon}
+			self.flashlight_items[id] = {back = item_back, icon = item_icon}
 			
 			pos_left_top.x = pos_left_top.x - item_back:GetWidth() - self.items_indent
 			pos_left_top.y = pos_left_top.y - item_back:GetHeight() - self.items_indent
@@ -755,7 +755,7 @@ function QuickAddonOverlay:CheckLasers(check_item)
 		params:set_shader(item_icon)
 		ui_inv_utils.UpdateDetachAddonIcon(item_back)		
 
-		self.flashlight_items[addon_sect] = {back = item_back, icon = item_icon}
+		self.laser_items[addon_sect] = {back = item_back, icon = item_icon}
 		
 		pos_right_top.x = pos_right_top.x + item_back:GetWidth() + self.items_indent
 		pos_right_top.y = pos_right_top.y - item_back:GetHeight() - self.items_indent
@@ -812,10 +812,118 @@ function QuickAddonOverlay:CheckLasers(check_item)
 			params:set_shader(item_icon)
 			ui_inv_utils.UpdateAttachAddonIcon(item_back)				
 
-			self.launcher_items[id] = {back = item_back, icon = item_icon}
+			self.laser_items[id] = {back = item_back, icon = item_icon}
 			
 			pos_right_top.x = pos_right_top.x + item_back:GetWidth() + self.items_indent
 			pos_right_top.y = pos_right_top.y - item_back:GetHeight() - self.items_indent
+			
+			self:AttachChild(item_back)
+			self:AttachChild(item_icon)
+			
+			self:Register(item_back, name)
+			
+			self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnAttachFocusReceived(id) end)
+			self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnAttachFocusLost(id) end)
+			self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnAttachClick(id) end)
+		end			
+	end
+end
+
+function QuickAddonOverlay:CheckStocks(check_item)
+	local weapon = check_item:get_weapon()
+	if not weapon then
+	return end
+	
+	local base_pos = self.central:GetWndPos()
+	local base_size = vector2():set(self.central:GetWidth(), self.central:GetHeight())
+	local pos_left_down = vector2():set(base_pos.x - base_size.x - self.items_indent, base_pos.y + base_size.y + self.items_indent)
+	local addon_type = addon.stock
+	
+	if weapon:is_addon_attached(addon_type) and weapon:addon_attachable(addon_type) then
+		self.target_item_id = check_item:id()
+		local addon_sect = weapon:get_addon_name(addon_type)
+		local name = "stock_"..addon_sect
+		
+		local item_back = CUIStatic()
+		item_back:Init(pos_left_down.x, pos_left_down.y, base_size.x, base_size.y)
+		item_back:InitTexture(self.back_texture)
+		item_back:SetStretchTexture(true)
+			
+		local params = CIconParams(addon_sect)
+		local icon_size = vector2():set(params.grid_width * base_size.x, params.grid_height * base_size.y)
+			
+		local item_icon = CUIStatic()
+		item_icon:Init(pos_left_down.x, pos_left_down.y, icon_size.x, icon_size.y)
+			
+		ui_inv_utils.CellItemFitToSize(params, item_icon, nil, base_size)	
+			
+		local offset = ui_inv_utils.GetOffset("center", item_icon, item_back)
+		item_icon:SetWndPos(pos_left_down.x + offset.x, pos_left_down.y + offset.y)
+		
+		params:set_shader(item_icon)
+		ui_inv_utils.UpdateDetachAddonIcon(item_back)		
+
+		self.stock_items[addon_sect] = {back = item_back, icon = item_icon}
+		
+		pos_left_down.x = pos_left_down.x - item_back:GetWidth() - self.items_indent
+		pos_left_down.y = pos_left_down.y + item_back:GetHeight() + self.items_indent
+		
+		self:AttachChild(item_back)
+		self:AttachChild(item_icon)
+		
+		self:Register(item_back, name)
+		
+		self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnDetachFocusReceived(addon_sect) end)
+		self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnDetachFocusLost(addon_sect) end)
+		self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnDetachClick(addon_sect) end)		
+	end
+	
+	local items = {}
+	local addons = read_if_exists(sys_ini, "r_string", check_item:section(), "stock_name", nil)
+	local addons_list = split_string(addons, ",")
+	if addons_list and weapon:addon_attachable(addon_type) then
+		for k,addon_sect in pairs(addons_list) do
+			local item = actor:object(addon_sect)
+			if item then
+				ui_inv_utils.try_add_to_list(item, items, true)
+			end
+		end		
+	end
+	
+	for k,v in pairs(items) do
+		local item = v.item
+		local id = item:id()
+		
+		local can_set = item:section() ~= weapon:get_addon_name(addon_type) or not weapon:is_addon_attached(addon_type)
+		
+		if can_set then
+			self.target_item_id = check_item:id()
+				
+			local name = "stock_"..id
+			
+			local item_back = CUIStatic()
+			item_back:Init(pos_left_down.x, pos_left_down.y, base_size.x, base_size.y)
+			item_back:InitTexture(self.back_texture)
+			item_back:SetStretchTexture(true)
+			
+			local params = CIconParams(item:section())
+			local icon_size = vector2():set(params.grid_width * base_size.x, params.grid_height * base_size.y)
+				
+			local item_icon = CUIStatic()
+			item_icon:Init(pos_left_down.x, pos_left_down.y, icon_size.x, icon_size.y)
+			
+			ui_inv_utils.CellItemFitToSize(params, item_icon, nil, base_size)	
+			
+			local offset = ui_inv_utils.GetOffset("center", item_icon, item_back)
+			item_icon:SetWndPos(pos_left_down.x + offset.x, pos_left_down.y + offset.y)
+		
+			params:set_shader(item_icon)
+			ui_inv_utils.UpdateAttachAddonIcon(item_back)				
+
+			self.stock_items[id] = {back = item_back, icon = item_icon}
+			
+			pos_left_down.x = pos_left_down.x - item_back:GetWidth() - self.items_indent
+			pos_left_down.y = pos_left_down.y + item_back:GetHeight() + self.items_indent
 			
 			self:AttachChild(item_back)
 			self:AttachChild(item_icon)
@@ -878,7 +986,14 @@ function QuickAddonOverlay:ClearLists()
 			self:DetachChild(v.icon)
 		end
 	end
-	self.laser_items = {}		
+	self.laser_items = {}
+	if self.stock_items then
+		for k,v in pairs (self.stock_items) do
+			self:DetachChild(v.back)
+			self:DetachChild(v.icon)
+		end
+	end
+	self.stock_items = {}	
 end
 
 function QuickAddonOverlay:UpdateCompatible()
@@ -899,6 +1014,7 @@ function QuickAddonOverlay:UpdateCompatible()
 		self:CheckLaunchers(check_item)
 		self:CheckFlashlights(check_item)
 		self:CheckLasers(check_item)
+		self:CheckStocks(check_item)
 		self:CheckAmmo(check_item)
 		self:CheckLoadout(check_item)
 		self:CheckBelt(check_item)
@@ -1023,6 +1139,7 @@ function QuickAddonOverlay:OnDetachFocusReceived(sect)
 				or self.launcher_items[sect] and self.launcher_items[sect].back
 				or self.flashlight_items[sect] and self.flashlight_items[sect].back
 				or self.laser_items[sect] and self.laser_items[sect].back
+				or self.stock_items[sect] and self.stock_items[sect].back
 	self:HighlightStatic(static, color_focused)
 	
 	local text = game.translate_string("ui_st_detach").."\\n"..game.translate_string(get_inv_name_short(sect))
@@ -1034,7 +1151,8 @@ function QuickAddonOverlay:OnDetachFocusLost(sect)
 				or self.silencer_items[sect] and self.silencer_items[sect].back 
 				or self.launcher_items[sect] and self.launcher_items[sect].back
 				or self.flashlight_items[sect] and self.flashlight_items[sect].back
-				or self.laser_items[sect] and self.laser_items[sect].back				
+				or self.laser_items[sect] and self.laser_items[sect].back
+				or self.stock_items[sect] and self.stock_items[sect].back
 	self:HighlightStatic(static, GetARGB(255, 255, 255, 255))
 	
 	self:SetTip()
@@ -1066,7 +1184,8 @@ function QuickAddonOverlay:OnAttachFocusReceived(id)
 				or self.silencer_items[id] and self.silencer_items[id].back 
 				or self.launcher_items[id] and self.launcher_items[id].back
 				or self.flashlight_items[id] and self.flashlight_items[id].back
-				or self.laser_items[id] and self.laser_items[id].back				
+				or self.laser_items[id] and self.laser_items[id].back			
+				or self.stock_items[id] and self.stock_items[id].back
 	self:HighlightStatic(static, color_focused)
 	sm:call("on_cell_item_focus", item)
 	
@@ -1080,7 +1199,8 @@ function QuickAddonOverlay:OnAttachFocusLost(id)
 				or self.silencer_items[id] and self.silencer_items[id].back 
 				or self.launcher_items[id] and self.launcher_items[id].back
 				or self.flashlight_items[id] and self.flashlight_items[id].back
-				or self.laser_items[id] and self.laser_items[id].back				
+				or self.laser_items[id] and self.laser_items[id].back
+				or self.stock_items[id] and self.stock_items[id].back				
 	self:HighlightStatic(static, GetARGB(255, 255, 255, 255))
 	sm:call("on_cell_item_focus_lost", item)
 	

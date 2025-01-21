@@ -290,10 +290,11 @@ function on_weapon_fire(weapon)
 	injure_hit(hit_power)
 	if get_pain_effect() < 0 then
 	return end
-	local wpn = weapon:get_weapon()
-	if wpn and wpn.zoom_mode then
-		wpn:zoom_out()
-	end
+	weapon:zoom_out()
+	-- local wpn = weapon:get_weapon()
+	-- if wpn and wpn.zoom_mode then
+		-- wpn:zoom_out()
+	-- end
 end
 function on_missile_throw(missile)
 	injure_hit()

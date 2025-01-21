@@ -155,13 +155,11 @@ function UpdateWpnIcons(item, icon)
 				end
 			else
 				local addon_sect = wpn:get_addon_name(i)
-				icon_sect = read_if_exists(sys_ini, "r_string", addon_sect, "addon_icon_sect", addon_sect)
+				icon_sect = read_if_exists(sys_ini, "r_string", addon_sect, "addon_icon_sect", v == "magazine" and nil or addon_sect)
 				offset = get_addon_offset(k, addon_sect, sect)
 				--log3("wpn %s, addon %s, offset.x %s, offset.y %s", item:name(), v, offset.x, offset.y)
-				if v == "magazine" then
-					icon_sect = read_if_exists(sys_ini, "r_string", addon_sect, "addon_icon_sect", nil)
-				end
 				if icon_sect then
+					--log3("icon sect %s", icon_sect or "NONE")
 					params = CIconParams(icon_sect)
 					addon_st = icon:FindChild(v)
 					if addon_st then

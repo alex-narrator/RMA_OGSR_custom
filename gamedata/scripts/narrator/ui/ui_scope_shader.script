@@ -13,11 +13,14 @@ local shader_scope_params = false
 function on_zoom_in(weapon)	
 	-- set_scope_params(0, 0, 0, 0)
 	-- set_scope_color(0, 0, 0, 0)
+	set_pda_params(vector():set(0,0,0)) --//якщо так не зробити то зникне марка коліматора у шейдері models_lfo_light_dot_weapons_simple
 	shader_scope_params = false
 	
 	local wpn = weapon:get_weapon()
 	
-	set_weapon_params(weapon:get_gl_mode() and 1 or 0, wpn:scope_mode_second() and 1 or 0, 0, 0)
+	set_weapon_params(weapon:get_gl_mode() and 1 or 0, wpn:aim_alt_mode() and 1 or 0, 0, 0)
+	if wpn:aim_alt_mode() then
+	return end
 	
 	local param_sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or weapon:section()
 	
@@ -57,7 +60,7 @@ function on_zoom_out(weapon)
 end
 
 function on_zoom_change(weapon)
-	set_weapon_params(weapon:get_gl_mode() and 1 or 0, weapon:get_weapon():scope_mode_second() and 1 or 0, 0, 0)
+	set_weapon_params(weapon:get_gl_mode() and 1 or 0, weapon:get_weapon():aim_alt_mode() and 1 or 0, 0, 0)
 	if not shader_scope_params then
 	return end
 	set_scope_params(shader_scope_params.zoom, shader_scope_params.vignette, shader_scope_params.chroma, shader_scope_params.mark_scale * shader_scope_params.ffp_factor * weapon:get_weapon().zoom_factor)

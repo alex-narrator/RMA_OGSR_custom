@@ -36,9 +36,10 @@ function on_key_press(key, game_action)
 	local wpn = act_item and act_item:get_weapon() or nil
 	
 	if act_item then
-		if wpn and wpn.zoom_mode then
-			wpn:zoom_out()
-		end			
+		-- if wpn and wpn.zoom_mode then
+			-- wpn:zoom_out()
+		-- end			
+		act_item:zoom_out()
 		
 		hud_sect = "rifle_kick_hud"
 		

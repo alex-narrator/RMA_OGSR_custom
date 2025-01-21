@@ -41,10 +41,11 @@ function get_anim_check_item(item)
 end
 
 function play(item)
-	local wpn = item:get_weapon()
-	if wpn and wpn.zoom_mode then
-		wpn:zoom_out()
-	end
+	-- local wpn = item:get_weapon()
+	-- if wpn and wpn.zoom_mode then
+		-- wpn:zoom_out()
+	-- end
+	item:zoom_out()
 	
 	play_sound_for_actor(item, "snd_checkout")
 	

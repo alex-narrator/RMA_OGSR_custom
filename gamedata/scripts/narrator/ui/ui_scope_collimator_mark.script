@@ -47,7 +47,7 @@ end
 
 function get_marks_count(item)
 	local wpn = item:get_weapon()
-	if not wpn or wpn:scope_mode_second() then
+	if not wpn or wpn:aim_alt_mode() then
 	return 0 end
 	local sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or item:section()
 	return read_if_exists(sys_ini, "r_u32", sect, "collimator_mark_count", 0)

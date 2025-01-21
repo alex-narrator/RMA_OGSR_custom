@@ -73,7 +73,7 @@ function create_scope_static(weapon)
 	local scope_texture_forced = (scope_tex_sect ~= sect) and read_if_exists(sys_ini, "r_string", sect, scope_tex_sect.."_scope_texture", nil) or nil
 	if read_if_exists(sys_ini, "r_bool", scope_tex_sect, "ignore_scope_texture", false) and not scope_texture_forced then
 	return false end
-	local scope_tex_type = wpn:scope_mode_second() and "scope_texture_second" or "scope_texture"	
+	local scope_tex_type = wpn:aim_alt_mode() and "scope_texture_second" or "scope_texture"	
 	texture_name = scope_texture_forced or read_if_exists(sys_ini, "r_string", scope_tex_sect, scope_tex_type, nil)
 	if not texture_name then
 	return false end

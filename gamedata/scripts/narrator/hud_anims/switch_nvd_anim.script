@@ -12,7 +12,7 @@ local hud_effector_id = 5558
 function wpn_scope_allow_nvd(weapon)
 	local wpn = weapon:get_weapon()
 	local sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or weapon:section()
-	return read_if_exists(sys_ini, "r_bool", sect, "scope_allow_nvd", false) or wpn:scope_mode_second()
+	return read_if_exists(sys_ini, "r_bool", sect, "scope_allow_nvd", false) or wpn:aim_alt_mode()
 end
 
 function aim_scope()

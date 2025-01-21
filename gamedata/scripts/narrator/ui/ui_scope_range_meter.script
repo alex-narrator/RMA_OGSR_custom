@@ -27,7 +27,7 @@ function create_range_meter_static(weapon)
 	local range_meter_forced = (range_meter_sect ~= sect) and read_if_exists(sys_ini, "r_string", sect, range_meter_sect.."_range_meter", false) or false
 	if read_if_exists(sys_ini, "r_bool", range_meter_sect, "ignore_range_meter", false) and not range_meter_forced then
 	return false end
-	local range_meter_type = wpn:scope_mode_second() and "range_meter_second" or "range_meter"	
+	local range_meter_type = wpn:aim_alt_mode() and "range_meter_second" or "range_meter"	
 	local range_meter = range_meter_forced or read_if_exists(sys_ini, "r_string", range_meter_sect, range_meter_type, false)
 	if not range_meter then
 	return false end
