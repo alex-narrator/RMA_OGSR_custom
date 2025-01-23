@@ -25,7 +25,7 @@ ammo_elapsed		 		= 12
 
 ammo_mag_size		 		= 7
 ammo_class		 			= ammo_11.43x23_fmj, ammo_11.43x23_hydro
-magazine_class 				= mag_colt1911
+magazine_class 				= mag_colt
 
 
 hand_dependence		 		= 1
@@ -41,12 +41,12 @@ icon_text					= st_wpn_colt1911_text
 
 inv_weight					= 1.1
 
-inv_grid_width     = 2
-inv_grid_height    = 1
-inv_grid_x         = 2
-inv_grid_y         = 7
+inv_grid_width     			= 2
+inv_grid_height    			= 1
+inv_grid_x         			= 2
+inv_grid_y         			= 7
 
-control_inertion_factor = 1
+control_inertion_factor 	= 1.05
 
 ;-----------------------------------------------------------------------------------
 ;базовая дисперсия
@@ -153,3 +153,20 @@ silencer_light_var_range	= 0.5
 silencer_light_time 		= 0.2
 
 disassemble_parts 					= part_pistol_45, 1
+
+[wpn_kimber_custom]:wpn_colt1911
+visual                   	= dynamics\weapons\wpn_colt1911\wpn_colt_kimber
+hud                      	= wpn_kimber_custom_hud
+
+inv_grid_x 					= 4
+inv_grid_y 					= 7
+
+inv_name	        		= st_wpn_kimber_custom_name
+inv_name_short				= st_wpn_kimber_custom_short
+description					= st_wpn_kimber_custom_descr
+icon_text					= st_wpn_kimber_custom_text
+
+inv_weight 					= 1.077
+control_inertion_factor 	= 1.03
+
+silencer_status 			= 0
