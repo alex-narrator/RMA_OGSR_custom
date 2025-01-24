@@ -1,19 +1,20 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
-	sm:subscribe({signal = "on_slot",   				fun = this.on_slot})
-	sm:subscribe({signal = "on_ruck",   				fun = this.on_ruck})
-	sm:subscribe({signal = "on_drop",   				fun = this.on_ruck})
-	sm:subscribe({signal = "on_actor_weapon_zoom_in",   fun = this.on_zoom_in})
-	sm:subscribe({signal = "on_death",   				fun = this.on_death})
-	sm:subscribe({signal = "on_key_press",   			fun = this.on_key_press_check})
-	sm:subscribe({signal = "on_actor_weapon_scope_mode_change",  fun = this.on_scope_mode_change})
+	sm:subscribe({signal = "on_slot",   							fun = this.on_slot})
+	sm:subscribe({signal = "on_ruck",   							fun = this.on_ruck})
+	sm:subscribe({signal = "on_drop",   							fun = this.on_ruck})
+	sm:subscribe({signal = "on_actor_weapon_zoom_in",   			fun = this.on_zoom_in})
+	sm:subscribe({signal = "on_actor_weapon_zoom_out", 				fun = this.on_zoom_out})
+	sm:subscribe({signal = "on_death",   							fun = this.on_death})
+	sm:subscribe({signal = "on_key_press",   						fun = this.on_key_press})
+	sm:subscribe({signal = "on_actor_weapon_scope_mode_change",  	fun = this.on_scope_mode_change})
 end
 
 --//слоти в яких можуть бути предмети з ПНБ
 local nvd_slots = {
-	6,
-	9,
-	11,
+	OUTFIT_SLOT,
+	TORCH_SLOT,
+	HELMET_SLOT,
 }
 
 function get_current_nvd()
@@ -124,27 +125,31 @@ function is_item_nvd_on(item)
 	return nvd and nvd:id() == item:id() and alife():object(nvd:id()).is_nvd_on
 end
 
---//scope night vision
+function on_death(victim, killer)
+	if victim:id() ~= actor:id() then
+	return end
+	if get_current_nvd() then
+		on_ruck(get_current_nvd(), item_place.slot)
+	end
+end
 
-local subscribed = false
+--//scope night vision
 
 function aim_nvd_weapon()
 	local act_item = actor:active_item()
-	return act_item and act_item:get_weapon() and act_item:get_weapon().zoom_mode and get_nv_sect(act_item) 
+	return act_item and act_item:get_weapon() and act_item:get_weapon().zoom_mode and get_nv_sect(act_item) and not act_item:get_weapon():aim_alt_mode()
 end
 
 function get_nv_sect(item)
-	local sect = item:section()
-	if read_if_exists(sys_ini, "r_u32", sect, "scope_status", 0) == 1 and get_nvd_params(sect) then
-		return sect
-	end	
 	local wpn = item:get_weapon_m()
-	if wpn then
-		if wpn:addon_attachable(addon.scope) and get_nvd_params(wpn:get_addon_name(addon.scope)) then
-			return wpn:get_addon_name(addon.scope)
-		end
-	end
-	return nil
+	if not wpn then
+	return nil end
+	
+	if wpn:aim_alt_mode() then
+	return nil end
+	
+	local sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or item:section()
+	return get_nvd_params(sect) and sect or nil
 end
 
 function wpn_scope_allow_nvd(weapon)
@@ -156,9 +161,6 @@ end
 function on_zoom_in(weapon)
 	local nv_sect = get_nv_sect(weapon)
 	if not nv_sect then return end
-	if is_nvd_on() then
-		enable_nvd(get_current_nvd(), false)
-	end
 	level.add_call(
 		function() 
 			return not wpn_IsRotatingToZoom(weapon)
@@ -167,78 +169,45 @@ function on_zoom_in(weapon)
 			set_nvd_effector(nv_sect, alife():object(weapon:id()).is_nvd_on)
 		end
 	)
-	if not subscribed then
-		subscribed = {
-			{signal = "on_actor_weapon_zoom_out", 	fun = this.on_zoom_out},
-			{signal = "on_key_press", 				fun = this.on_key_press},
-		}
-		local sm = ogse_signals.get_mgr()
-		for _, s in ipairs(subscribed) do
-			sm:subscribe(s)
-		end
-	end
 end
 
 function on_zoom_out(weapon)
+	if is_nvd_on() then
+	return end
 	set_nvd_effector(get_nv_sect(weapon), false)
-	if subscribed then
-		local sm = ogse_signals.get_mgr()
-		for _, s in ipairs(subscribed) do
-			sm:unsubscribe(s)
-		end
-		subscribed = false
-	end
 end
 
 local nvd_action = {
 	[key_bindings.kNIGHT_VISION] = true,
 }
-
-function on_key_press(key, game_action)
-	if not nvd_action[game_action] then
-	return end
-	switch_nvd(actor:active_item())
-	if actor:active_item() and actor:active_item():get_weapon() and actor:active_item():get_weapon():second_vp_enabled() then
-	return end
-	level.add_complex_effector("fire_mode", 1918)
-end
-
-function on_death(victim, killer)
-	if victim:id() ~= actor:id() then
-	return end
-	if get_current_nvd() then
-		on_ruck(get_current_nvd(), item_place.slot)
-	end
-end
-
-function on_scope_mode_change(weapon)
-	local head_on_nvd = actor_get_torch()
-	if not head_on_nvd then
-	return end
-	if get_current_nvd() and head_on_nvd:id() == get_current_nvd():id() and is_nvd_on() then
-		local wpn = weapon:get_weapon()
-		if not wpn then
-		return end
-		if wpn:is_addon_attached(addon.scope) and not wpn_scope_allow_nvd(actor:active_item()) then
-			hud_add_info_message("item_usage", game.translate_string("st_nvd_block_scope_aim"), 2)
-			weapon:zoom_out()
-			return
-		end
-	end
-end
-
 local zoom_action = {
 	[key_bindings.kWPN_ZOOM] = true,
 }
 local actor_obj = get_actor_obj()
 
-function on_key_press_check(key, game_action)
+function on_key_press(key, game_action)
+	try_switch_scope_nvd(key, game_action)
+	try_block_aim(key, game_action)
+end
+
+function try_switch_scope_nvd(key, game_action)
+	if not nvd_action[game_action] then
+	return end
+	if is_nvd_on() then
+	return end
+	local act_item = actor:active_item()
+	if not act_item or not act_item:is_zoomed() or not get_nv_sect(act_item) then
+	return end
+	switch_nvd(act_item)
+	if act_item:get_weapon() and act_item:get_weapon():second_vp_enabled() then
+	return end
+	level.add_complex_effector("fire_mode", 1918)
+end
+
+function try_block_aim(key, game_action)
 	if not zoom_action[game_action] then
 	return end
-	local head_on_nvd = actor_get_torch()
-	if not head_on_nvd then
-	return end
-	if get_current_nvd() and head_on_nvd:id() == get_current_nvd():id() and is_nvd_on() then
+	if is_nvd_on() then
 		local wpn = actor:active_item() and actor:active_item():get_weapon()
 		if not wpn then
 		return end
@@ -249,4 +218,17 @@ function on_key_press_check(key, game_action)
 			return
 		end
 	end	
+end
+
+function on_scope_mode_change(weapon)
+	if is_nvd_on() then
+		local wpn = weapon:get_weapon()
+		if not wpn then
+		return end
+		if wpn:is_addon_attached(addon.scope) and not wpn_scope_allow_nvd(actor:active_item()) then
+			hud_add_info_message("item_usage", game.translate_string("st_nvd_block_scope_aim"), 2)
+			weapon:zoom_out()
+			return
+		end
+	end
 end

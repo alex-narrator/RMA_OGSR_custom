@@ -90,12 +90,22 @@ function on_zoom_in(weapon)
 		if not get_actor_obj():is_zoom_aiming_mode() then
 		return end
 		local tip = "st_hold_key_to_hard_hold"
-		if ui_scope_collimator_mark.can_switch_marks(weapon) then
-			tip = "st_hold_key_to_hard_hold_with_marks"
-		elseif ui_scope_texture.has_illum() then
+		local marks = ui_scope_collimator_mark.can_switch_marks(weapon)
+		local illum = ui_scope_texture.has_illum()
+		local nvd = nvd.get_nv_sect(weapon) and not weapon:get_weapon():aim_alt_mode()
+		
+		if nvd then
+			tip = "st_hold_key_to_hard_hold_with_night_vision"
+			if illum then
+				tip = "st_hold_key_to_hard_hold_with_illum_night_vision"
+			end
+			if marks then
+				tip = "st_hold_key_to_hard_hold_with_marks_night_vision"
+			end
+		elseif marks then
+			tip = "st_hold_key_to_hard_hold_with_marks"			
+		elseif illum then
 			tip = "st_hold_key_to_hard_hold_with_illum"
-		elseif nvd.get_nv_sect(weapon) then
-			tip = "st_hold_key_to_hard_hold_with_night_vision"			
 		end
 		hud_add_info_message("item_usage", game.translate_string(tip), 2)
 	end

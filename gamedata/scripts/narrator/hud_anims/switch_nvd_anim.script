@@ -9,21 +9,20 @@ local nvd_action = {
 
 local hud_effector_id = 5558
 
-function wpn_scope_allow_nvd(weapon)
-	local wpn = weapon:get_weapon()
-	local sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or weapon:section()
-	return read_if_exists(sys_ini, "r_bool", sect, "scope_allow_nvd", false) or wpn:aim_alt_mode()
-end
-
 function aim_scope()
 	local act_item = actor:active_item()
-	return act_item and act_item:get_weapon() and act_item:get_weapon().zoom_mode and act_item:get_weapon():is_addon_attached(addon.scope) and not wpn_scope_allow_nvd(act_item)
+	return act_item and act_item:get_weapon() and act_item:get_weapon().zoom_mode and act_item:get_weapon():is_addon_attached(addon.scope) and not nvd.wpn_scope_allow_nvd(act_item)
+end
+
+function active_pda()
+	return not is_3d_pda() or actor:active_item() and actor:active_item():get_pda() and actor:active_item():is_zoomed()
 end
 
 function on_key_press(key, game_action)
 	local curr_nvd = nvd.get_current_nvd()
 	if not nvd_action[game_action] or
 		--level.main_input_receiver() or
+		active_pda() or
 		not curr_nvd
 		or not actor_hands_free() 
 		or nvd.aim_nvd_weapon() 
