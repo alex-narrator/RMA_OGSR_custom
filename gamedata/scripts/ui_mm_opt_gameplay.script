@@ -25,8 +25,6 @@ local gameplay_opt_params = {
 	{ "crosshair_hard", 			"check", "gameplay_settings_name_crosshair_hard", 				"gameplay_settings_desc_crosshair_hard"				},
 	{ "3d_pda", 					"check", "gameplay_settings_name_3d_pda", 						"gameplay_settings_desc_3d_pda"						},
 	{ "ambient", 					"check", "gameplay_settings_name_ambient", 						"gameplay_settings_desc_ambient"					},
-	{ "god_mode", 					"check", "gameplay_settings_name_god_mode", 					"gameplay_settings_desc_god_mode"					},
-	{ "unlimited_ammo", 			"check", "gameplay_settings_name_unlimited_ammo", 				"gameplay_settings_desc_unlimited_ammo"				},
 	
 	{ "font_scale_x", 				"track", "", "" },
 	{ "font_scale_y", 				"track", "", "" },
@@ -40,10 +38,10 @@ function opt_gameplay:InitControls(x, y, xml, handler)
 	self:SetAutoDelete(true)
 
 	xml:InitFrame("frame", self)
-	xml:InitFrame("frame_gameplay", self)
-	self.scroll_view = xml:InitScrollView("tab_gameplay:scroll_view", self)
+	xml:InitFrame("frame_"..tab, self)
+	self.scroll_view = xml:InitScrollView("tab_"..tab..":scroll_view", self)
 
-	for i =1,#gameplay_opt_params do
+	for i=1,#gameplay_opt_params do
 		local opt, ctrl, tip_name, tip_text = unpack(gameplay_opt_params[i])
 		
 		local static
@@ -56,6 +54,5 @@ function opt_gameplay:InitControls(x, y, xml, handler)
 		end
 		
 		mm.init_hint(handler, static, opt, tip_name, tip_text)
-		
 	end
 end

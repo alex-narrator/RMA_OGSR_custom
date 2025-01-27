@@ -2274,6 +2274,10 @@ function IsMoveState(state, compare_state)
 	return (bit_and(compare_state, state) ~= 0)
 end
 
+function get_script_option_value(opt)
+	return mm_custom_options.get_script_option(opt)
+end
+
 ADDON_TYPES = {
 	"silencer",
 	"scope",

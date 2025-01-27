@@ -597,5 +597,5 @@ if item then
 end
 
 --set_markswitch_count(0)
---set_scope_params(1, 1.05, 0, 1)
+set_scope_params(2, 1, 0, 1)
 --set_scope_color(0.1,0.1,0,0)

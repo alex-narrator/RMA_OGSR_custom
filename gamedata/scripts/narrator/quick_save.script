@@ -4,7 +4,6 @@ function attach(sm)
 end
 
 local actor_obj = get_actor_obj()
-local QUICK_SAVE_MAX = read_if_exists(sys_ini, "r_u32", "features", "quick_save_max", 10)
 
 local quick_save_keys = {
 	[key_bindings.kQUICK_SAVE] = true,
@@ -40,7 +39,7 @@ function make_quick_save()
 	if last_quick_name then
 		local last_quick_num = last_quick_name:gsub(save_name, "")
 		last_quick_num = tonumber(last_quick_num)
-		if last_quick_num < QUICK_SAVE_MAX then
+		if last_quick_num < get_script_option_value("quick_save_max") then
 			i = last_quick_num + 1
 		end		
 	end

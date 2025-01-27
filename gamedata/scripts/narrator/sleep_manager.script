@@ -87,11 +87,6 @@ function create_mattresses()
 				local coord_tbl = split_string(value, ",", true)
 				local pos = vector():set(coord_tbl[1], coord_tbl[2], coord_tbl[3])
 				local obj = spawn_to_level(PROP_SECT, pos, level_name)
-				obj.custom_data = [[
-					[collide]
-					small_object
-					ignore_static
-				]]
 				--log3("~level name %s | param name %s | x=%s, y=%s, z=%s", level_name, name, pos.x, pos.y, pos.z)
 				if DEBUG_SPOT then
 					local txt = string.format("level: [%s]\\nparam name: [%s]\\npos: [%.2f, %.2f, %.2f]",level_name, name, pos.x, pos.y, pos.z)

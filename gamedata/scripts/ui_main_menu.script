@@ -156,6 +156,8 @@ function main_menu:OnButton_options_clicked()
 	end
 
 	self:GetHolder():start_stop_menu(self.opt_dlg, true)
+	self.opt_dlg.tab:GetButtonByIndex(4):Enable(level.present())
+	self.opt_dlg.tab:GetButtonByIndex(5):Enable(read_if_exists(sys_ini, "r_bool", "features", "debug_mode", false))
 	self:Show(false)
 end
 

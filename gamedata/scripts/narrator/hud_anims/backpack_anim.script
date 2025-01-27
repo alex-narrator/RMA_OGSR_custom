@@ -66,10 +66,9 @@ function play(_type)
 end
 
 function play_hud_sound(sect)
-	local sound
 	local snd_name = read_if_exists(sys_ini, "r_string", sect, "hud_sound", nil)
 	if snd_name then
-		sound = xr_sound.get_safe_sound_object(snd_name)
+		local sound = xr_sound.get_safe_sound_object(snd_name)
 		sound.frequency = anm_snd_speed()
 		sound:play(actor, 0, sound_object.s2d)
 	end

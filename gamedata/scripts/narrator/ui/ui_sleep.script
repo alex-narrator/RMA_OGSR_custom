@@ -94,8 +94,8 @@ function SleepOverlay:Update()
 end
 
 function SleepOverlay:ChangeTime()
-	self.sleep_h = math.floor(self.time_track:GetTrackValue()*24+0.1)
-	local tmp = string.format("%.0f %s", self.sleep_h, game.translate_string("ui_st_hours"))
+	self.sleep_h = self.time_track:GetTrackValue()
+	local tmp = string.format("%d %s", self.sleep_h, game.translate_string("ui_st_hours"))
 	self.time_value:SetText(tmp)
 end
 

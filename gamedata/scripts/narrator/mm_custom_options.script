@@ -1,0 +1,31 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_mm_script_opt_change", 	fun = this.set_script_option})
+	sm:subscribe({signal = "on_save", 					fun = this.on_save})
+	sm:subscribe({signal = "on_load", 					fun = this.on_load})
+end
+
+--// [option name (used also in ui_mm_opt_custom.script)] = option default value
+local script_options = {
+	["floating_info"] = true,
+	["floating_show_delay"] = 1,
+	["quick_save_max"] = 10,
+	["inv_item_condition"] = true,
+}
+
+function get_script_option(name)
+	return script_options[name] or false
+end
+
+function set_script_option(name, val)
+	script_options[name] = val
+	log3("~script_options %s is %s now", name, val)
+end
+
+function on_save(packet)
+	xr_vars.save_var("script_options", script_options)
+end
+
+function on_load(reader)
+	script_options = xr_vars.load_var("script_options", script_options)
+end

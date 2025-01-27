@@ -15,9 +15,6 @@ local overlay = nil
 local OVERLAY_XML = "script_overlays\\ui_item_info.xml"
 
 function create_window()
-	if ui_detail_info.show_info_separate() then
-	return end
-	
 	if not overlay then
 		overlay = UIItemInfo(level.main_input_receiver())
 	end
@@ -106,14 +103,14 @@ function UIItemInfo:InitControls()
 	self.descr_list.font = self.xml:ReadAttrib("background_frame:descr_list:descr_text", "font", def_font)
 	tmp_tbl = split_string(self.xml:ReadAttrib("background_frame:descr_list:descr_text", "text_color", def_color), ",")
 	self.descr_list.text_color = GetARGB(tmp_tbl[1], tmp_tbl[2], tmp_tbl[3], tmp_tbl[4])
-	
-	self.show_delay_time = self.xml:ReadAttribFlt("background_frame", "show_delay", 1)
 end
 
 function UIItemInfo:OnCellItemFocus(item)
+	if not get_script_option_value("floating_info") then
+	return end
 	add_update_delayed_action(1, function() self:InitItemInfo(item) end)
 	--self:InitItemInfo(item)
-	self.delay = time_global() + self.show_delay_time * 1000
+	self.delay = time_global() + get_script_option_value("floating_show_delay") * 1000
 	self.item = item
 end
 

@@ -27,9 +27,9 @@ function opt_controls:InitControls(x, y, xml, handler)
 
 	xml:InitFrame("frame", self)
 
-	xml:InitLabel("tab_controls:cap_keyboardsetup", self)
+	xml:InitLabel("tab_"..tab..":".."cap_keyboardsetup", self)
 	
-	xml:InitKeyBinding("tab_controls:key_binding", self)
+	xml:InitKeyBinding("tab_"..tab..":".."key_binding", self)
 	
 	for i =1, #controls_opt_params do
 		local opt, ctrl, tip_name, tip_text = unpack(controls_opt_params[i])

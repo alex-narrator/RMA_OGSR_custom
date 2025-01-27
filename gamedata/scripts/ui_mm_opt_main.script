@@ -57,6 +57,16 @@ function options_dialog:InitControls()
 	self.dlg_controls:InitControls(55, 74, xml, self)
 	self.dlg_controls:Show(false)
 	self.dialog:AttachChild(self.dlg_controls)
+	
+	self.dlg_custom = ui_mm_opt_custom.opt_custom()
+	self.dlg_custom:InitControls(55, 74, xml, self)
+	self.dlg_custom:Show(false)
+	self.dialog:AttachChild(self.dlg_custom)	
+	
+	self.dlg_debug = ui_mm_opt_debug.opt_debug()
+	self.dlg_debug:InitControls(55, 74, xml, self)
+	self.dlg_debug:Show(false)
+	self.dialog:AttachChild(self.dlg_debug)
 
 	self.dlg_video_adv = ui_mm_opt_video_adv.opt_video_adv()
 	self.dlg_video_adv:InitControls(55, 74, xml, self)
@@ -78,7 +88,7 @@ end
 
 function options_dialog:UpdateOptValues(flag) --true - применить настройки, false - отменить настройки, nil - просто обновить дефолтные значения
 	local OptMgr = COptionsManager()
-	local opt_tbl = {"mm_opt_video_preset", "mm_opt_video", "mm_opt_video_adv", "mm_opt_gameplay", "mm_opt_sound", "mm_opt_controls", "key_binding"}
+	local opt_tbl = {"mm_opt_video_preset", "mm_opt_video", "mm_opt_video_adv", "mm_opt_gameplay", "mm_opt_sound", "mm_opt_controls", "key_binding", "mm_opt_debug"}
 	for _, opt_name in ipairs(opt_tbl) do
 		if flag == true then
 			OptMgr:SaveValues(opt_name)
@@ -112,12 +122,30 @@ function options_dialog:InitCallBacks()
 end
 
 function options_dialog:HintRefresh()
-	self.hint_name:SetText(game.translate_string("hint_name_text"))
-	if self.current_view == 1 then
-		self.hint_caption:SetText(game.translate_string("hint_caption_text"))
-	else
-		self.hint_caption:SetText(game.translate_string("hint_caption_adv_text"))
+	local hint_name = "NO HINT NAME"
+	local hint_caption = "NO HINT CAPTION"
+	local i = self.tab:GetActiveIndex()
+	if i == 0 then
+		hint_name = self.current_view == 1 and "hint_name_video_text" or "hint_name_video_adv_text"
+		hint_caption = self.current_view == 1 and "hint_caption_video_text" or "hint_caption_video_adv_text"
+	elseif i == 1 then
+		hint_name = "hint_name_sound_text"
+		hint_caption = "hint_caption_sound_text"
+	elseif i == 2 then
+		hint_name = "hint_name_gameplay_text"
+		hint_caption = "hint_caption_gameplay_text"
+	elseif i == 3 then
+		hint_name = "hint_name_controls_text"
+		hint_caption = "hint_caption_controls_text"	
+	elseif i == 4 then
+		hint_name = "hint_name_custom_text"
+		hint_caption = "hint_caption_custom_text"			
+	elseif i == 5 then
+		hint_name = "hint_name_debug_text"
+		hint_caption = "hint_caption_debug_text"	
 	end
+	self.hint_name:SetText(game.translate_string(hint_name))
+	self.hint_caption:SetText(game.translate_string(hint_caption))
 end
 
 function options_dialog:Onbtn_keyb_default()
@@ -161,6 +189,8 @@ function options_dialog:OnTabChange()
 	self.dlg_sound:Show(false)
 	self.dlg_gameplay:Show(false)
 	self.dlg_controls:Show(false)
+	self.dlg_custom:Show(false)
+	self.dlg_debug:Show(false)
 	self.dlg_video_adv:Show(false)
 	self.current_view = 1
 
@@ -175,6 +205,11 @@ function options_dialog:OnTabChange()
 		self.dlg_gameplay:Show(true)
 	elseif i == 3 then
 		self.dlg_controls:Show(true)
+	elseif i == 4 then
+		self.dlg_custom:Show(true)
+		self.dlg_custom:SetVals()
+	elseif i == 5 then
+		self.dlg_debug:Show(true)		
 	end
 end
 

@@ -360,7 +360,7 @@ function UpdateConditionStatic(item, icon)
 end
 
 function UpdateConditionProgress(item, icon)
-	if not read_if_exists(sys_ini, "r_bool", "features", "show_inv_item_condition", false) then
+	if not get_script_option_value("inv_item_condition") then
 	return end
 	local condition_progess_bar = icon:FindChild("condition_progess_bar")
 	--if not read_if_exists(sys_ini, "r_bool", item:section(), "use_condition", false) and not is_power_device(item) then

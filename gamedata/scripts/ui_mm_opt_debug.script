@@ -1,0 +1,53 @@
+--Меню налаштувань відладки. Используется скриптом ui_mm_opt_main.script
+
+class "opt_debug" (CUIWindow)
+function opt_debug:__init() super()
+end
+
+function opt_debug:__finalize()
+end
+
+local tab = "debug"
+local mm = ui_mm_opt_main
+
+local debug_opt_params = {
+	--"option name", "option control type", "option tip name", "option tip text"
+	{ "crosshair_dbg", 				"check", "gameplay_settings_name_crosshair_dbg", 				"gameplay_settings_desc_crosshair_dbg" 			},	
+	{ "god_mode", 					"check", "gameplay_settings_name_god_mode", 					"gameplay_settings_desc_god_mode" 				},
+	{ "unlimited_ammo", 			"check", "gameplay_settings_name_unlimited_ammo", 				"gameplay_settings_desc_unlimited_ammo" 		},
+	{ "zones_dbg", 					"check", "gameplay_settings_name_zones_dbg", 					"gameplay_settings_desc_zones_dbg" 				},
+	{ "vertex_dbg", 				"check", "gameplay_settings_name_vertex_dbg", 					"gameplay_settings_desc_vertex_dbg" 			},
+	{ "console_show_always", 		"check", "gameplay_settings_name_console_show_always", 			"gameplay_settings_desc_console_show_always" 	},
+	{ "show_wnd_rect", 				"check", "gameplay_settings_name_show_wnd_rect", 				"gameplay_settings_desc_show_wnd_rect" 			},
+	{ "show_wnd_rect_all", 			"check", "gameplay_settings_name_show_wnd_rect_all", 			"gameplay_settings_desc_show_wnd_rect_all" 		},
+	{ "show_wnd_rect_names", 		"check", "gameplay_settings_name_show_wnd_rect_names", 			"gameplay_settings_desc_show_wnd_rect_names" 	},
+	
+	{ "hud_adjust_mode", 			"track", "gameplay_settings_name_hud_adjust_mode", 				"gameplay_settings_desc_hud_adjust_mode" 		},
+	{ "hud_adjust_delta_pos", 		"track", "gameplay_settings_name_hud_adjust_delta_pos", 		"gameplay_settings_desc_hud_adjust_delta_pos" 	},
+	{ "hud_adjust_delta_rot", 		"track", "gameplay_settings_name_hud_adjust_delta_rot", 		"gameplay_settings_desc_hud_adjust_delta_rot" 	},
+}
+
+function opt_debug:InitControls(x, y, xml, handler)
+	self:Init(x, y, 738, 416)
+	self:SetAutoDelete(true)
+
+	xml:InitFrame("frame", self)
+	xml:InitFrame("frame_"..tab, self)
+	
+	self.scroll_view = xml:InitScrollView("tab_"..tab..":scroll_view", self)
+
+	for i=1,#debug_opt_params do
+		local opt, ctrl, tip_name, tip_text = unpack(debug_opt_params[i])
+		
+		local static
+		
+		if ctrl == "list" or ctrl == "track" then --окремий випадок для комбобоксів
+			static = xml:InitStatic("tab_"..tab..":cap_"..opt, self) 				--статик з описом оції у меню
+			xml[mm.get_control(ctrl)](xml, "tab_"..tab..":"..ctrl.."_"..opt, self)	--сам комбобокс
+		else
+			static = xml[mm.get_control(ctrl)](xml, "tab_"..tab..":"..ctrl.."_"..opt, self.scroll_view)
+		end
+		
+		mm.init_hint(handler, static, opt, tip_name, tip_text)
+	end
+end
