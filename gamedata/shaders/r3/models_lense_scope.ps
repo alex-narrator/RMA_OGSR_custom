@@ -24,10 +24,9 @@ struct v2p
 
 float resize(float input, float factor, float offset) { return (input - 0.5f + offset) / factor + 0.5f - offset; }
 
-float4 calc_vignette(float2 tc0, float4 color, float vignette_size)
+float4 calc_vignette(float2 tc0, float vignette_size)
 {
-	color *= smoothstep(0.55f, 0.4f, vignette_size * distance(tc0, float2(0.5f, 0.5f)));
-	return color;
+	return smoothstep(0.55f, 0.4f, vignette_size * distance(tc0, float2(0.5f, 0.5f)));
 }
 
 float4 main(v2p I) : SV_Target
@@ -78,7 +77,7 @@ float4 main(v2p I) : SV_Target
 			t_vp2.a = s_vp2.Load(I.pos2d.xyz).a;
 		}		
 		if (VIGNETTE > 0.f)
-			t_vp2.rgb = calc_vignette(I.tc0, t_vp2, VIGNETTE);
+			t_vp2.rgb *= calc_vignette(I.tc0, VIGNETTE);
 		if (pnv_color.w > 1.f)
 			t_vp2.rgb = calc_night_vision_effect(I.tc0, t_vp2);
 	}

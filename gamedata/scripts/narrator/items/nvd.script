@@ -38,7 +38,7 @@ function get_nvd_params(sect)
 		NOISE = read_if_exists(sys_ini, "r_float", sect, "nv_noise", 0),
 		SCANLINES = read_if_exists(sys_ini, "r_float", sect, "nv_scanlines", 0),
 		VIGNETTE = read_if_exists(sys_ini, "r_float", sect, "nv_vignette", 0),
-		FLICKERING = read_if_exists(sys_ini, "r_float", sect, "nv_flickering", 0),
+		WORK_AREA = read_if_exists(sys_ini, "r_float", sect, "nv_work_area", 1),
 	}
 	return params
 end
@@ -87,7 +87,7 @@ function set_nvd_effector(sect, enable)
 	else
 		local params = get_nvd_params(sect)
 		set_pnv_color(params.R, params.G, params.B, params.INTENSITY)
-		set_pnv_params(params.NOISE, params.SCANLINES, params.VIGNETTE, params.FLICKERING)
+		set_pnv_params(params.NOISE, params.SCANLINES, params.VIGNETTE, params.WORK_AREA)
 	end
 end
 

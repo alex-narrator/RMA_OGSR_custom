@@ -33,17 +33,16 @@ struct v2p
 
 float resize(float input, float factor, float offset) { return (input - 0.5f + offset) / factor + 0.5f - offset; }
 
-float4 calc_vignette(float2 tc0, float4 color, float vignette_size)
+float4 calc_vignette_scope(float2 tc0, float vignette_size)
 {
 	if(SMOOTH_MODE)
 	{
-		color *= smoothstep(0.55f, 0.4f, vignette_size * distance(aspect_ratio_correction(tc0), float2(0.5f, 0.5f)));
+		return smoothstep(0.55f, 0.4f, vignette_size * distance(aspect_ratio_correction(tc0), float2(0.5f, 0.5f)));
 	}
 	else
 	{
-		color *= smoothstep(0.55f, 0.4f, vignette_size * distance(tc0, float2(0.5f, 0.5f)));
+		return smoothstep(0.55f, 0.4f, vignette_size * distance(tc0, float2(0.5f, 0.5f)));
 	}
-	return color;
 }
 
 float2 calc_rotation(float2 tc, float2 pivot, float angle)
@@ -151,7 +150,7 @@ float4 main(v2p I) : SV_Target
 	{
 		if(SMOOTH_MODE)
 			VIGNETTE *= FAKE_ZOOM_K;
-		t_vp2.rgb = calc_vignette(I.tc0, t_vp2, VIGNETTE);
+		t_vp2.rgb *= calc_vignette_scope(I.tc0, VIGNETTE);
 	}
 	if (pnv_color.w > 1.f)
 		t_vp2.rgb = calc_night_vision_effect(I.tc0, t_vp2);
