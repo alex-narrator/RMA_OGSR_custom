@@ -109,7 +109,7 @@ end
 	-- main_wnd.show_zone_map = not main_wnd.show_zone_map
 -- end
 
--- game.play_hud_motion(2, "pistol_kick_hud", "anm_attack", false, 1, false)
+game.play_hud_motion(2, "matches_hud", "anm_use", false, 1, true)
 -- level.add_cam_effector('camera_effects\\kick\\attack_heavy.anm', 8073, false,'')
 --game.stop_hud_motion()
 --actor:activate_slot(NO_ACTIVE_SLOT, true)
@@ -574,8 +574,8 @@ set_pda_params(param)
 
 --actor:give_info_portion("encyclopedy_social_military_army")
 
-set_pnv_color(0.2, 0.3, 0.2, 10)
-set_pnv_params(0.1,0,1.2,0.5)
+--set_pnv_color(0.2, 0.3, 0.2, 10)
+--set_pnv_params(0.1,0,1.2,0.5)
 --set_markswitch_current(3)
 --set_markswitch_color(1, 1, 0, 0)
 --set_pnv_color(0,0,0,0)

@@ -3,6 +3,8 @@ function attach(sm)
 	sm:subscribe({signal = "on_campfire_use", fun = this.on_campfire_use})
 end
 
+local hud_effector_id = 6666
+
 local CAMPFIRE_EFFECT_DIST = actor.inventory.take_dist
 local PSY_RESTORE_K = 0.5
 local actor_obj = get_actor_obj()
@@ -37,31 +39,51 @@ function on_campfire_use(campfire_usable, campfire_zone)
 		
 		actor:hide_weapon(true)
 		level.disable_input()
-		local sound = xr_sound.get_safe_sound_object(read_if_exists(sys_ini, "r_string", matches:section(), "use_sound", nil))
-		if sound then
-			sound:play(actor, 0, sound_object.s2d)
-		end
-			
-		level.add_call(
-			function()
-				return not sound or not sound:playing()
-			end,
-			function()
-				actor:restore_weapon(true)
-				level.enable_input()
-				local prob = LIGHT_UP_PROB
-				--if not actor:is_ActorHide() then
-				if not is_pos_under_roof(campfire_zone:position()) then
-					prob = prob + level.rain_factor()
-					log3("~rain factor %s", level.rain_factor())
+		actor:hide_crosshair(true)
+		
+		local hud_sect = get_hud_sect(matches)
+		if hud_sect then
+			level.add_call(
+				function()
+					return not actor:active_item() and not actor:active_device()
+				end,
+				function()
+					game.play_hud_motion(2, hud_sect, "anm_use", false, 1, true)
+					_G.SCRIPT_ANIM_PLAYING = true
+					play_hud_sound(hud_sect)
+					play_hud_effector(hud_sect)
+					level.add_call(
+						function()
+							return game.hud_motion_allowed()
+						end,
+						function()
+							_G.SCRIPT_ANIM_PLAYING = false
+							actor:restore_weapon(true)
+							level.enable_input()
+							actor:hide_crosshair(false)
+							try_ignit(campfire_zone)
+						end
+					)				
 				end
-				log3("~light up prob %s", prob)
-				if math.random(0, 10) > prob then
-					campfire_zone:enable_anomaly()
-					alife():object(campfire_zone:id()).enabled = true
-				end
+			)
+		else
+		
+			local sound = xr_sound.get_safe_sound_object(read_if_exists(sys_ini, "r_string", matches:section(), "use_sound", nil))
+			if sound then
+				sound:play(actor, 0, sound_object.s2d)
 			end
-		)
+			level.add_call(
+				function()
+					return not sound or not sound:playing()
+				end,
+				function()
+					actor:restore_weapon(true)
+					level.enable_input()
+					actor:hide_crosshair(false)
+					try_ignit(campfire_zone)
+				end
+			)
+		end
 	return end
 	
 	if actor_use_campfire and actor_use_campfire:id() == campfire_zone:id() then
@@ -73,6 +95,46 @@ function on_campfire_use(campfire_usable, campfire_zone)
 	actor:activate_slot(NO_ACTIVE_SLOT)
 	backpack.force_crouch(true)
 	subscribe()	
+end
+
+function try_ignit(campfire_zone)
+	local prob = LIGHT_UP_PROB
+	--if not actor:is_ActorHide() then
+	if not is_pos_under_roof(campfire_zone:position()) then
+		prob = prob + level.rain_factor()
+		log3("~rain factor %s", level.rain_factor())
+	end
+	log3("~light up prob %s", prob)
+	if math.random(0, 10) > prob then
+		campfire_zone:enable_anomaly()
+		alife():object(campfire_zone:id()).enabled = true
+	end
+end
+
+function play_hud_sound(sect)
+	local sound = nil
+	local snd_name = read_if_exists(sys_ini, "r_string", sect, "hud_sound", nil)
+	if snd_name then
+		--//random sounds in format hud_sound = path_to_sound, n (count of sound files)
+		--//sound expected as sound_1, sound_2, ... sound_n
+		snd_name = split_string(snd_name, ",")
+		if snd_name[2] then
+			snd_name = snd_name[1]..math.random(1, tonumber(snd_name[2]))
+		else
+			snd_name = snd_name[1]
+		end
+		sound = xr_sound.get_safe_sound_object(snd_name,sound_object.s2d)
+		sound:play(actor, 0, sound_object.s2d)
+	end
+	return sound
+end
+
+function play_hud_effector(sect)
+	local eff_name = read_if_exists(sys_ini, "r_string", sect, "hud_effector", nil)
+	if eff_name then
+		level.remove_complex_effector(hud_effector_id)
+		level.add_complex_effector(eff_name, hud_effector_id)
+	end
 end
 
 function actor_used_campfire()
