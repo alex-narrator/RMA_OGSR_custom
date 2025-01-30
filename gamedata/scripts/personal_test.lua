@@ -109,7 +109,7 @@ end
 	-- main_wnd.show_zone_map = not main_wnd.show_zone_map
 -- end
 
-game.play_hud_motion(2, "matches_hud", "anm_use", false, 1, true)
+--game.play_hud_motion(2, "matches_hud", "anm_use", false, 1, true)
 -- level.add_cam_effector('camera_effects\\kick\\attack_heavy.anm', 8073, false,'')
 --game.stop_hud_motion()
 --actor:activate_slot(NO_ACTIVE_SLOT, true)
@@ -515,8 +515,8 @@ end
 	-- particles_object(particle):play_at_pos(pos)
 -- end
 
-local param = vector():set(0,0,0)
-set_pda_params(param)
+-- local param = vector():set(0,0,0)
+-- set_pda_params(param)
 
 -- local spawn_pos = vector():set(53.722770690918, 20.354343414307, 156.74801635742)
 -- local spawn_dir = vector()--:set(1.17, 0, 0)

@@ -146,6 +146,38 @@ function add_move_to_ruck(pbox, item)
 	pbox:AddItem(name, precondition, action, item)
 end
 
+function add_reload_weapon(pbox, cell_item)
+	local item = cell_item:GetAnyItem()
+	local name, precondition, action
+	
+	local best_ammo = get_best_ammo(item)
+	if not best_ammo then
+	return end
+	
+	for k,_item in pairs(get_best_ammo(item)) do
+		name = function(item, _item)
+			local str = string.format("%s %s", game.translate_string("st_reload_magazine"), game.translate_string(get_inv_name_short(_item:section())))
+			local ammo = _item:get_weapon_ammo()
+			if ammo and ammo:is_magazine() then
+				str = string.format("%s %s (%s)", game.translate_string("st_reload_magazine"), game.translate_string(get_inv_name_short(_item:section())), game.translate_string(get_inv_name_short(ammo:ammo_sect())))
+			end
+			return str
+		end
+		precondition = function(item, _item)
+			return can_be_reloaded_by(item, _item)
+		end
+		action = function(item, _item)
+			item:is_direct_reload(_item)
+			local snd_name = read_if_exists(sys_ini, "r_string", item:section(), "load_sound", nil)
+			if snd_name then
+				xr_sound.get_safe_sound_object(snd_name):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+			end
+			cell_item:ForceUpdate()
+		end
+		pbox:AddItem(name, precondition, action, item, _item)
+	end
+end
+
 function add_unload_weapon(pbox, cell_item)
 	local name, precondition, action
 	name = "st_unload_magazine"

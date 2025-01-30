@@ -1480,6 +1480,13 @@ color_by_relation_argb = {
 	[2] = GetARGB(255, 255, 0, 0),
 }
 
+AMMO_PARAM_NAMES = {
+	"ammo_types",
+	"ammo_class",
+	"magazine_class",
+	"grenade_class",
+}
+
 --рушійно-подібні константи
 KNIFE_SLOT 			= 0
 FIRST_WEAPON_SLOT	= 1
@@ -1805,6 +1812,109 @@ function get_ammo2_sects(obj)
 	local ammo_sect = read_if_exists(sys_ini, "r_string", obj:section(), "grenade_class", nil)
 	local ammo_table = split_string(ammo_sect, ",")
 	return ammo_table
+end
+
+function can_be_reloaded_by(item, item_to_load)
+	local ammo = item:get_weapon_ammo()
+	local wpn = item:get_weapon_m()
+	if wpn and not actor:is_in_slot(item) then
+	return false end
+	
+	local sect = item_to_load:section()
+	
+	for _, param_name in pairs (AMMO_PARAM_NAMES) do
+		local ammo_str = read_if_exists(sys_ini, "r_string", item:section(), param_name, nil)
+		if ammo_str and string.find(ammo_str, sect) then
+			--//load magazine with ammo
+			if param_name == "ammo_types" then
+				return ammo and ammo:is_magazine() and (ammo:ammo_sect() ~= sect or ammo.box_curr < ammo.box_size)
+			end
+			--//load weapon with gl-grenades
+			if param_name == "grenade_class" then
+				if wpn and wpn:is_addon_attached(addon.launcher) then
+					return wpn.ammo_elapsed < wpn.ammo_mag_size or wpn:get_ammo_sect() ~= sect
+				end
+			end
+			--//load weapon with magazine
+			if param_name == "magazine_class" then
+				local ammo_to_load = item_to_load:get_weapon_ammo()
+				return ammo_to_load and ammo_to_load.box_curr > 0 and wpn and wpn:addon_attachable(addon.magazine) and (not wpn:is_addon_attached(addon.magazine) or wpn.ammo_elapsed < wpn.ammo_mag_size or sect ~= wpn:get_addon_name(addon.magazine))
+			end
+			--//load weapon with ammo
+			if param_name == "ammo_class" then
+				--//for shotguns we need only free space. to change the ammo type need extract at least 1 cartridge
+				if wpn and get_clsid(item) == clsid.wpn_shotgun_s then
+					return wpn.ammo_elapsed < wpn.ammo_mag_size
+				end
+				--//magazine feeded weapon can be reloaded strait to chamber if hase one
+				if wpn and wpn:addon_attachable(addon.magazine) then
+					return wpn.ammo_elapsed == 0 and read_if_exists(sys_ini, "r_bool", item:section(), "has_chamber", true)
+				end
+				--//vanilla reload condition in other cases
+				return wpn and (wpn.ammo_elapsed < wpn.ammo_mag_size or wpn:get_ammo_sect() ~= sect)
+			end
+		end
+	end
+	return false
+end
+
+function get_best_ammo(item)
+	local ammo = item:get_weapon_ammo()
+	local wpn = item:get_weapon_m()
+	if not ammo and not wpn then 
+	return false end
+	
+	local compat_ammo = {}
+	function perform_action(dummy, _item)
+		for k,param_name in pairs(AMMO_PARAM_NAMES) do
+			local ammo_str = read_if_exists(sys_ini, "r_string", item:section(), param_name, nil)
+			local ammo = _item:get_weapon_ammo()
+			if ammo_str and string.find(ammo_str, _item:section()) and ammo and ammo.box_curr > 0 then
+				local key = (ammo and ammo:is_magazine()) and (_item:section().."_"..ammo:ammo_sect()) or _item:section()
+				if not compat_ammo[key] then
+					compat_ammo[key] = {}
+				end				
+				table.insert(compat_ammo[key], _item)
+			end
+		end
+	end	
+	actor:iterate_inventory(perform_action, nil)
+	
+	--log3("~compat_ammo %s", compat_ammo)
+	
+	local best_ammos = {}
+	function find_best(array)
+		local best_ammo
+		local ammo = array[1]:get_weapon_ammo()
+		local limit_max = true--ammo and ammo:is_magazine()
+		local limit = 0
+		local res
+		for k,v in pairs(array) do
+			local box_curr = v:get_weapon_ammo().box_curr
+			local size_fits_limit = (box_curr == (limit_max and v:get_weapon_ammo().box_size or 1 ))
+			local update_limit = limit_max and (box_curr > limit) or (limit == 0 or box_curr < limit)
+			
+			if size_fits_limit then
+				best_ammo = v
+			end
+			if update_limit then
+				best_ammo = v
+				limit = box_curr
+			end
+		end
+		if best_ammo  then
+			table.insert(best_ammos, best_ammo)
+		end
+	end
+	
+	for k,v in pairs(compat_ammo) do
+		find_best(v)
+	end
+	
+	--//show ammo reload before magazine reload
+	table.sort(best_ammos, function(a,b) return not a:get_weapon_ammo():is_magazine() and a:get_weapon_ammo():is_magazine() end)
+	
+	return best_ammos
 end
 
 -- сделать предмет безусловно негруппируемым в окнах инвентаря

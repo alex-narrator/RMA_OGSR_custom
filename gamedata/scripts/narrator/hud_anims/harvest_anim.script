@@ -40,7 +40,7 @@ local meat_type = {
 }
 
 function play_harvest(monster)
-	local knife = actor_get_knife()--actor:active_item()
+	local knife = harvest.get_good_knife()
 	
 	local meat_hud = meat_type[get_species(monster)] or default_hud
 	

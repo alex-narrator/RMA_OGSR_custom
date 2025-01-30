@@ -212,43 +212,8 @@ function QuickAddonOverlay:CheckAmmo(check_item)
 	local items = {}
 	for id,v in pairs(loadout.get_loaded_items()) do
 		local item = level.object_by_id(id)
-		
-		local can_set = false
-		
-		local ammo_sects = get_ammo_sects(check_item)
-		for k,v in pairs(ammo_sects) do
-			if v == item:section() then
-				can_set = true
-				break
-			end
-		end		
-		
-		if weapon:addon_attachable(addon.magazine) then
-			local magazine_sect = get_magazine_sects(check_item)
-			for k,v in pairs(magazine_sect) do
-				if v == item:section() then
-					can_set = true
-					break
-				end
-			end
-		end
-		
-		if weapon:is_addon_attached(addon.launcher) then
-			local ammo_sects2 = get_ammo_sects(check_item)
-			for k,v in pairs(ammo_sects2) do
-				if v == item:section() then
-					can_set = true
-					break
-				end
-			end
-		end		
-		
-		local ammo = item:get_weapon_ammo()
-		if ammo then
-			can_set = can_set and ammo.box_curr > 0 and ( (item:section() ~= get_cur_ammo_sect(check_item) and (item:get_weapon_ammo():is_magazine() or check_item:get_ammo_in_magazine() < check_item:get_magazine_size()) ) or check_item:get_ammo_in_magazine() == 0)
-		end		
-		
-		if can_set then
+				
+		if can_be_reloaded_by(check_item, item) then
 			ui_inv_utils.try_add_to_list(item, items, true)
 		end
 	end	

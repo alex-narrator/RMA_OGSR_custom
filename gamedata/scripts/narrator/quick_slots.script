@@ -80,6 +80,24 @@ end
 function get_item(slot_num)
 	local sect = quick_sect[slot_num]
 	local item = nil
+	--шукаємо їстивні предмети щоб взяти той в якого найменше порцій
+	if read_if_exists(sys_ini, "r_u32", sect, "eat_portions_num", 1) > 1 then
+		local items = {}
+		for k,v in pairs(loadout.get_loaded_items()) do
+			item = level.object_by_id(k)
+			if item and item:section() == sect then
+				table.insert(items, {item, item:get_eatable_item().eat_portions_num})
+			end
+		end
+		local min_count = 1000
+		for k,v in pairs(items) do
+			if v[2] < min_count then
+				min_count = v[2]
+				item = v[1]
+			end
+		end
+		return item
+	end
 	--шукаємо предмети у розгрузці
 	for k,v in pairs(loadout.get_loaded_items()) do
 		item = level.object_by_id(k)

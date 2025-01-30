@@ -84,9 +84,13 @@ function similar_item(item1, item2)
 		--and (not (parent_is_actor(item1) and parent_is_actor(item2)) or iitem1.item_place == iitem2.item_place)
 	
 	local ammo1, ammo2 = item1:get_weapon_ammo(), item2:get_weapon_ammo()
-	if ammo1 and ammo2 and ammo1:is_magazine() and ammo2:is_magazine() then
-		local similar_magazine = (ammo1:ammo_sect() == ammo2:ammo_sect() and ammo1.box_curr > 0 and ammo2.box_curr > 0) or (ammo1.box_curr == 0 and ammo2.box_curr == 0)
-		similar = similar and similar_magazine
+	if ammo1 and ammo2 then
+		if ammo1:is_magazine() and ammo2:is_magazine() then
+			local similar_magazine = (ammo1:ammo_sect() == ammo2:ammo_sect() and ammo1.box_curr > 0 and ammo2.box_curr > 0) or (ammo1.box_curr == 0 and ammo2.box_curr == 0)
+			similar = similar and similar_magazine
+		else
+			return item1:section() == item2:section()
+		end
 	end
 	
 	local eatable1, eatable2 = item1:get_eatable_item(), item2:get_eatable_item()
@@ -157,7 +161,7 @@ function UpdateWpnIcons(item, icon)
 				local addon_sect = wpn:get_addon_name(i)
 				icon_sect = read_if_exists(sys_ini, "r_string", addon_sect, sect.."_icon_sect", read_if_exists(sys_ini, "r_string", addon_sect, "addon_icon_sect", v ~= "magazine" and addon_sect or nil))
 				offset = get_addon_offset(k, addon_sect, sect)
-				--log3("wpn %s, addon %s, offset.x %s, offset.y %s", item:name(), v, offset.x, offset.y)
+				--log3("wpn %s, addon %s, icon_sect %s, offset.x %s, offset.y %s", item:name(), v, icon_sect, offset.x, offset.y)
 				if icon_sect then
 					--log3("icon sect %s", icon_sect or "NONE")
 					params = CIconParams(icon_sect)

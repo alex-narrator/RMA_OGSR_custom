@@ -16,16 +16,27 @@ local RAIN_K = 1
 local actor_use_campfire = false
 local subscribed = false
 
+local matches_sect = "matches"
+
 function get_matches()
-	return actor:object("matches")
+	return actor:object(matches_sect)
 end
 
 function on_campfire_use(campfire_usable, campfire_zone)
 	--log3("~use zone section %s, ID %s", campfire_zone:section(), campfire_zone:id())
 	if not alife():object(campfire_zone:id()).enabled then
 		
-		local matches = get_matches()
-		
+		local matches = nil--get_matches()
+		local min_cond = 1.1
+		function perform_action(dummy, item)
+			if item:section() == matches_sect then
+				if item:condition() < min_cond then
+					min_cond = item:condition()
+					matches = item
+				end
+			end
+		end	
+		actor:iterate_inventory(perform_action, nil)		
 		if not matches then
 		return end
 		
