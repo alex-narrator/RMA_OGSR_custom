@@ -211,25 +211,24 @@ function Cwound_manager:eat_medkit()
 	local item_to_eat
 	local npc = self.npc
 	if self.can_use_medkit == true then
-	
-		item_to_eat = npc:object("medkit")
-		if not item_to_eat then
-			item_to_eat = npc:object("medkit_army")
-		end
-		if not item_to_eat then
-			item_to_eat = npc:object("medkit_scientic")
-		end
-		
+		--//перенесено у healing_wounded.script
+		-- item_to_eat = npc:object("medkit")
+		-- if not item_to_eat then
+			-- item_to_eat = npc:object("medkit_army")
+		-- end
+		-- if not item_to_eat then
+			-- item_to_eat = npc:object("medkit_scientic")
+		-- end
+		-- if item_to_eat then
+			-- npc:eat(item_to_eat)
+			-- npc.health = 1
+			-- --
+			-- self.sm:call("on_eat", item_to_eat, npc)
+			-- --
+		-- end		
+		self.can_use_medkit = false
+		self:hit_callback()		
 	end
-	if item_to_eat then
-		npc:eat(item_to_eat)
-		npc.health = 1
-		--
-		self.sm:call("on_eat", item_to_eat, npc)
-		--
-	end
-	self.can_use_medkit = false
-	self:hit_callback()
 end
 function Cwound_manager:process_fight(hp)
 	local key

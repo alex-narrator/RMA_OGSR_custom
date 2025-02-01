@@ -159,7 +159,7 @@ function add_reload_weapon(pbox, cell_item)
 			local str = string.format("%s %s", game.translate_string("st_reload_magazine"), game.translate_string(get_inv_name_short(_item:section())))
 			local ammo = _item:get_weapon_ammo()
 			if ammo and ammo:is_magazine() then
-				str = string.format("%s %s (%s)", game.translate_string("st_reload_magazine"), game.translate_string(get_inv_name_short(_item:section())), game.translate_string(get_inv_name_short(ammo:ammo_sect())))
+				str = string.format("%s %s (%s)", game.translate_string("st_reload_magazine"), game.translate_string(get_inv_name_short(_item:section())), game.translate_string(get_inv_icon_text(ammo:ammo_sect())))
 			end
 			return str
 		end

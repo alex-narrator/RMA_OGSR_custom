@@ -54,36 +54,35 @@ function is_not_opp_wounded(first_speaker, second_speaker)
 	return not this.is_opp_wounded(first_speaker, second_speaker, dialog_id)
 end
 function actor_have_medkit(first_speaker, second_speaker)
-	return first_speaker:object("medkit") ~= nil or
-		   first_speaker:object("medkit_army") ~= nil or
-		   first_speaker:object("medkit_scientic") ~= nil
+	return healing_wounded.actor_has_medkit()
 end
 function actor_have_bandage(first_speaker, second_speaker)
 	return first_speaker:object("bandage") ~= nil
 end
 function transfer_medkit(first_speaker, second_speaker)
-	if first_speaker:object("medkit") ~= nil then
-		dialogs.relocate_item_section(second_speaker, "medkit", "out")
-	elseif first_speaker:object("medkit_army") ~= nil then
-		dialogs.relocate_item_section(second_speaker, "medkit_army", "out")
-	else
-		dialogs.relocate_item_section(second_speaker, "medkit_scientic", "out")
-	end
-
-	--' Тут надо анлочить аптечку для использования.
-	xr_wounded.unlock_medkit(second_speaker)
-		
-	if second_speaker:relation(first_speaker) ~= game_object.enemy then
-		second_speaker:set_relation(game_object.friend, first_speaker)
-	end
-	if second_speaker:alive() then
-		if second_speaker:is_talk_enabled() == true then
-			if second_speaker:active_sound_count() == 0 then
-				xr_sound.set_sound_play(second_speaker, "help_thanx")
-			end
-		end
-	end
 	ogse_signals.get_mgr():call("on_heal_wounded", second_speaker)
+	--//перенесено у healing_wounded.script	
+	-- if first_speaker:object("medkit") ~= nil then
+		-- dialogs.relocate_item_section(second_speaker, "medkit", "out")
+	-- elseif first_speaker:object("medkit_army") ~= nil then
+		-- dialogs.relocate_item_section(second_speaker, "medkit_army", "out")
+	-- else
+		-- dialogs.relocate_item_section(second_speaker, "medkit_scientic", "out")
+	-- end
+
+	-- --' Тут надо анлочить аптечку для использования.
+	-- xr_wounded.unlock_medkit(second_speaker)
+		
+	-- if second_speaker:relation(first_speaker) ~= game_object.enemy then
+		-- second_speaker:set_relation(game_object.friend, first_speaker)
+	-- end
+	-- if second_speaker:alive() then
+		-- if second_speaker:is_talk_enabled() == true then
+			-- if second_speaker:active_sound_count() == 0 then
+				-- xr_sound.set_sound_play(second_speaker, "help_thanx")
+			-- end
+		-- end
+	-- end
 end
 function transfer_bandage(first_speaker, second_speaker)
 	dialogs.relocate_item_section(second_speaker, "bandage", "out")

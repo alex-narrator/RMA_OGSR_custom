@@ -2,7 +2,7 @@
 local cut_snd = [[interface\item_usage\harvest_use]]
 local take_snd = [[interface\item_usage\harvest_use_success]]
 
-local common = [[camera_effects\item_use\harvest_]]
+local common = [[camera_effects\harvest\harvest_]]
 local ext = ".anm"
 local effects = {
 	["loot"] = {
@@ -14,7 +14,8 @@ local effects = {
 		id = 8998,
 	},
 	["lean"] = {
-		effect = common.."lean_down_main"..ext,
+		--//lean_down_main
+		effect = common.."cam_down"..ext,
 		id = 8999,
 	},
 }
@@ -38,18 +39,23 @@ local meat_type = {
 	tushkano 	= "harv_meat_tushkan_hud",
 	zombie 		= "harv_meat_zombie_hud",
 }
+local height_diff = 1
 
 function play_harvest(monster)
 	local knife = harvest.get_good_knife()
 	
 	local meat_hud = meat_type[get_species(monster)] or default_hud
 	
+	log3("~height diff %s", device().cam_pos.y - monster:center().y)
+	
 	level.disable_input()
-	backpack.force_crouch(true)
+	--backpack.force_crouch(true)
 	game.play_hud_motion(2, "harv_"..get_hud_sect(knife), "anm_show", true, 1, true)
 	_G.SCRIPT_ANIM_PLAYING = true
-	for _,v in pairs(effects) do
-		level.add_cam_effector(v.effect, v.id, false, "")
+	for k,v in pairs(effects) do
+		if k ~= "lean" or device().cam_pos.y - monster:center().y > height_diff then
+			level.add_cam_effector(v.effect, v.id, false, "")
+		end
 	end
 	xr_sound.get_safe_sound_object(cut_snd):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 	level.add_call(
@@ -67,7 +73,7 @@ function play_harvest(monster)
 				function()
 					harvest.take_loot(monster, knife)
 					_G.SCRIPT_ANIM_PLAYING = false
-					backpack.force_crouch(false)
+					--backpack.force_crouch(false)
 					level.enable_input()
 				end
 			)

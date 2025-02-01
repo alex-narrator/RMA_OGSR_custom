@@ -1,0 +1,75 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+
+local medicine = {
+	"medkit",
+	"medkit_army",
+	"medkit_scientic",
+}
+
+function actor_has_medkit()
+	for k,sect in pairs(medicine) do
+		if actor:object(sect) then
+			return true
+		end
+	end
+	return false
+end
+
+function get_medkit()
+	for k,sect in pairs(medicine) do
+		--шукаємо їстивні предмети щоб взяти той в якого найменше порцій
+		if read_if_exists(sys_ini, "r_u32", sect, "eat_portions_num", 1) > 1 then
+			local items = {}
+			function perform_action(dummy, item)
+				if sect == item:section() then
+					table.insert(items, {item, item:get_eatable_item().eat_portions_num})
+				end
+			end	
+			actor:iterate_inventory(perform_action, nil)
+			local item
+			local min_count = 1000
+			for k,v in pairs(items) do
+				if v[2] < min_count then
+					min_count = v[2]
+					item = v[1]
+				end
+			end
+			return item
+		else
+			return actor:object(sect)
+		end		
+	end
+	return nil
+end
+
+local unique_wounded_info = {
+	[story_ids.Escape_tutorial_wounded] = "tutorial_wounded_help"
+}
+
+function heal(npc)
+	local first_speaker = actor
+	local second_speaker = npc
+	
+	local medkit = get_medkit()
+	if not medkit then return end
+	--' “ут надо анлочить аптечку дл¤ использовани¤.
+	xr_wounded.unlock_medkit(second_speaker)
+	npc:eat(medkit)
+	npc.health = 1
+	news_manager.item_tip(medkit, "help_wounded")
+
+	if unique_wounded_info[npc:story_id()] then
+		actor:give_info_portion(unique_wounded_info[npc:story_id()])
+	end
+		
+	if second_speaker:relation(first_speaker) ~= game_object.enemy then
+		second_speaker:set_relation(game_object.friend, first_speaker)
+	end
+	if second_speaker:alive() then
+		if second_speaker:is_talk_enabled() == true then
+			if second_speaker:active_sound_count() == 0 then
+				xr_sound.set_sound_play(second_speaker, "help_thanx")
+			end
+		end
+	end
+end

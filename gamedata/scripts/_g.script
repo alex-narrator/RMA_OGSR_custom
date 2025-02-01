@@ -1569,6 +1569,10 @@ function get_inv_name_short(section)
 	return read_if_exists(sys_ini, "r_string", section, "inv_name_short", get_inv_name(section))
 end
 
+function get_inv_icon_text(section)
+	return read_if_exists(sys_ini, "r_string", section, "icon_text", get_inv_name_short(section))
+end
+
 function cobj_by_name(name)
 	return level.object_by_id(sobj_by_name(name).id)
 end
@@ -1885,8 +1889,9 @@ function get_best_ammo(item)
 	local best_ammos = {}
 	function find_best(array)
 		local best_ammo
-		local ammo = array[1]:get_weapon_ammo()
-		local limit_max = true--ammo and ammo:is_magazine()
+		local _ammo = array[1]:get_weapon_ammo()
+		local limit_max = not (_ammo and not _ammo:is_magazine() and wpn and wpn.ammo_mag_size <= 2)
+		log3("~%s - limit max %s", array[1]:name(), limit_max)
 		local limit = 0
 		local res
 		for k,v in pairs(array) do
@@ -1896,6 +1901,7 @@ function get_best_ammo(item)
 			
 			if size_fits_limit then
 				best_ammo = v
+				break
 			end
 			if update_limit then
 				best_ammo = v

@@ -109,7 +109,7 @@ end
 	-- main_wnd.show_zone_map = not main_wnd.show_zone_map
 -- end
 
---game.play_hud_motion(2, "matches_hud", "anm_use", false, 1, true)
+game.play_hud_motion(2, "heal_wounded_hud", "anm_use", false, 1, true)
 -- level.add_cam_effector('camera_effects\\kick\\attack_heavy.anm', 8073, false,'')
 --game.stop_hud_motion()
 --actor:activate_slot(NO_ACTIVE_SLOT, true)
@@ -597,5 +597,5 @@ if item then
 end
 
 --set_markswitch_count(0)
---set_scope_params(2, 1, 0, 1)
+set_scope_params(2.5, 1, 0, 1)
 --set_scope_color(0.1,0.1,0,0)
