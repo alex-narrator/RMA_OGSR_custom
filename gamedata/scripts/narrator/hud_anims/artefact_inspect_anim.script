@@ -1,0 +1,164 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+local hud_effector_id = 5555
+local ANIM_FAST = false
+local anim_sound = nil
+local FORCE_STOP = false
+
+local hud_sect_name = "inspect_hud"
+local hud_sect
+
+local subscribed = false
+function subscribe()
+	if not subscribed then
+		subscribed = {
+			{ signal = "on_key_press", fun = this.on_key_press },
+		}
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs( subscribed ) do
+			sm:subscribe( s )
+		end
+	end
+end
+
+function unsubscribe()
+	if subscribed then
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs( subscribed ) do
+			sm:unsubscribe( s )
+		end
+		subscribed = false
+	end
+end
+
+function start_inspect(item)
+	play(item)
+	
+	add_time_delayed_action(
+		0.1,
+		function()
+			if level.main_input_receiver() then
+				if actor_menu:IsShown() then
+				ui_actor_menu.ShowHideMenu()
+				end
+			end		
+		end
+	)
+end
+
+function play(item)
+	hud_sect = read_if_exists(sys_ini, "r_string", item:section(), hud_sect_name, nil)
+	if not hud_sect then
+	return end
+
+	local already_blocked = actor.inventory:is_active_slot_blocked()
+	
+	if not already_blocked then
+		actor:hide_weapon(ANIM_FAST)
+	end
+	actor:hide_crosshair(true)
+	
+	level.add_call(
+		function() 
+			return not actor:active_item() and not actor:active_device()
+		end,
+		function()
+			subscribe()
+			
+			local anim_length = game.play_hud_motion(2, hud_sect, "anm_show", false, 1, true)
+			
+			hud_add_info_message("item_usage", game.translate_string("st_key_to_stop_inspect"), 99)
+			
+			_G.SCRIPT_ANIM_PLAYING = true
+			anim_sound = play_hud_sound(hud_sect, "snd_show")
+			play_hud_effector(hud_sect, "eff_show")
+			block_non_move_action(true)
+			
+			add_time_delayed_action(
+				anim_length * 0.001,
+				function()
+					game.play_hud_motion(2, hud_sect, "anm_idle", false, 1, true)
+					anim_sound = play_hud_sound(hud_sect, "snd_idle")
+					play_hud_effector(hud_sect, "eff_idle")
+				end
+			)
+		end
+	)
+end
+
+function play_hud_sound(sect, snd_name)
+	local sound = nil
+	local snd_name = read_if_exists(sys_ini, "r_string", sect, snd_name, nil)
+	if snd_name then
+		--//random sounds in format hud_sound = path_to_sound, n (count of sound files)
+		--//sound expected as sound_1, sound_2, ... sound_n
+		snd_name = split_string(snd_name, ",")
+		if snd_name[2] then
+			snd_name = snd_name[1]..math.random(1, tonumber(snd_name[2]))
+		else
+			snd_name = snd_name[1]
+		end
+		sound = xr_sound.get_safe_sound_object(snd_name,sound_object.s2d)
+		sound:play(actor, 0, sound_object.s2d)
+	end
+	return sound
+end
+
+function play_hud_effector(sect, eff_name)
+	local eff_name = read_if_exists(sys_ini, "r_string", sect, eff_name, nil)
+	if eff_name then
+		level.remove_complex_effector(hud_effector_id)
+		level.add_complex_effector(eff_name, hud_effector_id)
+	end
+end
+
+function stop_anim()
+	hud_remove_info_message("item_usage")
+	if anim_sound then
+		anim_sound:stop()
+	end
+	local anim_length = game.play_hud_motion(2, hud_sect, "anm_hide", false, 1, true)
+	anim_sound = play_hud_sound(hud_sect, "snd_hide")
+	play_hud_effector(hud_sect, "eff_hide")
+	add_time_delayed_action(
+		anim_length * 0.001,
+		function()
+			block_non_move_action(false)
+			_G.SCRIPT_ANIM_PLAYING = false
+			
+			local already_blocked = actor.inventory:is_active_slot_blocked()
+	
+			if already_blocked then
+				actor:hide_weapon(ANIM_FAST)
+			end			
+			
+			--actor:restore_weapon(ANIM_FAST)
+			local mode = actor_menu:GetMode()
+			if mode == "inventory" or mode == "carbody"	then					
+				backpack.play_anim(3)
+			end
+			actor:hide_crosshair(false)
+		end
+	)
+end
+
+local force_stop_action = {
+	--[key_bindings.kACCEL] = true,
+	[key_bindings.kSPRINT] = true,
+	--[key_bindings.kCROUCH] = true,	
+}
+function on_key_press(key, game_action)
+	if not SCRIPT_ANIM_PLAYING then
+	return end
+	if level.main_input_receiver() then
+	return end
+	if not force_stop_action[game_action] then
+	return end
+	FORCE_STOP = true
+	level.remove_complex_effector(hud_effector_id)
+	game.stop_hud_motion()
+	stop_anim()	
+end
+
+function anim_allowed(item)
+	return parent_is_actor(item) and read_if_exists(sys_ini, "r_string", item:section(), hud_sect_name, nil) and actor_menu:GetMode() == "inventory"
+end

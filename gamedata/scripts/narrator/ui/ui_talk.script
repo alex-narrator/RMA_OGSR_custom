@@ -111,6 +111,7 @@ end
 
 function TalkOverlay:OnShow()
 	self.target = level.get_second_talker()
+	actor:hide_weapon()
 	if is_osoznanie_mode(self.target) then
 		self.char_info_back:Show(false)
 		self.char_info_back_npc:Show(false)
@@ -131,6 +132,7 @@ end
 
 function TalkOverlay:OnHide()
 	self.target = false
+	actor:restore_weapon()
 end
 
 function TalkOverlay:OnShowTrade()

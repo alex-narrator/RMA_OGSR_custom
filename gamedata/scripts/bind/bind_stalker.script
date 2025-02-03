@@ -358,7 +358,7 @@ function actor_binder:update(delta)
 	end
 
 	-- Апдейт прятание оружия игрока во время диалога
-	if weapon_hide == true or self.object:is_talking() then
+	if weapon_hide == true then--or self.object:is_talking() then
 		if self.weapon_hide == false then
 			self.object:hide_weapon()
 			self.weapon_hide = true

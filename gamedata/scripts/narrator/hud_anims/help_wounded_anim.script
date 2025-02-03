@@ -18,6 +18,10 @@ function play(npc)
 	level.disable_input()
 	actor:hide_crosshair(true)
 	
+	local pos = npc:center()
+	pos.y = pos.y + 0.25
+	aim_camera_to_pos(pos)	
+	
 	level.add_call(
 		function()
 			return not actor:active_item() and not actor:active_device()
