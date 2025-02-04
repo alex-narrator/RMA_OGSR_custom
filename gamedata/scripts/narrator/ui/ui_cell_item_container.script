@@ -250,6 +250,17 @@ function UICellItemContainer:RemoveItem(item)
 		self:FreeRoom(cell_data.y, cell_data.x, cell_data.w, cell_data.h)
 		ci:DetachWnd()
 		self.cell_items[ci] = nil
+		
+		--//це зроблено саме так через зарядку патронів через контекстне меню та групування патронів суто по секції
+		--//при зарядці через контекстне меню може бути обрано пачку набоїв яка є батьківською для цього cell_item
+		--//тому cell_item треба створити заново наповнивши його колишніми "дітьми"
+		for child_id,v in pairs(ci:GetChilds()) do
+			local item = level.object_by_id(child_id)
+			if item then
+				self:AddItem(item)
+			end
+		end
+		
 	end
 	if table.size(self.cell_items) == 0 then
 		self:ResetTypeRow()
