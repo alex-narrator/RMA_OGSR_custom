@@ -56,6 +56,9 @@ function on_campfire_use(campfire_usable, campfire_zone)
 		if hud_sect then
 			level.add_call(
 				function()
+					local pos = campfire_zone:center()
+					pos.y = pos.y + 0.75
+					aim_camera_to_pos(pos)				
 					return not actor:active_item() and not actor:active_device()
 				end,
 				function()

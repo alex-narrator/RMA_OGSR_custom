@@ -374,8 +374,6 @@ log3("actor direction (%s, %s, %s)", actor:direction().x, actor:direction().y, a
 -- spawn_sect = "harmonica_a"
 -- spawn_to_level(spawn_sect, spawn_pos, level_name, spawn_dir)
 
---game.play_hud_motion(2, "medkit_exo_hud", "anm_use", false, 1, true)
-
 --log3("~can detect rad %s", dosimeter.can_detect_radiation())
 
 -- local tgt = level.get_target_obj()
@@ -597,5 +595,35 @@ if item then
 end
 
 --set_markswitch_count(0)
-set_scope_params(2.5, 1, 0, 1)
+--set_scope_params(2.5, 1, 0, 1)
 --set_scope_color(0.1,0.1,0,0)
+
+--game.play_hud_motion(2, "cigarettes_marlboro_hud", "anm_use", false, 1, true)
+-- game.stop_hud_motion()
+
+-- local dbg_particle_name = "vehiclefx\\exhaust_3"
+-- local pos = device().cam_pos
+-- local pos_y_offset = 0.3
+-- local dir_y_offset = 0.3
+-- pos.y = pos.y - pos_y_offset
+-- --pos.z = pos.z - 0.05
+-- local dbg_particle = particles_object(dbg_particle_name)
+-- dbg_particle:play_at_pos(pos, true)
+
+-- level.add_call(
+	-- function()
+		-- if dbg_particle and dbg_particle:playing() then
+			-- local dir = device().cam_dir
+			-- dir.y = dir.y - dir_y_offset
+			
+			-- dbg_particle:set_direction(dir)
+			-- local pos = device().cam_pos
+			-- pos.y = pos.y - pos_y_offset
+			-- dbg_particle:move_to(pos, dir)
+			-- log3("~looped %s", dbg_particle:looped())
+		-- end
+		-- return not dbg_particle
+	-- end,
+	-- function()
+	-- end	
+-- )

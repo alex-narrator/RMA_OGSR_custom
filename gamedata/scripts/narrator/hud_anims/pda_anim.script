@@ -42,6 +42,7 @@ function on_key_press(key, game_action)
 	if not already_blocked then
 		actor:hide_weapon(ANIM_FAST)
 	end
+	local pda = actor_get_pda()
 	level.add_call(
 		function() 
 			return not actor:active_item() and not actor:active_device()
@@ -49,18 +50,18 @@ function on_key_press(key, game_action)
 		function()
 			_G.SCRIPT_ANIM_PLAYING = true
 			local length = game.play_hud_motion(2, hud_sect, "anm_show", true, 1, false)
-			try_play_pda_sound(read_if_exists(sys_ini, "r_string", actor_get_pda():section(), "snd_draw", nil))
+			try_play_pda_sound(read_if_exists(sys_ini, "r_string", pda:section(), "snd_draw", nil))
 			add_time_delayed_action(
 				length * 0.001,
 				function()
-					if not actor_get_pda():is_power_on() then
+					if not pda:is_power_on() then
 						local length = game.play_hud_motion(2, hud_sect, "anm_empty", true, 1, false)
-						try_play_pda_sound(read_if_exists(sys_ini, "r_string", actor_get_pda():section(), "snd_empty", nil))
+						try_play_pda_sound(read_if_exists(sys_ini, "r_string", pda:section(), "snd_empty", nil))
 						add_time_delayed_action(
 							length * 0.001 - 0.9,
 							function()
 								local length = game.play_hud_motion(2, hud_sect, "anm_hide", true, 1, false)
-								try_play_pda_sound(read_if_exists(sys_ini, "r_string", actor_get_pda():section(), "snd_holster", nil))
+								try_play_pda_sound(read_if_exists(sys_ini, "r_string", pda:section(), "snd_holster", nil))
 								add_time_delayed_action(
 									length * 0.001,
 									function()

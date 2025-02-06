@@ -1,0 +1,50 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+local smokes = {
+	["smoke_1"] = {smoke, start_delay = 7},
+	["smoke_2"] = {smoke, start_delay = 9.5},
+}
+function cigarettes_smoke_start(item)
+	local smoke_particle_name = "vehiclefx\\exhaust_3"
+	
+	local function get_pos_dir()
+		local dir = device().cam_dir
+		local pos = device().cam_pos
+		pos.y = pos.y - 0.35 + 0.3*dir.y
+		pos.x = pos.x + 0.3*dir.x
+		pos.z = pos.z + 0.3*dir.z
+		
+		return pos, dir
+	end	
+	
+	for k,v in pairs(smokes) do
+		v.smoke = particles_object(smoke_particle_name)
+		add_time_delayed_action(
+			v.start_delay,
+			function()
+				if not v.smoke then
+				return end
+				v.smoke:play_at_pos(get_pos_dir(), true)
+				level.add_call(
+					function()
+						local pos, dir = get_pos_dir()
+						if v.smoke and v.smoke:playing() then
+							v.smoke:set_direction(dir)
+							v.smoke:move_to(pos, dir)
+						end
+						return not v.smoke
+					end,
+					function()
+					end
+				)
+			end
+		)		
+	end
+end
+function cigarettes_smoke_stop()
+	for k,v in pairs(smokes) do
+		if v.smoke then
+			v.smoke:stop()
+		end
+		v.smoke = nil
+	end
+end

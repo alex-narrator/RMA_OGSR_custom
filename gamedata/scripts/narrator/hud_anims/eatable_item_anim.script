@@ -4,6 +4,8 @@ local ANIM_FAST = false
 local ANM_SND_SLOWDOWN = 1.1
 local anim_sound = nil
 local FORCE_STOP = false
+local anm_name = "anm_use"
+local stop_func
 
 local subscribed = false
 function subscribe()
@@ -55,15 +57,30 @@ function play(item)
 			
 			actor:hide_crosshair(true)
 			
-			game.play_hud_motion(2, hud_sect, "anm_use", false, anm_snd_speed(), true)
+			local anm_speed = read_if_exists(sys_ini, "r_string", hud_sect, anm_name.."_speed_k", 1)
+			
+			local anm_length = game.play_hud_motion(2, hud_sect, anm_name, false, anm_speed * anm_snd_speed(), true)
+			--log3("~anm_length %s", anm_length * 0.001)
 			
 			hud_add_info_message("item_usage", game.translate_string("st_key_to_stop_anim"), 5)
 			
 			_G.SCRIPT_ANIM_PLAYING = true
 			anim_sound = play_hud_sound(hud_sect)
 			play_hud_effector(hud_sect)
-			set_use_delay(hud_sect, item)
+			set_use_delay(hud_sect, item, anm_length)
 			block_non_move_action(true)
+			
+			local anim_start_func = read_if_exists(sys_ini, "r_string", hud_sect, "function_on_start", nil)
+			if anim_start_func then
+				local func = loadstring( anim_start_func .. "(...)" )
+				func(item)
+			end
+			
+			local anim_stop_func = read_if_exists(sys_ini, "r_string", hud_sect, "function_on_stop", nil)
+			if anim_stop_func then
+				stop_func = loadstring( anim_stop_func .. "(...)" )
+			end
+			
 			level.add_call(
 				function()
 					return game.hud_motion_allowed()
@@ -112,9 +129,9 @@ function play_hud_effector(sect)
 	end
 end
 
-function set_use_delay(sect, item)
+function set_use_delay(sect, item, anm_length)
 	add_time_delayed_action(
-		read_if_exists(sys_ini, "r_float", sect, "use_delay", 1.5) * 1 / anm_snd_speed(), 
+		read_if_exists(sys_ini, "r_float", sect, "use_delay", anm_length) * 1 / anm_snd_speed(), 
 		function()
 			unsubscribe()
 			hud_remove_info_message("item_usage")
@@ -145,5 +162,9 @@ function on_key_press(key, game_action)
 	game.stop_hud_motion()
 	if anim_sound then
 		anim_sound:stop()
+	end
+	if stop_func then
+		stop_func()
+		stop_func = nil
 	end
 end
