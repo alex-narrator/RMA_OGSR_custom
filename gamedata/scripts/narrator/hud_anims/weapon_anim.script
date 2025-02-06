@@ -8,6 +8,7 @@ function attach(sm)
 	sm:subscribe({signal = "on_actor_jump",   			fun = this.on_actor_jump})
 	sm:subscribe({signal = "on_actor_land",   			fun = this.on_actor_land})
 	sm:subscribe({signal = "on_hit_actor",   			fun = this.on_actor_hit})
+	sm:subscribe({signal = "on_spawn",   				fun = this.on_spawn})
 end
 
 local actor_obj = get_actor_obj()
@@ -24,9 +25,18 @@ function is_switch_slot()
 	return get_console():get_bool("g_mouse_wheel_switch_slot")
 end
 
+local aim_in_prefix = [[weapons\rattle\aimin\aim_in_]]
+local aim_out_prefix = [[weapons\rattle\aimout\aim_out_]]
+function on_spawn()
+	level.prefetch_many_sounds(aim_in_prefix)
+	level.prefetch_many_sounds(aim_out_prefix)
+end
+
 function on_zoom_in(weapon)
 	--level.add_complex_effector("aim", 1908)
 	game.play_hud_anm(aim, 2, 1, 1, false, true)
+	local sound_name = aim_in_prefix..math.random(1,10)
+	xr_sound.get_safe_sound_object(sound_name):play_no_feedback(actor, sound_object.s2d, 0, vector(), 10.0)
 	if weapon:get_weapon():second_vp_enabled() then
 	return end
 	level.add_cam_effector(aim, 1908, false, "")
@@ -35,6 +45,8 @@ end
 function on_zoom_out(weapon)
 	--level.add_complex_effector("aim", 1907)
 	game.play_hud_anm(aim, 2, 1, 1, false, true)
+	local sound_name = aim_out_prefix..math.random(1,10)
+	xr_sound.get_safe_sound_object(sound_name):play_no_feedback(actor, sound_object.s2d, 0, vector(), 10.0)
 	level.add_cam_effector(aim, 1907, false, "")
 end
 
