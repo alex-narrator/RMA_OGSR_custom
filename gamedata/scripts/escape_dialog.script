@@ -405,62 +405,48 @@ local bribe_items = {
 	"bread",
 	"kolbasa",
 	"energy_drink",
+	"cigarettes_lucky_strike",
+	"cigarettes_marlboro",
 }
-function has_soldiers_bribe(actor, npc)
-	for k,section in pairs(bribe_items) do
-		if not actor:object(section) then
-			return false
+function find_bribe_item(sect)
+	log3("~find_bribe_item called for item %s", sect)
+	local bribe_item
+	function perform_check(dummy, item)
+		local eatable = item:get_eatable_item()
+		if item:section() == sect and item:condition() == 1 and (not eatable or eatable.eat_portions_num == eatable.eat_start_portions_num) then
+			bribe_item = item
+			log3("~%s | id %s is bribe item", bribe_item:name(), item:id())
 		end
-	end
-	return true
+	end		
+	actor:iterate_inventory(perform_check, nil)
+	return bribe_item
 end
-function give_soldiers_bribe(actor, npc)
-	for k,section in pairs(bribe_items) do
-		local item = actor:object(section)
-		if item then
-			dialogs.relocate_item_section(npc, section, "out")
-			alife():release(alife():object(item:id()), true)
-		end
+function has_soldiers_bribe(n, actor, npc)
+	log3("~has_soldiers_bribe called for item %s", bribe_items[n] or "NONE")
+	return bribe_items[n] and find_bribe_item(bribe_items[n])
+end
+function give_soldiers_bribe(n, actor, npc)
+	log3("~give_soldiers_bribe called for item %s", bribe_items[n] or "NONE")
+	local item = find_bribe_item(bribe_items[n])
+	if item then
+		log3("~give_soldiers_bribe called for item %s | id %s", bribe_items[n] or "NONE", item:id())
+		dialogs.take_item_from_actor(item)
 	end
 end
 function soldiers_bribe_conditions_announcement(actor, npc)
-	local phrase_text = game.translate_string("esc_bridge_soldiers_start_13")
-	local bribe_text = ""
 	local list_prefix = "%c[UI_orange]".."•".." "
-	for k,section in pairs(bribe_items) do
-		bribe_text = bribe_text..list_prefix..game.translate_string(get_inv_name(section)).."\\n"
-	end
-	return string.format("%s%s%s", phrase_text, "\\n", bribe_text)
-end
-function has_soldiers_bribe_1(actor, npc)
-	return actor:object(bribe_items[1])
-end
-function give_soldiers_bribe_1(actor, npc)
-	local item = actor:object(bribe_items[1])
-	if item then
-		dialogs.relocate_item_section(npc, bribe_items[1], "out")
-		alife():release(alife():object(item:id()), true)
-	end
-end
-function has_soldiers_bribe_2(actor, npc)
-	return actor:object(bribe_items[2])
-end
-function give_soldiers_bribe_2(actor, npc)
-	local item = actor:object(bribe_items[2])
-	if item then
-		dialogs.relocate_item_section(npc, bribe_items[2], "out")
-		alife():release(alife():object(item:id()), true)
-	end
-end
-function has_soldiers_bribe_3(actor, npc)
-	return actor:object(bribe_items[3])
-end
-function give_soldiers_bribe_3(actor, npc)
-	local item = actor:object(bribe_items[3])
-	if item then
-		dialogs.relocate_item_section(npc, bribe_items[3], "out")
-		alife():release(alife():object(item:id()), true)
-	end
+	add_update_delayed_action(
+		1,
+		function()
+			local icon_texture, icon_rect = get_texture_info("ui_icon_handshake")
+			local text = ""
+			for k,section in pairs(bribe_items) do
+				text = text..list_prefix..game.translate_string(get_inv_name(section)).."\\n"
+			end
+			actor:give_talk_message(text, icon_texture, icon_rect, "iconed_trade_info")
+		end
+	)
+	return game.translate_string("esc_bridge_soldiers_start_13")
 end
 
 function fox_pay_money(actor, npc)

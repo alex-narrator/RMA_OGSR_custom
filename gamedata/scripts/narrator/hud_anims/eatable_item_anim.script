@@ -87,6 +87,7 @@ function play(item)
 				end,
 				function()
 					block_non_move_action(false)
+					level.remove_complex_effector(hud_effector_id)
 					_G.SCRIPT_ANIM_PLAYING = false
 					if not already_blocked then
 						actor:restore_weapon(ANIM_FAST)
