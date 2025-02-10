@@ -19,7 +19,7 @@ end
 
 function can_drop(cell_item)
 	local item = cell_item:GetAnyItem()
-	return parent_is_actor(item) and not read_if_exists(sys_ini, "r_bool", item:section(), "quest_item", false) and (get_clsid(item) ~= clsid.obj_bolt or read_if_exists(sys_ini, "r_bool", "features", "limited_bolts", false))
+	return parent_is_actor(item) and not read_if_exists(sys_ini, "r_bool", item:section(), "quest_item", false) and (get_clsid(item) ~= clsid.obj_bolt or LIMITED_BOLTS)
 end
 
 function drop_cell_item(cell_item, for_all)
@@ -255,7 +255,7 @@ function add_move_to_carbody(pbox, cell_item)
 	local new_owner = parent_is_actor(item) and actor_menu.target or actor
 	name = "st_move"
 	precondition = function(cell_item)
-		return not read_if_exists(sys_ini, "r_bool", item:section(), "quest_item", false) and actor_menu:GetMode() == "carbody"
+		return not read_if_exists(sys_ini, "r_bool", item:section(), "quest_item", false) and actor_menu:GetMode() == "carbody" and (get_clsid(item) ~= clsid.obj_bolt or LIMITED_BOLTS)
 	end
 	action = function(cell_item)
 		transfer_cell_item(cell_item, new_owner)
@@ -309,7 +309,7 @@ function add_move_to_trade(pbox, cell_item)
 	end
 	precondition = function(cell_item)
 		local item = cell_item:GetAnyItem()
-		return trade_manager.tradable(item)
+		return trade_manager.tradable(item) and (get_clsid(item) ~= clsid.obj_bolt or LIMITED_BOLTS)
 	end
 	action = function(cell_item)
 		local parent = cell_item:GetOwnerList()
@@ -617,7 +617,7 @@ function add_custom_info(pbox, item)
 	local name, precondition, action
 	name = ui_custom_info.tip_text
 	precondition = ui_custom_info.has_info
-	action = ui_custom_info.show_hide_wnd
+	action = ui_custom_info.show_info
 	pbox:AddItem(name, precondition, action, item)
 end
 
@@ -626,5 +626,13 @@ function add_artefact_inspect(pbox, item)
 	name = "st_inspect"
 	precondition = artefact_inspect_anim.anim_allowed
 	action = artefact_inspect_anim.start_inspect
+	pbox:AddItem(name, precondition, action, item)
+end
+
+function add_wpn_addon_info(pbox, item)
+	local name, precondition, action
+	name = ui_wpn_addon_info.tip_text
+	precondition = ui_wpn_addon_info.has_info
+	action = ui_wpn_addon_info.show_info
 	pbox:AddItem(name, precondition, action, item)
 end

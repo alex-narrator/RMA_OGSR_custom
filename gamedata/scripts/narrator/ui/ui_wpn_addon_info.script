@@ -1,0 +1,60 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+local OVERLAY_XML = "script_overlays\\ui_custom_info.xml"
+
+local addon_type = {
+	"silencer",
+	"scope",
+	"grenade_launcher",
+	"laser",
+	"flashlight",
+	"stock",
+	"extender",
+	"forend",
+	"magazine",
+	"ammo",
+	"grenade"
+}
+
+function has_info(item)
+	if not get_script_option_value("wpn_addon_ammo_wnd_separate") then
+	return false end
+	for i,addon in pairs(addon_type) do
+		local addon_str = read_if_exists(sys_ini, "r_string", item:section(), addon.."_name", nil)
+		addon_str = read_if_exists(sys_ini, "r_string", item:section(), addon.."_name", nil)
+		if i > 8 then
+			addon_str = read_if_exists(sys_ini, "r_string", item:section(), addon.."_class", nil)
+		end
+		if addon_str then
+			return true
+		end
+	end
+	return false
+end
+
+function tip_text(item)
+	return "st_compatible_addon"
+end
+
+function show_info(item)
+	local header = game.translate_string(get_inv_name(item:section()))..", "..game.translate_string("st_compatible_addon")..":"
+	local text = ""
+	
+	local addon_str, addon_status
+	
+	for i,addon in pairs(addon_type) do
+		addon_str = read_if_exists(sys_ini, "r_string", item:section(), addon.."_name", nil)
+		addon_status = read_if_exists(sys_ini, "r_u32", item:section(), addon.."_status", 0)
+		if i > 8 then
+			addon_str = read_if_exists(sys_ini, "r_string", item:section(), addon.."_class", nil)
+			addon_status = addon_str and 2 or 0
+		end
+		if addon_str and addon_status == 2 then
+			local addons = split_string(addon_str, ",")
+			for __,addon_sect in pairs(addons) do
+				text = text..string.format("%s %s\\n", game.translate_string("st_list_mark"), game.translate_string(get_inv_name(addon_sect)))
+			end
+		end		
+	end
+	
+	ui_info_wnd.show_hide_wnd(text, header)
+end

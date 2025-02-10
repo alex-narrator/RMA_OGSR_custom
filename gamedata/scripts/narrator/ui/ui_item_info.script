@@ -797,9 +797,14 @@ local addon_type = {
 	"extender",
 	"forend",
 	"magazine",
+	"ammo",
+	"grenade"
 }
 local addons_st = {}
 function attach_weapon_addons(UIDesc, obj)
+	if get_script_option_value("wpn_addon_ammo_wnd_separate") then
+	return end
+	
 	local xml = CScriptXmlInit()
 	xml:ParseFile("script_overlays\\weapon_addons.xml")
 
@@ -818,10 +823,10 @@ function attach_weapon_addons(UIDesc, obj)
 	local addon_status = 0
 	local addons = {}
 	addons_st = {}
-	for _,addon in pairs(addon_type) do
+	for i,addon in pairs(addon_type) do
 		addon_str = read_if_exists(sys_ini, "r_string", obj:section(), addon.."_name", nil)
 		addon_status = read_if_exists(sys_ini, "r_u32", obj:section(), addon.."_status", 0)
-		if addon == "magazine" then
+		if i > 8 then
 			addon_str = read_if_exists(sys_ini, "r_string", obj:section(), addon.."_class", nil)
 			addon_status = addon_str and 2 or 0
 		end

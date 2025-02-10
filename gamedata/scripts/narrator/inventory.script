@@ -3,8 +3,6 @@ function attach(sm)
 	sm:subscribe({signal = "on_first_update",   fun = this.on_first_update})
 end
 
-local LIMITED_BOLTS = read_if_exists(sys_ini, "r_bool", "features", "limited_bolts", false)
-
 function on_first_update()
 	local inv = actor.inventory
 	local item
@@ -31,27 +29,11 @@ function set_max_belt(item)
 	ogse_signals.get_mgr():call("on_max_belt_set", actor.inventory.max_belt)	
 end
 
-function set_equiped_items_visibility(visible)
-	--log3("set_equiped_items_visibility(%s) is called", visible)
-	function perform_action(dummy, item)
-		if actor:is_on_belt(item) or
-			actor:is_in_slot(item)
-		then
-			if visible then
-				set_item_inv_visible(item)
-			else
-				set_item_inv_hidden(item)
-			end
-		end
-	end	
-	actor:iterate_inventory(perform_action, nil)
-end
-
 function check_items_to_show(inv_owner, show_mode)
 	if not inv_owner then return end
 	local function check_by_mode(item, show_mode)
 		if show_mode == "all" then
-			return get_clsid(item) ~= clsid.obj_bolt or (LIMITED_BOLTS or inv_owner:id() == actor:id())
+			return not get_inv_item_hidden(item)
 		elseif show_mode == "weapon" then
 			return item:is_weapon() or string.find(item:section(), "wp_") or string.find(item:section(), "wpn_")
 		elseif show_mode == "ammo" then

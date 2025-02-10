@@ -1728,13 +1728,14 @@ function ActorMenuOverlay:ShowPropertiesBox(item, cell_item)
 	ui_cell_item_utils.add_disassemble(pbox, cell_item)
 	--//inspect artefact
 	ui_cell_item_utils.add_artefact_inspect(pbox, item)
-	--//disassemble	
-	--//drop item
-	ui_cell_item_utils.add_drop(pbox, cell_item)
 	--//item info
 	ui_cell_item_utils.add_info(pbox, item)
 	--//item custom info
-	ui_cell_item_utils.add_custom_info(pbox, item)	
+	ui_cell_item_utils.add_custom_info(pbox, item)
+	--//weapon addon info
+	ui_cell_item_utils.add_wpn_addon_info(pbox, item)
+	--//drop item
+	ui_cell_item_utils.add_drop(pbox, cell_item)	
 	
 	--pbox:AddCustomAction(item)
 	if pbox:Activate() then

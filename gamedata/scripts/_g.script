@@ -1504,7 +1504,7 @@ BACKPACK_SLOT 		= 12
 SLOTS_TOTAL 		= 13
 NO_ACTIVE_SLOT 		= 255
 
-NO_STORY_ID = 4294967295
+NO_STORY_ID 		= 4294967295
 
 --//для показу інфо про активний предмет та спорядження
 SHOW_ACTIVE_ITEM_INFO = false
@@ -1923,76 +1923,8 @@ function get_best_ammo(item)
 	return best_ammos
 end
 
--- сделать предмет безусловно негруппируемым в окнах инвентаря
-function set_item_ungroupable( item )
-  local f = item:get_inventory_item_flags()
-  f:set( global_flags.FIUngroupable, true )
-  item:set_inventory_item_flags( f )
-end
-
--- включить движковую группировку для предмета
-function set_item_default_grouping( item )
-  local f = item:get_inventory_item_flags()
-  f:set( global_flags.FIUngroupable, false )
-  item:set_inventory_item_flags( f )
-end
-
--- сделать предмет безусловно непродаваемым, будет показан красным. Для
--- избежания глюков надо также выключать группируемость для этого предмета.
-function set_item_always_untradable( item )
-  local f = item:get_inventory_item_flags()
-  f:set( global_flags.FIAlwaysUntradable, true )
-  item:set_inventory_item_flags( f )
-end
-
--- убрать принудительную неторгуемость и негруппирумость и оставить только
--- движковый алгоритм
-function set_item_default_tradability( item )
-  local f = item:get_inventory_item_flags()
-  f:set( global_flags.FIAlwaysUntradable, false )
-  item:set_inventory_item_flags( f )
-end
-
--- сделать предмет невидимым в инвентаре
-function set_item_inv_hidden( item )
-  local f = item:get_inventory_item_flags()
-  f:set( global_flags.FIHiddenForInventory, true )
-  item:set_inventory_item_flags( f )
-end
-
--- сделать его обратно видимым
-function set_item_inv_visible( item )
-  local f = item:get_inventory_item_flags()
-  f:set( global_flags.FIHiddenForInventory, false )
-  item:set_inventory_item_flags( f )
-end
-
 function get_inv_item_hidden(item)
-	local f = item:get_inventory_item_flags()
-	return f:test( global_flags.FIHiddenForInventory )
-end
-
--- Покрасить предмет в окнах обыска тайников/трупов в зелёный цвет
-function set_item_always_highlighting( item )
-  local f = item:get_inventory_item_flags()
-  f:set( global_flags.FIAlwaysHighlighted, true )
-  item:set_inventory_item_flags( f )
-end
-
--- использовать только движковую раскраску
-function set_item_default_highlighting( item )
-  local f = item:get_inventory_item_flags()
-  f:set( global_flags.FIAlwaysHighlighted, false )
-  item:set_inventory_item_flags( f )
-end
-
-function need_show_condition(item)
-	local b = sys_ini:r_bool(item:section(), "show_condition", nil)
-	return ( ( item:is_weapon() or item:is_outfit() ) and b ~= false ) or b == true
-end
-
-function set_item_always_ungroupable( obj, flag )
-  obj:get_inventory_item().always_ungroupable = flag
+	return get_clsid(item) == clsid.obj_bolt and not (LIMITED_BOLTS or parent_is_actor(item))
 end
 
 function wpn_IsRotatingToZoom( wpn )
@@ -2407,6 +2339,7 @@ ADDON_TYPES = {
 
 ACTIVE_ITEM_INFO_TTL 	= read_if_exists(sys_ini, "r_u32", "actor", "active_item_info_ttl", 3)
 GEAR_INFO_TTL 			= read_if_exists(sys_ini, "r_u32", "actor", "gear_info_ttl", 3)
+LIMITED_BOLTS 			= read_if_exists(sys_ini, "r_bool", "features", "limited_bolts", false)
 
 function start_game_callback()
 	--

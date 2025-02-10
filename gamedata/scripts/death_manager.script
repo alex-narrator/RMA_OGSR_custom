@@ -213,11 +213,7 @@ function keep_item(npc, item)
 	return true end	
     if always_keep_item[section] == true then
     return true end
-	
-	if section == "bolt" then
-		if not read_if_exists(sys_ini, "r_bool", "features", "limited_bolts", false) then
-			set_item_inv_hidden(item)
-		end
+	if get_clsid(item) == clsid.obj_bolt then
 	return true end
 	
     local item_id = item:id()

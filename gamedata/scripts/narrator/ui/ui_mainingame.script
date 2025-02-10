@@ -704,7 +704,7 @@ function MainIngameOverlay:UpdateActiveItem()
 			end
 		end
 		
-		if get_clsid(act_item) == clsid.obj_bolt and read_if_exists(sys_ini, "r_bool", "features", "limited_bolts", false) then
+		if get_clsid(act_item) == clsid.obj_bolt and LIMITED_BOLTS then
 			local bolt_count = 0
 			function perform_action(dummy, item)
 				if get_clsid(item) == clsid.obj_bolt then
