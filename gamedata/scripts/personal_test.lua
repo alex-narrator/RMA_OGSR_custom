@@ -40,10 +40,14 @@
 
 local tgt = level.get_target_obj()
 if tgt then
-	local store_box_spot = "spot_storebox_cop"
-	if level.map_has_object_spot(tgt:id(), store_box_spot) ~= 0 then
-		level.map_remove_object_spot(tgt:id(), store_box_spot)
-	end
+	local rq = level.get_current_ray_query()
+	local bone_id = rq and rq.element or 0	
+	actor:ph_capture_object(tgt, bone_id)
+	return
+	-- local store_box_spot = "spot_storebox_cop"
+	-- if level.map_has_object_spot(tgt:id(), store_box_spot) ~= 0 then
+		-- level.map_remove_object_spot(tgt:id(), store_box_spot)
+	-- end
 	--tgt:play_cycle("work")
 	-- log3("~ target section: %s | id %s| story_id %s | name: %s | profile: %s | species %s | nonscript usable %s | position (%s, %s, %s) | lvid %s | gvid %s | visual %s | gulag %s", 
 		-- tgt:section(), 

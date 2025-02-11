@@ -252,6 +252,9 @@ function MainIngameOverlay:InitControls()
 	self.active_item = xml:InitStatic("active_item", self)
 	self.active_item_icon = xml:InitStatic("active_item:icon", self.active_item)
 	self.active_item_icon.scale = xml:ReadAttribFlt("active_item:icon", "scale", 1)
+	self.active_item_icon.indent = xml:ReadAttribFlt("active_item:icon", "indent", 5)
+	self.active_item_icon_2 = xml:InitStatic("active_item:icon", self.active_item)
+	self.active_item_icon_3 = xml:InitStatic("active_item:icon", self.active_item)
 	self.ammo_counter = xml:InitStatic("active_item:ammo_counter", self.active_item)
 	self.zoom_counter = xml:InitStatic("active_item:zoom_counter", self.active_item)
 	self.zoom_progress = xml:InitProgressBar("active_item:zoom_counter:progress_bar", self.zoom_counter)
@@ -632,33 +635,43 @@ end
 
 function MainIngameOverlay:UpdateActiveItem()
 	local act_item = actor:active_item()
-	self.active_item:Show(act_item and (SHOW_ACTIVE_ITEM_INFO or SHOW_GEAR_INFO))
+	local act_device = actor:active_device()
+	self.active_item:Show((act_item or act_device) and SHOW_ACTIVE_ITEM_INFO)
 
 	if not self.active_item:IsShown() then
 	return end
 		
-	local params
-	local sect = act_item:section()
+	local params, params_2, params_3
+	local show_sect, show_sect_2, show_sect_3
 	local scale = self.active_item_icon.scale
+	local scale_2 = self.active_item_icon.scale
+	local scale_3 = self.active_item_icon.scale
+	local indent = self.active_item_icon.indent
 	
-	local wpn = act_item:get_weapon_m()
-	self.active_item_icon:Show(true)
+	local wpn = act_item and act_item:get_weapon_m()
+	self.active_item_icon:Show(false)
+	self.active_item_icon_2:Show(false)
+	self.active_item_icon_3:Show(false)
+	
+	self.active_item:SetText("")
 	
 	local text, val = "", ""
 	
 	if wpn and get_clsid(act_item) ~= clsid.wpn_binocular_s then
-		self.active_item_icon:Show(
-			(SHOW_ACTIVE_ITEM_INFO and act_item:get_ammo_in_magazine() > 0) or 
-			(SHOW_GEAR_INFO and (not wpn:addon_attachable(addon.magazine) or wpn:is_addon_attached(addon.magazine)))
-		)
-		local show_sect = get_cur_ammo_sect(act_item)
-		if SHOW_GEAR_INFO and wpn:addon_attachable(addon.magazine) and wpn:is_addon_attached(addon.magazine) then
-			show_sect = wpn:get_addon_name(addon.magazine)
-		end
+		self.active_item_icon:Show(act_item:get_ammo_in_magazine() > 0)
+		self.active_item_icon_2:Show(wpn:is_addon_attached(addon.magazine))
+		
+		show_sect = get_cur_ammo_sect(act_item)
+		show_sect_2 = wpn:is_addon_attached(addon.magazine) and wpn:get_addon_name(addon.magazine) or nil
+		
 		params = CIconParams(show_sect)
+		
+		if show_sect_2 and self.active_item_icon_2:IsShown() then
+			params_2 = CIconParams(show_sect_2)
+		end
+		
 		val = game.translate_string(read_if_exists(sys_ini, "r_string", show_sect, "inv_name_short", get_inv_name(show_sect)))
-		if (SHOW_ACTIVE_ITEM_INFO and act_item:get_ammo_in_magazine() == 0) or
-			(SHOW_GEAR_INFO and wpn:addon_attachable(addon.magazine) and not wpn:is_addon_attached(addon.magazine)) then
+		if act_item:get_ammo_in_magazine() == 0 then
 			val = game.translate_string("st_not_loaded")
 		end
 		text = string.format("%s", val)
@@ -669,26 +682,10 @@ function MainIngameOverlay:UpdateActiveItem()
 		
 		val = act_item:get_ammo_in_magazine()
 		text = string.format("[%s]", val)
-		if SHOW_GEAR_INFO then
-			local mag_weapon = wpn:addon_attachable(addon.magazine)
-			local ammos = split_string(sys_ini:r_string(sect, mag_weapon and "magazine_class" or "ammo_class"), ",")
-			local ammo_count = 0
-			local inc
-			function perform_action(dummy, item)
-				for k,v in pairs(ammos) do
-					if v == item:section() and item:get_weapon_ammo().box_curr > 0 and loadout.can_remove(item) then
-						inc = mag_weapon and 1 or item:get_weapon_ammo().box_curr
-						ammo_count = ammo_count + inc
-					end
-				end
-			end	
-			actor:iterate_ruck(perform_action, nil)			
-			val = ammo_count
-			text = string.format("%s", val)
-		end
 		self.ammo_counter:SetText(text)
-	else
+	elseif act_item then
 		self.active_item_icon:Show(true)
+		show_sect = act_item:section()
 		
 		if act_item:is_grenade() then
 			local grenade_count = 0
@@ -719,16 +716,62 @@ function MainIngameOverlay:UpdateActiveItem()
 		end		
 		
 		self.ammo_counter:SetText(text)
-		params = CIconParams(sect)
-		self.active_item:SetText(game.translate_string(read_if_exists(sys_ini, "r_string", sect, "inv_name_short", get_inv_name(sect))))
+		params = CIconParams(show_sect)
+		self.active_item:SetText(game.translate_string(get_inv_name_short(show_sect)))
 	end
-	params:set_shader(self.active_item_icon)
-	if params.grid_height > 1 or params.grid_width > 2 then
-		scale = scale * 0.75
+	
+	if self.active_item_icon:IsShown() then
+		params:set_shader(self.active_item_icon)
+		if params.grid_height > 1 or params.grid_width > 2 then
+			scale = scale * 0.75
+		end
+		self.active_item_icon:SetWidth(params.grid_width * scale * CELL_W * get_current_kx())
+		self.active_item_icon:SetHeight(params.grid_height * scale * CELL_H)
 	end
-	self.active_item_icon:SetWidth(params.grid_width * scale * CELL_W * get_current_kx())
-	self.active_item_icon:SetHeight(params.grid_height * scale * CELL_H)
-	self.ammo_counter:SetWndPos(self.active_item_icon:GetWidth() + 5,self.ammo_counter:GetWndPos().y)
+	self.ammo_counter:SetWndPos(self.active_item_icon:GetWidth() + indent, self.ammo_counter:GetWndPos().y)
+	
+	if self.active_item_icon_2:IsShown() then
+		params_2:set_shader(self.active_item_icon_2)
+		if params_2.grid_height > 1 or params_2.grid_width > 2 then
+			scale_2 = scale_2 * 0.75
+		end
+		self.active_item_icon_2:SetWidth(params_2.grid_width * scale_2 * CELL_W * get_current_kx())
+		self.active_item_icon_2:SetHeight(params_2.grid_height * scale_2 * CELL_H)
+		local pos = self.ammo_counter:GetWndPos()
+		if self.active_item_icon:IsShown() then
+			pos = self.active_item_icon:GetWndPos()
+		end
+		pos.x = pos.x - self.active_item_icon_2:GetWidth() - indent
+		self.active_item_icon_2:SetWndPos(pos.x, pos.y)
+	end
+	
+	self.active_item_icon_3:Show(act_device)
+	if self.active_item_icon_3:IsShown() then
+		show_sect_3 = act_device:section()
+		params_3 = CIconParams(show_sect_3)
+		params_3:set_shader(self.active_item_icon_3)
+		if params_3.grid_height > 1 or params_3.grid_width > 2 then
+			scale_3 = scale * 0.75
+		end		
+		self.active_item_icon_3:SetWidth(params_3.grid_width * scale_3 * CELL_W * get_current_kx())
+		self.active_item_icon_3:SetHeight(params_3.grid_height * scale_3 * CELL_H)
+		local pos = self.ammo_counter:GetWndPos()
+		if self.active_item_icon:IsShown() then
+			pos = self.active_item_icon:GetWndPos()
+		end
+		if self.active_item_icon_2:IsShown() then
+			pos = self.active_item_icon_2:GetWndPos()
+		end
+		pos.x = pos.x - self.active_item_icon_3:GetWidth() - indent
+		self.active_item_icon_3:SetWndPos(pos.x, pos.y)
+		local text = ""
+		if is_power_device(act_device) then
+			self.active_item_icon_3:SetText(string.format("%.f%s", act_device:binded_object():get_power_level() * 100, "%"))
+		end
+		if self.active_item:GetText() == "" then
+			self.active_item:SetText(game.translate_string(get_inv_name_short(show_sect_3)))
+		end
+	end
 	
 	self.zoom_counter:Show(wpn and wpn:is_addon_attached(addon.scope) and wpn.zoom_mode and wpn.zoom_rotation_factor == 1)
 	if self.zoom_counter:IsShown() then

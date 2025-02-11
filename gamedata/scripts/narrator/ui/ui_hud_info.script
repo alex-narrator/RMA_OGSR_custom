@@ -41,8 +41,7 @@ function try_show_active_item_info(game_action)
 	local act_item = actor:active_item()
 	local act_device = actor:active_device()
 	
-	if (not act_item and not act_device) --or SHOW_ACTIVE_ITEM_INFO
-	then 
+	if (not act_item and not act_device) then 
 		outfit_anim.play_outfit("inspect")
 	return end
 	
@@ -50,23 +49,15 @@ function try_show_active_item_info(game_action)
 		ammo_check_anim.try_play_anim(act_item)
 	end
 	
-	if act_device then
-		add_update_delayed_action(1,
-			function()
-				local add_str = ""
-				if dosimeter.is_dosimeter(act_device) and act_device:is_power_on() then
-					dosimeter.show_actor_radiation()
-					if is_rad_absolute() then
-						add_str = string.format("%s: %.2f %s ", game.translate_string("st_actor_radiation"), actor.radiation * get_rad_absolute_eqivalent(), get_rad_absolute_name())
-					else
-						add_str = string.format("%s: %.0f %s ", game.translate_string("st_actor_radiation"), actor.radiation * 100, game.translate_string("st_percent"))
-					end
-				end
-				local power = is_power_device(act_device) and act_device:binded_object():get_power_level() or 1
-				local str = string.format("%s [%.0f%s]\\n%s ", game.translate_string(get_inv_name(act_device:section())), power*100,"%", game.translate_string(add_str))
-				hud_add_info_message("item_usage", str, ACTIVE_ITEM_INFO_TTL)
-			end
-		)
+	if act_device and dosimeter.is_dosimeter(act_device) and act_device:is_power_on() then
+		dosimeter.show_actor_radiation()
+		local str = ""
+		if is_rad_absolute() then
+			str = string.format("%s: %.2f %s ", game.translate_string("st_actor_radiation"), actor.radiation * get_rad_absolute_eqivalent(), get_rad_absolute_name())
+		else
+			str = string.format("%s: %.0f %s ", game.translate_string("st_actor_radiation"), actor.radiation * 100, game.translate_string("st_percent"))
+		end		
+		hud_add_info_message("item_usage", str, ACTIVE_ITEM_INFO_TTL)
 	end
 	_G.SHOW_ACTIVE_ITEM_INFO = true
 	add_time_delayed_action(ACTIVE_ITEM_INFO_TTL, hide_item_info)
