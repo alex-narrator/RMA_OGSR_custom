@@ -40,14 +40,17 @@
 
 local tgt = level.get_target_obj()
 if tgt then
+	interact_item_anim.action_use()
+	return
 	-- tgt:set_tip_text("test_tip")
 	-- local text = tgt:get_tip_text() or "NONE"
 	-- log3("~tip %s", text)
-	local text = actor_obj:get_default_action_for_obj() or "NO TIP"
-	log3("~obj tip text: %s", text)
+	-- local text = actor_obj:get_default_action_for_obj() or "NO TIP"
+	-- log3("~obj tip text: %s", text)
 	-- local rq = level.get_current_ray_query()
 	-- local bone_id = rq and rq.element or 0	
-	-- actor:ph_capture_object(tgt, bone_id)
+	--actor:ph_capture_object(tgt)
+	--actor:transfer_item(tgt, actor)
 	-- return
 	-- local store_box_spot = "spot_storebox_cop"
 	-- if level.map_has_object_spot(tgt:id(), store_box_spot) ~= 0 then

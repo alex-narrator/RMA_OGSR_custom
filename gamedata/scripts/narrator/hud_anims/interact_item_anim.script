@@ -3,7 +3,7 @@ local hud_sect = "pickup_hud"
 local hud_effector_id = 5559
 
 function is_quick_info_shown()
-	return get_main_window() and get_main_window():FindChild("quick_info") and get_main_window():FindChild("quick_info"):IsShown()
+	return actor_obj:get_default_action_for_obj()
 end
 
 function get_carbody_target()
@@ -13,10 +13,6 @@ function get_carbody_target()
 		not is_quick_info_shown() or 
 		actor:ph_capture()
 	then return false end
-	
-	if level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) then
-		return false
-	end
 	
 	if tgt:get_inventory_box() then
 		return tgt
@@ -32,6 +28,7 @@ function get_carbody_target()
 end
 
 function action_use()
+	log3("~use")
 	level.send_event_key_press(bind_to_dik(key_bindings.kUSE))
 	level.send_event_key_release(bind_to_dik(key_bindings.kUSE))
 end
@@ -41,7 +38,9 @@ function play()
 	return end
 	
 	local tgt = get_carbody_target()
-	if tgt and tgt:is_monster() and harvest.try_harvest(tgt) then
+	local add_act = level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION))
+	
+	if tgt and tgt:is_monster() and not add_act and harvest.try_harvest(tgt) then
 	return end
 	
 	actor_obj:block_action(key_bindings.kUSE)
@@ -50,10 +49,6 @@ function play()
 	local to_center = is_crosshair_hard()
 	actor:center_crosshair(to_center)
 		
-	-- local wpn = actor:active_item() and actor:active_item():get_weapon()
-	-- if wpn and wpn.zoom_mode then
-		-- wpn:zoom_out()
-	-- end
 	if actor:active_item() then
 		actor:active_item():zoom_out()
 	end
@@ -71,13 +66,23 @@ function play()
 		function() 
 			block_non_move_action(false)
 			actor_obj:unblock_action(key_bindings.kUSE)
-						
-			local tgt = get_carbody_target()
-			if tgt and not tgt:is_monster() then
-				if not tgt:get_container() then --//без цього інвентарний контейнер буде одразу підібраний у інвентар
-					action_use() --//це важливо робити ДО імовірного відкриття вікна actor_menu щоб спрацював колбек on_use
+
+			local tgt = level.get_target_obj()
+			if tgt then
+				if add_act then
+					if tgt:get_container() then
+						actor:transfer_item(tgt, actor)
+					elseif tgt:get_physics_shell() and distance_between_safe(tgt, actor) <= read_if_exists(sys_ini, "r_float", "actor_capture", "pull_distance", 1.4) then
+						actor:ph_capture_object(tgt)
+					end
+				else
+					if not tgt:get_container() then --//без цього інвентарний контейнер буде одразу підібраний у інвентар
+						action_use() 				--//це важливо робити ДО імовірного відкриття вікна actor_menu щоб спрацював колбек on_use
+					end
+					if (tgt:is_stalker() and not tgt:alive()) or tgt:get_inventory_box() then
+						ui_actor_menu.ShowHideMenu("carbody", tgt)
+					end
 				end
-				ui_actor_menu.ShowHideMenu("carbody", tgt)
 			else
 				action_use()
 			end

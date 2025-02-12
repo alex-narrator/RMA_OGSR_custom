@@ -331,6 +331,10 @@ function MainIngameOverlay:InitControls()
 	
 	--//quick addon
 	self.quick_addon = ui_quick_addon.QuickAddonOverlay()
+	
+	--//target tip
+	-- self.target_tip = xml:InitStatic("target_tip", self)
+	-- self.target_tip.offset = xml:ReadAttrib("target_tip", "offset", "center")
 end
 
 function MainIngameOverlay:UpdateConditions()
@@ -1076,6 +1080,21 @@ function MainIngameOverlay:UpdateFPS()
 	self.fps_counter:SetText(fps)
 end
 
+function MainIngameOverlay:UpdateTargetTip()
+	local tip = actor_obj:get_default_action_for_obj()
+	if tip and (actor_hands_free() or actor:ph_capture()) then
+		-- self.target_tip:SetText(game.translate_string(tip))
+		-- self.target_tip:AdjustWidthToText()
+		-- self.target_tip:AdjustHeightToText()
+		-- local offset = ui_inv_utils.GetOffset(self.target_tip.offset, self.target_tip, self.owner)
+		-- self.target_tip:SetWndPos(offset.x, offset.y)
+		hud_add_info_message("quick_info", game.translate_string(tip))
+	else
+		--self.target_tip:SetText("")
+		hud_remove_info_message("quick_info")
+	end
+end
+
 function MainIngameOverlay:OnKeyPress(key, game_action)
 	if game_action == key_bindings.kSCORES then
 	
@@ -1153,4 +1172,6 @@ function MainIngameOverlay:Update()
 	
 	self.slot_selector:TrySignalHide()
 	self.quick_addon:TrySignalHide()
+	
+	self:UpdateTargetTip()
 end

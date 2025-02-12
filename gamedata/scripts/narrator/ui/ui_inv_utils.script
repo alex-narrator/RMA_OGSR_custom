@@ -18,8 +18,18 @@ function GetOffset(offset_type, icon, parent_icon)
 	elseif offset_type == "right_down" then
 		return offset:set(
 			parent_icon:GetWidth() - icon:GetWidth(),
-			parent_icon:GetHeight() - icon:GetHeight())				
+			parent_icon:GetHeight() - icon:GetHeight())
+	elseif offset_type == "center_top" then
+		return offset:set(
+			(parent_icon:GetWidth() / 2) - (icon:GetWidth() / 2),
+			0)
+	elseif offset_type == "center_down" then
+		return offset:set(
+			(parent_icon:GetWidth() / 2) - (icon:GetWidth() / 2),
+			parent_icon:GetHeight() - icon:GetHeight())			
 	end
+	log3("!incorrect offset type %s", offset_type or "NONE")
+	return offset
 end
 
 function CellItemFitToSize(params, icon, parent_icon, size)
