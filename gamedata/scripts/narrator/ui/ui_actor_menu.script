@@ -212,7 +212,7 @@ function ActorMenuOverlay:InitControls()
 	self.conditions_background = xml:InitStatic("conditions_background", self)
 	
 	--// actor condition progressbars
-	local actor_cond = get_actor_obj().condition
+	local actor_cond = actor_obj.condition
 	self.conditions = {
 		["health_"] 	= { 
 			condition = function() return actor.health end,
@@ -957,7 +957,6 @@ function ActorMenuOverlay:UpdateEffectsInfo()
 	local text = ""
 	local sn, sn_boost
 	local sn_time = game.translate_string("st_time_minute")
-	local actor_obj = get_actor_obj()
 	local conds = actor.conditions
 	
 	local outfit, helmet, backpack = actor_get_outfit(), actor_get_helmet(), actor_get_backpack()

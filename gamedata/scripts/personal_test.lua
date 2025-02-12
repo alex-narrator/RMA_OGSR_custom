@@ -40,10 +40,15 @@
 
 local tgt = level.get_target_obj()
 if tgt then
-	local rq = level.get_current_ray_query()
-	local bone_id = rq and rq.element or 0	
-	actor:ph_capture_object(tgt, bone_id)
-	return
+	-- tgt:set_tip_text("test_tip")
+	-- local text = tgt:get_tip_text() or "NONE"
+	-- log3("~tip %s", text)
+	local text = actor_obj:get_default_action_for_obj() or "NO TIP"
+	log3("~obj tip text: %s", text)
+	-- local rq = level.get_current_ray_query()
+	-- local bone_id = rq and rq.element or 0	
+	-- actor:ph_capture_object(tgt, bone_id)
+	-- return
 	-- local store_box_spot = "spot_storebox_cop"
 	-- if level.map_has_object_spot(tgt:id(), store_box_spot) ~= 0 then
 		-- level.map_remove_object_spot(tgt:id(), store_box_spot)
@@ -118,7 +123,7 @@ game.play_hud_motion(2, "artefact_inspect_hud", "anm_show", false, 1, true)
 --game.stop_hud_motion()
 --actor:activate_slot(NO_ACTIVE_SLOT, true)
 --block_non_move_action(false)
---get_actor_obj():block_action(key_bindings.kINVENTORY)
+--actor_obj:block_action(key_bindings.kINVENTORY)
 
 
 --item:dump_visual_to_log() --Распечатать в лог информацию о мешах и костях модели - мировой и худовой, если худовая доступна.

@@ -59,7 +59,7 @@ function play(item)
 				sound:play(actor, 0, sound_object.s2d)
 				level.add_call(
 					function()
-						local conds = get_actor_obj().condition
+						local conds = actor_obj.condition
 						local f_dt = conds:fdelta_time()
 						actor.psy_health = conds.psy_health_v * data.psy_restore_k * f_dt
 						return not sound or not sound:playing()

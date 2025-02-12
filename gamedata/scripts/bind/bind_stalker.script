@@ -22,6 +22,7 @@ class "actor_binder" (object_binder)
 ----------------------------------------------------------------------------------------------------------------------
 function actor_binder:__init (obj) super(obj)
 	_G.actor = self.object
+	_G.actor_obj = get_actor_obj()
 	--
 	self.sm = ogse_signals.get_mgr()
 	self.sm:call("on_load_before_all")
@@ -132,6 +133,7 @@ function actor_binder:net_destroy()
 	object_binder.net_destroy(self)
 	--
 	_G.actor = false
+	_G.actor_obj = false
 end
 ----------------------------------------------------------------------------------------------------------------------
 function actor_binder:reinit()

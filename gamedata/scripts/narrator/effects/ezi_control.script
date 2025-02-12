@@ -11,7 +11,6 @@ local subscribed = false
 
 local DEBUG_DISABLE = false
 
-local actor_obj = get_actor_obj()
 local ZOOM_SOMNOLENCE_K = read_if_exists(sys_ini, "r_float", "actor_condition", "somnolence_zoom_effector_k", 10)
 local CROUCH_K = 0.25
 
@@ -87,7 +86,7 @@ function on_zoom_in(weapon)
 	--hud_add_info_message("item_usage", game.translate_string("st_hold_key_to_hard_hold"), 3)
 	add_time_delayed_action(1,
 	function()
-		if not get_actor_obj():is_zoom_aiming_mode() then
+		if not actor_obj:is_zoom_aiming_mode() then
 		return end
 		local tip = "st_hold_key_to_hard_hold"
 		local marks = ui_scope_collimator_mark.can_switch_marks(weapon)

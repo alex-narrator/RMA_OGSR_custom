@@ -27,6 +27,9 @@ function on_key_press(key, game_action)
 	then
 	return end
 		
+	if actor_cant_walk() then
+	return end
+		
 	block_non_move_action(true)
 	local to_center = is_crosshair_hard()
 	actor:center_crosshair(to_center)

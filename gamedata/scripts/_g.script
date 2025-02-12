@@ -1633,7 +1633,10 @@ function actor_hands_free()
 	return (not act_item or not act_item:is_pending()) and (not act_device or not act_device:is_pending()) and game.hud_motion_allowed() and not actor:ph_capture()
 end
 function actor_cant_walk()
-	return get_actor_obj().condition.cant_walk
+	return actor_obj.condition.cant_walk
+end
+function actor_cant_sprint()
+	return actor_obj.condition.cant_sprint
 end
 function actor_get_knife()
 	return actor:item_in_slot(0)
@@ -1672,7 +1675,6 @@ function is_actors_pda(item)
 end
 
 function actor_break_sprint()
-	local actor_obj = get_actor_obj()
 	if actor_obj:is_actor_sprinting() then
 		actor_obj:set_state_wishful(move_command.mcAccel)
 	end
@@ -2316,7 +2318,7 @@ function IsMoveState(state, compare_state)
 	end
 	
 	if (not compare_state) then
-		compare_state = get_actor_obj():get_body_state()
+		compare_state = actor_obj:get_body_state()
 	end
 	
 	return (bit_and(compare_state, state) ~= 0)

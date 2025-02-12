@@ -5,8 +5,6 @@ function attach(sm)
 	sm:subscribe({signal = "on_hud_state_switch",   	fun = this.on_state_switch})
 end
 
-local actor_obj = get_actor_obj()
-
 function is_hold_to_crouch()
 	return get_console():get_bool("g_hold_to_crouch")
 end
