@@ -19,13 +19,13 @@ function check_use_enabled(item, user)
 	
 	local sect = item:section()
 	
-	if item:is_food_item() and not item:is_bottle_item() and actor.satiety > 0.95 then	
+	if item:is_food_item() and not item:is_bottle_item() and not (read_if_exists(sys_ini, "r_bool", sect, "non_food", false)) and actor.satiety > 0.95 then	
 		eatable_item.can_be_eaten = false
 		news_manager.item_tip(item, "satiety_block_eat")
 	return end
 	
 	if not read_if_exists(sys_ini, "r_bool", sect, "helmet_use", true) then
-				
+
 		local check_item = actor:item_in_slot(6)
 		if check_item and read_if_exists(sys_ini, "r_bool", check_item:section(), "block_eat", false) then
 			eatable_item.can_be_eaten = false

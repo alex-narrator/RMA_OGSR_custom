@@ -335,6 +335,7 @@ function MainIngameOverlay:InitControls()
 	--//target tip
 	-- self.target_tip = xml:InitStatic("target_tip", self)
 	-- self.target_tip.offset = xml:ReadAttrib("target_tip", "offset", "center")
+	self.tip_cursor = xml:InitStatic("tip_cursor", self)
 end
 
 function MainIngameOverlay:UpdateConditions()
@@ -1082,7 +1083,7 @@ end
 
 function MainIngameOverlay:UpdateTargetTip()
 	local tip = actor_obj:get_default_action_for_obj()
-	if tip and (actor_hands_free() or actor:ph_capture()) then
+	if tip and tip ~= "" and (actor_hands_free() or actor:ph_capture()) then
 		-- self.target_tip:SetText(game.translate_string(tip))
 		-- self.target_tip:AdjustWidthToText()
 		-- self.target_tip:AdjustHeightToText()
@@ -1093,6 +1094,7 @@ function MainIngameOverlay:UpdateTargetTip()
 		--self.target_tip:SetText("")
 		hud_remove_info_message("quick_info")
 	end
+	self.tip_cursor:Show(tip and tip ~= "" and not get_console():get_bool("hud_crosshair"))
 end
 
 function MainIngameOverlay:OnKeyPress(key, game_action)

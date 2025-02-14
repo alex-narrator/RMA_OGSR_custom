@@ -28,7 +28,6 @@ function get_carbody_target()
 end
 
 function action_use()
-	log3("~use")
 	level.send_event_key_press(bind_to_dik(key_bindings.kUSE))
 	level.send_event_key_release(bind_to_dik(key_bindings.kUSE))
 end
@@ -73,7 +72,9 @@ function play()
 					if tgt:get_container() then
 						actor:transfer_item(tgt, actor)
 					elseif tgt:get_physics_shell() and distance_between_safe(tgt, actor) <= read_if_exists(sys_ini, "r_float", "actor_capture", "pull_distance", 1.4) then
-						actor:ph_capture_object(tgt)
+						local rq = level.get_current_ray_query()
+						local bone_id = rq and rq.element or 0
+						actor:ph_capture_object(tgt, bone_id)
 					end
 				else
 					if not tgt:get_container() then --//без цього інвентарний контейнер буде одразу підібраний у інвентар
