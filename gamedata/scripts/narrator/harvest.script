@@ -3,6 +3,8 @@ function attach(sm)
 	sm:subscribe({signal = "on_monster_update",   	fun = this.on_monster_update})
 end
 
+local HARVEST_DEBUG = false
+
 function on_monster_update(monster, delta)
 	if monster:alive() then
 	return end
@@ -35,7 +37,7 @@ function take_loot(monster, knife)
 end
 
 function has_loot(monster)
-	return monster:ruck_count() > 0
+	return monster:ruck_count() > 0 or HARVEST_DEBUG
 end
 
 function get_good_knife()

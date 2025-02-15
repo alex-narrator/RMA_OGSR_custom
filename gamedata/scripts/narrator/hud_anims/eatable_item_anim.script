@@ -62,7 +62,7 @@ function play(item)
 			local anm_length = game.play_hud_motion(2, hud_sect, anm_name, false, anm_speed * anm_snd_speed(), true)
 			--log3("~anm_length %s", anm_length * 0.001)
 			
-			hud_add_info_message("item_usage", game.translate_string("st_key_to_stop_anim"), 5)
+			hud_add_info_message("item_usage", game.translate_string("st_key_to_stop_anim"), 10)
 			
 			_G.SCRIPT_ANIM_PLAYING = true
 			anim_sound = play_hud_sound(hud_sect)
@@ -86,6 +86,7 @@ function play(item)
 					return game.hud_motion_allowed()
 				end,
 				function()
+					unsubscribe()
 					block_non_move_action(false)
 					level.remove_complex_effector(hud_effector_id)
 					_G.SCRIPT_ANIM_PLAYING = false
@@ -134,7 +135,7 @@ function set_use_delay(sect, item, anm_length)
 	add_time_delayed_action(
 		read_if_exists(sys_ini, "r_float", sect, "use_delay", anm_length) * 1 / anm_snd_speed(), 
 		function()
-			unsubscribe()
+			--unsubscribe()
 			hud_remove_info_message("item_usage")
 			if FORCE_STOP then
 				FORCE_STOP = false
@@ -160,6 +161,7 @@ function on_key_press(key, game_action)
 	return end
 	FORCE_STOP = true
 	level.remove_complex_effector(hud_effector_id)
+	hud_remove_info_message("item_usage")
 	game.stop_hud_motion()
 	if anim_sound then
 		anim_sound:stop()
