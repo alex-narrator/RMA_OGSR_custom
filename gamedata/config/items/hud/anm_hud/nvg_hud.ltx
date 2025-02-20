@@ -1,0 +1,30 @@
+[transition_nvg_hud]:hud_base
+attach_place_idx            = 0
+
+hands_position				= 0, 0, 0
+hands_orientation			= 0, 0, 0
+hands_position_16x9			= 0, 0, 0
+hands_orientation_16x9		= 0, 0, 0
+
+anm_show              		= liz_nvg_draw_start_hands
+anm_hide                	= liz_nvg_hide_end_hands
+
+eff_show 					= nvg_on
+eff_hide 					= nvg_off
+
+[nvg_hud_base]:hud_base
+attach_place_idx			= 2
+
+hands_position				= 0, 0, 0
+hands_orientation			= 0, 0, 0
+hands_position_16x9			= 0, 0, 0.1
+hands_orientation_16x9		= 0, 0, 0
+
+item_position				= 0,0.09,0
+item_orientation			= 0,0,0
+
+anm_show    				= liz_nvg_draw_hands, liz_nvg_draw
+anm_hide    				= liz_nvg_hide_hands, liz_nvg_hide
+
+[nvg_binocular_hud]:nvg_hud_base
+item_visual                 = dynamics\nvg\liz_nvg_hud

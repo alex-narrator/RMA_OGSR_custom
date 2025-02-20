@@ -61,6 +61,7 @@ function actor_have_bandage(first_speaker, second_speaker)
 end
 function transfer_medkit(first_speaker, second_speaker)
 	ogse_signals.get_mgr():call("on_heal_wounded", second_speaker)
+	break_dialog(first_speaker, second_speaker)
 	--//перенесено у healing_wounded.script	
 	-- if first_speaker:object("medkit") ~= nil then
 		-- dialogs.relocate_item_section(second_speaker, "medkit", "out")

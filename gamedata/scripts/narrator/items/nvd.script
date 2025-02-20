@@ -17,6 +17,8 @@ local nvd_slots = {
 	HELMET_SLOT,
 }
 
+local CURR_INTENSITY = 0
+
 function get_current_nvd()
 	for k, v in ipairs(nvd_slots) do
 		item = actor:item_in_slot(v)
@@ -33,12 +35,19 @@ function get_nvd_params(sect)
 	_tmp = split_string(_tmp, ",")
 	local params = {
 		--//color and intensity
-		R = _tmp[1], G = _tmp[2], B = _tmp[3], INTENSITY = read_if_exists(sys_ini, "r_float", sect, "nv_intensity", 2),
+		R 			= _tmp[1], 
+		G 			= _tmp[2], 
+		B 			= _tmp[3], 
+		INTENSITY 	= read_if_exists(sys_ini, "r_float", sect, "nv_intensity", 	20),
 		--//effects
-		NOISE = read_if_exists(sys_ini, "r_float", sect, "nv_noise", 0),
-		SCANLINES = read_if_exists(sys_ini, "r_float", sect, "nv_scanlines", 0),
-		VIGNETTE = read_if_exists(sys_ini, "r_float", sect, "nv_vignette", 0),
-		WORK_AREA = read_if_exists(sys_ini, "r_float", sect, "nv_work_area", 1),
+		NOISE 		= read_if_exists(sys_ini, "r_float", sect, "nv_noise", 		0),
+		SCANLINES 	= read_if_exists(sys_ini, "r_float", sect, "nv_scanlines", 	0),
+		VIGNETTE 	= read_if_exists(sys_ini, "r_float", sect, "nv_vignette", 	0),
+		FLICKERING 	= read_if_exists(sys_ini, "r_float", sect, "nv_flickering", 0),
+		TUBE_NUM 	= read_if_exists(sys_ini, "r_float", sect, "nv_tube_num", 	1),
+		WORK_AREA 	= read_if_exists(sys_ini, "r_float", sect, "nv_work_area", 	0.5),
+		STEP 		= read_if_exists(sys_ini, "r_float", sect, "nv_step", 		0),
+		STEP_COUNT 	= read_if_exists(sys_ini, "r_float", sect, "nv_step_count", 1),
 	}
 	return params
 end
@@ -47,12 +56,36 @@ function can_switch(item)
 	return (not is_power_device(item) or item:binded_object():get_power_level() > 0) and item:condition() > 0
 end
 
+function can_switch_intensity(item)
+	return get_nvd_params(item:section()).STEP > 0
+end
+
+function switch_nvd_intensity(item)
+	local sect = item:section()
+	local params = get_nvd_params(sect)
+	local max_i = params.STEP * params.STEP_COUNT
+	local min_i = -max_i
+	CURR_INTENSITY = CURR_INTENSITY + params.STEP
+	if CURR_INTENSITY > max_i then
+		CURR_INTENSITY = min_i
+	end
+	if CURR_INTENSITY < min_i then
+		CURR_INTENSITY = max_i
+	end
+	set_nvd_effector(sect, alife():object(item:id()).is_nvd_on)
+	local switch_snd = read_if_exists(sys_ini, "r_string", sect, "snd_nvd_switch", "interface\\mark_adjust")
+	if switch_snd then
+		xr_sound.get_safe_sound_object(switch_snd):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+	end
+	level.add_cam_effector([[camera_effects\item_use\mark_adjust.anm]], 5559, false, "")
+end
+
 function switch_nvd(item)
 	local sobj = alife():object(item:id())
 	sobj.is_nvd_on = not sobj.is_nvd_on
 	
-	local snd_on = read_if_exists(sys_ini, "r_string", item:section(), "snd_night_vision_on", nil)
-	local snd_off = read_if_exists(sys_ini, "r_string", item:section(), "snd_night_vision_off", nil)	
+	local snd_on = read_if_exists(sys_ini, "r_string", item:section(), "snd_nvd_on", nil)
+	local snd_off = read_if_exists(sys_ini, "r_string", item:section(), "snd_nvd_off", nil)
 	
 	local snd_name = sobj.is_nvd_on and snd_on or snd_off
 	if snd_name then
@@ -71,8 +104,8 @@ function enable_nvd(item, power_on)
 	local sobj = alife():object(item:id())
 	sobj.is_nvd_on = power_on
 	
-	local snd_on = read_if_exists(sys_ini, "r_string", item:section(), "snd_night_vision_on", nil)
-	local snd_off = read_if_exists(sys_ini, "r_string", item:section(), "snd_night_vision_off", nil)
+	local snd_on = read_if_exists(sys_ini, "r_string", item:section(), "snd_nvd_on", nil)
+	local snd_off = read_if_exists(sys_ini, "r_string", item:section(), "snd_nvd_off", nil)
 	
 	local snd_name = sobj.is_nvd_on and snd_on or snd_off	
 	xr_sound.get_safe_sound_object(snd_name):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
@@ -84,10 +117,12 @@ function set_nvd_effector(sect, enable)
 	if not enable then
 		set_pnv_color(0,0,0,0)
 		set_pnv_params(0,0,0,0)
+		set_pnv_params_2(0,0,0,0)
 	else
 		local params = get_nvd_params(sect)
-		set_pnv_color(params.R, params.G, params.B, params.INTENSITY)
-		set_pnv_params(params.NOISE, params.SCANLINES, params.VIGNETTE, params.WORK_AREA)
+		set_pnv_color(params.R, params.G, params.B, params.INTENSITY + CURR_INTENSITY)
+		set_pnv_params(params.NOISE, params.SCANLINES, params.VIGNETTE, params.FLICKERING)
+		set_pnv_params_2(params.TUBE_NUM, params.WORK_AREA, 0, 0)
 	end
 end
 
@@ -111,6 +146,7 @@ function on_ruck(obj, prev_place)
 	if get_nvd_params(obj:section()) and prev_place == item_place.slot then
 		if sobj.is_nvd_on then
 			enable_nvd(obj, false)
+			CURR_INTENSITY = 0
 		end
 	end
 end
@@ -187,6 +223,22 @@ local zoom_action = {
 function on_key_press(key, game_action)
 	try_switch_scope_nvd(key, game_action)
 	try_block_aim(key, game_action)
+	try_switch_nvd_intensity(key, game_action)
+end
+
+function try_switch_nvd_intensity(key, game_action)
+	if not nvd_action[game_action] then
+	return end
+	if not level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) then
+	return end
+	if not actor_hands_free() then
+	return end
+	local nvd = get_current_nvd()
+	if not nvd then
+	return end
+	if not can_switch(nvd) or not can_switch_intensity(nvd) then
+	return end
+	switch_nvd_intensity(nvd)
 end
 
 function try_switch_scope_nvd(key, game_action)

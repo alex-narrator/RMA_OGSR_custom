@@ -8,6 +8,14 @@ local nvd_action = {
 }
 
 local hud_effector_id = 5558
+local hud_sect_simple = "switch_torch_hud"
+local transition_sect = "transition_nvg_hud"
+local speed = 1
+local post_fade_delay = 0.6
+
+function play_fade()
+	level.add_pp_effector("deimos_short.ppe", 2007, false)
+end
 
 function aim_scope()
 	local act_item = actor:active_item()
@@ -22,6 +30,7 @@ function on_key_press(key, game_action)
 	local curr_nvd = nvd.get_current_nvd()
 	if not nvd_action[game_action] or
 		--level.main_input_receiver() or
+		level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) or
 		active_pda() or
 		not curr_nvd
 		or not actor_hands_free() 
@@ -34,28 +43,85 @@ function on_key_press(key, game_action)
 		end
 	return end
 	
-	local hud_sect = "switch_torch_hud"
+	local hud_sect = read_if_exists(sys_ini, "r_string", curr_nvd:section(), "nv_hud", nil)
 	
-	game.play_hud_motion(1, hud_sect, "anm_use", false, 1, false)
-	_G.SCRIPT_ANIM_PLAYING = true
-	local eff_name = read_if_exists(sys_ini, "r_string", hud_sect, "hud_effector", nil)
-	level.add_complex_effector(eff_name, hud_effector_id)
+	if actor:active_item() and actor:active_item():is_zoomed() then
+		actor:active_item():zoom_out()
+	end
 	
-	add_time_delayed_action(
-		read_if_exists(sys_ini, "r_float", hud_sect, "use_delay", 1.5),
-		function()
-			if not nvd.can_switch(curr_nvd) then 
-			return end
+	if not hud_sect then
+		hud_sect = hud_sect_simple
+		game.play_hud_motion(1, hud_sect, "anm_use", false, 1, false)
+		_G.SCRIPT_ANIM_PLAYING = true
+		local eff_name = read_if_exists(sys_ini, "r_string", hud_sect, "hud_effector", nil)
+		level.add_complex_effector(eff_name, hud_effector_id)
+	
+		add_time_delayed_action(
+			read_if_exists(sys_ini, "r_float", hud_sect, "use_delay", 1.5),
+			function()
+				nvd.switch_nvd(curr_nvd)
+			end
+		)
+		level.add_call(
+			function()
+				return game.hud_motion_allowed()
+			end,
+			function()
+				_G.SCRIPT_ANIM_PLAYING = false
+			end
+		)
+	else
+		block_non_move_action(true)
+		_G.SCRIPT_ANIM_PLAYING = true
+		local is_on = alife():object(curr_nvd:id()).is_nvd_on
+		local action = is_on and "_hide" or "_show"
+		
+		if is_on then --//turn off sequence
 			nvd.switch_nvd(curr_nvd)
+			play_fade()
+			add_time_delayed_action(
+				post_fade_delay,
+				function()
+					level.add_complex_effector(read_if_exists(sys_ini, "r_string", transition_sect, "eff"..action, nil), hud_effector_id)
+					local length = game.play_hud_motion(1, hud_sect, "anm"..action, false, speed, true)
+					add_time_delayed_action(
+						length * 0.001,
+						function()
+							local length = game.play_hud_motion(1, transition_sect, "anm"..action, false, speed, true)
+							add_time_delayed_action(
+								length * 0.001,
+								function()
+									block_non_move_action(false)
+									_G.SCRIPT_ANIM_PLAYING = false
+								end
+							)
+						end
+					)
+				end
+			)
+		else --//turn on sequence
+			level.add_complex_effector(read_if_exists(sys_ini, "r_string", transition_sect, "eff"..action, nil), hud_effector_id)
+			local length = game.play_hud_motion(1, transition_sect, "anm"..action, false, speed, true)
+			add_time_delayed_action(
+				length * 0.001,
+				function()
+					local length = game.play_hud_motion(1, hud_sect, "anm"..action, false, speed, true)
+					add_time_delayed_action(
+						length * 0.001,
+						function()
+							play_fade()
+							add_time_delayed_action(
+								post_fade_delay,
+								function()
+									nvd.switch_nvd(curr_nvd)
+									block_non_move_action(false)
+									_G.SCRIPT_ANIM_PLAYING = false
+								end
+							)
+						end
+					)
+				end
+			)
 		end
-	)
-	
-	level.add_call(
-		function()
-			return game.hud_motion_allowed()
-		end,
-		function()
-			_G.SCRIPT_ANIM_PLAYING = false
-		end
-	)
+	end
 end

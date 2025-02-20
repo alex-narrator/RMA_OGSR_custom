@@ -336,6 +336,8 @@ function MainIngameOverlay:InitControls()
 	-- self.target_tip = xml:InitStatic("target_tip", self)
 	-- self.target_tip.offset = xml:ReadAttrib("target_tip", "offset", "center")
 	self.tip_cursor = xml:InitStatic("tip_cursor", self)
+	local offset = ui_inv_utils.GetOffset("center", self.tip_cursor, self.owner)
+	self.tip_cursor:SetWndPos(offset.x, offset.y)
 end
 
 function MainIngameOverlay:UpdateConditions()

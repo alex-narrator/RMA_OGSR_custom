@@ -164,61 +164,80 @@ snd_switch_mode 		= device\torch\switch_torch
 light_definition 		= torch_definition
 light_definition_second = torch_definition_long_range
 
-[device_night_vision]:device_base
+[nvd_base]:
 GroupControlSection	= spawn_group
 discovery_dependency =
-$spawn				= "devices\torch"
+$spawn				= "devices\nvg"
 $prefetch 			= 32
 class				= TORCH_S
 cform				= skeleton
-visual				= equipments\light_night
-
-cost				= 100
-
-inv_name			= st_device_night_vision_name
-inv_name_short		= st_device_night_vision_short
-description			= st_device_night_vision_descr
-icon_text			= st_device_night_vision_text
-
-inv_weight			= 0
-
-inv_grid_x         = 1
-inv_grid_y         = 4;5
-
+visual				= dynamics\nvg\nvg
 slot				= 9
+
+position				= 0.35,0.25,0.0
+attach_angle_offset		= 0.050, -0.057, 1.600
+attach_position_offset	= 0.195, -0.000, 0.100
+attach_bone_name		= bip01_head
+auto_attach				= false
 
 power_source 		= battery
 script_binding      = bind_device.init
 use_sound 			= interface\inv_detach_addon
 
-;highlight_item = battery
+snd_nvd_on 			= device\torch\nv_start
+snd_nvd_off 		= device\torch\nv_off
 
-hud = switch_torch_hud
+nv_hud 				= nvg_binocular_hud
 
-;вещью нельзя торговать
-can_trade				= true
-position				= 0.35,0.25,0.0
-attach_angle_offset		= 0, -3.14, 1.6
-attach_position_offset	= 0.115, 0.00, 0.07
-attach_bone_name		= bip01_head
-auto_attach				= false
+[device_nvd_mono]:device_base,nvd_base
+cost				= 30000
+
+inv_name			= st_device_nvd_mono_name
+inv_name_short		= st_device_nvd_mono_short
+description			= st_device_nvd_mono_descr
+icon_text			= st_device_nvd_mono_text
+
+inv_weight			= .680
+
+inv_grid_x         	= 1
+inv_grid_y         	= 4
 
 ;night_vision_texture		= hud_mask\nightvision\hud_nvg_gen1;wpn\wpn_crosshair;wpn\wpn_night
 ;night_vision_effector		= effector_nightvision ;postprocess_night
 
-nv_color 		= 0.2, 0.3, 0.2
-nv_intensity 	= 20
-nv_vignette 	= 1.2
-nv_work_area 	= 0.5
+nv_color 			= 0.2, 0.3, 0.2
+nv_intensity 		= 40
+nv_vignette 		= 0.05
+nv_work_area 		= 0.5
+nv_step 			= 10
+nv_step_count 		= 1
+nv_tube_num 		= 1
+nv_noise 			= 0.3
 
-snd_night_vision_on			= device\torch\nv_start
-snd_night_vision_off		= device\torch\nv_off
-;snd_night_vision_idle		= weapons\nv_loop
-;snd_night_vision_broken		= weapons\nv_offв
+[device_nvd_bino]:device_base,nvd_base
+cost				= 50000
 
-night_vision_recharge_time			= 6		;(c) время зарядки аккамулятора
-night_vision_recharge_time_min		= 2		;(c) мин. время зарядки аккамулятора, после которого уст-во уже может работать
-night_vision_discharge_time			= 20	;(c) время разрядки (работы) устройства после полной зарядки
+inv_name			= st_device_nvd_bino_name
+inv_name_short		= st_device_nvd_bino_short
+description			= st_device_nvd_bino_descr
+icon_text			= st_device_nvd_bino_text
+
+inv_weight			= .545
+
+inv_grid_x         	= 2
+inv_grid_y         	= 4
+
+;night_vision_texture		= hud_mask\nightvision\hud_nvg_gen1;wpn\wpn_crosshair;wpn\wpn_night
+;night_vision_effector		= effector_nightvision ;postprocess_night
+
+nv_color 			= 0.2, 0.3, 0.2
+nv_intensity 		= 30
+nv_vignette 		= 0.1
+nv_work_area 		= 0.5
+nv_step 			= 10
+nv_step_count 		= 2
+nv_tube_num 		= 2
+nv_noise 			= 0.1
 
 ;;--==========================< Flashlight >=============================
 [device_flashlight]:device_base

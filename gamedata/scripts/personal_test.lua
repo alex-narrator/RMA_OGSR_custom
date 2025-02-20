@@ -40,8 +40,9 @@
 
 local tgt = level.get_target_obj()
 if tgt then
-	interact_item_anim.action_use()
-	return
+	alife():release(alife():object(tgt:id()), true)
+	-- interact_item_anim.action_use()
+	-- return
 	-- tgt:set_tip_text("test_tip")
 	-- local text = tgt:get_tip_text() or "NONE"
 	-- log3("~tip %s", text)
@@ -121,7 +122,13 @@ end
 	-- main_wnd.show_zone_map = not main_wnd.show_zone_map
 -- end
 
-game.play_hud_motion(2, "artefact_inspect_hud", "anm_show", false, 1, true)
+--local length = game.play_hud_motion(0, "pickup_hud", "anm_use_r", true, 1, true)
+-- add_time_delayed_action(
+	-- length * 0.001,
+	-- function()
+		-- game.play_hud_motion(1, "nvg_binocular_hud", "anm_hide", false, 0.5, true)
+	-- end
+-- )
 -- level.add_cam_effector('camera_effects\\kick\\attack_heavy.anm', 8073, false,'')
 --game.stop_hud_motion()
 --actor:activate_slot(NO_ACTIVE_SLOT, true)

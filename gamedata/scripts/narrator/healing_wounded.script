@@ -65,11 +65,17 @@ function heal(npc)
 	if second_speaker:relation(first_speaker) ~= game_object.enemy then
 		second_speaker:set_relation(game_object.friend, first_speaker)
 	end
-	if second_speaker:alive() then
-		if second_speaker:is_talk_enabled() == true then
-			if second_speaker:active_sound_count() == 0 then
-				xr_sound.set_sound_play(second_speaker, "help_thanx")
+	
+	add_time_delayed_action(
+		0.5,
+		function()
+			if second_speaker:alive() then
+				--if second_speaker:is_talk_enabled() then
+					if second_speaker:active_sound_count() == 0 then
+						xr_sound.set_sound_play(second_speaker, "help_thanx")
+					end
+				--end
 			end
 		end
-	end
+	)
 end
