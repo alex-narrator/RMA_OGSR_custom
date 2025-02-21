@@ -40,7 +40,7 @@
 
 local tgt = level.get_target_obj()
 if tgt then
-	alife():release(alife():object(tgt:id()), true)
+	--alife():release(alife():object(tgt:id()), true)
 	-- interact_item_anim.action_use()
 	-- return
 	-- tgt:set_tip_text("test_tip")
@@ -101,7 +101,7 @@ if tgt then
 	-- -- pos:sub(dir:normalize())
 	-- local particle_pos = vector():set(0.7,0.2,1.1)
 	-- pos:add(particle_pos)
-	-- particle:play_at_pos(pos)	
+	-- particle:play_at_pos(pos
 	
 end
 
@@ -592,7 +592,8 @@ end
 --actor:give_info_portion("encyclopedy_social_military_army")
 
 --set_pnv_color(0.2, 0.3, 0.2, 10)
---set_pnv_params(0.1,0,1.2,0.5)
+set_pnv_params(0,0,0,0)
+set_pnv_params_2(1,1,0,0)
 --set_markswitch_current(3)
 --set_markswitch_color(1, 1, 0, 0)
 --set_pnv_color(0,0,0,0)
@@ -603,6 +604,7 @@ local item = actor:active_item()
 if item then
 	local wpn = item:get_weapon()
 	if wpn then
+		wpn.scope_inertion_factor = 2
 		--wpn.zoom_factor = 1
 		--log3("~const_zoom_hud_fov %s", wpn.const_zoom_hud_fov)
 		--wpn.const_zoom_hud_fov = 30

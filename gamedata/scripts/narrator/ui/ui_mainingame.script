@@ -781,7 +781,7 @@ function MainIngameOverlay:UpdateActiveItem()
 	
 	self.zoom_counter:Show(wpn and wpn:is_addon_attached(addon.scope) and wpn.zoom_mode and wpn.zoom_rotation_factor == 1)
 	if self.zoom_counter:IsShown() then
-		local zoom = wpn.zoom_factor
+		local zoom = wpn:second_vp_enabled() and wpn:second_vp_zoom() or wpn.zoom_factor--wpn.zoom_factor
 		-- if zoom > 2 then
 			-- zoom = math.floor(zoom+0.1)
 		-- end

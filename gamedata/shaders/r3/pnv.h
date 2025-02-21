@@ -30,27 +30,6 @@ float2 aspect_ratio_correction(float2 tc)
     return tc;
 }
 
-/* float4 calc_vignette(float2 tc0, float vignette_size, float tube_num)
-{
-	float4 result = float4(0.0f, 0.0f, 0.0f, 0.0f);
-	if (tube_num == 1)
-	{
-		result = smoothstep(0.55f, 0.4f, vignette_size * distance(aspect_ratio_correction(tc0), single_tube_centered));
-	}
-	if (tube_num == 2)
-	{
-		result = smoothstep(0.55f, 0.4f, vignette_size * distance(aspect_ratio_correction(tc0), dual_tube_offset_1));
-		result += smoothstep(0.55f, 0.4f, vignette_size * distance(aspect_ratio_correction(tc0), dual_tube_offset_2));
-	}
-	if (tube_num == 4)
-	{
-		result = smoothstep(0.55f, 0.4f, vignette_size * distance(aspect_ratio_correction(tc0), quad_tube_offset_1));
-		result += smoothstep(0.55f, 0.4f, vignette_size * distance(aspect_ratio_correction(tc0), quad_tube_offset_2));
-		result += smoothstep(0.55f, 0.4f, vignette_size * distance(aspect_ratio_correction(tc0), quad_tube_offset_3));
-		result += smoothstep(0.55f, 0.4f, vignette_size * distance(aspect_ratio_correction(tc0), quad_tube_offset_4));
-	}	
-	return result;	
-} */
 float calc_vignette (float2 tc0, float vignette_amount, float tube_num, float tube_radius)
 {
 	float vignette;
@@ -85,7 +64,6 @@ float calc_vignette (float2 tc0, float vignette_amount, float tube_num, float tu
 
 float calc_work_area(float2 tc0, float work_area_radius, float tube_num)
 {
-	//return step(distance(aspect_ratio_correction(tc0), single_tube_centered), work_area_radius);
 	if (tube_num == 1)
 	{
 		return step(distance(aspect_ratio_correction(tc0), single_tube_centered), work_area_radius);

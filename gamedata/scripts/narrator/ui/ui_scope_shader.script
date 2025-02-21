@@ -44,7 +44,9 @@ function on_zoom_in(weapon)
 			mark_scale = mark_scale,
 			ffp_factor = ffp_factor,
 		}
-		set_scope_params(zoom, vignette, chroma, mark_scale * ffp_factor * weapon:get_weapon().zoom_factor)
+		local wpn = weapon:get_weapon()
+		local zoom_factor = wpn:second_vp_enabled() and wpn:second_vp_zoom() or wpn.zoom_factor
+		set_scope_params(zoom, vignette, chroma, mark_scale * ffp_factor * zoom_factor)
 	end
 	
 	local color = read_if_exists(sys_ini, "r_string", param_sect, "shader_scope_color", nil)
@@ -63,7 +65,9 @@ function on_zoom_change(weapon)
 	set_weapon_params(weapon:get_gl_mode() and 1 or 0, weapon:get_weapon():aim_alt_mode() and 1 or 0, 0, 0)
 	if not shader_scope_params then
 	return end
-	set_scope_params(shader_scope_params.zoom, shader_scope_params.vignette, shader_scope_params.chroma, shader_scope_params.mark_scale * shader_scope_params.ffp_factor * weapon:get_weapon().zoom_factor)
+	local wpn = weapon:get_weapon()
+	local zoom_factor = wpn:second_vp_enabled() and wpn:second_vp_zoom() or wpn.zoom_factor
+	set_scope_params(shader_scope_params.zoom, shader_scope_params.vignette, shader_scope_params.chroma, shader_scope_params.mark_scale * shader_scope_params.ffp_factor * zoom_factor)
 end
 
 function on_spawn()
