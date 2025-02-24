@@ -1,4 +1,5 @@
 #include "common.h"
+#include "pnv.h"
 
 struct v2p
 {
@@ -33,6 +34,15 @@ _out main(v2p I)
 
     o.low = sky.xyzz;
     o.high = o.low / def_hdr;
+	
+	if (pnv_color.w > 1.f)
+	{
+		o.low *= pnv_color.w * sky_brightness_factor;
+		o.high *= pnv_color.w * sky_brightness_factor;
+		
+		o.high = clamp(o.high,0.0,1.0);
+		o.low= clamp(o.low,0.0,1.0);
+	}
 
     return o;
 }
