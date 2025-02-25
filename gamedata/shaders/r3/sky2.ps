@@ -6,6 +6,7 @@ struct v2p
     float4 factor : COLOR0; // for SM3 - factor.rgb - tonemap-prescaled
     float3 tc0 : TEXCOORD0;
     float3 tc1 : TEXCOORD1;
+	float4 sv : SV_Position;
 };
 struct _out
 {
@@ -35,7 +36,8 @@ _out main(v2p I)
     o.low = sky.xyzz;
     o.high = o.low / def_hdr;
 	
-	if (pnv_color.w > 1.f)
+	float2 texturecoord = I.sv.xy / screen_res.xy;
+	if (pnv_color.w > 1.f && (IsSVPFrame() || !isSecondVPActive() && calc_work_area(texturecoord, pnv_params_2.y, pnv_params_2.x) == 1.0f))
 	{
 		o.low *= pnv_color.w * sky_brightness_factor;
 		o.high *= pnv_color.w * sky_brightness_factor;

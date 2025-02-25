@@ -197,6 +197,7 @@ end
 function on_zoom_in(weapon)
 	local nv_sect = get_nv_sect(weapon)
 	if not nv_sect then return end
+	CURR_INTENSITY = 0
 	level.add_call(
 		function() 
 			return not wpn_IsRotatingToZoom(weapon)
