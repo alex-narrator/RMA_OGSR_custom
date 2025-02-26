@@ -12,6 +12,17 @@ local script_options = {
 	["quick_save_max"] = 10,
 	["inv_item_condition"] = true,
 	["wpn_addon_ammo_wnd_separate"] = true,
+	["game_save_mode"] = 0,
+	["check_enemy_radius"] = 50,
+}
+
+--//tokens for listbox option
+local script_options_tokens = {
+	["game_save_mode"] = {
+		"sg_default",
+		"sg_no_enemies",
+		"sg_fireplace",
+	},
 }
 
 function get_script_option(name)
@@ -21,6 +32,10 @@ end
 function set_script_option(name, val)
 	script_options[name] = val
 	log3("~script_options %s is %s now", name, val)
+end
+
+function get_script_option_tokens(option)
+	return script_options_tokens[option]
 end
 
 function on_save(packet)

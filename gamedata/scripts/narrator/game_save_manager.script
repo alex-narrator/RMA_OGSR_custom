@@ -50,3 +50,28 @@ end
 function quick_last_load()
 	get_console():execute("load_last_save")
 end
+
+function can_save_game()
+	local result = true
+	local refuse_reason
+	local save_game_mode = get_script_option_value("game_save_mode")
+	--log3("~save_game_mode [%s]", save_game_mode)
+	if save_game_mode == 1 then
+		result = not has_enemy_near(actor, get_script_option_value("check_enemy_radius"))
+		if not result then
+			refuse_reason = "st_enemies_nearby"
+		end
+	end
+	if save_game_mode == 2 then
+		result = campfire_effects.actor_used_campfire()
+		if not result then
+			refuse_reason = "st_not_fireplace"
+		end		
+	end
+	--log3("~can save game [%s]", result)
+	if refuse_reason then
+		local refuse_text = string.format("%s: %s", game.translate_string("ui_st_cant_save_game"), game.translate_string(refuse_reason))
+		hud_add_info_message("item_usage", refuse_text, 5)
+	end
+	return result
+end

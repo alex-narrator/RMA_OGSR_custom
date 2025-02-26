@@ -5,7 +5,7 @@ local fast_travel_types = {
 }
 
 function refuse_reason()
-	if has_enemy_near(actor, ENEMY_CHECK_RADIUS) then
+	if has_enemy_near(actor, get_script_option_value("check_enemy_radius")) then
 	return "st_enemies_nearby" end
 	if actor:get_inventory_weight() >= actor:get_max_weight() then
 	return "st_has_overweight" end
@@ -20,7 +20,7 @@ function show_refuse_msg(reason)
 end
 
 function fast_travel_allowed()
-	return ENABLED --and not has_enemy_near(actor, ENEMY_CHECK_RADIUS) and actor:get_inventory_weight() < actor:get_max_weight() and actor:get_bleeding() < 0.1
+	return ENABLED or not has_enemy_near(actor, get_script_option_value("check_enemy_radius")) and actor:get_inventory_weight() < actor:get_max_weight() and actor:get_bleeding() < 0.1
 end
 
 function action_tip(id, spot_type, level_name, position)

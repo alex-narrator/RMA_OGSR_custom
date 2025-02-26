@@ -20,7 +20,7 @@
 		<dialog x="415" y="168" width="548" height="461">
 			<texture>ui_menu_options_dlg</texture>
 		</dialog>
-		<cap_options x="45" y="9" width="378" height="33">
+		<cap_options x="55" y="9" width="378" height="33">
 			<text font="graffiti22" r="215" g="195" b="170">ui_mm_options</text>
 		</cap_options>
 		<btn_accept x="255" y="432" width="130" height="35" stretch="1">
@@ -726,21 +726,6 @@
 			<list_font_s r="240" g="217" b="182"/>
 			<list_font r="216" g="186" b="140" font="letterica16"/>
 		</list_difficulty>
-		
-		<!-- game save mode -->
-		<!-- <cap_game_save_mode x="20" y="55" width="163" height="21" complex_mode = "1"> -->
-			<!-- <text font="letterica16" r="215" g="195" b="170">ui_mm_game_save_mode</text>			 -->
-		<!-- </cap_game_save_mode> -->
-		
-		<!-- <list_game_save_mode x="194" y="50" width="261" height="21" always_show_scroll="0" list_length="3">	 -->
-			<!-- <options_item entry="g_save_mode" group="mm_opt_gameplay"/> -->
-			<!-- <text_color> -->
-				<!-- <e r="216" g="186" b="140"/> -->
-			<!-- </text_color> -->
-			<!-- <list_font_s r="240" g="217" b="182"/> -->
-			<!-- <list_font	 r="216" g="186" b="140" font="letterica16"/> -->
-		<!-- </list_game_save_mode> -->
-		<!-- game save mode-->
 
 		<check_autopause x="0" y="0" width="415" height="21">
 			<options_item entry="keypress_on_start" group="mm_opt_gameplay"/>
@@ -900,18 +885,35 @@
 		<scroll_view	x="20" y="105" width="435" height="205" 
 					right_ident="0" left_ident="0" top_indent="0" bottom_indent="0" 
 					vert_interval="4" always_show_scroll="0" flip_vert="0"/>
+					
+		<cap_game_save_mode x="20" y="75" width="163" height="21" complex_mode = "1">
+			<text font="letterica16" r="215" g="195" b="170">ui_mm_game_save_mode</text>			
+		</cap_game_save_mode>
+		<list_game_save_mode x="194" y="70" width="261" height="21" always_show_scroll="0" list_length="3" skip_option="1">	
+			<text_color>
+				<e r="216" g="186" b="140"/>
+			</text_color>
+			<list_font_s r="240" g="217" b="182"/>
+			<list_font	 r="216" g="186" b="140" font="letterica16"/>
+		</list_game_save_mode>
 
-		<cap_quick_save_max x="20" y="20" width="143" height="21">
+		<cap_quick_save_max x="20" y="13" width="150" height="21">
 			<text font="letterica16" r="215" g="195" b="170">ui_mm_quick_save_max</text>
 		</cap_quick_save_max>
-		<track_quick_save_max x="194" y="15" width="245" height="21" step="1" min="1" max="50">
+		<track_quick_save_max x="194" y="10" width="261" height="21" step="1" min="1" max="50">
 		</track_quick_save_max>		
 
-		<cap_floating_show_delay x="20" y="45" width="143" height="21" complex_mode="1">
+		<cap_floating_show_delay x="20" y="33" width="150" height="21" complex_mode="1">
 			<text font="letterica16" r="215" g="195" b="170">ui_mm_floating_show_delay</text>
 		</cap_floating_show_delay>
-		<track_floating_show_delay x="194" y="40" width="245" height="21" step="0.1" min="0.1" max="2">
+		<track_floating_show_delay x="194" y="30" width="261" height="21" step="0.1" min="0.1" max="2">
 		</track_floating_show_delay>
+		
+		<cap_check_enemy_radius x="20" y="53" width="150" height="21" complex_mode="1">
+			<text font="letterica16" r="215" g="195" b="170">ui_mm_check_enemy_radius</text>
+		</cap_check_enemy_radius>
+		<track_check_enemy_radius x="194" y="50" width="261" height="21" step="5" min="10" max="150">
+		</track_check_enemy_radius>		
 
 		<check_floating_info x="0" y="0" width="415" height="21">
 			<text font="letterica16" r="215" g="195" b="170">ui_mm_floating_info</text>
@@ -935,23 +937,23 @@
 					right_ident="0" left_ident="0" top_indent="0" bottom_indent="0" 
 					vert_interval="4" always_show_scroll="0" flip_vert="0"/>
 					
-		<cap_hud_adjust_mode x="20" y="20" width="143" height="21">
+		<cap_hud_adjust_mode x="20" y="13" width="143" height="21">
 			<text font="letterica16" r="215" g="195" b="170">ui_mm_hud_adjust_mode</text>
 		</cap_hud_adjust_mode>
-		<cap_hud_adjust_delta_pos x="20" y="45" width="143" height="21">
+		<cap_hud_adjust_delta_pos x="20" y="33" width="143" height="21">
 			<text font="letterica16" r="215" g="195" b="170">ui_mm_hud_adjust_delta_pos</text>
 		</cap_hud_adjust_delta_pos>
-		<cap_hud_adjust_delta_rot x="20" y="70" width="143" height="21">
+		<cap_hud_adjust_delta_rot x="20" y="53" width="143" height="21">
 			<text font="letterica16" r="215" g="195" b="170">ui_mm_hud_adjust_delta_rot</text>
 		</cap_hud_adjust_delta_rot>		
 
-		<track_hud_adjust_mode x="194" y="15" width="245" height="21" step="1" min="0" max="17" is_integer="1">
+		<track_hud_adjust_mode x="194" y="10" width="261" height="21" step="1" min="0" max="17" is_integer="1">
 			<options_item entry="hud_adjust_mode" group="mm_opt_debug"/>
 		</track_hud_adjust_mode>
-		<track_hud_adjust_delta_pos x="194" y="40" width="245" height="21" step="0.00001" min="0.00001" max="0.1">
+		<track_hud_adjust_delta_pos x="194" y="30" width="261" height="21" step="0.00001" min="0.00001" max="0.1">
 			<options_item entry="hud_adjust_delta_pos" group="mm_opt_debug"/>
 		</track_hud_adjust_delta_pos>
-		<track_hud_adjust_delta_rot x="194" y="65" width="245" height="21" step="0.00001" min="0.00001" max="0.1">
+		<track_hud_adjust_delta_rot x="194" y="50" width="261" height="21" step="0.00001" min="0.00001" max="0.1">
 			<options_item entry="hud_adjust_delta_rot" group="mm_opt_debug"/>
 		</track_hud_adjust_delta_rot>		
 
@@ -1005,7 +1007,7 @@
 		<texture>ui_tablist_textbox</texture>
 	</frame>
 	
-	<frame_hint x="50" y="168" width="300" height="400">
+	<frame_hint x="50" y="168" width="300" height="461">
 		<texture>ui_icons_PDA_tooltips</texture>
 	</frame_hint>
 
@@ -1013,7 +1015,7 @@
 		<text align="l" font="letterica18" r="255" g="255" b="255" complex_mode="1">hint_name_video_text</text>
 	</hint_name>
 
-	<hint_caption x="55" y="225" width="250" height="350">
+	<hint_caption x="55" y="225" width="250" height="395">
 		<text align="l" font="letterica16" r="255" g="255" b="255" complex_mode="1">hint_caption_video_text</text>
 	</hint_caption>
 

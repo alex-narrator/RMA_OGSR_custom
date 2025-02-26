@@ -16,9 +16,11 @@ local custom_opt_params = {
 	--"option name", "option control type", "option tip name", "option tip text"
 	{ "floating_show_delay", 		"track", "gameplay_settings_name_floating_show_delay", 			"gameplay_settings_desc_floating_show_delay" 			},
 	{ "quick_save_max", 			"track", "gameplay_settings_name_quick_save_max", 				"gameplay_settings_desc_quick_save_max" 				},
+	{ "check_enemy_radius", 		"track", "gameplay_settings_name_check_enemy_radius", 			"gameplay_settings_desc_check_enemy_radius" 			},
 	{ "floating_info", 				"check", "gameplay_settings_name_floating_info", 				"gameplay_settings_desc_floating_info" 					},
 	{ "inv_item_condition", 		"check", "gameplay_settings_name_inv_item_condition", 			"gameplay_settings_desc_inv_item_condition" 			},
 	{ "wpn_addon_ammo_wnd_separate","check", "gameplay_settings_name_wpn_addon_ammo_wnd_separate", 	"gameplay_settings_desc_wpn_addon_ammo_wnd_separate" 	},
+	{ "game_save_mode", 			"list", "gameplay_settings_name_game_save_mode", 				"gameplay_settings_desc_game_save_mode"					},
 }
 
 function opt_custom:InitControls(x, y, xml, handler)
@@ -38,7 +40,22 @@ function opt_custom:InitControls(x, y, xml, handler)
 			static = xml:InitStatic("tab_"..tab..":cap_"..opt, self) 				--статик з описом оції у меню
 			custom_opt_controls[opt] = xml[mm.get_control(ctrl)](xml, "tab_"..tab..":"..ctrl.."_"..opt, self)	--сам комбобокс
 			handler:Register(custom_opt_controls[opt], opt)
-			handler:AddCallback(opt, ui_events.TRACKBAR_CHANGED, function() self:OnTrackChange(opt) end)
+			
+			if ctrl == "track" then
+				handler:AddCallback(opt, ui_events.TRACKBAR_CHANGED, function() self:OnTrackChange(opt) end)
+			end
+			
+			if ctrl == "list" then
+				handler:AddCallback(opt, ui_events.LIST_ITEM_SELECT, function() self:OnListItemSelect(opt) end)
+				local tokens = mm_custom_options.get_script_option_tokens(opt)
+				if tokens then
+					--log3("~opt [%s] tokens %s", opt, tokens)
+					--log3("~opt [%s] current token %s", opt, custom_opt_controls[opt]:CurrentID())
+					for k,v in pairs(tokens) do
+						custom_opt_controls[opt]:AddItem(v)
+					end
+				end
+			end
 		else
 			static = xml[mm.get_control(ctrl)](xml, "tab_"..tab..":"..ctrl.."_"..opt, self.scroll_view)
 			custom_opt_controls[opt] = static
@@ -57,6 +74,10 @@ function opt_custom:OnTrackChange(opt)
 	ogse_signals.get_mgr():call("on_mm_script_opt_change", opt, custom_opt_controls[opt]:GetTrackValue())
 end
 
+function opt_custom:OnListItemSelect(opt)
+	ogse_signals.get_mgr():call("on_mm_script_opt_change", opt, custom_opt_controls[opt]:CurrentID())
+end
+
 function opt_custom:SetVals()
 	ogse_signals.get_mgr():call("on_script_opt_show")
 	for opt,control in pairs(custom_opt_controls) do
@@ -67,6 +88,8 @@ function opt_custom:SetVals()
 					control:SetCheck(val)
 				elseif v[2] == "track" then
 					control:SetTrackValue(val)
+				elseif v[2] == "list" then
+					control:SetCurrentID(val)
 				end
 			end
 		end
