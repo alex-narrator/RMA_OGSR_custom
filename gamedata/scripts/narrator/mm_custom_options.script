@@ -14,6 +14,8 @@ local script_options = {
 	["wpn_addon_ammo_wnd_separate"] = true,
 	["game_save_mode"] = 0,
 	["check_enemy_radius"] = 50,
+	["front_view_compass"] = true,
+	["compass_on_demand"] = false,
 }
 
 --//tokens for listbox option
@@ -31,7 +33,7 @@ end
 
 function set_script_option(name, val)
 	script_options[name] = val
-	log3("~script_options %s is %s now", name, val)
+	--log3("~script_options %s is %s now", name, val)
 end
 
 function get_script_option_tokens(option)
