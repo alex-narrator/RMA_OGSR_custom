@@ -251,8 +251,8 @@ function try_switch_scope_nvd(key, game_action)
 	if not act_item or not act_item:is_zoomed() or not get_nv_sect(act_item) then
 	return end
 	switch_nvd(act_item)
-	if act_item:get_weapon() and act_item:get_weapon():second_vp_enabled() then
-	return end
+	-- if act_item:get_weapon() and act_item:get_weapon():second_vp_enabled() then
+	-- return end
 	level.add_complex_effector("fire_mode", 1918)
 end
 

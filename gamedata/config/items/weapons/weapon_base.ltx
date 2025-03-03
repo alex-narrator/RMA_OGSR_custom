@@ -4,28 +4,70 @@
 #include "weapon_sounds.ltx"
 
 [weapon_base]
-use_condition 	= true
-icon_group 		= 2
+use_condition 								= true
+icon_group 									= 2
 
-disassemble_tool = multitool
+disassemble_tool 							= multitool
 
-;script_binding = bind_weapon.init
+;script_binding 							= bind_weapon.init
 
 ;params when silencer is attached 
 ;similar to corresponding params without prefix silencer_
-silencer_flame_particles 	= ;weapons\generic_weapon01
-silencer_smoke_particles 	= weapons\generic_shoot_00
-silencer_light_color		= 0,0,0;0.6,0.5,0.3
-silencer_light_range		= 0;.01
-silencer_light_var_color	= 0;.05
-silencer_light_var_range	= 0;.5
-silencer_light_time 		= 0;.2
+silencer_flame_particles 					= ;weapons\generic_weapon01
+silencer_smoke_particles 					= weapons\generic_shoot_00
+silencer_light_disabled 					= true
+
+wpn_addon_scope_kobra_attach_visual 		= dynamics\weapons\wpn_addon\wpn_scope_kobra
+wpn_addon_scope_pso1_attach_visual 			= dynamics\weapons\wpn_addon\wpn_scope_pso1
+wpn_addon_scope_pso1_m1_attach_visual 		= dynamics\weapons\wpn_addon\wpn_scope_pso1_m1
+wpn_addon_scope_1p29_attach_visual 			= dynamics\weapons\wpn_addon\wpn_scope_1p29
+wpn_addon_scope_1p59_attach_visual 			= dynamics\weapons\wpn_addon\wpn_scope_1p59
+wpn_addon_scope_1pn93_attach_visual 		= dynamics\weapons\wpn_addon\wpn_scope_1pn93
+
+wpn_addon_scope_kobra_attach_rot 			= 0,0,-1.57
+wpn_addon_scope_pso1_attach_rot 			= 0,0,1.57
+wpn_addon_scope_pso1_m1_attach_rot 			= 0,0,1.57
+wpn_addon_scope_1p29_attach_rot 			= 0,0,-1.57
+
+wpn_addon_scope_eot_attach_visual 			= dynamics\weapons\wpn_addon\wpn_scope_eotech
+wpn_addon_scope_ac10632_attach_visual 		= dynamics\weapons\wpn_addon\wpn_scope_ac10632
+wpn_addon_scope_c_more_attach_visual 		= dynamics\weapons\wpn_addon\wpn_scope_c-more
+wpn_addon_scope_aimpoint_attach_visual 		= dynamics\weapons\wpn_addon\wpn_scope_aimpoint
+wpn_addon_scope_d_pro_attach_visual 		= dynamics\weapons\wpn_addon\wpn_scope_docter_sight
+wpn_addon_scope_acog_attach_visual 			= dynamics\weapons\wpn_addon\wpn_scope_acog
+wpn_addon_scope_hunting_3x9_attach_visual 	= dynamics\weapons\wpn_addon\wpn_scope_hunting_3x9
+wpn_addon_scope_pn23_attach_visual 			= dynamics\weapons\wpn_addon\wpn_scope_pn23
+wpn_addon_scope_specter_attach_visual 		= dynamics\weapons\wpn_addon\wpn_scope_specter
+wpn_addon_scope_pks07_attach_visual 		= dynamics\weapons\wpn_addon\wpn_scope_pks07
+wpn_addon_scope_ghost_ring_attach_visual 	= dynamics\weapons\wpn_addon\wpn_scope_ghost_ring
+wpn_addon_scope_ghost_ring_tr_attach_visual = dynamics\weapons\wpn_addon\wpn_scope_ghost_ring_tr
+wpn_addon_scope_r870_rs_attach_visual 		= dynamics\weapons\wpn_addon\wpn_scope_r870_rs
+wpn_addon_scope_lr300_is_attach_visual 		= dynamics\weapons\wpn_addon\wpn_scope_lr300_is
+wpn_addon_scope_m4_rs_attach_visual 		= dynamics\weapons\wpn_addon\wpn_scope_m4_rs
+wpn_addon_scope_m4a1_rs_attach_visual 		= dynamics\weapons\wpn_addon\wpn_scope_m4a1_rs
+wpn_addon_scope_ar57_is_attach_visual 		= dynamics\weapons\wpn_addon\wpn_scope_lr300_is
+wpn_addon_scope_hk416_is_attach_visual 		= dynamics\weapons\wpn_addon\wpn_scope_hk416_is
+wpn_addon_scope_ghost_ring_attach_visual 	= dynamics\weapons\wpn_addon\wpn_scope_ghost_ring_long
+wpn_addon_scope_ghost_ring_tr_attach_visual = dynamics\weapons\wpn_addon\wpn_scope_ghost_ring_tr_long
+
+wpn_addon_scope_ac10632_attach_rot 			= 0,0,-1.57
+
+device_anpeq_16_attach_visual 				= dynamics\weapons\wpn_addon\wpn_light_anpeq_16
+device_flashlight_attach_visual 			= dynamics\devices\dev_tactical_torch\dev_tactical_torch
+device_anpeq_16_attach_rot 					= 0.000000,0.000000,-3.1415926
+device_flashlight_attach_rot 				= 0.000000,0.000000,1.5707963
+
+wpn_addon_scope_rmr45_attach_visual 		= dynamics\weapons\wpn_addon\wpn_scope_docter_sight
+wpn_addon_scope_rmr45_attach_rot 			= 0.000000,0.000000,0.656600
 
 [weapon_hud_base]
-magazine_bone = magazin
+attach_place_idx                        	= 0
+zoom_hide_crosshair                     	= true   
+
+magazine_bone 								= magazin
 ;Фактор влияния инерции на положение ствола (чем меньше, тем масштабней инерция)
-;inertion_origin_offset = -0.05
-;inertion_zoom_origin_offset = -0.01
+;inertion_origin_offset 					= -0.05
+;inertion_zoom_origin_offset 				= -0.01
 
 ;;DOVETAIL SCOPES HUD ATTACH MODELS
 wpn_addon_scope_kobra_attach_visual 		= anomaly_weapons\wpn_addon\wpn_scope_kobra_hud
@@ -60,3 +102,5 @@ wpn_addon_scope_rmr45_attach_visual 		= anomaly_weapons\wpn_addon\wpn_scope_rmr4
 ;;PICATINNY RAIL DEVICES HUD ATTACH MODELS
 device_anpeq_16_attach_visual 				= anomaly_weapons\wpn_addon\wpn_light_anpeq_16_beam_hud
 device_flashlight_attach_visual 			= dynamics\devices\dev_tactical_torch\dev_tactical_torch_hud
+device_anpeq_16_attach_rot 					= 0.000000,0.000000,3.1415926
+device_flashlight_attach_rot 				= 0.000000,0.000000,1.5707963

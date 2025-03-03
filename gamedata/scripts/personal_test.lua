@@ -604,7 +604,9 @@ local item = actor:active_item()
 if item then
 	local wpn = item:get_weapon()
 	if wpn then
-		wpn.scope_inertion_factor = 2
+		--local wpn_m = item:get_weapon_m()
+		--wpn_m:set_laser_angle(300)
+		wpn.scope_inertion_factor = 0.5
 		--wpn.zoom_factor = 1
 		--log3("~const_zoom_hud_fov %s", wpn.const_zoom_hud_fov)
 		--wpn.const_zoom_hud_fov = 30
