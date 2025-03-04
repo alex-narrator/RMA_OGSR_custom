@@ -1,0 +1,153 @@
+[wpn_scar]:identity_immunities,weapon_base,wpn_scar_sounds,scope_visual_scar
+GroupControlSection	= spawn_group
+discovery_dependency = 
+$spawn                   	= "weapons\scar"					; option for Level Editor
+$npc			 			= on				; option for Level Editor
+$prefetch 		 			= 8
+scheduled                	= off              ; option for ALife Simulator
+cform                    	= skeleton
+class                    	= WP_AK74
+min_radius               	= 0
+max_radius               	= 50
+
+ef_main_weapon_type			= 2
+ef_weapon_type				= 6
+
+;-----------------------------------------------------------------------------------
+holder_range_modifier	= 1.0		       ; во сколько раз увеличивается eye_range 
+holder_fov_modifier		= 0.7              ; во сколько раз увеличивается eye_fov
+;-----------------------------------------------------------------------------------
+
+
+cost					 	= 9000
+weapon_class			 	= assault_rifle
+
+ammo_limit		 			= 210
+ammo_current		 		= 30
+ammo_elapsed		 		= 30
+
+ammo_mag_size		 		= 20
+ammo_class		 			= ammo_7.62x51_fmj, ammo_7.62x51_ap
+magazine_class 				= mag_scar
+fire_modes					= 1, -1
+
+grenade_class				= ammo_m209
+launch_speed 				= 0
+
+hand_dependence		 		= 1
+single_handed				= 0
+
+inv_name	        		= st_wpn_scar_name
+inv_name_short				= st_wpn_scar_short
+description					= st_wpn_scar_descr
+icon_text					= st_wpn_scar_text
+
+inv_weight					= 3.621
+
+inv_grid_width				= 5
+inv_grid_height				= 2
+inv_grid_x         			= 22
+inv_grid_y         			= 16
+
+slot 			 			= 1,2		; // secondary
+animation_slot				= 2		; type of the animation that will be used
+
+control_inertion_factor 	= 1.9
+;-----------------------------------------------------------------------------------
+;базовая дисперсия
+fire_dispersion_base		= 0.019 	;угол (в градусах) базовой дисперсии оружия (оружия зажатого в тисках)
+
+;отдача
+cam_relax_speed        		= 4;0.15	;скорость возврата в исходное положение
+cam_dispersion         		= 1.5	;увеличения угла (в градусах) с каждым выстрелом
+cam_dispersion_inc		= 0.15	;увеличениe cam_dispersion с каждым выстрелом
+cam_dispertion_frac		= 1	;ствол будет подыматься на cam_dispersion*cam_dispertion_frac +- cam_dispersion*(1-cam_dispertion_frac)
+cam_max_angle			= 7	;максимальный угол отдачи
+cam_max_angle_horz		= 5.0	;(degree) maximum shot horizontal degree 
+cam_step_angle_horz		= 0.5;0.4	;(degree) size of step camera moved in horizontal position while shooting
+
+fire_dispersion_condition_factor = 5	;увеличение дисперсии в процентах при максимальном износе 
+misfire_probability 		= 0.003 ;вероятность осечки при максимальном износе
+misfire_condition_k			= 0.05 
+condition_shot_dec 			= 0.0001 ;увеличение износа при каждом выстреле
+;-----------------------------------------------------------------------------------
+
+direction                	= 0, 0, 1
+
+fire_point               	= 0.0, 0.199, 0.575
+
+flame_particles				= weapons\generic_weapon05
+smoke_particles         	= weapons\generic_shoot_00
+grenade_flame_particles		= weapons\generic_weapon01
+
+shell_point             				 = 0.120000, 0.000000, 0.070000
+shell_dir               				 = 0.0, 0.0, 0.4
+shell_particles         				 = weapons\762x51
+
+rpm_empty_click 	 		= 200
+
+PDM_disp_base 				= 1.0
+PDM_disp_vel_factor 		= 1.2
+PDM_disp_accel_factor 		= 1.2
+PDM_crouch	 				= 1.0
+PDM_crouch_no_acc 			= 1.0
+
+; ttc
+hit_power        			= 3.055
+hit_impulse		 			= 20
+hit_type 					= fire_wound
+
+fire_distance            	= 600
+bullet_speed				= 802 	;начальная скорость пули
+rpm                      	= 600
+; end ttc	
+
+use_aim_bullet				= true		;Поддерживается ли первая суппер пуля
+time_to_aim					= 1.0	
+
+hud                      	= wpn_scar_hud
+normal                   	= 0, 1, 0
+position                 	= -0.026, -0.1, -0.02
+orientation              	= 0.0, 0.0, 0.0
+
+;--STRAP PARAMETERS-----------------------------------------------------------------
+strap_position         		= -0.15,-0.37,0.2			; position (offset) and orientation of the weapon when it is strapped
+strap_orientation      		= -10,-5,10					; (3rd person view in degrees)
+strap_bone0					= bip01_spine2
+strap_bone1					= bip01_spine1
+
+startup_ammo             	= 1000
+visual                   	= dynamics\weapons\wpn_scar\wpn_scar
+
+light_color		 			= 0.6,0.5,0.3
+light_range		 			= 5
+light_var_color		 		= 0.05
+light_var_range		 		= 0.1
+light_time 		 			= 0.2
+
+ph_mass			 			= 3
+;cost			 			= 2500
+
+;addons
+scope_status				= 2;0
+silencer_status				= 2
+grenade_launcher_status		= 2;0
+
+zoom_enabled				= true
+
+scope_x 					= 61
+scope_y 					= 1
+
+silencer_name  				= wpn_addon_silencer_nato_762
+silencer_x                  = 217		; offset in inventory icon
+silencer_y                  = 16
+
+grenade_launcher_name 		= wpn_addon_grenade_launcher_m203
+grenade_launcher_x          = 135		; offset in inventory icon
+grenade_launcher_y          = 29
+
+magazine_x 					= 111
+magazine_y 					= 60
+;magazine_bone 				= magazin
+
+disassemble_parts 			= part_rifle_556, 1
