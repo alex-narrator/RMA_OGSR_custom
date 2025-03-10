@@ -1,13 +1,12 @@
-;;;;;;;;;;;;;;НАСПРАВДІ ЦЕ M4A1 із цівкою з SOPMOD
-[wpn_mk14]:identity_immunities,weapon_base,wpn_m14_sounds,scope_visual_mk14
+[wpn_remington700]:identity_immunities,weapon_base,wpn_remington700_sounds
 GroupControlSection	= spawn_group
 discovery_dependency = 
-$spawn                   	= "weapons\m14"					; option for Level Editor
+$spawn                   	= "weapons\remington700"					; option for Level Editor
 $npc			 			= on				; option for Level Editor
 $prefetch 		 			= 8
 scheduled                	= off              ; option for ALife Simulator
 cform                    	= skeleton
-class                    	= WP_LR300
+class                    	= WP_SVD
 min_radius               	= 0
 max_radius               	= 50
 
@@ -27,33 +26,33 @@ ammo_limit		 			= 210
 ammo_current		 		= 30
 ammo_elapsed		 		= 30
 
-ammo_mag_size		 		= 20
+ammo_mag_size		 		= 5
 ammo_class		 			= ammo_7.62x51_fmj, ammo_7.62x51_ap
-magazine_class 				= mag_m14, mag_rem700, mag_rem700_ext
-fire_modes					= 1, -1
+magazine_class 				= mag_rem700, mag_rem700_ext, mag_m14
+fire_modes					= 1
 
 hand_dependence		 		= 1
 single_handed				= 0
 
-inv_name	        		= st_wpn_mk14_name
-inv_name_short				= st_wpn_mk14_short
-description					= st_wpn_mk14_descr
-icon_text					= st_wpn_mk14_text
+inv_name	        		= st_wpn_remington700_name
+inv_name_short				= st_wpn_remington700_short
+description					= st_wpn_remington700_descr
+icon_text					= st_wpn_remington700_text
 
-inv_weight					= 5.1
+inv_weight					= 4.08
 
 inv_grid_width				= 6
 inv_grid_height				= 2
-inv_grid_x         			= 22
+inv_grid_x         			= 28
 inv_grid_y         			= 14
 
 slot 			 			= 1,2		; // secondary
 animation_slot				= 2		; type of the animation that will be used
 
-control_inertion_factor 	= 2.26
+control_inertion_factor 	= 2.01
 ;-----------------------------------------------------------------------------------
 ;базовая дисперсия
-fire_dispersion_base		= 0.038 	;угол (в градусах) базовой дисперсии оружия (оружия зажатого в тисках)
+fire_dispersion_base		= 0.013 	;угол (в градусах) базовой дисперсии оружия (оружия зажатого в тисках)
 
 ;отдача
 cam_relax_speed        		= 4;0.15	;скорость возврата в исходное положение
@@ -91,21 +90,21 @@ PDM_crouch	 				= 1.0
 PDM_crouch_no_acc 			= 1.0
 
 ; ttc
-hit_power        			= 3.456
+hit_power        			= 2.708
 hit_impulse		 			= 20
 hit_type 					= fire_wound
 
 fire_distance            	= 700
-bullet_speed				= 853 	;начальная скорость пули
-rpm                      	= 700
+bullet_speed				= 755 	;начальная скорость пули
+rpm                      	= 45
 ; end ttc	
 
 use_aim_bullet				= true		;Поддерживается ли первая суппер пуля
 time_to_aim					= 1.0	
 
-hud                      	= wpn_mk14_hud
+hud                      	= wpn_remington700_hud
 normal                   	= 0, 1, 0
-position                 	= -0.026, -0.130, 0.0
+position                 	= -0.026, -0.1, 0
 orientation              	= 0.0, 0.0, 0.0
 
 ;--STRAP PARAMETERS-----------------------------------------------------------------
@@ -115,7 +114,7 @@ strap_bone0					= bip01_spine2
 strap_bone1					= bip01_spine1
 
 startup_ammo             	= 1000
-visual                   	= dynamics\weapons\wpn_m14\wpn_mk14
+visual                   	= dynamics\weapons\wpn_remington700\wpn_remington700
 
 light_color		 			= 0.6,0.5,0.3
 light_range		 			= 5
@@ -127,20 +126,62 @@ ph_mass			 			= 3
 ;cost			 			= 2500
 
 ;addons
-scope_status				= 2;0
+scope_status 				= 2
 silencer_status				= 2
 
 zoom_enabled				= true
 
-scope_x 					= 61
-scope_y 					= 1
+scope_name 					= wpn_addon_scope_remington700
+scope_x 					= 72
+scope_y 					= 7
 
 silencer_name  				= wpn_addon_silencer_nato_762
-silencer_x                  = 254		; offset in inventory icon
-silencer_y                  = 18
+silencer_x                  = 279		; offset in inventory icon
+silencer_y                  = 16
 
-magazine_x 					= 110
-magazine_y 					= 56
+magazine_x 					= 107
+magazine_y 					= 51
 ;magazine_bone 				= magazin
 
 disassemble_parts 			= part_rifle_556, 1
+
+[wpn_m24]:wpn_remington700,wpn_m24_sounds,scope_visual_m24
+magazine_class 				= mag_rem700_ext, mag_rem700, mag_m14
+
+inv_name	        		= st_wpn_m24_name
+inv_name_short				= st_wpn_m24_short
+description					= st_wpn_m24_descr
+icon_text					= st_wpn_m24_text
+
+inv_weight					= 5.4
+
+inv_grid_width				= 6
+inv_grid_height				= 2
+inv_grid_x         			= 28
+inv_grid_y         			= 16
+
+control_inertion_factor 	= 2.32
+
+cam_relax_speed        		= 3;0.15	;скорость возврата в исходное положение
+
+visual                   	= dynamics\weapons\wpn_m24\wpn_m24
+hud                      	= wpn_m24_hud
+
+position 					= -0.026, -0.08, 0
+
+ammo_mag_size		 		= 10
+
+rpm                      	= 30
+
+fire_distance            	= 800
+bullet_speed				= 790 	;начальная скорость пули
+
+hit_power        			= 2.964
+
+silencer_status				= 0
+
+magazine_x 					= 99
+magazine_y 					= 54
+
+mag_m14_x 					= 101
+mag_m14_y 					= 49

@@ -1,16 +1,8 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 local sm = ogse_signals.get_mgr()
 
-function on_cell_item_update(item, cell_item)
-	sm:call("on_cell_item_update", item, cell_item)
-end
-
 function can_save_game()
 	return game_save_manager.can_save_game()	
-end
-
-function is_cell_items_equal(item1, item2)
-	return ui_inv_utils.similar_item(item1, item2)
 end
 
 function is_ammo_for_reload(item)
@@ -23,10 +15,6 @@ end
 
 function ui_inv_custom_sort(item1, item2)
 	return ui_inv_utils.sort_by_size_type(item1, item2)
-end
-
-function ui_inv_get_item_type(item)
-	return ui_inv_utils.get_type(item)
 end
 
 function trade_purchase_item_process( npc, sobj )
