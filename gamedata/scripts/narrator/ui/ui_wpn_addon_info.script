@@ -18,6 +18,8 @@ local addon_type = {
 function has_info(item)
 	if not get_script_option_value("wpn_addon_ammo_wnd_separate") then
 	return false end
+	if get_clsid(item) == clsid.wpn_binocular_s then
+	return false end
 	for i,addon in pairs(addon_type) do
 		local addon_str = read_if_exists(sys_ini, "r_string", item:section(), addon.."_name", nil)
 		addon_str = read_if_exists(sys_ini, "r_string", item:section(), addon.."_name", nil)

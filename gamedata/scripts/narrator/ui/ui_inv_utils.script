@@ -98,8 +98,8 @@ function similar_item(item1, item2)
 		if ammo1:is_magazine() and ammo2:is_magazine() then
 			local similar_magazine = (ammo1:ammo_sect() == ammo2:ammo_sect() and ammo1.box_curr > 0 and ammo2.box_curr > 0) or (ammo1.box_curr == 0 and ammo2.box_curr == 0)
 			return similar and similar_magazine
-		else
-			return item1:section() == item2:section()
+		-- else
+			-- return item1:section() == item2:section()
 		end
 	end
 	
