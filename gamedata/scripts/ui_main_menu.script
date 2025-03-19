@@ -20,9 +20,11 @@ function main_menu:InitControls()
 	local xml = CScriptXmlInit()
 	xml:ParseFile("ui_mm_main.xml")
 
-	xml:InitStatic("back_movie", self)
+	--xml:InitStatic("back_movie", self)
 	xml:InitStatic("background", self)
-	xml:InitStatic("fire_movie", self)
+	xml:InitAutoStaticGroup("window:auto_static", self)
+	
+	--xml:InitStatic("fire_movie", self)
 	self.shniaga = xml:InitMMShniaga("shniaga_wnd", self)
 
 	self.message_box = CUIMessageBoxEx()
@@ -30,7 +32,7 @@ function main_menu:InitControls()
 
 	local ver = xml:InitStatic("static_version", self)
 	ver:SetText("ver. " .. _G.main_menu.get_main_menu():GetGSVer().." "..game.translate_string("st_rma_ver"))
-	ver:SetTextColor(255, 255, 132, 0)
+	--ver:SetTextColor(255, 255, 132, 0)
 end
 
 function main_menu:Show(...)

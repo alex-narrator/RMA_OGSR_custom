@@ -1,43 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
 <window>
-	<background x="0" y="0" width="1024" height="768">
-		<texture>ui_menu_backgraund</texture>
+	<background x="0" y="0" width="1024" height="768" stretch="1">
+		<texture>ui\into_the_zone</texture>
 	</background>
 	
-	<back_movie x="148" y="0" width="876" height="400">
-		<texture x="0" y="0" width="876" height="400">ui\ui_mm_main_back_crop</texture>
-	</back_movie>
+	<!-- shared buttons background up to down-->
+	<auto_static x="705" y="0" width="150" height="768" stretch = "1">
+		<texture a="100">ui_inv_back_green</texture>
+	</auto_static>
+    <auto_static x="705" y="150" width="150" height="81" stretch="1">
+		<texture x="0" y="0" width="739" height="301">ui\ui_title_soc_logo</texture>
+	</auto_static>	
 	
-	<fire_movie x="525" y="459" width="128" height="256">
-		<texture>ui\ui_mm_fire</texture>
-	</fire_movie>
+	<!-- shared buttons background -->
+	<!-- <auto_static x="705" y="420" width="150" height="240" stretch = "1"> -->
+		<!-- <texture a="150">ui_inv_back_green</texture> -->
+	<!-- </auto_static> -->
+	
+	<!-- separate buttons background -->
+	<!-- <auto_static x="705" y="425" width="150" height="20" stretch = "1"> -->
+		<!-- <texture a="150">ui_inv_back_green</texture> -->
+	<!-- </auto_static> -->
+	<!-- <auto_static x="705" y="455" width="150" height="20" stretch = "1"> -->
+		<!-- <texture a="150">ui_inv_back_green</texture> -->
+	<!-- </auto_static> -->
+	<!-- <auto_static x="705" y="485" width="150" height="20" stretch = "1"> -->
+		<!-- <texture a="150">ui_inv_back_green</texture> -->
+	<!-- </auto_static> -->
+	<!-- <auto_static x="705" y="515" width="150" height="20" stretch = "1"> -->
+		<!-- <texture a="150">ui_inv_back_green</texture> -->
+	<!-- </auto_static> -->
+	<!-- <auto_static x="705" y="545" width="150" height="20" stretch = "1"> -->
+		<!-- <texture a="150">ui_inv_back_green</texture> -->
+	<!-- </auto_static> -->
+	<!-- <auto_static x="705" y="575" width="150" height="20" stretch = "1"> -->
+		<!-- <texture a="150">ui_inv_back_green</texture> -->
+	<!-- </auto_static> -->
+	<!-- <auto_static x="705" y="605" width="150" height="20" stretch = "1"> -->
+		<!-- <texture a="150">ui_inv_back_green</texture> -->
+	<!-- </auto_static> -->
+	<!-- <auto_static x="705" y="635" width="150" height="20" stretch = "1"> -->
+		<!-- <texture a="150">ui_inv_back_green</texture> -->
+	<!-- </auto_static>	 -->
 
-	<shniaga_wnd x="590" y="419" width="392" height="280">
-		<buttons_region	x="110" y="0" width="164" height="280" always_show_scroll="false"/>
+	<shniaga_wnd x="680" y="419" width="200" height="280">
+		<buttons_region	x="0" y="0" width="200" height="280" always_show_scroll="false"/>
 		
-		<shniaga x="9" y="0" width="392" height="73">
-			<texture>ui_menu_move</texture>			
-			<magnifire x="76" y="22" width="232" height="36" stretch="1">
+		<shniaga x="0" y="0" width="200" height="32" stretch="1">
+			<texture r="0" g="0" b="0">ui\ui_magnifer_border</texture>
+			<magnifire x="23" y="0" width="154" height="32" stretch="1">
 				<texture>ui\ui_magnifier</texture>
-        <y_offset>0</y_offset>
+				<x_offset>0</x_offset>
+				<y_offset>0</y_offset>
 			</magnifire>
 			
-			<left_anim x="43" y="37" width="55" height="55" stretch="1" heading="1" alignment="c">
-				<texture>ui_menu_bigroll_l</texture>
+			<left_anim x="13" y="16" width="30" height="30" stretch="1" heading="1" alignment="c">
+				<texture r="238" g="153" b="26">ui_hud_icon_radiation</texture>
 			</left_anim>			
-			<right_anim x="340" y="37" width="55" height="55" stretch="1" heading="1" alignment="c">
-				<texture>ui_menu_bigroll_r</texture>
+			<right_anim x="187" y="16" width="30" height="30" stretch="1" heading="1" alignment="c">
+				<texture r="238" g="153" b="26">ui_hud_icon_radiation</texture>
 			</right_anim>
 			<left_grating x="0" y="4" width="55" height="67">
-				<texture>ui_menu_grating_l</texture>
+				<!-- <texture>ui_menu_grating_l</texture> -->
 			</left_grating>
 			<right_grating x="337" y="4" width="55" height="67">
-				<texture>ui_menu_grating_r</texture>
+				<!-- <texture>ui_menu_grating_r</texture> -->
 			</right_grating>
 		</shniaga>		
 	</shniaga_wnd>
 	
-	<menu_main btn_height="30" font="graffiti22" a="255" r="0" g="0" b="0">
+	<menu_main btn_height="30" font="graffiti22" a="255" r="184" g="168" b="131">
 		<btn name="btn_new_game"	caption="ui_mm_newgame" />
 		<btn name="btn_load"		caption="ui_mm_load_game" />
 		<!--btn name="btn_multiplayer"	caption="ui_mm_multiplayer_n" /-->
@@ -46,7 +78,7 @@
 		<btn name="btn_quit"		caption="ui_mm_quit2windows" />
 	</menu_main>
 	
-	<menu_main_last_save btn_height="30" font="graffiti22" a="255" r="0" g="0" b="0">
+	<menu_main_last_save btn_height="30" font="graffiti22" a="255" r="184" g="168" b="131">
 		<btn name="btn_lastsave"	caption="ui_mm_last_save" />
 		<btn name="btn_load"		caption="ui_mm_load_game" />
 		<btn name="btn_new_game"	caption="ui_mm_newgame" />
@@ -56,7 +88,7 @@
 		<btn name="btn_quit"		caption="ui_mm_quit2windows" />
 	</menu_main_last_save>
 	
-	<menu_new_game btn_height="30" font="graffiti22" a="255" r="0" g="0" b="0">
+	<menu_new_game btn_height="30" font="graffiti22" a="255" r="184" g="168" b="131">
 		<btn name="btn_novice"		caption="ui_mm_novice" />
 		<btn name="btn_stalker"		caption="ui_mm_stalker" />
 		<btn name="btn_veteran"		caption="ui_mm_veteran" />
@@ -64,7 +96,7 @@
 		<btn name="btn_new_back"	caption="ui_mm_back" />
 	</menu_new_game>
 	
-	<menu_main_single btn_height="30" font="graffiti22" a="255" r="0" g="0" b="0">
+	<menu_main_single btn_height="30" font="graffiti22" a="255" r="184" g="168" b="131">
 		<btn name="btn_ret"			caption="ui_mm_return_game" />
 		<btn name="btn_lastsave"	caption="ui_mm_last_save" />
 		<btn name="btn_load"		caption="ui_mm_load_game" />
@@ -75,7 +107,7 @@
 		<btn name="btn_quit"		caption="ui_mm_quit2windows" />
 	</menu_main_single>
 	
-	<menu_main_single_dead btn_height="30" font="graffiti22" a="255" r="0" g="0" b="0">
+	<menu_main_single_dead btn_height="30" font="graffiti22" a="255" r="184" g="168" b="131">
 		<btn name="btn_lastsave"	caption="ui_mm_last_save" />
 		<btn name="btn_load"		caption="ui_mm_load_game" />
 		<btn name="btn_options"		caption="ui_mm_options_n" />
@@ -84,7 +116,7 @@
 		<btn name="btn_quit"		caption="ui_mm_quit2windows" />
 	</menu_main_single_dead>
 	
-	<menu_main_mm btn_height="30" font="graffiti22" a="255" r="0" g="0" b="0">
+	<menu_main_mm btn_height="30" font="graffiti22" a="255" r="184" g="168" b="131">
 		<btn name="btn_ret"			caption="ui_mm_return_game" />
 		<btn name="btn_options"		caption="ui_mm_options_n" />
     <!--btn name="btn_multiplayer"	caption="ui_mm_multiplayer_n" /-->
