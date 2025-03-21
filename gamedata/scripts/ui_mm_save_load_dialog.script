@@ -121,7 +121,9 @@ function save_load_dialog:InitControlsSave()
 	xml:ParseFile("ui_mm_save_dlg.xml")
 
 	xml:InitStatic("background", self)	
-
+	
+	xml:InitAutoStaticGroup("window:auto_static", self)
+	
 	self.form = xml:InitStatic("form", self)
 
 	xml:InitStatic("form:caption", self.form)
@@ -158,6 +160,8 @@ function save_load_dialog:InitControlsLoad()
 	xml:ParseFile("ui_mm_load_dlg.xml")
 
 	xml:InitStatic("background", self)
+	
+	xml:InitAutoStaticGroup("window:auto_static", self)
 
 	self.form = xml:InitStatic("form", self)
 

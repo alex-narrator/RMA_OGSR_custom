@@ -28,6 +28,9 @@ function options_dialog:InitControls()
 	xml:ParseFile("ui_mm_opt.xml")
 
 	xml:InitStatic("background", self)
+	
+	xml:InitAutoStaticGroup("window:auto_static", self)
+	
 	self.dialog = xml:InitStatic("main_dialog:dialog", self)
 
 	xml:InitFrame("frame_hint", self)
