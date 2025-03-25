@@ -32,6 +32,66 @@ function se_item:STATE_Read (packet, size)
 	self.is_taken = packet:r_bool()
 end
 
+-------------------------PDA ITEM - hackable NPC's PDA--------------------------------------------------------------------
+class "se_item_pda"	(cse_alife_item)
+function se_item_pda:__init (section) super (section)
+	self.owner_data = {
+		name = "",
+		comm = "",
+		profile = "",
+		rank = 0,
+		info = "",
+		treasure = "",
+		password = "",
+	}
+	--//PDA password lock state:
+	--//0 - unlocked
+	--//1 - locked
+	--//2 - dead locked
+	self.lock_state = 0
+	self.unlock_attempts = 3
+end
+function se_item_pda:on_register()
+	cse_alife_item.on_register( self )
+
+	-- Собираем статистику по предметам.
+	if registred_items[self:section_name()] == nil then
+		registred_items[self:section_name()] = 1
+	else
+		registred_items[self:section_name()] = registred_items[self:section_name()] + 1
+	end	
+end
+function se_item_pda:on_unregister()
+end
+function se_item_pda:STATE_Write (packet)
+	cse_alife_item.STATE_Write (self, packet)
+	local od = self.owner_data	
+	packet:w_stringZ(od.name)
+	packet:w_stringZ(od.comm)
+	packet:w_stringZ(od.profile)
+	packet:w_u8(od.rank)
+	packet:w_stringZ(od.info)
+	packet:w_stringZ(od.treasure)
+	packet:w_stringZ(od.password)
+	packet:w_u8(self.lock_state)
+	packet:w_u8(self.unlock_attempts)
+end
+function se_item_pda:STATE_Read (packet, size)
+	cse_alife_item.STATE_Read (self, packet, size)
+	if packet:r_eof() then
+	return end
+	local od = self.owner_data
+	od.name = packet:r_stringZ()
+	od.comm = packet:r_stringZ()
+	od.profile = packet:r_stringZ()
+	od.rank = packet:r_u8()
+	od.info = packet:r_stringZ()
+	od.treasure = packet:r_stringZ()
+	od.password = packet:r_stringZ()
+	self.lock_state = packet:r_u8()
+	self.unlock_attempts = packet:r_u8()
+end
+
 -------------------EATEBLE---------------------------------------------------------------------------------------------
 class "se_eatable" (cse_alife_item_eatable)
 function se_eatable:__init (section) super (section)

@@ -140,3 +140,123 @@ function MessageBoxUserNoteWnd:HideWnd()
 	end
 	self:DetachWnd()
 end
+
+
+
+class "MessageBoxPasswordWnd" (CUIScriptWnd)
+local msg_box_type = "message_box_accept_decline_password"
+
+function MessageBoxPasswordWnd:__init(attach) super()
+	self.owner = level.main_input_receiver()
+	self:InitWnd(attach)
+end
+
+function MessageBoxPasswordWnd:DetachWnd()
+	self:ClearCallbacks()
+end
+
+function MessageBoxPasswordWnd:InitWnd(attach)
+	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
+	local xml = CScriptXmlInit()
+	xml:ParseFile(OVERLAY_XML)
+	
+	self.message_box = CUIMessageBox()
+	self:AttachChild(self.message_box)
+	self.message_box:Init(msg_box_type)
+	self:Register(self.message_box, "message_box")
+	
+	self:AddCallback("message_box", ui_events.MESSAGE_BOX_YES_CLICKED, self.ProcessAction, self)
+	self:AddCallback("message_box", ui_events.MESSAGE_BOX_NO_CLICKED, self.HideWnd, self)
+	
+	self.edit_enter_password = xml:InitEditBoxEx(msg_box_type..":edit_enter_password", self.message_box)
+	self:Register(self.edit_enter_password, "enter_password")
+	self:AddCallback("enter_password", ui_events.EDIT_TEXT_COMMIT, self.EditPasswordChange, self)
+	self.cap_enter_password = xml:InitStatic(msg_box_type..":cap_enter_password", self.message_box)
+	
+	self.password_tip = xml:InitStatic(msg_box_type..":password_tip", self.message_box)
+	
+	if not attach then
+		level.start_stop_menu(self, true)
+	else
+		self.owner:AttachChild(self)
+		self:Enable(true)
+		self:Show(true)
+	end
+end
+
+function MessageBoxPasswordWnd:InitAction(tip_text, action_func, ...)
+	self.action = action_func
+	self.args = {...}
+	self.password_tip:SetText(tip_text)
+end
+
+function MessageBoxPasswordWnd:ProcessAction()
+	table.insert(self.args, self.edit_enter_password:GetText())
+	self.action(unpack(self.args))
+	self:HideWnd()
+end
+
+function MessageBoxPasswordWnd:EditPasswordChange()
+	local text = self.edit_enter_password:GetText()
+	self.edit_enter_password:SetText(text)
+end
+
+function MessageBoxPasswordWnd:HideWnd()
+	if self.owner:IsChild(self) then
+		self.owner:DetachChild(self)
+	elseif self:IsShown() then
+		level.start_stop_menu(self, true)
+	end
+	self:DetachWnd()
+end
+
+
+
+class "MessageBoxErrorWnd" (CUIScriptWnd)
+local msg_box_type = "message_box_custom_error"
+
+function MessageBoxErrorWnd:__init(attach) super()
+	self.owner = level.main_input_receiver()
+	self:InitWnd(attach)
+end
+
+function MessageBoxErrorWnd:DetachWnd()
+	self:ClearCallbacks()
+end
+
+function MessageBoxErrorWnd:InitWnd(attach)
+	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
+	local xml = CScriptXmlInit()
+	xml:ParseFile(OVERLAY_XML)
+	
+	self.message_box = CUIMessageBox()
+	self:AttachChild(self.message_box)
+	self.message_box:Init(msg_box_type)
+	self:Register(self.message_box, "message_box")
+	
+	self:AddCallback("message_box", ui_events.MESSAGE_BOX_OK_CLICKED, self.HideWnd, self)	
+	
+	self.tip_text = xml:InitStatic(msg_box_type..":tip_text", self.message_box)
+	
+	if not attach then
+		level.start_stop_menu(self, true)
+	else
+		self.owner:AttachChild(self)
+		self:Enable(true)
+		self:Show(true)
+	end
+end
+
+function MessageBoxErrorWnd:SetErrorText(message_text, tip_text)
+	self.message_box:SetText(message_text)
+	self.tip_text:SetText(tip_text)
+end
+
+function MessageBoxErrorWnd:HideWnd()
+	if self.owner:IsChild(self) then
+		self.owner:DetachChild(self)
+	elseif self:IsShown() then
+		level.start_stop_menu(self, true)
+	end
+	self:DetachWnd()
+end

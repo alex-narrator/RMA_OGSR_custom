@@ -1,3 +1,5 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+
 -- local item = db.actor:item_in_slot(0)
 -- if item then
 	-- set_item_inv_hidden(item)
@@ -38,7 +40,7 @@
 
 --db.actor.power = -10
 
-local tgt = level.get_target_obj()
+local tgt = nil--level.get_target_obj()
 if tgt then
 	--alife():release(alife():object(tgt:id()), true)
 	-- interact_item_anim.action_use()
@@ -185,8 +187,8 @@ end
 
 --alife():teleport_object(16531, actor:position(), actor:level_vertex_id(), actor:game_vertex_id())
 
-log3("actor position (%s, %s, %s), lvid %s, gvid %s", actor:position().x, actor:position().y, actor:position().z, actor:level_vertex_id(), actor:game_vertex_id())
-log3("actor direction (%s, %s, %s)", actor:direction().x, actor:direction().y, actor:direction().z)
+--log3("actor position (%s, %s, %s), lvid %s, gvid %s", actor:position().x, actor:position().y, actor:position().z, actor:level_vertex_id(), actor:game_vertex_id())
+--log3("actor direction (%s, %s, %s)", actor:direction().x, actor:direction().y, actor:direction().z)
 
 --dis_consciousness
 --dream
@@ -458,9 +460,8 @@ log3("actor direction (%s, %s, %s)", actor:direction().x, actor:direction().y, a
 -- local sim = alife()
 -- for id = 1, 65534 do
 	-- local obj = sim:object(id)
-	-- if obj and obj:section_name() == "stalker" and target_profiles[obj:profile_name()] then
-		-- level.map_add_object_spot_ser(id, "spot_stalker_cop", obj.character_name)
-		-- log3("~profile %s - ID %s", obj:profile_name(), id)
+	-- if obj and obj:clsid() == clsid.script_stalker then
+		-- sim:release(obj, true)
 	-- end
 -- end
 
@@ -592,21 +593,21 @@ end
 --actor:give_info_portion("encyclopedy_social_military_army")
 
 --set_pnv_color(0.2, 0.3, 0.2, 10)
-set_pnv_params(0,0,0,0)
-set_pnv_params_2(1,1,0,0)
+-- set_pnv_params(0,0,0,0)
+-- set_pnv_params_2(1,1,0,0)
 --set_markswitch_current(3)
 --set_markswitch_color(1, 1, 0, 0)
 --set_pnv_color(0,0,0,0)
 
 --log3("~is accel %s", IsMoveState(move_command.mcAccel))
 
-local item = actor:active_item()
+local item = nil--actor:active_item()
 if item then
 	local wpn = item:get_weapon()
 	if wpn then
 		--local wpn_m = item:get_weapon_m()
 		--wpn_m:set_laser_angle(300)
-		wpn.scope_inertion_factor = 0.5
+		--wpn.scope_inertion_factor = 0.5
 		--wpn.zoom_factor = 1
 		--log3("~const_zoom_hud_fov %s", wpn.const_zoom_hud_fov)
 		--wpn.const_zoom_hud_fov = 30
@@ -650,3 +651,19 @@ end
 	-- function()
 	-- end	
 -- )
+
+-- local orig_str = "тестова строка"
+-- log3("~orig_str string: %s", orig_str)
+-- local shuffled_str = shuffle_string(orig_str)
+-- if shuffled_str == orig_str then
+	-- log3("!orig_str similar to shuffled_str: %s", shuffled_str)
+	-- shuffled_str = shuffle_string(orig_str)
+-- end
+-- log3("~shuffled string: %s", shuffled_str)
+
+-- local rank = "novice"
+-- log3("~generated password: %s", pda.generate_password(rank))
+
+--log3("~active slot blocked: %s", actor.inventory:is_active_slot_blocked())
+
+log3("kX: %s", get_current_kx())

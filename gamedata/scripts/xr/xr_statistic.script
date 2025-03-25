@@ -72,6 +72,7 @@ function attach(sm)
 	sm:subscribe({signal = "on_heal_wounded", 	fun = this.add_npc_healed})
 	sm:subscribe({signal = "on_give_treasure", 	fun = this.add_treasure})
 	sm:subscribe({signal = "on_death_physics", 	fun = this.add_killed_obj})
+	sm:subscribe({signal = "on_pda_hack", 		fun = this.add_pda_hack})
 end
 
 function addKillCount(victim, killer)
@@ -161,10 +162,18 @@ end
 
 function add_npc_healed(npc)
 	local stat_sect = "npc_healed"
-	local dummy, sect = getNpcType(npc)
 	local entry = string.format("%s [%s, %s]", npc:character_name(), game.translate_string(npc:character_community()), game.translate_string(ranks.get_obj_rank_name(npc)))
 	actor_stats.add_points(stat_sect, entry, 1, 1)
 	actor:change_character_reputation(10)
+end
+
+function add_pda_hack(id)
+	local se_obj = alife():object(id)
+	local od = se_obj.owner_data
+	local stat_sect = "pda_hacked"
+	local entry = string.format("%s, %s", game.translate_string(od.comm), game.translate_string(ranks.get_val_rank_name(od.rank)))
+	actor_stats.add_points(stat_sect, entry, 1, 1)
+	--actor:change_character_reputation(10)
 end
 
 function add_treasure(id, name)

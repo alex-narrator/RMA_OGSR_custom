@@ -958,7 +958,7 @@ function MainIngameOverlay:ShowFrontViewMarks()
 	return end
 	local params = self.compass_modern.params
 	local pda = actor_get_pda()
-	local pda_radius = read_if_exists(sys_ini, "r_float", pda:section(), "radius", 50)
+	local pda_radius = pda and read_if_exists(sys_ini, "r_float", pda:section(), "radius", 50) or 50
 	local objective = actor:get_active_objective()
 	local tgt_id = objective and objective:get_object_id() or nil
 	--//nearest objects

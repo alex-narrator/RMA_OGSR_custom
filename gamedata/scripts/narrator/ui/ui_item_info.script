@@ -219,7 +219,8 @@ function add_custom_info(UIDesc, obj)
 	if is_power_device(obj) then
 		attach_power_params(UIDesc, obj)
 	end
-	if obj:get_pda() then
+	--if obj:get_pda() then
+	if is_pda_hackable(obj) then
 		attach_pda_owner_info(UIDesc, obj)
 	end	
 	if obj:is_weapon() then
@@ -1057,9 +1058,9 @@ function attach_pda_owner_info(UIDesc, item)
 	if owner_data.name == "" then
 	return end
 	
-	if is_actors_pda(item) then
-		pda.fill_owner_info(item:id())
-	end
+	-- if is_actors_pda(item) then
+		-- pda.fill_owner_info(item:id())
+	-- end
 	
 	local xml = CScriptXmlInit()
 	xml:ParseFile("script_overlays\\pda_owner.xml")
@@ -1093,7 +1094,27 @@ function attach_pda_owner_info(UIDesc, item)
 	text = string.format("%s %s: %s%s", game.translate_string("st_list_mark"), game.translate_string("ui_st_rank"), color, game.translate_string(ranks.get_val_rank_name(owner_data.rank)))
 	rank_st:SetText(text)
 	rank_st:AdjustHeightToText()
-	data_list:AddWindow(rank_st)	
+	data_list:AddWindow(rank_st)
+	
+	local lock_st = CUIStatic()
+	ui_owner_data.lock_st = lock_st
+	local lock_text = ""
+	if se_obj.lock_state == 0 then
+		lock_text = "ui_st_unlocked"
+		color = "%c[green]"
+	elseif se_obj.lock_state == 1 then
+		lock_text = "ui_st_locked"
+		color = "%c[UI_orange]"
+	elseif se_obj.lock_state == 2 then
+		lock_text = "ui_st_dead_locked"
+		color = "%c[red]"
+	end
+	lock_st:SetTextComplexMode(true)
+	lock_st:SetWidth(data_list:GetDesiredChildWidth())
+	text = string.format("%s %s: %s%s", game.translate_string("st_list_mark"), game.translate_string("ui_st_lock_state"), color, game.translate_string(lock_text))
+	lock_st:SetText(text)
+	lock_st:AdjustHeightToText()
+	data_list:AddWindow(lock_st)	
 	
 	data_list:SetHeight(data_list:GetPadSize().y)
 end

@@ -7,6 +7,7 @@ local repairers = {
 		uniquie_k = 2.5,
 		base_repair_precond = function() return true end,
 		armor_repair_precond = function() return true end,
+		hack_precond = function() return true end,
 	},
 	--//Іванцов (Долг)
 	[story_ids.bar_dolg_captain_ivancov] = {
@@ -15,6 +16,7 @@ local repairers = {
 		uniquie_k = 1,
 		base_repair_precond = function() return dialogs.actor_in_dolg() or relation_registry.community_goodwill("dolg", actor:id()) >= 500 end,
 		armor_repair_precond = function() return true end,
+		hack_precond = function() return true end,
 	},
 	--//Шуруп (Воля)
 	[story_ids.mil_Svoboda_engineer] = {
@@ -23,23 +25,33 @@ local repairers = {
 		uniquie_k = 1,
 		base_repair_precond = function() return has_alife_info("mil_screw_vodka_given") end,
 		armor_repair_precond = function() return true end,
+		hack_precond = function() return true end,
 	},
-	--//Круглов (янтар)
+	--//Круглов (Янтар)
 	[story_ids.yan_ecolog_help] = {
 		condition_limit = 0.95,
 		cost_k = 1,
 		uniquie_k = 3,
 		base_repair_precond = function() return true end,
 		armor_repair_precond = function() return true end,
+		hack_precond = function() return true end,
 	},
-	--//Семенов (янтар)
+	--//Семенов (Янтар)
 	[story_ids.yan_semenov_help] = {
 		condition_limit = 0.95,
 		cost_k = 1,
 		uniquie_k = 3,
 		base_repair_precond = function() return true end,
 		armor_repair_precond = function() return true end,
+		hack_precond = function() return true end,
 	},	
+}
+
+local rank_hack_k = {
+	["novice"] 		= 1,
+	["experienced"] = 2,	
+	["veteran"] 	= 3,
+	["master"] 		= 5,
 }
 
 function is_repairer(npc)
@@ -58,6 +70,7 @@ function RepairManager:__init(npc)
 	self.cost_k = rep_data.cost_k or 1
 	self.unique_k = rep_data.uniquie_k or 1
 	self.armor_repair_precond = rep_data.armor_repair_precond or true
+	self.hack_precond = rep_data.hack_precond or true
 end
 
 function RepairManager:GetRepairCost(item)
@@ -83,4 +96,28 @@ function RepairManager:RepairAllowed(item)
 	local outfit_item = item:is_outfit() or item:is_helmet() or item:get_container()
 	local item_allowed = item:is_weapon() or (outfit_item and self.armor_repair_precond())
 	return item_allowed and self:NeedRepair(item)
+end
+
+function RepairManager:GetHackCost(item)
+	local se_obj = alife():object(item:id())
+	local od = se_obj.owner_data
+	local rank_k = rank_hack_k[ranks.get_val_rank_name(od.rank)]
+	return item:cost() * rank_k
+end
+
+function RepairManager:CanHack(item)
+	return self:NeedHack(item) and self:HasMoneyToHack(item) and item:condition() == 1
+end
+
+function RepairManager:NeedHack(item)
+	local se_obj = alife():object(item:id())
+	return se_obj.lock_state > 0
+end
+
+function RepairManager:HasMoneyToHack(item)
+	return actor:money() >= self:GetHackCost(item)
+end
+
+function RepairManager:HackAllowed(item)
+	return is_pda_hackable(item) and self:NeedHack(item)
 end

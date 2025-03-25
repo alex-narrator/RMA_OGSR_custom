@@ -1703,6 +1703,9 @@ function is_plate_carrier(obj)
 	local se_obj = alife():object(obj:id())
 	return se_obj and se_obj.plate_condition and se_obj.cur_plate_num
 end
+function is_pda_hackable(obj)
+	return get_clsid(obj) == clsid.item_pda_s
+end
 --//інфоповідомлення на худі, у рушійному стилі
 function hud_add_info_message(static_id, text, ttl)
 	local hud = get_hud()
@@ -2304,6 +2307,17 @@ function get_weekday_name(c_time, short_name)
 	local weekday_num = get_weekday_num(c_time)
 	local weekday = short_name and weekdays_name_short[weekday_num] or weekdays_name[weekday_num]
 	return game.translate_string(weekday)
+end
+
+--//https://stackoverflow.com/questions/51752497/how-to-shuffle-the-letters-of-a-word-using-lua
+function shuffle_string(str)
+   local letters = {}
+   for letter in str:gmatch'.' do
+      table.insert(letters, {letter = letter, rnd = math.random()})
+   end
+   table.sort(letters, function(a, b) return a.rnd < b.rnd end)
+   for i, v in ipairs(letters) do letters[i] = v.letter end
+   return table.concat(letters)
 end
 
 function is_pos_under_roof(pos)

@@ -3,29 +3,33 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 [device_atifact_merger]:identity_immunities
-GroupControlSection	= spawn_group
-discovery_dependency = 
-$spawn 				= "devices\artifact merger"
-;$prefetch 			= 32
-class				= II_ATTCH
-cform				= skeleton
-visual				= equipments\item_merger
-radius				= 1
+GroupControlSection		= spawn_group
+discovery_dependency 	= 
+$spawn 					= "devices\artifact merger"
+;$prefetch 				= 32
+class					= II_ATTCH
+cform					= skeleton
+visual					= equipments\item_merger
+radius					= 1
 
-inv_name			= ArtefactMerger
-inv_name_short		= AfMerger
-inv_weight			= 3	;0.2
+inv_name				= ArtefactMerger
+inv_name_short			= AfMerger
+inv_weight				= 3	;0.2
 
-inv_grid_width		= 2
-inv_grid_height		= 1
-inv_grid_x			= 6
-inv_grid_y			= 13
-cost				= 5000
+inv_grid_width			= 2
+inv_grid_height			= 1
+inv_grid_x				= 6
+inv_grid_y				= 13
+cost					= 5000
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;	DEVICES
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [device_base]:identity_immunities
+GroupControlSection		= spawn_group
+$prefetch 				= 16
+cform					= skeleton
+
 inv_grid_width			= 1
 inv_grid_height			= 1
 icon_group 				= 6
@@ -54,99 +58,101 @@ attach_bone_name		= bip01_r_hand
 auto_attach				= false
 
 [device_pda]:device_base
-GroupControlSection	= spawn_group
-discovery_dependency=
-$spawn 				= "devices\pda"
-$prefetch 			= 16
-class				= S_PDA
-cform				= skeleton
-visual				= dynamics\devices\dev_pda\dev_pda
-radius				= 50;0 ;75
-slot				= 7
+$spawn 					= "devices\pda"
+class					= S_PDA
+visual					= dynamics\devices\dev_pda\dev_pda
+radius					= 50;0 ;75
+slot					= 7
 
-power_source 		= pda_battery, 24
-script_binding      = bind_device.init
+power_source 			= pda_battery, 24
+script_binding      	= bind_device.init
 
 ;highlight_item 		= pda_battery
 
-single_handed 		= false
+single_handed 			= false
 
-inv_name			= st_device_pda_name
-inv_name_short		= st_device_pda_short
-description			= st_device_pda_descr
-icon_text			= st_device_pda_text
+inv_name				= st_device_pda_name
+inv_name_short			= st_device_pda_short
+description				= st_device_pda_descr
+icon_text				= st_device_pda_text
 
-inv_weight			= 0.3	;0.2
+inv_weight				= 0.3	;0.2
 
-inv_grid_x         = 1
-inv_grid_y         = 0
-cost				= 20
+inv_grid_x         		= 1
+inv_grid_y         		= 0
+cost					= 20
 
 attach_angle_offset		= 3.080506,-1.493053,-1.202040   ;устанавливается в радианах Angle*PI/180
 attach_position_offset	= 0.080000,0.021273,0.100000
 attach_bone_name		= bip01_r_hand
 auto_attach				= false
 
-use_sound 					= interface\inv_detach_addon
+use_sound 				= interface\inv_detach_addon
 
-hud                                                = pda_hud
-animation_slot                                     = 2
-joystick_bone                                      = joystick
+hud                     = pda_hud
+animation_slot          = 2
+joystick_bone           = joystick
 
-snd_btn_press                                      = device\pda\pda_btn_press
-snd_btn_release                                    = device\pda\pda_btn_release
-snd_draw                             	           = device\pda\pda_draw
-snd_draw_empty							 		   = device\pda\pda_draw_empty
-snd_holster                          	 		   = device\pda\pda_holster
-snd_holster_empty                      	 		   = device\pda\pda_holster_empty
-snd_empty								 		   = device\pda\pda_dead
+snd_btn_press           = device\pda\pda_btn_press
+snd_btn_release         = device\pda\pda_btn_release
+snd_draw                = device\pda\pda_draw
+snd_draw_empty			= device\pda\pda_draw_empty
+snd_holster             = device\pda\pda_holster
+snd_holster_empty       = device\pda\pda_holster_empty
+snd_empty				= device\pda\pda_dead
 
-screen_on_delay							 		   = 0.7
-screen_off_delay						 		   = 0.5
-thumb_rot_x										   = 1
-thumb_rot_y										   = -0.1
+screen_on_delay			= 0.7
+screen_off_delay		= 0.5
+thumb_rot_x				= 1
+thumb_rot_y				= -0.1
 
-[device_pda_lootable]:device_pda
-slot 				= 
-icon_group 			= 6
-inv_grid_width 		= 1
-inv_grid_height 	= 1
-inv_grid_x         	= 0
-inv_grid_y         	= 0
-cost				= 0
-unique_item 		= true
+;non-device NPC's hackable PDA
+[device_pda_lootable]:device_base
+class 					= S_PDA_ITM
+visual					= dynamics\devices\dev_pda\dev_pda
+
+inv_name				= st_device_pda_name
+inv_name_short			= st_device_pda_short
+description				= st_device_pda_descr
+icon_text				= st_device_pda_text
+
+inv_weight				= 0.3	;0.2
+
+icon_group 				= 6
+inv_grid_width 			= 1
+inv_grid_height 		= 1
+inv_grid_x         		= 0
+inv_grid_y         		= 0
+cost					= 500
+
+unique_item 			= true
 
 [device_torch]:device_base
-GroupControlSection	= spawn_group
-discovery_dependency =
-$spawn				= "devices\torch"
-$prefetch 			= 32
-class				= TORCH_S
-cform				= skeleton
-visual				= equipments\light_night
+$spawn					= "devices\torch"
+$prefetch 				= 32
+class					= TORCH_S
+cform					= skeleton
+visual					= equipments\light_night
 
-cost				= 1500
+cost					= 1500
 
-inv_name			= st_device_torch_name
-inv_name_short		= st_device_torch_short
-description			= st_device_torch_descr
-icon_text			= st_device_torch_text
+inv_name				= st_device_torch_name
+inv_name_short			= st_device_torch_short
+description				= st_device_torch_descr
+icon_text				= st_device_torch_text
 
-inv_weight			= 0.3
+inv_weight				= 0.3
 
-inv_grid_x         	= 0
-inv_grid_y         	= 6
+inv_grid_x         		= 0
+inv_grid_y         		= 6
 
-slot				= 9
+slot					= 9
 
+power_source 			= battery
+script_binding      	= bind_device.init
+use_sound 				= interface\inv_detach_addon
 
-power_source 		= battery
-script_binding      = bind_device.init
-use_sound 			= interface\inv_detach_addon
-
-;highlight_item 		= battery
-
-hud = switch_torch_hud
+hud 					= switch_torch_hud
 
 ;вещью нельзя торговать
 can_trade				= true
@@ -164,15 +170,13 @@ snd_switch_mode 		= device\torch\switch_torch
 light_definition 		= torch_definition
 light_definition_second = torch_definition_long_range
 
-[nvd_base]:
-GroupControlSection	= spawn_group
-discovery_dependency =
-$spawn				= "devices\nvg"
-$prefetch 			= 32
-class				= TORCH_S
-cform				= skeleton
-visual				= dynamics\nvg\nvg
-slot				= 9
+[nvd_base]:device_base
+$spawn					= "devices\nvg"
+$prefetch 				= 32
+class					= TORCH_S
+cform					= skeleton
+visual					= dynamics\nvg\nvg
+slot					= 9
 
 position				= 0.35,0.25,0.0
 attach_angle_offset		= 0.050, -0.057, 1.600
@@ -180,303 +184,295 @@ attach_position_offset	= 0.195, -0.000, 0.100
 attach_bone_name		= bip01_head
 auto_attach				= false
 
-power_source 		= battery
-script_binding      = bind_device.init
-use_sound 			= interface\inv_detach_addon
+power_source 			= battery
+script_binding      	= bind_device.init
+use_sound 				= interface\inv_detach_addon
 
-snd_nvd_on 			= device\torch\nv_start
-snd_nvd_off 		= device\torch\nv_off
+snd_nvd_on 				= device\torch\nv_start
+snd_nvd_off 			= device\torch\nv_off
 
-nv_hud 				= nvg_binocular_hud
+nv_hud 					= nvg_binocular_hud
 
 [device_nvd_mono]:device_base,nvd_base
-cost				= 30000
+cost					= 30000
 
-inv_name			= st_device_nvd_mono_name
-inv_name_short		= st_device_nvd_mono_short
-description			= st_device_nvd_mono_descr
-icon_text			= st_device_nvd_mono_text
+inv_name				= st_device_nvd_mono_name
+inv_name_short			= st_device_nvd_mono_short
+description				= st_device_nvd_mono_descr
+icon_text				= st_device_nvd_mono_text
 
-inv_weight			= .680
+inv_weight				= .680
 
-inv_grid_x         	= 1
-inv_grid_y         	= 4
+inv_grid_x         		= 1
+inv_grid_y         		= 4
 
-;night_vision_texture		= hud_mask\nightvision\hud_nvg_gen1;wpn\wpn_crosshair;wpn\wpn_night
-;night_vision_effector		= effector_nightvision ;postprocess_night
+;night_vision_texture 	= hud_mask\nightvision\hud_nvg_gen1;wpn\wpn_crosshair;wpn\wpn_night
+;night_vision_effector 	= effector_nightvision ;postprocess_night
 
-nv_color 			= 0.2, 0.3, 0.2
-nv_intensity 		= 40
-nv_vignette 		= 0.05
-nv_work_area 		= 0.5
-nv_step 			= 10
-nv_step_count 		= 1
-nv_tube_num 		= 1
-nv_noise 			= 0.3
+nv_color 				= 0.2, 0.3, 0.2
+nv_intensity 			= 40
+nv_vignette 			= 0.05
+nv_work_area 			= 0.5
+nv_step 				= 10
+nv_step_count 			= 1
+nv_tube_num 			= 1
+nv_noise 				= 0.3
 
 [device_nvd_bino]:device_base,nvd_base
-cost				= 50000
+cost					= 50000
 
-inv_name			= st_device_nvd_bino_name
-inv_name_short		= st_device_nvd_bino_short
-description			= st_device_nvd_bino_descr
-icon_text			= st_device_nvd_bino_text
+inv_name				= st_device_nvd_bino_name
+inv_name_short			= st_device_nvd_bino_short
+description				= st_device_nvd_bino_descr
+icon_text				= st_device_nvd_bino_text
 
-inv_weight			= .545
+inv_weight				= .545
 
-inv_grid_x         	= 2
-inv_grid_y         	= 4
+inv_grid_x         		= 2
+inv_grid_y         		= 4
 
-;night_vision_texture		= hud_mask\nightvision\hud_nvg_gen1;wpn\wpn_crosshair;wpn\wpn_night
-;night_vision_effector		= effector_nightvision ;postprocess_night
+;night_vision_texture 	= hud_mask\nightvision\hud_nvg_gen1;wpn\wpn_crosshair;wpn\wpn_night
+;night_vision_effector 	= effector_nightvision ;postprocess_night
 
-nv_color 			= 0.2, 0.3, 0.2
-nv_intensity 		= 30
-nv_vignette 		= 0.1
-nv_work_area 		= 0.5
-nv_step 			= 10
-nv_step_count 		= 2
-nv_tube_num 		= 2
-nv_noise 			= 0.1
+nv_color 				= 0.2, 0.3, 0.2
+nv_intensity 			= 30
+nv_vignette 			= 0.1
+nv_work_area 			= 0.5
+nv_step 				= 10
+nv_step_count 			= 2
+nv_tube_num 			= 2
+nv_noise 				= 0.1
 
 ;;--==========================< Flashlight >=============================
 [device_flashlight]:device_base
-GroupControlSection										= spawn_group
-discovery_dependency =
-$spawn													= "devices\flashlight"
-$prefetch 												= 32
-class                                                  = S_FLALIT
-cform                                                  = skeleton
-visual                                                 = dynamics\devices\dev_tactical_torch\dev_tactical_torch; dynamics\devices\dev_flashlight\dev_flashlight
-hud                                                    = device_flashlight_hud
-slot                                                   = 8
-animation_slot                                         = 7
-cost                                                   = 1000
-inv_weight                                             = 0.484
+$spawn 					= "devices\flashlight"
+class 					= S_FLALIT
+cform 					= skeleton
+visual 					= dynamics\devices\dev_tactical_torch\dev_tactical_torch; dynamics\devices\dev_flashlight\dev_flashlight
+hud 					= device_flashlight_hud
+slot 					= 8
+animation_slot 			= 7
+cost 					= 1000
+inv_weight 				= 0.484
 
-inv_grid_x         										= 0
-inv_grid_y         										= 9
+inv_grid_x 				= 0
+inv_grid_y 				= 9
 
-description			                                   = st_device_flashlight_descr
-inv_name			                                   = st_device_flashlight_name
-inv_name_short		                                   = st_device_flashlight_short
-icon_text												= st_device_flashlight_text
+description 			= st_device_flashlight_descr
+inv_name 				= st_device_flashlight_name
+inv_name_short 			= st_device_flashlight_short
+icon_text 				= st_device_flashlight_text
 
-attach_angle_offset                                    = -1.303,0.107,-1.702
-attach_position_offset                                 = 0.14,0.001,0.02
-attach_bone_name                                       = bip01_l_hand
-auto_attach                                            = false
+attach_angle_offset 	= -1.303,0.107,-1.702
+attach_position_offset 	= 0.14,0.001,0.02
+attach_bone_name 		= bip01_l_hand
+auto_attach 			= false
 
-torch_offset                                           = 0,0,0
-omni_offset                                            = 0,0,0
-torch_inertion_speed_min                               = 0.5
-torch_inertion_speed_max                               = 7.5
-light_definition                                       = device_flashlight_definition
-light_definition_second                                = device_flashlight_definition_second
-flashlight_section 										= device_flashlight_definition_second
-light_trace_bone                                       = light_bone_1
+torch_offset 			= 0,0,0
+omni_offset 			= 0,0,0
+torch_inertion_speed_min = 0.5
+torch_inertion_speed_max = 7.5
+light_definition 		= device_flashlight_definition
+light_definition_second = device_flashlight_definition_second
+flashlight_section 		= device_flashlight_definition_second
+light_trace_bone 		= light_bone_1
 
-attach_angle_offset                                    = 3.062, 0.008, -1.532
-attach_position_offset                                 = 0.134, -0.007, 0.09
+attach_angle_offset 	= 3.062, 0.008, -1.532
+attach_position_offset 	= 0.134, -0.007, 0.09
 
-power_source 										   = battery
-script_binding      								   = bind_device.init
-use_sound 											   = interface\inv_detach_addon
-snd_flashlight_switch									= interface\dyn_zoom_sound
+power_source 			= battery
+script_binding 			= bind_device.init
+use_sound 				= interface\inv_detach_addon
+snd_flashlight_switch 	= interface\dyn_zoom_sound
 
-;highlight_item 											= battery
-belt 													= true
+belt 					= true
 
-addon_icon_sect 										= addon_flashlight_icon
+addon_icon_sect 		= addon_flashlight_icon
+
+[addon_flashlight_icon]
+inv_grid_width 			= 1
+inv_grid_height 		= 1
+inv_grid_x 				= 0
+inv_grid_y 				= 0
+icon_group 				= 10
 
 [device_flashlight_definition]
-type                                                   = 2 ; type  0-Direct 1-Point 2-Spot 3-OMNIPART 4-Reflected
-range                                                  = 30 ; range                 <in meters>
-range_r2                                               = 30 ; range                 <in meters>
-color                                                  = 0.8,0.7,0.8,0.2 ; four color components <r,g,b,a> 0.f<X<3.f
-color_r2                                               = 1.0,0.9,1.0,0.9 ; four color components <r,g,b,a> 0.f<X<3.f
-color_animator                                         = empty ; color animator name   (empty - not using animator) //light_torch_01
-volumetric                                             = false
-volumetric_quality                                     = 0.5
-volumetric_intensity                                   = 0.10
-volumetric_distance                                    = 0.25
+type 					= 2 ; type  0-Direct 1-Point 2-Spot 3-OMNIPART 4-Reflected
+range 					= 30 ; range                 <in meters>
+range_r2 				= 30 ; range                 <in meters>
+color 					= 0.8,0.7,0.8,0.2 ; four color components <r,g,b,a> 0.f<X<3.f
+color_r2 				= 1.0,0.9,1.0,0.9 ; four color components <r,g,b,a> 0.f<X<3.f
+color_animator 			= empty ; color animator name   (empty - not using animator) //light_torch_01
+volumetric 				= false
+volumetric_quality 		= 0.5
+volumetric_intensity 	= 0.10
+volumetric_distance 	= 0.25
 
-omni_type                                              = 1 ; type  0-Direct 1-Point 2-Spot 3-OMNIPART 4-Reflected
-omni_range                                             = 2 ; range                 <in meters>
-omni_range_r2                                          = 0.1 ; range                 <in meters>
-omni_color                                             = 0.35,0.3,0.35,0.1 ; four color components <r,g,b,a> 0.f<X<3.f
-omni_color_r2                                          = 0.45,0.4,0.45,0.1 ; four color components <r,g,b,a> 0.f<X<3.f
+omni_type 				= 1 ; type  0-Direct 1-Point 2-Spot 3-OMNIPART 4-Reflected
+omni_range 				= 2 ; range                 <in meters>
+omni_range_r2 			= 0.1 ; range                 <in meters>
+omni_color 				= 0.35,0.3,0.35,0.1 ; four color components <r,g,b,a> 0.f<X<3.f
+omni_color_r2 			= 0.45,0.4,0.45,0.1 ; four color components <r,g,b,a> 0.f<X<3.f
 
-spot_texture                                           = internal\internal_tactical_torch_new ; spot texture name     (using only in Second Render)
-spot_angle                                             = 60 ; spot angle            <in gradus>
+spot_texture 			= internal\internal_tactical_torch_new ; spot texture name     (using only in Second Render)
+spot_angle 				= 60 ; spot angle            <in gradus>
 
-glow_texture                                           = glow\glow_tactical_torch ; glow texture name     (required)
-glow_radius                                            = 0.2 ; glow radius           <in meters>
-guide_bone                                             = light_bone_1 ; guid bone name        (required)
+glow_texture 			= glow\glow_tactical_torch ; glow texture name     (required)
+glow_radius 			= 0.2 ; glow radius           <in meters>
+guide_bone 				= light_bone_1 ; guid bone name        (required)
 
-volumetric_enabled = true
-volumetric_for_actor = true
+volumetric_enabled 		= true
+volumetric_for_actor 	= true
 
 [device_flashlight_definition_second]:device_flashlight_definition
-spot_angle                                             = 30
-range                                                  = 60 ; range                 <in meters>
-range_r2                                               = 60 ; range                 <in meters>
+spot_angle 				= 30
+range 					= 60 ; range                 <in meters>
+range_r2 				= 60 ; range                 <in meters>
 
 [device_anpeq_16]:device_flashlight
-visual          										= dynamics\weapons\wpn_addon\wpn_light_anpeq_16
-hud                                                    = device_anpeq_16_hud
-inv_name												= st_wpn_addon_light_anpeq_16_name
-inv_name_short											= st_wpn_addon_light_anpeq_16_short
-description 											= st_wpn_addon_light_anpeq_16_descr
-icon_text 												= st_wpn_addon_light_anpeq_16_text
-inv_weight												= .1
+visual 					= dynamics\weapons\wpn_addon\wpn_light_anpeq_16
+hud 					= device_anpeq_16_hud
+inv_name 				= st_wpn_addon_light_anpeq_16_name
+inv_name_short 			= st_wpn_addon_light_anpeq_16_short
+description 			= st_wpn_addon_light_anpeq_16_descr
+icon_text 				= st_wpn_addon_light_anpeq_16_text
+inv_weight 				= .1
 
-inv_grid_width     										= 1
-inv_grid_height    										= 1
-inv_grid_x         										= 1
-inv_grid_y         										= 0
-icon_group 												= 10
+inv_grid_width 			= 1
+inv_grid_height 		= 1
+inv_grid_x 				= 1
+inv_grid_y 				= 0
+icon_group 				= 10
 
-light_trace_bone                                       = wpn_body
+light_trace_bone 		= wpn_body
 
-light_definition                                       = device_anpeq_16_definition
-light_definition_second                                = device_anpeq_16_definition_second
+light_definition 		= device_anpeq_16_definition
+light_definition_second = device_anpeq_16_definition_second
 
-snd_laser_switch										= interface\dyn_zoom_sound
-laser_light_section 									= red_laser_definition
-addon_icon_sect 										= device_anpeq_16
+snd_laser_switch 		= interface\dyn_zoom_sound
+laser_light_section 	= red_laser_definition
+addon_icon_sect 		= device_anpeq_16
 
 [device_anpeq_16_definition]:device_flashlight_definition
-guide_bone                                             = wpn_body
+guide_bone 				= wpn_body
 [device_anpeq_16_definition_second]:device_flashlight_definition_second
-guide_bone                                             = wpn_body
+guide_bone 				= wpn_body
 
 ;;;;;;;;;;;;;;;;;;;;;GLOWSTICK;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [device_glowstick_green]:device_base
-GroupControlSection						= spawn_group
-discovery_dependency =
-$spawn									= "devices\glow_stick"
-$prefetch 								= 32
-cform                                   = skeleton
-class									= S_FLALIT
-visual									= dynamics\devices\dev_glowstick\dev_glowstick_glow
-slot									= 8
-animation_slot							= 7
+$spawn 					= "devices\glow_stick"
+class 					= S_FLALIT
+visual 					= dynamics\devices\dev_glowstick\dev_glowstick_glow
+slot 					= 8
+animation_slot 			= 7
 
-description								= st_device_glowstick_green_descr
-inv_name								= st_device_glowstick_green_name
-inv_name_short							= st_device_glowstick_green_short
-icon_text								= st_device_glowstick_green_text
+description 			= st_device_glowstick_green_descr
+inv_name 				= st_device_glowstick_green_name
+inv_name_short 			= st_device_glowstick_green_short
+icon_text 				= st_device_glowstick_green_text
 
-inv_grid_x         						= 0
-inv_grid_y         						= 3
-cost									= 200
-inv_weight								= 0.084
-hud										= device_glowstick_hud
-snd_draw								= device\glowstick_draw
-snd_holster								= device\glowstick_holster
-light_definition						= glowstick_definition_green
+inv_grid_x 				= 0
+inv_grid_y 				= 3
+cost 					= 200
+inv_weight 				= 0.084
+hud 					= device_glowstick_hud
+snd_draw 				= device\glowstick_draw
+snd_holster 			= device\glowstick_holster
+light_definition 		= glowstick_definition_green
 
-script_binding      					= bind_device.init
+script_binding 			= bind_device.init
 
-work_independent 						= true
-light_direction 						= 0,0,0
+work_independent 		= true
+light_direction 		= 0,0,0
 
-breakable 								= true
-use_condition 							= true
-condition_as_power 						= true
+breakable 				= true
+use_condition 			= true
+condition_as_power 		= true
 
-disassemble_parts 						=
+disassemble_parts 		=
 
 [glowstick_definition_green]
-type									= 1 ; type  0-Direct 1-Point 2-Spot 3-OMNIPART 4-Reflected
-range									= 0 ; range                 <in meters>
-range_r2								= 0 ; range                 <in meters>
-color									= 0.0,0.8,0.6,0.8 ; four color components <r,g,b,a> 0.f<X<3.f
-color_r2								= 0.0,0.8,0.6,0.8 ; four color components <r,g,b,a> 0.f<X<3.f
-color_animator							= empty ; color animator name   (empty - not using animator) //light_torch_01
+type 					= 1 ; type  0-Direct 1-Point 2-Spot 3-OMNIPART 4-Reflected
+range 					= 0 ; range                 <in meters>
+range_r2 				= 0 ; range                 <in meters>
+color 					= 0.0,0.8,0.6,0.8 ; four color components <r,g,b,a> 0.f<X<3.f
+color_r2 				= 0.0,0.8,0.6,0.8 ; four color components <r,g,b,a> 0.f<X<3.f
+color_animator 			= empty ; color animator name   (empty - not using animator) //light_torch_01
 
-omni_type								= 1 ; type  0-Direct 1-Point 2-Spot 3-OMNIPART 4-Reflected
-omni_range								= 2 ; range                 <in meters>
-omni_range_r2							= 12 ; range                 <in meters>
-omni_color								= 0.35,0.3,0.35,0.1 ; four color components <r,g,b,a> 0.f<X<3.f
-omni_color_r2							= 0.0,0.8,0.6,0.8 ; four color components <r,g,b,a> 0.f<X<3.f
+omni_type 				= 1 ; type  0-Direct 1-Point 2-Spot 3-OMNIPART 4-Reflected
+omni_range 				= 2 ; range                 <in meters>
+omni_range_r2 			= 12 ; range                 <in meters>
+omni_color 				= 0.35,0.3,0.35,0.1 ; four color components <r,g,b,a> 0.f<X<3.f
+omni_color_r2 			= 0.0,0.8,0.6,0.8 ; four color components <r,g,b,a> 0.f<X<3.f
 
-;spot_texture							= internal\internal_tactical_torch ; spot texture name     (using only in Second Render)
-spot_angle								= 65 ; spot angle            <in gradus>
+;spot_texture 			= internal\internal_tactical_torch ; spot texture name     (using only in Second Render)
+spot_angle 				= 65 ; spot angle            <in gradus>
 
-glow_texture							= glow\empty ; glow texture name     (required)
-glow_radius								= 0.2 ; glow radius           <in meters>
-guide_bone								= lid ; guid bone name        (required)
+glow_texture 			= glow\empty ; glow texture name     (required)
+glow_radius 			= 0.2 ; glow radius           <in meters>
+guide_bone 				= lid ; guid bone name        (required)
 
 [device_glowstick_orange]:device_glowstick_green
-visual									= dynamics\devices\dev_glowstick\dev_glowstick_glow_orange
-light_definition						= glowstick_definition_orange
-hud										= device_glowstick_hud_orange
+visual 					= dynamics\devices\dev_glowstick\dev_glowstick_glow_orange
+light_definition 		= glowstick_definition_orange
+hud 					= device_glowstick_hud_orange
 
-inv_name								= st_device_glowstick_orange_name
-inv_name_short							= st_device_glowstick_orange_short
-description								= st_device_glowstick_orange_descr
-icon_text								= st_device_glowstick_orange_text
+inv_name 				= st_device_glowstick_orange_name
+inv_name_short 			= st_device_glowstick_orange_short
+description 			= st_device_glowstick_orange_descr
+icon_text 				= st_device_glowstick_orange_text
 
-inv_grid_x         						= 1
-cost									= 400
+inv_grid_x 				= 1
+cost 					= 400
 
 [glowstick_definition_orange]:glowstick_definition_green
-; color									= 0.8,0.4,0.0,0.8
-; color_r2								= 0.8,0.4,0.0,0.8
-; range									= 10 ; range                 <in meters>
-; range_r2								= 10 ; range                 <in meters>
+; color 				= 0.8,0.4,0.0,0.8
+; color_r2 				= 0.8,0.4,0.0,0.8
+; range 				= 10 ; range                 <in meters>
+; range_r2 				= 10 ; range                 <in meters>
 
-omni_color_r2							= 0.8,0.4,0.0,0.8 ; four color components <r,g,b,a> 0.f<X<3.f
-omni_range_r2							= 10 ; range                 <in meters>
+omni_color_r2 			= 0.8,0.4,0.0,0.8 ; four color components <r,g,b,a> 0.f<X<3.f
+omni_range_r2 			= 10 ; range                 <in meters>
 
 [device_glowstick_red]:device_glowstick_green
-visual									= dynamics\devices\dev_glowstick\dev_glowstick_glow_red
-light_definition						= glowstick_definition_red
-hud										= device_glowstick_hud_red
+visual 					= dynamics\devices\dev_glowstick\dev_glowstick_glow_red
+light_definition 		= glowstick_definition_red
+hud 					= device_glowstick_hud_red
 
-inv_name								= st_device_glowstick_red_name
-inv_name_short							= st_device_glowstick_red_short
-description								= st_device_glowstick_red_descr
-icon_text								= st_device_glowstick_red_text	
+inv_name 				= st_device_glowstick_red_name
+inv_name_short 			= st_device_glowstick_red_short
+description 			= st_device_glowstick_red_descr
+icon_text 				= st_device_glowstick_red_text	
 
-inv_grid_x         						= 2
-cost									= 600
+inv_grid_x 				= 2
+cost 					= 600
 
 [glowstick_definition_red]:glowstick_definition_green
-; color									= 0.4,0.1,0.0,0.8
-; color_r2								= 0.4,0.1,0.0,0.8
-; range									= 24 ; range                 <in meters>
-; range_r2								= 24 ; range                 <in meters>
+; color 				= 0.4,0.1,0.0,0.8
+; color_r2 				= 0.4,0.1,0.0,0.8
+; range 				= 24 ; range                 <in meters>
+; range_r2 				= 24 ; range                 <in meters>
 
-omni_color_r2							= 0.4,0.1,0.0,0.8 ; four color components <r,g,b,a> 0.f<X<3.f
-omni_range_r2							= 24 ; range                 <in meters>
+omni_color_r2 			= 0.4,0.1,0.0,0.8 ; four color components <r,g,b,a> 0.f<X<3.f
+omni_range_r2 			= 24 ; range                 <in meters>
 
 [device_glowstick_blue]:device_glowstick_green
-visual									= dynamics\devices\dev_glowstick\dev_glowstick_glow_blue
-light_definition						= glowstick_definition_blue
-hud										= device_glowstick_hud_blue
+visual 					= dynamics\devices\dev_glowstick\dev_glowstick_glow_blue
+light_definition 		= glowstick_definition_blue
+hud 					= device_glowstick_hud_blue
 
-inv_name								= st_device_glowstick_blue_name
-inv_name_short							= st_device_glowstick_blue_short
-description								= st_device_glowstick_blue_descr	
+inv_name 				= st_device_glowstick_blue_name
+inv_name_short 			= st_device_glowstick_blue_short
+description 			= st_device_glowstick_blue_descr	
 
-inv_grid_x         						= 3
-cost									= 800
+inv_grid_x 				= 3
+cost 					= 800
 
 [glowstick_definition_blue]:glowstick_definition_green
-; color									= 0.0,0.6,1.0,0.8
-; color_r2								= 0.0,0.6,1.0,0.8
-; range									= 8 ; range                 <in meters>
-; range_r2								= 8 ; range                 <in meters>
+; color 				= 0.0,0.6,1.0,0.8
+; color_r2 				= 0.0,0.6,1.0,0.8
+; range 				= 8 ; range                 <in meters>
+; range_r2 				= 8 ; range                 <in meters>
 
-omni_color_r2							= 0.0,0.6,1.0,0.8 ; four color components <r,g,b,a> 0.f<X<3.f
-omni_range_r2							= 8 ; range                 <in meters>
-
-[addon_flashlight_icon]
-inv_grid_width		= 1
-inv_grid_height		= 1
-inv_grid_x			= 0
-inv_grid_y			= 0
-icon_group 			= 10
+omni_color_r2 			= 0.0,0.6,1.0,0.8 ; four color components <r,g,b,a> 0.f<X<3.f
+omni_range_r2 			= 8 ; range                 <in meters>

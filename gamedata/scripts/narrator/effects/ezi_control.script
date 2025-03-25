@@ -88,25 +88,28 @@ function on_zoom_in(weapon)
 	function()
 		if not actor_obj:is_zoom_aiming_mode() then
 		return end
-		local tip = "st_hold_key_to_hard_hold"
+		
+		local wpn = weapon:get_weapon()
+
 		local marks = ui_scope_collimator_mark.can_switch_marks(weapon)
 		local illum = ui_scope_texture.has_illum()
-		local nvd = nvd.get_nv_sect(weapon) and not weapon:get_weapon():aim_alt_mode()
-		
-		if nvd then
-			tip = "st_hold_key_to_hard_hold_with_night_vision"
-			if illum then
-				tip = "st_hold_key_to_hard_hold_with_illum_night_vision"
-			end
-			if marks then
-				tip = "st_hold_key_to_hard_hold_with_marks_night_vision"
-			end
-		elseif marks then
-			tip = "st_hold_key_to_hard_hold_with_marks"			
-		elseif illum then
-			tip = "st_hold_key_to_hard_hold_with_illum"
+		local nvd = nvd.get_nv_sect(weapon) and not wpn:aim_alt_mode()
+		local alt_aim = read_if_exists(sys_ini, "r_bool", weapon:section(), "aim_alt_forced", false) or (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope) and read_if_exists(sys_ini, "r_bool", wpn:get_addon_name(addon.scope), "aim_alt", false))
+
+		local tip = game.translate_string("st_hold_key_to_hard_hold")		
+		if marks then
+			tip = tip.."\\n"..game.translate_string("st_press_key_to_switch_mark")
 		end
-		hud_add_info_message("item_usage", game.translate_string(tip), 2)
+		if illum then
+			tip = tip.."\\n"..game.translate_string("st_press_key_to_switch_illum")
+		end
+		if nvd then
+			tip = tip.."\\n"..game.translate_string("st_press_key_to_switch_night_vision")
+		end
+		if alt_aim then
+			tip = tip.."\\n"..game.translate_string("st_press_key_to_switch_aim")
+		end		
+		hud_add_info_message("item_usage", tip, 2)
 	end
 	)
 end

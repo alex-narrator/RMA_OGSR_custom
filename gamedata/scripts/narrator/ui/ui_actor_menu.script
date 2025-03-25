@@ -1356,7 +1356,7 @@ function ActorMenuOverlay:ReinitLists(show_type)
 	local mode = self:GetMode()	
 	
 	local function show_item(item)
-		return not get_inv_item_hidden(item) and (not show_type or show_type == ui_inv_utils.get_type(item) or ui_inv_utils.get_type(item) == 0) and (mode ~= "trade" or trade_manager.tradable(item)) and (mode ~= "repair" or self.repair:RepairAllowed(item))
+		return not get_inv_item_hidden(item) and (not show_type or show_type == ui_inv_utils.get_type(item) or ui_inv_utils.get_type(item) == 0) and (mode ~= "trade" or trade_manager.tradable(item)) and (mode ~= "repair" or (self.repair:RepairAllowed(item) or self.repair:HackAllowed(item)))
 	end
 	
 	local ruck_items, belt_items, loadout_items = {}, {}, {}
@@ -1885,15 +1885,23 @@ function ActorMenuOverlay:UpdateRepair(cell_item)
 	if self:GetMode() ~= "repair" then
 	return end
 	
+	self.repair_button:SetText(game.translate_string("ui_st_repair"))
+	self.repair_button:Enable(false)
+	
 	local item = cell_item and cell_item:GetAnyItem()
 	
-	if not item or not self.repair:RepairAllowed(item) then
+	local can_action = item and (self.repair:RepairAllowed(item) or self.repair:HackAllowed(item))
+	
+	if not can_action then
 		self.repair_item:Show(false)
 		self.repair_back:SetText("")
 		self.repair_item_back:SetText("")
 	return end
 	
 	self.repair_item:Show(true)
+	
+	local is_hack = self.repair:HackAllowed(item)
+	self.repair_button:SetText(game.translate_string(is_hack and "ui_st_hack" or"ui_st_repair"))
 	
 	local params = CIconParams(item:section())
 	params:set_shader(self.repair_item)
@@ -1902,13 +1910,18 @@ function ActorMenuOverlay:UpdateRepair(cell_item)
 	self.repair_item:SetWndPos(offset.x, offset.y)
 	
 	local has_money = self.repair:HasMoneyToRepair(item)
-	local color = has_money and "%c[default]" or "%c[red]"	
+	if is_hack then 
+		has_money = self.repair:HasMoneyToHack(item)
+	end
+	local color = has_money and "%c[default]" or "%c[red]"
 	
-	local text = string.format("%s%s %s %s", color, game.translate_string("ui_inv_repair_cost"), self.repair:GetRepairCost(item), game.translate_string("ui_st_money_regional"))
+	log3("has_money %s",has_money)
+	
+	local text = string.format("%s%s %s %s", color, game.translate_string(is_hack and "ui_inv_hack_cost" or "ui_inv_repair_cost"), is_hack and self.repair:GetHackCost(item) or self.repair:GetRepairCost(item), game.translate_string("ui_st_money_regional"))
 	self.repair_item_back:SetText(text)
 	text = game.translate_string(get_inv_name(item:section()))
 	self.repair_back:SetText(text)
-		
+
 	ui_inv_utils.AttachRepairMenuIcons(item, self.repair_item)
 	
 	self.repair_button:Enable(has_money)
@@ -1920,14 +1933,20 @@ function ActorMenuOverlay:PerformRepair()
 	return end
 	local item = cell_item:GetAnyItem()
 	
-	local cost = self.repair:GetRepairCost(item)
+	local is_hack = self.repair:HackAllowed(item)
+	local cost = is_hack and self.repair:GetHackCost(item) or self.repair:GetRepairCost(item)
 	
 	dialogs.relocate_money(self.target, cost, "out")
-	item:set_condition(1)
+	--item:set_condition(1)
 	--cell_item:ForceUpdate()
 	
-	local sound_name = item:is_weapon() and "repair_weapon" or "repair_armor"
-	self:PlayActionSound(sound_name)
+	if not is_hack then
+		item:set_condition(1)
+		local sound_name = item:is_weapon() and "repair_weapon" or "repair_armor"
+		self:PlayActionSound(sound_name)
+	else
+		pda.on_pda_hack(item:id())
+	end
 	
 	self.cell_item_selected = nil
 	--self:UpdateRepair()

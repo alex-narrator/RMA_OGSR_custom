@@ -116,9 +116,10 @@ function similar_item(item1, item2)
 		similar = similar and fsim(item1:binded_object():get_power_level(), item2:binded_object():get_power_level(), cmp)
 	end
 	
-	if item1:get_pda() and item2:get_pda() then
+	--if item1:get_pda() and item2:get_pda() then
+	if is_pda_hackable(item1) and is_pda_hackable(item2) then
 		local se_item1, se_item2 = alife():object(item1:id()), alife():object(item2:id())
-		similar = similar and (not (se_item1.owner_data and se_item2.owner_data) or (se_item1.was_hacked and se_item2.was_hacked))
+		similar = similar and se_item1.lock_state == 0 and se_item2.lock_state == 0
 	end
 	
 	-- t:stop()
@@ -598,6 +599,65 @@ function UpdateUpgrageIcon(item, icon)
 	icon:AttachChild(upgrade_icon)
 end
 
+local green = GetARGB(175, 0, 255, 0)
+local red = GetARGB(175, 255, 0, 0)
+local orange = GetARGB(175, 238, 153, 26)
+function UpdatePdaLockIcon(item, icon)
+	if not is_pda_hackable(item) then
+	return end
+	
+	local sect = item:section()
+	
+	local pda_lock_icon_sect = read_if_exists(sys_ini, "r_string", sect, "pda_lock_icon_sect", "pda_lock_icon")
+	if not pda_lock_icon_sect then
+	return end
+	
+	local params = CIconParams(pda_lock_icon_sect)
+	local icon_params = CIconParams(sect)
+	
+	local heading = icon:GetCUIStatic():GetHeading()
+	
+	local lock_state = alife():object(item:id()).lock_state
+	local icon_color = green
+	if lock_state == 1 then
+		icon_color = orange
+	elseif lock_state == 2 then
+		icon_color = red
+	end
+	
+	local offset_type = read_if_exists(sys_ini, "r_string", sect, "pda_lock_offset", "left_down")
+	local function update(static)
+		local cell_w = icon:GetWidth() / icon_params.grid_width
+		local cell_h = icon:GetHeight() / icon_params.grid_height
+		if heading > 0 then
+			cell_h = icon:GetWidth() / icon_params.grid_height * get_current_kx()
+			cell_w = icon:GetHeight() / icon_params.grid_width
+		end		
+		local width = params.grid_width * cell_w
+		local height = params.grid_height * cell_h
+		
+		static:SetWidth(width)
+		static:SetHeight(height)
+		local offset = GetOffset(offset_type, static, icon)
+		static:SetWndPos(offset.x, offset.y)
+	end
+	
+	local pda_lock_icon = icon:FindChild("pda_lock_icon")
+	if pda_lock_icon then
+		update(pda_lock_icon)
+		return
+	end
+
+	pda_lock_icon = CUIStatic()
+	pda_lock_icon:SetColor(icon_color)
+	params:set_shader(pda_lock_icon)
+	
+	update(pda_lock_icon)
+	
+	pda_lock_icon:SetWindowName("pda_lock_icon")
+	icon:AttachChild(pda_lock_icon)
+end
+
 function UpdateQuestIcon(item, icon)
 	local sect = item:section()
 	
@@ -641,7 +701,7 @@ function UpdateQuestIcon(item, icon)
 	
 	update(quest_icon)
 	
-	quest_icon:SetWindowName("upgrade_icon")
+	quest_icon:SetWindowName("quest_icon")
 	icon:AttachChild(quest_icon)
 end
 

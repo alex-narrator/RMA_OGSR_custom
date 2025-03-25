@@ -27,7 +27,7 @@ function on_take(item)
 	-- if is_power_device(item) and not has_alife_info("enc_power_devices") then
 		-- actor:give_info_portion("enc_power_devices")
 	-- end
-	if item:get_pda() and not is_actors_pda(item) and not has_alife_info("enc_pda_npc") then
+	if is_pda_hackable(item) and not has_alife_info("enc_pda_npc") then
 		actor:give_info_portion("enc_pda_npc")
 		if has_alife_info("esc_trader_newbie") then
 			level.add_call(
