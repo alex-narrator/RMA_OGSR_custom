@@ -81,6 +81,8 @@ fire_wound_protection  			= 0.1
 
 disassemble_parts 				= part_cloth, part_synt
 
+repair_icon_sect 				= novice_outfit_repair
+
 [sect_novice_outfit_immunities]
 burn_immunity					= 0.04			;коэффициенты иммунитета самого костюма
 strike_immunity					= 0.01
@@ -128,6 +130,8 @@ explosion_protection 			= 0.1
 fire_wound_protection  			= 0.15
 
 disassemble_parts 				= part_cloth, part_synt
+
+repair_icon_sect 				= bandit_outfit_repair
 
 [sect_bandit_outfit_immunities]
 burn_immunity					= 0.04			;коэффициенты иммунитета самого костюма
@@ -180,6 +184,8 @@ fire_wound_protection  			= 0.2
 
 disassemble_parts 				= part_synt, part_ripstop, part_cordura
 
+repair_icon_sect 				= killer_outfit_repair
+
 [sect_killer_outfit_immunities]
 burn_immunity					= 0.04			;коэффициенты иммунитета самого костюма
 strike_immunity					= 0.01
@@ -231,6 +237,8 @@ fire_wound_protection  			= 0.4
 
 disassemble_parts 				= part_synt, part_ripstop, part_rubber
 
+repair_icon_sect 				= monolit_outfit_repair
+
 [sect_monolit_outfit_immunities]
 burn_immunity					= 0.03			;коэффициенты иммунитета самого костюма
 strike_immunity					= 0.01
@@ -243,6 +251,53 @@ explosion_immunity				= 0.03
 fire_wound_immunity				= 0.01
 
 
+;---------------------------------------------------------------------------------------------
+;		КОСТЮМ ВЙСЬКОВОГО РЯДОВОГО
+;---------------------------------------------------------------------------------------------
+[soldier_outfit]:outfit_base,plate_carrier
+$spawn 							= "outfit\obsolete\soldier_outfit"
+visual          				= equipments\soldier_suit
+actor_visual					= actors\hero\stalker_soldier
+
+inv_name						= st_soldier_outfit_name
+inv_name_short					= st_soldier_outfit_short
+description						= st_soldier_outfit_descr
+inv_weight						= 4.0
+
+inv_grid_x         				= 4
+inv_grid_y         				= 0
+
+cost							= 5000
+
+actor_icon 						= ui_npc_u_soldier_mask
+
+immunities_sect					= sect_soldier_outfit_immunities
+
+; NO RESISTANCE
+burn_protection 				= 0.15
+strike_protection 				= 0.2
+shock_protection 				= 0.15
+wound_protection				= 0.3
+radiation_protection 			= 0.1
+telepatic_protection 			= 0.0
+chemical_burn_protection 		= 0.15
+explosion_protection 			= 0.2
+fire_wound_protection  			= 0.2
+
+disassemble_parts 				= part_synt, part_ripstop, part_cordura
+
+repair_icon_sect 				= soldier_outfit_repair
+
+[sect_soldier_outfit_immunities]
+burn_immunity					= 0.035			;коэффициенты иммунитета самого костюма
+strike_immunity					= 0.01
+shock_immunity					= 0.035
+wound_immunity					= 0.02
+radiation_immunity				= 0.00
+telepatic_immunity				= 0.00
+chemical_burn_immunity			= 0.04
+explosion_immunity				= 0.035
+fire_wound_immunity				= 0.012
 
 ;---------------------------------------------------------------------------------------------
 ;		КОСТЮМ ВОЕННОГО СПЕЦНАЗА
@@ -280,6 +335,8 @@ explosion_protection 			= 0.4
 fire_wound_protection  			= 0.45
 
 disassemble_parts 				= part_synt, part_cordura, part_aramid
+
+repair_icon_sect 				= specops_outfit_repair
 
 [sect_specops_outfit_immunities]
 burn_immunity					= 0.04			;коэффициенты иммунитета самого костюма
@@ -335,6 +392,8 @@ fire_wound_protection  			= 0.55
 
 disassemble_parts 				= part_synt, part_cordura, part_aramid
 
+repair_icon_sect 				= military_outfit_repair
+
 [sect_military_outfit_immunities]
 burn_immunity					= 0.02			;коэффициенты иммунитета самого костюма
 strike_immunity					= 0.01
@@ -389,6 +448,8 @@ fire_wound_protection  			= 0.3
 
 power_loss 						= -0.13
 
+repair_icon_sect 				= stalker_outfit_repair
+
 [sect_stalker_outfit_immunities]
 burn_immunity					= 0.03			;коэффициенты иммунитета самого костюма
 strike_immunity					= 0.01
@@ -440,6 +501,8 @@ explosion_protection 			= 0.5
 fire_wound_protection  			= 0.40
 
 disassemble_parts 				= part_synt, part_ripstop, part_cordura, part_rubber
+
+repair_icon_sect 				= scientific_outfit_repair
 
 [sect_scientific_outfit_immunities]
 burn_immunity					= 0.03			;коэффициенты иммунитета самого костюма
@@ -508,6 +571,8 @@ work_time 						= 8
 
 disassemble_parts 				= part_synt, part_aramid, part_rubber, part_electronics
 
+repair_icon_sect 				= exo_outfit_repair
+
 [sect_exo_outfit_immunities]
 burn_immunity					= 0.03			;коэффициенты иммунитета самого костюма
 strike_immunity					= 0.01
@@ -562,6 +627,8 @@ power_loss 						= -0.33
 
 disassemble_parts 				= part_synt, part_ripstop, part_rubber
 
+repair_icon_sect 				= svoboda_light_outfit_repair
+
 [sect_svoboda_light_outfit_immunities]
 burn_immunity					= 0.04			;коэффициенты иммунитета самого костюма
 strike_immunity					= 0.01
@@ -615,6 +682,8 @@ fire_wound_protection  			= 0.4
 
 disassemble_parts 				= part_synt, part_ripstop, part_cordura
 
+repair_icon_sect 				= svoboda_heavy_outfit_repair
+
 [sect_svoboda_heavy_outfit_immunities]
 burn_immunity					= 0.03			;коэффициенты иммунитета самого костюма
 strike_immunity					= 0.01
@@ -666,6 +735,8 @@ fire_wound_protection  			= 0.4
 
 disassemble_parts 				= part_synt, part_ripstop, part_rubber
 
+repair_icon_sect 				= dolg_outfit_repair
+
 [sect_dolg_outfit_immunities]
 burn_immunity					= 0.03			;коэффициенты иммунитета самого костюма
 strike_immunity					= 0.01
@@ -714,6 +785,8 @@ explosion_protection 			= 0.5
 fire_wound_protection  			= 0.40
 
 disassemble_parts 				= part_synt, part_ripstop, part_cordura, part_rubber
+
+repair_icon_sect 				= dolg_scientific_outfit_repair
 
 [sect_dolg_scientific_outfit_immunities]
 burn_immunity					= 0.03			;коэффициенты иммунитета самого костюма
@@ -768,6 +841,8 @@ fire_wound_protection  			= 0.20
 
 disassemble_parts 				= part_synt, part_ripstop, part_cordura, part_rubber, part_electronics
 
+repair_icon_sect 				= ecolog_outfit_repair
+
 [sect_ecolog_outfit_immunities]
 burn_immunity					= 0.005			;коэффициенты иммунитета самого костюма
 strike_immunity					= 0.01
@@ -817,6 +892,8 @@ fire_wound_protection  			= 0.40
 
 disassemble_parts 				= part_synt, part_ripstop, part_cordura, part_aramid, part_electronics
 
+repair_icon_sect 				= protection_outfit_repair
+
 
 [sect_protection_outfit_immunities]
 burn_immunity					= 0.005			;коэффициенты иммунитета самого костюма
@@ -828,48 +905,3 @@ telepatic_immunity				= 0.00
 chemical_burn_immunity			= 0.005
 explosion_immunity				= 0.03
 fire_wound_immunity				= 0.01
-
-
-
-[soldier_outfit]:outfit_base,plate_carrier
-$spawn 							= "outfit\obsolete\soldier_outfit"
-visual          				= equipments\soldier_suit
-actor_visual					= actors\hero\stalker_soldier
-
-inv_name						= st_soldier_outfit_name
-inv_name_short					= st_soldier_outfit_short
-description						= st_soldier_outfit_descr
-inv_weight						= 4.0
-
-inv_grid_x         				= 4
-inv_grid_y         				= 0
-
-cost							= 5000
-
-actor_icon 						= ui_npc_u_soldier_mask
-
-immunities_sect					= sect_soldier_outfit_immunities
-
-; NO RESISTANCE
-burn_protection 				= 0.15
-strike_protection 				= 0.2
-shock_protection 				= 0.15
-wound_protection				= 0.3
-radiation_protection 			= 0.1
-telepatic_protection 			= 0.0
-chemical_burn_protection 		= 0.15
-explosion_protection 			= 0.2
-fire_wound_protection  			= 0.2
-
-disassemble_parts 				= part_synt, part_ripstop, part_cordura
-
-[sect_soldier_outfit_immunities]
-burn_immunity					= 0.035			;коэффициенты иммунитета самого костюма
-strike_immunity					= 0.01
-shock_immunity					= 0.035
-wound_immunity					= 0.02
-radiation_immunity				= 0.00
-telepatic_immunity				= 0.00
-chemical_burn_immunity			= 0.04
-explosion_immunity				= 0.035
-fire_wound_immunity				= 0.012

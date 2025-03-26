@@ -463,6 +463,8 @@ function ActorMenuOverlay:InitControls()
 	--//repair mode
 	--//repair back
 	self.repair_back = xml:InitStatic("repair_back", self)
+	self.repair_condition = xml:InitStatic("repair_back:condition", self.repair_back)
+	self.repair_condition_progress = xml:InitProgressBar("repair_back:condition_progress_bar", self.repair_back)
 	self.repair_item_back = xml:InitStatic("repair_back:repair_item_back", self.repair_back)
 	self.repair_item = xml:InitStatic("repair_back:repair_item_back:repair_item", self.repair_item_back)
 	--//repair button
@@ -1896,6 +1898,8 @@ function ActorMenuOverlay:UpdateRepair(cell_item)
 		self.repair_item:Show(false)
 		self.repair_back:SetText("")
 		self.repair_item_back:SetText("")
+		self.repair_condition_progress:Show(false)
+		self.repair_condition:Show(false)
 	return end
 	
 	self.repair_item:Show(true)
@@ -1903,10 +1907,11 @@ function ActorMenuOverlay:UpdateRepair(cell_item)
 	local is_hack = self.repair:HackAllowed(item)
 	self.repair_button:SetText(game.translate_string(is_hack and "ui_st_hack" or"ui_st_repair"))
 	
-	local params = CIconParams(item:section())
+	local icon_sect = read_if_exists(sys_ini, "r_string", item:section(), "repair_icon_sect", item:section())
+	local params = CIconParams(icon_sect)
 	params:set_shader(self.repair_item)
 	ui_inv_utils.CellItemFitToSize(params, self.repair_item, self.repair_item_back)
-	local offset = ui_inv_utils.GetOffset("left_top", self.repair_item, self.repair_item_back)
+	local offset = ui_inv_utils.GetOffset("left_center", self.repair_item, self.repair_item_back)
 	self.repair_item:SetWndPos(offset.x, offset.y)
 	
 	local has_money = self.repair:HasMoneyToRepair(item)
@@ -1917,12 +1922,22 @@ function ActorMenuOverlay:UpdateRepair(cell_item)
 	
 	log3("has_money %s",has_money)
 	
-	local text = string.format("%s%s %s %s", color, game.translate_string(is_hack and "ui_inv_hack_cost" or "ui_inv_repair_cost"), is_hack and self.repair:GetHackCost(item) or self.repair:GetRepairCost(item), game.translate_string("ui_st_money_regional"))
+	local text = string.format("%s%s\\n%s %s", color, game.translate_string(is_hack and "ui_inv_hack_cost" or "ui_inv_repair_cost"), is_hack and self.repair:GetHackCost(item) or self.repair:GetRepairCost(item), game.translate_string("ui_st_money_regional"))
 	self.repair_item_back:SetText(text)
 	text = game.translate_string(get_inv_name(item:section()))
 	self.repair_back:SetText(text)
 
 	ui_inv_utils.AttachRepairMenuIcons(item, self.repair_item)
+	
+	local cond = item:condition()
+	self.repair_condition_progress:Show(cond < 1)
+	self.repair_condition:Show(cond < 1)
+	if self.repair_condition_progress:IsShown() then
+		--self.repair_condition_progress:SetWidth(self.repair_item:GetWidth())
+		self.repair_condition_progress:SetProgressPos(cond)
+		local cond_text = string.format("%.f%s", cond*100, "%")
+		self.repair_condition:SetText(cond_text)
+	end
 	
 	self.repair_button:Enable(has_money)
 end

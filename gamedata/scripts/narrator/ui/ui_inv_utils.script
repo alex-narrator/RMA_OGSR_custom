@@ -11,6 +11,10 @@ function GetOffset(offset_type, icon, parent_icon)
 			parent_icon:GetHeight() - icon:GetHeight())
 	elseif offset_type == "left_top" then
 		return offset
+	elseif offset_type == "left_center" then
+		return offset:set(
+			0, 
+			(parent_icon:GetHeight() / 2) - (icon:GetHeight() / 2))
 	elseif offset_type == "right_top" then
 		return offset:set(
 			parent_icon:GetWidth() - icon:GetWidth(),
@@ -19,6 +23,10 @@ function GetOffset(offset_type, icon, parent_icon)
 		return offset:set(
 			parent_icon:GetWidth() - icon:GetWidth(),
 			parent_icon:GetHeight() - icon:GetHeight())
+	elseif offset_type == "right_center" then
+		return offset:set(
+			parent_icon:GetWidth() - icon:GetWidth(),
+			(parent_icon:GetHeight() / 2) - (icon:GetHeight() / 2))
 	elseif offset_type == "center_top" then
 		return offset:set(
 			(parent_icon:GetWidth() / 2) - (icon:GetWidth() / 2),
@@ -797,15 +805,15 @@ end
 
 function AttachRepairMenuIcons(item, icon)
 	icon:DetachAll()
-	UpdateWpnIcons(item, icon)
-	UpdateArmorPlateIcon(item, icon)
+	--UpdateWpnIcons(item, icon)
+	--UpdateArmorPlateIcon(item, icon)
 	UpdateAmmoInBoxIcon(item, icon)
 	--UpdateMarkedIcon(item, icon)
 	UpdateUpgrageIcon(item, icon)
 	UpdateQuestIcon(item, icon)
 	--UpdateInSlotIcon(item, icon)
-	UpdateConditionProgress(item, icon)
-	UpdateConditionStatic(item, icon)
+	--UpdateConditionProgress(item, icon)
+	--UpdateConditionStatic(item, icon)
 end
 
 function AttachPanelIcons(item, icon, count)

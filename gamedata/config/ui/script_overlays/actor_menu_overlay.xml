@@ -328,14 +328,28 @@
 	<!-- repair window -->
 	<repair_back x="650" y="155" width="364" height="560" stretch="1">
 		<texture a="100">ui_repair_back_2</texture>
-		<text x="-20" y="20" font="graffiti32" color="UI_orange" complex_mode="1" v_align="c" align="r"/>
+		<text x="0" y="0" font="graffiti32" color="UI_orange" complex_mode="1" v_align="c" align="l"/>
 		
-		<repair_item_back x="15" y="10" width="150" height="100" stretch="1">
-			<!-- <texture a="175">slot_2_1_back</texture> -->
-			<text x="175" y="50" font="graffiti19" color="UI_orange" complex_mode="1" align="r"/>
+		<repair_item_back x="15" y="18" width="333" height="85" stretch="1">
+			<text x="0" y="0" font="graffiti19" color="UI_orange" complex_mode="1" align="r"/>
 			
 			<repair_item stretch="1"/>
-		</repair_item_back>		
+		</repair_item_back>
+		
+		<condition x="0" y="110" width="15" height="10" stretch="1">
+			<text x="0" y="0" font="letterica16" color="UI_orange" complex_mode="1" v_align="c" align="l"/>
+		</condition>
+		<condition_progress_bar x="16" y="110" width="332" height="6" horz="1" min="0" max="1" pos="1">
+			<min_color r="255" g="0" b="0"/>
+			<middle_color r="255" g="255" b="0"/>
+			<max_color r="0" g="255" b="0"/>
+			<progress>
+				<texture>inv_progress_long</texture>
+			</progress>
+			<background>
+				<texture a="50" r="255" g="255" b="255">inv_progress_long</texture>
+			</background>
+		</condition_progress_bar>
 	</repair_back>	
 	
     <exit_button x="915" y="730" width="100" height="30" stretch="1">
