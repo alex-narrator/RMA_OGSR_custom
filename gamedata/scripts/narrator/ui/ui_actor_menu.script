@@ -1629,6 +1629,10 @@ function ActorMenuOverlay:OnKeyboard(dik, keyboard_action)
 					self:UpdateInvTip()
 					return true
 				end
+				if pda.can_try_hack(item) then
+					pda.try_hack(item)
+					return true
+				end				
 			end
 		elseif game_action == key_bindings.kDROP then
 			if mode == "inventory" then
@@ -1872,13 +1876,16 @@ function ActorMenuOverlay:UpdateInvTip(cell_item)
 	local item = cell_item and cell_item:GetAnyItem()
 	local text = ""
 	if self:GetMode() == "inventory" and item then
-		text = game.translate_string(read_if_exists(sys_ini, "r_string", item:section(), "selected_tip", ""))
+		text = game.translate_string(read_if_exists(sys_ini, "r_string", item:section(), "selected_tip", ""))		
 		if read_if_exists(sys_ini, "r_bool", item:section(), "quick_slot", false) then
 			text = text.."\\n"..game.translate_string("st_tip_quick_slot")
 		end
 		if service_kit.can_disassemble(item) then
 			text = text.."\\n"..game.translate_string("st_tip_disassembly")
-		end		
+		end
+		if pda.can_try_hack(item) then
+			text = text.."\\n"..game.translate_string("st_tip_hack_pda")
+		end
 	end
 	self.selected_item_tip:SetText(text)
 end
@@ -1911,7 +1918,7 @@ function ActorMenuOverlay:UpdateRepair(cell_item)
 	local params = CIconParams(icon_sect)
 	params:set_shader(self.repair_item)
 	ui_inv_utils.CellItemFitToSize(params, self.repair_item, self.repair_item_back)
-	local offset = ui_inv_utils.GetOffset("left_center", self.repair_item, self.repair_item_back)
+	local offset = ui_inv_utils.GetOffset("center", self.repair_item, self.repair_item_back)
 	self.repair_item:SetWndPos(offset.x, offset.y)
 	
 	local has_money = self.repair:HasMoneyToRepair(item)
@@ -1920,9 +1927,9 @@ function ActorMenuOverlay:UpdateRepair(cell_item)
 	end
 	local color = has_money and "%c[default]" or "%c[red]"
 	
-	log3("has_money %s",has_money)
+	--log3("has_money %s",has_money)
 	
-	local text = string.format("%s%s\\n%s %s", color, game.translate_string(is_hack and "ui_inv_hack_cost" or "ui_inv_repair_cost"), is_hack and self.repair:GetHackCost(item) or self.repair:GetRepairCost(item), game.translate_string("ui_st_money_regional"))
+	local text = string.format("%s%s %s %s", color, game.translate_string(is_hack and "ui_inv_hack_cost" or "ui_inv_repair_cost"), is_hack and self.repair:GetHackCost(item) or self.repair:GetRepairCost(item), game.translate_string("ui_st_money_regional"))
 	self.repair_item_back:SetText(text)
 	text = game.translate_string(get_inv_name(item:section()))
 	self.repair_back:SetText(text)

@@ -333,8 +333,9 @@ function MainIngameOverlay:InitControls()
 	self.quick_addon = ui_quick_addon.QuickAddonOverlay()
 	
 	--//target tip
-	-- self.target_tip = xml:InitStatic("target_tip", self)
-	-- self.target_tip.offset = xml:ReadAttrib("target_tip", "offset", "center")
+	self.target_tip = xml:InitStatic("target_tip", self)
+	self.target_tip.offset = xml:ReadAttrib("target_tip", "offset", "center")
+	self.target_tip.offset_shift = split_string(xml:ReadAttrib("target_tip", "offset_shift", "0,0"), ",", true)
 	self.tip_cursor = xml:InitStatic("tip_cursor", self)
 	local offset = ui_inv_utils.GetOffset("center", self.tip_cursor, self.owner)
 	self.tip_cursor:SetWndPos(offset.x, offset.y)
@@ -1088,16 +1089,19 @@ end
 
 function MainIngameOverlay:UpdateTargetTip()
 	local tip = actor_obj:get_default_action_for_obj()
-	if tip and tip ~= "" and (actor_hands_free() or actor:ph_capture()) then
-		-- self.target_tip:SetText(game.translate_string(tip))
-		-- self.target_tip:AdjustWidthToText()
-		-- self.target_tip:AdjustHeightToText()
-		-- local offset = ui_inv_utils.GetOffset(self.target_tip.offset, self.target_tip, self.owner)
-		-- self.target_tip:SetWndPos(offset.x, offset.y)
-		hud_add_info_message("quick_info", game.translate_string(tip))
+	self.target_tip:Show(tip and tip ~= "" and (actor_hands_free() or actor:ph_capture()))
+	if self.target_tip:IsShown() then
+		self.target_tip:SetText(game.translate_string(tip))
+		self.target_tip:AdjustWidthToText()
+		self.target_tip:AdjustHeightToText()
+		local offset = ui_inv_utils.GetOffset(self.target_tip.offset, self.target_tip, self.owner)
+		offset.x = offset.x + self.target_tip.offset_shift[1]
+		offset.y = offset.y + self.target_tip.offset_shift[2]
+		self.target_tip:SetWndPos(offset.x, offset.y)
+		--hud_add_info_message("quick_info", game.translate_string(tip))
 	else
-		--self.target_tip:SetText("")
-		hud_remove_info_message("quick_info")
+		self.target_tip:SetText("")
+		--hud_remove_info_message("quick_info")
 	end
 	self.tip_cursor:Show(tip and tip ~= "" and not get_console():get_bool("hud_crosshair"))
 end
