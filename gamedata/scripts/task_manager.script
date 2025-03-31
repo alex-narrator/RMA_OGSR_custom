@@ -226,9 +226,11 @@ function on_load()
 	--log3("~on_load active_task_by_type %s", active_task_by_type)
 end
 --' Возвращает идентификатор вендора, с которым мы говорим
-function get_parent(npc)
+function get_parent(npc, nofatal)
 	local story_id = npc:story_id()
-	ASSERT(parent_by_story[story_id], "Task manager error: wrong parent story_id[%s]", story_id)
+	if not nofatal then
+		ASSERT(parent_by_story[story_id], "Task manager error: wrong parent story_id[%s]", story_id)
+	end
 	return parent_by_story[story_id]
 end
 --' Может ли вендор выдать квест
@@ -487,7 +489,7 @@ function task_callback(p1, p2, state)
 		
 		--' Проверяем что жив, выдавший квест (хтонічний Сидорович-trader живий завжди).
 		local parent = alife():story_object(story_by_parent[task_data.parent])
-		local parent_alive = parent and (parent:get_trader() or parent:alive())
+		local parent_alive = parent and parent:alive()
 		if task_data.status ~= "refused" and parent_alive then
 			task_penalty(task_data)
 		end
@@ -1236,6 +1238,18 @@ function on_task(_task, _objective, _state)
 	end
 end
 
+function check_vendor_dead(npc)
+	local parent = get_parent(npc, true)
+	if not parent then
+	return end
+	for k,v in pairs(task_id_by_parent[parent]) do
+		if task_info[v].status == "selected" or task_info[v].status == "completed" then
+			task_info[v].status = "failed"
+		end
+	end	
+end
+
 function on_npc_death(npc)
 	unregister_target(npc)
+	check_vendor_dead(npc)
 end

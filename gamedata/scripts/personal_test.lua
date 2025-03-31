@@ -601,11 +601,15 @@ end
 
 --log3("~is accel %s", IsMoveState(move_command.mcAccel))
 
-local item = nil--actor:active_item()
+local item = actor:active_item()
 if item then
 	local wpn = item:get_weapon()
 	if wpn then
-		--local wpn_m = item:get_weapon_m()
+		local wpn_m = item:get_weapon_m()
+		if wpn_m then
+			wpn_m.shell_drop_delay = 1.4
+			log3("~wpn_m.shell_drop_delay %s", wpn_m.shell_drop_delay)
+		end
 		--wpn_m:set_laser_angle(300)
 		--wpn.scope_inertion_factor = 0.5
 		--wpn.zoom_factor = 1
