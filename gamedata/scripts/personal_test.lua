@@ -601,7 +601,7 @@ end
 
 --log3("~is accel %s", IsMoveState(move_command.mcAccel))
 
-local item = actor:active_item()
+local item = nil--actor:active_item()
 if item then
 	local wpn = item:get_weapon()
 	if wpn then
@@ -670,4 +670,10 @@ end
 
 --log3("~active slot blocked: %s", actor.inventory:is_active_slot_blocked())
 
-log3("kX: %s", get_current_kx())
+--log3("kX: %s", get_current_kx())
+
+	-- local file = io.open(getFS():update_path("$game_config$", "custom_options.ltx"), "a")
+	-- local custom_opt_sect = "custom_options"
+	-- local text = string.format("[%s]\ncustom_opt_1 = %s\n", custom_opt_sect, "opt_1_value")
+	-- file:write(text)
+	-- file:close()

@@ -2,6 +2,7 @@
 --*********************************************************************************************************
 --==============================================================================================
 log1("--LUA version: ["..(jit.version or _VERSION).."]")
+log1("--debug mode: ["..tostring(not not string.find(command_line(), "-debug")).."]")
 --==============================================================================================
 FFI = require('ffi') --Делать только здесь и только один раз!
 --==============================================================================================
@@ -2342,6 +2343,10 @@ function get_script_option_value(opt)
 	return mm_custom_options.get_script_option(opt)
 end
 
+function set_script_option_value(opt, val)
+	mm_custom_options.set_script_option(opt, val)
+end
+
 ADDON_TYPES = {
 	"silencer",
 	"scope",
@@ -2367,4 +2372,8 @@ function start_game_callback()
 	dialog_manager.fill_phrase_table()
 	--
 	log3("--engine version %s", _G.main_menu.get_main_menu():GetGSVer())
+	log3("--DUBUG MODE %s", string.find(command_line(), "-debug"))
 end
+
+--//завантажуємо кастомні опції
+mm_custom_options.init_options()

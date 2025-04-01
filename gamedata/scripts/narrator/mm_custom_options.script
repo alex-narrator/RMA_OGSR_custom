@@ -1,21 +1,21 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
-function attach(sm)
-	sm:subscribe({signal = "on_mm_script_opt_change", 	fun = this.set_script_option})
-	sm:subscribe({signal = "on_save", 					fun = this.on_save})
-	sm:subscribe({signal = "on_load", 					fun = this.on_load})
-end
 
---// [option name (used also in ui_mm_opt_custom.script)] = option default value
+--//option config
+local CFG_NAME = "custom_options.ltx"
+local CFG_SECT = "custom_options"
+local CFG = ini_file(CFG_NAME)
+
+--// [option name (used also in ui_mm_opt_custom.script)] = option default value, option data type
 local script_options = {
-	["floating_info"] = true,
-	["floating_show_delay"] = 1,
-	["quick_save_max"] = 10,
-	["inv_item_condition"] = true,
-	["wpn_addon_ammo_wnd_separate"] = true,
-	["game_save_mode"] = 0,
-	["check_enemy_radius"] = 50,
-	["front_view_compass"] = true,
-	["compass_on_demand"] = false,
+	["floating_info"] 				= { true, 	"r_bool" 	},
+	["floating_show_delay"] 		= { 1, 		"r_float" 	},
+	["quick_save_max"] 				= { 10, 	"r_u32" 	},
+	["inv_item_condition"] 			= { true, 	"r_bool" 	},
+	["wpn_addon_ammo_wnd_separate"] = { true, 	"r_bool" 	},
+	["game_save_mode"] 				= { 0, 		"r_u32" 	},
+	["check_enemy_radius"] 			= { 50, 	"r_float" 	},
+	["front_view_compass"] 			= { true, 	"r_bool" 	},
+	["compass_on_demand"] 			= { false, 	"r_bool" 	},
 }
 
 --//tokens for listbox option
@@ -28,22 +28,59 @@ local script_options_tokens = {
 }
 
 function get_script_option(name)
-	return script_options[name] or false
+	local v = script_options[name]
+	if not v then
+		log3("! can`t fins custom option [%s]", name)
+		return false
+	end
+	return read_if_exists(CFG, v[2], CFG_SECT, name, v[1])
 end
 
 function set_script_option(name, val)
-	script_options[name] = val
-	--log3("~script_options %s is %s now", name, val)
+	script_options[name][1] = val
 end
 
 function get_script_option_tokens(option)
 	return script_options_tokens[option]
 end
 
-function on_save(packet)
-	xr_vars.save_var("script_options", script_options)
+function init_options()
+	if not CFG:section_exist(CFG_SECT) then
+		log3("~ creating custom options config file [%s]", CFG_NAME)
+		
+		local file = io.open(getFS():update_path("$game_config$", CFG_NAME), "a")
+		local text = string.format("[%s]\n", CFG_SECT)
+		file:write(text)
+		for k,v in pairs (script_options) do
+			text = string.format("%s = %s\n", k, v[1])
+			file:write(text)
+		end
+		file:close()
+	else
+		log3("- loading custom options config file [%s]", CFG_NAME)
+		local file = io.open(getFS():update_path("$game_config$", CFG_NAME), "w")
+		local text = string.format("[%s]\n", CFG_SECT)
+		file:write(text)
+		for k,v in pairs (script_options) do
+			local param_val = read_if_exists(CFG, v[2], CFG_SECT, k, v[1])
+			text = string.format("%s = %s\n", k, tostring(param_val))
+			k = {param_val, v[2]}
+			file:write(text)
+		end
+		file:close()
+	end	
 end
 
-function on_load(reader)
-	script_options = xr_vars.load_var("script_options", script_options)
+function cfg_save()
+	local file = io.open(getFS():update_path("$game_config$", CFG_NAME), "w")
+	local text = string.format("[%s]\n", CFG_SECT)
+	file:write(text)
+	for k,v in pairs (script_options) do
+		text = string.format("%s = %s\n", k, v[1])
+		k = {v[1], v[2]}
+		file:write(text)
+	end
+	file:close()
+	CFG = ini_file(CFG_NAME)
+	log3("- saving custom options config file [%s]", CFG_NAME)
 end
