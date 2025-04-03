@@ -71,7 +71,7 @@ function play()
 				if add_act then
 					if tgt:get_container() then
 						actor:transfer_item(tgt, actor)
-					elseif tgt:get_physics_shell() and distance_between_safe(tgt, actor) <= read_if_exists(sys_ini, "r_float", "actor_capture", "pull_distance", 1.4) then
+					elseif tgt:get_physics_shell() and level.get_target_dist() <= read_if_exists(sys_ini, "r_float", "actor_capture", "pull_distance", 1.4) then
 						local rq = level.get_current_ray_query()
 						local bone_id = rq and rq.element or 0
 						actor:ph_capture_object(tgt, bone_id)

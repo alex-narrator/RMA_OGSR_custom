@@ -19,7 +19,7 @@ function eat_item_tip(item)
 end
 
 function can_eat(item)
-	return item:is_eatable_item() and actor_menu:GetMode() ~= "trade"
+	return item and item:is_eatable_item() and actor_menu:GetMode() ~= "trade"
 end
 
 function eat(item)

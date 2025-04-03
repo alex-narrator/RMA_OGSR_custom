@@ -113,9 +113,9 @@ function motivator_binder:net_spawn(sobject)
 	end
 
 	--' ƒл€ зомбированных чуваков говорим что аномалий не существует | а також для катсценного зляканого новачка на кордоні
-	--if anoms_detection_disabled_communities[self.object:character_community()] or 
-		--anoms_detection_disabled_profiles[self.object:profile_name()] then
-	if anomaly_detection.enabled() or anomaly_detection.is_disabled(self.object) then
+	if anoms_detection_disabled_communities[self.object:character_community()] or 
+		anoms_detection_disabled_profiles[self.object:profile_name()] then
+	--if anomaly_detection.enabled() or anomaly_detection.is_disabled(self.object) then
 		local manager = self.object:motivation_action_manager()
 		manager:remove_evaluator	(stalker_ids.property_anomaly)
 		manager:add_evaluator		(stalker_ids.property_anomaly, property_evaluator_const(false))

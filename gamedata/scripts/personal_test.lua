@@ -40,8 +40,9 @@
 
 --db.actor.power = -10
 
-local tgt = nil--level.get_target_obj()
+local tgt = level.get_target_obj()
 if tgt then
+	log3("~tgt name %s", tgt:name())
 	--alife():release(alife():object(tgt:id()), true)
 	-- interact_item_anim.action_use()
 	-- return
@@ -677,3 +678,5 @@ end
 	-- local text = string.format("[%s]\ncustom_opt_1 = %s\n", custom_opt_sect, "opt_1_value")
 	-- file:write(text)
 	-- file:close()
+	
+--actor:ph_capture_object(level.object_by_id(769))
