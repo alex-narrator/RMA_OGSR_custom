@@ -27,6 +27,10 @@ function attach(sm)
 	sm:subscribe({signal = "on_destroy",   			fun = this.destroy_window})
 end
 
+function get_window()
+	return overlay
+end
+
 function create_window()
 	if not overlay then
 		overlay = MainIngameOverlay(get_main_window())
@@ -1110,27 +1114,28 @@ function MainIngameOverlay:OnKeyPress(key, game_action)
 	if game_action == key_bindings.kSCORES then
 	
 		self.slot_selector:ShowHideSelector()
+
+		self:ShowActiveTask(true)
 	
-		local task = actor:get_active_task()
-		self.active_task:Show(task)
-		if self.active_task:IsShown() then
+		-- local task = actor:get_active_task()
+		-- self.active_task:Show(task)
+		-- if self.active_task:IsShown() then
+			-- local text = game.translate_string(task:get_title() or "NO_TASK_TITLE")
+			-- self.task_header:SetText(text)
 		
-			local text = game.translate_string(task:get_title() or "NO_TASK_TITLE")
-			self.task_header:SetText(text)
+			-- local objective = actor:get_active_objective()
+			-- text = string.format("%s %s", game.translate_string("st_list_mark"), game.translate_string(objective:get_description() or "NO_OBJECTIVE_DESCRIPTION"))
+			-- self.objective_header:SetText(text)
 		
-			local objective = actor:get_active_objective()
-			text = string.format("%s %s", game.translate_string("st_list_mark"), game.translate_string(objective:get_description() or "NO_OBJECTIVE_DESCRIPTION"))
-			self.objective_header:SetText(text)
-		
-			local task_icon = task:get_objective(0):get_icon_name()
-			self.task_icon:Show(task_icon)
-			--log3("~task_icon %s", task_icon)
-			if self.task_icon:IsShown() then
-				self.task_icon:InitTexture(task_icon)
-				local r = task:get_objective(0):get_icon_rect()
-				self.task_icon:SetOriginalRect(r.x1, r.y1, r.x2, r.y2)
-			end
-		end
+			-- local task_icon = task:get_objective(0):get_icon_name()
+			-- self.task_icon:Show(task_icon)
+			-- --log3("~task_icon %s", task_icon)
+			-- if self.task_icon:IsShown() then
+				-- self.task_icon:InitTexture(task_icon)
+				-- local r = task:get_objective(0):get_icon_rect()
+				-- self.task_icon:SetOriginalRect(r.x1, r.y1, r.x2, r.y2)
+			-- end
+		-- end
 	end
 	
 	if game_action == key_bindings.kQUICK_ADDON then
@@ -1152,9 +1157,38 @@ end
 
 function MainIngameOverlay:OnKeyRelease(key, game_action)
 	if game_action == key_bindings.kSCORES or key == DIK_keys.DIK_ESCAPE then
+		-- if self.active_task:IsShown() then
+			-- self.active_task:Show(false)
+		-- end
+		self:ShowActiveTask(false)
+	end
+end
+
+function MainIngameOverlay:ShowActiveTask(b_show)
+	if b_show then
+		local task = actor:get_active_task()
+		self.active_task:Show(task)
+		if self.active_task:IsShown() then
+			local text = game.translate_string(task:get_title() or "NO_TASK_TITLE")
+			self.task_header:SetText(text)
+		
+			local objective = actor:get_active_objective()
+			text = string.format("%s %s", game.translate_string("st_list_mark"), game.translate_string(objective:get_description() or "NO_OBJECTIVE_DESCRIPTION"))
+			self.objective_header:SetText(text)
+		
+			local task_icon = task:get_objective(0):get_icon_name()
+			self.task_icon:Show(task_icon)
+			--log3("~task_icon %s", task_icon)
+			if self.task_icon:IsShown() then
+				self.task_icon:InitTexture(task_icon)
+				local r = task:get_objective(0):get_icon_rect()
+				self.task_icon:SetOriginalRect(r.x1, r.y1, r.x2, r.y2)
+			end
+		end		
+	else
 		if self.active_task:IsShown() then
 			self.active_task:Show(false)
-		end
+		end		
 	end
 end
 

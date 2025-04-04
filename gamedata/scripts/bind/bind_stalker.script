@@ -294,7 +294,9 @@ function actor_binder:task_callback(_task, _objective, _state)
 		else
 			news_manager.send_task(db.actor, "new", _task, _objective)
 			--при отриманні нової таски робимо активним першу підзадачу і на неї ставим таргет на мапі
-			actor:set_task_selected(_task, 1, true)
+			if get_script_option_value("select_new_task") then
+				actor:set_task_selected(_task, 1, true)
+			end
 		end
 	else
 		if _task:get_objective(0):get_state() == task.in_progress then

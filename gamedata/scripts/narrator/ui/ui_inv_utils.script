@@ -611,7 +611,7 @@ local green = GetARGB(175, 0, 255, 0)
 local red = GetARGB(175, 255, 0, 0)
 local orange = GetARGB(175, 238, 153, 26)
 function UpdatePdaLockIcon(item, icon)
-	if not is_pda_hackable(item) then
+	if not item or not is_pda_hackable(item) then
 	return end
 	
 	local sect = item:section()
@@ -625,7 +625,8 @@ function UpdatePdaLockIcon(item, icon)
 	
 	local heading = icon:GetCUIStatic():GetHeading()
 	
-	local lock_state = alife():object(item:id()).lock_state
+	local se_obj = alife():object(item:id())
+	local lock_state = se_obj and se_obj.lock_state or nil
 	local icon_color = green
 	if lock_state == 1 then
 		icon_color = orange
