@@ -1,6 +1,6 @@
 local comm_icons_news = {
 	default 		= "icon_stranger_framed",
-	stalker			= "icon_stranger_framed",
+	stalker			= "icon_stalker_framed",
 	monolith		= "icon_monolith_framed",
 	military		= "icon_military_framed",
 	killer			= "icon_killer_framed",
@@ -69,7 +69,8 @@ function get_icon_sect(comm)
 end
 
 function get_news_icon(comm)
-	return comm_news_icons[comm] or comm_news_icons["default"]
+	--return comm_news_icons[comm] or comm_news_icons["default"]
+	return comm_icons_news[comm] or comm_icons_news["default"]
 end
 
 function non_ranked(comm)

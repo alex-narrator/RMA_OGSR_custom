@@ -5,23 +5,25 @@ function attach(sm)
 end
 
 local CHECK_RADIUS = 50
+local GOODWILL_DOWN = -100
 
 --//ком'юніті яким байдуже на обшук тіл товаришів
 local disabled_comms = {
 	--stalker = true,
-	bandit = true,
+	["bandit"] = true,
+	["zombied"] = true,
 }
 
 function is_enemy_comm(target_comm)
 	return relation_registry.community_goodwill(target_comm, actor:id()) < -500 
 end
 
-function get_nearest_comm_member(npc)
-	local result = nil
+function get_nearest_comm_members(npc)
+	local result = {}
 	local target_comm = npc:character_community()
 	function perform_action(obj)
 		if obj:is_stalker() and obj:alive() and obj:character_community() == target_comm then
-			result = obj
+			table.insert(result, obj)
 		end
 	end
 	level.iterate_nearest(npc:position(), CHECK_RADIUS, perform_action)
@@ -33,8 +35,16 @@ function on_npc_use(npc)
 	local target_comm = npc:character_community()
 	if is_enemy_comm(target_comm) or actor:character_community() == target_comm then return end
 	if disabled_comms[target_comm] then return end
-	local nearest_comm_member = get_nearest_comm_member(npc)
-	if nearest_comm_member and nearest_comm_member:see(actor) then
-		log3("~community member %s see actor searching corpse of %s", nearest_comm_member:character_name(), npc:character_name())
+	local nearest_comm_members = get_nearest_comm_members(npc)
+	
+	for k, nearest_comm_member in pairs(nearest_comm_members) do
+		if nearest_comm_member:see(actor) and nearest_comm_member:relation(actor) ~= game_object.enemy then
+			--log3("~community member %s see actor searching corpse of %s", nearest_comm_member:character_name(), npc:character_name())
+			local header = string.format("%s [%s]", nearest_comm_member:character_name(), game.translate_string(target_comm))
+			local text = string.format("%s\\n%s: %s%+.0f", game.translate_string("st_"..target_comm.."_deadbody_use_relation_tip"), game.translate_string("st_community_goodwill"), "%c[red]" ,GOODWILL_DOWN)
+			news_manager.custom_news(header, text, community.get_news_icon(target_comm))
+			
+			relation_registry.change_community_goodwill(target_comm, actor:id(), GOODWILL_DOWN)
+		end	
 	end
 end

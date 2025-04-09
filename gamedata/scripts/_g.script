@@ -1429,6 +1429,12 @@ function on_actor_weapon_jammed()
 end
 
 function on_actor_knife_condition()
+	if has_alife_info("esc_trader_newbie") then
+		game.start_tutorial("knife_condition_tutorial")
+	end
+	if not has_alife_info("encyclopedy_tutorial_knife") then
+		db.actor:give_info_portion("encyclopedy_tutorial_knife")
+	end
 end
 
 --' не может ходить изза веса

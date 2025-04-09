@@ -551,6 +551,15 @@ function add_disassemble(pbox, cell_item)
 	pbox:SetItemColorFocused(idx, "red")
 end
 
+function add_repair(pbox, item)
+	local name, precondition, action
+	name = "st_repair"
+	precondition = ui_repair.can_repair
+	action = ui_repair.create_overlay
+	local idx = pbox:AddItem(name, precondition, action, item)
+	pbox:SetItemColorFocused(idx, "UI_orange")
+end
+
 function add_saw_off(pbox, item)
 	local name, precondition, action
 	name = "st_saw_off"

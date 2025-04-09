@@ -1,40 +1,85 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <w>
-	<!-- repair talk window -->
-	<repair_back x="218" y="42" width="600" height="680" stretch="1">
-		<text x="0" y="0" font="graffiti22" r="238" g="153" b="26" align="c" v_align="c">ui_inv_repair_header</text>
-		<texture a="175">ui_inv_back_gray</texture>
-		
-		<auto_static x="0" y="460" width="600" height="58" stretch="1">
+	<repair_back x="0" y="0" width="440" height="325" stretch="1" list_item_icon_scale="0.75">
+		<!-- <text x="0" y="0" font="graffiti32" r="238" g="153" b="26" align="c" v_align="t">ui_inv_repair_header</text> -->
+		<!-- <texture>ui_repair_0</texture> -->
+		<texture>ui_inv_back_black</texture>
+
+		<auto_static x="0" y="0" width="440" height="22" stretch="1">
 			<texture a="175">ui_inv_back_gray</texture>
+			<text font="graffiti32" r="238" g="153" b="26" align="c" v_align="t">ui_inv_repair_header</text>
 		</auto_static>
 		
-		<auto_static x="200" y="485" width="170" height="120" stretch="1">
-			<texture a="175">slot_2_1_back</texture>
+		<auto_static x="120" y="40" width="200" height="155" stretch="1">
+			<texture a="175">ui_inv_back_gray</texture>
+			<text font="graffiti22" r="238" g="153" b="26" align="c" v_align="t">ui_item_to_repair</text>
 		</auto_static>
 		
-		<repair_items x="10" y="50" width="580" height="400" cell_width = "22" cell_height="30" rows_num="13" cols_num="26" always_show_scroll="0" group_by_type="1" ID="repair_items"/>		
+		<auto_static x="10" y="40" width="100" height="75" stretch="1">
+			<texture a="175">ui_inv_back_gray</texture>
+			<text font="graffiti19" r="238" g="153" b="26" align="c" v_align="t">ui_selected_to_disassemble</text>
+		</auto_static>
+		<auto_static x="330" y="40" width="100" height="75" stretch="1">
+			<texture a="175">ui_inv_back_gray</texture>
+			<text font="graffiti19" r="238" g="153" b="26" align="c" v_align="t">ui_selected_tool</text>
+		</auto_static>		
 		
-		<repair_cost x="200" y="610" width="170" height="20" stretch="1">
-			<text font="graffiti19" color="UI_orange" complex_mode="1" align="c" v_align="c"/>
-		</repair_cost>		
+		<auto_static x="10" y="125" width="100" height="150" stretch="1">
+			<texture a="175">ui_inv_back_gray</texture>
+			<text font="graffiti22" r="238" g="153" b="26" align="c" v_align="t">ui_items_to_disassemble</text>
+		</auto_static>
 		
-		<selected_item_back x="210" y="495" width="150" height="100" stretch="1">
-			<!-- <texture a="175">slot_2_1_back</texture> -->
-			<text x="0" y="-30" font="graffiti19" color="UI_orange" complex_mode="1" align="c"/>
-		</selected_item_back>
+		<auto_static x="330" y="125" width="100" height="150" stretch="1">
+			<texture a="175">ui_inv_back_gray</texture>
+			<text font="graffiti22" r="238" g="153" b="26" align="c" v_align="t">ui_repair_tools</text>
+		</auto_static>
 		
-		<actor_money x="5" y="10" width="100" height="20" stretch="1">
-			<text font="graffiti19" color="UI_orange" complex_mode="1" align="r"/>
-		</actor_money>
+		<auto_static x="120" y="240" width="12" height="16" stretch="1">
+			<texture a="175">ui_frame_error_sign_info</texture>
+		</auto_static>		
 		
-		<repair_button x="180" y="645" width="110" height="30" stretch="1" hR="255" hB="83" hG="179" highlight_text="1" accel="kR">
-			<texture>ui_button_ordinary</texture>
+		<auto_static x="120" y="240" width="200" height="70" stretch="1" complex_mode="1">
+			<!-- <texture a="175">ui_inv_back_gray</texture> -->
+			<text font="arial_14" r="238" g="153" b="26" align="r" v_align="t">ui_repair_tip</text>
+		</auto_static>		
+		
+		<repair_item x="120" y="55" width="200" height="140" stretch="1">
+			<!-- <texture a="175">ui_inv_back_gray</texture> -->
+			<text font="graffiti19" r="238" g="153" b="26" align="r" v_align="b"></text>
+		</repair_item>
+		
+		<selected_donor x="10" y="55" width="100" height="60" stretch="1">
+			<!-- <texture a="175">ui_inv_back_gray</texture> -->
+			<text font="graffiti19" r="238" g="153" b="26" align="r" v_align="b"></text>
+		</selected_donor>
+		<selected_tool x="330" y="55" width="100" height="60" stretch="1">
+			<!-- <texture a="175">ui_inv_back_gray</texture> -->
+			<text font="graffiti19" r="238" g="153" b="26" align="r" v_align="b"></text>
+		</selected_tool>
+		
+		<repair_donors x="10" y="140" width="116" height="135" always_show_scroll="0" left_ident="16" vert_interval="0"/>
+		<repair_tools x="330" y="140" width="116" height="135" always_show_scroll="0" left_ident="16" vert_interval="0"/>
+		
+		<repair_progress x="120" y="205" width="200" height="10" horz="1" min="0" max="1">
+			<min_color r="255" g="0" b="0"/>
+			<middle_color r="255" g="255" b="0"/>
+			<max_color r="0" g="255" b="0"/>
+			<progress>
+				<!-- <texture a="255" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_alfa_line_16</texture> -->
+				<texture a="255" r="255" g="255" b="255">inv_progress_long</texture>
+			</progress>
+			<background>
+				<texture a="100" r="255" g="255" b="255">inv_progress_long</texture>
+			</background>      
+		</repair_progress>		
+		
+		<repair_button x="250" y="285" width="90" height="30" stretch="1" hR="255" hB="83" hG="179" highlight_text="1" accel="kR">
+			<texture>ui_inGame2_big_inventory_button</texture>
 			<text font="graffiti22" r="238" g="153" b="26" align="c" v_align="c">ui_inv_repair</text>
 		</repair_button>
-		<exit_button x="295" y="645" width="90" height="30" stretch="1" hR="255" hB="83" hG="179" highlight_text="1" accel="kQ">
-			<texture>ui_button_ordinary</texture>
-			<text font="graffiti22" r="238" g="153" b="26" align="c" v_align="c">ui_st_leave</text>
+		<exit_button x="340" y="285" width="90" height="30" stretch="1" hR="255" hB="83" hG="179" highlight_text="1" accel="kESCAPE">
+			<texture>ui_inGame2_big_inventory_button</texture>
+			<text font="graffiti22" r="238" g="153" b="26" align="c" v_align="c">ui_inv_cancel</text>
 		</exit_button>		
 	</repair_back>
 </w>

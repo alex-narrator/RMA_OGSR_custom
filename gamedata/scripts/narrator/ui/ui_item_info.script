@@ -1121,13 +1121,17 @@ end
 
 -----------------------------------------------------REPAIR PARAMS-----------------------------------------------------------------------------------------------------------
 local repair_params = {
-		{name = "service_type", 			unit = "", default = "", _type = "r_string"},
-		{name = "condition_threshold", 		unit = "%", default = 0, _type = "r_float"},
-		{name = "repair_condition_gain", 	unit = "%", default = 0, _type = "r_float"},
+		--//service
+		{name = "service_type", 			prefix="", unit = "", default = "", _type = "r_string"},
+		{name = "service_cond_threshold", 		prefix="", unit = "%", default = 0, _type = "r_float"},
+		{name = "service_condition_gain", 	prefix="", unit = "%", default = 0, _type = "r_float"},
+		--//repair
+		{name = "repair_type", 				prefix="", unit = "", default = "", _type = "r_string"},
+		{name = "repair_bonus", 			prefix="x", unit = "", default = 0, _type = "r_float"},
 	}
 function attach_repair_params(UIDesc, item)
 	local sect = item:section()
-	if read_if_exists(sys_ini, "r_float", sect, "repair_condition_gain", 0) <= 0 then
+	if read_if_exists(sys_ini, "r_float", sect, "service_condition_gain", 0) <= 0 and read_if_exists(sys_ini, "r_float", sect, "repair_bonus", 0) <= 0 then
 	return end
 	
 	local xml = CScriptXmlInit()
@@ -1137,12 +1141,15 @@ function attach_repair_params(UIDesc, item)
 	for k,v in ipairs(repair_params) do
 		local val = read_if_exists(sys_ini, v._type, sect, v.name, v.default)
 		if val ~= v.default then
-			val = v._type == "r_string" and game.translate_string("st_repair_"..val) or math.round(val, 2) * 100
+			val = v._type == "r_string" and game.translate_string("st_repair_"..val) or math.round(val, 2)
+			if v.unit == "%" then
+				val = val * 100
+			end
 			v.static = CUIStatic()
 			v.static:SetTextComplexMode(true)
 			v.static:SetWidth(params_list:GetDesiredChildWidth())
 			local color = "%c[UI_orange]"
-			local text = string.format("%s %s: %s%s%s", game.translate_string("st_list_mark"), game.translate_string("st_"..v.name), color, val, v.unit)
+			local text = string.format("%s %s: %s%s%s%s", game.translate_string("st_list_mark"), game.translate_string("st_"..v.name), color, v.prefix, val, v.unit)
 			v.static:SetText(text)
 			v.static:AdjustHeightToText()
 			params_list:AddWindow(v.static)

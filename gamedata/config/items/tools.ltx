@@ -18,6 +18,143 @@ inv_grid_x         		= 23
 inv_grid_y         		= 33
 icon_group 				= equip
 
+;;інструменти для обслуговування
+
+[sharpener]:tool_base
+visual 					= dynamics\repair\sharpening_stones
+inv_name				= st_sharpener_name
+inv_name_short			= st_sharpener_name
+description				= st_sharpener_descr
+
+inv_weight				= 0.1
+
+inv_grid_x         		= 0
+inv_grid_y         		= 7
+
+cost					= 50
+
+service_type 			= knife
+service_cond_threshold 	= 0.8
+service_condition_gain 	= 0.1
+use_count 				= 50
+use_sound 				= interface\item_usage\inv_repair_brushes
+
+[ballistol]:tool_base
+visual 					= dynamics\repair\gun_oil
+inv_name				= st_ballistol_name
+inv_name_short			= st_ballistol_name
+description				= st_ballistol_descr
+
+inv_weight				= 0.2
+
+inv_grid_x         		= 1
+inv_grid_y         		= 7
+
+cost					= 100
+
+service_type 			= weapon
+service_cond_threshold 	= 0.9
+service_condition_gain 	= 0.05
+use_count 				= 20
+use_sound 				= interface\item_usage\inv_repair_spray_oil
+
+[needle_thread]:tool_base
+visual 					= dynamics\repair\steel_wool
+inv_name				= st_needle_thread_name
+inv_name_short			= st_needle_thread_name
+description				= st_needle_thread_descr
+
+inv_weight				= 0.01
+
+inv_grid_x         		= 8
+inv_grid_y         		= 5
+
+cost					= 100
+
+service_type 			= outfit
+service_cond_threshold 	= 0.9
+service_condition_gain 	= 0.05
+use_count 				= 20
+use_sound 				= interface\item_usage\inv_repair_sewing_kit_fast
+
+[tape]:tool_base
+visual 					= dynamics\repair\armor_repair_fa
+inv_name				= st_tape_name
+inv_name_short			= st_tape_name
+description				= st_tape_descr
+
+inv_weight				= 0.01
+
+inv_grid_x         		= 3
+inv_grid_y         		= 8
+
+cost					= 100
+
+service_type 			= helmet
+service_cond_threshold 	= 0.9
+service_condition_gain 	= 0.05
+use_count 				= 20
+use_sound 				= interface\item_usage\inv_repair_sewing_kit_fast
+
+[service_kit_weapon]:tool_base
+visual 					= dynamics\repair\cleaning_kit_r7
+inv_name				= st_service_kit_weapon_name
+inv_name_short			= st_service_kit_weapon_name
+description				= st_service_kit_weapon_descr
+
+inv_weight				= .1
+
+inv_grid_x         		= 8
+inv_grid_y         		= 7
+
+cost					= 500
+
+service_type 			= weapon
+service_cond_threshold 	= 0.7
+service_condition_gain 	= 0.15
+use_count 				= 10
+use_sound 				= interface\item_usage\inv_repair_brushes
+
+[service_kit_outfit]:tool_base
+visual 					= dynamics\repair\sewing_kit_a
+inv_name				= st_service_kit_outfit_name
+inv_name_short			= st_service_kit_outfit_name
+description				= st_service_kit_outfit_descr
+
+inv_weight				= .1
+
+inv_grid_x         		= 5
+inv_grid_y         		= 8
+
+cost					= 500
+
+service_type 			= outfit
+service_cond_threshold 	= 0.7
+service_condition_gain 	= 0.15
+use_count 				= 10
+use_sound 				= interface\item_usage\inv_repair_sewing_kit
+
+[service_kit_helmet]:tool_base
+visual 					= dynamics\repair\sewing_kit_h
+inv_name				= st_service_kit_helmet_name
+inv_name_short			= st_service_kit_helmet_name
+description				= st_service_kit_helmet_descr
+
+inv_weight				= .1
+
+inv_grid_x         		= 6
+inv_grid_y         		= 8
+
+cost					= 500
+
+service_type 			= helmet
+service_cond_threshold 	= 0.7
+service_condition_gain 	= 0.15
+use_count 				= 10
+use_sound 				= interface\item_usage\inv_repair_sewing_kit
+
+;;інструменти для ремонту
+
 [multitool]:tool_base
 visual 					= dynamics\workshop_room\awr_leatherman
 inv_name				= st_multitool_name
@@ -33,89 +170,58 @@ inv_grid_x         		= 3
 inv_grid_y         		= 3
 use_count 				= 50
 
-[sharpener]:tool_base
-visual 					= dynamics\repair\sharpening_stones
-inv_name				= st_sharpener_name
-inv_name_short			= st_sharpener_name
-description				= st_sharpener_descr
-inv_weight				= 0.1
-inv_grid_x         		= 0
-inv_grid_y         		= 7
-
-cost					= 50
-
-service_type 			= knife
-condition_threshold 	= 0.8
-repair_condition_gain 	= 0.1
-use_count 				= 50
-use_sound 				= interface\item_usage\inv_repair_brushes
-
-[ballistol]:tool_base
-visual 					= dynamics\repair\gun_oil
-inv_name				= st_ballistol_name
-inv_name_short			= st_ballistol_name
-description				= st_ballistol_descr
-inv_weight				= 0.2
-inv_grid_x         		= 1
-inv_grid_y         		= 7
-
-cost					= 100
-
-service_type 			= weapon
-condition_threshold 	= 0.9
-repair_condition_gain 	= 0.05
-use_count 				= 20
-use_sound 				= interface\item_usage\inv_repair_spray_oil
-
-[needle_thread]:tool_base
-visual 					= dynamics\repair\steel_wool
-inv_name				= st_needle_thread_name
-inv_name_short			= st_needle_thread_name
-description				= st_needle_thread_descr
-inv_weight				= 0.01
-inv_grid_x         		= 8
-inv_grid_y         		= 5
-
-cost					= 100
-
-service_type 			= outfit
-condition_threshold 	= 0.9
-repair_condition_gain 	= 0.05
-use_count 				= 20
-use_sound 				= interface\item_usage\inv_repair_sewing_kit_fast
+repair_bonus 			= 1.5
 
 [repair_kit_weapon]:tool_base
-visual 					= dynamics\repair\ramrod_tool
+visual 					= dynamics\repair\armor_repair_pro
 inv_name				= st_repair_kit_weapon_name
 inv_name_short			= st_repair_kit_weapon_name
 description				= st_repair_kit_weapon_descr
+
 inv_weight				= 1
-inv_grid_height    		= 2
-inv_grid_x         		= 1
-inv_grid_y         		= 4
 
-cost					= 500
+cost					= 1500
 
-service_type 			= weapon
-condition_threshold 	= 0.7
-repair_condition_gain 	= 0.15
-use_count 				= 10
-use_sound 				= interface\item_usage\inv_repair_brushes
+inv_grid_width     		= 2
+inv_grid_x         		= 8
+inv_grid_y         		= 3
+use_count 				= 50
+
+repair_type 			= weapon
+repair_bonus 			= 2
 
 [repair_kit_outfit]:tool_base
-visual 					= dynamics\repair\sewing_kit_a
+visual 					= dynamics\repair\helmet_repair
 inv_name				= st_repair_kit_outfit_name
 inv_name_short			= st_repair_kit_outfit_name
 description				= st_repair_kit_outfit_descr
+
 inv_weight				= 1
-inv_grid_height    		= 2
-inv_grid_x         		= 4
+
+cost					= 1500
+
+inv_grid_width     		= 2
+inv_grid_x         		= 8
 inv_grid_y         		= 4
+use_count 				= 50
 
-cost					= 500
+repair_type 			= outfit
+repair_bonus 			= 2
 
-service_type 			= outfit
-condition_threshold 	= 0.7
-repair_condition_gain 	= 0.15
-use_count 				= 10
-use_sound 				= interface\item_usage\inv_repair_sewing_kit
+[repair_kit_helmet]:tool_base
+visual 					= dynamics\repair\helmet_repair
+inv_name				= st_repair_kit_helmet_name
+inv_name_short			= st_repair_kit_helmet_name
+description				= st_repair_kit_helmet_descr
+
+inv_weight				= 1
+
+cost					= 1500
+
+inv_grid_width     		= 2
+inv_grid_x         		= 10
+inv_grid_y         		= 3
+use_count 				= 50
+
+repair_type 			= helmet
+repair_bonus 			= 2

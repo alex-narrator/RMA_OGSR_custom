@@ -95,7 +95,9 @@ function UICellItemContainer:InitControls()
 	self.group_similar = self.xml:ReadAttribInt(self.path, "group_similar", 0) > 0 and true or false
 	self.vertical = self.xml:ReadAttribInt(self.path, "vertical", 0) > 0 and true or false
 	self.centered = self.xml:ReadAttribInt(self.path, "centered", 0) > 0 and true or false
-	self.ID = self.xml:ReadAttribInt(self.path, "ID", "")
+	self.drag_enabled = self.xml:ReadAttribInt(self.path, "drag_enabled", 1) > 0 and true or false
+	self.dbclick_enabled = self.xml:ReadAttribInt(self.path, "dbclick_enabled", 1) > 0 and true or false
+	self.ID = self.xml:ReadAttrib(self.path, "ID", "")
 	
 	self.cell_size = {}
 	self.cell_size.w = self.xml:ReadAttribInt(self.path, "cell_width", 30)
@@ -455,4 +457,12 @@ end
 
 function UICellItemContainer:IsCentered()
 	return self.centered
+end
+
+function UICellItemContainer:IsDragEnabled()
+	return self.drag_enabled
+end
+
+function UICellItemContainer:IsDbclickEnabled()
+	return self.dbclick_enabled
 end

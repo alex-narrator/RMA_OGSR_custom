@@ -70,6 +70,7 @@ function send_tip(victim, killer)
 	
 	local rnd = math.random(1, 3)
 	local icon = community.get_news_icon(victim:character_community())
-	actor:give_game_news(news_text, "ui\\ui_iconstotal", Frect():set(icon.x,icon.y,83,47), rnd * 1000, ttl * 1000)
+	local icon_texture, icon_rect = get_texture_info(icon)
+	actor:give_game_news(news_text, icon_texture, icon_rect, rnd * 1000, ttl * 1000)
 	xr_sound.get_safe_sound_object([[device\pda\pda_tip]]):play(actor, rnd, sound_object.s2d)
 end

@@ -75,6 +75,9 @@ function play()
 						local rq = level.get_current_ray_query()
 						local bone_id = rq and rq.element or 0
 						actor:ph_capture_object(tgt, bone_id)
+						if tgt:is_stalker() then
+							deadbody_use_relation.on_npc_use(tgt)
+						end
 					end
 				else
 					if not tgt:get_container() then --//без цього інвентарний контейнер буде одразу підібраний у інвентар

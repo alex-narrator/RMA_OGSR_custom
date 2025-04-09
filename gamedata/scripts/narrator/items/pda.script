@@ -83,11 +83,11 @@ function verify_password(item, input_password)
 	local text
 	
 	if input_password == password then
-		log3("~password correct")
+		--log3("~password correct")
 		news_manager.custom_news(string.format("%s %s [%s]", game.translate_string("st_device_pda_name"), od.name, game.translate_string(ranks.get_val_rank_name(od.rank))), game.translate_string("st_device_password_accepted"), "ui_pda_dark_back")
 		download_info(item)
 	elseif can_try_hack(item) then
-		log3("~password incorrect")
+		--log3("~password incorrect")
 		try_hack(item)
 	else
 		se_obj.lock_state = 2

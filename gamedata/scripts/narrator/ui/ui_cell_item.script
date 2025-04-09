@@ -58,6 +58,9 @@ end
 function UICellItem:InitControls(cell_pos)
 	local params = CIconParams(self.item:section())	
 	
+	self.drag_enabled = self.owner_list:IsDragEnabled()
+	self.dbclick_enabled = self.owner_list:IsDbclickEnabled()
+	
 	local vertical = self.owner_list:IsVertical()
 	local centered = self.owner_list:IsCentered()
 	
@@ -169,7 +172,7 @@ function UICellItem:OnRButtonDown()
 end
 
 function UICellItem:OnDBClick()
-	if not self.interactive then
+	if not self.interactive or not self.dbclick_enabled then
 	return end
 	
 	local item = self:GetAnyItem()
@@ -309,7 +312,7 @@ function UICellItem:ForceUpdate()
 end
 
 function UICellItem:OnMouseMove()
-	if self.l_button_down and not self.start_drag then
+	if self.l_button_down and not self.start_drag and self.drag_enabled then
 		self.start_drag = true
 		self.sm:call("on_cell_item_start_drag", self)
 	end

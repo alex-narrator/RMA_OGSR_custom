@@ -45,16 +45,17 @@ function on_from_slot(item, prev_place)
 end
 
 function on_key_press(key, game_action)
-	if game_action ~= key_bindings.kINVENTORY or
+	if level.main_input_receiver() or
+		game_action ~= key_bindings.kINVENTORY or
 		_G.SCRIPT_ANIM_PLAYING or
 		ANIM_PLAYING
 	then return end
 	
-	if level.main_input_receiver() then
-		if actor_menu:IsShown() then
-			ui_actor_menu.ShowHideMenu()
-		end
-	return end
+	-- if level.main_input_receiver() then
+		-- if actor_menu:IsShown() then
+			-- ui_actor_menu.ShowHideMenu()
+		-- end
+	-- return end
 	
 	actor:hide_crosshair(true)
 	

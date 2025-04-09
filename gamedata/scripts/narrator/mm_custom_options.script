@@ -58,7 +58,7 @@ function init_options()
 		end
 		file:close()
 	else
-		log3("- loading custom options config file [%s]", CFG_NAME)
+		log3("--loading custom options config file [%s]", CFG_NAME)
 		local file = io.open(getFS():update_path("$game_config$", CFG_NAME), "w")
 		local text = string.format("[%s]\n", CFG_SECT)
 		file:write(text)

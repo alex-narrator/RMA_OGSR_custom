@@ -1643,6 +1643,11 @@ function ActorMenuOverlay:OnKeyboard(dik, keyboard_action)
 					end
 				end
 			end
+		elseif game_action == key_bindings.kINVENTORY then
+			if mode == "inventory" then
+				self:Exit()
+				return true
+			end			
 		elseif quick_action[game_action] then
 			if self.cell_item_selected then
 				local item = self.cell_item_selected:GetAnyItem()
@@ -1661,6 +1666,14 @@ function ActorMenuOverlay:OnKeyboard(dik, keyboard_action)
 					return true
 				end
 			end
+		elseif dik == DIK_keys.DIK_R then
+			if self.cell_item_selected then
+				local item = self.cell_item_selected:GetAnyItem()
+				if ui_repair.can_repair(item) then
+					ui_repair.create_overlay(item)
+					return true
+				end
+			end			
 		end
 	end
 	return self.key_accels[dik]
@@ -1727,6 +1740,8 @@ function ActorMenuOverlay:ShowPropertiesBox(item, cell_item)
 	ui_cell_item_utils.add_move_to_trade(pbox, cell_item)
 	--//donate
 	ui_cell_item_utils.add_donate(pbox, cell_item)
+	--//donate
+	ui_cell_item_utils.add_repair(pbox, item)	
 	--//saw off
 	ui_cell_item_utils.add_saw_off(pbox, item)
 	--//disassemble
@@ -1885,6 +1900,9 @@ function ActorMenuOverlay:UpdateInvTip(cell_item)
 		end
 		if pda.can_try_hack(item) then
 			text = text.."\\n"..game.translate_string("st_tip_hack_pda")
+		end
+		if ui_repair.can_repair(item) then
+			text = text.."\\n"..game.translate_string("st_tip_repair")
 		end
 	end
 	self.selected_item_tip:SetText(text)
