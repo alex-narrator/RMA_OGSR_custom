@@ -170,13 +170,65 @@ function UpdateWpnIcons(item, icon)
 	for k,v in ipairs(addon_name) do
 		i = k-1
 		if wpn:addon_attachable(i) then
-			
 			if not wpn:is_addon_attached(i) then
 				local static = icon:FindChild(v)
 				if static then
 					icon:DetachChild(static)
 				end
+				
+				--//no_addon icons
+				local no_addon_sect = read_if_exists(sys_ini, "r_string", sect, "no_"..v, nil)
+				if no_addon_sect then
+					offset = get_addon_offset(k, "no_"..v, sect)
+					params = CIconParams(no_addon_sect)
+					addon_st = icon:FindChild("no_"..v)
+					if addon_st then
+						addon_st = addon_st:GetCUIStatic()
+					else
+						addon_st = CUIStatic()
+						params:set_shader(addon_st)
+						addon_st:SetWindowName("no_"..v)
+						icon:AttachChild(addon_st)
+					end
+
+					addon_st:EnableHeading(rotate)
+				
+					if rotate then
+						cell_w = icon:GetHeight() / wpn_params.grid_width
+						cell_h = icon:GetWidth() / wpn_params.grid_height
+						width = params.grid_height * cell_w
+						height = params.grid_width * cell_h
+						addon_st:SetWidth(width)
+						addon_st:SetHeight(height)
+						if heading > 0 then
+							addon_st:SetWndPos(offset.y * (cell_w/CELL_W) * get_current_kx(), icon:GetHeight() - height - offset.x * (cell_h/CELL_H))
+						else
+							addon_st:SetWndPos(icon:GetWidth() - width - offset.y * (cell_w/CELL_W) * get_current_kx(), offset.x * (cell_h/CELL_H))
+						end
+						addon_st:SetHeading(heading)
+						local pivot = vector2():set(cell_w * 0.5, cell_h * 0.5) --//обертаємо навколо центру лівої верхньої клітинки сітки
+						local offset = heading > 0 and vector2():set(0, height - cell_h) or vector2():set(width - cell_w, 0)
+						addon_st:SetHeadingPivot(pivot, offset, true)						
+					
+						--log3("~item %s | width %s | height %s | params.grid_width %s | params.grid_height %s | wpn_params.grid_width %s | wpn_params.grid_height %s", item:section(), width, height, params.grid_width, params.grid_height, wpn_params.grid_width, wpn_params.grid_height)
+					else
+						cell_w = icon:GetWidth() / wpn_params.grid_width
+						cell_h = icon:GetHeight() / wpn_params.grid_height
+						width = params.grid_width * cell_w
+						height = params.grid_height * cell_h
+						addon_st:SetWidth(width)
+						addon_st:SetHeight(height)
+						addon_st:SetWndPos(offset.x * (cell_w/CELL_W), offset.y * (cell_h/CELL_H))
+					end
+				end
+				
 			else
+				
+				local static = icon:FindChild("no_"..v)
+				if static then
+					icon:DetachChild(static)
+				end
+				
 				local addon_sect = wpn:get_addon_name(i)
 				icon_sect = read_if_exists(sys_ini, "r_string", addon_sect, sect.."_icon_sect", read_if_exists(sys_ini, "r_string", addon_sect, "addon_icon_sect", v ~= "magazine" and addon_sect or nil))
 				offset = get_addon_offset(k, addon_sect, sect)
@@ -229,7 +281,6 @@ function UpdateWpnIcons(item, icon)
 	end
 	
 	if get_clsid(item) == clsid.wpn_rpg7_s and item:get_ammo_in_magazine() > 0 then
-	
 		if item:get_ammo_in_magazine() == 0 then
 			local static = icon:FindChild("grenade")
 			if static then
