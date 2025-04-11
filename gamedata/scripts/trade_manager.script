@@ -400,5 +400,5 @@ function get_trade_cost(item)
 end
 
 function tradable(item)
-	return get_trade_cost(item) > 0
+	return get_trade_cost(item) > 0 and read_if_exists(sys_ini, "r_bool", item:section(), "can_trade", true)
 end

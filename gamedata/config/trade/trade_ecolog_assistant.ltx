@@ -2,45 +2,45 @@
 /.*/ ;NO TRADE
 
 [trader]
-buy_condition 	= {+yan_kill_brain_done} assistant_generic_buy, no_trade
-sell_condition 	= assistant_generic_sell
-buy_supplies 	= assistant_generic_supplies
+buy_condition 			= {+yan_kill_brain_done} assistant_generic_buy, no_trade
+sell_condition 			= assistant_generic_sell
+buy_supplies 			= assistant_generic_supplies
 
 
-[assistant_generic_buy]:no_trade
-;Деталі
-part_pistol_9x18		= 1, 0.3
-part_pistol_9x19		= 1, 0.3
-part_pistol_45			= 1, 0.3
-part_smg_9x19			= 1, 0.3
-part_rifle_545			= 1, 0.3
-part_rifle_556			= 1, 0.3
-part_rifle_762			= 1, 0.3
-part_rifle_9x39			= 1, 0.3
-part_shotgun			= 1, 0.3
-part_shotgun_2barrel	= 1, 0.3
+[assistant_generic_buy]
+/^wpn_/ 				= 0.1, 0.1
+/_outfit$/ 				= 0.1, 0.1
+/^gasmask_/ 			= 0.1, 0.1
+/^helmet_/ 				= 0.1, 0.1
+/^device_/ 				= 0.1, 0.1
+/^detector_/ 			= 0.1, 0.1
 
-part_cloth				= 1, 0.3
-part_synt				= 1, 0.3
-part_ripstop			= 1, 0.3
-part_cordura			= 1, 0.3
-part_aramid 			= 1, 0.3
-part_rubber 			= 1, 0.3
+/.*/ 					;NO TRADE
 
-[assistant_generic_sell]:no_trade
+[assistant_generic_sell]
+;service
+sharpener 				= 0.75, 2.75
+ballistol 				= 0.75, 2.75
+needle_thread 			= 0.75, 2.75
+tape 					= 0.75, 2.75
+/^service_kit_/ 		= 0.75, 2.75
 ;tools
-multitool 				= 1, 3
-sharpener 				= 1, 3
-ballistol 				= 1, 3
-needle_thread 			= 1, 3
-service_kit_weapon 		= 1, 3
-service_kit_outfit 		= 1, 3
+multitool 				= 0.75, 2.75
+/^repair_kit_/ 			= 0.75, 2.75
+
+/.*/ 					;NO TRADE
 
 [assistant_generic_supplies]
-;tools
-multitool 				= 2, 0.8
-sharpener 				= 3, 0.8
+;service
+sharpener 				= 4, 0.8
 ballistol 				= 4, 0.8
 needle_thread 			= 4, 0.8
-service_kit_weapon 		= 4, 0.6
-service_kit_outfit 		= 4, 0.6
+tape 					= 4, 0.8
+service_kit_weapon 		= 3, 0.6
+service_kit_outfit 		= 3, 0.6
+service_kit_helmet 		= 3, 0.6
+;tools
+multitool 				= 4, 0.8
+repair_kit_weapon 		= 2, 0.8
+repair_kit_outfit 		= 2, 0.8
+repair_kit_helmet 		= 2, 0.8
