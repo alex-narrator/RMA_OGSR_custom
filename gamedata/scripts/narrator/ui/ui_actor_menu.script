@@ -1242,17 +1242,17 @@ end
 
 function ActorMenuOverlay:PerformTrade()
 	local money_give = self.money_from_actor
-	money_take = self.money_to_actor
+	local money_take = self.money_to_actor
 
 	if money_give == 0 and money_take == 0 then
 	return end
 	
-	if money_give > actor:money() then
+	if money_give > actor:money() + money_take then
 		local text = string.format("%s - %s", game.translate_string(actor:character_name()), game.translate_string("st_not_enough_money_to_trade"))
 		self.sell_buy_back:SetText(text)
 	return end
 	
-	if money_take > self.target:money() then
+	if money_take > self.target:money() + money_give then
 		local text = string.format("%s - %s", game.translate_string(self.target:character_name()), game.translate_string("st_not_enough_money_to_trade"))
 		self.sell_buy_back:SetText(text)
 	return end	
@@ -1274,14 +1274,34 @@ function ActorMenuOverlay:PerformTrade()
 		end		
 	end
 	
-	if money_give > 0 then
-		trade_operation(self.buy_list, money_give, self.target, actor)
-		game_stats.money_trade_update(-money_give) --//воно не треба насправді але нехай поки буде
+	-- if money_give > 0 then
+		-- trade_operation(self.buy_list, money_give, self.target, actor)
+		-- game_stats.money_trade_update(-money_give) --//воно не треба насправді але нехай поки буде
+	-- end
+	-- if money_take > 0 then
+		-- trade_operation(self.sell_list, money_take, actor, self.target)
+		-- game_stats.money_trade_update(money_take) --//воно не треба насправді але нехай поки буде
+	-- end
+	
+	if actor:money() < money_give then
+		if money_take > 0 then
+			trade_operation(self.sell_list, money_take, actor, self.target)
+			game_stats.money_trade_update(money_take) --//воно не треба насправді але нехай поки буде
+		end
+		if money_give > 0 then
+			trade_operation(self.buy_list, money_give, self.target, actor)
+			game_stats.money_trade_update(-money_give) --//воно не треба насправді але нехай поки буде
+		end		
+	else
+		if money_give > 0 then
+			trade_operation(self.buy_list, money_give, self.target, actor)
+			game_stats.money_trade_update(-money_give) --//воно не треба насправді але нехай поки буде
+		end
+		if money_take > 0 then
+			trade_operation(self.sell_list, money_take, actor, self.target)
+			game_stats.money_trade_update(money_take) --//воно не треба насправді але нехай поки буде
+		end		
 	end
-	if money_take > 0 then
-		trade_operation(self.sell_list, money_take, actor, self.target)
-		game_stats.money_trade_update(money_take) --//воно не треба насправді але нехай поки буде
-	end	
 
 	self.sm:call("on_perform_trade", self.target, money_give, money_take)
 	self:PlayActionSound("trade")
@@ -1821,8 +1841,6 @@ function ActorMenuOverlay:UpdatePrices()
 		text = "-"..text
 	end
 	self.buy_cost:SetText(text)
-	color = (total_price > actor:money()) and GetARGB(255, 255, 0, 0) or self.buy_cost.base_color
-	self.buy_cost:SetTextColor(color)
 	
 	total_price = 0
 	item = nil
@@ -1841,10 +1859,13 @@ function ActorMenuOverlay:UpdatePrices()
 		text = "+"..text
 	end	
 	self.sell_cost:SetText(text)
-	color = (total_price > self.target:money()) and GetARGB(255, 255, 0, 0) or self.sell_cost.base_color
+
+	color = (self.money_from_actor > actor:money() + self.money_to_actor) and GetARGB(255, 255, 0, 0) or self.buy_cost.base_color
+	self.buy_cost:SetTextColor(color)
+	color = (self.money_to_actor > self.target:money() + self.money_from_actor) and GetARGB(255, 255, 0, 0) or self.sell_cost.base_color
 	self.sell_cost:SetTextColor(color)
 	
-	self.trade_button:Enable((self.money_from_actor > 0 or self.money_to_actor > 0) and self.money_from_actor <= actor:money() and self.money_to_actor <= self.target:money())	
+	self.trade_button:Enable((self.money_from_actor > 0 or self.money_to_actor > 0) and self.money_from_actor <= actor:money() + self.money_to_actor and self.money_to_actor <= self.target:money() + self.money_from_actor)	
 	
 	self:PlayActionSound("to_ruck")
 end

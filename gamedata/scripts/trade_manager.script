@@ -358,7 +358,11 @@ function buy_supplies(npc)
 		local spawned = 0
 		for ii=1, count do
 			if math.random(0,1) <= prob then
-				sobj = spawn_to_owner(sect, npc_id)
+				if read_if_exists(sys_ini, "r_string", sect, "ammo_types", nil) then
+					sobj = spawn_ammo_to_owner(sect, npc_id, 0)
+				else
+					sobj = spawn_to_owner(sect, npc_id)
+				end
 				spawned = spawned + 1
 				sm:call("on_trade_purchase_item_process", npc, sobj)
 			end
@@ -400,5 +404,5 @@ function get_trade_cost(item)
 end
 
 function tradable(item)
-	return get_trade_cost(item) > 0 and read_if_exists(sys_ini, "r_bool", item:section(), "can_trade", true)
+	return get_trade_cost(item) > 0 and read_if_exists(sys_ini, "r_bool", item:section(), "can_trade", true) and not read_if_exists(sys_ini, "r_bool", item:section(), "quest_item", false)
 end

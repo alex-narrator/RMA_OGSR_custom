@@ -161,27 +161,27 @@ function RepairOverlay:InitItemsList()
 	function fill_list(dummy, item)
 		if item:id() ~= self.item:id() then
 			if self:IsDonor(item) then
-				table.insert(self.donors, {item = item, back = CUIStatic(), static = CUIStatic()})
+				table.insert(self.donors, {id = item:id(), back = CUIStatic(), static = CUIStatic()})
 			end
 			if self:IsRepairTool(item) then
-				table.insert(self.tools, {item = item, back = CUIStatic(), static = CUIStatic()})
+				table.insert(self.tools, {id = item:id(), back = CUIStatic(), static = CUIStatic()})
 			end
 		end
 	end
 	actor:iterate_inventory(fill_list, nil)
-	table.sort(self.donors, ui_inv_utils.sort_by_size_type)
-	table.sort(self.tools, ui_inv_utils.sort_by_size_type)
+	--table.sort(self.donors, ui_inv_utils.sort_by_size_type)
+	--table.sort(self.tools, ui_inv_utils.sort_by_size_type)
 	for k, v in pairs(self.donors) do
-		--self.repair_donors:AddItem(item)
-		self:AddListItem(v.item, v.back, v.static, self.repair_donors)
+		self:AddListItem(v.id, v.back, v.static, self.repair_donors)
 	end
 	for k, v in pairs(self.tools) do
-		--self.repair_tools:AddItem(item)
-		self:AddListItem(v.item, v.back, v.static, self.repair_tools)
+		self:AddListItem(v.id, v.back, v.static, self.repair_tools)
 	end	
 end
 
-function RepairOverlay:AddListItem(item, back, static, list)
+function RepairOverlay:AddListItem(id, back, static, list)
+	local item = level.object_by_id(id)
+	if not item then return end
 	local params = CIconParams(item:section())
 	params:set_shader(static)
 	local size = vector2():set(params.grid_width * CELL_W * get_current_kx(), params.grid_height * CELL_H)
@@ -202,16 +202,18 @@ function RepairOverlay:AddListItem(item, back, static, list)
 	back:AttachChild(static)
 	
 	list:AddWindow(back)
-	local name = "list_item_"..item:id()
+	local name = "list_item_"..id
 	self:Register(back, name)
-	self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnListItemClick(item) end, self)
-	self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnListItemFocus(item) end, self)
-	self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnListItemFocusLost(item) end, self)
+	self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnListItemClick(id) end, self)
+	self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnListItemFocus(id) end, self)
+	self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnListItemFocusLost(id) end, self)
 end
 
-function RepairOverlay:OnListItemClick(item)
+function RepairOverlay:OnListItemClick(id)
+	local item = level.object_by_id(id)
+	if not item then return end
 	for k, v in pairs(self.donors) do
-		if item:id() == v.item:id() then
+		if item:id() == v.id then
 			if self.donor_item and self.donor_item:id() == item:id() then
 				self.donor_item = nil
 				self.selected_donor:DetachAll()
@@ -220,7 +222,7 @@ function RepairOverlay:OnListItemClick(item)
 			else
 				if self.donor_item then
 					for k,v in pairs(self.donors) do
-						if self.donor_item:id() == v.item:id() then
+						if self.donor_item:id() == v.id then
 							v.back:SetColor(color_default)
 							break
 						end
@@ -234,7 +236,7 @@ function RepairOverlay:OnListItemClick(item)
 		end
 	end
 	for k, v in pairs(self.tools) do
-		if item:id() == v.item:id() then
+		if item:id() == v.id then
 			if self.tool_item and self.tool_item:id() == item:id() then
 				self.tool_item = nil
 				self.selected_tool:DetachAll()
@@ -243,7 +245,7 @@ function RepairOverlay:OnListItemClick(item)
 			else
 				if self.tool_item then
 					for k,v in pairs(self.tools) do
-						if self.tool_item:id() == v.item:id() then
+						if self.tool_item:id() == v.id then
 							v.back:SetColor(color_default)
 							break
 						end
@@ -259,9 +261,11 @@ function RepairOverlay:OnListItemClick(item)
 	self:UpdateRepairInfo()
 end
 
-function RepairOverlay:OnListItemFocus(item)
+function RepairOverlay:OnListItemFocus(id)
+	local item = level.object_by_id(id)
+	if not item then return end
 	for k, v in pairs(self.donors) do
-		if v.item:id() == item:id() then
+		if v.id == item:id() then
 			if not self.donor_item or self.donor_item:id() ~= item:id() then
 				v.back:SetColor(color_focused)
 			end
@@ -269,7 +273,7 @@ function RepairOverlay:OnListItemFocus(item)
 		end
 	end
 	for k, v in pairs(self.tools) do
-		if v.item:id() == item:id() then
+		if v.id == item:id() then
 			if not self.tool_item or self.tool_item:id() ~= item:id() then
 				v.back:SetColor(color_focused)
 			end
@@ -278,9 +282,11 @@ function RepairOverlay:OnListItemFocus(item)
 	end
 end
 
-function RepairOverlay:OnListItemFocusLost(item)
+function RepairOverlay:OnListItemFocusLost(id)
+	local item = level.object_by_id(id)
+	if not item then return end
 	for k, v in pairs(self.donors) do
-		if v.item:id() == item:id() then
+		if v.id == item:id() then
 			if not self.donor_item or self.donor_item:id() ~= item:id() then
 				v.back:SetColor(color_default)
 			end
@@ -288,7 +294,7 @@ function RepairOverlay:OnListItemFocusLost(item)
 		end
 	end
 	for k, v in pairs(self.tools) do
-		if v.item:id() == item:id() then
+		if v.id == item:id() then
 			if not self.tool_item or self.tool_item:id() ~= item:id() then
 				v.back:SetColor(color_default)
 			end
