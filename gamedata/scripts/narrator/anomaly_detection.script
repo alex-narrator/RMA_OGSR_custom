@@ -2,8 +2,8 @@
 function attach(sm)
 	sm:subscribe({signal = "on_npc_spawn", 			fun = this.on_spawn})
 	sm:subscribe({signal = "on_npc_destroy", 		fun = this.on_death})
-	sm:subscribe({signal = "on_monster_spawn", 		fun = this.on_spawn})
-	sm:subscribe({signal = "on_monster_destroy", 	fun = this.on_death})
+	--sm:subscribe({signal = "on_monster_spawn", 		fun = this.on_spawn})
+	--sm:subscribe({signal = "on_monster_destroy", 	fun = this.on_death})
 	sm:subscribe({signal = "on_death", 				fun = this.on_death})	
 end
 
@@ -53,7 +53,7 @@ function on_spawn(npc)
 		anomaly_detector:deactivate(true)
 	return end
 	anomaly_detector:activate(true)
-	anomaly_detector.Anomaly_Detect_Probability = rank_prob[ranks.get_obj_rank_name(npc)]
+	--anomaly_detector.Anomaly_Detect_Probability = rank_prob[ranks.get_obj_rank_name(npc)]
 	detector_enabled[npc:id()] = true
 end
 
