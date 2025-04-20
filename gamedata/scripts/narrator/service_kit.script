@@ -29,7 +29,7 @@ function can_service(obj, drop_on_obj)
 		can_service = (service_type == "knife" and drop_on_obj:is_knife()) or
 		(service_type == "weapon" and drop_on_obj:is_weapon_magazined()) or
 		(service_type == "helmet" and drop_on_obj:is_helmet()) or
-		(service_type == "outfit" and (drop_on_obj:is_outfit() or drop_on_obj:het_container()))
+		(service_type == "outfit" and (drop_on_obj:is_outfit() or drop_on_obj:get_container()))
 	end
 	return can_service and check_condition(obj, drop_on_obj) and action_allowed(drop_on_obj) and action_allowed(obj)
 end

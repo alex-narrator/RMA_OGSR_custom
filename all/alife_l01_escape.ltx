@@ -6230,80 +6230,7 @@ level_vertex_id = 594270
 object_flags = 0xfffffffa
 custom_data = <<END
 [logic]
-active = heli_move@idle
-
-[heli_move@idle]
-path_move = heli_idle_move
-engine_sound = false
-on_info = {+esc_heli_go} heli_move@fly %=turn_off(20) =esc_vagon_newbie_to_online%
-combat_safe_altitude = -50
-
-[heli_move@fly]
-path_move = heli_fly
-on_signal = heli_radio| {-esc_heli_direct} %+esc_heli_direct%
-on_signal2 = spawn_newbie| {-tutorial_wounded_start} %+tutorial_wounded_start =play_snd(device\pda\pda_sos)%
-on_signal3 = fly_end| heli_move@fly_attack %+esc_heli_attack%
-combat_safe_altitude = -50
-
-[heli_move@fly_attack]
-path_move = heli_fly_atc
-on_signal = attack_end| {-esc_heli_attack_end} %+esc_heli_attack_end%
-on_signal2 = fly_atc_end| heli_move@patrol
-on_info = {+esc_heli_can_attack_actor -esc_heli_killed_actor -esc_heli_actor_res} heli_move@heli_attack_actor %=heli_set_enemy_actor%
-mute = true
-combat_safe_altitude = -50
-
-[heli_move@heli_attack_actor]
-path_move = heli_actor_attack
-combat_safe_altitude = -50
-combat_enemy = actor
-combat_use_rocket = true
-combat_use_mgun = true
-mute = true
-on_info = {=actor_dead} heli_move@heli_wait_sound %+esc_heli_killed_actor%
-on_info2 = {!heli_see_actor -esc_heli_actor_res} heli_move@heli_searches_actor
-on_info3 = {+esc_heli_actor_res} heli_move@fly_attack
-
-[heli_move@heli_searches_actor]
-path_move = heli_actor_attack
-combat_safe_altitude = -50
-combat_enemy = actor
-combat_use_rocket = true
-combat_use_mgun = true
-mute = true
-on_info = {=heli_see_actor -esc_heli_actor_res} heli_move@heli_attack_actor
-on_timer = 30000| heli_move@heli_wait_sound %+esc_heli_actor_res%
-
-[heli_move@heli_wait_sound]
-path_move = heli_actor_attack
-combat_safe_altitude = -50
-combat_enemy = nil
-combat_use_rocket = false
-combat_use_mgun = false
-mute = false
-on_info = {=actor_dead} sr_sound_act@heli_actor_kill, sr_sound_act@heli_lost
-
-[sr_sound_act@heli_lost]
-snd = characters_voice\scenario\darkscape\heli_spot_lost
-slide_sound_once = true
-on_signal = sound_end| heli_move@fly_attack
-
-[sr_sound_act@heli_actor_kill]
-snd = characters_voice\scenario\escape\heli_radio_part_2
-slide_sound_once = true
-on_signal = sound_end| heli_move@fly_attack
-
-[heli_move@patrol]
-path_move = heli_sleep
-on_signal = heli_sig| heli_move@sleep
-combat_safe_altitude = -50
-invulnerable = true
-mute = true
-
-[heli_move@sleep]
-path_move = heli_sleep2
-engine_sound = false
-combat_safe_altitude = -50
+cfg = scripts\esc_heli.ltx
 END
 story_id = 14
 
@@ -10248,8 +10175,6 @@ level_vertex_id = 594270
 object_flags = 0xffffff7b
 custom_data = <<END
 [spawn]
-wpn_pm
-ammo_9x18_fmj
 
 [logic]
 cfg = scripts\esc_trader.ltx
@@ -23787,7 +23712,7 @@ custom_data = <<END
 [smart_terrains]
 esc_assault = true
 
-[dont_spawn_character_supplies]
+;[dont_spawn_character_supplies]
 
 [spawn]
 wpn_pb
@@ -24312,12 +24237,6 @@ custom_data = <<END
 [smart_terrains]
 none = true
 
-[dont_spawn_character_supplies]
-[dont_spawn_loot]
-[spawn]
-wpn_pm
-ammo_9x18_fmj
-
 [helihunter]
 dist = 100
 
@@ -24463,7 +24382,7 @@ game_vertex_id = 217
 distance = 8.3999996
 level_vertex_id = 376954
 object_flags = 0xfffff7ff
-custom_data = [dont_spawn_character_supplies]
+;custom_data = [dont_spawn_character_supplies]
 
 ; cse_visual properties
 visual_name = actors\novice\green_stalker_3
@@ -24516,7 +24435,7 @@ game_vertex_id = 194
 distance = 32.200001
 level_vertex_id = 321344
 object_flags = 0xfffff7ff
-custom_data = [dont_spawn_character_supplies]
+;custom_data = [dont_spawn_character_supplies]
 
 ; cse_visual properties
 visual_name = actors\novice\green_stalker_3
@@ -24569,7 +24488,7 @@ game_vertex_id = 226
 distance = 9.0999994
 level_vertex_id = 442893
 object_flags = 0xfffff7ff
-custom_data = [dont_spawn_character_supplies]
+;custom_data = [dont_spawn_character_supplies]
 
 ; cse_visual properties
 visual_name = actors\neytral\stalker_neytral_balon_8
@@ -24623,11 +24542,7 @@ distance = 14.7
 level_vertex_id = 266465
 object_flags = 0xfffffff7
 custom_data = <<END
-[dont_spawn_character_supplies]
 
-[spawn]
-wpn_pm
-ammo_9x18_fmj = 2
 ; [known_info]
 ; esc_tutorial_secret_place
 END
@@ -24752,13 +24667,6 @@ custom_data = <<END
 [smart_terrains]
 none = true
 
-[dont_spawn_character_supplies]
-[dont_spawn_loot]
-[spawn]
-wpn_pm
-ammo_9x18_fmj
-sigaret
-
 [helihunter]
 dist = 100
 
@@ -24834,7 +24742,7 @@ game_vertex_id = 105
 distance = 23.1
 level_vertex_id = 162076
 object_flags = 0xffffffff
-custom_data = [dont_spawn_character_supplies]
+;custom_data = [dont_spawn_character_supplies]
 
 ; cse_visual properties
 visual_name = actors\bandit\stalker_bandit_5
@@ -24888,7 +24796,7 @@ game_vertex_id = 78
 distance = 35
 level_vertex_id = 210009
 object_flags = 0xffffffff
-custom_data = [dont_spawn_character_supplies]
+;custom_data = [dont_spawn_character_supplies]
 
 ; cse_visual properties
 visual_name = actors\novice\green_stalker_5
@@ -24942,7 +24850,7 @@ distance = 14.7
 level_vertex_id = 182889
 object_flags = 0xfffffff7
 custom_data = <<END
-[dont_spawn_character_supplies]
+;[dont_spawn_character_supplies]
 ; [known_info]
 ; esc_tutorial_dead_novice
 ; esc_find_railroad_passage_find_stalker
@@ -25005,13 +24913,6 @@ custom_data = <<END
 [smart_terrains]
 esc_corps = {-esc_wounded_arrive}
 esc_lager = {+esc_wounded_arrive}
-
-[dont_spawn_character_supplies]
-
-[spawn]
-wpn_pm
-ammo_9x18_fmj
-medkit
 
 ; [known_info]
 ; tutorial_wounded_give_info

@@ -3,18 +3,12 @@
 --' Ключем является группировка персонажа. Значением является таблица, содержашая имена секций предметов.
 local item_by_community = {}
 
---' Зависимости в спауне предметов. Предмет спауниться только если есть хотя бы один из зависимых.
-local item_dependence = {}
-
 --' Множители и минимаксы для выпадения вещей в зависимости от уровня
 local mul_by_level = {}
 local count_by_level = {}
 
 --' Предметы, которые нельзя удалять (квестовые например)
 local always_keep_item = {}
-
---' Предметы, относящиеся к патронам. Их надо спаунить другим методом.
-local ammo_sections = {}
 
 local death_ini = ini_file_cached("misc\\death_generic.ltx")
 
@@ -90,18 +84,6 @@ function init_drop_settings()
         end
     end
 
-    --' Заполняем таблицу зависимостей
-	local n = death_ini:line_count("item_dependence")
-	local id, value = "", ""
-	for i=0,n-1 do
-		result, id, value = death_ini:r_line("item_dependence",i,"","")
-		item_dependence[id] = {}
-		local vvv = parse_names(value)
-		for k,v in pairs(vvv) do
-		item_dependence[id][v] = true
-		end
-	end
-
   --' Множители и минимаксы для выпадения вещей в зависимости от уровня
     local level_name = level.name()
   
@@ -148,18 +130,8 @@ function init_drop_settings()
         if value == "true" then
             always_keep_item[id] = true
         end
-    end
-
-  --' Предметы, относящиеся к патронам. Их надо спаунить другим методом.
-    ammo_sections = {}
-    local n = death_ini:line_count("ammo_sections")
-	local id, value = "", ""
-	for i=0,n-1 do
-		result, id, value = death_ini:r_line("ammo_sections",i,"","")
-        ammo_sections[id] = true
-	end        
+    end      
 end
-
 
 function spawn_npc_loot(npc)
 	--' Спрашиваем у серверного объекта генерились ли предметы
@@ -184,16 +156,58 @@ function spawn_npc_loot(npc)
     --' Доспавниваем необходимое количество итемов:
     --' Необходимо составить список объектов которые могут быть заспавнены для персонажа
 
+	
+	local dependend_items_1, dependend_items_2 = {}, {}
+	fill_dependent_items(npc:item_in_slot(1), dependend_items_1)
+	fill_dependent_items(npc:item_in_slot(2), dependend_items_2)
+	-- log3("~npc: %s | item_in_slot_1: %s | dependend_items_1: %s", npc:name(), item_in_slot_1 and item_in_slot_1:name() or "none", dependend_items_1)
+	-- log3("~npc: %s | item_in_slot_2: %s | dependend_items_2: %s", npc:name(), item_in_slot_2 and item_in_slot_2:name() or "none", dependend_items_2)
+
     local spawn_items = item_by_community[npc:character_community()]    
     for k,v in pairs(spawn_items) do
         --' По каждому объекту необходимо получить зависимости    
-        if check_item_dependence(npc, k) == true then
+		if dependend_items_1[k] or dependend_items_2[k] then
             --' По каждому объекту необходимо получить количество
             local number = math.ceil(math.random(count_by_level[k].min, count_by_level[k].max))
             --' Необходимо заспавнить нужное количество.
-            create_items(npc, k, number, v)
-        end
+            create_items(npc, k, number, v)		
+		end
     end
+end
+
+function fill_dependent_items(item, tbl)
+	if not item then return end
+	
+	local check_line = read_if_exists(sys_ini, "r_string", item:section(), "ammo_class", nil)
+	if check_line then
+		check_line = split_string(check_line, ",")
+		for k,v in pairs(check_line) do
+			if not tbl[v] then
+				tbl[v] = true
+			end
+		end
+	end
+	check_line = read_if_exists(sys_ini, "r_string", item:section(), "magazine_class", nil)
+	if check_line then
+		check_line = split_string(check_line, ",")
+		for k,v in pairs(check_line) do
+			if not tbl[v] then
+				tbl[v] = true
+			end
+		end
+	end
+	local wpn = item:get_weapon()
+	if wpn and wpn:is_addon_attached(addon.launcher) then
+		check_line = read_if_exists(sys_ini, "r_string", item:section(), "grenade_class", nil)
+		if check_line then
+			check_line = split_string(check_line, ",")
+			for k,v in pairs(check_line) do
+				if not tbl[v] then
+					tbl[v] = true
+				end
+			end
+		end		
+	end
 end
 
 function random_weapon_cond()
@@ -222,6 +236,7 @@ function keep_item(npc, item)
         --item:unload_magazine()
     --' Тут надо уменьшить кондишн оружия
 		item:set_condition(random_weapon_cond())
+		log3("~npc %s | weapon %s in slot 1", npc:profile_name(), item_in_slot:section())
         return true
     end
     item_in_slot = npc:item_in_slot(2)
@@ -229,6 +244,7 @@ function keep_item(npc, item)
         --item:unload_magazine()
     --' Тут надо уменьшить кондишн оружия
 		item:set_condition(random_weapon_cond())
+		log3("~npc %s | weapon %s in slot 2", npc:profile_name(), item_in_slot:section())
         return true
     end
     alife():release(alife():object(item:id()), true)
@@ -238,7 +254,7 @@ end
 function create_items(npc, section, number, rnd)
     --'printf("create %s of %s", tostring(number), tostring(section))
 	local sobj
-    if ammo_sections[section] == true then
+    if is_ammo(section) and not is_magazine(section) then
         if number > 0 then
 			spawn_ammo_to_owner(section, npc:id(), number)
         end
@@ -246,33 +262,18 @@ function create_items(npc, section, number, rnd)
         for i=1,number do
       --' Проверяем вероятность появить каждый объект в отдельности
             if math.random(1000) <=  rnd then
-				sobj = spawn_to_owner(section, npc:id())
-				if sobj:clsid() ~= clsid.artefact_s then
-					alife():object(sobj.id):get_inventory_item().item_radiation_restore_speed = math.clamp(npc.radiation,0,read_if_exists(sys_ini, "r_float", sobj:section_name(), "radiation_accum_limit", 0))
-					--log3("~npc %s, radiation %s, spawn item %s", npc:name(), npc.radiation, sobj:section_name())
+				if is_magazine(section) then
+					sobj = spawn_ammo_to_owner(section, npc:id(), 0)
+				else
+					sobj = spawn_to_owner(section, npc:id())
+					if sobj:clsid() ~= clsid.artefact_s then
+						alife():object(sobj.id):get_inventory_item().item_radiation_restore_speed = math.clamp(npc.radiation,0,read_if_exists(sys_ini, "r_float", sobj:section_name(), "radiation_accum_limit", 0))
+						--log3("~npc %s, radiation %s, spawn item %s", npc:name(), npc.radiation, sobj:section_name())
+					end
 				end
 			end
         end
     end    
-end
-
-
---' Функция проверяет есть ли хоть один из зависимых объектов у персонажа
-function check_item_dependence(npc, section)
-  if item_dependence[section] == nil then
-    return true
-  end
-
-    local d_flag = true
-    for k,v in pairs(item_dependence[section]) do
-        local obj = npc:object(k)
-        if obj ~= nil and npc:marked_dropped(obj) ~= true then
-            return true
-        end
-        d_flag = false
-    end
-
-    return d_flag
 end
 
 
@@ -294,7 +295,7 @@ end
 
 --//профілі персонажів для яких спавнити ПДА обов'язково (не всі мають SID)
 local need_pda_by_profile = {
-	["bar_bar_night_sniper"] = true, --//снайпер у Барі
+	--["bar_bar_night_sniper"] = true, --//снайпер у Барі
 }
 
 function npc_protected(npc)

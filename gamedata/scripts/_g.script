@@ -1988,6 +1988,10 @@ function is_ammo(section)
 	return sys_ini:r_string(section,"class") == "AMMO"
 end
 
+function is_magazine(section)
+	return is_ammo(section) and read_if_exists(sys_ini, "r_string", section, "ammo_types", nil)
+end
+
 function is_quest_item(section)
 	return read_if_exists(sys_ini, "r_string", section, "quest_item", false)
 end

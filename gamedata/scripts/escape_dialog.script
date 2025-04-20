@@ -203,8 +203,10 @@ end
 --Конец проверки.
 
 function give_weapon_to_actor(trader, actor)
-    dialogs.relocate_item_section(trader, "wpn_pm", "in")
-	give_ammo_box_to_actor("mag_pm", 2)
+    -- dialogs.relocate_item_section(trader, "wpn_pm", "in")
+	-- give_ammo_box_to_actor("mag_pm", 2)
+	dialogs.relocate_item_section(trader, "wpn_bm16_full", "in")
+	give_ammo_box_to_actor("ammo_12x70_buck", 2)
 end
 
 function actor_has_detector()
@@ -375,7 +377,7 @@ end
 
 function give_wounded_flash(first_speaker, second_speaker)
 	dialogs.relocate_item_section(second_speaker, "esc_wounded_flash", "out")
-	dialogs.relocate_money(second_speaker, 1000, "in")
+	--dialogs.relocate_money(second_speaker, 1000, "in")
 end
 
 -- function give_knife_to_actor(first_speaker, second_speaker)
@@ -409,24 +411,24 @@ local bribe_items = {
 	"cigarettes_marlboro",
 }
 function find_bribe_item(sect)
-	log3("~find_bribe_item called for item %s", sect)
+	--log3("~find_bribe_item called for item %s", sect)
 	local bribe_item
 	function perform_check(dummy, item)
 		local eatable = item:get_eatable_item()
 		if item:section() == sect and item:condition() == 1 and (not eatable or eatable.eat_portions_num == eatable.eat_start_portions_num) then
 			bribe_item = item
-			log3("~%s | id %s is bribe item", bribe_item:name(), item:id())
+			--log3("~%s | id %s is bribe item", bribe_item:name(), item:id())
 		end
 	end		
 	actor:iterate_inventory(perform_check, nil)
 	return bribe_item
 end
 function has_soldiers_bribe(n, actor, npc)
-	log3("~has_soldiers_bribe called for item %s", bribe_items[n] or "NONE")
+	--log3("~has_soldiers_bribe called for item %s", bribe_items[n] or "NONE")
 	return bribe_items[n] and find_bribe_item(bribe_items[n])
 end
 function give_soldiers_bribe(n, actor, npc)
-	log3("~give_soldiers_bribe called for item %s", bribe_items[n] or "NONE")
+	--log3("~give_soldiers_bribe called for item %s", bribe_items[n] or "NONE")
 	local item = find_bribe_item(bribe_items[n])
 	if item then
 		log3("~give_soldiers_bribe called for item %s | id %s", bribe_items[n] or "NONE", item:id())
@@ -449,10 +451,11 @@ function soldiers_bribe_conditions_announcement(actor, npc)
 	return game.translate_string("esc_bridge_soldiers_start_13")
 end
 
-function fox_pay_money(actor, npc)
-	dialogs.relocate_money(npc, 1000, "in")	
+function fox_give_revard(actor, npc)
 	--treasure_manager.get_treasure_manager():give_treasure("esc_secret_truck_goods")
+	dialogs.relocate_item_section(actor, "wpn_knife", "in")
 	level.map_add_object_spot(level_object_by_sid(5005):id(), "crlc_small", "esc_fox_loft_tip")
+	news_manager.custom_news("st_map_location_added", "esc_fox_loft_tip", "ui_new_map_location")	
 end
 
 function run_tutorial_pda(first_speaker, second_speaker)
@@ -527,7 +530,7 @@ local places = {
 }
 local poi_spot = "crlc_mdl"
 function set_poi_map_mark(sp1, sp2, dlg_id, phr_id)
-	log3("~phrase id %s", phr_id)
+	--log3("~phrase id %s", phr_id)
 	local poi = places[phr_id]
 	if not poi then
 	return end

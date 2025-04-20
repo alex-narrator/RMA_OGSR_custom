@@ -1,0 +1,78 @@
+[logic]
+active = heli_move@idle
+
+[heli_move@idle]
+path_move = heli_idle_move
+engine_sound = false
+on_info = {+esc_heli_go} heli_move@fly %=turn_off(20) =esc_vagon_newbie_to_online%
+combat_safe_altitude = -50
+
+[heli_move@fly]
+path_move = heli_fly
+on_signal = heli_radio| {-esc_heli_direct} %+esc_heli_direct%
+on_signal2 = spawn_newbie| {-tutorial_wounded_start} %+tutorial_wounded_start =play_snd(device\pda\pda_sos)%
+on_signal3 = fly_end| heli_move@fly_attack %+esc_heli_attack%
+combat_safe_altitude = -50
+
+[heli_move@fly_attack]
+path_move = heli_fly_atc
+combat_enemy = 87
+combat_use_rocket = false
+combat_use_mgun = true
+on_signal = attack_end| {-esc_heli_attack_end} %+esc_heli_attack_end%
+on_signal2 = fly_atc_end| heli_move@patrol
+on_info = {+esc_heli_can_attack_actor -esc_heli_killed_actor -esc_heli_actor_res} heli_move@heli_attack_actor %=heli_set_enemy_actor%
+mute = true
+combat_safe_altitude = -50
+
+[heli_move@heli_attack_actor]
+path_move = heli_actor_attack
+combat_safe_altitude = -50
+combat_enemy = actor
+combat_use_rocket = true
+combat_use_mgun = true
+mute = true
+on_info = {=actor_dead} heli_move@heli_wait_sound %+esc_heli_killed_actor%
+on_info2 = {!heli_see_actor -esc_heli_actor_res} heli_move@heli_searches_actor
+on_info3 = {+esc_heli_actor_res} heli_move@fly_attack
+
+[heli_move@heli_searches_actor]
+path_move = heli_actor_attack
+combat_safe_altitude = -50
+combat_enemy = actor
+combat_use_rocket = true
+combat_use_mgun = true
+mute = true
+on_info = {=heli_see_actor -esc_heli_actor_res} heli_move@heli_attack_actor
+on_timer = 30000| heli_move@heli_wait_sound %+esc_heli_actor_res%
+
+[heli_move@heli_wait_sound]
+path_move = heli_actor_attack
+combat_safe_altitude = -50
+combat_enemy = nil
+combat_use_rocket = false
+combat_use_mgun = false
+mute = false
+on_info = {=actor_dead} sr_sound_act@heli_actor_kill, sr_sound_act@heli_lost
+
+[sr_sound_act@heli_lost]
+snd = characters_voice\scenario\darkscape\heli_spot_lost
+slide_sound_once = true
+on_signal = sound_end| heli_move@fly_attack
+
+[sr_sound_act@heli_actor_kill]
+snd = characters_voice\scenario\escape\heli_radio_part_2
+slide_sound_once = true
+on_signal = sound_end| heli_move@fly_attack
+
+[heli_move@patrol]
+path_move = heli_sleep
+on_signal = heli_sig| heli_move@sleep
+combat_safe_altitude = -50
+invulnerable = true
+mute = true
+
+[heli_move@sleep]
+path_move = heli_sleep2
+engine_sound = false
+combat_safe_altitude = -50
