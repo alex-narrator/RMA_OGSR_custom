@@ -3,6 +3,8 @@ function attach(sm)
 	sm:subscribe({signal = "inv_drag_drop", fun = this.try_service})
 end
 
+local ALLOW_SERVICE = false
+
 function try_service(obj, drop_on_obj)
 	if can_service(obj, drop_on_obj) then
 		show_service_wnd(obj, drop_on_obj)
@@ -18,6 +20,8 @@ function action_allowed(item)
 end
 
 function can_service(obj, drop_on_obj)
+	if not ALLOW_SERVICE then
+	return false end
 	if not drop_on_obj then
 	return false end
 	local service_type = read_if_exists(sys_ini, "r_string", obj:section(), "service_type", nil)

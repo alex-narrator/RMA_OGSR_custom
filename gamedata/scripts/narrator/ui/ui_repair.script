@@ -7,7 +7,7 @@ local color_focused 	= GetARGB(100, 200, 200, 200)
 local color_selected 	= GetARGB(170, 255, 255, 255)
 
 local BASE_DONOR_COND_K = 0.2
-local REPAIR_THRESHOLD = 0.7
+local REPAIR_THRESHOLD = 0
 
 class "RepairOverlay" (CUIScriptWnd)
 
@@ -33,7 +33,7 @@ function create_overlay(item)
 end
 
 function can_repair(item)
-	return item and item:condition() < REPAIR_THRESHOLD and ( (item:is_weapon() and not item:is_knife()) or item:is_outfit() or item:is_helmet() or item:get_container() )
+	return item and (item:condition() < 1 and item:condition() >= REPAIR_THRESHOLD ) and ( item:is_weapon() or item:is_outfit() or item:is_helmet() or item:get_container() )
 end
 
 function RepairOverlay:__init() super()
@@ -141,18 +141,6 @@ function RepairOverlay:SetItem(item)
 	self.repair_item:SetText(text)
 end
 
-function RepairOverlay:IsRepairTool(item)
-	local repair_bonus = read_if_exists(sys_ini, "r_float", item:section(), "repair_bonus", nil)
-	if not repair_bonus then
-	return false end
-	local repair_type = read_if_exists(sys_ini, "r_string", item:section(), "repair_type", nil)
-	if not repair_type then
-	return true end
-	if (repair_type == "weapon" and self.item:is_weapon()) or (repair_type == "helmet" and self.item:is_helmet()) or (repair_type == "outfit" and (self.item:is_outfit() or self.item:get_container())) then
-	return true end
-	return false
-end
-
 function RepairOverlay:InitItemsList()
 	self.repair_donors:Clear()
 	self.repair_tools:Clear()
@@ -177,6 +165,47 @@ function RepairOverlay:InitItemsList()
 	for k, v in pairs(self.tools) do
 		self:AddListItem(v.id, v.back, v.static, self.repair_tools)
 	end	
+end
+
+function RepairOverlay:IsDonor(item)
+	local res = item:section() == self.item:section() and not item:is_knife()
+	if res then return res end
+	
+	local repair_compat = read_if_exists(sys_ini, "r_string", item:section(), "repair_compat", nil)
+	if repair_compat then
+		repair_compat = split_string(repair_compat, ",")
+		for k,v in pairs (repair_compat) do
+			if k == self.item:section() then
+				return true
+			end
+		end
+	end
+	
+	local service_type = read_if_exists(sys_ini, "r_string", item:section(), "service_type", nil)
+	if service_type then
+		local service_cond_threshold = read_if_exists(sys_ini, "r_float", item:section(), "service_cond_threshold", 0)
+		return self.item:condition() >= service_cond_threshold and 
+		(	
+			(service_type == "knife" and self.item:is_knife()) or 
+			(service_type == "weapon" and self.item:is_weapon() and not self.item:is_knife()) or 
+			(service_type == "helmet" and self.item:is_helmet()) or 
+			(service_type == "outfit" and (self.item:is_outfit() or self.item:get_container()))
+		)
+	end
+	
+	return res
+end
+
+function RepairOverlay:IsRepairTool(item)
+	local repair_bonus = read_if_exists(sys_ini, "r_float", item:section(), "repair_bonus", nil)
+	if not repair_bonus then
+	return false end
+	local repair_type = read_if_exists(sys_ini, "r_string", item:section(), "repair_type", nil)
+	if not repair_type then
+	return true end
+	if (repair_type == "weapon" and self.item:is_weapon()) or (repair_type == "helmet" and self.item:is_helmet()) or (repair_type == "outfit" and (self.item:is_outfit() or self.item:get_container())) then
+	return true end
+	return false
 end
 
 function RepairOverlay:AddListItem(id, back, static, list)
@@ -303,22 +332,6 @@ function RepairOverlay:OnListItemFocusLost(id)
 	end
 end
 
-function RepairOverlay:IsDonor(item)
-	local res = item:section() == self.item:section()
-	if res then return res end
-	
-	local repair_compat = read_if_exists(sys_ini, "r_string", item:section(), "repair_compat", nil)
-	if repair_compat then
-		repair_compat = split_string(repair_compat, ",")
-		for k,v in pairs (repair_compat) do
-			if k == self.item:section() then
-				return true
-			end
-		end
-	end
-	return res
-end
-
 function RepairOverlay:AttachItemIcon(item, parent_wnd)
 	parent_wnd:DetachAll()
 	local item_static = CUIStatic()
@@ -332,11 +345,11 @@ function RepairOverlay:AttachItemIcon(item, parent_wnd)
 end
 
 function RepairOverlay:UpdateRepairInfo()
-	self.repair_button:Enable(self.donor_item)-- or self.tool_item)
+	self.repair_button:Enable(self.donor_item)
 	
 	self.res_cond_gain = 0
 	if self.donor_item then
-		self.res_cond_gain = math.clamp(self.donor_item:condition() * BASE_DONOR_COND_K, 0.01, 1)
+		self.res_cond_gain = read_if_exists(sys_ini, "r_float", self.donor_item:section(), "service_condition_gain", math.clamp(self.donor_item:condition() * BASE_DONOR_COND_K, 0.01, 1))
 		self.res_cond_gain = self.res_cond_gain + self.res_cond_gain * campfire_effects.repair_bonus()
 		local text = string.format("%+.1f%s", self.res_cond_gain * 100, game.translate_string("st_percent"))
 		self.selected_donor:SetText(text)
@@ -363,7 +376,7 @@ function RepairOverlay:UpdateRepairInfo()
 end
 
 function RepairOverlay:PerformRepair()
-	local sound = self.item:is_weapon() and repair_sound_weapon or repair_sound_armor
+	local sound = read_if_exists(sys_ini, "r_string", self.donor_item:section(), "use_sound", self.item:is_weapon() and repair_sound_weapon or repair_sound_armor)
 	local snd = xr_sound.get_safe_sound_object(sound)
 	local length = snd:length()
 	local snd_end_time = time_global() + length
@@ -373,10 +386,16 @@ function RepairOverlay:PerformRepair()
 	
 	if self.donor_item then
 		service_kit.prepair(self.donor_item)
-		if self.donor_item:parent() then
-			self.donor_item:parent():drop_item(self.donor_item)
-		end
-		alife():release(alife():object(self.donor_item:id()), true)
+		local use_count = read_if_exists(sys_ini, "r_u32", self.donor_item:section(), "use_count", 1)
+		if use_count > 0 then
+			self.donor_item:change_condition(-1/use_count)
+			if self.donor_item:condition() == 0 then
+				if self.donor_item:parent() then
+					self.donor_item:parent():drop_item(self.donor_item)
+				end			
+				alife():release(alife():object(self.donor_item:id()), true)
+			end
+		end		
 	end
 	
 	if self.tool_item then
