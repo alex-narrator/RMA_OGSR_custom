@@ -1992,6 +1992,15 @@ function is_magazine(section)
 	return is_ammo(section) and read_if_exists(sys_ini, "r_string", section, "ammo_types", nil)
 end
 
+local explosive_ammo_classes = {
+	["A_OG7B"] = true,
+	["A_VOG25"] = true,
+	["A_M209"] = true,
+}
+function is_explosive_ammo(section)
+	return explosive_ammo_classes[sys_ini:r_string(section,"class")]
+end
+
 function is_quest_item(section)
 	return read_if_exists(sys_ini, "r_string", section, "quest_item", false)
 end

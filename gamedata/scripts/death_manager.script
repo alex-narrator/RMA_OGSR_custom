@@ -10,6 +10,9 @@ local count_by_level = {}
 --' Предметы, которые нельзя удалять (квестовые например)
 local always_keep_item = {}
 
+--//предмети що треба спавнити лише за наявності інших предметів
+local dependend_items = {}
+
 local death_ini = ini_file_cached("misc\\death_generic.ltx")
 
 local community_list = { 
@@ -140,7 +143,9 @@ function spawn_npc_loot(npc)
 	se_obj.death_droped = true
 
     --' Запускаем итератор на удаление предметов
+	dependend_items = {}
     npc:iterate_inventory(keep_item, npc)
+	--log3("~dependend_items %s", dependend_items)
 
     --' Проверка на отсутствие спауна лута
     local ini = npc:spawn_ini()
@@ -156,17 +161,10 @@ function spawn_npc_loot(npc)
     --' Доспавниваем необходимое количество итемов:
     --' Необходимо составить список объектов которые могут быть заспавнены для персонажа
 
-	
-	local dependend_items_1, dependend_items_2 = {}, {}
-	fill_dependent_items(npc:item_in_slot(1), dependend_items_1)
-	fill_dependent_items(npc:item_in_slot(2), dependend_items_2)
-	-- log3("~npc: %s | item_in_slot_1: %s | dependend_items_1: %s", npc:name(), item_in_slot_1 and item_in_slot_1:name() or "none", dependend_items_1)
-	-- log3("~npc: %s | item_in_slot_2: %s | dependend_items_2: %s", npc:name(), item_in_slot_2 and item_in_slot_2:name() or "none", dependend_items_2)
-
     local spawn_items = item_by_community[npc:character_community()]    
     for k,v in pairs(spawn_items) do
         --' По каждому объекту необходимо получить зависимости    
-		if dependend_items_1[k] or dependend_items_2[k] then
+		if check_dependence(k) then
             --' По каждому объекту необходимо получить количество
             local number = math.ceil(math.random(count_by_level[k].min, count_by_level[k].max))
             --' Необходимо заспавнить нужное количество.
@@ -175,39 +173,61 @@ function spawn_npc_loot(npc)
     end
 end
 
-function fill_dependent_items(item, tbl)
+function fill_dependent_ammo(item, tbl)
 	if not item then return end
 	
-	local check_line = read_if_exists(sys_ini, "r_string", item:section(), "ammo_class", nil)
+	local sect = item:section()
+	
+	local check_line = read_if_exists(sys_ini, "r_string", sect, "ammo_class", nil)
 	if check_line then
 		check_line = split_string(check_line, ",")
 		for k,v in pairs(check_line) do
-			if not tbl[v] then
-				tbl[v] = true
+			if not tbl[sect] then
+				tbl[sect] = {}
+			end
+			if not tbl[sect][v] then
+				tbl[sect][v] = true
 			end
 		end
 	end
-	check_line = read_if_exists(sys_ini, "r_string", item:section(), "magazine_class", nil)
+	check_line = read_if_exists(sys_ini, "r_string", sect, "magazine_class", nil)
 	if check_line then
 		check_line = split_string(check_line, ",")
 		for k,v in pairs(check_line) do
-			if not tbl[v] then
-				tbl[v] = true
+			if not tbl[sect] then
+				tbl[sect] = {}
+			end
+			if not tbl[sect][v] then
+				tbl[sect][v] = true
 			end
 		end
 	end
 	local wpn = item:get_weapon()
 	if wpn and wpn:is_addon_attached(addon.launcher) then
-		check_line = read_if_exists(sys_ini, "r_string", item:section(), "grenade_class", nil)
+		check_line = read_if_exists(sys_ini, "r_string", sect, "grenade_class", nil)
 		if check_line then
 			check_line = split_string(check_line, ",")
 			for k,v in pairs(check_line) do
-				if not tbl[v] then
-					tbl[v] = true
+				if not tbl[sect] then
+					tbl[sect] = {}
+				end
+				if not tbl[sect][v] then
+					tbl[sect][v] = true
 				end
 			end
 		end		
 	end
+end
+
+function check_dependence(sect)
+	if not is_ammo(sect) and not is_explosive_ammo(sect) then
+	return true end
+	for k,v in pairs(dependend_items) do
+		if v[sect] then
+			return true
+		end
+	end
+	return false
 end
 
 function random_weapon_cond()
@@ -221,33 +241,34 @@ end
 --' Функция вызывается для каждого предмета, если вернет false то предмет удалится.
 function keep_item(npc, item)
     local section = item:section()
-	if read_if_exists(sys_ini, "r_bool", section, "quest_item", false) then
-	return true end
-	if read_if_exists(sys_ini, "r_bool", section, "unique_item", false) then
-	return true end	
-    if always_keep_item[section] == true then
-    return true end
-	if get_clsid(item) == clsid.obj_bolt then
-	return true end
-	
+	local res = 
+		read_if_exists(sys_ini, "r_bool", section, "quest_item", false) or 
+		read_if_exists(sys_ini, "r_bool", section, "unique_item", false) or 
+		always_keep_item[section] or get_clsid(item) == clsid.obj_bolt
+		
     local item_id = item:id()
     local item_in_slot = npc:item_in_slot(1)
     if item_in_slot and item_in_slot:id() == item_id then
         --item:unload_magazine()
     --' Тут надо уменьшить кондишн оружия
 		item:set_condition(random_weapon_cond())
-		log3("~npc %s | weapon %s in slot 1", npc:profile_name(), item_in_slot:section())
-        return true
+		--log3("~npc %s | weapon %s in slot 1", npc:profile_name(), item_in_slot:section())
+        res = true
     end
     item_in_slot = npc:item_in_slot(2)
     if item_in_slot and item_in_slot:id() == item_id then
         --item:unload_magazine()
     --' Тут надо уменьшить кондишн оружия
 		item:set_condition(random_weapon_cond())
-		log3("~npc %s | weapon %s in slot 2", npc:profile_name(), item_in_slot:section())
-        return true
+		--log3("~npc %s | weapon %s in slot 2", npc:profile_name(), item_in_slot:section())
+        res = true
     end
-    alife():release(alife():object(item:id()), true)
+	
+	if res then
+		fill_dependent_ammo(item, dependend_items)
+	else
+		alife():release(alife():object(item:id()), true)
+	end
 end
 
 --' Функция спавнит необходимое число предметов
