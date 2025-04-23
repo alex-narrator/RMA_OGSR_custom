@@ -65,6 +65,8 @@ function actor_binder:net_spawn(data)
 	if(actor_stats.add_to_ranking~=nil)then
 		actor_stats.add_to_ranking(self.object:id())
 	end
+	
+	self.actor_detector.init_time = -1
 
 	self.sm:call("on_spawn", data)
 	return true

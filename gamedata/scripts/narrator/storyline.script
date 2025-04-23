@@ -26,6 +26,18 @@ function on_new_game_start()
 	new_game_spawn()
 end
 
+local addons_flags = {
+	["scope"] 		= { addon_flag.scope, 		function(wpn, val) wpn.current_scope = val 		end, },
+	["silencer"] 	= { addon_flag.silencer, 	function(wpn, val) wpn.current_silencer = val 	end, },
+	["launcher"] 	= { addon_flag.launcher, 	function(wpn, val) wpn.current_launcher = val 	end, },
+	["laser"] 		= { addon_flag.laser, 		function(wpn, val) wpn.current_laser = val 		end, },
+	["flashlight"] 	= { addon_flag.flashlight, 	function(wpn, val) wpn.current_flashlight = val end, },
+	["stock"] 		= { addon_flag.stock, 		function(wpn, val) wpn.current_stock = val 		end, },
+	["extender"] 	= { addon_flag.extender, 	function(wpn, val) wpn.current_extender = val 	end, },
+	["forend"] 		= { addon_flag.forend, 		function(wpn, val) wpn.current_forend = val 	end, },
+	["magazine"] 	= { addon_flag.magazine, 	function(wpn, val) wpn.current_magazine = val 	end, },
+}
+
 function new_game_spawn()
 	local sim = alife()
 	local se_item
@@ -63,6 +75,26 @@ function new_game_spawn()
 				if v.startup_anim then
 					sim:object(se_item.id).startup_animation = v.startup_anim
 				end
+				if v.installed_addons then
+					local wpn = sim:object(se_item.id):get_weapon()
+					if wpn then
+						local addon_fl = wpn.addon_flags
+						for _k, _v in pairs(v.installed_addons) do
+							if addons_flags[_k] ~= nil then
+								log3("~set %s to %s", _k, _v)
+								if _k ~= "magazine" then
+									log3("~set %s", addons_flags[_k][1])
+									addon_fl:set(addons_flags[_k][1],true)
+								end
+								addons_flags[_k][2](wpn, _v)	
+							end
+						end
+						wpn.addon_flags = addon_fl
+						if v.ammo_type then
+							wpn.ammo_type = v.ammo_type
+						end
+					end
+				end					
 			end
 			if v.owner_sid then
 				level.add_call(
@@ -77,6 +109,26 @@ function new_game_spawn()
 						if v.custom_data then
 							se_item.custom_data = v.custom_data
 						end
+						if v.installed_addons then
+							local wpn = sim:object(se_item.id):get_weapon()
+							if wpn then
+								local addon_fl = wpn.addon_flags
+								for _k, _v in pairs(v.installed_addons) do
+									if addons_flags[_k] ~= nil then
+										log3("~set %s to %s", _k, _v)
+										if _k ~= "magazine" then
+											log3("~set %s", addons_flags[_k][1])
+											addon_fl:set(addons_flags[_k][1],true)
+										end
+										addons_flags[_k][2](wpn, _v)	
+									end
+								end
+								wpn.addon_flags = addon_fl
+								if v.ammo_type then
+									wpn.ammo_type = v.ammo_type
+								end
+							end
+						end						
 					end
 				)
 			end

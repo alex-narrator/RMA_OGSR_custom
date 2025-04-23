@@ -12,12 +12,12 @@ custom_spawn_sections = {
 	
 	--//речі новачка на горищі елеватору
 	{
-		section="gasmask_cloth", 
+		section="gasmask_respirator", 
 		pos={21.635149002075, 10.806553840637, 91.49878692627}, 
 		level="l01_escape"
 	},
 	{
-		section="backpack_sack", 
+		section="backpack_novice", 
 		pos={21.879632949829, 10.801671981812, 92.216606140137}, 
 		level="l01_escape"
 	},
@@ -198,14 +198,22 @@ custom_spawn_sections = {
 	--//ЗВАЛИЩЕ
 	--//MP5 у трупі на Звалищі, у кінці жд-тонелю
 	{
-		section="wpn_mp5_garbage_tunnel", 
+		section="wpn_mp5",
+		installed_addons = {
+			["scope"] = 2,
+			["silencer"] = 0,
+		},
 		owner_sid=story_ids.gar_stalker_corpse
 	},
 	
 	--//ПІДЗЕМКА АГРОПРОМУ
 	--//АК у схованці Стрільця під Агропромом
 	{
-		section="wpn_ak74_gunslinger_hideout", 
+		section="wpn_ak74", 
+		installed_addons = {
+			["scope"] = 0,
+			["silencer"] = 0,
+		},
 		pos={-73.2993087768555, -5.97463035583496, -75.3087844848633}, 
 		dir={-0.000921175756957382, -1.5696005821228, 1.51920056343079}, 
 		level="l03u_agr_underground"
@@ -234,7 +242,6 @@ custom_spawn_sections = {
 		pos={214.28172302246, -0.29822949171066, -22.385293197632}, 
 		dir={0, 3.14, 0}, 
 		level="l05_bar", 
-		--story_id = 502
 	},
 	--//декоративний ящичок щоб кулемет вище візуально не висів у повітрі
 	{
@@ -242,21 +249,20 @@ custom_spawn_sections = {
 		pos={214.28172302246, -0.29822949171066, -22.435293197632}, 
 		dir={0, 0, 3.14}, 
 		level="l05_bar", 
-		--story_id = 502
 	},	
 	
 	--//ДИКА ТЕРИТОРІЯ
 	--//ТОЗ Мисливця на Дикій Території
 	{
-		section="hunters_toz", 
+		section="wpn_toz34_decor", 
 		pos={-255.459365844727, -5.87324857711792, 90.0955123901367}, 
 		dir={0, 0, -1.52099931240082}, 
 		level="l06_rostok", 
 		story_id = 502
 	},
-	--//Desert Eagle на трупі Гордона Фрімена на Дикій Території
+	--//USP Match на трупі Гордона Фрімена на Дикій Території
 	{
-		section="wpn_deserteagle_coll", 
+		section="wpn_usp_match", 
 		owner_sid=story_ids.rostok_gordon_freeman
 	},
 	
@@ -270,7 +276,10 @@ custom_spawn_sections = {
 	},	
 	--//LR300 DMR на Мілітарі
 	{
-		section="wpn_lr300_dmr_merc", 
+		section="wpn_lr300_dmr",
+		installed_addons = {
+			["scope"] = 5,
+		},		
 		pos={-361.725769042969, -12.8635749816895, 385.554260253906}, 
 		dir={-0.228448912501335, -1.98511862754822, -0.0359346307814121}, 
 		level="l07_military"
@@ -285,7 +294,12 @@ custom_spawn_sections = {
 	},
 	--//гвинтівка на вишці біля Бар'єру
 	{
-		section="barrier_defense_rifle", 
+		section="wpn_sr25",
+		installed_addons = {
+			["scope"] = 7,
+			["silencer"] = 0,
+		},
+		ammo_type = 1,
 		pos={41.485466003418, -8.1366491317749, 385.786254882812}, 
 		dir={-0.0117830196395516, -0.000269456097157672, -0.0228647161275148}, 
 		level="l07_military",
@@ -300,7 +314,7 @@ custom_spawn_sections = {
 		custom_data = [[
 		[drop_box]
 		community = def_box
-		items = ammo_5.56x45_ap, 3
+		items = ammo_7.62x51_ap, 3
 		]]
 	},		
 	--//рестриктор водонапірної вежі у селищі кровососів
@@ -337,7 +351,10 @@ custom_spawn_sections = {
 	},		
 	--//LR300 DMR у Мертвому Місті
 	{
-		section="wpn_lr300_dmr_merc", 
+		section="wpn_lr300_dmr",
+		installed_addons = {
+			["scope"] = 5,
+		},
 		pos={-73.2993087768555, -5.97463035583496, -75.3087844848633}, 
 		dir={0, 0.138600021600723, 1.57079637050629}, 
 		level="l09_deadcity"
@@ -395,7 +412,11 @@ custom_spawn_sections = {
 	--//РАДАР
 	--//Вінторєз на Радарі по квесту Бармена
 	{
-		section="wpn_vintorez_coll", 
+		section="wpn_vintorez_coll",
+		installed_addons = {
+			["scope"] = 0,
+			["magazine"] = 1,
+		},		
 		pos={314.006225585938, -50.3445854187012, -335.087554931641},
 		dir={-0.0117830196395516, -0.000269456097157672, -0.0228647161275148},
 		level="l10_radar"

@@ -681,4 +681,4 @@ end
 	
 --actor:ph_capture_object(level.object_by_id(769))
 
-actor.radiation = -1
+actor:binded_object().actor_detector.init_time = -1
