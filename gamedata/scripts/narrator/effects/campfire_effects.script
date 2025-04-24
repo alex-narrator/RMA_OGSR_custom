@@ -6,7 +6,7 @@ end
 local hud_effector_id = 6666
 
 local CAMPFIRE_EFFECT_DIST = actor.inventory.take_dist
-local PSY_RESTORE_K = 0.5
+local PSY_RESTORE_K = 1
 
 local LIGHT_UP_PROB = 3
 local OUTDOOR_K = 1
@@ -117,7 +117,7 @@ function try_ignit(campfire_zone)
 		prob = prob + level.rain_factor()
 		log3("~rain factor %s", level.rain_factor())
 	end
-	log3("~light up prob %s", prob)
+	--log3("~light up prob %s", prob)
 	if math.random(0, 10) > prob then
 		campfire_zone:enable_anomaly()
 		alife():object(campfire_zone:id()).enabled = true

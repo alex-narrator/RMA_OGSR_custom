@@ -130,6 +130,9 @@ function ActorMenuOverlay:Subscribe()
 			{signal = "on_loadout_update_count", self = self, fun = self.OnMoveLoadout},
 			
 			{signal = "on_max_belt_set", self = self, fun = self.OnMaxBeltSet},
+			
+			{signal = "on_warning_icon_focus", self = self, fun = self.OnWarningIconFocus},
+			{signal = "on_warning_icon_focus_lost", self = self, fun = self.OnWarningIconFocusLost},
 		}
 		for _, s in ipairs( self.subscribed ) do
 			self.sm:subscribe( s )
@@ -242,19 +245,12 @@ function ActorMenuOverlay:InitControls()
 			condition = function() return somnolence.get_val() end,
 			restore_speed = function() return 3600 * somnolence.get_v() end,
 		},
-		["bleeding_"] 	= { 
-			condition = function() return actor:get_bleeding() end,
-			restore_speed = function() return 3600 * actor_cond.wound_incarnation_v end,
-		},
-		["injure_"] 	= { condition = function() return body_health.get_injured_limb() end },
 	}
 	local prefix = "conditions_background:"
 	for k, v in pairs(self.conditions) do
 		v.static = xml:InitStatic(prefix..k.."static", self.conditions_background)
 		v.icon = xml:InitStatic(prefix..k.."icon", v.static)
-		if k ~= "bleeding_" and k ~= "injure_" then
-			v.progress = xml:InitProgressBar(prefix..k.."progress", v.static)
-		end	
+		v.progress = xml:InitProgressBar(prefix..k.."progress", v.static)
 		v.percent = xml:InitStatic(prefix.."condition_percent", v.static)
 		v.percent:Show(false)
 
@@ -262,6 +258,9 @@ function ActorMenuOverlay:InitControls()
 		self:AddCallback(k, ui_events.STATIC_FOCUS_RECEIVED, function() self:ConditionOnFocusReceived(k) end)
 		self:AddCallback(k, ui_events.STATIC_FOCUS_LOST, function() self:ConditionOnFocusLost(k) end)
 	end
+	
+	--//warning icons
+	self.warning_icons = ui_warning_icons.WarningIcons(xml, self.conditions_background)	
 	
 	name = "effects_info"
 	self.effects_info = xml:InitStatic(name, self)
@@ -807,13 +806,8 @@ end
 
 function ActorMenuOverlay:ConditionOnFocusReceived(cond_name)
 	self.conditions[cond_name].percent:Show(true)
-	if cond_name ~= "bleeding_" and cond_name ~= "injure_" then
-		self.conditions[cond_name].icon:SetColor(self.loadout_color_equiped)
-	end
+	self.conditions[cond_name].icon:SetColor(self.loadout_color_equiped)
 	local cond_descr = game.translate_string(string.format("%s%s%s","st_", cond_name, "hint"))
-	if cond_name == "injure_" then
-		cond_descr = game.translate_string(string.format("%s%s%s%s","st_", cond_name, self.conditions[cond_name].condition(), "_hint"))
-	end
 	local cond_restore_text = ""
 	local restore_speed = self.conditions[cond_name].restore_speed and self.conditions[cond_name].restore_speed() or nil
 	if restore_speed then
@@ -841,9 +835,23 @@ end
 
 function ActorMenuOverlay:ConditionOnFocusLost(cond_name)
 	self.conditions[cond_name].percent:Show(false)
-	if cond_name ~= "bleeding_" and cond_name ~= "injure_" then
-		self.conditions[cond_name].icon:SetColor(self.loadout_color_default)
+	self.conditions[cond_name].icon:SetColor(self.loadout_color_default)
+	self:SetTooltip(nil)
+end
+
+function ActorMenuOverlay:OnWarningIconFocus(name, icon)
+	if name == "limbs_injure" then
+		local condition = body_health.get_injured_limb()
+		local cond_descr = game.translate_string(string.format("%s%s%s%s%s","st_", name, "_", condition, "_hint"))
+		local pain_eff = body_health.get_pain_effect()
+		local pain = pain_eff == 0 and "" or pain_eff > 0 and "_more_pain" or "_less_pain"
+		local cond_text = game.translate_string(string.format("%s%s%s%s%s%s","st_", name, "_", condition, pain, "_hint_text"))		
+		local tip_text = string.format("%s\\n---------------------------------\\n%s", cond_descr, cond_text)
+		self:SetTooltip(tip_text)		
 	end
+end
+
+function ActorMenuOverlay:OnWarningIconFocusLost(name, icon)
 	self:SetTooltip(nil)
 end
 
@@ -895,44 +903,12 @@ end
 function ActorMenuOverlay:UpdateConditions()
 	local val
 	for k,v in pairs(self.conditions) do
-		val = k ~= "injure_" and math.clamp(v.condition(), 0, 1) or v.condition()
-		if k ~= "bleeding_" and k ~= "injure_" then
-			v.progress:SetProgressPos(val)
+		val = math.clamp(v.condition(), 0, 1)
+		v.progress:SetProgressPos(val)
+		if k == "radiation_" and is_rad_absolute() then
+			v.percent:SetText(string.format("%.2f %s", val*get_rad_absolute_eqivalent(), get_rad_absolute_name()))
 		else
-			if k == "injure_" then
-				v.static:Show(val ~= "none")
-				if v.static:IsShown() then
-					local actual_icon = "ui_hud_trauma_"..val
-					if self.limbs_injure_icon ~= actual_icon then
-						v.static:InitTexture(actual_icon)
-						self.limbs_injure_icon = actual_icon
-					end
-					color = GetARGB(100, 238, 153, 26)
-					local pain_eff = body_health.get_pain_effect()
-					if pain_eff > 0 then
-						color = GetARGB(100, 255, 0, 0)
-					elseif pain_eff < 0 then
-						color = GetARGB(100, 0, 255, 0)
-					end
-					v.static:SetColor(color)					
-				end
-			else
-				v.static:Show(val>0)
-				if val>0 then
-					v.static:SetColor(GetARGB(255,val*255,(1-val)*255,0))
-				else
-					if self.conditions[k].percent:IsShown() then
-						self.conditions[k].percent:Show(false)
-					end
-				end
-			end
-		end
-		if k ~= "injure_" then
-			if k == "radiation_" and is_rad_absolute() then
-				v.percent:SetText(string.format("%.2f %s", val*get_rad_absolute_eqivalent(), get_rad_absolute_name()))
-			else
-				v.percent:SetText(string.format("%.0f%s", val*100, game.translate_string("st_percent")))
-			end
+			v.percent:SetText(string.format("%.0f%s", val*100, game.translate_string("st_percent")))
 		end
 	end
 end

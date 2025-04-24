@@ -75,9 +75,11 @@ function injure_hit(hit_power)
 		hit_power = DEFAULT_HIT_POWER
 	end
 	local res_hit = hit_power + hit_power * get_pain_effect()
+	--log3("~get_pain_effect() %s", get_pain_effect())
+	if res_hit <= 0 then
+	return end
 	if get_pain_effect() < 0 then
 		actor.health = -res_hit
-		--log3("~res_hit %s", res_hit)		
 	return end
 	local h = hit()
 	h.draftsman = actor 
@@ -341,11 +343,17 @@ function heal_injure(item, limb)
 	)	
 end
 
+local painkiller_sect = {}
+
 function apply_pain_effect(sect, enable)
 	local pain_boost = read_if_exists(sys_ini, "r_float", sect, "boost_pain", 0)
 	if pain_boost == 0 then
 	return end
-	add_pain_effect(enable and pain_boost or -pain_boost)
+	if (enable and not painkiller_sect[sect]) or (not enable and painkiller_sect[sect])  then
+		painkiller_sect[sect] = enable and true or nil
+		add_pain_effect(enable and pain_boost or -pain_boost)
+		--log3("~apply_pain_effect: sect %s | pain_boost %s | enable %s", sect, pain_boost, enable)
+	end
 end
 
 --//script menu actions

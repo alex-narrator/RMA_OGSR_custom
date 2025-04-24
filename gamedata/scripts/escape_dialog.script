@@ -415,7 +415,7 @@ function find_bribe_item(sect)
 	local bribe_item
 	function perform_check(dummy, item)
 		local eatable = item:get_eatable_item()
-		if item:section() == sect and item:condition() == 1 and (not eatable or eatable.eat_portions_num == eatable.eat_start_portions_num) then
+		if item:section() == sect and item:condition() >= 0.75 and (not eatable or eatable.eat_portions_num == eatable.eat_start_portions_num) then
 			bribe_item = item
 			--log3("~%s | id %s is bribe item", bribe_item:name(), item:id())
 		end

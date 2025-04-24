@@ -97,7 +97,9 @@ function RepairOverlay:InitControls()
 	self.selected_tool = xml:InitStatic("repair_back:selected_tool", self.repair_back)
 	
 	self.repair_donors = xml:InitScrollView("repair_back:repair_donors", self.repair_back)
+	self.donor_child_width = self.repair_donors:GetDesiredChildWidth()
 	self.repair_tools = xml:InitScrollView("repair_back:repair_tools", self.repair_back)
+	self.tool_child_width = self.repair_tools:GetDesiredChildWidth()
 	
 	self.repair_progress = xml:InitProgressBar("repair_back:repair_progress", self.repair_back)
 	
@@ -160,10 +162,10 @@ function RepairOverlay:InitItemsList()
 	--table.sort(self.donors, ui_inv_utils.sort_by_size_type)
 	--table.sort(self.tools, ui_inv_utils.sort_by_size_type)
 	for k, v in pairs(self.donors) do
-		self:AddListItem(v.id, v.back, v.static, self.repair_donors)
+		self:AddListItem(v.id, v.back, v.static, self.repair_donors, self.donor_child_width)
 	end
 	for k, v in pairs(self.tools) do
-		self:AddListItem(v.id, v.back, v.static, self.repair_tools)
+		self:AddListItem(v.id, v.back, v.static, self.repair_tools, self.tool_child_width)
 	end	
 end
 
@@ -208,9 +210,10 @@ function RepairOverlay:IsRepairTool(item)
 	return false
 end
 
-function RepairOverlay:AddListItem(id, back, static, list)
+function RepairOverlay:AddListItem(id, back, static, list, child_width)
 	local item = level.object_by_id(id)
 	if not item then return end
+	log3("~1 list:GetDesiredChildWidth() %s", list:GetDesiredChildWidth())
 	local params = CIconParams(item:section())
 	params:set_shader(static)
 	local size = vector2():set(params.grid_width * CELL_W * get_current_kx(), params.grid_height * CELL_H)
@@ -219,7 +222,7 @@ function RepairOverlay:AddListItem(id, back, static, list)
 	size.y = size.y * scale
 	static:SetWidth(size.x)
 	static:SetHeight(size.y)
-	local size = vector2():set(list:GetDesiredChildWidth(), size.y)
+	local size = vector2():set(child_width, size.y)
 	ui_inv_utils.CellItemFitToSize(params, static, nil, size)
 	ui_cell_item_icons.update_custom_icons(item, static)
 	
@@ -236,6 +239,7 @@ function RepairOverlay:AddListItem(id, back, static, list)
 	self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnListItemClick(id) end, self)
 	self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnListItemFocus(id) end, self)
 	self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnListItemFocusLost(id) end, self)
+	log3("~2 list:GetDesiredChildWidth() %s", list:GetDesiredChildWidth())
 end
 
 function RepairOverlay:OnListItemClick(id)

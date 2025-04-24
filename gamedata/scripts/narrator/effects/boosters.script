@@ -19,6 +19,7 @@ function on_update()
 end
 
 function on_booster_enable(booster)
+	--log3("~on_booster_enable sect %s | val %s | type %s", booster.section, booster.value, booster.type)
 	m_boosters[booster.section] = booster.time
 	body_health.apply_pain_effect(booster.section, true)
 	if not subscribed then
@@ -33,6 +34,7 @@ function on_booster_enable(booster)
 end
 
 function on_booster_disable(booster)
+	--log3("~on_booster_disable sect %s | val %s | type %s", booster.section, booster.value, booster.type)
 	m_boosters[booster.section] = nil
 	body_health.apply_pain_effect(booster.section, false)
 	if table.size(m_boosters) == 0 and subscribed ~= false then

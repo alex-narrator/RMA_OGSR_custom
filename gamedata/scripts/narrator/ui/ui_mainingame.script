@@ -273,29 +273,8 @@ function MainIngameOverlay:InitControls()
 	self.pickup_item_icon.size = vector2():set(self.pickup_item_icon:GetWidth(), self.pickup_item_icon:GetHeight())
 	self.pickup_item_icon.offset = vector2():set(xml:ReadAttribInt("pick_up_item", "x", 0), xml:ReadAttribInt("pick_up_item", "y", 0))
 	
-	self.warning_icons_back = xml:InitStatic("icons_back", self)
-	self.warning_icons_horz = (xml:ReadAttribInt("icons_back", "horz", 0) > 0) and true or false
-	self.warning_icons = {
-		{ name = "armor", 			val = function() return actor_get_outfit() and 1 - actor_get_outfit():condition() or 0 end },
-		{ name = "weapon", 			val = function() return actor:active_item() and 1 - actor:active_item():condition() or 0 end },
-		{ name = "radiation", 		val = function() return dosimeter.can_detect_radiation() and actor.radiation or 0 end },
-		{ name = "bleeding", 		val = function() return actor:get_bleeding() end },
-		{ name = "starvation", 		val = function() return 1 - actor.satiety end },
-		{ name = "psy_health", 		val = function() return 1 - actor.psy_health end },
-		{ name = "alcohol", 		val = function() return actor.alcohol end },
-		{ name = "overweight", 		val = function() return inventory.get_overweight() end },
-		{ name = "somnolence", 		val = function() return somnolence.get_val() end },		
-		{ name = "godmode", 		val = function() return is_god_mode() end },
-		{ name = "unlimited_ammo", 	val = function() return is_unlimited_ammo() end },
-		{ name = "safehouse", 		val = function() return actor:has_info("safehouse") end },
-		{ name = "limbs_injure", 	val = function() return body_health.get_injured_limb() end },
-		{ name = "use_campfire", 	val = function() return campfire_effects.actor_used_campfire() end },
-	}
-	for k,v in ipairs(self.warning_icons) do
-		v.icon = xml:InitStatic("icons_back:"..v.name, self.warning_icons_back)
-		v.icon:Show(false)
-		v.threshold = split_string(xml:ReadAttrib("icons_back:"..v.name, "threshold", nil), ",", true)
-	end
+	--//warning icons
+	self.warning_icons = ui_warning_icons.WarningIcons(xml, self)
 	
 	--//classic top view compass
 	self.minimap = self.owner:GetStatic("minimap")
@@ -396,80 +375,6 @@ function MainIngameOverlay:UpdateMotionIcon()
 		-- end
 		-- game.stop_hud_motion()
 	-- end
-end
-
-function MainIngameOverlay:UpdateWarningIcons()
-	local color, val, _v, _min, _max, size
-	local pos = vector2():set(0,0)
-	for k,v in ipairs(self.warning_icons) do
-		if DEBUG_WARNING_SHOW then
-			v.icon:Show(true)
-		elseif not v.threshold then
-			if v.name == "limbs_injure" then
-				v.icon:Show(v.val() ~= "none")
-				if v.icon:IsShown() then
-					local actual_icon = "ui_hud_trauma_"..v.val()
-					if self.limbs_injure_icon ~= actual_icon then
-						v.icon:InitTexture(actual_icon)
-						self.limbs_injure_icon = actual_icon
-					end
-					color = GetARGB(100, 238, 153, 26)
-					local pain_eff = body_health.get_pain_effect()
-					if pain_eff > 0 then
-						color = GetARGB(100, 255, 0, 0)
-					elseif pain_eff < 0 then
-						color = GetARGB(100, 0, 255, 0)
-					end
-					v.icon:SetColor(color)
-				end
-			else
-				v.icon:Show(v.val())
-			end
-		else
-			size = table.size(v.threshold)
-			_min = v.threshold[1]
-			if size > 1 then
-				val = v.val()
-				if val < _min then
-					v.icon:Show(false)
-				else
-					_max = v.threshold[size]
-					for i=1, size do
-						if (val >= v.threshold[i]) and (not v.threshold[i+1] or val < v.threshold[i+1]) then
-							val = v.threshold[i]
-							break
-						end
-					end
-					_v = (val - _min) / (_max - _min) * 2
-					color = GetARGB(255, math.clamp(255 * _v, 0, 255), math.clamp(255 * (2 - _v), 0, 255), 0)
-					v.icon:SetColor(color)
-					v.icon:Show(true)
-				end
-			else
-				val = 1 - v.val();
-				local threshold = 1 - _min
-				threshold = math.clamp(threshold, 0.01, 1)
-				if val <= threshold then
-					_v = val / threshold
-					_v = math.clamp(_v, 0, 1)
-					color = GetARGB(255, 255, 255 * _v, 0)
-					v.icon:SetColor(color)
-					v.icon:Show(true)
-				else
-					v.icon:Show(false)
-				end
-			end
-		end
-		
-		if v.icon:IsShown() then
-			v.icon:SetWndPos(pos.x, pos.y)
-			if self.warning_icons_horz then
-				pos.x = pos.x + v.icon:GetWidth()
-			else
-				pos.y = pos.y + v.icon:GetHeight()
-			end
-		end
-	end
 end
 
 function MainIngameOverlay:TryUpdatePanelItems(item, prev_place)
@@ -1210,7 +1115,6 @@ function MainIngameOverlay:Update()
 	self:UpdatePanelBoosters()
 	self:UpdateActiveItem()
 	self:UpdateMissileThrow()
-	self:UpdateWarningIcons()
 	self:UpdatePickupItem()
 	self:UpdateCompass()
 	self:UpdateFPS()
