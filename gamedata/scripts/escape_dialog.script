@@ -312,9 +312,9 @@ function wolf_additional_reward(first_speaker, second_speaker)
     dialogs.relocate_item_section(first_speaker, "medkit", "in")
     dialogs.relocate_item_section(first_speaker, "bandage", "in")
     dialogs.relocate_item_section(first_speaker, "wpn_fort", "in")
+	give_ammo_box_to_actor("mag_fort", 2)
     dialogs.relocate_item_section(first_speaker, "grenade_f1", "in") 
     --dialogs.relocate_item_section(first_speaker, "ammo_9x18_fmj", "in")
-	give_ammo_box_to_actor("mag_fort", 2)
 end
 
 function have_dynamite(npc, actor)
@@ -331,7 +331,7 @@ function give_dynamite(npc, actor)
 	if item then
 		dialogs.relocate_item_section(actor, "dynamite", "out")
 		alife():release(alife():object(item:id()), true)
-		dialogs.relocate_money(actor, 1500, "in")
+		dialogs.relocate_money(actor, 2000, "in")
 	end
 end
 

@@ -45,7 +45,7 @@ function info_on_action(key, game_action)
 	
 	local act_wpn = act_item and act_item:get_weapon_m() or nil
 	if act_wpn and misfire_action[game_action] and act_wpn:is_misfire() and is_free_hands then
-		hud_add_info_message("item_state", "gun_jammed")
+		hud_add_info_message("actor_state", "gun_jammed")
 		if game_action == key_bindings.kWPN_FIRE then
 			actor_sounds.misfire()
 		end
