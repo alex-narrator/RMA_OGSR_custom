@@ -1,6 +1,6 @@
 --Меню налаштувань відладки. Используется скриптом ui_mm_opt_main.script
 
-class "opt_debug" (CUIWindow)
+class "opt_debug" (CUIScriptWnd)
 function opt_debug:__init() super()
 end
 
@@ -35,6 +35,11 @@ function opt_debug:InitControls(x, y, xml, handler)
 	xml:InitFrame("frame_"..tab, self)
 	
 	self.scroll_view = xml:InitScrollView("tab_"..tab..":scroll_view", self)
+	
+	--//additional options menu
+	self.menu_button = xml:Init3tButton("tab_"..tab..":btn_debug_menu", self)
+	mm.init_hint(handler, self.menu_button, "debug_menu", "gameplay_settings_name_debug_menu", "gameplay_settings_desc_debug_menu")
+	handler:AddCallback("debug_menu", ui_events.BUTTON_CLICKED, function() self:OnMenuButtonClicked() end, self)	
 
 	for i=1,#debug_opt_params do
 		local opt, ctrl, tip_name, tip_text = unpack(debug_opt_params[i])
@@ -50,4 +55,17 @@ function opt_debug:InitControls(x, y, xml, handler)
 		
 		mm.init_hint(handler, static, opt, tip_name, tip_text)
 	end
+end
+
+function opt_debug:Update()
+	CUIScriptWnd.Update(self)
+	self.menu_button:Show(level.present())
+end
+
+function opt_debug:OnMenuButtonClicked()
+	if not self.debug_dialog then
+		self.debug_dialog = debug_menu.UIDebugMenu(self)
+	end
+	get_console():execute("main_menu off")
+	level.start_stop_menu(self.debug_dialog, false)
 end

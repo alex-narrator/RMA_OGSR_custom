@@ -325,6 +325,7 @@ end
 function relocate_item(actor, type, item)
 	if db.actor == nil then return false end
 	--' Играем дефолтный звук
+	pda_task:play(db.actor, 0, sound_object.s2d)
 	if type == "in" then
 		local task_texture, task_rect = get_texture_info("ui_iconsTotal_found_thing")
 		local news_text = "%c[255,160,160,160]"..game.translate_string("general_in_item").."\\n".."%c[default]"..game.translate_string(get_inv_name(item))		
@@ -346,9 +347,8 @@ function relocate_item(actor, type, item)
 end
 function relocate_money(actor, type, amount)
 	if db.actor == nil then return false end
-
-
 	--' Играем дефолтный звук
+	pda_task:play(db.actor, 0, sound_object.s2d)
 	if type == "in" then
 		local task_texture, task_rect = get_texture_info("ui_iconsTotal_found_money")
 		local news_text = "%c[255,160,160,160]"..game.translate_string("general_in_money").."\\n".."%c[default]"..game.translate_string(tostring(amount))

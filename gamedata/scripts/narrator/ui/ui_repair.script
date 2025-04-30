@@ -213,7 +213,7 @@ end
 function RepairOverlay:AddListItem(id, back, static, list, child_width)
 	local item = level.object_by_id(id)
 	if not item then return end
-	log3("~1 list:GetDesiredChildWidth() %s", list:GetDesiredChildWidth())
+	--log3("~1 list:GetDesiredChildWidth() %s", list:GetDesiredChildWidth())
 	local params = CIconParams(item:section())
 	params:set_shader(static)
 	local size = vector2():set(params.grid_width * CELL_W * get_current_kx(), params.grid_height * CELL_H)
@@ -239,7 +239,7 @@ function RepairOverlay:AddListItem(id, back, static, list, child_width)
 	self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnListItemClick(id) end, self)
 	self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnListItemFocus(id) end, self)
 	self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnListItemFocusLost(id) end, self)
-	log3("~2 list:GetDesiredChildWidth() %s", list:GetDesiredChildWidth())
+	--log3("~2 list:GetDesiredChildWidth() %s", list:GetDesiredChildWidth())
 end
 
 function RepairOverlay:OnListItemClick(id)

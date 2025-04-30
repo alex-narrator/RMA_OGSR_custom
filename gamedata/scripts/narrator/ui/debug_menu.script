@@ -1,0 +1,350 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+local OVERLAY_XML = "script_overlays\\debug_menu.xml"
+local SPAWN_LIST_SECT = "spawn_items_list"
+local LOCATIONS_LIST_CFG = ini_file_cached("game_maps_single.ltx")
+local LOCATIONS_LIST_SECT = "level_maps_single"
+
+local console = get_console()
+
+local back_texture 		= "square_light_grey"
+local color_default 	= GetARGB(0, 255, 255, 255)
+local color_focused 	= GetARGB(100, 200, 200, 200)
+local color_selected 	= GetARGB(170, 255, 255, 255)
+
+local actor_conditions = {
+	
+}
+
+class "UIDebugMenu" (CUIScriptWnd)
+
+function UIDebugMenu:__init() super()
+	self:InitControls()
+end
+
+function UIDebugMenu:DetachWnd()
+	self:ClearCallbacks()
+end
+
+function UIDebugMenu:InitControls()
+	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
+	
+	local xml = CScriptXmlInit()
+	xml:ParseFile(OVERLAY_XML)
+	
+	self.background = xml:InitStatic("background", self)
+	
+	local offset = ui_inv_utils.GetOffset("center", self.background, self)
+	self.background:SetWndPos(offset.x, offset.y)
+	
+	local prefix, name = "", ""
+	
+	--//items spawn
+	prefix = "background"
+	name = "auto_static"
+	xml:InitAutoStaticGroup(prefix..":"..name, self.background)	
+	
+	--//spawn item
+	name = "spawn_category"
+	self.spawn_category = xml:InitScrollView(prefix..":"..name, self.background)
+	name = "spawn_items"
+	self.spawn_items = xml:InitScrollView(prefix..":"..name, self.background)
+	name = "spawn_items_name"
+	self.spawn_items_name = xml:InitStatic(prefix..":"..name, self.background)
+	name = "spawn_items_icon"
+	self.spawn_items_icon = xml:InitStatic(prefix..":"..name, self.background)
+	name = "spawn_items_descr"
+	self.spawn_items_descr = xml:InitStatic(prefix..":"..name, self.background)
+	name = "spawn_button"
+	self.spawn_button = xml:Init3tButton(prefix..":"..name, self.background)
+	self:Register(self.spawn_button, name)
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.OnSpawn, self)
+	self.spawn_button:Enable(false)
+	
+	--//add money
+	name = "add_money_edit"
+	self.add_money_edit = xml:InitEditBoxEx(prefix..":"..name, self.background)
+	self:Register(self.add_money_edit, name)
+	self:AddCallback(name, ui_events.EDIT_TEXT_COMMIT, self.EditMoneyChange, self)
+	self.add_money_edit:SetText(game.translate_string("ui_inv_add_money_tip"))
+	
+	--//change conditions
+	local actor_cond = actor_obj.condition
+	self.conditions = {
+		["health_"] 	= { 
+			get = function() return actor.health end,
+			set = function(val) actor.health = val end,
+		},
+		["psy_health_"] = { 
+			get = function() return actor.psy_health end,
+			set = function(val) actor.psy_health = val end,
+		},
+		["power_"] 		= { 
+			get = function() return actor.power end,
+			set = function(val) actor.power = val end,
+		},
+		["satiety_"] 	= { 
+			get = function() return actor.satiety end,
+			set = function(val) actor.satiety = val end,
+		},
+		["alcohol_"] 	= { 
+			get = function() return actor.alcohol end,
+			set = function(val) actor.alcohol = val end,
+		},
+		["radiation_"] 	= { 
+			get = function() return actor.radiation end,
+			set = function(val) actor.radiation = val end,
+		},
+		["somnolence_"] = { 
+			get = function() return somnolence.get_val() end,
+			set = function(val) somnolence.change_val(val) end,
+		},
+		["bleeding_"] = { 
+			get = function() return actor:get_bleeding() end,
+			set = function(val) if val > 0 then actor:add_wounds(val) else actor:heal_wounds(-val) end end,
+		},		
+	}
+	for k,v in pairs(self.conditions) do
+		name = k.."static"
+		v.static = xml:InitStatic(prefix..":"..name, self.background)
+		name = k.."track"
+		v.track = xml:InitTrackBar(prefix..":"..name, self.background)
+		v.track:SetTrackValue(v.get())
+		self:Register(v.track, name)
+		self:AddCallback(name, ui_events.TRACKBAR_CHANGED, function() self:OnActorCondChange(k) end, self)
+	end
+	name = "change_conditions_button"
+	self.jump_to_level_button = xml:Init3tButton(prefix..":"..name, self.background)
+	self:Register(self.jump_to_level_button, name)
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.OnChangeConditions, self)	
+
+	--//jump to level
+	name = "jump_to_level_button"
+	self.jump_to_level_button = xml:Init3tButton(prefix..":"..name, self.background)
+	self:Register(self.jump_to_level_button, name)
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.OnJumpToLevel, self)
+	name = "jump_to_level_list"
+	self.jump_to_level_list = xml:InitComboBox(prefix..":"..name, self.background)
+	self:Register(self.jump_to_level_list, name)
+	self:AddCallback(name, ui_events.LIST_ITEM_SELECT, self.OnListItemSelect, self)
+	
+	name = "exit_button"
+	self.exit_button = xml:Init3tButton(prefix..":"..name, self.background)
+	self:Register(self.exit_button, name)
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.OnExit, self)
+	
+	self:InitSpawnData()
+	self:InitJumpToLevelData()
+end
+
+function UIDebugMenu:Update()
+	CUIScriptWnd.Update(self)
+end
+
+function UIDebugMenu:OnKeyboard(dik, keyboard_action)
+	CUIScriptWnd.OnKeyboard( self, dik, keyboard_action )
+	if keyboard_action == ui_events.WINDOW_KEY_PRESSED then
+		if dik_to_bind(dik) == key_bindings.kQUIT then
+			self:OnExit()
+		end
+	end
+	return true	
+end
+
+function UIDebugMenu:OnExit()
+	level.start_stop_menu(self, false)
+end
+
+function UIDebugMenu:InitSpawnData()
+	self.spawn_category_list = {}
+	self.spawn_category_static = {}
+	local n = sys_ini:line_count(SPAWN_LIST_SECT)
+	local name, value = "", ""
+	for i=0,n-1 do
+		result, name, value = sys_ini:r_line(SPAWN_LIST_SECT,i,"","")
+		local tbl = split_string(value, ",")
+		if table.size(tbl) > 0 then
+			self.spawn_category_list[i] = {name, tbl}
+		end
+	end
+	--log3("~spawn_category_list %s", self.spawn_category_list)
+	
+	self.spawn_category:Clear()
+	for k,v in pairs(self.spawn_category_list) do
+		local category = v[1]
+		local size = vector2():set(self.spawn_category:GetDesiredChildWidth(), 10)
+		local static = CUIStatic()
+		static:SetWidth(size.x)
+		static:SetHeight(size.y)
+		static:SetTextComplexMode(true)
+		static:SetText(game.translate_string("st_"..category))
+		static:AdjustHeightToText()
+		static:SetStretchTexture(true)
+		static:InitTexture(back_texture)
+		static:SetColor(color_default)
+		static:SetVTextAlign(CGameFont.valCenter)
+		table.insert(self.spawn_category_static, static)
+		self.spawn_category:AddWindow(static)
+		
+		local i = table.size(self.spawn_category_static)
+		
+		local name = category
+		self:Register(static, name)
+		self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnSpawnCategoryClick(k, i) end, self)
+		self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnSpawnCategoryFocus(k, i) end, self)
+		self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnListSpawnCategoryFocusLost(k, i) end, self)		
+	end
+end
+
+function UIDebugMenu:OnSpawnCategoryClick(k, i)
+	local category = self.spawn_category_list[k][1]
+	local sections = self.spawn_category_list[k][2]
+	
+	self.spawn_category_static[i]:SetColor(color_selected)
+	if self.spawn_category_selected and self.spawn_category_static[self.spawn_category_selected] then
+		self.spawn_category_static[self.spawn_category_selected]:SetColor(color_default)
+	end
+	self.spawn_category_selected = i
+	
+	self.spawn_items:Clear()
+	self.spawn_items_static = {}
+	
+	for k,section in pairs(sections) do
+		local size = vector2():set(self.spawn_items:GetDesiredChildWidth(), 10)
+		local static = CUIStatic()
+		static:SetWidth(size.x)
+		static:SetHeight(size.y)
+		static:SetTextComplexMode(true)
+		static:SetText(game.translate_string(get_inv_name(section)))
+		static:AdjustHeightToText()
+		static:SetStretchTexture(true)
+		static:InitTexture(back_texture)		
+		static:SetColor(color_default)
+		static:SetVTextAlign(CGameFont.valCenter)		
+		table.insert(self.spawn_items_static, static)
+		self.spawn_items:AddWindow(static)
+		
+		local i = table.size(self.spawn_items_static)
+		
+		local name = section
+		self:Register(static, name)
+		self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnSpawnItemClick(section, i) end, self)
+		self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnSpawnItemFocus(section, i) end, self)
+		self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnListSpawnItemFocusLost(section, i) end, self)		
+	end	
+end
+
+function UIDebugMenu:OnSpawnCategoryFocus(k, i)
+	local category = self.spawn_category_list[k][1]
+	if i ~= self.spawn_category_selected then
+		self.spawn_category_static[i]:SetColor(color_focused)
+	end
+end
+
+function UIDebugMenu:OnListSpawnCategoryFocusLost(k, i)
+	local category = self.spawn_category_list[k][1]
+	if i ~= self.spawn_category_selected then
+		self.spawn_category_static[i]:SetColor(color_default)
+	end
+end
+
+function UIDebugMenu:OnSpawnItemClick(section, i)
+	self.spawn_items_static[i]:SetColor(color_selected)
+	if self.spawn_item_selected and self.spawn_items_static[self.spawn_item_selected] then
+		self.spawn_items_static[self.spawn_item_selected]:SetColor(color_default)
+	end
+	self.spawn_item_selected = i
+
+	self.selected_spawn_sect = section
+	self.spawn_button:Enable(true)
+	local text = get_inv_name(section)
+	self.spawn_items_name:SetText(game.translate_string(text))
+	text = read_if_exists(sys_ini, "r_string", section, "description", "")
+	self.spawn_items_descr:SetText(game.translate_string(text))
+	
+	self.spawn_items_icon:DetachAll()
+	local icon_static = CUIStatic()
+	self.spawn_items_icon:AttachChild(icon_static)
+	local params = CIconParams(section)
+	params:set_shader(icon_static)
+	ui_inv_utils.CellItemFitToSize(params, icon_static, self.spawn_items_icon)
+	local offset = ui_inv_utils.GetOffset("center", icon_static, self.spawn_items_icon)
+	icon_static:SetWndPos(offset.x, offset.y)	
+end
+
+function UIDebugMenu:OnSpawnItemFocus(section, i)
+	if i ~= self.spawn_item_selected then
+		self.spawn_items_static[i]:SetColor(color_focused)
+	end
+end
+
+function UIDebugMenu:OnListSpawnItemFocusLost(section, i)
+	if i ~= self.spawn_item_selected then
+		self.spawn_items_static[i]:SetColor(color_default)
+	end
+end
+
+function UIDebugMenu:OnSpawn()
+	if not self.selected_spawn_sect then
+	return end
+	console:execute("g_spawn_to_inventory "..self.selected_spawn_sect)
+	news_manager.relocate_item(actor, "in", self.selected_spawn_sect)
+end
+
+function UIDebugMenu:InitJumpToLevelData()
+	self.jump_to_level_locations = {}
+
+	local n = LOCATIONS_LIST_CFG:line_count(LOCATIONS_LIST_SECT)
+	local name, value = "", ""
+	for i=0,n-1 do
+		result, name, value = LOCATIONS_LIST_CFG:r_line(LOCATIONS_LIST_SECT,i,"","")
+		self.jump_to_level_locations[i] = name
+	end
+	
+	for k,location in pairs(self.jump_to_level_locations) do
+		self.jump_to_level_list:AddItem(location)
+	end
+	
+	self.selected_location = 0
+	self.jump_to_level_list:SetCurrentID(self.selected_location)
+end
+
+function UIDebugMenu:OnListItemSelect()
+	self.selected_location = self.jump_to_level_list:CurrentID()
+end
+
+function UIDebugMenu:OnJumpToLevel()
+	if self.selected_location == nil then
+	return end
+	console:execute("jump_to_level "..self.jump_to_level_locations[self.selected_location])
+end
+
+function UIDebugMenu:EditMoneyChange()
+	local text = self.add_money_edit:GetText()
+	local money = tonumber(text)
+	if not money then return end
+	--log3("~money %s", money)
+	if money < 0 and money < actor:money() then
+		money = -actor:money()
+	end
+	actor:give_money(money)
+	news_manager.relocate_money(actor, money > 0 and "in" or "out", money)
+end
+
+function UIDebugMenu:OnActorCondChange(k)
+	local cond = self.conditions[k]
+	local track = cond.track
+	local val = track:GetTrackValue()
+	cond.delta = val - cond.get()
+	--log3("~%s - delta %s", k, cond.delta)
+end
+
+function UIDebugMenu:OnChangeConditions()
+	for k,v in pairs(self.conditions) do
+		if v.delta and v.delta ~= 0 then
+			--log3("~%s - delta %s", k, v.delta)
+			v.set(v.delta)
+			v.delta = nil
+		end
+		v.track:SetTrackValue(v.get())
+	end
+end
