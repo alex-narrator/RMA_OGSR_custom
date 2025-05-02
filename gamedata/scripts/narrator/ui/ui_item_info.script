@@ -108,19 +108,17 @@ end
 function UIItemInfo:OnCellItemFocus(item)
 	if not get_script_option_value("floating_info") then
 	return end
-	add_update_delayed_action(1, function() self:InitItemInfo(item) end)
-	--self:InitItemInfo(item)
-	self.delay = time_global() + get_script_option_value("floating_show_delay") * 1000
 	self.item = item
+	add_time_delayed_action(get_script_option_value("floating_show_delay"), function() self:InitItemInfo() end)
 end
 
 function UIItemInfo:OnCellItemFocusLost(item)
 	self.background_frame:Show(false)
-	self.delay = false
 	self.item = false
 end
 
-function UIItemInfo:InitItemInfo(item)
+function UIItemInfo:InitItemInfo()
+	local item = self.item
 	if not item then
 		self:OnCellItemFocusLost(item)
 	return end
@@ -166,7 +164,10 @@ function UIItemInfo:InitItemInfo(item)
 end
 
 function UIItemInfo:UpdateWndPos()
-	local b_show = self.item and self.delay and time_global() >= self.delay and not actor_menu.properties_box:IsShown()
+	if not self.background_frame:IsShown() then
+	return end
+	
+	local b_show = self.item and not actor_menu.properties_box:IsShown()
 	self.background_frame:Show(b_show)
 
 	if not self.background_frame:IsShown() then

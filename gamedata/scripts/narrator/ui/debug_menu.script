@@ -345,6 +345,14 @@ function UIDebugMenu:OnChangeConditions()
 			v.set(v.delta)
 			v.delta = nil
 		end
-		v.track:SetTrackValue(v.get())
+		-- log3("~%s - get %s", k, v.get())
+		-- v.track:SetTrackValue(v.get())
 	end
+	add_time_delayed_action(0.01,
+		function()
+			for k,v in pairs(self.conditions) do
+				v.track:SetTrackValue(v.get())
+			end
+		end
+	)
 end

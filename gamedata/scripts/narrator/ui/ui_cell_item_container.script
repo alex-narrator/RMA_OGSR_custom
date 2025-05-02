@@ -170,9 +170,11 @@ function UICellItemContainer:OnFocusLost()
 	--log3("~%s is non focused", self.ID)
 end
 
-function UICellItemContainer:OnCellItemSelect(item)
+function UICellItemContainer:OnCellItemSelect(item, cell_item)
+	if cell_item:GetOwnerID() ~= self.ID then
+	return end
 	for cell_item,v in pairs(self.cell_items) do
-		cell_item:SetSelected(cell_item:GetItem():id() == item:id())
+		cell_item:SetSelected(cell_item:GetItem() and cell_item:GetItem():id() == item:id())
 	end
 end
 
@@ -183,6 +185,12 @@ function UICellItemContainer:GetSelected()
 		end
 	end
 	return nil
+end
+
+function UICellItemContainer:UnselectAll()
+	for cell_item,v in pairs(self.cell_items) do
+		cell_item:SetSelected(false)
+	end
 end
 
 function UICellItemContainer:Highlight(enable)

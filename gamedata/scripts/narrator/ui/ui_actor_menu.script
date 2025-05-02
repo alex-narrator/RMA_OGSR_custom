@@ -617,6 +617,17 @@ function ActorMenuOverlay:OnCellItemFocusLost(obj, cell_item)
 end
 
 function ActorMenuOverlay:OnCellItemSelect(item, cell_item)
+	self.ruck_list:UnselectAll()
+	self.belt_list:UnselectAll()
+	self.loadout_list:UnselectAll()
+	for k,v in pairs(self.slot_list) do
+		v:UnselectAll()
+	end
+	self.target_list:UnselectAll()
+	self.buy_list:UnselectAll()
+	self.sell_list:UnselectAll()
+	cell_item:SetSelected(true)
+	
 	self.cell_item_selected = cell_item
 	
 	self.ruck_list:ColorizeCompatible(item)

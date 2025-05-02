@@ -51,8 +51,8 @@ function RepairOverlay:Subscribe()
 			-- {signal = "on_talk_hide", self = self, fun = self.DetachWnd},
 			-- {signal = "on_actor_menu_show", self = self, fun = self.OnActorMenuShow},
 			-- {signal = "on_cell_item_show", self = self, fun = self.OnItemIconShow},
-			-- {signal = "on_cell_item_select", 	self = self, fun = self.OnCellItemSelect},
-			-- {signal = "on_drop", 				self = self, fun = self.OnDrop},
+			{signal = "on_cell_item_select", 	self = self, fun = self.OnCellItemSelect},
+			{signal = "on_drop", 				self = self, fun = self.OnDrop},
 			-- {signal = "on_cell_item_db_click", self = self, fun = self.ShowRepairRequest},
 		}
 		local sm = ogse_signals.get_mgr()
@@ -85,34 +85,43 @@ function RepairOverlay:InitControls()
 	local xml = CScriptXmlInit()
 	xml:ParseFile(OVERLAY_XML)
 
+	local name, prefix
+
 	self.repair_back = xml:InitStatic("repair_back", self)
 	local offset = ui_inv_utils.GetOffset("center", self.repair_back, self)
 	self.repair_back:SetWndPos(offset.x, offset.y)
 	
-	xml:InitAutoStaticGroup("repair_back:auto_static", self.repair_back)
+	prefix = "repair_back"
+	name = "auto_static"
 	
-	self.repair_item = xml:InitStatic("repair_back:repair_item", self.repair_back)
+	xml:InitAutoStaticGroup(prefix..":"..name, self.repair_back)
 	
-	self.selected_donor = xml:InitStatic("repair_back:selected_donor", self.repair_back)
-	self.selected_tool = xml:InitStatic("repair_back:selected_tool", self.repair_back)
+	name = "repair_item"
+	self.repair_item = xml:InitStatic(prefix..":"..name, self.repair_back)
 	
-	self.repair_donors = xml:InitScrollView("repair_back:repair_donors", self.repair_back)
-	self.donor_child_width = self.repair_donors:GetDesiredChildWidth()
-	self.repair_tools = xml:InitScrollView("repair_back:repair_tools", self.repair_back)
-	self.tool_child_width = self.repair_tools:GetDesiredChildWidth()
+	name = "selected_donor"
+	self.selected_donor = xml:InitStatic(prefix..":"..name, self.repair_back)
+	name = "selected_tool"
+	self.selected_tool = xml:InitStatic(prefix..":"..name, self.repair_back)
 	
-	self.repair_progress = xml:InitProgressBar("repair_back:repair_progress", self.repair_back)
+	name = "repair_donors"
+	self.repair_donors = ui_cell_item_container.UICellItemContainer(xml, prefix..":"..name, self.repair_back)
+	name = "repair_tools"
+	self.repair_tools = ui_cell_item_container.UICellItemContainer(xml, prefix..":"..name, self.repair_back)
 	
-	self.list_item_icon_scale = xml:ReadAttribFlt("repair_back", "list_item_icon_scale", 1)
+	name = "repair_progress"
+	self.repair_progress = xml:InitProgressBar(prefix..":"..name, self.repair_back)
+	
+	self.list_item_icon_scale = xml:ReadAttribFlt(prefix, "list_item_icon_scale", 1)
 
-	local name
-
-	self.repair_button = xml:Init3tButton("repair_back:repair_button", self.repair_back)
+	name = "repair_button"
+	self.repair_button = xml:Init3tButton(prefix..":"..name, self.repair_back)
 	name = "repair_button"
 	self:Register(self.repair_button, name)
 	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.PerformRepair, self)
 	
-	self.exit_button = xml:Init3tButton("repair_back:exit_button", self.repair_back)
+	name = "exit_button"
+	self.exit_button = xml:Init3tButton(prefix..":"..name, self.repair_back)
 	name = "exit_button"
 	self:Register(self.exit_button, name)
 	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.DetachWnd, self)
@@ -144,28 +153,28 @@ function RepairOverlay:SetItem(item)
 end
 
 function RepairOverlay:InitItemsList()
-	self.repair_donors:Clear()
-	self.repair_tools:Clear()
+	self.repair_donors:Reinit()
+	self.repair_tools:Reinit()
 	self.repair_progress:Show(false)
 	self.donors, self.tools = {}, {}
 	function fill_list(dummy, item)
 		if item:id() ~= self.item:id() then
 			if self:IsDonor(item) then
-				table.insert(self.donors, {id = item:id(), back = CUIStatic(), static = CUIStatic()})
+				table.insert(self.donors, {item = item, back = CUIStatic(), static = CUIStatic()})
 			end
 			if self:IsRepairTool(item) then
-				table.insert(self.tools, {id = item:id(), back = CUIStatic(), static = CUIStatic()})
+				table.insert(self.tools, {item = item, back = CUIStatic(), static = CUIStatic()})
 			end
 		end
 	end
 	actor:iterate_inventory(fill_list, nil)
-	--table.sort(self.donors, ui_inv_utils.sort_by_size_type)
-	--table.sort(self.tools, ui_inv_utils.sort_by_size_type)
+	table.sort(self.donors, ui_inv_utils.sort_by_size_type)
+	table.sort(self.tools, ui_inv_utils.sort_by_size_type)
 	for k, v in pairs(self.donors) do
-		self:AddListItem(v.id, v.back, v.static, self.repair_donors, self.donor_child_width)
+		self.repair_donors:AddItem(v.item)
 	end
 	for k, v in pairs(self.tools) do
-		self:AddListItem(v.id, v.back, v.static, self.repair_tools, self.tool_child_width)
+		self.repair_tools:AddItem(v.item)
 	end	
 end
 
@@ -210,130 +219,38 @@ function RepairOverlay:IsRepairTool(item)
 	return false
 end
 
-function RepairOverlay:AddListItem(id, back, static, list, child_width)
-	local item = level.object_by_id(id)
-	if not item then return end
-	--log3("~1 list:GetDesiredChildWidth() %s", list:GetDesiredChildWidth())
-	local params = CIconParams(item:section())
-	params:set_shader(static)
-	local size = vector2():set(params.grid_width * CELL_W * get_current_kx(), params.grid_height * CELL_H)
-	local scale = self.list_item_icon_scale
-	size.x = size.x * scale
-	size.y = size.y * scale
-	static:SetWidth(size.x)
-	static:SetHeight(size.y)
-	local size = vector2():set(child_width, size.y)
-	ui_inv_utils.CellItemFitToSize(params, static, nil, size)
-	ui_cell_item_icons.update_custom_icons(item, static)
-	
-	back:SetStretchTexture(true)
-	back:InitTexture(back_texture)
-	back:SetWidth(static:GetWidth())
-	back:SetHeight(static:GetHeight())
-	back:SetColor(GetARGB(0,255,255,255))
-	back:AttachChild(static)
-	
-	list:AddWindow(back)
-	local name = "list_item_"..id
-	self:Register(back, name)
-	self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnListItemClick(id) end, self)
-	self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnListItemFocus(id) end, self)
-	self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnListItemFocusLost(id) end, self)
-	--log3("~2 list:GetDesiredChildWidth() %s", list:GetDesiredChildWidth())
-end
-
-function RepairOverlay:OnListItemClick(id)
-	local item = level.object_by_id(id)
-	if not item then return end
-	for k, v in pairs(self.donors) do
-		if item:id() == v.id then
-			if self.donor_item and self.donor_item:id() == item:id() then
-				self.donor_item = nil
-				self.selected_donor:DetachAll()
-				self.selected_donor:SetText("")
-				v.back:SetColor(color_default)
-			else
-				if self.donor_item then
-					for k,v in pairs(self.donors) do
-						if self.donor_item:id() == v.id then
-							v.back:SetColor(color_default)
-							break
-						end
-					end
-				end
-				self.donor_item = item
-				self:AttachItemIcon(self.donor_item, self.selected_donor)
-				v.back:SetColor(color_selected)
-			end
-			--break
+function RepairOverlay:OnCellItemSelect(item, cell_item)
+	if cell_item:GetOwnerID() == self.repair_donors:GetID() then
+		if self.donor_item and self.donor_item:id() == item:id() then
+			self.donor_item = nil
+			self.selected_donor:DetachAll()
+			self.selected_donor:SetText("")
+			cell_item:SetSelected(false)
+		else
+			self.donor_item = item
+			self:AttachItemIcon(self.donor_item, self.selected_donor)		
+		end
+	else
+		if self.tool_item and self.tool_item:id() == item:id() then
+			self.tool_item = nil
+			self.selected_tool:DetachAll()
+			self.selected_tool:SetText("")
+			cell_item:SetSelected(false)
+		else
+			self.tool_item = item
+			self:AttachItemIcon(self.tool_item, self.selected_tool)		
 		end
 	end
-	for k, v in pairs(self.tools) do
-		if item:id() == v.id then
-			if self.tool_item and self.tool_item:id() == item:id() then
-				self.tool_item = nil
-				self.selected_tool:DetachAll()
-				self.selected_tool:SetText("")
-				v.back:SetColor(color_default)
-			else
-				if self.tool_item then
-					for k,v in pairs(self.tools) do
-						if self.tool_item:id() == v.id then
-							v.back:SetColor(color_default)
-							break
-						end
-					end
-				end			
-				self.tool_item = item
-				self:AttachItemIcon(self.tool_item, self.selected_tool)
-				v.back:SetColor(color_selected)
-			end
-			--break
-		end
-	end	
 	self:UpdateRepairInfo()
 end
 
-function RepairOverlay:OnListItemFocus(id)
-	local item = level.object_by_id(id)
-	if not item then return end
-	for k, v in pairs(self.donors) do
-		if v.id == item:id() then
-			if not self.donor_item or self.donor_item:id() ~= item:id() then
-				v.back:SetColor(color_focused)
-			end
-			break
-		end
+function RepairOverlay:OnDrop(item)
+	if self.repair_donors:FindItem(item) then
+		self.repair_donors:RemoveItem(item)
 	end
-	for k, v in pairs(self.tools) do
-		if v.id == item:id() then
-			if not self.tool_item or self.tool_item:id() ~= item:id() then
-				v.back:SetColor(color_focused)
-			end
-			break
-		end
-	end
-end
-
-function RepairOverlay:OnListItemFocusLost(id)
-	local item = level.object_by_id(id)
-	if not item then return end
-	for k, v in pairs(self.donors) do
-		if v.id == item:id() then
-			if not self.donor_item or self.donor_item:id() ~= item:id() then
-				v.back:SetColor(color_default)
-			end
-			break
-		end
-	end
-	for k, v in pairs(self.tools) do
-		if v.id == item:id() then
-			if not self.tool_item or self.tool_item:id() ~= item:id() then
-				v.back:SetColor(color_default)
-			end
-			break
-		end
-	end
+	if self.repair_tools:FindItem(item) then
+		self.repair_tools:RemoveItem(item)
+	end	
 end
 
 function RepairOverlay:AttachItemIcon(item, parent_wnd)

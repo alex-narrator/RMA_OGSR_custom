@@ -4,47 +4,19 @@ local OVERLAY_XML = "script_overlays\\sleep_overlay.xml"
 local subscribed = false
 
 function show_sleep_window()
-	level.start_stop_menu(SleepOverlay(get_hud()),true)
+	level.start_stop_menu(SleepOverlay(),true)
 end
 
 class "SleepOverlay" (CUIScriptWnd)
 
-function SleepOverlay:__init(owner) super()
-	self.owner = owner
+function SleepOverlay:__init() super()
+	self.sleep_h = 1
+	self.sleep_m = 0	
 	self:InitControls()
-	--self:Subscribe()
-	self.sleep_h = 0
-	self.sleep_m = 0
 end
 
--- function SleepOverlay:Subscribe()
-	-- self.subscribed = false
-	-- if not self.subscribed then
-		-- self.subscribed = {
-			-- {signal = "on_update", self = self, fun = self.Update},
-		-- }
-		-- local sm = ogse_signals.get_mgr()
-		-- for _, s in ipairs( self.subscribed ) do
-			-- sm:subscribe( s )
-		-- end
-	-- end
--- end
-
--- function SleepOverlay:Unsubscribe()
-	-- if self.subscribed then
-		-- local sm = ogse_signals.get_mgr()
-		-- for _, s in ipairs( self.subscribed ) do
-			-- sm:unsubscribe( s )
-		-- end
-		-- self.subscribed = false
-	-- end
--- end
-
 function SleepOverlay:InitControls()
-	--self.owner:AttachChild(self)
 	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
-	-- self:Enable(true)
-	-- self:Show(true)
 	
 	local xml = CScriptXmlInit()
 	xml:ParseFile(OVERLAY_XML)
@@ -77,7 +49,12 @@ function SleepOverlay:InitControls()
 	name = "quit_button"
 	self.quit_button = xml:Init3tButton("quit_button", self.back)
 	self:Register(self.quit_button, name)
-	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.Hide, self)	
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.Hide, self)
+	
+	--//НЕ ВИДАЛЯТИ!
+	--//без встановлення значення трекбар буде працювати в режимі тригера true/false
+	self.time_track:SetTrackValue(self.sleep_h)
+	self:ChangeTime()
 end
 
 function SleepOverlay:Update()
@@ -108,6 +85,29 @@ function SleepOverlay:StartSleep()
 	return end
 	sleep_manager.start_sleep(self.sleep_h, self.sleep_m)
 	self:Hide()
+end
+
+local actions = {
+	[key_bindings.kLEFT] = true,
+	[key_bindings.kRIGHT] = true,
+}
+local keys = {
+	[DIK_keys.DIK_A] = true,
+	[DIK_keys.DIK_D] = true,
+}
+
+function SleepOverlay:OnKeyboard(dik, keyboard_action)
+	if keyboard_action == ui_events.WINDOW_KEY_PRESSED then
+		local dk = dik_to_bind(dik)
+		if actions[dk] or keys[dik] then
+			local add = (dk == key_bindings.kLEFT or dik == DIK_keys.DIK_A) and -1 or 1
+			self.sleep_h = math.clamp(self.sleep_h + add, 1, 24)
+			self.time_track:SetTrackValue(self.sleep_h)
+			self:ChangeTime()
+			return true
+		end
+	end
+	return CUIScriptWnd.OnKeyboard( self, dik, keyboard_action )
 end
 
 function SleepOverlay:Hide()

@@ -15,7 +15,7 @@ function UICellItem:__init(owner, item, cell_pos, cell_size, owner_list) super()
 	self.owner = owner
 	--//сам cell_item_container
 	self.owner_list = owner_list
-	self.item = item
+	self.item_id = item:id()
 	self.cell_size = cell_size
 	self.childs = {}
 	self.selected = false
@@ -56,7 +56,8 @@ function UICellItem:Unsubscribe()
 end
 
 function UICellItem:InitControls(cell_pos)
-	local params = CIconParams(self.item:section())	
+	local item = level.object_by_id(self.item_id)
+	local params = CIconParams(item:section())	
 	
 	self.drag_enabled = self.owner_list:IsDragEnabled()
 	self.dbclick_enabled = self.owner_list:IsDbclickEnabled()
@@ -120,12 +121,16 @@ function UICellItem:Update()
 	CUIScriptWnd.Update(self)
 	if not self.interactive then
 	return end
-	self.sm:call("on_cell_item_update", self.item, self.icon, self:GetCount())
+	local item = level.object_by_id(self.item_id)
+	if not item then return end	
+	self.sm:call("on_cell_item_update", item, self.icon, self:GetCount())
 end
 
 function UICellItem:OnIconShow()
 	--log3("~on_cell_item_show item %s [id %s] | count %s", self.item:name(), self.item:id(), self:GetCount())
-	self.sm:call("on_cell_item_show", self.item, self.icon, self:GetCount())
+	local item = level.object_by_id(self.item_id)
+	if not item then return end	
+	self.sm:call("on_cell_item_show", item, self.icon, self:GetCount())
 end
 
 function UICellItem:OnFocusReceived()
@@ -133,7 +138,9 @@ function UICellItem:OnFocusReceived()
 	return end
 	
 	self.back:Show(true)
-	self.sm:call("on_cell_item_focus", self.item, self)
+	local item = level.object_by_id(self.item_id)
+	if not item then return end
+	self.sm:call("on_cell_item_focus", item, self)
 end
 
 function UICellItem:OnFocusLost()
@@ -141,14 +148,18 @@ function UICellItem:OnFocusLost()
 	return end
 	
 	self.back:Show(self:GetSelected())
-	self.sm:call("on_cell_item_focus_lost", self.item, self)
+	local item = level.object_by_id(self.item_id)
+	if not item then return end	
+	self.sm:call("on_cell_item_focus_lost", item, self)
 end
 
 function UICellItem:OnLButtonDown()
 	if not self.interactive then
 	return end
-	self.sm:call("on_cell_item_select", self.item, self)
-	self.sm:call("on_cell_item_lb_click", self.item, self)
+	local item = level.object_by_id(self.item_id)
+	if not item then return end	
+	self.sm:call("on_cell_item_select", item, self)
+	self.sm:call("on_cell_item_lb_click", item, self)
 	
 	self.l_button_down = true
 	self.start_drag = false
@@ -164,8 +175,10 @@ end
 function UICellItem:OnRButtonDown()
 	if not self.interactive then
 	return end
-	self.sm:call("on_cell_item_select", self.item, self)
-	self.sm:call("on_cell_item_rb_click", self.item, self)
+	local item = level.object_by_id(self.item_id)
+	if not item then return end	
+	self.sm:call("on_cell_item_select", item, self)
+	self.sm:call("on_cell_item_rb_click", item, self)
 	
 	--log3("~OnRButtonDown item %s | ID %s", self.item:name(), self.item:id())
 end
@@ -175,6 +188,7 @@ function UICellItem:OnDBClick()
 	return end
 	
 	local item = self:GetAnyItem()
+	if not item then return end	
 	self.sm:call("on_cell_item_db_click", item, self)
 end
 
@@ -203,7 +217,7 @@ function UICellItem:GetOwnerID()
 end
 
 function UICellItem:GetItem()
-	return self.item
+	return level.object_by_id(self.item_id)
 end
 
 function UICellItem:GetChilds()
@@ -229,9 +243,10 @@ function UICellItem:GetChildsCount()
 end
 
 function UICellItem:AddChild(item)
-	if self.item:id() == item:id() then
+	if self.item_id == item:id() then
 	return false end
-	if ui_inv_utils.similar_item(self.item, item) then
+	local _item = level.object_by_id(self.item_id)
+	if ui_inv_utils.similar_item(_item, item) then
 		if not self:IsChild(item) then
 			self.childs[item:id()] = true
 			self:OnIconShow()
@@ -260,7 +275,9 @@ function UICellItem:GetCount()
 		return 1
 	end
 	
-	local count = item_count(self.item)
+	local item = level.object_by_id(self.item_id)
+	if not item then return 0 end
+	local count = item_count(item)
 	
 	for child_id,v in pairs(self.childs) do
 		local item = level.object_by_id(child_id)
@@ -299,15 +316,17 @@ function UICellItem:ColorizeRestricted()
 end
 
 function UICellItem:ForceUpdate()
+	local _item = level.object_by_id(self.item_id)	
+	
 	for child_id,v in pairs(self.childs) do
 		local item = level.object_by_id(child_id)
-		if item and not ui_inv_utils.similar_item(self.item, item) then
+		if item and not ui_inv_utils.similar_item(_item, item) then
 			self:RemoveChild(item)
 			self.owner_list:AddItem(item)
 		end
 	end
 	self.icon:DetachAll()
-	self.sm:call("on_cell_item_show", self.item, self.icon, self:GetCount())
+	self.sm:call("on_cell_item_show", _item, self.icon, self:GetCount())
 end
 
 function UICellItem:OnMouseMove()
