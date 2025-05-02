@@ -26,6 +26,18 @@ function SleepOverlay:InitControls()
 	self.back = xml:InitStatic("background", self)
 	xml:InitAutoStaticGroup("background:auto_static", self.back)
 
+	self.panorama = xml:InitStatic("panorama", self.back)
+	self.marker = xml:InitStatic("panorama:marker", self.panorama)
+	self.panorama_move_part = self.panorama:GetWidth() / 24
+	self.panorama_scale = xml:ReadAttribFlt("panorama", "scale", 0)
+	self.marker:SetWidth(self.panorama_move_part)
+
+    local x = level.get_time_hours() * self.panorama_move_part 	--//Frect x1
+    local y = 0 												--//Frect y1
+    local width = self.panorama:GetWidth() 						--//Frect x2
+    local height = self.panorama:GetHeight() 					--//Frect y2
+	self.panorama:SetOriginalRect(x, y, width * self.panorama_scale, height)
+
 	--//date/time
 	self.date_time = xml:InitFrameLine("time_frame_line", self.back)
 	self.date = xml:InitStatic("date", self.date_time)
@@ -74,6 +86,10 @@ function SleepOverlay:ChangeTime()
 	self.sleep_h = self.time_track:GetTrackValue()
 	local tmp = string.format("%d %s", self.sleep_h, game.translate_string("ui_st_hours"))
 	self.time_value:SetText(tmp)
+	
+	local marker_pos = self.marker:GetWndPos()
+	marker_pos.x = self.panorama_move_part * (self.sleep_h - 1)
+	self.marker:SetWndPos(marker_pos.x, marker_pos.y)
 end
 
 function SleepOverlay:StartSleep()
