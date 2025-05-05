@@ -658,6 +658,49 @@ function UpdateUpgrageIcon(item, icon)
 	icon:AttachChild(upgrade_icon)
 end
 
+local MAX_ICON_LAYER = 10
+function UpdateLayerIcons(item, icon)
+	local sect = item:section()
+	local icon_params = CIconParams(sect)
+	local heading = icon:GetCUIStatic():GetHeading()
+	
+	local function update(static, params, offset_type, scale)
+		local cell_w = icon:GetWidth() / icon_params.grid_width
+		local cell_h = icon:GetHeight() / icon_params.grid_height
+		if heading > 0 then
+			cell_h = icon:GetWidth() / icon_params.grid_height * get_current_kx()
+			cell_w = icon:GetHeight() / icon_params.grid_width
+		end		
+		local width = params.grid_width * cell_w * scale
+		local height = params.grid_height * cell_h * scale
+		
+		static:SetWidth(width)
+		static:SetHeight(height)
+		local offset = GetOffset(offset_type, static, icon)
+		static:SetWndPos(offset.x, offset.y)
+	end	
+	
+	for i=0,MAX_ICON_LAYER do
+		local layer_icon_sect = read_if_exists(sys_ini, "r_string", sect, "layer_icon_sect_"..i, nil)
+		if layer_icon_sect then
+			local params = CIconParams(layer_icon_sect)
+			local offset_type = read_if_exists(sys_ini, "r_string", sect, "layer_icon_offset_"..i, "left_down")
+			local scale = read_if_exists(sys_ini, "r_float", sect, "layer_icon_scale_"..i, 1)
+
+			local layer_icon = icon:FindChild("layer_icon_"..i)	
+			if layer_icon then
+				update(layer_icon, params, offset_type, scale)
+			else
+				layer_icon = CUIStatic()
+				params:set_shader(layer_icon)
+				update(layer_icon, params, offset_type, scale)
+				layer_icon:SetWindowName("layer_icon_"..i)
+				icon:AttachChild(layer_icon)
+			end	
+		end		
+	end
+end
+
 local green = GetARGB(175, 0, 255, 0)
 local red = GetARGB(175, 255, 0, 0)
 local orange = GetARGB(175, 238, 153, 26)

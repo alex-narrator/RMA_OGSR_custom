@@ -99,6 +99,7 @@ function campfire_usable_binder:update(delta)
 		local c_campfire_zone = level.object_by_id(self.se_campfire_zone.id)
 		if c_campfire_zone then
 			c_campfire_zone:enable_anomaly()
+			log3("~campfire_usable_binder ignite campfire %s", c_campfire_zone:name())
 		end		
 	end
 	
@@ -108,6 +109,7 @@ function campfire_usable_binder:update(delta)
 		local c_campfire_zone = level.object_by_id(self.se_campfire_zone.id)
 		if c_campfire_zone then
 			c_campfire_zone:disable_anomaly()
+			log3("~campfire_usable_binder disable campfire %s", c_campfire_zone:name())
 		end
 	end
 	

@@ -37,7 +37,9 @@ function on_load()
 			end,
 			function()
 				actor_use_campfire = level.object_by_id(campfire_id)
-				subscribe()
+				if actor_use_campfire then
+					subscribe()
+				end
 			end
 		)
 	end
