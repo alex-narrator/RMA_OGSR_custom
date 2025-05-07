@@ -1014,3 +1014,51 @@ end
 function can_not_open_storage_dolg()
 	return not can_open_storage_dolg()
 end
+
+local FIND_PERSON_PRICE = 10000
+function osvedomitel_find_person_conditions_text()
+	return string.format("%s: %s%s %s", game.translate_string("bar_bar_osvedomitel_find_person_conditions"), "%c[UI_orange]", FIND_PERSON_PRICE, game.translate_string("ui_st_money_regional"))
+end
+function osvedomitel_find_person_hase_money()
+	return actor:money() >= FIND_PERSON_PRICE
+end
+function osvedomitel_find_person_action(first_speaker, second_speaker)
+	dialogs.relocate_money(second_speaker, FIND_PERSON_PRICE, "out")
+	
+	if msg_box then
+		msg_box:HideWnd()
+		msg_box = nil
+	end
+	
+	msg_box = ui_message_box.MessageBoxFindPersonWnd()	
+	msg_box:InitAction(try_find_person)	
+end
+local find_person_clsids = {
+	[clsid.script_stalker] = true,
+	[clsid.script_trader] = true,
+	--[clsid.actor] = true,
+}
+function try_find_person(person_name)
+	local actor_name = actor:character_name()
+	if person_name == actor_name then
+		level.map_add_object_spot_ser(actor:id(), get_find_person_spot(), actor_name)
+		local news = string.format("%s%s\\n%s", "%c[UI_orange]", actor_name, game.translate_string(level.name()))
+		news_manager.custom_news("st_map_location_added", news, "ui_new_map_location")		
+		return
+	end
+	for i=0, 65535 do
+		local sobj = alife():object(i)
+		if sobj and find_person_clsids[sobj:clsid()] then
+			if sobj.character_name == person_name then
+				local name = sobj.character_name
+				level.map_add_object_spot_ser(sobj.id, get_find_person_spot(), name)
+				local level = alife():level_name( game_graph():vertex( sobj.m_game_vertex_id ):level_id() )
+				local news = string.format("%s%s\\n%s", "%c[UI_orange]", name, game.translate_string(level))
+				news_manager.custom_news("st_map_location_added", news, "ui_new_map_location")
+				return
+			end
+		end
+	end
+	local news = string.format("%s%s\\n%s", "%c[red]", person_name, game.translate_string("st_person_not_found"))
+	news_manager.custom_news("st_map_location_not_added", news, "ui_new_map_location")
+end

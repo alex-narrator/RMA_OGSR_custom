@@ -194,7 +194,8 @@ quick_addon 		= kQUICK_ADDON
 test 				= kTEST
 
 [custom_properties_box_action_map_spot]
-fast_travel 		= fast_travel.action_tip, fast_travel.action_check, fast_travel.action
+fast_travel 		= map_spots_action.ft_action_tip, map_spots_action.ft_action_check, map_spots_action.ft_action
+remove_spot 		= map_spots_action.rs_action_tip, map_spots_action.rs_action_check, map_spots_action.rs_action
 
 [loadout]
 pistol_ammo 		= 2
@@ -261,11 +262,17 @@ visual				= physics\box\box_wood_tara
 script_binding      = bind_physic_object.init
 custom_data 		= scripts\mil_dynamite.ltx
 
+;;;;;;USABLE DIESEL GENERATOR;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [diesel_generator]:physic_object
 visual				= physics\technica\disel_generator
 startup_animation 	= idle
 fixed_bones 		= body
 ;custom_data 		= scripts\diesel_generator.ltx
+
+;;;;;;USABLE NOTEBOOK;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+[usable_notebook]:physic_object
+visual				= equipments\item_notebook
+fixed_bones 		= link
 
 [cut_out_switch]:physic_object
 visual 				= physics\keyboard\lab_primary_switcher
@@ -574,11 +581,6 @@ custom_data 				= scripts\mattress.ltx
 visual        				= physics\decor\sleeping_decor_inviz
 script_binding      		= bind_campfire.init_usable
 custom_data 				= scripts\fireplace.ltx
-
-;;;;;;USABLE DIESEL GENERATOR;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; [diesel_generator]:script_object
-; visual        				= physics\technica\disel_generator
-; script_binding  			= bind_physic_object.init
 
 ;параметры показывания входящих сообщений PDA в главном меню
 [maingame_ui]

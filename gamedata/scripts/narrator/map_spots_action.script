@@ -1,0 +1,68 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+
+--//fast travel
+local ENABLED = true
+local ENEMY_CHECK_RADIUS = 50
+local fast_travel_types = {
+}
+
+function refuse_reason()
+	if has_enemy_near(actor, get_script_option_value("check_enemy_radius")) then
+	return "st_enemies_nearby" end
+	if actor:get_inventory_weight() >= actor:get_max_weight() then
+	return "st_has_overweight" end
+	if actor:get_inventory_weight() >= actor:get_max_weight() then
+	return "st_has_bleeding" end
+	return nil
+end
+
+function show_refuse_msg(reason)
+	local refuse_text = string.format("%s: %s", game.translate_string("ui_st_cant_fast_travel"), game.translate_string(reason))
+	hud_add_info_message("item_usage", refuse_text)
+end
+
+function fast_travel_allowed()
+	return ENABLED or not has_enemy_near(actor, get_script_option_value("check_enemy_radius")) and actor:get_inventory_weight() < actor:get_max_weight() and actor:get_bleeding() < 0.1
+end
+
+function ft_action_tip(id, spot_type, level_name, position)
+	--log3("~action_tip id %s, spot_type %s, level_name %s, position (%s %s %s)", id, spot_type, level_name, position.x, position.y, position.z)
+	return game.translate_string("st_fast_travel")
+end
+function ft_action_check(id, spot_type, level_name, position)
+	--log3("~action_check id %s, spot_type %s, level_name %s, position (%s %s %s)", id, spot_type, level_name, position.x, position.y, position.z)
+	return fast_travel_allowed()
+end
+function ft_action(id, spot_type, level_name, position)
+	local reason = refuse_reason()
+	if reason then
+		show_refuse_msg(reason)
+	return end
+	teleport_actor(position, level_name)
+end
+
+--//remove spots
+local spot_types = {
+	[get_find_person_spot()] = true,
+}
+
+function rs_action_tip(id, spot_type, level_name, position)
+	return game.translate_string("st_pda_delete_spot")
+end
+
+function rs_action_check(id, spot_type, level_name, position)
+	for k,v in pairs(spot_types) do
+		if k == spot_type then
+			return true
+		end
+	end
+	return false
+end
+
+function rs_action(id, spot_type, level_name, position)
+	for k,v in pairs(spot_types) do
+		if k == spot_type then
+			level.map_remove_object_spot(id, spot_type)
+		end
+	end
+end

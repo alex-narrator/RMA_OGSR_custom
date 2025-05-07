@@ -29,7 +29,7 @@ end
 function on_key_press(key, game_action)
 	local curr_nvd = nvd.get_current_nvd()
 	if not nvd_action[game_action] or
-		--level.main_input_receiver() or
+		level.main_input_receiver() or
 		level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) or
 		active_pda() or
 		not curr_nvd

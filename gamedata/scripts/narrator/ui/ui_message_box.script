@@ -210,6 +210,69 @@ function MessageBoxPasswordWnd:HideWnd()
 	self:DetachWnd()
 end
 
+class "MessageBoxFindPersonWnd" (CUIScriptWnd)
+local msg_box_type = "message_box_find_person"
+
+function MessageBoxFindPersonWnd:__init(attach) super()
+	self.owner = level.main_input_receiver()
+	self:InitWnd(attach)
+end
+
+function MessageBoxFindPersonWnd:DetachWnd()
+	self:ClearCallbacks()
+end
+
+function MessageBoxFindPersonWnd:InitWnd(attach)
+	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
+	local xml = CScriptXmlInit()
+	xml:ParseFile(OVERLAY_XML)
+	
+	self.message_box = CUIMessageBox()
+	self:AttachChild(self.message_box)
+	self.message_box:Init(msg_box_type)
+	self:Register(self.message_box, "message_box")
+	
+	self:AddCallback("message_box", ui_events.MESSAGE_BOX_YES_CLICKED, self.ProcessAction, self)
+	self:AddCallback("message_box", ui_events.MESSAGE_BOX_NO_CLICKED, self.HideWnd, self)
+	
+	self.edit_enter_person_name = xml:InitEditBoxEx(msg_box_type..":edit_enter_person_name", self.message_box)
+	self:Register(self.edit_enter_person_name, "enter_person_name")
+	self:AddCallback("enter_person_name", ui_events.EDIT_TEXT_COMMIT, self.EditPersoneNameChange, self)
+	self.cap_enter_person_name = xml:InitStatic(msg_box_type..":cap_enter_person_name", self.message_box)
+	
+	if not attach then
+		level.start_stop_menu(self, true)
+	else
+		self.owner:AttachChild(self)
+		self:Enable(true)
+		self:Show(true)
+	end
+end
+
+function MessageBoxFindPersonWnd:InitAction(action_func, ...)
+	self.action = action_func
+	self.args = {...}
+end
+
+function MessageBoxFindPersonWnd:ProcessAction()
+	table.insert(self.args, self.edit_enter_person_name:GetText())
+	self.action(unpack(self.args))
+	self:HideWnd()
+end
+
+function MessageBoxFindPersonWnd:EditPersoneNameChange()
+	local text = self.edit_enter_person_name:GetText()
+	self.edit_enter_person_name:SetText(text)
+end
+
+function MessageBoxFindPersonWnd:HideWnd()
+	if self.owner:IsChild(self) then
+		self.owner:DetachChild(self)
+	elseif self:IsShown() then
+		level.start_stop_menu(self, true)
+	end
+	self:DetachWnd()
+end
 
 
 class "MessageBoxErrorWnd" (CUIScriptWnd)

@@ -2867,6 +2867,27 @@
             </phrase>
         </phrase_list>
     </dialog>
+	<dialog id="bar_bar_osvedomitel_find_person">
+        <phrase_list>
+            <phrase id="0">
+                <text>bar_bar_osvedomitel_find_person_start</text>
+				<next>bar_bar_osvedomitel_find_person_conditions</next>
+            </phrase>
+            <phrase id="bar_bar_osvedomitel_find_person_conditions">
+                <script_text>bar_dialogs.osvedomitel_find_person_conditions_text</script_text>
+				<next>bar_bar_osvedomitel_find_person_accept</next>
+				<next>bar_bar_osvedomitel_find_person_decline</next>
+            </phrase>
+            <phrase id="bar_bar_osvedomitel_find_person_accept">
+                <text>bar_bar_osvedomitel_find_person_accept</text>
+				<precondition>bar_dialogs.osvedomitel_find_person_hase_money</precondition>
+                <action>bar_dialogs.osvedomitel_find_person_action</action>
+            </phrase>
+            <phrase id="bar_bar_osvedomitel_find_person_decline">
+                <text>bar_bar_osvedomitel_find_person_decline</text>
+            </phrase>
+        </phrase_list>
+    </dialog>	
 	<dialog id="bar_bar_osvedomitel_trade_bio">
 		<phrase_list>
 			<phrase id="0">

@@ -21,6 +21,7 @@ function on_key_press(key, game_action)
 	if not torch_action[game_action] or
 		not actor_hands_free() or
 		SCRIPT_ANIM_PLAYING or actor:get_holder() or
+		level.main_input_receiver() or
 		not curr_torch
 	then
 	return end

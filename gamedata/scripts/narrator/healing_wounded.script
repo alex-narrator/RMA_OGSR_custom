@@ -34,9 +34,13 @@ function get_medkit()
 					item = v[1]
 				end
 			end
-			return item
+			if item then
+				return item
+			end
 		else
-			return actor:object(sect)
+			if actor:object(sect) then
+				return actor:object(sect)
+			end
 		end		
 	end
 	return nil
@@ -52,6 +56,7 @@ function heal(npc)
 	local second_speaker = npc
 	
 	local medkit = get_medkit()
+	--log3("~medkit %s", medkit and medkit:section() or "NONE")
 	if not medkit then return end
 	--' “ут надо анлочить аптечку дл¤ использовани¤.
 	xr_wounded.unlock_medkit(second_speaker)

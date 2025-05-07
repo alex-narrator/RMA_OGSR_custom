@@ -2366,6 +2366,10 @@ function set_script_option_value(opt, val)
 	mm_custom_options.set_script_option(opt, val)
 end
 
+function get_find_person_spot()
+	return read_if_exists(sys_ini, "r_string", "user_spots", "find_person_spot", "red_location")
+end
+
 ADDON_TYPES = {
 	"silencer",
 	"scope",
