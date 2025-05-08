@@ -624,7 +624,7 @@ if item then
 end
 
 --set_markswitch_count(0)
---set_scope_params(2.5, 1, 0, 1)
+--set_scope_params(1, 1, 0, 1)
 --set_scope_color(0.1,0.1,0,0)
 
 --game.play_hud_motion(2, "cigarettes_marlboro_hud", "anm_use", false, 1, true)

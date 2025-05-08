@@ -193,14 +193,22 @@ function fill_dependent_ammo(item, tbl)
 	check_line = read_if_exists(sys_ini, "r_string", sect, "magazine_class", nil)
 	if check_line then
 		check_line = split_string(check_line, ",")
-		for k,v in pairs(check_line) do
-			if not tbl[sect] then
-				tbl[sect] = {}
-			end
-			if not tbl[sect][v] then
-				tbl[sect][v] = true
-			end
+		--//тільки перший магазин з сумісних
+		local v = check_line[1]
+		if not tbl[sect] then
+			tbl[sect] = {}
 		end
+		if not tbl[sect][v] then
+			tbl[sect][v] = true
+		end		
+		-- for k,v in pairs(check_line) do
+			-- if not tbl[sect] then
+				-- tbl[sect] = {}
+			-- end
+			-- if not tbl[sect][v] then
+				-- tbl[sect][v] = true
+			-- end
+		-- end
 	end
 	local wpn = item:get_weapon()
 	if wpn and wpn:is_addon_attached(addon.launcher) then
