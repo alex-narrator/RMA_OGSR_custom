@@ -115,6 +115,9 @@ local rank_icons = {
 }
 
 function get_icon_sect(obj)
+	if tonumber(obj) then
+		return rank_icons[get_val_rank_name(obj)]
+	end
 	--log3("~obj %s, rank %s, icon_sect %s", obj and obj:name() or "none", get_obj_rank_name(obj) or "none", rank_icons[get_obj_rank_name(obj)] or "none")
 	return obj:is_trader() and rank_icons["experienced"] or rank_icons[get_obj_rank_name(obj)] or ""
 end

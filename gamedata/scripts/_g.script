@@ -203,6 +203,29 @@ function log3(fmt, ...)
 	log1(msg)
 end
 --==============================================================================================
+local log_color = {
+	["-"] = "green",
+	["~"] = "yellow",
+	["!"] = "red",
+}
+function log_news(fmt, ...)
+	local args = {...}
+	for i=1, #args do
+		args[i] = tostring_all(args[i])
+	end
+	local res, msg = pcall(string.format, fmt, unpack(args))
+	if not res then --Если произошла ошибка
+		msg = "!!log3 failed: "..msg.."\n"..debug.traceback()
+	end
+	local color, clr_code, news = "", log_color[msg:sub(1, 1)], msg
+	if clr_code then
+		color = "%c["..log_color[msg:sub(1, 1)].."]"
+		news = msg:sub(2)
+	end
+	news_manager.custom_news("DEBUG MESSAGE", string.format("%s%s", color, news))
+	log1(msg)
+end
+
 function abort(fmt, ...)
 	log1("!!****************************[ABORT]*********************************")
 	log1(debug.traceback())

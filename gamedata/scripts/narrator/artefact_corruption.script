@@ -1,0 +1,42 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_slot",   				fun = this.try_add_to_list})
+	sm:subscribe({signal = "on_belt",   				fun = this.try_add_to_list})
+	sm:subscribe({signal = "update_items_effect",   	fun = this.on_update_effects})
+end
+
+local condition_decrease = {}
+
+function try_add_to_list(item)
+	if not item:is_artefact() then
+	return end
+	local sect = item:section()
+	local corruption_time = read_if_exists(sys_ini, "r_u32", sect, "corruption_time", nil)
+	if not corruption_time then
+	return end
+	if condition_decrease[sect] then
+	return end
+	condition_decrease[sect] = (1 / (3600 * corruption_time))
+end
+
+function try_corrupt(item, delta)
+	if item:condition() <= 0 then
+	return end
+	local dec = condition_decrease[item:section()]
+	if not dec then
+	return end
+	item:change_condition(-dec*delta)
+end
+
+function on_update_effects(delta)
+	local af_in_slot = actor:item_in_slot(ARTEFACT_SLOT)
+	if af_in_slot then
+		try_corrupt(af_in_slot, delta)
+	end
+	for i=0, actor:belt_count()-1 do
+		local item = actor:item_on_belt(i)
+		if item then
+			try_corrupt(item, delta)
+		end
+	end
+end

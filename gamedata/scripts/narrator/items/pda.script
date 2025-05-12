@@ -20,7 +20,9 @@ function generate_password(rank)
 		log3("~no passwords for rank %s", rank)
 	return nil end
 	passwords = split_string(passwords, ",")
-	return passwords[math.random(1, #passwords)]
+	local password = passwords[math.random(1, #passwords)]
+	--log_news("~generate password [%s] for rank [%s]", password, rank)
+	return password
 end
 
 function fill_owner_info(id, desired_password)
@@ -42,6 +44,7 @@ function fill_owner_info(id, desired_password)
 	od.comm = parent:character_community()
 	od.profile = parent:profile_name()
 	od.rank = parent:character_rank()
+	--log_news("~fill_owner_info character_name: %s, comm: %s, rank: %s, rank_name: %s", od.name, od.comm, od.rank, ranks.get_val_rank_name(od.rank))
 	od.password = desired_password or generate_password(ranks.get_val_rank_name(od.rank))
 	if not od.password then
 		log3("!failed to generate PDA password for owner: %s, ID %s", parent:character_name(), parent:id())
@@ -123,8 +126,8 @@ function try_hack(item)
 	local od = se_obj.owner_data
 	local password = od.password
 	local password_tip = shuffle_string(password)
-	local msg = string.format("%s: %s\\n-\\n%s: %s%s", 
-		game.translate_string("st_password_tip"), password_tip, 
+	local msg = string.format("%s: %s%s%s \\n-\\n%s: %s%s", 
+		game.translate_string("st_password_tip"), password == password_tip and "%c[green]" or "", password_tip, "%c[default]", 
 		game.translate_string("st_unlock_attempts"), se_obj.unlock_attempts > 1 and "%c[default]" or "%c[red]", se_obj.unlock_attempts)
 	
 	msg_box:InitAction(msg, verify_password, item)

@@ -127,7 +127,9 @@ function similar_item(item1, item2)
 	--if item1:get_pda() and item2:get_pda() then
 	if is_pda_hackable(item1) and is_pda_hackable(item2) then
 		local se_item1, se_item2 = alife():object(item1:id()), alife():object(item2:id())
-		similar = similar and se_item1.lock_state == 0 and se_item2.lock_state == 0
+		local od_1, od_2 = se_item1.owner_data, se_item2.owner_data
+		local rank_name = ranks.get_val_rank_name
+		similar = similar and (se_item1.lock_state == 0 and se_item2.lock_state == 0) and (not (od_1 and od_2) or rank_name(od_1.rank) == rank_name(od_2.rank))
 	end
 	
 	-- t:stop()
@@ -759,6 +761,64 @@ function UpdatePdaLockIcon(item, icon)
 	
 	pda_lock_icon:SetWindowName("pda_lock_icon")
 	icon:AttachChild(pda_lock_icon)
+end
+
+function UpdatePdaRankIcon(item, icon)
+	if not item or not is_pda_hackable(item) then
+	return end
+	
+	local se_obj = alife():object(item:id())
+	local od = se_obj.owner_data
+	if not od then
+	return end
+	
+	local sect = item:section()
+	
+	local icon_params = CIconParams(sect)
+	
+	local heading = icon:GetCUIStatic():GetHeading()
+	
+	local se_obj = alife():object(item:id())
+	local lock_state = se_obj and se_obj.lock_state or nil
+	local icon_color = green
+	if lock_state == 1 then
+		icon_color = orange
+	elseif lock_state == 2 then
+		icon_color = red
+	end
+	
+	local offset_type = read_if_exists(sys_ini, "r_string", sect, "pda_rank_offset", "right_down")
+	local scale = read_if_exists(sys_ini, "r_string", sect, "pda_rank_scale", 0.35)
+	local function update(static)
+		local cell_w = icon:GetWidth() / icon_params.grid_width
+		local cell_h = icon:GetHeight() / icon_params.grid_height
+		if heading > 0 then
+			cell_h = icon:GetWidth() / icon_params.grid_height * get_current_kx()
+			cell_w = icon:GetHeight() / icon_params.grid_width
+		end		
+		local width = icon_params.grid_width * cell_w * scale
+		local height = icon_params.grid_height * cell_h * scale
+		
+		static:SetWidth(width)
+		static:SetHeight(height)
+		local offset = GetOffset(offset_type, static, icon)
+		static:SetWndPos(offset.x, offset.y)
+	end
+	
+	local pda_rank_icon = icon:FindChild("pda_rank_icon")
+	if pda_rank_icon then
+		update(pda_rank_icon)
+		return
+	end
+
+	pda_rank_icon = CUIStatic()
+	pda_rank_icon:SetStretchTexture(true)
+	pda_rank_icon:InitTexture(ranks.get_icon_sect(od.rank))
+	
+	update(pda_rank_icon)
+	
+	pda_rank_icon:SetWindowName("pda_lock_icon")
+	icon:AttachChild(pda_rank_icon)
 end
 
 function UpdateQuestIcon(item, icon)
