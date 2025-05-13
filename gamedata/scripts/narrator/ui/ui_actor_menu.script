@@ -408,14 +408,30 @@ function ActorMenuOverlay:InitControls()
 	self.char_info_back = xml:InitStatic("char_info_back", self)
 	self.char_info_icon = xml:InitStatic("char_info_icon", self.char_info_back)
 	self.char_info_icon_comm = xml:InitStatic("char_info_icon_comm", self.char_info_back)
+	name = "char_info_icon_comm"
+	self:Register(self.char_info_icon_comm, name)
+	self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnCommIconFocus(true) end, self)
+	self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnCommIconFocusLost() end, self)
 	self.char_info_icon_rank = xml:InitStatic("char_info_icon_rank", self.char_info_back)
+	name = "char_info_icon_rank"
+	self:Register(self.char_info_icon_rank, name)	
+	self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnRankIconFocus(true) end, self)
+	self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnRankIconFocusLost() end, self)	
 	self.char_info_text = xml:InitStatic("char_info_text", self.char_info_back)
 	
 	--//character info NPC or date/time/money in inventory mode
 	self.char_info_back_npc = xml:InitStatic("char_info_back_npc", self)
 	self.char_info_icon_npc = xml:InitStatic("char_info_icon_npc", self.char_info_back_npc)
 	self.char_info_icon_comm_npc = xml:InitStatic("char_info_icon_comm_npc", self.char_info_back_npc)
+	name = "char_info_icon_comm_npc"
+	self:Register(self.char_info_icon_comm_npc, name)
+	self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnCommIconFocus(false) end, self)
+	self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnCommIconFocusLost() end, self)	
 	self.char_info_icon_rank_npc = xml:InitStatic("char_info_icon_rank_npc", self.char_info_back_npc)
+	name = "char_info_icon_rank_npc"
+	self:Register(self.char_info_icon_rank_npc, name)
+	self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnRankIconFocus(false) end, self)
+	self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnRankIconFocusLost() end, self)	
 	self.char_info_text_npc = xml:InitStatic("char_info_text_npc", self.char_info_back_npc)
 	
 	--//weight static
@@ -1208,6 +1224,30 @@ function ActorMenuOverlay:SetCharacterTextNPC()
 	local money_unit = game.translate_string("ui_st_money_regional")
 	local char_text = string.format("%s%s\\n%s%s %s", rel_color, name, "%c[default]", money, money_unit)
 	self.char_info_text_npc:SetText(char_text)
+end
+
+function ActorMenuOverlay:OnCommIconFocus(for_actor)
+	local obj = for_actor and actor or self.target
+	if not obj then
+	return end
+	local text = string.format("%s %s", game.translate_string("st_community"), game.translate_string(obj:character_community()))
+	self:SetTooltip(text)
+end
+
+function ActorMenuOverlay:OnCommIconFocusLost()
+	self:SetTooltip(nil)
+end
+
+function ActorMenuOverlay:OnRankIconFocus(for_actor)
+	local obj = for_actor and actor or self.target
+	if not obj then
+	return end
+	local text = string.format("%s: %s", game.translate_string("ui_st_rank"), game.translate_string(ranks.get_obj_rank_name(obj)))
+	self:SetTooltip(text)
+end
+
+function ActorMenuOverlay:OnRankIconFocusLost()
+	self:SetTooltip(nil)
 end
 
 function ActorMenuOverlay:UpdateWeightText()
