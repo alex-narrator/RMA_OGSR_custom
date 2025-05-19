@@ -2,17 +2,20 @@ class "se_artefact"	(cse_alife_item_artefact)
 
 function se_artefact:__init (section) super (section)
 	self.is_taken = false
+	self.random_k = 1
 end
 
 function se_artefact:STATE_Write (packet)
 	cse_alife_item_artefact.STATE_Write (self, packet)
 	packet:w_bool(self.is_taken)
+	packet:w_float(self.random_k)
 end
 function se_artefact:STATE_Read (packet, size)
 	cse_alife_item_artefact.STATE_Read (self, packet, size)
 	if packet:r_eof() then
 	return end
 	self.is_taken = packet:r_bool()
+	self.random_k = packet:r_float()
 end
 
 --[[function se_artefact:__init (section) super (section)

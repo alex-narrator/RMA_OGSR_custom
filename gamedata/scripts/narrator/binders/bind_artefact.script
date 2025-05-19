@@ -1,0 +1,51 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+------------------------------------------------------------------------------------------
+--біндер артефактів
+------------------------------------------------------------------------------------------
+
+local RND_MULT = 100 --//щоб коректно генерувати рандом для значень з десятковими дробами
+
+function init(obj)
+    local new_binder = artefact_binder(obj)
+    obj:bind_object(new_binder)
+end
+
+--послідовність викликів:
+--__init
+--reload
+--load (if save was called before)
+--net_spawn
+
+class "artefact_binder" (object_binder)
+function artefact_binder:__init(obj) super(obj)
+	--log3("%s __init for object %s", script_name(), self.object:name())
+	self.se_obj = alife():object(self.object:id())
+end
+ 
+function artefact_binder:net_spawn(data)
+	--log3("%s net_spawn for object %s", script_name(), self.object:name())
+    local spawned = object_binder.net_spawn(self, data)
+	
+	if self.se_obj.random_k == 1 then
+		local random_param = read_if_exists(sys_ini, "r_string", self.object:section(), "random_k", nil)
+		if random_param then
+			random_param = split_string(random_param, ",", true)
+			if table.size(random_param) > 1 then
+				self.se_obj.random_k = math.random(random_param[1] * RND_MULT, random_param[2] * RND_MULT) / RND_MULT
+			else
+				self.se_obj.random_k = math.random(0.1, random_param[1] * RND_MULT) / RND_MULT
+			end
+		end
+	end
+	
+	if self.se_obj.random_k ~= 1 then
+		local iitem = self.object:get_inventory_item()
+		for i=0,10 do
+			iitem:item_effect(i, iitem:item_effect(i) * self.se_obj.random_k)
+			iitem:hit_type_protection(i, iitem:hit_type_protection(i) * self.se_obj.random_k)
+		end
+		log3("~artefact %s | random_k %s", self.object:name(), self.se_obj.random_k)
+	end
+	
+	return spawned
+end
