@@ -33,3 +33,8 @@ end
 function can_artefact_affect(item)
 	return item:condition() > 0 and (actor:is_on_belt(item) or actor:is_in_slot(item))
 end
+
+function on_actor_condition_hit(hit_power, hit_type)
+	--log3("~on_actor_condition_hit: power %s | type %s", hit_power, get_hit_type_name(hit_type))
+	return actor_conditions.on_condition_hit(hit_power, hit_type)
+end

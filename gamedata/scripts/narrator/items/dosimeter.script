@@ -124,11 +124,7 @@ end
 
 function get_result_radiation()
 	if show_actor_rad then
-		if is_rad_absolute() then
-			return actor.radiation * get_rad_absolute_eqivalent()
-		else
-			return actor.radiation
-		end
+		return actor.radiation
 	else
 		return result_power
 	end

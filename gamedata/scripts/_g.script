@@ -2310,16 +2310,6 @@ function is_crosshair_hard()
 	return get_console():get_bool("hud_crosshair_hard")
 end
 
-function is_rad_absolute()
-	return read_if_exists(sys_ini, "r_bool", "features", "absolute_radiation", false)
-end
-function get_rad_absolute_eqivalent()
-	return read_if_exists(sys_ini, "r_float", "features", "absolute_radiation_equivalent", 1)
-end
-function get_rad_absolute_name()
-	return game.translate_string(read_if_exists(sys_ini, "r_string", "features", "absolute_radiation_name", "absolute_radiation_name"))
-end
-
 --//http://lua-users.org/wiki/DayOfWeekAndDaysInMonthExample
 function get_day_of_week(dd, mm, yy)
 	dw=os.date('*t',os.time{year=yy,month=mm,day=dd})['wday']
@@ -2402,6 +2392,38 @@ ADDON_TYPES = {
 	"stock",
 	"extender",
 	"forend",
+}
+
+BOOST_PARAMS = {
+	"boost_health",
+	"boost_power",
+	"boost_max_power",
+	"boost_satiety",
+	"boost_radiation",
+	"boost_psyhealth",
+	"boost_alcohol",
+	"boost_wounds_heal",
+	
+	"boost_sprint",
+	"boost_jump",
+	"boost_weight",
+	
+	--//послідовність відповідно типу хіта у рушії - EHitType
+	"boost_burn_protection",
+	"boost_shock_protection",
+	"boost_strike_protection",
+	"boost_wound_protection",
+	"boost_radiation_protection",
+	"boost_telepatic_protection",
+	"boost_chemical_burn_protection",
+	"boost_explosion_protection",
+	"boost_fire_wound_protection",
+	
+	--"boost_wound_2_protection",
+	--"boost_physic_strike_protection",
+	
+	"boost_somnolence",
+	"boost_pain",	
 }
 
 ACTIVE_ITEM_INFO_TTL 	= read_if_exists(sys_ini, "r_u32", "actor", "active_item_info_ttl", 3)

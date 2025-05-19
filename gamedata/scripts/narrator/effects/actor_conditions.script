@@ -1,0 +1,165 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "update_items_effect", 	fun = this.on_update_effects})	
+	sm:subscribe({signal = "on_booster_enable",   	fun = this.on_booster_enable})
+	sm:subscribe({signal = "on_booster_disable",   	fun = this.on_booster_disable})
+	sm:subscribe({signal = "on_actor_jump",   		fun = this.on_jump})
+	sm:subscribe({signal = "on_use",   				fun = this.on_item_use})
+end
+
+local actor_cond 				= actor_obj.condition--actor.conditions
+local cond_sect 				= read_if_exists(sys_ini, "r_string", "actor", "condition_sect", "actor_condition")
+
+local def_walk_accel 			= read_if_exists(sys_ini, "r_float", "actor", "walk_accel", 17)
+local def_walk_accel 			= read_if_exists(sys_ini, "r_float", "actor", "walk_accel", 17)
+local def_sprint_koef 			= read_if_exists(sys_ini, "r_float", "actor", "sprint_koef", 2.6)
+local def_jump_speed 			= read_if_exists(sys_ini, "r_float", "actor", "jump_speed", 6)
+local def_max_weight 			= read_if_exists(sys_ini, "r_float", "inventory", "max_weight", 50)
+
+local def_bleeding_v 			= read_if_exists(sys_ini, "r_float", cond_sect, "bleeding_v", 0)
+local def_satiety_v 			= read_if_exists(sys_ini, "r_float", cond_sect, "satiety_v", 0)
+local def_alcohol_v 			= read_if_exists(sys_ini, "r_float", cond_sect, "alcohol_v", 0)
+
+local def_wound_incarnation_v 	= read_if_exists(sys_ini, "r_float", cond_sect, "wound_incarnation_v", 0)
+local def_health_restore_v 		= read_if_exists(sys_ini, "r_float", cond_sect, "health_restore_v", 0)
+local def_psy_health_v 			= read_if_exists(sys_ini, "r_float", cond_sect, "psy_health_v", 0)
+local def_power_v 				= read_if_exists(sys_ini, "r_float", cond_sect, "power_v", 0)
+
+local min_power_walk_jump 		= read_if_exists(sys_ini, "r_float", cond_sect, "min_power_walk_jump", 0.1)
+local stress_factor 			= read_if_exists(sys_ini, "r_float", cond_sect, "stress_factor", 1)
+local min_regen_k 				= read_if_exists(sys_ini, "r_float", cond_sect, "min_regen_k", 0)
+local bleeding_power_dec 		= read_if_exists(sys_ini, "r_float", cond_sect, "bleeding_power_dec", 0)
+local bleeding_stress_inc 		= read_if_exists(sys_ini, "r_float", cond_sect, "bleeding_stress_inc", 0.01)
+
+local protection_index 			= 12 --//порядковий номер з якого починаються секції захисту від різновидів ушкоджень (відлік починається з 1)
+
+local stress_blood 				= {}
+
+local update_boost_func = {
+	["boost_health"] 		= function(val) actor.health = val end,
+	["boost_power"] 		= function(val) actor.power = val end,
+	["boost_max_power"] 	= function(val) actor_cond.max_power_leak_speed = actor_cond.max_power_leak_speed + val end,
+	["boost_satiety"] 		= function(val) actor.satiety = val end,
+	["boost_radiation"] 	= function(val) actor.radiation = val end,
+	["boost_psyhealth"] 	= function(val)	actor.psy_health = val end,
+	["boost_alcohol"] 		= function(val)	actor.alcohol = val end,
+	["boost_wounds_heal"] 	= function(val) actor:heal_wounds(val) end,
+	["boost_somnolence"] 	= function(val) somnolence.change_val(val) end,
+}
+
+function on_update_effects(delta)
+	--//custom conditions
+	actor_obj.walk_accel 			= def_walk_accel * overweight_koef()
+	
+	local stress_k 					= stress_koef()
+	actor_cond.satiety_v 			= def_satiety_v * stress_k
+	actor_cond.alcohol_v 			= def_alcohol_v * stress_k
+	
+	local regen_k 					= regen_koef()
+	actor_cond.wound_incarnation_v 	= def_wound_incarnation_v * regen_k
+	actor_cond.health_restore_v 	= def_health_restore_v * regen_k
+	actor_cond.psy_health_v 		= def_psy_health_v * regen_k
+	actor_cond.power_v 				= def_power_v * regen_k
+	
+	local bleeding = actor:get_bleeding()
+	if bleeding > 0 then
+		actor.power = -bleeding * bleeding_power_dec * delta
+	end
+	
+	if stress_k > 1 then
+		local inc = bleeding_stress_inc * stress_k
+		table.insert(stress_blood, inc)
+		actor:heal_wounds(-inc * delta)
+	elseif table.size(stress_blood) > 0 then
+		local dec = stress_blood[table.size(stress_blood)]
+		actor:heal_wounds(dec * delta)
+		table.remove(stress_blood, table.size(stress_blood))
+	end	
+
+	--//boosted params
+	actor_obj.sprint_koef 			= def_sprint_koef + def_sprint_koef * boosters.get_boosted_params(9)
+		
+	for k,v in pairs(BOOST_PARAMS) do
+		if update_boost_func[v] then
+			local val = boosters.get_boosted_params(k)
+			if val ~= 0 then
+				update_boost_func[v](val * delta)
+				--log3("~param %s | val %s | delta %s | res %s", v, val, delta, val * delta)
+			end			
+		end
+	end	
+end
+
+function overweight_koef()
+	local power_k = math.clamp(actor.power, min_power_walk_jump, 1)
+	local weight = actor:get_inventory_weight()
+	local max_weight = actor:get_max_weight()	
+	local overweight_k = weight > max_weight and (max_weight / weight) or 1
+	return power_k * overweight_k
+end
+
+function stress_koef()
+	local res = 1
+	if IsMoveState(move_command.mcSprint) or IsMoveState(move_command.mcJump) then
+		res = res * stress_factor
+	end
+	local weight = actor:get_inventory_weight()
+	local max_weight = actor:get_max_weight()
+	if weight > max_weight then
+		res = res * (weight / max_weight)
+	end
+	return res
+end
+
+function regen_koef()
+	local res = (1 - actor.radiation) * actor.satiety
+	res = math.clamp(res, min_regen_k, 1)
+	return res
+end
+
+function on_condition_hit(hit_power, hit_type)
+	local res = hit_power
+	local hit_type_name = get_hit_type_name(hit_type)
+	--log3("~hit_type %s | hit_type_name %s | boost index %s | boost index name %s", hit_type, hit_type_name, hit_type + protection_index, BOOST_PARAMS[hit_type + protection_index])
+	if hit_type_name == "telepatic" then
+		res = res * (1 - actor.alcohol)
+	end
+	return res + res * boosters.get_boosted_params(hit_type + protection_index)
+end
+
+function on_booster_enable(booster)
+	local text_type = BOOST_PARAMS[booster.type]
+	--log3("~on_booster_enable %s", text_type or "NONE")
+	if text_type and text_type == "boost_weight" then
+		--log3("~weight boost %s", booster.value)
+		actor:set_max_weight(def_max_weight + def_max_weight * booster.value)
+	end
+end
+
+function on_booster_disable(booster)
+	local text_type = BOOST_PARAMS[booster.type]
+	--log3("~on_booster_disable %s", text_type or "NONE")
+	if text_type and text_type == "boost_weight" then
+		actor:set_max_weight(def_max_weight - def_max_weight * booster.value)
+	end
+end
+
+function on_jump()
+	actor_obj.jump_speed = def_jump_speed * overweight_koef()
+	--log3("~jump boost %s", boosters.get_boosted_params(10))
+	actor_obj.jump_speed = actor_obj.jump_speed + actor_obj.jump_speed * boosters.get_boosted_params(10)
+end
+
+function on_item_use(item, user)
+	if not user:is_actor() then
+	return end
+	local sect = item:section()
+	local eat_satiety = read_if_exists(sys_ini, "r_float", sect, "eat_satiety", nil)
+	if not eat_satiety or eat_satiety < 0 then
+	return end
+	
+	local calc_satiety = eat_satiety * (1 - actor.radiation)
+	local diff = calc_satiety - eat_satiety
+	--log3("~diff %s", diff)
+	actor.satiety = diff
+end

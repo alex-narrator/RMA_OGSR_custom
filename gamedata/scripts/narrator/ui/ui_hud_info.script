@@ -51,12 +51,7 @@ function try_show_active_item_info(game_action)
 	
 	if act_device and dosimeter.is_dosimeter(act_device) and act_device:is_power_on() then
 		dosimeter.show_actor_radiation()
-		local str = ""
-		if is_rad_absolute() then
-			str = string.format("%s: %.2f %s ", game.translate_string("st_actor_radiation"), actor.radiation * get_rad_absolute_eqivalent(), get_rad_absolute_name())
-		else
-			str = string.format("%s: %.0f %s ", game.translate_string("st_actor_radiation"), actor.radiation * 100, game.translate_string("st_percent"))
-		end		
+		local str = string.format("%s: %.2f %s ", game.translate_string("st_actor_radiation"), actor.radiation, game.translate_string("st_rad"))	
 		hud_add_info_message("item_usage", str, ACTIVE_ITEM_INFO_TTL)
 	end
 	_G.SHOW_ACTIVE_ITEM_INFO = true

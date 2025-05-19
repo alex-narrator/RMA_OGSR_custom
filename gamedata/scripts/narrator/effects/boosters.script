@@ -1,27 +1,72 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
-
 function attach(sm)
-	sm:subscribe({signal = "on_booster_enable",   	fun = this.on_booster_enable})
-	sm:subscribe({signal = "on_booster_disable",   	fun = this.on_booster_disable})
+	sm:subscribe({signal = "on_use",   				fun = this.on_item_use})
+	sm:subscribe({signal = "on_save",   			fun = this.on_save})
+	sm:subscribe({signal = "on_load",   			fun = this.on_load})	
 end
 
+local sm = ogse_signals.get_mgr()
 local m_boosters = {}
 local subscribed = false
+
+function on_save()
+	xr_vars.save_var("m_boosters", m_boosters)
+end
+
+function on_load()
+	m_boosters = xr_vars.load_var("m_boosters", m_boosters)
+	for k,booster in pairs(m_boosters) do
+		booster_enable(booster)
+	end
+end
+
+function on_item_use(item, user)
+	if not user:is_actor() then
+	return end
+	local sect = item:section()
+	local boost_time = read_if_exists(sys_ini, "r_float", sect, "boost_time", nil)
+	if not boost_time then
+	return end
+	for k,v in pairs(BOOST_PARAMS) do
+		local val = read_if_exists(sys_ini, "r_float", sect, v, nil)
+		if val then
+			local booster = {
+				type = k,
+				value = val,
+				time = boost_time,
+				section = sect
+			}
+			--log3("~enable booster %s | %s", v, val)
+			booster_enable(booster)
+		end
+	end
+end
 
 function on_update()
 	local conds = actor.conditions
 	if not conds.has_valid_time then return end
 	local f_dt = conds:fdelta_time()
-	for b_sect,b_time in pairs(m_boosters) do
-		m_boosters[b_sect] = b_time - f_dt/60 --//у ігрових хвилинах
-		somnolence.apply_boost_sect(b_sect)
+	for boost_type, booster in pairs(m_boosters) do
+		booster.time = booster.time - f_dt/60 --//у ігрових хвилинах
+		if booster.time <= 0 then
+			booster_disable(booster)
+		end
 	end
 end
 
-function on_booster_enable(booster)
+function booster_enable(booster)
 	--log3("~on_booster_enable sect %s | val %s | type %s", booster.section, booster.value, booster.type)
-	m_boosters[booster.section] = booster.time
-	body_health.apply_pain_effect(booster.section, true)
+	--m_boosters[booster.section] = booster.time
+	if m_boosters[booster.type] then
+		booster_disable(booster)
+	end
+	
+	m_boosters[booster.type] = booster
+	sm:call("on_booster_enable", booster)
+	
+	--log3("~on_booster_enable boosters %s", m_boosters)
+	
+	--body_health.apply_pain_effect(booster.section, true)
 	if not subscribed then
 		subscribed = {
 			{ signal = "on_update", fun = this.on_update },
@@ -33,10 +78,12 @@ function on_booster_enable(booster)
 	end
 end
 
-function on_booster_disable(booster)
+function booster_disable(booster)
 	--log3("~on_booster_disable sect %s | val %s | type %s", booster.section, booster.value, booster.type)
-	m_boosters[booster.section] = nil
-	body_health.apply_pain_effect(booster.section, false)
+	m_boosters[booster.type] = nil
+	sm:call("on_booster_disable", booster)
+	--log3("~on_booster_disable boosters %s", m_boosters)
+	--body_health.apply_pain_effect(booster.section, false)
 	if table.size(m_boosters) == 0 and subscribed ~= false then
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( subscribed ) do
@@ -48,4 +95,22 @@ end
 
 function get_all()
 	return m_boosters
+end
+
+function get_booster_sections()
+	local res = {}
+	for k,v in pairs(m_boosters) do
+		if not res[v.section] then
+			res[v.section] = v.time
+		end
+	end
+	return res
+end
+
+function get_boosted_params(i)
+	return m_boosters[i] and m_boosters[i].value or 0
+end
+
+function get_boosted_time(i)
+	return m_boosters[i] and m_boosters[i].time or 0
 end

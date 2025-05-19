@@ -11,15 +11,6 @@ stay_after_drop_time_interval = 36
 ;див missile.script
 ;limited_bolts = true
 
-;радіація від предметів буде додаватись/відніматись не у долях від базової швидкості втрати радіації а в абсолюдних значеннях
-;потребує відповідного налаштування radiation_restore_speed у конфігах
-;absolute_radiation = true/false - увімкнення режиму
-;absolute_radiation_equivalent = number - кастомний множник для значення прогресбару радіації у інвентарі
-;absolute_radiation_name = string - локалізована назва одиниць виміру радіації для значення прогресбару радіації у інвентарі
-absolute_radiation 				= true
-absolute_radiation_equivalent 	= 10
-absolute_radiation_name 		= st_absolute_rad
-
 ; Эффект раскачки оружия при движении.
 ; Для работы требуется секция с названием wpn_bobbing_effector. Пример настроек находится чуть ниже.
 wpn_bobbing = false
@@ -117,6 +108,8 @@ is_ammo_for_reload = engine_callbacks.is_ammo_for_reload
 on_pickup_item_set = engine_callbacks.on_pickup_item_set
 
 can_artefact_affect = engine_callbacks.can_artefact_affect
+
+on_actor_condition_hit = engine_callbacks.on_actor_condition_hit
 
 ; trade_purchase_item_process( npc, sobj ) вызывается для каждого
 ; созданного предмета при обновлении ассортимента торговца. npc -

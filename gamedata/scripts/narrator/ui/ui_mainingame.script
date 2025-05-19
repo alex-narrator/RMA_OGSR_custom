@@ -517,7 +517,7 @@ function MainIngameOverlay:UpdatePanelBoosters()
 	--// boosters
 	self.booster_panel:DetachAll()
 	local pos = vector2():set(0,0)
-	for b_sect,b_time in pairs(boosters.get_all()) do
+	for b_sect,b_time in pairs(boosters.get_booster_sections()) do
 		params = CIconParams(b_sect)
 		item_st = CUIStatic()
 		params:set_shader(item_st)

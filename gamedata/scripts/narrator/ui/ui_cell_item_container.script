@@ -291,7 +291,7 @@ function UICellItemContainer:FindItem(item)
 		if cell_item:IsChild(item) then
 			return cell_item
 		end
-		if cell_item:GetItem():id() == item:id() then
+		if cell_item and cell_item:GetItem() and cell_item:GetItem():id() == item:id() then
 			return cell_item
 		end
 	end

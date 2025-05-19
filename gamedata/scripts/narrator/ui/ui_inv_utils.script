@@ -81,16 +81,23 @@ function similar_item(item1, item2)
 		for i=0,10 do
 			local eff1 = iitem1:item_effect(i)
 			local eff2 = iitem2:item_effect(i)
-			if i == 4 and is_rad_absolute() then
-				eff1 = eff1*get_rad_absolute_eqivalent()*3600
-				eff2 = eff2*get_rad_absolute_eqivalent()*3600
-			end
 			if not fsim(eff1, eff2, cmp) then
 				return false 
 			end
 		end
 		return true
 	end
+	
+	local function same_protection(item1, item2)
+		for i=0,10 do
+			local protect1 = iitem1:hit_type_protection(i)
+			local protect2 = iitem2:hit_type_protection(i)
+			if not fsim(protect1, protect2, cmp) then
+				return false 
+			end
+		end
+		return true
+	end	
 
 	local similar = fsim(item1:condition(), item2:condition(), cmp) 
 		and fsim(item1:weight(), item2:weight(), cmp) 
@@ -98,6 +105,7 @@ function similar_item(item1, item2)
 		and item1:section() == item2:section() 
 		and loadout.can_remove(item1) == loadout.can_remove(item2) 
 		and same_effect(item1, item2)
+		and same_protection(item1, item2)
 		--//для NPC не треба розділяти предмети по місцезнаходженню в інвентарі, щоб у торгівлі вони групувалися
 		--and (not (parent_is_actor(item1) and parent_is_actor(item2)) or iitem1.item_place == iitem2.item_place)
 	

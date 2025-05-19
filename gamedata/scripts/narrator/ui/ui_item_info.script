@@ -293,9 +293,14 @@ function attach_effect_params(UIDesc, item)
 	for k,v in ipairs(effect_params) do
 		val = inv_item:item_effect(k-1)
 		if val ~= 0 then
-			if v.st_name == "radiation_restore_speed" and is_rad_absolute() then
-				sn = game.translate_string("st_rad")
-				val = val*get_rad_absolute_eqivalent()*3600
+			if k <= 8 then
+				local for_rad = v.st_name == "radiation_restore_speed"
+				sn = game.translate_string(for_rad and "st_radiation_per_minute" or "st_percent_per_minute")
+				val = val * 60 * 100
+				if math.abs(val) < 0.1 then
+					sn = game.translate_string(for_rad and "st_radiation_per_hour" or "st_percent_per_hour")
+					val = val * 60
+				end				
 			else
 			 	sn = game.translate_string("st_percent")
 				val = val * 100
@@ -365,6 +370,7 @@ function attach_protection_params(UIDesc, item)
 		val = inv_item:hit_type_protection(k-1)
 		if val ~= 0 then
 			sn = game.translate_string("st_percent")
+			--log3("~val %s: %s", v.st_name, val)
 			val = val * 100
 			protection_st[k] = CUIStatic()--xml:InitStatic(v.st_name, params_list)
 			protection_st[k]:SetTextComplexMode(true)
@@ -470,19 +476,32 @@ function attach_booster_params(UIDesc, item)
 	boost_st = {}
 	local params_list = xml:InitScrollView("params_list", UIDesc)
 	for k,v in ipairs(boost_params) do
-		if v.st_name == "somnolence" then
-			val = somnolence.get_boost(item)
-		elseif v.st_name == "painkiller" then
-			val = read_if_exists(sys_ini, "r_float", sect, "boost_pain", 0)
-		elseif v.st_name == "boost_time" then
+		-- if v.st_name == "somnolence" then
+			-- val = somnolence.get_boost(item)
+		-- elseif v.st_name == "painkiller" then
+			-- val = read_if_exists(sys_ini, "r_float", sect, "boost_pain", 0)
+		if v.st_name == "boost_time" then
 			val = read_if_exists(sys_ini, "r_float", sect, "boost_time", 0)
 		else
-			val = eatable:get_boost(k-1)
+			val = read_if_exists(sys_ini, "r_float", sect, BOOST_PARAMS[k], 0)--eatable:get_boost(k-1)
 		end
 		-- log3("item %s | boost val %s | boost type %s", item:name(), val, v.st_name)
 		if val ~= 0 then
-			sn = v.st_name == "boost_time" and game.translate_string("st_time_minute") or game.translate_string("st_percent")
-			val = v.st_name == "boost_time" and val or val * 100
+			if v.st_name == "boost_time" then
+				sn = game.translate_string("st_time_minute")
+			elseif k <= 8 or v.st_name == "somnolence" then
+				--log3("~name %s | val %s", v.st_name, val)
+				local for_rad = v.st_name == "radiation_boost"
+				sn = game.translate_string(for_rad and "st_radiation_per_minute" or "st_percent_per_minute")
+				val = val * 60 * 100
+				if math.abs(val) < 0.1 then
+					sn = game.translate_string(for_rad and "st_radiation_per_hour" or "st_percent_per_hour")
+					val = val * 60
+				end
+			else
+				sn = game.translate_string("st_percent")
+				val = val * 100
+			end
 			boost_st[k] = CUIStatic()
 			boost_st[k]:SetTextComplexMode(true)
 			boost_st[k]:SetWidth(params_list:GetDesiredChildWidth())

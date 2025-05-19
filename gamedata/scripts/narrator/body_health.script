@@ -1,9 +1,11 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
-	sm:subscribe({signal = "on_hit_actor", 	fun = this.on_hit})
-	sm:subscribe({signal = "on_save", 		fun = this.on_save})
-	sm:subscribe({signal = "on_load", 		fun = this.on_load})
-	sm:subscribe({signal = "on_spawn", 		fun = this.on_spawn})
+	sm:subscribe({signal = "on_hit_actor", 			fun = this.on_hit})
+	sm:subscribe({signal = "on_save", 				fun = this.on_save})
+	sm:subscribe({signal = "on_load", 				fun = this.on_load})
+	sm:subscribe({signal = "on_spawn", 				fun = this.on_spawn})
+	sm:subscribe({signal = "on_booster_enable", 	fun = this.on_booster_enable})
+	sm:subscribe({signal = "on_booster_disable", 	fun = this.on_booster_disable})	
 end
 
 local head_bone = {
@@ -353,6 +355,20 @@ function apply_pain_effect(sect, enable)
 		painkiller_sect[sect] = enable and true or nil
 		add_pain_effect(enable and pain_boost or -pain_boost)
 		--log3("~apply_pain_effect: sect %s | pain_boost %s | enable %s", sect, pain_boost, enable)
+	end
+end
+
+function on_booster_enable(booster)
+	local text_type = BOOST_PARAMS[booster.type]
+	if text_type and text_type == "boost_pain" then
+		add_pain_effect(booster.value)
+	end
+end
+
+function on_booster_disable(booster)
+	local text_type = BOOST_PARAMS[booster.type]
+	if text_type and text_type == "boost_pain" then
+		add_pain_effect(-booster.value)
 	end
 end
 
