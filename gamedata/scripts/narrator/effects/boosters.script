@@ -57,9 +57,9 @@ end
 function booster_enable(booster)
 	--log3("~on_booster_enable sect %s | val %s | type %s", booster.section, booster.value, booster.type)
 	--m_boosters[booster.section] = booster.time
-	if m_boosters[booster.type] then
-		booster_disable(booster)
-	end
+	-- if m_boosters[booster.type] then
+		-- booster_disable(booster)
+	-- end
 	
 	m_boosters[booster.type] = booster
 	sm:call("on_booster_enable", booster)

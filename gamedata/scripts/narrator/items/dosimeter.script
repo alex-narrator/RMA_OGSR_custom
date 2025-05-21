@@ -175,7 +175,7 @@ end
 
 function show_actor_radiation()
 	show_actor_rad = true
-	add_time_delayed_action(ACTIVE_ITEM_INFO_TTL, function() show_actor_rad = false end)
+	add_time_delayed_action(get_script_option_value("active_item_info_ttl"), function() show_actor_rad = false end)
 end
 
 function is_actor_radiation()

@@ -74,13 +74,14 @@ end
 
 function enable_effect(booster)
 	local effector_name = read_if_exists(sys_ini, "r_string", booster.section, "boost_effector", nil)
-	local effector_id = read_if_exists(sys_ini, "r_float", booster.section, "boost_effector_id", boost_efefctor_id)
 	if not effector_name then return end
+	local effector_id = read_if_exists(sys_ini, "r_float", booster.section, "boost_effector_id", boost_efefctor_id)	
 	level.add_complex_effector(effector_name, effector_id)
 end
 
 function disable_effect(booster)
-	local effector_id = read_if_exists(sys_ini, "r_float", booster.section, "boost_effector_id", boost_efefctor_id)
-	if not effector_id then return end
+	local effector_name = read_if_exists(sys_ini, "r_string", booster.section, "boost_effector", nil)
+	if not effector_name then return end
+	local effector_id = read_if_exists(sys_ini, "r_float", booster.section, "boost_effector_id", boost_efefctor_id)	
 	level.remove_complex_effector(effector_id)
 end

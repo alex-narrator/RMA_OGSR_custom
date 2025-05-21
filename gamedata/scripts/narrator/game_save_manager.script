@@ -4,6 +4,8 @@ function attach(sm)
 	sm:subscribe({signal = "on_task",   		fun = this.on_task})
 end
 
+local ON_TASK_SAVE_UPDATE_DELAY = 50
+
 local quick_save_keys = {
 	[key_bindings.kQUICK_SAVE] = true,
 	[key_bindings.kQUICK_LOAD] = true,
@@ -95,7 +97,7 @@ function on_task(_task, _objective, _state)
 
 	--log3("~%s: %s", prefix, _task:get_title())
 	
-	add_update_delayed_action(5,
+	add_update_delayed_action(ON_TASK_SAVE_UPDATE_DELAY,
 		function()
 			local save_cmd = string.format("save %s", string.format("%s [%s] %s", user_name(), game.translate_string(prefix), game.translate_string(_task:get_title())))
 			get_console():execute(save_cmd)	

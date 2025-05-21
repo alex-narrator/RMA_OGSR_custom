@@ -571,6 +571,7 @@ function MainIngameOverlay:UpdateActiveItem()
 	
 	self.active_item:SetText("")
 	self.ammo_counter:SetText("")
+	self.active_item_icon:SetText("")
 	
 	local text, val = "", ""
 	
@@ -630,7 +631,11 @@ function MainIngameOverlay:UpdateActiveItem()
 				val = bolt_count
 				text = string.format("%s", val)
 			end
-		end		
+		end
+		
+		if act_item:get_pda() and is_power_device(act_item) then
+			self.active_item_icon:SetText(string.format("%.f%s", act_item:binded_object():get_power_level() * 100, "%"))
+		end
 		
 		self.ammo_counter:SetText(text)
 		params = CIconParams(show_sect)
@@ -822,10 +827,10 @@ function MainIngameOverlay:UpdateCompass()
 	local pda = actor_get_pda()
 	local pda_workable = pda and pda:is_power_on() and pda:condition() > 0
 	
-	local show_compass = get_script_option_value("front_view_compass")
-	local show_on_demand = get_script_option_value("compass_on_demand")
+	-- local show_compass = get_script_option_value("front_view_compass")
+	-- local show_on_demand = get_script_option_value("compass_on_demand")
 	
-	self.owner.show_zone_map = not show_compass and (not show_on_demand or SHOW_GEAR_INFO)
+	self.owner.show_zone_map = SHOW_GEAR_INFO--not show_compass and (not show_on_demand or SHOW_GEAR_INFO)
 	
 	local dist = self.minimap:GetActivePointDist()
 	local dist_show = dist >= 0.5
@@ -848,7 +853,7 @@ function MainIngameOverlay:UpdateCompass()
 	
 	--//front view compass
 	local params = self.compass_modern.params
-	self.compass_modern:Show(show_compass and (not show_on_demand or SHOW_GEAR_INFO))
+	--self.compass_modern:Show(show_compass and (not show_on_demand or SHOW_GEAR_INFO))
     local angle = math.deg(-h)
 	angle = angle < 0 and angle + 360 or angle
     --self.compass_modern_line:SetText(math.floor(angle + 0.5))

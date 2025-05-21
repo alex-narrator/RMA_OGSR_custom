@@ -14,10 +14,6 @@ local disabled_comms = {
 	["zombied"] = true,
 }
 
-function is_enemy_comm(target_comm)
-	return relation_registry.community_goodwill(target_comm, actor:id()) < -500 
-end
-
 function get_nearest_comm_members(npc)
 	local result = {}
 	local target_comm = npc:character_community()
@@ -33,7 +29,7 @@ end
 function on_npc_use(npc)
 	if npc:alive() then return end
 	local target_comm = npc:character_community()
-	if is_enemy_comm(target_comm) or actor:character_community() == target_comm then return end
+	if relation.hostile(target_comm, actor) or actor:character_community() == target_comm then return end
 	if disabled_comms[target_comm] then return end
 	local nearest_comm_members = get_nearest_comm_members(npc)
 	

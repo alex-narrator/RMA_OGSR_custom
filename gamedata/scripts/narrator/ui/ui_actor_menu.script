@@ -839,11 +839,13 @@ function ActorMenuOverlay:ConditionOnFocusReceived(cond_name)
 	local restore_speed = self.conditions[cond_name].restore_speed and self.conditions[cond_name].restore_speed() or nil
 	if restore_speed then
 		local for_rad = cond_name == "radiation_"
+		local _k = for_rad and 1 or 100
+		local round = for_rad and 3 or 1
 		if restore_speed > 1 then
-			restore_speed = math.round(restore_speed/60*100, 1)
+			restore_speed = math.round(restore_speed/60*_k, round)
 			cond_restore_text = string.format("%s: %s %s", game.translate_string("st_"..cond_name.."restore_hint"), restore_speed, game.translate_string(for_rad and "st_radiation_per_minute" or "st_percent_per_minute"))
 		else
-			restore_speed = math.round(restore_speed*100, 1)
+			restore_speed = math.round(restore_speed*_k, round)
 			cond_restore_text = string.format("%s: %s %s", game.translate_string("st_"..cond_name.."restore_hint"), restore_speed, game.translate_string(for_rad and "st_radiation_per_hour" or "st_percent_per_hour"))
 		end
 	end
@@ -931,7 +933,7 @@ function ActorMenuOverlay:UpdateConditions()
 		val = math.clamp(v.condition(), 0, 1)
 		v.progress:SetProgressPos(val)
 		if k == "radiation_" then
-			v.percent:SetText(string.format("%.0f %s", val*100, game.translate_string("st_rad")))
+			v.percent:SetText(string.format("%.2f %s", val, game.translate_string("st_rad")))
 		else
 			v.percent:SetText(string.format("%.0f%s", val*100, game.translate_string("st_percent")))
 		end
@@ -1013,15 +1015,16 @@ function ActorMenuOverlay:UpdateEffectsInfo()
 
 		if i < 8 then
 			local for_rad = t.param == "radiation_restore_speed"
+			local _k = for_rad and 1 or 100
 			sn = string.format(" %s", game.translate_string(for_rad and "st_radiation_per_minute" or "st_percent_per_minute"))
-			val = val * 60 * 100
+			val = val * 60 * _k
 			if  math.abs(val) < 0.1 then
 				sn = string.format(" %s", game.translate_string(for_rad and "st_radiation_per_hour" or "st_percent_per_hour"))
 				val = val * 60
 			end
 			
 			sn_boost = string.format(" %s", game.translate_string(for_rad and "st_radiation_per_minute" or "st_percent_per_minute"))
-			val_boost = val_boost * 60 * 100
+			val_boost = val_boost * 60 * _k
 			if  math.abs(val_boost) < 0.1 then
 				sn_boost = string.format(" %s", game.translate_string(for_rad and "st_radiation_per_hour" or "st_percent_per_hour"))
 				val_boost = val_boost * 60

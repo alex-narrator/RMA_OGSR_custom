@@ -296,8 +296,9 @@ function attach_effect_params(UIDesc, item)
 			--log3("~attach_effect_params param %s | val %s", v.st_name, val)
 			if k <= 8 then
 				local for_rad = v.st_name == "radiation_restore_speed"
+				local _k = for_rad and 1 or 100
 				sn = game.translate_string(for_rad and "st_radiation_per_minute" or "st_percent_per_minute")
-				val = val * 60 * 100
+				val = val * 60 * _k
 				if math.abs(val) < 0.1 then
 					sn = game.translate_string(for_rad and "st_radiation_per_hour" or "st_percent_per_hour")
 					val = val * 60
@@ -493,8 +494,9 @@ function attach_booster_params(UIDesc, item)
 			elseif k <= 8 or v.st_name == "somnolence" then
 				--log3("~name %s | val %s", v.st_name, val)
 				local for_rad = v.st_name == "radiation_boost"
+				local _k = for_rad and 1 or 100
 				sn = game.translate_string(for_rad and "st_radiation_per_minute" or "st_percent_per_minute")
-				val = val * 60 * 100
+				val = val * 60 * _k
 				if math.abs(val) < 0.1 then
 					sn = game.translate_string(for_rad and "st_radiation_per_hour" or "st_percent_per_hour")
 					val = val * 60
