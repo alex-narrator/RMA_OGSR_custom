@@ -830,7 +830,7 @@ function MainIngameOverlay:UpdateCompass()
 	-- local show_compass = get_script_option_value("front_view_compass")
 	-- local show_on_demand = get_script_option_value("compass_on_demand")
 	
-	self.owner.show_zone_map = SHOW_GEAR_INFO--not show_compass and (not show_on_demand or SHOW_GEAR_INFO)
+	self.owner.show_zone_map = pda_workable and SHOW_GEAR_INFO--not show_compass and (not show_on_demand or SHOW_GEAR_INFO)
 	
 	local dist = self.minimap:GetActivePointDist()
 	local dist_show = dist >= 0.5

@@ -23,7 +23,7 @@ function on_af_first_take(item)
 	local sect = item:section()
 	local hit_type = hit_types[read_if_exists(sys_ini, "r_string", sect, "hit_type", nil)]
 	if not hit_type then
-		log3("~not hit type %s", item:name())
+		log_news("!not hit type %s", item:name())
 	return end	
 	local hit_power = read_if_exists(sys_ini, "r_float", sect, "hit_power", 0.1)
 	

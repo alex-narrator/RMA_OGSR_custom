@@ -58,7 +58,7 @@ function on_trade_hide()
 		se_item = sim:object(item_id)
 		cl_item = level.object_by_id(item_id)
 		if trade_partner and trade_partner:is_trader() or not trade_partner:is_in_slot(cl_item) then
-			log3("~release item %s after trade with %s", se_item:name(), trade_partner:name())
+			--log3("~release item %s after trade with %s", se_item:name(), trade_partner:name())
 			sim:release(se_item, true)
 		end
 	end

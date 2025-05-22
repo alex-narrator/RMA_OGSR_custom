@@ -83,7 +83,7 @@ function play()
 					if not tgt:get_container() then --//без цього інвентарний контейнер буде одразу підібраний у інвентар
 						action_use() 				--//це важливо робити ДО імовірного відкриття вікна actor_menu щоб спрацював колбек on_use
 					end
-					if (tgt:is_stalker() and not tgt:alive()) or tgt:get_inventory_box() then
+					if (tgt:is_stalker() and not tgt:alive()) or (tgt:get_inventory_box() and tgt:is_nonscript_usable()) then
 						ui_actor_menu.ShowHideMenu("carbody", tgt)
 					end
 				end

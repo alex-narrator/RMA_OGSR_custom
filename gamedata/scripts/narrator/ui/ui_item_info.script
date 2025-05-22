@@ -1,8 +1,6 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
 	sm:subscribe({signal = "on_item_info_init",   	fun = this.add_custom_info})
-	sm:subscribe({signal = "on_repair_show",   		fun = this.create_window})
-	sm:subscribe({signal = "on_repair_hide",   		fun = this.destroy_window})
 	sm:subscribe({signal = "on_slot_selector_show", fun = this.create_window})
 	sm:subscribe({signal = "on_slot_selector_hide", fun = this.destroy_window})
 	sm:subscribe({signal = "on_actor_menu_show", 	fun = this.create_window})
@@ -34,8 +32,6 @@ function UIItemInfo:__init(owner) super()
 	self.owner = owner
 	self:InitControls()
 	self:Subscribe()
-	self.delay = false
-	self.item = false
 end
 
 function UIItemInfo:Subscribe()
@@ -46,8 +42,6 @@ function UIItemInfo:Subscribe()
 			{signal = "on_cell_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
 			{signal = "on_quick_item_focus", self = self, fun = self.OnCellItemFocus},
 			{signal = "on_quick_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
-			{signal = "on_repair_list_item_focus", self = self, fun = self.OnCellItemFocus},
-			{signal = "on_repair_list_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
 			{signal = "on_key_press", self = self, fun = self.OnCellItemFocusLost},
 		}
 		local sm = ogse_signals.get_mgr()
@@ -109,12 +103,26 @@ function UIItemInfo:OnCellItemFocus(item)
 	if not get_script_option_value("floating_info") then
 	return end
 	self.item = item
-	add_time_delayed_action(get_script_option_value("floating_show_delay"), function() self:InitItemInfo() end)
+	--add_time_delayed_action(get_script_option_value("floating_show_delay"), function() self:InitItemInfo() end)
+	self.show_time = time_global() + get_script_option_value("floating_show_delay") * 1000
+	level.add_call(
+		function()
+			local res = not self.show_time or (self.show_time and time_global() >= self.show_time)
+			if res then
+				self.show_time = nil
+			end
+			return res
+		end,
+		function()
+			self:InitItemInfo()
+		end
+	)
 end
 
-function UIItemInfo:OnCellItemFocusLost(item)
+function UIItemInfo:OnCellItemFocusLost()
 	self.background_frame:Show(false)
-	self.item = false
+	self.item = nil
+	self.show_time = nil
 end
 
 function UIItemInfo:InitItemInfo()

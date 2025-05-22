@@ -17,7 +17,7 @@ end
 function generate_password(rank)
 	local passwords = read_if_exists(sys_ini, "r_string", "passwords_by_rank", rank, nil)
 	if not passwords then
-		log3("~no passwords for rank %s", rank)
+		log_news("~no passwords for rank %s", rank)
 	return nil end
 	passwords = split_string(passwords, ",")
 	local password = passwords[math.random(1, #passwords)]

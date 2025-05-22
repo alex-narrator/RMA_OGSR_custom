@@ -39,22 +39,19 @@ head_animations = {
 }
 
 ----------------------------------------------------------------------------------------------------
-local minimap_shown = false
-
 function on_start_tutorial_item_12()
 	if db.trader == nil then return end
 	
 	db.trader:external_sound_start("characters_voice\\scenario\\trader\\trader_tutorial_pda_12")
 	
-	minimap_shown = get_main_window().show_zone_map
-	get_main_window().show_zone_map = true
+	_G.SHOW_GEAR_INFO = true
 end
 
 function on_stop_tutorial_item()
 	if db.trader == nil then return end
 	db.trader:external_sound_stop()
 	
-	get_main_window().show_zone_map = minimap_shown
+	_G.SHOW_GEAR_INFO = false
 end
 ----------------------------------------------------------------------------------------------------
 

@@ -74,8 +74,8 @@ function on_mattress_use(obj)
 end
 
 function create_mattresses()
-	local t = profile_timer()
-	t:start()
+	-- local t = profile_timer()
+	-- t:start()
 	
 	local name, value = "", ""
 	if not gv_ids then
@@ -99,8 +99,8 @@ function create_mattresses()
 		end
 	end	
 		
-	t:stop()
-	log3("~create_mattresses profiled time %s micro-seconds | %s seconds", t:time(), t:time() * 0.000001)
+	-- t:stop()
+	-- log3("~create_mattresses profiled time %s micro-seconds | %s seconds", t:time(), t:time() * 0.000001)
 end
 
 function actor_in_sleep_zone()
@@ -144,9 +144,9 @@ function perform_sleep()
 end
 
 function change_time()
-	log3("~change time")
+	--log3("~change time")
 	if sleep_h <= 0 and sleep_m <= 0 then
-		log3("!can`t perform sleep because sleep timer is %s:%s", sleep_h, sleep_m)
+		log_news("!can`t perform sleep because sleep timer is %s:%s", sleep_h, sleep_m)
 	return end
 	change_game_time(0, sleep_h, sleep_m)
 	local sleep_time = ((sleep_h * 3600) + (sleep_m * 60))
@@ -159,42 +159,42 @@ function sleep_conditions(sleep_time)
 	local actor_cond = actor_obj.condition
 	local delta
 	
-	log3("~sleep_time %s", sleep_time)
+	--log3("~sleep_time %s", sleep_time)
 	
 	--штатна регенерація здоров'я за час сну
 	delta = sleep_time * actor_cond.health_restore_v * HEALTH_K
 	--додатковий реген уві сні
 	actor.health = delta
-	log3("~change health %s", delta)
+	--log3("~change health %s", delta)
 
 	--штатна регенерація псі-здоров'я за час сну
 	delta = sleep_time * actor_cond.psy_health_v * PSY_HEALTH_K
 	--додатковий реген уві сні
 	actor.psy_health = delta
-	log3("~change psy_health %s", delta)
+	--log3("~change psy_health %s", delta)
 	
 	--штатна регенерація витривалості за час сну
 	delta = sleep_time * actor_cond.power_v * POWER_K
 	--додатковий реген уві сні
 	actor.power = delta
-	log3("~change power %s", delta)
+	--log3("~change power %s", delta)
 	
 	--штатна зменшення рівня алкоголю за час сну
 	delta = sleep_time * actor_cond.alcohol_v * ALCOHOL_K
 	--додаткове тверезіння уві сні
 	actor.alcohol = delta
-	log3("~change alcohol %s", delta)
+	--log3("~change alcohol %s", delta)
 	
 	--штатне зменшення ситості за час сну
 	delta = sleep_time * actor_cond.satiety_v * SATIETY_K
 	--компенсація втрати ситості
 	actor.satiety = delta
-	log3("~change satiety %s", delta)
+	--log3("~change satiety %s", delta)
 	
 	delta = sleep_time * somnolence.get_v() * SOMNOLENCE_K
 	--компенсуємо надбаня сонливості та зменшуємо сонливість
 	somnolence.change_val(-delta)
-	log3("~change somnolence %s", -delta)
+	--log3("~change somnolence %s", -delta)
 end
 
 local nightmare = {
