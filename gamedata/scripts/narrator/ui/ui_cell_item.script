@@ -122,15 +122,17 @@ function UICellItem:Update()
 	if not self.interactive then
 	return end
 	local item = level.object_by_id(self.item_id)
-	if not item then return end	
-	self.sm:call("on_cell_item_update", item, self.icon, self:GetCount())
+	if not item then return end
+	local slot_list = (actor:is_in_slot(item) and self.owner_list:IsCentered()) and self.owner_list.service_back or nil
+	self.sm:call("on_cell_item_update", item, self.icon, self:GetCount(), slot_list)
 end
 
 function UICellItem:OnIconShow()
 	--log3("~on_cell_item_show item %s [id %s] | count %s", self.item:name(), self.item:id(), self:GetCount())
 	local item = level.object_by_id(self.item_id)
-	if not item then return end	
-	self.sm:call("on_cell_item_show", item, self.icon, self:GetCount())
+	if not item then return end
+	local slot_list = (actor:is_in_slot(item) and self.owner_list:IsCentered()) and self.owner_list.service_back or nil
+	self.sm:call("on_cell_item_show", item, self.icon, self:GetCount(), slot_list)
 end
 
 function UICellItem:OnFocusReceived()
@@ -316,17 +318,18 @@ function UICellItem:ColorizeRestricted()
 end
 
 function UICellItem:ForceUpdate()
-	local _item = level.object_by_id(self.item_id)	
+	local item = level.object_by_id(self.item_id)	
 	
 	for child_id,v in pairs(self.childs) do
-		local item = level.object_by_id(child_id)
-		if item and not ui_inv_utils.similar_item(_item, item) then
-			self:RemoveChild(item)
-			self.owner_list:AddItem(item)
+		local _item = level.object_by_id(child_id)
+		if _item and not ui_inv_utils.similar_item(item, _item) then
+			self:RemoveChild(_item)
+			self.owner_list:AddItem(_item)
 		end
 	end
 	self.icon:DetachAll()
-	self.sm:call("on_cell_item_show", _item, self.icon, self:GetCount())
+	local slot_list = (actor:is_in_slot(item) and self.owner_list:IsCentered()) and self.owner_list.service_back or nil
+	self.sm:call("on_cell_item_show", item, self.icon, self:GetCount(), slot_list)
 end
 
 function UICellItem:OnMouseMove()

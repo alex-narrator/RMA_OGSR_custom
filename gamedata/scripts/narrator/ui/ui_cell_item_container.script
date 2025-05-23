@@ -1,5 +1,5 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
-local color_highlight 	= GetARGB(100, 200, 200, 200)
+local color_highlight 				= GetARGB(100, 200, 200, 200)
 
 local back_texture 					= "square_light_grey"
 local grid_texture 					= "ui\\ui_grid_array"
@@ -157,6 +157,9 @@ function UICellItemContainer:Update()
 	if self.saved_scroll_pos then
 		self.scroll:SetScrollPos(self.saved_scroll_pos)
 		self.scroll:ForceScrollPos()
+	end
+	if table.size(self.cell_items) == 0 then
+		self.service_back:DetachAll()
 	end
 end
 

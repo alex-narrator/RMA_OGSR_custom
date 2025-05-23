@@ -20,7 +20,7 @@ function get_val_color(val)
 	return color
 end
 
-function update_custom_icons(item, cell_item, count)
+function update_custom_icons(item, cell_item_icon, count, alt_icon)
 	local text = nil
 	local color = ""
 	
@@ -52,18 +52,18 @@ function update_custom_icons(item, cell_item, count)
 		text = string.format("+%.0f%s", item:get_inventory_item():item_effect(effect.add_weight) * actor.inventory.max_weight, game.translate_string("st_kg"))
 	end
 	
-	ui_inv_utils.UpdateAdditionalText(item, cell_item)
-	ui_inv_utils.UpdateWpnIcons(item, cell_item)
-	ui_inv_utils.UpdateAmmoInBoxIcon(item, cell_item)
-	ui_inv_utils.UpdateArmorPlateIcon(item, cell_item)
-	--ui_inv_utils.UpdateUpgrageIcon(item, cell_item)
-	ui_inv_utils.UpdateLayerIcons(item, cell_item)
-	ui_inv_utils.UpdatePdaLockIcon(item, cell_item)
-	ui_inv_utils.UpdatePdaRankIcon(item, cell_item)
-	--ui_inv_utils.UpdateMarkedIcon(item, cell_item)
-	ui_inv_utils.UpdateQuestIcon(item, cell_item)
-	--ui_inv_utils.UpdateConditionStatic(item, cell_item)
-	ui_inv_utils.UpdateAdditionalStatic(cell_item, text)
-	ui_inv_utils.UpdateCellItemCount(item, cell_item, count)
-	ui_inv_utils.UpdateConditionProgress(item, cell_item)
+	ui_inv_utils.UpdateAdditionalText(item, alt_icon or cell_item_icon)
+	ui_inv_utils.UpdateWpnIcons(item, cell_item_icon)
+	ui_inv_utils.UpdateAmmoInBoxIcon(item, cell_item_icon)
+	ui_inv_utils.UpdateArmorPlateIcon(item, cell_item_icon)
+	--ui_inv_utils.UpdateUpgrageIcon(item, cell_item_icon)
+	ui_inv_utils.UpdateLayerIcons(item, alt_icon or cell_item_icon)
+	ui_inv_utils.UpdatePdaLockIcon(item, cell_item_icon)
+	ui_inv_utils.UpdatePdaRankIcon(item, cell_item_icon)
+	--ui_inv_utils.UpdateMarkedIcon(item, cell_item_icon)
+	ui_inv_utils.UpdateQuestIcon(item, alt_icon or cell_item_icon)
+	--ui_inv_utils.UpdateConditionStatic(item, cell_item_icon)
+	ui_inv_utils.UpdateAdditionalStatic(alt_icon or cell_item_icon, text)
+	ui_inv_utils.UpdateCellItemCount(item, cell_item_icon, count)
+	ui_inv_utils.UpdateConditionProgress(item, alt_icon or cell_item_icon)
 end
