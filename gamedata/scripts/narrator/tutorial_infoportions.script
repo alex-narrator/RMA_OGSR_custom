@@ -78,7 +78,10 @@ function on_take(item)
 	end
 	if item:is_helmet() and not has_alife_info("encyclopedy_tutorial_outfit_helmet") then
 		actor:give_info_portion("encyclopedy_tutorial_outfit_helmet")
-	end	
+	end
+	if item:get_container() and not has_alife_info("encyclopedy_tutorial_outfit_backpack") then
+		actor:give_info_portion("encyclopedy_tutorial_outfit_backpack")
+	end		
 end
 
 function on_npc_use(npc)
