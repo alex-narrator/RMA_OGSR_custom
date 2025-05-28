@@ -76,6 +76,10 @@ function MainIngameOverlay:Subscribe()
 			{signal = "on_pickup_item_set", self = self, fun = self.OnPickUpItemSet},
 			{signal = "on_key_press", self = self, fun = self.OnKeyPress},
 			{signal = "on_key_release", self = self, fun = self.OnKeyRelease},
+			--//
+			{signal = "on_article", self = self, fun = self.ShowFlashingIcon},
+			{signal = "on_task", self = self, fun = self.ShowFlashingIcon},
+			{signal = "on_pda_show", self = self, fun = self.HideFlashingIcon},
 		}
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
@@ -322,6 +326,9 @@ function MainIngameOverlay:InitControls()
 	self.tip_cursor = xml:InitStatic("tip_cursor", self)
 	local offset = ui_inv_utils.GetOffset("center", self.tip_cursor, self.owner)
 	self.tip_cursor:SetWndPos(offset.x, offset.y)
+	
+	self.flashing_icon = xml:InitStatic("flashing_icon", self)
+	self.flashing_icon:Show(false)
 end
 
 function MainIngameOverlay:UpdateConditions()
@@ -1101,6 +1108,13 @@ function MainIngameOverlay:ShowActiveTask(b_show)
 			self.active_task:Show(false)
 		end		
 	end
+end
+
+function MainIngameOverlay:ShowFlashingIcon()
+	self.flashing_icon:Show(true)
+end
+function MainIngameOverlay:HideFlashingIcon()
+	self.flashing_icon:Show(false)
 end
 
 function MainIngameOverlay:Update()
