@@ -681,4 +681,18 @@ end
 	
 --actor:ph_capture_object(level.object_by_id(769))
 
-actor:binded_object().actor_detector.init_time = -1
+--actor:binded_object().actor_detector.init_time = -1
+
+-- local actor_immun = actor.immunities
+-- actor_immun.chemical_burn_immunity = 0
+-- log3("~chemical_burn_immunity %s", actor_immun.chemical_burn_immunity)
+-- local rnd_min, rnd_max = 0.5, 1.5
+-- local rnd_koef = 100
+-- log3("~random %s", math.random(rnd_min * rnd_koef, rnd_max * rnd_koef) / rnd_koef)
+
+-- log3("~has info ui_talk %s", not not actor:has_info("ui_talk"))
+-- log3("~has info ui_dialog %s", not not actor:has_info("ui_dialog"))
+
+--log3("~main_input_receiver %s", not not level.main_input_receiver())
+
+--actor:activate_slot(NO_ACTIVE_SLOT)

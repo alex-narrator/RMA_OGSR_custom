@@ -8,6 +8,8 @@ function attach(sm)
 	sm:subscribe({signal = "on_booster_disable", 	fun = this.on_booster_disable})	
 end
 
+local sm = ogse_signals.get_mgr()
+
 local head_bone = {
 	["bip01_head"] = true,
 }
@@ -228,8 +230,9 @@ function try_upper_limbs_injure(health_lost)
 	hand_injured = true
 	hud_add_info_message("item_usage", "st_hand_injured")
 	
+	sm:call("on_upper_limbs_injure", health_lost)
+	
 	subscribe_hands()
-	try_give_tutorial()
 	--log3("~upper limbs injure on hit amount %s", health_lost)
 end
 
@@ -241,8 +244,9 @@ function try_lower_limbs_injure(health_lost)
 	leg_injured = true
 	hud_add_info_message("item_usage", "st_leg_injured")
 	
+	sm:call("on_lower_limbs_injure", health_lost)
+	
 	subscribe_legs()
-	try_give_tutorial()
 	--log3("~lower limbs injure on hit amount %s", health_lost)
 end
 
@@ -385,10 +389,4 @@ function can_heal_leg(item)
 end
 function heal_leg(item)
 	heal_injure(item, "leg")
-end
-
-function try_give_tutorial()
-	if not has_alife_info("enc_limb_wounds") then
-		actor:give_info_portion("enc_limb_wounds")
-	end	
 end

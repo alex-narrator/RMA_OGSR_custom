@@ -21,6 +21,8 @@ local trade_manager = {}
 
 local DEF_TRADE_CFG = [[trade\trade_generic.ltx]]
 
+local sm = ogse_signals.get_mgr()
+
 local sold_items = nil
 
 function on_actor_menu_show(mode)
@@ -338,7 +340,6 @@ function buy_supplies(npc)
 	if not tt then 
 	return end
 	
-	local sm = ogse_signals.get_mgr()
 	tt.deficit = {}
 	
 	--log3("~call buy_supplies for trader %s", npc:profile_name())

@@ -33,6 +33,16 @@ local bleeding_stress_inc 		= read_if_exists(sys_ini, "r_float", cond_sect, "ble
 
 local protection_index 			= 12 --//порядковий номер з якого починаються секції захисту від різновидів ушкоджень (відлік починається з 1)
 
+--//tutorial thresholds
+local thresholds_sect 			= "tutorial_conditions_thresholds"
+local tutorial_data 			= {
+	["encyclopedy_tutorial_weakness"] = { 
+			cond = function() return actor.power end,  
+			thr = function() return read_if_exists(sys_ini, "r_float", thresholds_sect, "power", 0) end,
+			action = function() on_actor_critical_power() end,
+	},
+}
+
 local stress_blood 				= {}
 
 local update_boost_func = {

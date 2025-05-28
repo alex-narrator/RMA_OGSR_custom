@@ -1,9 +1,17 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
-	sm:subscribe({signal = "on_take", 			fun = this.on_take})
-	sm:subscribe({signal = "on_npc_use", 		fun = this.on_npc_use})
-	sm:subscribe({signal = "on_new_game_start", fun = this.on_new_game_start})
-	sm:subscribe({signal = "on_campfire_use", 	fun = this.on_campfire_use})
+	sm:subscribe({signal = "on_take", 				fun = this.on_take})
+	sm:subscribe({signal = "on_npc_use", 			fun = this.on_npc_use})
+	sm:subscribe({signal = "on_new_game_start", 	fun = this.on_new_game_start})
+	sm:subscribe({signal = "on_campfire_use", 		fun = this.on_campfire_use})
+	sm:subscribe({signal = "update_items_effect", 	fun = this.on_update_effects})
+	sm:subscribe({signal = "on_upper_limbs_injure", fun = this.on_limbs_injure})
+	sm:subscribe({signal = "on_lower_limbs_injure", fun = this.on_limbs_injure})
+	sm:subscribe({signal = "on_hud_state_switch", 	fun = this.on_state_switch})	
+end
+
+function newbie_mode()
+	return has_alife_info("esc_trader_newbie")
 end
 
 function on_new_game_start()
@@ -29,34 +37,232 @@ function on_take(item)
 	-- end
 	if is_pda_hackable(item) and not has_alife_info("enc_pda_npc") then
 		actor:give_info_portion("enc_pda_npc")
-		if has_alife_info("esc_trader_newbie") then
-			level.add_call(
-				function()
-					return not level.main_input_receiver()
-				end,
-				function()
-					game.start_tutorial("part_pda_diary")
-				end
-			)
-		end		
+		if newbie_mode() then
+			level.add_call(function() return not level.main_input_receiver() end, function() game.start_tutorial("part_pda_diary") end)
+		end
 	end	
-	if item:get_detector() and not has_alife_info("enc_detectors") then
+	if (item:get_detector() or item:section() == "detector_geiger_cop") and not has_alife_info("enc_detectors") then
 		actor:give_info_portion("enc_detectors")
+		if newbie_mode() then
+			level.add_call(function() return not level.main_input_receiver() end, function() game.start_tutorial("tutorial_detectors") end)
+		end		
 	end
 	if item:section() == "detector_receiver_cop" and not has_alife_info("enc_receiver") then
 		actor:give_info_portion("enc_receiver")
+		if newbie_mode() then
+			level.add_call(function() return not level.main_input_receiver() end, function() game.start_tutorial("tutorial_receiver") end)
+		end				
+	end
+	local wpn = item:get_weapon_m()
+	if wpn then
+		if not has_alife_info("encyclopedy_tutorial_weapon_aim") then
+			actor:give_info_portion("encyclopedy_tutorial_weapon_aim")
+		end	
+		if not has_alife_info("encyclopedy_tutorial_weapon_ammo") then
+			actor:give_info_portion("encyclopedy_tutorial_weapon_ammo")
+		end
+		if not has_alife_info("encyclopedy_tutorial_weapon_magazine") and get_magazine_sects(item) then
+			actor:give_info_portion("encyclopedy_tutorial_weapon_magazine")
+		end
+		if not has_alife_info("encyclopedy_tutorial_weapon_addon") and has_addons(item) then
+			actor:give_info_portion("encyclopedy_tutorial_weapon_addon")
+		end
+	end
+	if item:is_grenade() then
+		if not has_alife_info("encyclopedy_tutorial_weapon_grenade") then
+			actor:give_info_portion("encyclopedy_tutorial_weapon_grenade")
+		end
+	end
+	if item:is_outfit() and not has_alife_info("encyclopedy_tutorial_outfit_suit") then
+		actor:give_info_portion("encyclopedy_tutorial_outfit_suit")
+	end
+	if item:is_helmet() and not has_alife_info("encyclopedy_tutorial_outfit_helmet") then
+		actor:give_info_portion("encyclopedy_tutorial_outfit_helmet")
 	end	
 end
 
 function on_npc_use(npc)
 	if not npc:alive() and not has_alife_info("enc_body_search") then
 		actor:give_info_portion("enc_body_search")
+		if newbie_mode() then
+			level.add_call(function() return not level.main_input_receiver() end, function() game.start_tutorial("body_search_tutorial") end)
+		end		
 	end	
 end
 
 function on_campfire_use()
-	if not has_alife_info("enc_campfire") then
-		actor:give_info_portion("enc_campfire")
-		game.start_tutorial("campfire_tutorial")
+	if has_alife_info("enc_campfire") then
+	return end
+	if newbie_mode() then
+		game.start_tutorial("tutorial_campfire")
 	end
+	actor:give_info_portion("enc_campfire")
+end
+
+--//tutorial thresholds
+local thresholds_sect 			= "tutorial_conditions_thresholds"
+local tutorial_data 			= {
+	--//power
+	["encyclopedy_tutorial_weakness"] = { 
+			condition = function() return actor.power < read_if_exists(sys_ini, "r_float", thresholds_sect, "power", 0.1) end,  
+			action = function() on_actor_critical_power() end,
+	},
+	--//bleeding
+	["encyclopedy_tutorial_wound"] = { 
+			condition = function() return actor:get_bleeding() > read_if_exists(sys_ini, "r_float", thresholds_sect, "bleeding", 0.1) end,
+			action = function() on_actor_bleeding() end,
+	},
+	--//satiety
+	["encyclopedy_tutorial_satiety"] = { 
+			condition = function() return actor.satiety < read_if_exists(sys_ini, "r_float", thresholds_sect, "satiety", 0.1) end,
+			action = function() on_actor_satiety() end,
+	},
+	--//radiation
+	["encyclopedy_tutorial_radiation"] = { 
+			condition = function() return actor.radiation > read_if_exists(sys_ini, "r_float", thresholds_sect, "radiation", 0.1) end,
+			action = function() on_actor_radiation() end,
+	},
+	--//psy_health
+	["encyclopedy_tutorial_psy_health"] = { 
+			condition = function() return actor.psy_health < read_if_exists(sys_ini, "r_float", thresholds_sect, "psy_health", 0.9) end,
+			action = function() on_actor_psy_health() end,
+	},
+	--//somnolence
+	["encyclopedy_tutorial_somnolence"] = { 
+			condition = function() return somnolence.get_val() > read_if_exists(sys_ini, "r_float", thresholds_sect, "somnolence", 0.1) end,
+			action = function() on_actor_somnolence() end,
+	},
+	--//stamina
+	["encyclopedy_tutorial_stamina"] = { 
+			condition = function() return stamina.get_val() < read_if_exists(sys_ini, "r_float", thresholds_sect, "stamina", 0.1) end,
+			action = function() on_actor_stamina() end,
+	},	
+	--//overweight
+	["encyclopedy_tutorial_overload"] = { 
+			condition = function() return actor:get_inventory_weight() > actor:get_max_weight() end,
+			action = function() on_actor_overweight() end,
+	},	
+}
+
+function on_update_effects(delta)
+	for k, v in pairs(tutorial_data) do
+		if not actor:has_info(k) then
+			if not not v.condition() then
+				v.action()
+			end
+		end
+	end
+end
+
+function on_state_switch(item, state, old_state)
+	local wpn = item:get_weapon_m()
+	if wpn and wpn:is_misfire() and not actor:has_info("encyclopedy_tutorial_weapon_misfire") then
+		on_actor_weapon_jammed()
+	end
+	if wpn and not actor:has_info("encyclopedy_tutorial_weapon_condition") and item:condition() < read_if_exists(sys_ini, "r_float", thresholds_sect, "weapon_condition", 0.9) then
+		on_actor_weapon_condition()
+	end	
+	local knife = item:is_knife() 
+	if knife and not actor:has_info("encyclopedy_tutorial_knife_condition") and item:condition() < read_if_exists(sys_ini, "r_float", thresholds_sect, "knife_condition", 0.9) then
+		on_actor_knife_condition()
+	end
+end
+
+--' Усталость
+function on_actor_critical_power()
+	if newbie_mode() then
+		game.start_tutorial("tutorial_weakness")
+	end
+	actor:give_info_portion("encyclopedy_tutorial_weakness")
+end
+
+function on_actor_critical_max_power()
+end
+
+function on_actor_stamina()
+end
+
+--' Кровотечение
+function on_actor_bleeding()
+	if newbie_mode() then
+		game.start_tutorial("tutorial_wound")
+	end
+	actor:give_info_portion("encyclopedy_tutorial_wound")
+end
+
+function on_actor_satiety()
+	if newbie_mode() then
+		game.start_tutorial("tutorial_satiety")
+	end
+	actor:give_info_portion("encyclopedy_tutorial_satiety")
+end
+
+--' Радиация
+function on_actor_radiation()
+	if newbie_mode() then
+		game.start_tutorial("tutorial_radiation")
+	end
+	actor:give_info_portion("encyclopedy_tutorial_radiation")
+end
+
+--' Заклинило оружие
+function on_actor_weapon_jammed()
+	if newbie_mode() then
+		game.start_tutorial("tutorial_weapon_misfire")
+	end
+	actor:give_info_portion("encyclopedy_tutorial_weapon_misfire")
+end
+
+function on_actor_knife_condition()
+	if newbie_mode() then
+		game.start_tutorial("tutorial_knife_condition")
+	end
+	actor:give_info_portion("encyclopedy_tutorial_knife_condition")
+end
+
+function on_actor_weapon_condition()
+	if newbie_mode() then
+		game.start_tutorial("tutorial_weapon_condition")
+	end
+	actor:give_info_portion("encyclopedy_tutorial_weapon_condition")
+end
+
+--' не может ходить изза веса
+function on_actor_overweight()
+	if newbie_mode() then
+		game.start_tutorial("tutorial_overload")
+	end
+	actor:give_info_portion("encyclopedy_tutorial_overload")
+end
+
+--' пси воздействие
+function on_actor_psy_health()
+	if newbie_mode() then
+		game.start_tutorial("tutorial_psy_health")
+	end
+	actor:give_info_portion("encyclopedy_tutorial_psy_health")
+end
+
+function on_actor_somnolence()
+	if newbie_mode() then
+		game.start_tutorial("tutorial_somnolence")
+	end
+	actor:give_info_portion("encyclopedy_tutorial_somnolence")
+end
+
+function on_actor_stamina()
+	if newbie_mode() then
+		game.start_tutorial("tutorial_stamina")
+	end
+	actor:give_info_portion("encyclopedy_tutorial_stamina")
+end
+
+function on_limbs_injure()
+	if has_alife_info("enc_limb_wounds") then
+	return end
+	
+	if newbie_mode() then
+		game.start_tutorial("tutorial_limb_wounds")
+	end	
+	actor:give_info_portion("enc_limb_wounds")
 end

@@ -1403,78 +1403,6 @@ function odd( x )
 	return math.floor( x * 0.5 ) * 2 == math.floor( x )
 end
 
---' Усталость
-function on_actor_critical_power()
-	if has_alife_info("esc_trader_newbie") then
-		game.start_tutorial("part_11_weakness")
-	end
-	if not has_alife_info("encyclopedy_tutorial_weakness") then
-		db.actor:give_info_portion("encyclopedy_tutorial_weakness")
-	end
-end
-
-function on_actor_critical_max_power()
-end
-
-function on_actor_stamina()
-end
-
---' Кровотечение
-function on_actor_bleeding()
-	if has_alife_info("esc_trader_newbie") then
-		game.start_tutorial("part_8_wound")
-	end
-	if not has_alife_info("encyclopedy_tutorial_wound") then
-		db.actor:give_info_portion("encyclopedy_tutorial_wound")
-	end
-end
-
-function on_actor_satiety()
-end
-
---' Радиация
-function on_actor_radiation()
-	if has_alife_info("esc_trader_newbie") then
-		game.start_tutorial("part_6_radiation")
-	end
-	if not has_alife_info("encyclopedy_tutorial_radiation") then
-		db.actor:give_info_portion("encyclopedy_tutorial_radiation")
-	end
-end
-
---' Заклинило оружие
-function on_actor_weapon_jammed()
-	if has_alife_info("esc_trader_newbie") then
-		game.start_tutorial("part_9_weapon")
-	end
-	if not has_alife_info("encyclopedy_tutorial_weapon") then
-		db.actor:give_info_portion("encyclopedy_tutorial_weapon")
-	end
-end
-
-function on_actor_knife_condition()
-	if has_alife_info("esc_trader_newbie") then
-		game.start_tutorial("knife_condition_tutorial")
-	end
-	if not has_alife_info("encyclopedy_tutorial_knife") then
-		db.actor:give_info_portion("encyclopedy_tutorial_knife")
-	end
-end
-
---' не может ходить изза веса
-function on_actor_cant_walk_weight()
-	if has_alife_info("esc_trader_newbie") then
-		game.start_tutorial("part_14_overload")
-	end
-	if not has_alife_info("encyclopedy_tutorial_overload") then
-		db.actor:give_info_portion("encyclopedy_tutorial_overload")
-	end
-end
-
---' пси воздействие
-function on_actor_psy()
-end
-
 function get_texture_info(id_name, id_default)
 	if not id_default then 
 		id_default = id_name 
@@ -2301,6 +2229,17 @@ end
 
 function is_god_mode()
 	return get_console():get_bool("g_god")
+end
+
+function has_addons(item)
+	for k, addon in pairs(ADDON_TYPES) do
+		local addons = read_if_exists(sys_ini, "r_string", item:section(), addon.."_name", nil)
+		local addons_list = split_string(addons, ",")
+		if addons_list then
+			return true
+		end
+	end
+	return false
 end
 
 function is_unlimited_ammo()

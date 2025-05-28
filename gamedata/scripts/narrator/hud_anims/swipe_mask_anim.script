@@ -19,9 +19,9 @@ function on_key_press(key, game_action)
 	-- if wpn and wpn.zoom_mode then
 		-- wpn:zoom_out()
 	-- end
-	if actor:active_item() then
-		actor:active_item():zoom_out()
-	end
+	-- if actor:active_item() then
+		-- actor:active_item():zoom_out()
+	-- end
 	
 	game.play_hud_motion(1, hud_sect, "anm_use", false, 1, false)
 	local snd_name = read_if_exists(sys_ini, "r_string", hud_sect, "hud_sound", nil)
