@@ -73,6 +73,9 @@ function similar_item(item1, item2)
 	-- local t = profile_timer()
 	-- t:start()
 	
+	if not item1 then return false end
+	if not item2 then return false end
+	
 	local fsim = math.fsimilar
 	local cmp = 0.01
 	local iitem1, iitem2 = item1:get_inventory_item(), item2:get_inventory_item()

@@ -6,10 +6,15 @@ function can_donate(item)
 	return not quest_item and parent_is_actor(item) and actor_menu:GetMode() == "trade"
 end
 function donate(item)
-	actor:transfer_item(item, level.get_second_talker())
+	local target = level.get_second_talker()
+	actor:transfer_item(item, target)
 	local goodwill = item:cost() * 0.01
 	--log3("~npc %s, goodwill %s - donate on %s", level.get_second_talker():name(), level.get_second_talker():goodwill(actor), goodwill)
-	level.get_second_talker():change_goodwill(goodwill, actor)
+	target:change_goodwill(goodwill, actor)
+	local header = string.format("%s", target:character_name())
+	local text = string.format("%s: %s\\n%s: %s%+.0f", game.translate_string("st_donate_item_tip"), game.translate_string(get_inv_name_short(item:section())), game.translate_string("st_goodwill_tip"), "%c[green]", goodwill)
+	news_manager.custom_news(header, text, community.get_news_icon(target:character_community()))
+	actor_menu:UpdateCharInfos()
 end
 
 
