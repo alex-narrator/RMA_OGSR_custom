@@ -12,14 +12,19 @@ function attach(sm)
 	--sm:subscribe({signal = "on_trade_purchase_item_process", 	fun = this.on_trade_purchase_item_process})
 end
 
-local MIN_DEFICIT = read_if_exists(sys_ini, "r_float", "trade", "min_deficit_factor", 1)
-local MAX_DEFICIT = read_if_exists(sys_ini, "r_float", "trade", "max_deficit_factor", 1)
+local BUY_ENEMY_FACTOR 		= read_if_exists(sys_ini, "r_float", "trade", "buy_price_factor_hostile", 1)
+local BUY_FRIEND_FACTOR 	= read_if_exists(sys_ini, "r_float", "trade", "buy_price_factor_friendly", 1)
+local SELL_ENEMY_FACTOR 	= read_if_exists(sys_ini, "r_float", "trade", "sell_price_factor_hostile", 1)
+local SELL_FRIEND_FACTOR 	= read_if_exists(sys_ini, "r_float", "trade", "sell_price_factor_friendly", 1)
+local MIN_DEFICIT 			= read_if_exists(sys_ini, "r_float", "trade", "min_deficit_factor", 1)
+local MAX_DEFICIT 			= read_if_exists(sys_ini, "r_float", "trade", "max_deficit_factor", 1)
 
 local MIN_H, MAX_H = 8, 12--//межі рандомайзеру часу до оновлення асортиментів (ігрові години)
 local c_time = game.CTime()
 local trade_manager = {}
 
 local DEF_TRADE_CFG = [[trade\trade_generic.ltx]]
+local DEF_TRADE_CONDITIONS = {}
 
 local sm = ogse_signals.get_mgr()
 
@@ -59,7 +64,7 @@ function on_trade_hide()
 	for item_id,v in pairs(sold_items) do
 		se_item = sim:object(item_id)
 		cl_item = level.object_by_id(item_id)
-		if trade_partner and trade_partner:is_trader() or not trade_partner:is_in_slot(cl_item) then
+		if trade_partner and (trade_partner:is_trader() or not trade_partner:is_in_slot(cl_item)) then
 			--log3("~release item %s after trade with %s", se_item:name(), trade_partner:name())
 			sim:release(se_item, true)
 		end
@@ -134,14 +139,14 @@ function update(npc)
 	local str = xr_logic.pick_section_from_condlist(actor, npc, tt.buy_condition)
 	if tt.current_buy_condition ~= str then
 		--log3("TRADE UPDATE [%s]: buy condition = %s", npc:name(), str)
-		npc:buy_condition(tt.config, str)
+		fill_conditions(tt, tt.config, str, true)
 		tt.current_buy_condition = str
 	end
 
 	str = xr_logic.pick_section_from_condlist(actor, npc, tt.sell_condition)
 	if tt.current_sell_condition ~= str then
 		--log3("TRADE UPDATE [%s]: sell condition = %s", npc:name(), str)
-		npc:sell_condition(tt.config, str)
+		fill_conditions(tt, tt.config, str, false)
 		tt.current_sell_condition = str
 	end
 
@@ -236,14 +241,14 @@ function load(obj, packet)
 	local a = packet:r_stringZ()
 	if a ~= "" then
 		tt.current_buy_condition = a
-		obj:buy_condition(tt.config, a)
+		fill_conditions(tt, tt.config, a, true)
 		--log3("TRADE LOAD [%s]: current_buy_condition = %s", obj:name(), tostring(a))
 	end
 	
 	a = packet:r_stringZ()
 	if a ~= "" then
 		tt.current_sell_condition = a
-		obj:sell_condition(tt.config, a)
+		fill_conditions(tt, tt.config, a, false)
 		--log3("TRADE LOAD [%s]: current_sell_condition = %s", obj:name(), tostring(a))
 	end
 
@@ -276,7 +281,7 @@ end
 function parse_purchase_list(npc)
 	local tt = trade_manager[npc:id()]
 	if not tt then 
-		log3("~TRADE UPDATE [%s]: fill_purchase_data skiped", npc:name())
+		log3("!TRADE UPDATE [%s]: fill_purchase_data skiped", npc:name())
 	return end
 	tt.purchase_data = {}
 	--//чистимо таблицю факторів дефіциту
@@ -298,7 +303,7 @@ end
 function on_trade_purchase_item_process(npc, sobj)
 	local tt = trade_manager[npc:id()]
 	if not tt then
-		log3("~TRADE UPDATE [%s]: on_trade_purchase_item_process skiped", npc:name())
+		log3("!TRADE UPDATE [%s]: on_trade_purchase_item_process skiped", npc:name())
 	return end
 	local sect = sobj:section_name()
 	if not tt.purchase_data then
@@ -397,11 +402,136 @@ function is_trader(npc)
 end
 
 function get_trade_cost(item)
-	local trade_partner = level.get_second_talker()
-	local cost = trade_partner and trade_partner:calculate_item_price(item, parent_is_actor(item)) or 0
-	return cost
+	local script_cost = calculate_item_price(level.get_second_talker(), item, parent_is_actor(item))
+	return script_cost
 end
 
 function tradable(item)
-	return get_trade_cost(item) > 0 and read_if_exists(sys_ini, "r_bool", item:section(), "can_trade", true) and not read_if_exists(sys_ini, "r_bool", item:section(), "quest_item", false)
+	return read_if_exists(sys_ini, "r_bool", item:section(), "can_trade", true) and not read_if_exists(sys_ini, "r_bool", item:section(), "quest_item", false) and get_trade_cost(item) > 0
+end
+
+function fill_conditions(tt, config, section, for_buy)
+	local default = (tt.cfg_ltx == DEF_TRADE_CFG)
+	if default then
+		if for_buy then
+			if DEF_TRADE_CONDITIONS.buy_condition_data then
+				--log3("~default buy_condition - return")
+				return 
+			end
+		else
+			if DEF_TRADE_CONDITIONS.sell_condition_data then
+				--log3("~default sell_condition - return")
+				return 
+			end
+		end
+	end
+	
+	local cond_table = {}
+	local n = config:line_count(section)
+	for i=0,n-1 do
+		local _, sect, value = config:r_line(section,i,"","")
+		--//регулярки можна писати не закриваючи їх у символи "/""/" але якщо вони написані - приберемо їх
+		sect = sect:gsub("/.-", "")
+		
+		local rept_good_k, rept_bad_k, min_cond = 0, 0, 0
+		if value ~= "" then
+			value = split_string(value, ",", true)
+			rept_good_k = value[1]
+			rept_bad_k = value[2]
+			min_cond = value[3] or 0
+		end
+		--cond_table[sect] = {rept_good_k, rept_bad_k}
+		table.insert(cond_table, {[sect] = {rept_good_k, rept_bad_k, min_cond}})
+		--log3("~cfg_ltx %s | section %s - sect %s | value %s", tt.cfg_ltx, section, sect, value)
+	end
+
+	if for_buy then
+		if default then
+			DEF_TRADE_CONDITIONS.buy_condition_data = cond_table
+			log3("~fill default buy_condition_data")
+		else
+			tt.buy_condition_data = cond_table
+		end
+	else
+		if default then
+			DEF_TRADE_CONDITIONS.sell_condition_data = cond_table
+			log3("~fill default sell_condition_data")
+		else
+			tt.sell_condition_data = cond_table
+		end
+	end
+	--log3("~cfg_ltx %s | section %s - cond_table %s", tt.cfg_ltx, section, cond_table)
+end
+
+function get_trade_params(section, cond_table)
+	for k,v in pairs(cond_table) do
+		if v[section] then
+			return v[section][1], v[section][2], v[section][3]
+		end
+	end	
+	for k,v in pairs(cond_table) do
+		for _k,_v in pairs(v) do
+			if not not string.match(section, _k) then
+				return v[_k][1], v[_k][2], v[_k][3]
+			end
+		end
+	end
+	return 0, 0, 0
+end
+
+function calculate_item_price(trader, item, b_buying)
+	if not trader then
+		return 0
+	end
+	--log3("~trader %s", trader:character_name())
+	
+	--//b_buying (чи це купівля) стосується вендора - чи вендор купує
+	local cond_table
+	if is_trader(trader) then
+		local tt = trade_manager[trader:id()]
+		cond_table = b_buying and tt.buy_condition_data or tt.sell_condition_data
+	else
+		cond_table = b_buying and DEF_TRADE_CONDITIONS.buy_condition_data or DEF_TRADE_CONDITIONS.sell_condition_data
+	end
+	--log3("!item %s - cond_table %s", item:name(), cond_table)
+	
+	local sect = item:section()
+	local rept_good_k, rept_bad_k, min_cond = get_trade_params(sect, cond_table)
+
+	if rept_good_k == 0 or rept_bad_k == 0 then
+		--log3("!item %s - rept_good_k %s, rept_bad_k %s", item:name(), rept_good_k, rept_bad_k)
+		return 0
+	end	
+	if not rept_good_k or not rept_bad_k then
+		rept_good_k, rept_bad_k, min_cond = 1, 1, 0
+	end
+	
+	local cond = item:condition()
+	if cond < min_cond then
+		return 0
+	end	
+	
+	local base_cost = item:cost()
+	--log3("~item %s - base_cost %s", item:name(), base_cost)
+	--local condition_factor = math.clamp(cond, 0.1, 1)
+	local condition_factor = math.pow(cond*0.9 + 0.1, 0.75)
+	--log3("~item %s - condition_factor %s", item:name(), condition_factor)
+	--//це персональне ставлення вендора до актора
+	local attitude = trader:general_goodwill(actor)
+	local relation_factor = (attitude + 1000) / 2000
+	relation_factor = math.clamp(relation_factor, 0, 1)
+	--log3("~item %s - relation_factor %s", item:name(), relation_factor)
+	
+	local action_factor
+	if rept_good_k <= rept_bad_k then
+		action_factor = rept_good_k + (rept_bad_k - rept_good_k) * (1 - relation_factor)
+	else
+		action_factor = rept_bad_k + (rept_good_k - rept_bad_k) * relation_factor
+	end
+	action_factor = math.clamp(action_factor, math.min(rept_bad_k, rept_good_k), math.max(rept_bad_k, rept_good_k))
+	--log3("~item %s - rept_good_k %s, rept_bad_k %s", item:name(), rept_good_k, rept_bad_k)
+	--log3("~item %s - action_factor %s", item:name(), action_factor)
+	
+	local result = base_cost * condition_factor * action_factor * get_deficit_factor(trader, sect)
+	return math.round(result)
 end
