@@ -89,9 +89,9 @@ function set_scheme(npc, ini, scheme, section, gulag_name)
 	
 	local sm = ogse_signals.get_mgr()
 	local action = st.action
-	sm:subscribe( {signal = "on_actor_menu_show", self = action, fun = self.on_actor_menu_show} )
-	sm:subscribe( {signal = "on_actor_menu_hide", self = action, fun = self.on_actor_menu_hide} )
-	sm:subscribe( {signal = "on_perform_trade", self = action, fun = self.on_trade} )
+	sm:subscribe( {signal = "on_actor_menu_show", self = action, fun = action.on_actor_menu_show} )
+	sm:subscribe( {signal = "on_actor_menu_hide", self = action, fun = action.on_actor_menu_hide} )
+	sm:subscribe( {signal = "on_perform_trade", self = action, fun = action.on_trade} )
 end
 
 function disable_scheme(npc, scheme)
