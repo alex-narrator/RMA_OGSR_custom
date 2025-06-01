@@ -41,7 +41,7 @@ function make_quick_save()
 	if last_quick_name then
 		local last_quick_num = last_quick_name:gsub(save_name, "")
 		last_quick_num = tonumber(last_quick_num)
-		if last_quick_num < get_script_option_value("quick_save_max") then
+		if last_quick_num and last_quick_num < get_script_option_value("quick_save_max") then
 			i = last_quick_num + 1
 		end		
 	end
