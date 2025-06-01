@@ -244,6 +244,7 @@ end
 function make_sleep_savegame()
 	if not SAVE_AFTER_SLEEP then
 	return end
-	local save_cmd = string.format("save %s - %s", user_name(), game.translate_string("ui_st_after_sleep"))
+	--local save_cmd = string.format("save %s - %s", user_name(), game.translate_string("ui_st_after_sleep"))
+	local save_cmd = string.format("save %s", game.translate_string("ui_st_after_sleep"))
 	get_console():execute(save_cmd)
 end
