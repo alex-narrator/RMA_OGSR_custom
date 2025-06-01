@@ -80,6 +80,11 @@ function MainIngameOverlay:Subscribe()
 			{signal = "on_article", self = self, fun = self.ShowFlashingIcon},
 			{signal = "on_task", self = self, fun = self.ShowFlashingIcon},
 			{signal = "on_pda_show", self = self, fun = self.HideFlashingIcon},
+			
+			{signal = "on_task_stage", self = self, fun = self.OnTaskUpdate},
+			
+			{signal = "on_slot_selector_show", self = self, fun = self.ShowActiveTask},
+			{signal = "on_slot_selector_hide", self = self, fun = self.HideActiveTask},
 		}
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
@@ -312,6 +317,7 @@ function MainIngameOverlay:InitControls()
 	self.task_icon = xml:InitStatic("active_task:task_icon", self.active_task)
 	self.task_header = xml:InitStatic("active_task:task_header", self.active_task)
 	self.objective_header = xml:InitStatic("active_task:objective_header", self.active_task)
+	self.task_state_icon = xml:InitStatic("active_task:task_state_icon", self.active_task)
 	
 	--//slot selector
 	self.slot_selector = ui_slot_selector.SlotSelectorOverlay()
@@ -1033,65 +1039,59 @@ function MainIngameOverlay:OnKeyPress(key, game_action)
 	
 		self.slot_selector:ShowHideSelector()
 
-		self:ShowActiveTask(true)
-	
-		-- local task = actor:get_active_task()
-		-- self.active_task:Show(task)
-		-- if self.active_task:IsShown() then
-			-- local text = game.translate_string(task:get_title() or "NO_TASK_TITLE")
-			-- self.task_header:SetText(text)
-		
-			-- local objective = actor:get_active_objective()
-			-- text = string.format("%s %s", game.translate_string("st_list_mark"), game.translate_string(objective:get_description() or "NO_OBJECTIVE_DESCRIPTION"))
-			-- self.objective_header:SetText(text)
-		
-			-- local task_icon = task:get_objective(0):get_icon_name()
-			-- self.task_icon:Show(task_icon)
-			-- --log3("~task_icon %s", task_icon)
-			-- if self.task_icon:IsShown() then
-				-- self.task_icon:InitTexture(task_icon)
-				-- local r = task:get_objective(0):get_icon_rect()
-				-- self.task_icon:SetOriginalRect(r.x1, r.y1, r.x2, r.y2)
-			-- end
-		-- end
+		--self:ShowActiveTask(true)
 	end
 	
 	if game_action == key_bindings.kQUICK_ADDON then
 		self.quick_addon:ShowHide()
 	end
-	-- if game_action == key_bindings.kCHECKGEAR then
-		-- if not level.main_input_receiver() or self.slot_selector:IsShown() then
-			-- level.start_stop_menu(self.slot_selector,false)
-			-- local console = get_console()
-			-- if self.slot_selector:IsShown() then
-				-- self.slot_selector:UpdateSlots()
-				-- console:execute("time_factor 0.25")
-			-- else
-				-- console:execute("time_factor 1")
-			-- end
-		-- end
-	-- end
 end
 
 function MainIngameOverlay:OnKeyRelease(key, game_action)
-	if game_action == key_bindings.kSCORES or key == DIK_keys.DIK_ESCAPE then
-		-- if self.active_task:IsShown() then
-			-- self.active_task:Show(false)
-		-- end
-		self:ShowActiveTask(false)
-	end
+	-- if game_action == key_bindings.kSCORES or key == DIK_keys.DIK_ESCAPE then
+		-- self:ShowActiveTask(false)
+	-- end
 end
 
-function MainIngameOverlay:ShowActiveTask(b_show)
+function MainIngameOverlay:ShowActiveTask()
+	self:ShowTask(true)
+end
+
+function MainIngameOverlay:HideActiveTask()
+	self:ShowTask(false)
+end
+
+local task_stage_color = {
+	["new"] 		= GetARGB(255, 0, 255, 0),
+	["update"] 		= GetARGB(255, 255, 255, 0),--GetARGB(255, 238, 153, 26),
+	["complete"] 	= GetARGB(255, 0, 255, 0),
+	["fail"] 		= GetARGB(255, 255, 0, 0),
+}
+function MainIngameOverlay:ShowTask(b_show, _task, _objective, _stage)
 	if b_show then
-		local task = actor:get_active_task()
+		local task = _task or actor:get_active_task()
 		self.active_task:Show(task)
+		self.task_state_icon:Show(_task)
 		if self.active_task:IsShown() then
 			local text = game.translate_string(task:get_title() or "NO_TASK_TITLE")
 			self.task_header:SetText(text)
-		
-			local objective = actor:get_active_objective()
-			text = string.format("%s %s", game.translate_string("st_list_mark"), game.translate_string(objective:get_description() or "NO_OBJECTIVE_DESCRIPTION"))
+			
+			local objective_description = "NO_OBJECTIVE_DESCRIPTION"
+			if _stage then
+				if _stage == "new" or _stage == "update" then
+					local idx = _objective:get_idx() + 1
+					if _task:get_objectives_cnt() ~= idx then
+						objective_description = _task:get_objective(idx):get_description()
+					end
+				else
+					objective_description = "general_".._stage.."_task"
+				end
+				self.task_state_icon:SetColor(task_stage_color[_stage])
+				self.task_state_icon:InitTexture(_stage.."_task_icon")
+			else
+				objective_description = actor:get_active_objective():get_description()
+			end
+			text = _stage and string.format("%s %s", game.translate_string("st_list_mark"), game.translate_string(objective_description))
 			self.objective_header:SetText(text)
 		
 			local task_icon = task:get_objective(0):get_icon_name()
@@ -1115,6 +1115,11 @@ function MainIngameOverlay:ShowFlashingIcon()
 end
 function MainIngameOverlay:HideFlashingIcon()
 	self.flashing_icon:Show(false)
+end
+
+function MainIngameOverlay:OnTaskUpdate(_task, _objective, _stage)
+	self:ShowTask(true, _task, _objective, _stage)
+	add_time_delayed_action(5, function() self:ShowTask(false) end)
 end
 
 function MainIngameOverlay:Update()

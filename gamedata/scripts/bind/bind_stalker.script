@@ -284,13 +284,17 @@ end
 ----------------------------------------------------------------------------------------------------------------------
 
 function actor_binder:task_callback(_task, _objective, _state)
+	local _stage
 	if _objective:get_idx() == 0 then
 		if _state == task.fail then
-			news_manager.send_task(db.actor, "fail", _task, _objective)
+			--news_manager.send_task("fail", _task, _objective)
+			_stage = "fail"
 		elseif _state == task.completed then
-			news_manager.send_task(db.actor, "complete", _task, _objective)
+			--news_manager.send_task("complete", _task, _objective)
+			_stage = "complete"
 		else
-			news_manager.send_task(db.actor, "new", _task, _objective)
+			--news_manager.send_task("new", _task, _objective)
+			_stage = "new"
 			--при отриманні нової таски робимо активним першу підзадачу і на неї ставим таргет на мапі
 			if get_script_option_value("select_new_task") then
 				actor:set_task_selected(_task, 1, true)
@@ -298,10 +302,14 @@ function actor_binder:task_callback(_task, _objective, _state)
 		end
 	else
 		if _task:get_objective(0):get_state() == task.in_progress then
-			news_manager.send_task(db.actor, "update", _task, _objective)
+			--news_manager.send_task("update", _task, _objective)
+			_stage = "update"
 		end
 	end
 	self.sm:call("on_task", _task, _objective, _state)
+	if _stage then
+		self.sm:call("on_task_stage", _task, _objective, _stage)
+	end
 end
 
 ----------------------------------------------------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
 	sm:subscribe({signal = "on_key_press",   	fun = this.on_key_press})
-	sm:subscribe({signal = "on_task",   		fun = this.on_task})
+	sm:subscribe({signal = "on_task_stage",   	fun = this.on_task})
 end
 
 local ON_TASK_SAVE_UPDATE_DELAY = 50
@@ -79,27 +79,10 @@ function can_save_game()
 	return result
 end
 
-function on_task(_task, _objective, _state)
-	local prefix = nil
-
-	if _objective:get_idx() == 0 then
-		if _state ~= task.fail then
-			prefix = _state == task.completed and "st_save_completed_task" or "st_save_new_task"
-		end
-	else
-		if _task:get_objective(0):get_state() == task.in_progress then
-			prefix = "st_save_update_task"
-		end
-	end
-
-	if not prefix then
-	return end
-
-	--log3("~%s: %s", prefix, _task:get_title())
-	
+function on_task(task, objective, stage)
 	add_update_delayed_action(ON_TASK_SAVE_UPDATE_DELAY,
 		function()
-			local save_cmd = string.format("save %s", string.format("%s [%s] %s", user_name(), game.translate_string(prefix), game.translate_string(_task:get_title())))
+			local save_cmd = string.format("save %s", string.format("%s [%s] %s", user_name(), game.translate_string("general_"..stage.."_task"), game.translate_string(task:get_title())))
 			get_console():execute(save_cmd)	
 		end
 	)

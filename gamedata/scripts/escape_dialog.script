@@ -17,32 +17,14 @@ function trader_alredy_give_job(trader, actor)
 end
 
 function trader_give_extra_job(trader, actor)
-	-- local actor = db.actor
-	-- if has_alife_info("escape_blockpost_case") and not has_alife_info("escape_blockpost_case_done")
-	-- then
-		-- return true
-	-- end
-	-- return false
 	return has_alife_info("escape_blockpost_case") and not has_alife_info("escape_blockpost_case_done")
 end
 
 function bandits_die(actor,npc)
-	-- local actor = db.actor
-	-- if has_alife_info("esc_kill_bandits_quest_kill") and not has_alife_info("esc_kill_bandits_noquest_kill")
-	-- then
-		-- return true
-	-- end
-	-- return false
 	return has_alife_info("esc_kill_bandits_quest_kill") and not has_alife_info("esc_kill_bandits_noquest_kill")
 end
 
 function trader_need_extra_job(trader, actor)
-	-- if not has_alife_info("escape_blockpost_case") and 
-	    -- has_alife_info("esc_return")
-	-- then
-		-- return true
-	-- end
-	-- return false
 	return not has_alife_info("escape_blockpost_case") and has_alife_info("esc_return")
 end
 
@@ -159,7 +141,7 @@ function give_medkit(first_speaker, second_speaker)
 end
 function give_tutorial_artefact(first_speaker, second_speaker)
 	dialogs.relocate_item_section(second_speaker, "af_blood_tutorial", "out")
-	--dialogs.relocate_item_section(second_speaker, "detector_simple_tutorial", "out")
+	dialogs.relocate_item_section(second_speaker, "detector_simple_tutorial", "out")
 end
 
 function give_tutorial_detector_to_actor(trader, actor)
@@ -220,10 +202,6 @@ end
 function actor_dont_has_detector()
 	return not this.actor_has_detector()
 end
-
--- function give_detector_to_actor(trader, actor)
-    -- dialogs.relocate_item_section(trader, "detector_gilka_cop", "in")
--- end
 
 
 --' Escape blockpost box
