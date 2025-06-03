@@ -779,6 +779,8 @@ function SlotSelectorOverlay:ProcessSlowMotion()
 end
 
 function SlotSelectorOverlay:OnShow()
+	local cursor_pos = vector2():set(UI_BASE_WIDTH * 0.5, UI_BASE_HEIGHT * 0.45)
+	level.set_cursor_pos(cursor_pos)
 	local act_item = actor:active_item()
 	if act_item then		
 		act_item:zoom_out()

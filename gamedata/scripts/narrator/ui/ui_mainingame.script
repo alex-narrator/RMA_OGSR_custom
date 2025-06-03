@@ -1091,7 +1091,7 @@ function MainIngameOverlay:ShowTask(b_show, _task, _objective, _stage)
 			else
 				objective_description = actor:get_active_objective():get_description()
 			end
-			text = _stage and string.format("%s %s", game.translate_string("st_list_mark"), game.translate_string(objective_description))
+			text = string.format("%s %s", game.translate_string("st_list_mark"), game.translate_string(objective_description))
 			self.objective_header:SetText(text)
 		
 			local task_icon = task:get_objective(0):get_icon_name()

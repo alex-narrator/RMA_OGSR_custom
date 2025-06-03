@@ -472,6 +472,8 @@ end
 
 function PDAOverlay:OnShow()
 	self.prev_active_slot = actor:active_slot()
+	local cursor_pos = vector2():set(UI_BASE_WIDTH * 0.5, UI_BASE_HEIGHT * 0.7)
+	level.set_cursor_pos(cursor_pos)	
 end
 
 function PDAOverlay:OnHide()
