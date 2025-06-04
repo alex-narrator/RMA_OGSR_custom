@@ -13,23 +13,6 @@ function on_pickup_item_set(item)
 	sm:call("on_pickup_item_set", item)
 end
 
-function ui_inv_custom_sort(item1, item2)
-	return ui_inv_utils.sort_by_size_type(item1, item2)
-end
-
-function trade_purchase_item_process( npc, sobj )
-	--log3("~trade_purchase_item_process NPC %s | item %s", npc:name(), sobj:name())
-	sm:call("on_trade_purchase_item_process", npc, sobj)
-end
-
-function trade_get_buy_price(npc, section, result)
-	return trade_manager.get_final_price(npc, section, result, false)
-end
-
-function trade_get_sell_price(npc, section, result)
-	return trade_manager.get_final_price(npc, section, result, true)
-end
-
 function can_artefact_affect(item)
 	return item:condition() > 0 and (actor:is_on_belt(item) or actor:is_in_slot(item))
 end
