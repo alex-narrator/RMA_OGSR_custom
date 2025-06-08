@@ -160,10 +160,14 @@ function play_effects(enable)
 		snd_obj:play(actor, 0, sound_object.s2d)
 		snd_obj.frequency = anm_snd_speed()
 		--snd_obj:play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+		
+		if not level.check_complex_effector(effect.id) then 
+			level.add_complex_effector(effect.name, effect.id)
+		end		
 	end
-	if not level.check_complex_effector(effect.id) then 
-		level.add_complex_effector(effect.name, effect.id)
-	end
+	-- if not level.check_complex_effector(effect.id) then 
+		-- level.add_complex_effector(effect.name, effect.id)
+	-- end
 end
 
 function play_fast()

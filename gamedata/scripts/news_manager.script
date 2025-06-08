@@ -227,7 +227,9 @@ function send_task(task, objective, stage)
 	if not actor then return end
 	
 	--' Берем координаты из текстуры таска
-    local task_texture, task_rect = get_texture_info("ui_iconsTotal_"..task:get_id(), "ui_iconsTotal_locations")
+    --local task_texture, task_rect = get_texture_info("ui_iconsTotal_"..task:get_id(), "ui_iconsTotal_locations")
+	local task_texture = task:get_objective(0):get_icon_name()
+	local task_rect = task:get_objective(0):get_icon_rect()
         
 	--' Играем дефолтный звук
 	pda_task:play(db.actor, 0, sound_object.s2d)
