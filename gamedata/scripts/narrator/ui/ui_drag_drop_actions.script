@@ -61,7 +61,8 @@ function on_drag_drop(obj, drop_on_obj)
 	local drop_on_iitem = drop_on_obj:get_inventory_item()
 	
 	if drop_on_iitem:can_attach_addon(iitem) then
-		if drop_on_iitem:attach_addon(iitem, true) then
+		--if drop_on_iitem:attach_addon(iitem, true) then
+		if attach_addon(drop_on_obj, obj) then
 			xr_sound.get_safe_sound_object([[interface\inv_attach_addon]]):play(actor, 0, sound_object.s2d)
 		end
 	else
@@ -80,7 +81,8 @@ function on_drag_drop(obj, drop_on_obj)
 		end
 		if detach_addon_type and drop_on_obj:get_weapon() then
 			detach_addon(drop_on_obj, drop_on_obj:get_weapon():get_addon_name(detach_addon_type))
-			if drop_on_iitem:attach_addon(iitem, true) then
+			--if drop_on_iitem:attach_addon(iitem, true) then
+			if attach_addon(drop_on_obj, obj) then
 				xr_sound.get_safe_sound_object([[interface\inv_attach_addon]]):play(actor, 0, sound_object.s2d)
 			end			
 		end

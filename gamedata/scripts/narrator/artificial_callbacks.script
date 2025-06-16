@@ -26,7 +26,6 @@ end
 function on_shell_drop(wpn, pos, vel)
 	if not wpn:is_weapon() then
 	return end
-	if wpn:get_weapon().state == global_flags.eShutter then
-	return end
-	sm:call("on_weapon_fire", wpn)
+	local shutter = wpn:get_weapon().state == global_flags.eShutter
+	sm:call(shutter and "on_weapon_shutter" or "on_weapon_fire", wpn)
 end

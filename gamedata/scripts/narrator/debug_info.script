@@ -12,6 +12,7 @@ function attach(sm)
 	sm:subscribe({signal = "on_key_press", fun = this.on_key_press})
 	--sm:subscribe({signal = "update_items_effect", fun = this.update_items_effect})
 	--sm:subscribe({signal = "on_update", fun = this.on_update})
+	--sm:subscribe({signal = "on_weapon_fire", fun = this.on_weapon_fire})
 end
 
 local show_hud = false
@@ -94,6 +95,10 @@ function show_patrol_points(path_name)
 		local dbg_particle = particles_object(dbg_particle_name)
 		dbg_particle:play_at_pos(pos)
 	end
+end
+
+function on_weapon_fire(wpn)
+	log3("~item %s | ammo sect %s", wpn:name(), get_cur_ammo_sect(wpn))
 end
 
 class "p_timer"

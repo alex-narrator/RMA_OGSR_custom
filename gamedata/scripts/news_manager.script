@@ -392,6 +392,7 @@ local tip_by_type = {
 }
 function item_tip(item, tip_type)
 	local tip = tip_by_type[tip_type]
-	local news = string.format("%s %s", game.translate_string(get_inv_name(item:section())), game.translate_string(tip.news))
+	local sect = type(item) == "string" and item or item:section()
+	local news = string.format("%s %s", game.translate_string(get_inv_name(sect)), game.translate_string(tip.news))
 	custom_news(tip.header, news, tip.icon)
 end

@@ -5,38 +5,47 @@ function attach(sm)
 	sm:subscribe({signal = "on_hud_state_switch",   	fun = this.on_state_switch})
 end
 
+local LEAN_LEFT_ID = 1902
+local LEAN_RIGHT_ID = 1903
+local CROUCH_ID = 1912
+local SHOW_HIDE_ID = 1919
+
+local LEAN_LEFT_NAME = "lean_left"
+local LEAN_RIGHT_NAME = "lean_right"
+local CROUCH_NAME = "crouch"
+local SHOW_HIDE_NAME = "jammed"
+
 function is_hold_to_crouch()
 	return get_console():get_bool("g_hold_to_crouch")
 end
 
+local lean_anims = {
+	[key_bindings.kR_LOOKOUT] = function() level.add_complex_effector(LEAN_RIGHT_NAME, LEAN_RIGHT_ID) end,
+	[key_bindings.kL_LOOKOUT] = function() level.add_complex_effector(LEAN_LEFT_NAME, LEAN_LEFT_ID) end,
+}
+
 function on_key_press(key, game_action)
 	if level.main_input_receiver() then
 	return end
-	if game_action == key_bindings.kR_LOOKOUT then
-		level.add_complex_effector("lean_right", 1903)
-	end
-	if game_action == key_bindings.kL_LOOKOUT then
-		level.add_complex_effector("lean_left", 1902)
+	if lean_anims[game_action] then
+		lean_anims[game_action]()
 	end
 	if game_action == key_bindings.kCROUCH or 
 		game_action == key_bindings.kSPRINT and not is_hold_to_crouch() and not actor_obj.clear_crouch 
 		then
-		level.add_complex_effector("crouch", 1912)
+		level.add_complex_effector(CROUCH_NAME, CROUCH_ID)
 	end
 end
 
 function on_key_release(key, game_action)
 	if level.main_input_receiver() then
 	return end
-	if game_action == key_bindings.kR_LOOKOUT then
-		level.add_complex_effector("lean_right", 1903)
-	end
-	if game_action == key_bindings.kL_LOOKOUT then
-		level.add_complex_effector("lean_left", 1902)
+	if lean_anims[game_action] then
+		lean_anims[game_action]()
 	end
 	if is_hold_to_crouch() then 
 		if game_action == key_bindings.kCROUCH then
-			level.add_complex_effector("crouch", 1912)
+			level.add_complex_effector(CROUCH_NAME, CROUCH_ID)
 		end
 	end	
 end
@@ -49,5 +58,5 @@ local show_hide = {
 function on_state_switch(item, state, old_state)
 	if not show_hide[state] then
 	return end
-	level.add_complex_effector("jammed", 1919)
+	level.add_complex_effector(SHOW_HIDE_NAME, SHOW_HIDE_ID)
 end

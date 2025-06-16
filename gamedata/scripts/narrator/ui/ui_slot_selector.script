@@ -675,7 +675,8 @@ function SlotSelectorOverlay:OnWeaponClick(id)
 	
 	if actor:active_slot() ~= self.selected_slot then
 		if slot_iitem:can_attach_addon(iitem) then
-			slot_iitem:attach_addon(iitem, true)
+			--slot_iitem:attach_addon(iitem, true)
+			attach_addon(slot_item, item)
 			xr_sound.get_safe_sound_object([[interface\inv_attach_addon]]):play(actor, 0, sound_object.s2d)
 			actor:activate_slot(self.selected_slot, false)
 			return
@@ -697,7 +698,8 @@ function SlotSelectorOverlay:OnWeaponClick(id)
 					return not actor:active_item()
 				end,
 				function()
-					slot_iitem:attach_addon(iitem, true)
+					--slot_iitem:attach_addon(iitem, true)
+					attach_addon(slot_item, item)
 					xr_sound.get_safe_sound_object([[interface\inv_attach_addon]]):play(actor, 0, sound_object.s2d)
 					actor:restore_weapon()
 				end

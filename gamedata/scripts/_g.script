@@ -2222,9 +2222,34 @@ end
 function detach_addon(item, addon_sect, not_spawn_addon)
 	if not item then
 	return end
-	ogse_signals.get_mgr():call("on_before_addon_detach", item, addon_sect)	
-	item:get_weapon_m():detach_addon(addon_sect, not not_spawn_addon, 1)
-	ogse_signals.get_mgr():call("on_addon_detach", item, addon_sect)
+	local mgr = ogse_signals.get_mgr()
+	mgr:call("on_before_addon_detach", item, addon_sect)
+	local spawn_cond = 1
+	if is_in_addon_list(item, addon_sect, addon.silencer) then
+		local sobj = alife():object(item:id())
+		spawn_cond = sobj.attached_silencer_condition
+		log3("~item %s | addon_sect %s | spawn_cond %s", item:name(), addon_sect, spawn_cond)
+		sobj.attached_silencer_condition = 1
+	end
+	item:get_weapon_m():detach_addon(addon_sect, not not_spawn_addon, spawn_cond)
+	mgr:call("on_addon_detach", item, addon_sect)
+end
+
+function attach_addon(item, item_to_attach)
+	if not item then
+	return false end
+	if not item_to_attach then
+	return false end
+	local mgr = ogse_signals.get_mgr()
+	local iitem_to_attach = item_to_attach:get_inventory_item()
+	mgr:call("on_before_addon_attach", item, item_to_attach)	
+	local res = item:get_weapon_m():attach_addon(iitem_to_attach, true)
+	if is_in_addon_list(item, item_to_attach:section(), addon.silencer) then
+		local sobj = alife():object(item:id())
+		sobj.attached_silencer_condition = item_to_attach:condition()
+	end
+	mgr:call("on_addon_attach", item, item_to_attach)
+	return res
 end
 
 function is_god_mode()
@@ -2238,6 +2263,22 @@ function has_addons(item)
 		if addons_list then
 			return true
 		end
+	end
+	return false
+end
+
+function is_in_addon_list(item, section, addon_type)
+	local addon = ADDON_TYPES[addon_type + 1]
+	if not addon then
+	return false end
+	log3("~item %s | addon %s | addon_type %s", item:name(), addon, addon_type)
+	local addons = read_if_exists(sys_ini, "r_string", item:section(), addon.."_name", nil)
+	if not addons then
+	return false end
+	local addons = split_string(addons, ",")
+	for k, v in pairs(addons) do
+		if v == section then
+		return true end
 	end
 	return false
 end

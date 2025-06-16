@@ -1,0 +1,44 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_weapon_fire", 		fun = this.on_weapon_fire})
+end
+
+local silencer_explode_particle = [[explosions\expl_bullet]]
+local silencer_explode_sound = [[material\barrel\collide\hithard03hl]]
+local silencer_explode_cond_dec = 0.05
+local silencer_explode_effector = [[effector_fire_hit_0]]
+local silencer_explode_effector_id = 66636
+
+function on_weapon_fire(item)
+	--local t = debug_info.p_timer("on_weapon_fire()")
+	if not item then return end
+	local wpn = item:get_weapon()
+	if not wpn then return end
+	local silencer_sect = (wpn:addon_attachable(addon.silencer) and wpn:is_addon_attached(addon.silencer)) and wpn:get_addon_name(addon.silencer) or nil
+	if not silencer_sect then return end
+	local deterioration_per_shot = read_if_exists(sys_ini, "r_float", silencer_sect, "condition_shot_dec", nil)
+	if not deterioration_per_shot then
+	return end
+	local ammo_impair = read_if_exists(sys_ini, "r_float", get_cur_ammo_sect(item), "impair", 0)
+	local cond_dec = deterioration_per_shot + (deterioration_per_shot * ammo_impair)
+	--log3("~cond dec %s", cond_dec)
+	local sobj = alife():object(item:id())
+	sobj.attached_silencer_condition = math.clamp(sobj.attached_silencer_condition - cond_dec * 100, 0, 1)
+	if sobj.attached_silencer_condition == 0 then
+		detach_addon(item, silencer_sect, true)
+		play_explode_fx(wpn)
+		news_manager.item_tip(silencer_sect, "destroyed_corrupted")
+		item:change_condition(-silencer_explode_cond_dec)
+	end
+	--t:stop()
+end
+
+function play_explode_fx(wpn)
+	local pos = wpn:get_fire_point()
+	local dir = wpn:get_fire_direction()
+	local particle = particles_object(silencer_explode_particle)
+	particle:set_direction(dir)
+	particle:play_at_pos(pos, true)
+	xr_sound.get_safe_sound_object(silencer_explode_sound):play_no_feedback(actor, sound_object.s2d, 0, vector(), 0.5)
+	level.add_complex_effector(silencer_explode_effector, silencer_explode_effector_id)
+end

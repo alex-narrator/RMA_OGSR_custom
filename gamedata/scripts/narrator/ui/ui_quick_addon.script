@@ -1209,7 +1209,8 @@ function QuickAddonOverlay:OnAttachClick(id)
 			if detach_addon_type then
 				detach_addon(slot_item, slot_item:get_weapon():get_addon_name(detach_addon_type))
 			end
-			slot_iitem:attach_addon(desired_iitem, true)
+			--slot_iitem:attach_addon(desired_iitem, true)
+			attach_addon(slot_item, desired_item)
 			xr_sound.get_safe_sound_object([[interface\inv_attach_addon]]):play(actor, 0, sound_object.s2d)
 			actor:restore_weapon()
 		end

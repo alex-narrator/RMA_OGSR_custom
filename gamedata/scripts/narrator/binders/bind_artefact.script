@@ -25,7 +25,23 @@ end
 function artefact_binder:net_spawn(data)
 	--log3("%s net_spawn for object %s", script_name(), self.object:name())
     local spawned = object_binder.net_spawn(self, data)
-	
+	--//затичка від випадків коли на момент ініціалізації біндера серверний об'єкт артефакту не існує (трапляється в Прип'яті)
+	level.add_call(
+		function()
+			if not self.se_obj then
+				log3("!%s : artefact %s | id %s has no server object", script_name(), self.object:name(), self.object:id())
+				self.se_obj = alife():object(self.object:id())
+			end
+			return not not self.se_obj
+		end,
+		function()
+			self:fill_random_k()
+		end
+	)
+	return spawned
+end
+
+function artefact_binder:fill_random_k()
 	if self.se_obj.random_k == 1 then
 		local random_param = read_if_exists(sys_ini, "r_string", self.object:section(), "random_k", nil)
 		if random_param then
@@ -46,6 +62,4 @@ function artefact_binder:net_spawn(data)
 		end
 		--log3("~artefact %s | random_k %s", self.object:name(), self.se_obj.random_k)
 	end
-	
-	return spawned
 end

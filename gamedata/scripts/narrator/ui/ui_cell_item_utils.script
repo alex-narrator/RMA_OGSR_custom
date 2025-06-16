@@ -213,7 +213,8 @@ function add_attach_addon(pbox, cell_item)
 				return slot_iitem:can_attach_addon(iitem)
 			end
 			action = function(iitem, slot_iitem)
-				slot_iitem:attach_addon(iitem, true)
+				--slot_iitem:attach_addon(iitem, true)
+				attach_addon(slot_item, item)
 				xr_sound.get_safe_sound_object([[interface\inv_attach_addon]]):play(actor, 0, sound_object.s2d)
 			end
 			pbox:AddItem(name, precondition, action, iitem, slot_iitem)

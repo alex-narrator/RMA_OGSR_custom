@@ -37,6 +37,7 @@ end
 class "se_weapon_magazined" (cse_alife_item_weapon_magazined)
 function se_weapon_magazined:__init (section) super (section)
 	self.is_nvd_on = true
+	self.attached_silencer_condition = 1
 end
 function se_weapon_magazined:on_register()
 	cse_alife_item_weapon_magazined.on_register( self )
@@ -53,16 +54,20 @@ end
 function se_weapon_magazined:STATE_Write (packet)
 	cse_alife_item_weapon_magazined.STATE_Write (self, packet)
 	packet:w_bool(self.is_nvd_on)
+	packet:w_float(self.attached_silencer_condition)
 end
 function se_weapon_magazined:STATE_Read (packet, size)
 	cse_alife_item_weapon_magazined.STATE_Read (self, packet, size)
 	if packet:r_eof() then
 	return end	
 	self.is_nvd_on = packet:r_bool()
+	self.attached_silencer_condition = packet:r_float()
 end
 
 class "se_weapon_magazined_w_gl" (cse_alife_item_weapon_magazined_w_gl)
 function se_weapon_magazined_w_gl:__init (section) super (section)
+	self.is_nvd_on = true
+	self.attached_silencer_condition = 1
 end
 function se_weapon_magazined_w_gl:on_register()
 	cse_alife_item_weapon_magazined_w_gl.on_register( self )
@@ -75,6 +80,18 @@ function se_weapon_magazined_w_gl:on_register()
 	end
 end
 function se_weapon_magazined_w_gl:on_unregister()
+end
+function se_weapon_magazined_w_gl:STATE_Write (packet)
+	cse_alife_item_weapon_magazined_w_gl.STATE_Write (self, packet)
+	packet:w_bool(self.is_nvd_on)
+	packet:w_float(self.attached_silencer_condition)
+end
+function se_weapon_magazined_w_gl:STATE_Read (packet, size)
+	cse_alife_item_weapon_magazined_w_gl.STATE_Read (self, packet, size)
+	if packet:r_eof() then
+	return end	
+	self.is_nvd_on = packet:r_bool()
+	self.attached_silencer_condition = packet:r_float()
 end
 
 function stats()
