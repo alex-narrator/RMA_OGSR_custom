@@ -2,6 +2,7 @@
 function attach(sm)
 	sm:subscribe({signal = "on_hud_state_switch", 	fun = this.on_state_switch})
 	sm:subscribe({signal = "on_weapon_shell_drop",  fun = this.on_shell_drop})
+	sm:subscribe({signal = "on_spawn",  			fun = this.on_spawn})
 end
 
 local sm = ogse_signals.get_mgr()
@@ -28,4 +29,24 @@ function on_shell_drop(wpn, pos, vel)
 	return end
 	local shutter = wpn:get_weapon().state == global_flags.eShutter
 	sm:call(shutter and "on_weapon_shutter" or "on_weapon_fire", wpn)
+end
+
+function on_spawn()
+	_G.prev_location_name = xr_vars.load_var("prev_location_name", nil)
+	_G.curr_location_name = xr_vars.load_var("curr_location_name", nil)
+	
+	local curr_location = level.name()
+	
+	if not _G.curr_location_name then
+		_G.curr_location_name = curr_location
+	end
+	if _G.curr_location_name ~= curr_location then
+		_G.prev_location_name = _G.curr_location_name
+		_G.curr_location_name = curr_location		
+		sm:call("on_location_change", _G.prev_location_name, _G.curr_location_name)
+		--log3("~change location from %s to %s", _G.prev_location_name, _G.curr_location_name)
+	end
+	
+	xr_vars.save_var("prev_location_name", _G.prev_location_name)
+	xr_vars.save_var("curr_location_name", _G.curr_location_name)	
 end

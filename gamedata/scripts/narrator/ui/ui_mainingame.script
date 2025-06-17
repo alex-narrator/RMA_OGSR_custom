@@ -316,7 +316,9 @@ function MainIngameOverlay:InitControls()
 	self.active_task_show_time = xml:ReadAttribInt("active_task", "show_time", 5)
 	self.task_icon = xml:InitStatic("active_task:task_icon", self.active_task)
 	self.task_header = xml:InitStatic("active_task:task_header", self.active_task)
+	self.task_header.base_color = self.task_header:GetTextColor()
 	self.objective_header = xml:InitStatic("active_task:objective_header", self.active_task)
+	self.objective_header.base_color = self.objective_header:GetTextColor()
 	self.task_state_icon = xml:InitStatic("active_task:task_state_icon", self.active_task)
 	
 	--//slot selector
@@ -1062,7 +1064,7 @@ function MainIngameOverlay:HideActiveTask()
 end
 
 local task_stage_color = {
-	["new"] 		= GetARGB(255, 0, 255, 0),
+	["new"] 		= GetARGB(255, 255, 255, 0),--GetARGB(255, 0, 255, 0),
 	["update"] 		= GetARGB(255, 255, 255, 0),--GetARGB(255, 238, 153, 26),
 	["complete"] 	= GetARGB(255, 0, 255, 0),
 	["fail"] 		= GetARGB(255, 255, 0, 0),
@@ -1072,6 +1074,8 @@ function MainIngameOverlay:ShowTask(b_show, _task, _objective, _stage)
 		local task = _task or actor:get_active_task()
 		self.active_task:Show(task)
 		self.task_state_icon:Show(_task)
+		self.task_header:SetTextColor(self.task_header.base_color)
+		self.objective_header:SetTextColor(self.objective_header.base_color)
 		if self.active_task:IsShown() then
 			local text = game.translate_string(task:get_title() or "NO_TASK_TITLE")
 			self.task_header:SetText(text)
@@ -1088,6 +1092,9 @@ function MainIngameOverlay:ShowTask(b_show, _task, _objective, _stage)
 				end
 				self.task_state_icon:SetColor(task_stage_color[_stage])
 				self.task_state_icon:InitTexture(_stage.."_task_icon")
+				
+				self.task_header:SetTextColor(task_stage_color[_stage])
+				self.objective_header:SetTextColor(task_stage_color[_stage])
 			else
 				objective_description = actor:get_active_objective():get_description()
 			end

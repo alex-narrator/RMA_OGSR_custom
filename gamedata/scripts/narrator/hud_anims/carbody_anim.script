@@ -6,6 +6,7 @@ end
 
 local OPEN_ANIM_STARTED = false
 local need_show_crosshair = false
+local height_diff = 1
 
 local subscribed = false
 
@@ -56,8 +57,10 @@ function on_show(mode)
 		function() 
 			return not actor:active_item() and not actor:active_device()
 		end,
-		function() 
-			backpack.play_effects(true)
+		function()
+			local tgt_height_diff = device().cam_pos.y - actor_menu:GetTarget():center().y
+			log3("~tgt_height_diff %s", tgt_height_diff)
+			backpack.play_effects(true, tgt_height_diff > height_diff)
 			block_non_move_action(false)
 			
 			level.add_call(

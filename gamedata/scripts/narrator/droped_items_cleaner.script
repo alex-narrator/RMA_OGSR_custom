@@ -1,0 +1,82 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_save", 				fun = this.on_save})
+	sm:subscribe({signal = "on_load", 				fun = this.on_load})
+	sm:subscribe({signal = "on_location_change", 	fun = this.on_location_change})
+	sm:subscribe({signal = "on_drop", 				fun = this.on_drop_actor})
+	sm:subscribe({signal = "on_drop_npc", 			fun = this.on_drop_npc})
+	sm:subscribe({signal = "on_take", 				fun = this.on_take_actor})
+	sm:subscribe({signal = "on_take_npc", 			fun = this.on_take_npc})
+end
+
+local stay_after_drop_time_interval = read_if_exists(sys_ini, "r_u32", "features", "stay_after_drop_time_interval", 24) * 60 * 60
+
+local items_to_remove = {}
+
+function on_save(packet)
+	xr_vars.save_var("items_to_remove", items_to_remove)
+end
+
+function on_load(reader)
+	items_to_remove = xr_vars.load_var("items_to_remove", items_to_remove)
+end
+
+function on_drop_actor(item)
+	add_to_list(item)
+end
+
+function on_drop_npc(npc, item)
+	add_to_list(item)
+end
+
+function on_take_actor(item)
+	remove_from_list(item:id())
+end
+
+function on_take_npc(npc, item)
+	remove_from_list(item:id())
+end
+
+function add_to_list(item)
+	if not item then
+	return end
+	if item:get_container() and not item:get_container():empty() then
+	return end
+	local sobj = alife():object(item:id())
+	if not sobj or sobj.parent_id ~= 65535 then
+	return end
+	local sect = item:section()
+	local restricted = not read_if_exists(sys_ini, "r_bool", sect, "can_trade", true) or 
+		read_if_exists(sys_ini, "r_bool", sect, "quest_item", false) or 
+		read_if_exists(sys_ini, "r_bool", sect, "unique_item", false) or
+		item:story_id() ~= NO_STORY_ID
+	if restricted then
+		--log_news("~%s : item %s | id %s restricted to clean", script_name(), item:name(), item:id())
+	return end
+	items_to_remove[item:id()] = game.get_game_time()
+	--log_news("~%s : item %s | id %s droped and marked to clean", script_name(), item:name(), item:id())
+end
+
+function remove_from_list(id)
+	if not id then
+	return end
+	if items_to_remove[id] then
+		items_to_remove[id] = nil
+		--log_news("~%s : item id %s unmarked to clean", script_name(), id)
+	end
+end
+
+function on_location_change()
+	local sim = alife()
+	local game_time = game.get_game_time()
+	for id,drop_time in pairs(items_to_remove) do
+		if game_time:diffSec(drop_time) >= stay_after_drop_time_interval then
+			local sobj = sim:object(id)
+			if sobj and sobj.parent_id == 65535 then
+				sim:release(sobj, true)
+				log3("~%s : item id %s removed", script_name(), id)
+			end
+			remove_from_list(id)
+		end		
+	end
+end

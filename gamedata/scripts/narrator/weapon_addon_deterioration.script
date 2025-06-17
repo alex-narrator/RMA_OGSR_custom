@@ -23,7 +23,7 @@ function on_weapon_fire(item)
 	local cond_dec = deterioration_per_shot + (deterioration_per_shot * ammo_impair)
 	--log3("~cond dec %s", cond_dec)
 	local sobj = alife():object(item:id())
-	sobj.attached_silencer_condition = math.clamp(sobj.attached_silencer_condition - cond_dec * 100, 0, 1)
+	sobj.attached_silencer_condition = math.clamp(sobj.attached_silencer_condition - cond_dec, 0, 1)
 	if sobj.attached_silencer_condition == 0 then
 		detach_addon(item, silencer_sect, true)
 		play_explode_fx(wpn)
