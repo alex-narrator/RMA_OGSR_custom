@@ -56,21 +56,25 @@ function spawn_monster_loot(monster, killer)
 	local sect = monster:section()
 	local spawn_sect = read_if_exists(sys_ini, "r_string", sect, "Spawn_Inventory_Item_Section", nil)
 	if not spawn_sect then return end
-	local spawn_prob = read_if_exists(sys_ini, "r_float", sect, "Spawn_Inventory_Item_Probability", 0)
+
+	local spawn_table = parse_key_val_line(spawn_sect, 1)
 	
-	local prob = math.random()
-	-- if prob < spawn_prob or  math.fsimilar(spawn_prob, 1) then
-	-- end
-	if prob > spawn_prob then return end
-	local loot_owner_id = monster:id()
-	if loot_to_killer then
-		if killer:is_monster() or killer:is_stalker() then
-			loot_owner_id = killer:id()
-			--log3("~killer %s receives loot from victim %s", killer:name(), monster:name())
+	for section,spawn_prob in pairs(spawn_table) do
+		local prob = math.random()
+		-- if prob < spawn_prob or  math.fsimilar(spawn_prob, 1) then
+		-- end
+		if prob <= spawn_prob then
+			local loot_owner_id = monster:id()
+			if loot_to_killer then
+				if killer:is_monster() or killer:is_stalker() then
+					loot_owner_id = killer:id()
+					--log3("~killer %s receives loot from victim %s", killer:name(), monster:name())
+				end
+			end
+			spawn_to_owner(section, loot_owner_id)
+			--log3("~monster %s - spawn part %s with probability %s | spawn_prob %s", monster:name(), section, prob, spawn_prob)		
 		end
 	end
-	spawn_to_owner(spawn_sect, loot_owner_id)
-	--log3("~monster %s - spawn part %s with probability %s | spawn_prob %s", monster:name(), spawn_sect, prob, spawn_prob)
 end
 
 function init_drop_settings()

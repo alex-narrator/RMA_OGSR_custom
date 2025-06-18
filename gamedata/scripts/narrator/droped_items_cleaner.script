@@ -42,6 +42,8 @@ function add_to_list(item)
 	return end
 	if item:get_container() and not item:get_container():empty() then
 	return end
+	if item:is_artefact() then
+	return end
 	local sobj = alife():object(item:id())
 	if not sobj or sobj.parent_id ~= 65535 then
 	return end

@@ -919,6 +919,13 @@ function parse_names( s )
     return t
 end
 
+function parse_names2( s )
+    local t = {}
+    for name in string.gfind( s, "([%w_%-.\\]+)%p*" ) do
+        table.insert( t, name )
+    end
+    return t
+end
 
 function parse_key_value( s, sep )
     local t = {}
@@ -962,6 +969,32 @@ function parse_nums( s )
 	end
 
 	return t
+end
+
+function parse_key_val_line(line, default_val)
+	local t = parse_names2(line)
+	local res_table = {}
+	local k = 1
+	while k <= #t do
+		local section = t[k]
+		local value = default_val
+		-- Проверяем что это не последняя запись
+		if t[k+1] ~= nil then
+			local p = tonumber(t[k+1])
+			if p then
+				-- забиваем число
+				value = p
+				k = k + 2
+			else
+				-- забиваем дефолт
+				k = k + 1
+			end
+		else
+			k = k + 1
+		end
+		res_table[section] = value
+	end
+	return res_table
 end
 
 -- Їа®ўҐапҐв, Ґбвм «Ё ®ЎкҐЄв ў ®­« ©­Ґ
