@@ -1021,6 +1021,10 @@ function MainIngameOverlay:UpdateTargetTip()
 	local tip = actor_obj:get_default_action_for_obj()
 	self.target_tip:Show(tip and tip ~= "" and (actor_hands_free() or actor:ph_capture()))
 	if self.target_tip:IsShown() then
+		local tgt = level.get_target_obj()
+		if tgt and tgt:get_eatable_item() then
+			tip = "eatable_item_take_or_use"
+		end
 		self.target_tip:SetText(game.translate_string(tip))
 		self.target_tip:AdjustWidthToText()
 		self.target_tip:AdjustHeightToText()
