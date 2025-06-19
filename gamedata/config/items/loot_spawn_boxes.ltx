@@ -1,0 +1,50 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;LOOT SPAWN BOXES
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+[loot_box_base]:identity_immunities
+GroupControlSection		= spawn_group
+$spawn					= "food and drugs\harmonica_a"
+cform                   = skeleton
+class					= II_ATTCH
+visual                  = dynamics\equipments\quest\safe_container
+
+cost					= 1000
+
+inv_name				= "loot_box_base"
+inv_name_short			= "loot_box_base"
+inv_weight				= 1
+
+inv_grid_width     		= 2
+inv_grid_height    		= 2
+inv_grid_x         		= 9
+inv_grid_y         		= 5
+
+unpack_sound 			= interface\item_usage\inv_briefcase_open
+
+[addon_box_sopmod]:loot_box_base
+inv_weight				= 2
+inv_name				= st_addon_box_sopmod_name
+inv_name_short			= st_addon_box_sopmod_short
+description 			= st_addon_box_sopmod_descr
+spawn_items 			= wpn_addon_scope_eot, wpn_addon_scope_acog, wpn_addon_silencer_nato, device_anpeq_16, wpn_addon_grenade_launcher_m203
+
+[weapon_box_vss]:loot_box_base
+inv_weight				= 2
+inv_name				= st_weapon_box_vss_name
+inv_name_short			= st_weapon_box_vss_short
+description 			= st_weapon_box_vss_descr
+spawn_items 			= wpn_vintorez, mag_vss, 3, wpn_addon_scope_pso1
+
+[weapon_box_random]:loot_box_base
+inv_weight				= 2
+inv_name				= st_weapon_box_random_name
+inv_name_short			= st_weapon_box_random_short
+description 			= st_weapon_box_random_descr
+spawn_items_1 			= wpn_vintorez
+spawn_items_2 			= mag_vss, 3
+spawn_items_3 			= wpn_addon_scope_pso1
+spawn_items_4 			= wpn_addon_scope_eot
+spawn_items_5 			= wpn_addon_scope_acog
+spawn_items_6 			= wpn_addon_silencer_nato
+spawn_items_7 			= device_anpeq_16
+spawn_items_8 			= wpn_addon_grenade_launcher_m203

@@ -1,0 +1,86 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function action_allowed(item)
+	return parent_is_actor(item) or actor_menu:GetMode() == "inventory" or actor_menu:GetMode() == "carbody"
+end
+
+function is_spawn_loot_box(item)
+	return action_allowed(item) and (get_spawn_items(item:section()) or get_spawn_items_random(item:section()))
+end
+
+function get_spawn_items(section)
+	return read_if_exists(sys_ini, "r_string", section, "spawn_items", nil)
+end
+
+function get_spawn_items_random(section)
+	local res = nil
+	for i=1, 255 do
+		local str = read_if_exists(sys_ini, "r_string", section, "spawn_items_"..i, nil)
+		if str then
+			if not res then
+				res = {}
+			end
+			table.insert(res, str)
+		end
+	end
+	return res
+end
+
+function tip_text(item)
+	return read_if_exists(sys_ini, "r_string", item:section(), "spawn_loot_tip", "st_unpack")
+end
+
+function spawn_loot(item)
+	local sect = item:section()
+	
+	local snd_name = read_if_exists(sys_ini, "r_string", sect, "unpack_sound", "")
+	local snd = xr_sound.get_safe_sound_object(snd_name)
+	if snd then
+		snd:play(actor, 0, sound_object.s2d)
+	end
+	
+	block_non_move_action(true)
+	
+	level.add_call(
+		function()
+			return not snd or not snd:playing()
+		end,
+		function()
+			if get_spawn_items(sect) then
+				spawn_defined_loot(sect)
+			else
+				spawn_random_loot(sect)
+			end
+	
+			local parent = item:parent()	
+			parent:drop_item(item)
+			alife():release(alife():object(item:id()), true)
+			
+			block_non_move_action(false)
+		end
+	)
+end
+
+function spawn_defined_loot(sect)
+	local loot = get_spawn_items(sect)
+	loot = parse_key_val_line(loot, 1)
+	for section, count in pairs(loot) do
+		local n = count
+		while n > 0 do
+			spawn_to_owner(section)
+			n = n - 1
+		end
+	end
+end
+
+function spawn_random_loot(sect)
+	local rnd_loot_table = get_spawn_items_random(sect)
+	local rnd_sect = rnd_loot_table[math.random(1, table.size(rnd_loot_table))]
+	local loot = parse_key_val_line(rnd_sect, 1)
+	for section, count in pairs(loot) do
+		local n = count
+		while n > 0 do
+			spawn_to_owner(section)
+			n = n - 1
+		end
+	end
+end

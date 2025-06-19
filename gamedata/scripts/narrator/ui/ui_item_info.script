@@ -256,6 +256,9 @@ function add_custom_info(UIDesc, obj)
 	if is_plate_carrier(obj) then
 		attach_armor_plates(UIDesc, obj)
 	end
+	if loot_spawn_box.is_spawn_loot_box(obj) then
+		attach_loot_spawn_box(UIDesc, obj)
+	end
 end
 
 ------------------------------------------ITEM CONDITION WND-----------------------------------------------------------------------------------------------------------------
@@ -1187,4 +1190,33 @@ function attach_repair_params(UIDesc, item)
 			params_list:SetHeight(params_list:GetPadSize().y)
 		end
 	end
+end
+
+-----------------------------------------------------LOOT SPAWN BOX PARAMS-----------------------------------------------------------------------------------------------------------
+local loot_spawn_box_st = {}
+function attach_loot_spawn_box(UIDesc, obj)
+	local sect = obj:section()
+	local items_str = loot_spawn_box.get_spawn_items(sect)
+	if not items_str then
+	return end
+	
+	local xml = CScriptXmlInit()
+	xml:ParseFile("script_overlays\\loot_spawn_box_params.xml")
+	local params_list = xml:InitScrollView("params_list", UIDesc)
+	local spawn_items = parse_key_val_line(items_str, 1)
+	loot_spawn_box_st = {}
+	
+	for section,count in pairs(spawn_items) do
+		local static = CUIStatic()
+		static = CUIStatic()
+		static:SetTextComplexMode(true)
+		static:SetWidth(params_list:GetDesiredChildWidth())
+		local text = string.format("%s%s %s", game.translate_string("st_list_mark"), game.translate_string(get_inv_name(section)), count > 1 and "x"..count or "")
+		static:SetText(text)
+		static:AdjustHeightToText()
+		
+		loot_spawn_box_st[section] = static
+		params_list:AddWindow(static)
+	end
+	params_list:SetHeight(params_list:GetPadSize().y)
 end

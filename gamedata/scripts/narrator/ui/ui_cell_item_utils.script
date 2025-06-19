@@ -646,3 +646,11 @@ function add_wpn_addon_info(pbox, item)
 	action = ui_wpn_addon_info.show_info
 	pbox:AddItem(name, precondition, action, item)
 end
+
+function add_unpack_loot_spawn_box(pbox, item)
+	local name, precondition, action
+	name = loot_spawn_box.tip_text
+	precondition = loot_spawn_box.is_spawn_loot_box
+	action = loot_spawn_box.spawn_loot
+	pbox:AddItem(name, precondition, action, item)
+end
