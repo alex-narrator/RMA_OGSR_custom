@@ -521,12 +521,18 @@ function actor_binder:on_belt(obj, prev_place)
 end
 
 function actor_binder:on_key_press(key, game_action)
+	if device():is_paused() then
+	return end
 	self.sm:call("on_key_press", key, game_action)
 end
 function actor_binder:on_key_release(key, game_action)
+	if device():is_paused() then
+	return end
 	self.sm:call("on_key_release", key, game_action)
 end
 function actor_binder:on_key_hold(key, game_action)
+	if device():is_paused() then
+	return end
 	self.sm:call("on_key_hold", key, game_action)
 end
 function actor_binder:on_mouse_wheel(direction)
