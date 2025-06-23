@@ -18,6 +18,7 @@ local nvd_slots = {
 }
 
 local CURR_INTENSITY = 0
+local operate_sound
 
 function get_current_nvd()
 	for k, v in ipairs(nvd_slots) do
@@ -84,18 +85,14 @@ function switch_nvd(item)
 	local sobj = alife():object(item:id())
 	sobj.is_nvd_on = not sobj.is_nvd_on
 	
-	local snd_on = read_if_exists(sys_ini, "r_string", item:section(), "snd_nvd_on", nil)
-	local snd_off = read_if_exists(sys_ini, "r_string", item:section(), "snd_nvd_off", nil)
-	
-	local snd_name = sobj.is_nvd_on and snd_on or snd_off
-	if snd_name then
-		xr_sound.get_safe_sound_object(snd_name):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)--play_at_pos(actor,actor:position())
-	end
 	local sect = item:section()
 	local wpn = item:get_weapon()
 	if wpn and wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope) then
 		sect = wpn:get_addon_name(addon.scope)
 	end
+	
+	play_nvd_sound(sect, sobj.is_nvd_on)
+	
 	set_nvd_effector(sect, sobj.is_nvd_on)
 end
 
@@ -104,14 +101,41 @@ function enable_nvd(item, power_on)
 	local sobj = alife():object(item:id())
 	sobj.is_nvd_on = power_on
 	
-	local snd_on = read_if_exists(sys_ini, "r_string", item:section(), "snd_nvd_on", nil)
-	local snd_off = read_if_exists(sys_ini, "r_string", item:section(), "snd_nvd_off", nil)
+	play_nvd_sound(item:section(), power_on)
 	
-	local snd_name = sobj.is_nvd_on and snd_on or snd_off
-	if snd_name then
-		xr_sound.get_safe_sound_object(snd_name):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
-	end
 	set_nvd_effector(item:section(), sobj.is_nvd_on)
+end
+
+function play_nvd_sound(section, is_on)
+	local snd_on = read_if_exists(sys_ini, "r_string", section, "snd_nvd_on", nil)
+	local snd_off = read_if_exists(sys_ini, "r_string", section, "snd_nvd_off", nil)
+	
+	local snd_name = is_on and snd_on or snd_off
+	local action_sound
+	if snd_name then
+		action_sound = xr_sound.get_safe_sound_object(snd_name)
+		action_sound:play(actor, 0, sound_object.s2d)
+	end
+	
+	local snd_operate = read_if_exists(sys_ini, "r_string", section, "snd_nvd_operate", nil)
+	if snd_operate then
+		if is_on then
+			level.add_call(
+				function()
+					return not action_sound or not action_sound:playing()
+				end,
+				function()
+					operate_sound = xr_sound.get_safe_sound_object(snd_operate)
+					operate_sound:play(actor, 0, sound_object.s2d + sound_object.looped)
+				end
+			)
+		else
+			if operate_sound then
+				operate_sound:stop()
+				operate_sound = nil
+			end
+		end
+	end
 end
 
 function set_nvd_effector(sect, enable)

@@ -1,7 +1,6 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <w>
 	<actor_params x="40" y="735">
-	
 		<health_circle x="0" y="0" width="24" height="32" stretch="1">
 			<texture a="30">ui_hud_circle_red_medium</texture>
 			<icon x="3" y="5" width="18" height="24" stretch="1">
@@ -83,24 +82,81 @@
 			</progress_bar>
 		</stamina>
 		
-		<visibility x="-40" y="22" width="40" height="4" show_val="3">
+		<!-- horizontal from center under motion icon -->
+		<!-- <visibility x="-40" y="24" width="40" height="4" show_val="3"> -->
+			<!-- <static width="8" height="10" stretch="1"/> -->
+			<!-- <progress_bar width="40" height="4" mode="from_center" min="0" max="1" pos="0"> -->
+				<!-- <min_color r="0" g="255" b="0"/> -->
+				<!-- <middle_color r="255" g="255" b="0"/> -->
+				<!-- <max_color r="255" g="0" b="0"/> -->
+				<!-- <progress> -->
+					<!-- <texture>ui_hud_shk_light_horz</texture> -->
+				<!-- </progress> -->
+				<!-- <background> -->
+					<!-- <texture a="100" r="255" g="255" b="255">ui_hud_shk_light_horz</texture> -->
+				<!-- </background>					 -->
+			<!-- </progress_bar> -->
+		<!-- </visibility>		 -->
+		
+		<!-- <noise x="-40" y="28" width="40" height="4" show_val="3"> -->
+			<!-- <static width="8" height="10" stretch="1"/> -->
+			<!-- <progress_bar width="40" height="4" mode="from_center" min="0" max="1.3" pos="0"> -->
+				<!-- <progress> -->
+					<!-- <texture>ui_hud_shk_noise_horz</texture> -->
+				<!-- </progress> -->
+				<!-- <background> -->
+					<!-- <texture a="100" r="255" g="255" b="255">ui_hud_shk_noise_horz</texture> -->
+				<!-- </background>				 -->
+			<!-- </progress_bar>	 -->
+		<!-- </noise> -->
+
+		<!-- vertical near-vanilla		 -->
+		<!-- <visibility x="-3" y="-23" width="2" height="55" show_val="3"> -->
+			<!-- <static width="8" height="10" stretch="1"/> -->
+			<!-- <progress_bar width="2" height="55" mode="vert" min="0" max="1" pos="0"> -->
+				<!-- <min_color r="0" g="255" b="0"/> -->
+				<!-- <middle_color r="255" g="255" b="0"/> -->
+				<!-- <max_color r="255" g="0" b="0"/> -->
+				<!-- <progress> -->
+					<!-- <texture>ui_hud_shk_light</texture> -->
+				<!-- </progress> -->
+				<!-- <background> -->
+					<!-- <texture a="100" r="255" g="255" b="255">ui_hud_shk_light</texture> -->
+				<!-- </background>					 -->
+			<!-- </progress_bar> -->
+		<!-- </visibility>		 -->
+		
+		<!-- <noise x="-40" y="-23" width="2" height="55" show_val="3"> -->
+			<!-- <static width="8" height="10" stretch="1"/> -->
+			<!-- <progress_bar width="2" height="55" mode="vert" min="0" max="1.3" pos="0"> -->
+				<!-- <progress> -->
+					<!-- <texture>ui_hud_shk_noise</texture> -->
+				<!-- </progress> -->
+				<!-- <background> -->
+					<!-- <texture a="100" r="255" g="255" b="255">ui_hud_shk_noise</texture> -->
+				<!-- </background>				 -->
+			<!-- </progress_bar>	 -->
+		<!-- </noise>		 -->
+	
+		<!-- horizontal from center - noise under motion icon, visibility under modern compass -->
+		<visibility x="367" y="-709" width="210" height="5" show_val="3">
 			<static width="8" height="10" stretch="1"/>
-			<progress_bar width="40" height="4" mode="from_center" min="0" max="1" pos="0">
+			<progress_bar width="210" height="5" mode="from_center" min="0" max="1" pos="0">
 				<min_color r="0" g="255" b="0"/>
 				<middle_color r="255" g="255" b="0"/>
 				<max_color r="255" g="0" b="0"/>
 				<progress>
-					<texture>ui_hud_shk_light_horz</texture>
+					<texture>inv_progress_long</texture>
 				</progress>
-				<background>
-					<texture a="100" r="255" g="255" b="255">ui_hud_shk_light_horz</texture>
-				</background>					
+				<!-- <background> -->
+					<!-- <texture a="100" r="255" g="255" b="255">inv_progress_long</texture> -->
+				<!-- </background> -->
 			</progress_bar>
 		</visibility>		
 		
-		<noise x="-40" y="27" width="40" height="4" show_val="3">
+		<noise x="-40" y="29" width="40" height="3" show_val="3">
 			<static width="8" height="10" stretch="1"/>
-			<progress_bar width="40" height="4" mode="from_center" min="0" max="1.3" pos="0">
+			<progress_bar width="40" height="3" mode="from_center" min="0" max="1.3" pos="0">
 				<progress>
 					<texture>ui_hud_shk_noise_horz</texture>
 				</progress>
@@ -145,7 +201,7 @@
 		</mgun>		
 	</actor_params>
 	
-	<motion_icon x="0" y="698" width="40" height="60" stretch="1"/>
+	<motion_icon x="0" y="708" width="40" height="60" stretch="1"/>
 
 	<!-- quick slots -->
 	<quick_slots x="50" y="690" width="148" height="46" stretch="1" horz="1" indent="0" show_on_gear="1">
@@ -316,7 +372,7 @@
 		<texture a="175">ui\cursor</texture>
 	</tip_cursor>
 	
-	<flashing_icon x="10" y="680" width="18" height="15" light_anim="ui_slow_blinking_alpha" stretch="1">
+	<flashing_icon x="0" y="690" width="18" height="15" light_anim="ui_slow_blinking_alpha" stretch="1">
 		<texture>ui_hud_icon_PDA</texture>
 	</flashing_icon>	
 </w>
