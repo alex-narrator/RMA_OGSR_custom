@@ -308,7 +308,8 @@ function MainIngameOverlay:InitControls()
 	compass_params.distance_mark_scale = xml:ReadAttribInt("compass_front_view", "distance_mark_scale", 0) > 0 and true or false
 	self.compass_modern.params = compass_params
     self.compass_modern_scale = xml:InitStatic("compass_front_view:scale", self.compass_modern)
-    self.compass_modern_line = xml:InitStatic("compass_front_view:line", self.compass_modern)	
+    self.compass_modern_line = xml:InitStatic("compass_front_view:line", self.compass_modern)
+	self.compass_modern_line_2 = xml:InitStatic("compass_front_view:line_2", self.compass_modern)
 	
 	--//active task
 	self.active_task = xml:InitStatic("active_task", self)
