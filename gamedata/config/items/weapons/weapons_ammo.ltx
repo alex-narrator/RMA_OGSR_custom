@@ -213,6 +213,48 @@ k_speed 			= 0.255
 k_impulse			= 0.2
 k_pierce			= 1.35
 
+;;;;;;;;;;;;;;;;;;;SS195LF;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+[ammo_5.7x28_fmj]:pistol_ammo
+$spawn				= "weapons\ammo\ammo_5.7x28_fmj" ; option for Level Editor
+visual              = weapons\ammo\ammo_57x28_fmj
+
+cost				= 75
+
+box_size			= 50
+
+inv_name			= st_ammo_5.7x28_fmj_name
+inv_name_short		= st_ammo_5.7x28_fmj_short
+description			= st_ammo_5.7x28_fmj_descr
+icon_text			= st_ammo_5.7x28_fmj_text
+
+inv_weight			= .3
+
+inv_grid_x         	= 5
+inv_grid_y         	= 2
+
+;;;;;;;;;;;;;;;;;;;SS190 AP;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+[ammo_5.7x28_ap]:pistol_ammo
+$spawn				= "weapons\ammo\ammo_5.7x28_ap" ; option for Level Editor
+visual              = weapons\ammo\ammo_57x28_ap
+
+cost				= 250
+
+box_size			= 50
+
+inv_name			= st_ammo_5.7x28_ap_name
+inv_name_short		= st_ammo_5.7x28_ap_short
+description			= st_ammo_5.7x28_ap_descr
+icon_text			= st_ammo_5.7x28_ap_text
+
+inv_weight			= .3
+
+inv_grid_x         	= 5
+inv_grid_y         	= 3
+
+k_hit				= 0.02
+k_speed 			= 0.04
+k_ap 				= 2
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;5,45 ПС 7Н6М
 [ammo_5.45x39_fmj]:rifle_ammo
@@ -309,47 +351,6 @@ k_disp 				= -0.51
 k_pierce			= 1.75
 k_ap 				= 3
 
-;;;;;;;;;;;;;;;;;;;SS195LF;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-[ammo_5.7x28_fmj]:pistol_ammo
-$spawn				= "weapons\ammo\ammo_5.7x28_fmj" ; option for Level Editor
-visual              = weapons\ammo\ammo_57x28_fmj
-
-cost				= 75
-
-box_size			= 50
-
-inv_name			= st_ammo_5.7x28_fmj_name
-inv_name_short		= st_ammo_5.7x28_fmj_short
-description			= st_ammo_5.7x28_fmj_descr
-icon_text			= st_ammo_5.7x28_fmj_text
-
-inv_weight			= .3
-
-inv_grid_x         	= 5
-inv_grid_y         	= 2
-
-;;;;;;;;;;;;;;;;;;;SS190 AP;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-[ammo_5.7x28_ap]:pistol_ammo
-$spawn				= "weapons\ammo\ammo_5.7x28_ap" ; option for Level Editor
-visual              = weapons\ammo\ammo_57x28_ap
-
-cost				= 250
-
-box_size			= 50
-
-inv_name			= st_ammo_5.7x28_ap_name
-inv_name_short		= st_ammo_5.7x28_ap_short
-description			= st_ammo_5.7x28_ap_descr
-icon_text			= st_ammo_5.7x28_ap_text
-
-inv_weight			= .3
-
-inv_grid_x         	= 5
-inv_grid_y         	= 3
-
-k_hit				= 0.02
-k_speed 			= 0.04
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;7Н1
 [ammo_7.62x54_7h1]:rifle_ammo
@@ -405,11 +406,6 @@ tracer				= on
 tracer_color_ID 	= color_0
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;СПЕЦІАЛЬНИЙ НАБІЙ ДЛЯ СТАНКОВОГО КУЛЕМЕТА
-[ammo_7.62x54_statmgun]:ammo_7.62x54_7h1
-k_hit 				= 2
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;7Н14
 [ammo_7.62x54_7h14]:rifle_ammo
 $spawn				= "weapons\ammo\ammo_7.62x54_7h14" ; option for Level Editor
@@ -430,6 +426,11 @@ inv_grid_x         	= 3
 inv_grid_y         	= 2
 
 k_ap 				= 4
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;СПЕЦІАЛЬНИЙ НАБІЙ ДЛЯ СТАНКОВОГО КУЛЕМЕТА
+[ammo_7.62x54_statmgun]:ammo_7.62x54_7h1
+k_hit 				= 2
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;7.62x51 NATO FMJ (M80)
@@ -673,7 +674,7 @@ k_hit 				= -0.21
 k_disp				= -0.2
 k_impulse			= 0
 k_pierce			= 2.25
-k_ap 				= 4
+k_ap 				= 2
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [ammo_12x76_zhekan_heli]:ammo_12x76_zhekan
