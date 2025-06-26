@@ -9,7 +9,7 @@ function attach(sm)
 	sm:subscribe({signal = "on_actor_menu_show", 	fun = this.on_actor_menu_show})
 	sm:subscribe({signal = "on_actor_menu_hide", 	fun = this.on_actor_menu_hide})
 	sm:subscribe({signal = "on_trade", 				fun = this.on_trade})
-	--sm:subscribe({signal = "on_trade_purchase_item_process", 	fun = this.on_trade_purchase_item_process})
+	sm:subscribe({signal = "on_trade_purchase_item_process", 	fun = this.on_trade_purchase_item_process})
 end
 
 local BUY_ENEMY_FACTOR 		= read_if_exists(sys_ini, "r_float", "trade", "buy_price_factor_hostile", 1)
@@ -305,18 +305,11 @@ function on_trade_purchase_item_process(npc, sobj)
 	if not tt then
 		log3("!TRADE UPDATE [%s]: on_trade_purchase_item_process skiped", npc:name())
 	return end
-	local sect = sobj:section_name()
-	if not tt.purchase_data then
-		parse_purchase_list(npc)
-	end
-	local pd = tt.purchase_data[sect]
-	pd.spawned = pd.spawned + 1
-	--log3("~on_trade_purchase_item_process [%s]: on_trade_purchase_item_process item %s spawned %s times", npc:name(), sect, pd.spawned)
-	-- if not tt.deficit then
-		-- tt.deficit = {}
-	-- end
-	tt.deficit[sect] = pd.count * pd.prob / pd.spawned
-	--log3("~on_trade_purchase_item_process NPC %s | item %s | deficit %s", npc:name(), sect, tt.deficit[sect])
+	local se_item = alife():object(sobj.id)
+	local wpn = se_item:get_weapon_m()
+	if wpn then
+		level.client_spawn_manager():add(sobj.id, -1, function(id, obj) obj:set_ammo_elapsed(0) end)
+	end	
 end
 
 function get_deficit_factor(npc, sect)

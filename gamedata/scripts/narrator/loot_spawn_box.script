@@ -66,7 +66,12 @@ function spawn_defined_loot(sect)
 	for section, count in pairs(loot) do
 		local n = count
 		while n > 0 do
-			spawn_to_owner(section)
+			local s_obj = spawn_to_owner(section)
+			local se_item = alife():object(s_obj.id)
+			local wpn = se_item:get_weapon_m()
+			if wpn then
+				level.client_spawn_manager():add(s_obj.id, -1, function(id, obj) obj:set_ammo_elapsed(0) end)
+			end
 			n = n - 1
 		end
 	end
@@ -79,7 +84,12 @@ function spawn_random_loot(sect)
 	for section, count in pairs(loot) do
 		local n = count
 		while n > 0 do
-			spawn_to_owner(section)
+			local s_obj = spawn_to_owner(section)
+			local se_item = alife():object(s_obj.id)
+			local wpn = se_item:get_weapon_m()
+			if wpn then
+				level.client_spawn_manager():add(s_obj.id, -1, function(id, obj) obj:set_ammo_elapsed(0) end)
+			end			
 			n = n - 1
 		end
 	end
