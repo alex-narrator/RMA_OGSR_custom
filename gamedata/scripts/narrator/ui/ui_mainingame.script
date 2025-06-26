@@ -897,7 +897,7 @@ function MainIngameOverlay:ShowFrontViewMarks()
 					marker_data.color = dead_color
 					--marker_data.texture = "ui_PDA_checker_t"
 				end
-				local hidden = (obj:is_relation_enemy(actor) and obj:alive()) or not actor:see(obj) or not alife():object(obj:id()):visible_for_map()
+				local hidden = (obj:is_relation_enemy(actor) and obj:alive() and not actor:see(obj)) or not alife():object(obj:id()):visible_for_map()
 				if not hidden then
 					table.insert(compass_targets, marker_data)
 				end
