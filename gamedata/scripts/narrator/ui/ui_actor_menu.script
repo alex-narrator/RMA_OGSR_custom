@@ -434,6 +434,7 @@ function ActorMenuOverlay:InitControls()
 	
 	--//weight static
 	self.inv_weight = xml:InitStatic("weight_static", self)
+	self.inv_weight_progress = xml:InitProgressBar("weight_static:progress", self.inv_weight)
 	self:UpdateWeightText()
 
 	--//date/time static
@@ -1011,7 +1012,7 @@ function ActorMenuOverlay:UpdateEffectsInfo()
 		
 		end
 
-		if i < 8 then
+		if i < 8 or t.param == "boost_somnolence" then
 			local for_rad = t.param == "radiation_restore_speed"
 			local _k = for_rad and 1 or 100
 			sn = string.format(" %s", game.translate_string(for_rad and "st_radiation_per_minute" or "st_percent_per_minute"))
@@ -1264,6 +1265,8 @@ function ActorMenuOverlay:UpdateWeightText()
 									weight_unit)
 									
 	self.inv_weight:SetText(weight_text)
+	
+	self.inv_weight_progress:SetProgressPos(weight/max_weight)
 end
 
 function ActorMenuOverlay:PerformTrade()

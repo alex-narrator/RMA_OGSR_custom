@@ -509,9 +509,10 @@ function action_task_show(npc, actor)
 	local parent = get_parent(npc)	
 	for k,v in pairs(task_id_by_parent[parent]) do		
 		if task_avail(actor, npc, nil, nil, task_info[v].init_phrase_id, false) then
-			local icon_type = (task_info[v].type == "eliminate_lager") and (mob_lagers[task_info[v].target] and "eliminate_layer" or "eliminate_lager") or task_info[v].type
+			local icon_type = (task_info[v].type == "eliminate_lager") and (mob_lagers[task_info[v].target] and "eliminate_lair" or "eliminate_lager") or task_info[v].type
+			log3("~icon_type %s", icon_type)
 			local task_texture, task_rect = get_texture_info("ui_icons_task_"..icon_type, "ui_iconsTotal_locations")
-			db.actor:give_talk_message(game.translate_string(task_info[v].name), task_texture, task_rect,"iconed_trade_info")
+			db.actor:give_talk_message(game.translate_string(task_info[v].name), task_texture, task_rect, "iconed_answer_item")
 		end
 	end
 end
@@ -662,22 +663,22 @@ end
 
 function show_reward_text(actor, npc, p1, p2)
 	local _task_info = task_info[task_id_by_desc_phrase_id[p2]]
-	local icon_type = (_task_info.type == "eliminate_lager") and (mob_lagers[_task_info.target] and "eliminate_layer" or "eliminate_lager") or _task_info.type
+	local icon_type = (_task_info.type == "eliminate_lager") and (mob_lagers[_task_info.target] and "eliminate_lair" or "eliminate_lager") or _task_info.type
 	local task_texture, task_rect = get_texture_info("ui_icons_task_"..icon_type, "ui_iconsTotal_locations")
 	local text = string.format("%s%s%s%s%s", GetRewardText(_task_info), GetTaskTimeText(_task_info), GetLocationText(_task_info), GetPersonalText(_task_info), GetPenaltyText(_task_info))
-	actor:give_talk_message(text, task_texture, task_rect, "iconed_trade_info")
+	actor:give_talk_message(text, task_texture, task_rect, "iconed_answer_item")
 end
 
 function ShowRewardMsg(task_info)
-	local icon_type = (task_info.type == "eliminate_lager") and (mob_lagers[task_info.target] and "eliminate_layer" or "eliminate_lager") or task_info.type
+	local icon_type = (task_info.type == "eliminate_lager") and (mob_lagers[task_info.target] and "eliminate_lair" or "eliminate_lager") or task_info.type
 	local task_texture, task_rect = get_texture_info("ui_icons_task_"..icon_type, "ui_iconsTotal_locations")
-	actor:give_talk_message(GetRewardText(task_info), task_texture, task_rect, "iconed_trade_info")
+	actor:give_talk_message(GetRewardText(task_info), task_texture, task_rect, "iconed_answer_item")
 end
 
 function ShowPenaltyMsg(task_info)
-	local icon_type = (task_info.type == "eliminate_lager") and (mob_lagers[task_info.target] and "eliminate_layer" or "eliminate_lager") or task_info.type
+	local icon_type = (task_info.type == "eliminate_lager") and (mob_lagers[task_info.target] and "eliminate_lair" or "eliminate_lager") or task_info.type
 	local task_texture, task_rect = get_texture_info("ui_icons_task_"..icon_type, "ui_iconsTotal_locations")
-	--actor:give_talk_message(GetPenaltyText(task_info), task_texture, task_rect, "iconed_trade_info")
+	--actor:give_talk_message(GetPenaltyText(task_info), task_texture, task_rect, "iconed_answer_item")
 	actor:give_game_news(GetPenaltyText(task_info), task_texture, task_rect, 0, 3000)
 end
 
@@ -933,7 +934,7 @@ function task_reward_remote(task_desc)
 		actor:change_character_rank(task_desc.reward_rank)
 	end
 	
-	local icon_type = (task_desc.type == "eliminate_lager") and (mob_lagers[task_desc.target] and "eliminate_layer" or "eliminate_lager") or task_desc.type
+	local icon_type = (task_desc.type == "eliminate_lager") and (mob_lagers[task_desc.target] and "eliminate_lair" or "eliminate_lager") or task_desc.type
 	local task_texture, task_rect = get_texture_info("ui_icons_task_"..icon_type, "ui_iconsTotal_locations")
 	actor:give_game_news(GetRewardText(task_desc), task_texture, task_rect, 0, 3000)
 end
