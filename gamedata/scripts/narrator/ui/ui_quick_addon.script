@@ -1135,9 +1135,23 @@ function QuickAddonOverlay:OnDetachClick(sect)
 		end,
 		function()
 			--slot_wpn:detach_addon(sect, true)
-			detach_addon(slot_item, sect)
-			xr_sound.get_safe_sound_object([[interface\inv_detach_addon]]):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
-			actor:restore_weapon()
+			-- detach_addon(slot_item, sect)
+			-- xr_sound.get_safe_sound_object([[interface\inv_detach_addon]]):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+			-- actor:restore_weapon()
+			
+			block_non_move_action(true)
+			local snd = xr_sound.get_safe_sound_object([[interface\inv_detach_addon]])
+			snd:play(actor, 0, sound_object.s2d)
+			level.add_call(
+				function()
+					return not snd or not snd:playing()
+				end,
+				function()
+					detach_addon(slot_item, sect)
+					block_non_move_action(false)
+					actor:restore_weapon()
+				end				
+			)			
 		end
 	)		
 	
@@ -1211,9 +1225,23 @@ function QuickAddonOverlay:OnAttachClick(id)
 				detach_addon(slot_item, slot_item:get_weapon():get_addon_name(detach_addon_type))
 			end
 			--slot_iitem:attach_addon(desired_iitem, true)
-			attach_addon(slot_item, desired_item)
-			xr_sound.get_safe_sound_object([[interface\inv_attach_addon]]):play(actor, 0, sound_object.s2d)
-			actor:restore_weapon()
+			-- attach_addon(slot_item, desired_item)
+			-- xr_sound.get_safe_sound_object([[interface\inv_attach_addon]]):play(actor, 0, sound_object.s2d)
+			-- actor:restore_weapon()
+			
+			block_non_move_action(true)
+			local snd = xr_sound.get_safe_sound_object([[interface\inv_attach_addon]])
+			snd:play(actor, 0, sound_object.s2d)
+			level.add_call(
+				function()
+					return not snd or not snd:playing()
+				end,
+				function()
+					attach_addon(slot_item, desired_item)
+					block_non_move_action(false)
+					actor:restore_weapon()
+				end				
+			)
 		end
 	)	
 	
