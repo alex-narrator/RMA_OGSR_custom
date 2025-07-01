@@ -5,6 +5,7 @@ function attach(sm)
 	sm:subscribe({signal = "on_update", 		fun = this.actor_update})
 	sm:subscribe({signal = "on_task",   		fun = this.on_task})
 	sm:subscribe({signal = "on_npc_death",   	fun = this.on_npc_death})
+	sm:subscribe({signal = "on_take_from_box", 	fun = this.on_take_from_box})
 end
 
 local LIST_SECT = "task_list"
@@ -63,11 +64,13 @@ local mob_lagers = {
 }	
 
 local receiver_sid_by_alias = {
-	["sidor_box"] 		= story_ids.esc_sidor_store_box,
-	["barman_box"] 		= story_ids.bar_barman_store_box,
-	["sakharov_box"] 	= story_ids.yan_sakharov_store_box,
-	["voronin_box"] 	= story_ids.bar_voronin_store_box,
-	["max_box"] 		= story_ids.mil_volya_max_box,
+	["sidor_box"] 			= story_ids.esc_sidor_store_box,
+	["barman_box"] 			= story_ids.bar_barman_store_box,
+	["sakharov_box"] 		= story_ids.yan_sakharov_store_box,
+	["voronin_box"] 		= story_ids.bar_voronin_store_box,
+	["max_box"] 			= story_ids.mil_volya_max_box,
+	
+	["novice_village_box"] 	= story_ids.esc_simulation_box_1,
 }
 
 --//головна таблиця з даними по таскам
@@ -205,7 +208,8 @@ function on_save()
 		task_processed[k] = {}
 		task_processed[k].status = v.status
 		task_processed[k].last_task_time = ctime_to_table(v.last_task_time)
-		task_processed[k].selected_target = (v.selected_target and v.status == "selected") and v.selected_target or nil		
+		task_processed[k].selected_target = (v.selected_target and v.status == "selected") and v.selected_target or nil
+		task_processed[k].give_task_time = ctime_to_table(v.give_task_time)
 	end
 	xr_vars.save_var("task_processed", task_processed)
 	--log3("~on_save task_processed %s", task_processed)
@@ -220,6 +224,7 @@ function on_load()
 		task_info[k].status = v.status
 		task_info[k].last_task_time = table_to_ctime(v.last_task_time)
 		task_info[k].selected_target = v.selected_target or nil
+		task_info[k].give_task_time = table_to_ctime(v.give_task_time)
 	end
 	--//завантажуємо активні таски
 	active_task_by_type = xr_vars.load_var("active_task_by_type", active_task_by_type)
@@ -337,6 +342,8 @@ function action_give_task(actor, npc, p1, p2)
 			v.enabled = false
 		end
 	end
+	
+	task_desc.give_task_time = game.get_game_time()
 end
 --' Отказ игроком от квеста
 function action_refuse_task(actor, npc, p1, p2)
@@ -476,6 +483,7 @@ function task_callback(p1, p2, state)
 
 	if state == task.completed then
 		task_info[active_task_by_type[p1]].status = "normal"
+		task_info[active_task_by_type[p1]].give_task_time = nil
 		--' восстановление других заданий данного типа
 		for k,v in pairs(task_info) do
 			if v.complex_type == task_info[active_task_by_type[p1]].complex_type then
@@ -494,7 +502,7 @@ function task_callback(p1, p2, state)
 			task_penalty(task_data)
 		end
 		task_info[active_task_by_type[p1]].status = "normal"
-		
+		task_info[active_task_by_type[p1]].give_task_time = nil
 		--' восстановление других заданий данного типа
 		for k,v in pairs(task_info) do
 			if v.complex_type == task_info[active_task_by_type[p1]].complex_type then
@@ -510,7 +518,7 @@ function action_task_show(npc, actor)
 	for k,v in pairs(task_id_by_parent[parent]) do		
 		if task_avail(actor, npc, nil, nil, task_info[v].init_phrase_id, false) then
 			local icon_type = (task_info[v].type == "eliminate_lager") and (mob_lagers[task_info[v].target] and "eliminate_lair" or "eliminate_lager") or task_info[v].type
-			log3("~icon_type %s", icon_type)
+			--log3("~icon_type %s", icon_type)
 			local task_texture, task_rect = get_texture_info("ui_icons_task_"..icon_type, "ui_iconsTotal_locations")
 			db.actor:give_talk_message(game.translate_string(task_info[v].name), task_texture, task_rect, "iconed_answer_item")
 		end
@@ -912,7 +920,9 @@ function task_reward_remote(task_desc)
 			--news_manager.relocate_item(actor, "in", v)
 		end
 		if task_desc.reward_item_receiver then
-			store_box.unlock_by_sid(receiver_sid_by_alias[task_desc.reward_item_receiver], "ui_st_reward_to_box")
+			if not store_box.unlock_by_sid(receiver_sid_by_alias[task_desc.reward_item_receiver], "ui_st_reward_to_box") then
+				store_box.box_open_message(receiver_sid_by_alias[task_desc.reward_item_receiver], "ui_st_reward_to_box")
+			end
 		end
 	end
 
@@ -1253,4 +1263,22 @@ end
 function on_npc_death(npc)
 	unregister_target(npc)
 	check_vendor_dead(npc)
+end
+
+function get_active_random_tasks()
+	return active_task_by_type
+end
+
+function get_active_random_task(task_id)
+	return active_task_by_type[task_id]
+end
+
+function get_random_task_info(task)
+	return task_info[task]
+end
+
+function on_take_from_box(box, item)
+	while level.map_has_object_spot(box:id(), store_box.store_box_spot) ~= 0 do
+		level.map_remove_object_spot(box:id(), store_box.store_box_spot)
+	end
 end

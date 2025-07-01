@@ -20,7 +20,7 @@ local locked_box_sid = {
 	[story_ids.yan_sakharov_store_box] = true, --ящик в бункері Сахарова
 }
 
-local store_box_spot = "spot_storebox_cop"
+store_box_spot = "spot_storebox_cop"
 
 function is_opened(box)
 	return alife():object(box:id()).is_opened or not locked_box_sid[box:story_id()]--locked_box_names[box:name()]
@@ -28,6 +28,36 @@ end
 
 function unlock(box, custom_text)
 	box.is_opened = true
+	box_open_message(box, custom_text)
+end
+
+function lock(box)
+	--log3("~lock box sid %s", box:story_id())
+	local sobj = alife():object(box:id())
+	sobj.is_opened = false
+	while level.map_has_object_spot(sobj.id, store_box_spot) ~= 0 do
+		level.map_remove_object_spot(sobj.id, store_box_spot)
+	end
+end
+
+function unlock_by_name(name, custom_text)
+	if not locked_box_names[name] then
+	return false end
+	unlock(sobj_by_name(name), custom_text)
+	return true
+end
+
+function unlock_by_sid(sid, custom_text)
+	if not locked_box_sid[sid] then
+	return false end
+	unlock(alife():story_object( sid ), custom_text)
+	return true
+end
+
+function box_open_message(box, custom_text)
+	if type(box) == "number" then
+		box = alife():story_object( box )
+	end
 	--map spot
 	local header_color = "%c[255,160,160,160]"
 	local news_text = custom_text and custom_text or "st_storebox_opened"
@@ -42,25 +72,4 @@ function unlock(box, custom_text)
 		local sound_name = read_if_exists(sys_ini, "r_string", c_box:section(), "unlock_snd", nil)
 		xr_sound.get_safe_sound_object(sound_name):play_at_pos(c_box, c_box:position())
 	end
-end
-
-function lock(box)
-	--log3("~lock box sid %s", box:story_id())
-	local sobj = alife():object(box:id())
-	sobj.is_opened = false
-	while level.map_has_object_spot(sobj.id, store_box_spot) ~= 0 do
-		level.map_remove_object_spot(sobj.id, store_box_spot)
-	end
-end
-
-function unlock_by_name(name, custom_text)
-	if not locked_box_names[name] then
-	return end
-	unlock(sobj_by_name(name), custom_text)
-end
-
-function unlock_by_sid(sid, custom_text)
-	if not locked_box_sid[sid] then
-	return end
-	unlock(alife():story_object( sid ), custom_text)
 end

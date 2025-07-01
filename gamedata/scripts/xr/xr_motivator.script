@@ -357,7 +357,8 @@ function motivator_binder:save(packet)
 
 	xr_logic.save_obj(self.object, packet)
 	--dialog_manager.save(self.object, packet)
-	trade_manager.save(self.object, packet)
+	--trade_manager.save(self.object, packet)
+	self.sm:call("on_npc_save", self.object, packet)
 end
 
 function motivator_binder:load(reader)
@@ -379,7 +380,8 @@ function motivator_binder:load(reader)
 
 	--self.npc_script_version = alife():object(self.object:id()).script_version
 	--dialog_manager.load(self.object, reader, self.npc_script_version)
-	trade_manager.load(self.object, reader)
+	--trade_manager.load(self.object, reader)
+	self.sm:call("on_npc_load", self.object, reader)
 end
 
 function motivator_binder:hear_callback(self, who, sound_type, sound_position, sound_power)

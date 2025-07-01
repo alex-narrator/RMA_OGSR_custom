@@ -1,6 +1,10 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
 	sm:subscribe({signal = "on_npc_spawn", 			fun = this.update})
+	sm:subscribe({signal = "on_npc_save", 			fun = this.save})
+	sm:subscribe({signal = "on_npc_load", 			fun = this.load})
+	sm:subscribe({signal = "on_trader_save", 		fun = this.save})
+	sm:subscribe({signal = "on_trader_load", 		fun = this.load})
 	sm:subscribe({signal = "on_npc_destroy", 		fun = this.clear})
 	sm:subscribe({signal = "on_npc_use", 			fun = this.update})
 	sm:subscribe({signal = "on_trader_spawn", 		fun = this.update})
@@ -19,7 +23,8 @@ local SELL_FRIEND_FACTOR 	= read_if_exists(sys_ini, "r_float", "trade", "sell_pr
 local MIN_DEFICIT 			= read_if_exists(sys_ini, "r_float", "trade", "min_deficit_factor", 1)
 local MAX_DEFICIT 			= read_if_exists(sys_ini, "r_float", "trade", "max_deficit_factor", 1)
 
-local MIN_H, MAX_H = 8, 12--//межі рандомайзеру часу до оновлення асортиментів (ігрові години)
+--local MIN_H, MAX_H 			= 8, 12--//межі рандомайзеру часу до оновлення асортиментів (ігрові години)
+local RESUPPLY_INTERVAL = "8, 12"
 local c_time = game.CTime()
 local trade_manager = {}
 
@@ -81,7 +86,7 @@ function on_trade(item, sell_buy, money)
 end
 
 function trade_init(npc, cfg)
-	----log3("TRADE INIT: [%s]", npc:name())
+	--log3("TRADE INIT: [%s]", npc:name())
 	
 	if not cfg then
 		cfg = DEF_TRADE_CFG
@@ -123,6 +128,11 @@ function trade_init(npc, cfg)
 	--//дефіцити
 	tt.min_deficit = read_if_exists(tt.config, "r_float", "trader", "min_deficit_factor", MIN_DEFICIT)
 	tt.max_deficit = read_if_exists(tt.config, "r_float", "trader", "max_deficit_factor", MAX_DEFICIT)
+	
+	--//час оновлення асортименту
+	tt.resuply_interval = split_string(read_if_exists(tt.config, "r_string", "trader", "resuply_interval", RESUPPLY_INTERVAL), ",", true)
+	-- tt.min_resuply_h = read_if_exists(tt.config, "r_float", "trader", "min_resuply_h", MIN_H)
+	-- tt.max_resuply_h = read_if_exists(tt.config, "r_float", "trader", "max_resuply_h", MAX_H)
 end
 
 function update(npc)
@@ -159,7 +169,13 @@ function update(npc)
 		--npc:buy_supplies(tt.config, str)		
 		buy_supplies(npc)
 		--tt.current_buy_supplies = str
-		local resuply_hours = math.random(MIN_H, MAX_H)
+		local resuply_hours = 24
+		local interval = tt.resuply_interval
+		if interval[2] then
+			resuply_hours = math.random(interval[1], interval[2])
+		else
+			resuply_hours = interval[1]
+		end
 		c_time:setHMS(resuply_hours, 0, 0)
 		tt.resuply_time = game.get_game_time() + c_time
 		--log3("TRADE UPDATE [%s]: next resuply in %s hours", npc:name(), resuply_hours)
@@ -169,7 +185,7 @@ end
 
 function save(obj, packet)
 	local tt = trade_manager[obj:id()]
-
+	
 	--' Сохраняем присутствует ли инициализированная торговля в принципе.
 	if tt then
 		packet:w_bool(true)
@@ -509,6 +525,7 @@ function calculate_item_price(trader, item, b_buying)
 	--local condition_factor = math.clamp(cond, 0.1, 1)
 	local condition_factor = math.pow(cond*0.9 + 0.1, 0.75)
 	--log3("~item %s - condition_factor %s", item:name(), condition_factor)
+
 	--//це персональне ставлення вендора до актора
 	local attitude = trader:general_goodwill(actor)
 	local relation_factor = (attitude + 1000) / 2000

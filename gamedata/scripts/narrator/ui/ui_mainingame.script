@@ -321,6 +321,8 @@ function MainIngameOverlay:InitControls()
 	self.objective_header = xml:InitStatic("active_task:objective_header", self.active_task)
 	self.objective_header.base_color = self.objective_header:GetTextColor()
 	self.task_state_icon = xml:InitStatic("active_task:task_state_icon", self.active_task)
+	self.task_remaining_time = xml:InitStatic("active_task:task_remaining_time", self.active_task)
+	self.task_remaining_time_progress = xml:InitProgressBar("active_task:task_remaining_time_progress", self.active_task)
 	
 	--//slot selector
 	self.slot_selector = ui_slot_selector.SlotSelectorOverlay()
@@ -1104,6 +1106,29 @@ function MainIngameOverlay:ShowTask(b_show, _task, _objective, _stage)
 				self.task_icon:InitTexture(task_icon)
 				local r = task:get_objective(0):get_icon_rect()
 				self.task_icon:SetOriginalRect(r.x1, r.y1, r.x2, r.y2)
+			end
+			
+			self.task_remaining_time:Show(false)
+			self.task_remaining_time_progress:Show(false)
+			local random_task = task_manager.get_active_random_task(task:get_id())
+			if random_task then
+				local task_info = task_manager.get_random_task_info(random_task)
+				if task_info and task_info.time then
+					local c_time = game.CTime()
+					c_time:setHMS(task_info.time, 0, 0)
+					local current_time = game.get_game_time()
+					local deadline_time = task_info.give_task_time + c_time
+					local deadline_time_diff = deadline_time - current_time
+
+					local curr_diff_sec = deadline_time:diffSec(current_time)
+					local deadline_diff_sec = deadline_time:diffSec(task_info.give_task_time)
+					
+					self.task_remaining_time:SetText(string.format("%s%s %s%s", curr_diff_sec <= 3600 and "%c[red]" or "%c[default]", deadline_time_diff:timeToString(game.CTime.TimeToMinutes), "%c[default]", game.translate_string("st_task_remaining_time")))
+					self.task_remaining_time:Show(true)
+
+					self.task_remaining_time_progress:SetProgressPos(curr_diff_sec/deadline_diff_sec)
+					self.task_remaining_time_progress:Show(true)
+				end
 			end
 		end		
 	else
