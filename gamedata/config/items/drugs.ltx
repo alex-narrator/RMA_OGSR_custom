@@ -31,7 +31,6 @@ selected_tip 		= st_tip_eatable
 $spawn 				= "food and drugs\antirad"
 
 class				= II_ANTIR
-cform           	= skeleton
 visual          	= equipments\item_antirad
 
 inv_name			= st_antirad_name
@@ -55,7 +54,7 @@ hud 				= antirad_hud
 [medkit]:drugs_base
 $spawn 				= "food and drugs\medkit"
 
-visual				= dynamics\weapons\wpn_eat\world_models\aptechki\aptechka_basic_world;equipments\item_aptechka
+visual				= dynamics\weapons\wpn_eat\world_models\aptechki\aptechka_basic_world
 
 inv_name			= st_medkit_name
 inv_name_short		= st_medkit_short
@@ -91,7 +90,7 @@ hud 				= medkit_injector_hud
 [medkit_army]:drugs_base
 $spawn 				= "food and drugs\medkit_army"
 
-visual				= dynamics\weapons\wpn_eat\world_models\aptechki\aptechka_army_world;equipments\item_aptechka3
+visual				= dynamics\weapons\wpn_eat\world_models\aptechki\aptechka_army_world
 
 inv_name			= st_medkit_army_name
 inv_name_short		= st_medkit_army_short
@@ -124,7 +123,7 @@ hud 				= medkit_injector_army_hud
 [medkit_scientic]:drugs_base
 $spawn 				= "food and drugs\medkit_scientic"
 
-visual				= dynamics\weapons\wpn_eat\world_models\aptechki\aptechka_scientific_world;equipments\item_aptechka2
+visual				= dynamics\weapons\wpn_eat\world_models\aptechki\aptechka_scientific_world
 
 inv_name			= st_medkit_science_name
 inv_name_short		= st_medkit_science_short
@@ -144,6 +143,7 @@ eat_health			= 0.15
 
 eat_portions_num	= 1
 boost_health 		= 0.001666666667
+boost_radiation 	= -0.0001666666667
 boost_pain 			= -0.5
 boost_wounds_heal 	= 0.005
 boost_somnolence 	= 0.0008333333333
@@ -158,7 +158,6 @@ hud 				= medkit_injector_scientic_hud
 $spawn 				= "food and drugs\bandage"
 
 class				= II_BANDG
-cform				= skeleton
 visual				= dynamics\weapons\wpn_eat\world_models\bints\bint_basic_world;equipments\item_bandage
 
 inv_name			= st_bandage_name
@@ -182,7 +181,6 @@ hud 				= bandage_hud;bandage_packed_hud
 $spawn 				= "food and drugs\bandage"
 
 class				= II_BANDG
-cform				= skeleton
 visual				= equipments\item_bandage
 
 inv_name			= st_tourniquet_name
@@ -201,6 +199,30 @@ eat_portions_num 	= 1
 animation_slot		= 4
 ;hud item
 hud 				= bandage_hud
+
+[afak]:drugs_base
+$spawn 				= "food and drugs\afak"
+visual				= dynamics\eft_medical\eft_afak\eft_afak
+
+inv_name			= st_afak_name
+inv_name_short		= st_afak_short
+description			= st_afak_descr
+
+inv_weight			= 0.8
+
+icon_text 			= st_afak_short
+
+inv_grid_x			= 9
+inv_grid_y			= 6
+cost				= 3500
+; eatable item
+eat_wounds_heal 	= 1
+eat_health 			= 0.5
+eat_portions_num 	= 3
+; food item
+animation_slot		= 4
+;hud item
+hud 				= afak_hud
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;boosters from COP;;;;;;;;;;;;;;;;;;;;;;;;
