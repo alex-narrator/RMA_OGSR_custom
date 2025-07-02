@@ -491,3 +491,63 @@ function PDAOverlay:OnHide()
 		end
 	)
 end
+
+
+----------------------------------------------------------CUSTOM PDA TABS-------------------------------------------------------------------------
+local custom_tabs = {
+	[7] = {init_func = function(idx) return UICustomTab7(idx) end, overlay_xml = "script_overlays\\ui_pda_custom_tab_7.xml"}
+}
+
+function get_custom_tab(idx)
+	if not custom_tabs[idx] then
+		log3("!PDA CUSTOM TAB %s IS NOT DESCRIBED IN %s", idx, script_name())
+	return end
+	if not custom_tabs[idx].wnd then
+		custom_tabs[idx].wnd = custom_tabs[idx].init_func(idx)
+	end
+	return custom_tabs[idx].wnd
+end
+
+
+class "UICustomTab7" (CUIScriptWnd)
+function UICustomTab7:__init(idx) super()
+	self:InitControls(idx)
+	self:Subscribe()
+end
+
+function UICustomTab7:Subscribe()
+	self.subscribed = false
+	if not self.subscribed then
+		self.subscribed = {
+			-- {signal = "on_cell_item_focus", self = self, fun = self.OnCellItemFocus},
+			-- {signal = "on_cell_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
+			-- {signal = "on_quick_item_focus", self = self, fun = self.OnCellItemFocus},
+			-- {signal = "on_quick_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
+			-- {signal = "on_repair_list_item_focus", self = self, fun = self.OnCellItemFocus},
+			-- {signal = "on_repair_list_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
+			-- {signal = "on_key_press", self = self, fun = self.OnCellItemFocusLost},
+		}
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs( self.subscribed ) do
+			sm:subscribe( s )
+		end
+	end
+end
+
+function UICustomTab7:Unsubscribe()
+	if self.subscribed then
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs( self.subscribed ) do
+			sm:unsubscribe( s )
+		end
+		self.subscribed = false
+	end
+end
+
+function UICustomTab7:InitControls(idx)
+	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
+	local xml = CScriptXmlInit()
+	xml:ParseFile(custom_tabs[idx].overlay_xml)
+
+	self.background_frame = xml:InitFrame("background_frame", self)	
+end
