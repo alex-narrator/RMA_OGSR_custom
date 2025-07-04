@@ -275,7 +275,6 @@ function MainIngameOverlay:InitControls()
 	--//missile throw progressshape
 	self.missile_throw = xml:InitProgressShape("throw_progress", self)
 	self.missile_text = xml:InitStatic("throw_text", self)
-	self.throw_force = 0
 	
 	--//pickup item icon
 	self.pickup_item_icon = xml:InitStatic("pick_up_item", self)
@@ -742,15 +741,10 @@ end
 function MainIngameOverlay:UpdateMissileThrow()
 	local val = 0
 	local act_item = actor:active_item()
-	if act_item and act_item:is_missile() and act_item:get_hud_item_state() == global_flags.eReady then
-		local min_force = sys_ini:r_float(act_item:section(), "force_min")
-		local max_force = sys_ini:r_float(act_item:section(), "force_max")
-		self.throw_force = self.throw_force + device().f_time_delta * get_console():get_float("missile_force_grow_speed")
-		self.throw_force = math.clamp(self.throw_force, min_force, max_force)
-		
-		val = (self.throw_force - min_force) / (max_force - min_force)
+	local missile = act_item and act_item:get_missile()
+	if missile and act_item:get_hud_item_state() == global_flags.eReady then
+		val = (missile.throw_force - missile.min_force) / (missile.max_force - missile.min_force)
 	else
-		self.throw_force = 0
 		val = 0
 	end
 	self.missile_throw:Show(val>0)

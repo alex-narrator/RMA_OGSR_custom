@@ -1,0 +1,12 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_knife_stab",   fun = this.on_knife_stab})
+end
+
+local POWER_DEC_K = 0.1
+
+function on_knife_stab(item, is_alt_fire)
+	local power_dec = -item:weight() * POWER_DEC_K
+	actor.power = power_dec
+	--log_news("~throw - power_dec %s", power_dec)
+end

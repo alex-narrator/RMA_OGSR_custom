@@ -20,7 +20,7 @@ function on_state_switch(item, state, old_state)
 		sm:call("on_missile_throw", item)
 	return end
 	if item:is_knife() then
-		sm:call("on_knife_stab", item)
+		sm:call("on_knife_stab", item, state == global_flags.eFire2)
 	end
 end
 

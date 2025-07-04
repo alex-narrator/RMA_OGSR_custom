@@ -16,6 +16,8 @@ local grenades = {}
 
 local PREV_ACTIVE_SLOT = 255
 
+local POWER_DEC_K = 0.1
+
 function on_spawn()
 	bolts = {}
 	grenades = {}
@@ -51,6 +53,20 @@ function on_drop(item, prev_place)
 end
 
 function on_state_switch(item, state, old_state)
+	if state == global_flags.eThrow then
+		local missile = item:get_missile()
+		local throw_force_k = missile.const_power and 1 or (missile.throw_force / (missile.max_force - missile.min_force))
+		local power_dec = -item:weight() * POWER_DEC_K * throw_force_k
+		actor.power = power_dec
+		--log_news("~throw - power_dec %s", power_dec)
+		--log_news("~throw - throw_force_k %s", throw_force_k)
+		local destroy_time = split_string(read_if_exists(sys_ini, "r_string", item:section(), "destroy_time", nil), ",", true)
+		if destroy_time and table.size(destroy_time) > 1 then
+			missile.destroy_time_max = math.random(destroy_time[1], destroy_time[2])
+		end
+		--log_news("~throw - destroy_time_max %s", missile.destroy_time_max)
+	end
+
 	if state == global_flags.eShowing and actor:active_slot() ~= GRENADE_SLOT then
 		PREV_ACTIVE_SLOT = actor:active_slot()
 		return
