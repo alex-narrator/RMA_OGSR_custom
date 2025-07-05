@@ -2,18 +2,17 @@
 function attach(sm)
 	sm:subscribe({signal = "on_key_press",   			fun = this.on_key_press})
 	sm:subscribe({signal = "on_key_release",   			fun = this.on_key_release})
-	sm:subscribe({signal = "on_hud_state_switch",   	fun = this.on_state_switch})
 end
 
 local LEAN_LEFT_ID = 1902
 local LEAN_RIGHT_ID = 1903
 local CROUCH_ID = 1912
-local SHOW_HIDE_ID = 1919
+--local SHOW_HIDE_ID = 1919
 
 local LEAN_LEFT_NAME = "lean_left"
 local LEAN_RIGHT_NAME = "lean_right"
 local CROUCH_NAME = "crouch"
-local SHOW_HIDE_NAME = "jammed"
+--local SHOW_HIDE_NAME = "jammed"
 
 function is_hold_to_crouch()
 	return get_console():get_bool("g_hold_to_crouch")
@@ -48,15 +47,4 @@ function on_key_release(key, game_action)
 			level.add_complex_effector(CROUCH_NAME, CROUCH_ID)
 		end
 	end	
-end
-
-local show_hide = {
-	[global_flags.eShowing] = true,
-	[global_flags.eHiding] = true,
-}
-
-function on_state_switch(item, state, old_state)
-	if not show_hide[state] then
-	return end
-	level.add_complex_effector(SHOW_HIDE_NAME, SHOW_HIDE_ID)
 end

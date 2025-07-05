@@ -9,15 +9,16 @@ function attach(sm)
 	sm:subscribe({signal = "on_actor_land",   			fun = this.on_actor_land})
 	sm:subscribe({signal = "on_hit_actor",   			fun = this.on_actor_hit})
 	sm:subscribe({signal = "on_spawn",   				fun = this.on_spawn})
+	sm:subscribe({signal = "on_hud_state_switch",   	fun = this.on_state_switch})
 end
 
 local firemode_switch = {
 	[key_bindings.kWPN_FIREMODE_PREV] = true,
 	[key_bindings.kWPN_FIREMODE_NEXT] = true,
+	[key_bindings.kWPN_FUNC] = true,
 }
 
 local aim = "camera_effects\\actor_actions\\zoom_crp.anm"
-local jammed = "camera_effects\\actor_actions\\jammed_crp.anm"
 local fire_mode = "camera_effects\\actor_actions\\fmode_crp.anm"
 
 function is_switch_slot()
@@ -33,19 +34,19 @@ end
 
 function on_zoom_in(weapon)
 	--level.add_complex_effector("aim", 1908)
-	game.play_hud_anm(aim, 2, 1, 1, false, true)
 	local sound_name = aim_in_prefix..math.random(1,10)
 	xr_sound.get_safe_sound_object(sound_name):play_no_feedback(actor, sound_object.s2d, 0, vector(), 10.0)
 	-- if weapon:get_weapon():second_vp_enabled() then
 	-- return end
+	game.play_hud_anm(aim, 2, 1, 1, false, true)
 	level.add_cam_effector(aim, 1908, false, "")
 end
 
 function on_zoom_out(weapon)
 	--level.add_complex_effector("aim", 1907)
-	game.play_hud_anm(aim, 2, 1, 1, false, true)
 	local sound_name = aim_out_prefix..math.random(1,10)
 	xr_sound.get_safe_sound_object(sound_name):play_no_feedback(actor, sound_object.s2d, 0, vector(), 10.0)
+	game.play_hud_anm(aim, 2, 1, 1, false, true)
 	level.add_cam_effector(aim, 1907, false, "")
 end
 
@@ -64,12 +65,12 @@ function on_mouse_wheel(forward)
 	
 	local act_item = actor:active_item()
 	local act_wpn = act_item and act_item:get_weapon_m() or nil
-	if not act_wpn or not has_fire_modes(act_item) or (get_zoom_data(act_item) and table.size(get_zoom_data(act_item)) > 1 and actor_obj:is_zoom_aiming_mode()) then
+	if not act_wpn or not has_fire_modes(act_item) or act_item:get_gl_mode() or (get_zoom_data(act_item) and table.size(get_zoom_data(act_item)) > 1 and actor_obj:is_zoom_aiming_mode()) then
 	return end
 	
 	local fire_modes = get_fire_modes(act_item)
 	local cur_f_mode = act_wpn.cur_fire_mode
-			
+
 	if (cur_f_mode == 0 and not forward) or (cur_f_mode + 1 == table.size(fire_modes) and forward) then
 	return end
 	
@@ -86,15 +87,8 @@ function on_key_press(key, game_action)
 	if not act_wpn then
 	return end
 		
-	if game_action == key_bindings.kWPN_FIRE then
-		if act_wpn and act_wpn:is_misfire() then
-			--level.add_complex_effector("jammed", 1913)
-			level.add_cam_effector(jammed, 1913, false, "")
-		end
-	end
-	
 	if firemode_switch[game_action] then
-		if act_wpn and has_fire_modes(act_item) then
+		if act_wpn and (has_fire_modes(act_item) or act_wpn:is_addon_attached(addon.launcher)) then
 			play_switch_anim(act_item)
 		end
 	end
@@ -102,14 +96,47 @@ end
 
 function play_switch_anim(item)
 	--level.add_complex_effector("fire_mode", 1912)
-	level.add_cam_effector(fire_mode, 1912, false, "")
-	--game.play_hud_anm(fire_mode, 2, 1, 1, false, true)
+
 	local switch_snd = read_if_exists(sys_ini, "r_string", item:section(), "snd_firemode", "")
 	xr_sound.get_safe_sound_object(switch_snd):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+	level.add_cam_effector(fire_mode, 1912, false, "")
+	game.play_hud_anm(fire_mode, 2, 1, 0.25, false, false)	
 	ui_hud_info.try_show_active_item_info()
 	-- if hud_anim_exists(item, "anm_switch") then
 		-- game.play_hud_motion(2, get_hud_sect(item), "anm_switch", false, 1, false)
 	-- end
+end
+
+local HUD_STATE_ID = 1919
+local hud_state_anims = {
+	[global_flags.eShowing] = {name = "cam_anim_show", default = [[camera_effects\actor_actions\jammed_crp.anm]]},
+	[global_flags.eHiding] = {name = "cam_anim_hide", default = [[camera_effects\actor_actions\jammed_crp.anm]]},
+	[global_flags.eMisfire] = {name = "cam_anim_misfire", default = [[camera_effects\actor_actions\jammed_crp.anm]], play_mode = 2},
+	[global_flags.eFire2] = {name = "cam_anim_fire_2", default = [[camera_effects\actor_actions\knife_stab_2.anm]]},
+}
+
+function on_state_switch(item, state, old_state)
+	--level.remove_cam_effector(HUD_STATE_ID)
+	local cam_eff_data = hud_state_anims[state]
+	if not cam_eff_data then
+	return end
+	local cam_anim = read_if_exists(sys_ini, "r_string", get_hud_sect(item), cam_eff_data.name, cam_eff_data.default)
+	if not cam_anim then
+	return end
+	
+	if not cam_eff_data.play_mode then
+		level.add_cam_effector(cam_anim, HUD_STATE_ID, false, "")
+	elseif cam_eff_data.play_mode == 1 then
+		game.play_hud_anm(cam_anim, 2, 1, 1, false, false)
+	else
+		game.play_hud_anm(cam_anim, 2, 1, 1, false, false)
+		level.add_cam_effector(cam_anim, HUD_STATE_ID, false, "")
+	end
+	
+	if state == global_flags.eMisfire then
+		hud_add_info_message("item_usage", "gun_jammed", 2)
+		actor_sounds.misfire()
+	end
 end
 
 --//additional hands anim

@@ -1,8 +1,13 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 --------------------------------------------
 --видача повідомлень про стани ГГ
---заклинювання зброї, відстуність сил і т.п.
+--зайняті руки, відстуність сил і т.п.
 --------------------------------------------
+
+function attach(sm)
+	sm:subscribe({signal = "on_key_press",   fun = this.info_on_action})
+	sm:subscribe({signal = "on_use",   fun = this.info_on_use})
+end
 
 local need_hands_action = {
 	[key_bindings.kTORCH] = true,
@@ -22,11 +27,6 @@ local misfire_action = {
 	[key_bindings.kCHECKACTIVEITEM] = true,
 }
 
-function attach(sm)
-	sm:subscribe({signal = "on_key_press",   fun = this.info_on_action})
-	sm:subscribe({signal = "on_use",   fun = this.info_on_use})
-end
-
 function info_on_use(item, user)
 	if not user:is_actor() or level.main_input_receiver() then
 	return end
@@ -39,25 +39,12 @@ function info_on_action(key, game_action)
 	if level.main_input_receiver() then
 	return end
 	
-	local is_free_hands = actor_hands_free()
-	
-	local act_item = actor:active_item()
-	
-	local act_wpn = act_item and act_item:get_weapon_m() or nil
-	if act_wpn and misfire_action[game_action] and act_wpn:is_misfire() and is_free_hands then
-		--hud_add_info_message("actor_state", "gun_jammed")
-		hud_add_info_message("item_usage", "gun_jammed", 2)
-		if game_action == key_bindings.kWPN_FIRE then
-			actor_sounds.misfire()
-		end
-	end
-	
 	if need_power_action[game_action] and actor_cant_walk() then
 		hud_add_info_message("actor_state", "cant_walk", 2)
 		actor_sounds.fatigue()
 	end
 	
-	if need_hands_action[game_action] and not is_free_hands then
+	if need_hands_action[game_action] and not actor_hands_free() then
 		hud_add_info_message("item_usage", "hands_not_free", 2)
 	end
 end
