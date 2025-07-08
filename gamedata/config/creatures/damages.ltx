@@ -36,10 +36,40 @@ bip01_spine 		 		= 1.0, 3
 bip01_spine1 		 		= 1.0, 3
 bip01_spine2 		 		= 1.0, 3
 
+[body_protection_class_3_assault]
+bip01_neck 			 		= 1.0, 2
+
+bip01_spine 		 		= 1.0, 3
+bip01_spine1 		 		= 1.0, 3
+bip01_spine2 		 		= 1.0, 3
+
+bip01_pelvis 				= 1.0, 2
+
+bip01_l_clavicle	 		= 1.0, 2
+bip01_l_upperarm	 		= 1.0, 2
+
+bip01_r_clavicle	 		= 1.0, 2
+bip01_r_upperarm	 		= 1.0, 2
+
 [body_protection_class_4]
 bip01_spine 		 		= 1.0, 4
 bip01_spine1 		 		= 1.0, 4
 bip01_spine2 		 		= 1.0, 4
+
+[body_protection_class_4_assault]
+bip01_neck 			 		= 1.0, 2
+
+bip01_spine 		 		= 1.0, 4
+bip01_spine1 		 		= 1.0, 4
+bip01_spine2 		 		= 1.0, 4
+
+bip01_pelvis 				= 1.0, 2
+
+bip01_l_clavicle	 		= 1.0, 2
+bip01_l_upperarm	 		= 1.0, 2
+
+bip01_r_clavicle	 		= 1.0, 2
+bip01_r_upperarm	 		= 1.0, 2
 
 [body_protection_class_6]
 bip01_spine 		 		= 1.0, 6
@@ -132,7 +162,12 @@ hit_fraction				= 0.2
 
 [protection_class_3]:body_protection_class_3, head_protection_absent
 
+[protection_class_3_assault]:body_protection_class_3_assault, head_protection_absent
+
 [protection_class_4]:body_protection_class_4, head_protection_absent
+hit_fraction				= 0.05
+
+[protection_class_4_assault]:body_protection_class_4_assault, head_protection_absent
 hit_fraction				= 0.05
 
 [protection_class_6]:body_protection_class_6, head_protection_absent
@@ -147,13 +182,13 @@ hit_fraction				= 0.05
 ;***************************************************************
 ; NPC VISUALS
 ;***************************************************************
-[protection_kombez]:protection_class_3
+[protection_kombez]:protection_class_2
 [protection_kombez_light]:protection_class_2
 [protection_kombez_heavy]:protection_class_4
-[protection_kupol]:protection_class_4
+[protection_kupol]:protection_class_3
 [protection_exo_helmet]:protection_class_6_exo, head_protection_exo
-[protection_kombez_helmet]:protection_class_3,head_protection_tactic
-[protection_kombez_heavy_helmet]:protection_class_4,head_protection_battle
+[protection_kombez_helmet]:protection_class_3_assault,head_protection_tactic
+[protection_kombez_heavy_helmet]:protection_class_4_assault,head_protection_battle
 [protection_kombez_assault_helmet]:protection_class_6_assault,head_protection_battle
 
 ;перелік кісток які покриває костюм/шолом (враховується при обробці пошкодження екіпірування та бронезахисті)

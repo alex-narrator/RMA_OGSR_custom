@@ -229,7 +229,7 @@ function on_zoom_in(weapon)
 			return not wpn_IsRotatingToZoom(weapon)
 		end,
 		function() 
-			set_nvd_effector(nv_sect, alife():object(weapon:id()).is_nvd_on)
+			set_nvd_effector(nv_sect, alife():object(weapon:id()).is_nvd_on and not weapon:get_gl_mode())
 		end
 	)
 end

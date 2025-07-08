@@ -8,7 +8,7 @@ uniform float4 pnv_params; 	//noise, scanlines, vignette size, flickering
 uniform float4 pnv_params_2;//tube num, work area radius
 
 #define FLICKERING_FREQ 60.0
-#define sky_brightness_factor float (0.01f)				// Sky brightness factor.
+#define sky_brightness_factor float (1.0f)				// Sky brightness factor.
 
 #define single_tube_centered float2(0.5f, 0.5f) 		// Offset for single tube centered
 
