@@ -1135,10 +1135,14 @@ function ActorMenuOverlay:OnHide()
 	self:Unsubscribe()
 	
 	inventory.repack_power_sources()
-	actor:repack_ammo()
+	-- actor:repack_ammo()
+	-- if self.target then
+		-- self.target:repack_ammo()
+	-- end
+	inventory.repack_ammo(actor)
 	if self.target then
-		self.target:repack_ammo()
-	end	
+		inventory.repack_ammo(self.target)
+	end
 	
 	local inv_box = self.target and self.target:get_inventory_box()
 	if inv_box then
@@ -1368,10 +1372,14 @@ end
 
 function ActorMenuOverlay:Organize()
 	inventory.repack_power_sources()
-	actor:repack_ammo()
+	-- actor:repack_ammo()
+	-- if self.target then
+		-- self.target:repack_ammo()
+	-- end
+	inventory.repack_ammo(actor)
 	if self.target then
-		self.target:repack_ammo()
-	end
+		inventory.repack_ammo(self.target)
+	end	
 	add_update_delayed_action(1, function() self:OnShowButtonClick(0) end)
 end
 

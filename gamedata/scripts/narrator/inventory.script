@@ -159,3 +159,55 @@ function repack_power_sources()
 		end
 	end
 end
+
+function repack_ammo(owner)
+	local _ammo = {}
+	function perform_action(dummy, item)
+		local ammo = item:get_weapon_ammo()
+		if ammo and not ammo:is_magazine() and ammo.box_curr < ammo.box_size then
+			table.insert(_ammo, item)
+		end
+	end
+	owner:iterate_inventory(perform_action, nil)
+	
+	local sim = alife()
+	
+	while(table.size(_ammo) > 0) do
+		local asect = _ammo[1]:section()
+		local box_size = _ammo[1]:get_ammo_box_size()--get_weapon_ammo().box_size
+		local cnt = 0
+		local cart_cnt = 0
+		
+		for k, item in pairs(_ammo) do
+			if asect == item:section() then
+				cnt = cnt + item:get_current_ammo()--item:get_weapon_ammo().box_curr
+				cart_cnt = cart_cnt + 1
+			end
+		end
+		
+		if cart_cnt > 1 then
+			for k, item in pairs(_ammo) do
+				if asect == item:section() then
+					if cnt > 0 then
+						if cnt > box_size then
+							item:set_ammo_box_curr(box_size)
+							cnt = cnt - box_size
+						else
+							item:set_ammo_box_curr(cnt)
+							cnt = 0
+						end
+					else
+						owner:drop_item(item)
+						sim:release(sim:object(item:id()), true)
+					end
+				end
+			end
+		end
+		
+		for k, item in pairs(_ammo) do
+			if asect == item:section() then
+				table.remove(_ammo, k)
+			end
+		end
+	end
+end
