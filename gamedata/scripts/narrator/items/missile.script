@@ -55,6 +55,8 @@ end
 function on_state_switch(item, state, old_state)
 	if state == global_flags.eThrow then
 		local missile = item:get_missile()
+		if not missile then
+		return end
 		local throw_force_k = missile.const_power and 1 or (missile.throw_force / (missile.max_force - missile.min_force))
 		local power_dec = -item:weight() * POWER_DEC_K * throw_force_k
 		actor.power = power_dec
