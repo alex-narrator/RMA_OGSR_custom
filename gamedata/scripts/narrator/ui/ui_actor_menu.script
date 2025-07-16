@@ -790,7 +790,7 @@ function ActorMenuOverlay:DrawSlotIcon(slot_num)
 	local show_icon = sect ~= ""
 	s.icon:Show(show_icon)
 	if show_icon then
-		CIconParams(sect):set_shader(s.icon)
+		SetCellIcon(s.icon, CIconParams(sect))
 	end	
 	
 	local count = quick_slots.get_item_count(slot_num)
@@ -1996,7 +1996,8 @@ function ActorMenuOverlay:UpdateRepair(cell_item)
 	
 	local icon_sect = read_if_exists(sys_ini, "r_string", item:section(), "repair_icon_sect", item:section())
 	local params = CIconParams(icon_sect)
-	params:set_shader(self.repair_item)
+	--params:set_shader(self.repair_item)
+	SetCellIcon(self.repair_item, params)
 	ui_inv_utils.CellItemFitToSize(params, self.repair_item, self.repair_item_back)
 	local offset = ui_inv_utils.GetOffset("center", self.repair_item, self.repair_item_back)
 	self.repair_item:SetWndPos(offset.x, offset.y)

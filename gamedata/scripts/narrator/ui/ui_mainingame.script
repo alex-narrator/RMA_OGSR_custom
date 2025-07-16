@@ -390,7 +390,8 @@ function MainIngameOverlay:DrawSlotIcon(slot_num)
 	local show_icon = sect ~= ""
 	s.icon:Show(show_icon)
 	if show_icon then
-		CIconParams(sect):set_shader(s.icon)
+		--CIconParams(sect):set_shader(s.icon)
+		SetCellIcon(s.icon, CIconParams(sect))
 	end	
 	
 	local count = quick_slots.get_item_count(slot_num)
@@ -488,7 +489,8 @@ function MainIngameOverlay:UpdatePanelItems()
 	for k, v in pairs(items) do
 		params = CIconParams(v.item:section())
 		item_st = CUIStatic()
-		params:set_shader(item_st)
+		--params:set_shader(item_st)
+		SetCellIcon(item_st, params)
 		item_st:SetWidth(params.grid_width * CELL_W * self.belt_panel.scale * get_current_kx())
 		item_st:SetHeight(params.grid_height * CELL_H * self.belt_panel.scale)
 		ui_inv_utils.AttachPanelIcons(v.item, item_st, v.count)
@@ -521,7 +523,8 @@ function MainIngameOverlay:UpdatePanelBoosters()
 	for b_sect,b_time in pairs(boosters.get_booster_sections()) do
 		params = CIconParams(b_sect)
 		item_st = CUIStatic()
-		params:set_shader(item_st)
+		--params:set_shader(item_st)
+		SetCellIcon(item_st, params)
 		item_st:SetWidth(params.grid_width * CELL_W * self.booster_panel.scale * get_current_kx())
 		item_st:SetHeight(params.grid_height * CELL_H * self.booster_panel.scale)
 		--ui_inv_utils.AttachPanelIcons(item, item_st)
@@ -644,7 +647,8 @@ function MainIngameOverlay:UpdateActiveItem()
 	end
 	
 	if self.active_item_icon:IsShown() then
-		params:set_shader(self.active_item_icon)
+		--params:set_shader(self.active_item_icon)
+		SetCellIcon(self.active_item_icon, params)
 		if params.grid_height > 1 or params.grid_width > 2 then
 			scale = scale * 0.75
 		end
@@ -654,7 +658,8 @@ function MainIngameOverlay:UpdateActiveItem()
 	self.ammo_counter:SetWndPos(self.active_item_icon:GetWidth() + indent, self.ammo_counter:GetWndPos().y)
 	
 	if self.active_item_icon_2:IsShown() then
-		params_2:set_shader(self.active_item_icon_2)
+		--params_2:set_shader(self.active_item_icon_2)
+		SetCellIcon(self.active_item_icon_2, params)
 		if params_2.grid_height > 1 or params_2.grid_width > 2 then
 			scale_2 = scale_2 * 0.75
 		end
@@ -672,7 +677,8 @@ function MainIngameOverlay:UpdateActiveItem()
 	if self.active_item_icon_3:IsShown() then
 		show_sect_3 = act_device:section()
 		params_3 = CIconParams(show_sect_3)
-		params_3:set_shader(self.active_item_icon_3)
+		--params_3:set_shader(self.active_item_icon_3)
+		SetCellIcon(self.active_item_icon_3, params)
 		if params_3.grid_height > 1 or params_3.grid_width > 2 then
 			scale_3 = scale * 0.75
 		end		
@@ -783,7 +789,8 @@ function MainIngameOverlay:UpdatePickupItem()
 	return end
 	
 	local params = CIconParams(self.pickup_item:section())
-	params:set_shader(self.pickup_item_icon)
+	--params:set_shader(self.pickup_item_icon)
+	SetCellIcon(self.pickup_item_icon, params)
 	
 	ui_inv_utils.CellItemFitToSize(params, self.pickup_item_icon, nil, self.pickup_item_icon.size)
 	

@@ -145,7 +145,8 @@ function SlotSelectorOverlay:UpdateSlots()
 		v.static:Show(item)
 		if v.static:IsShown() then
 			local params = CIconParams(item:section())
-			params:set_shader(self.slots[i].icon)
+			--params:set_shader(self.slots[i].icon)
+			SetCellIcon(self.slots[i].icon, params)
 			
 			if self.slots[i].icon_scale ~= 1 then
 				local icon_size = vector2():set(params.grid_width * CELL_W * get_current_kx() * self.slots[i].icon_scale, params.grid_height * CELL_H * self.slots[i].icon_scale)
@@ -168,7 +169,8 @@ function SlotSelectorOverlay:UpdateSlots()
 		v.icon:Show(sect ~= "" and count > 0)
 		if v.icon:IsShown() then
 			local params = CIconParams(sect)
-			params:set_shader(self.quick_slots[i].icon)
+			--params:set_shader(self.quick_slots[i].icon)
+			SetCellIcon(self.quick_slots[i].icon, params)
 			
 			if self.quick_slots[i].icon_scale ~= 1 then
 				local icon_size = vector2():set(params.grid_width * CELL_W * get_current_kx() * self.quick_slots[i].icon_scale, params.grid_height * CELL_H * self.quick_slots[i].icon_scale)
@@ -337,7 +339,8 @@ function SlotSelectorOverlay:ShowCompatible(slot_num)
 				ui_inv_utils.CellItemFitToSize(params, item_st, nil, self.belt_items_icon.size)
 			end			
 			
-			params:set_shader(item_st)
+			--params:set_shader(item_st)
+			SetCellIcon(item_st, params)
 			ui_inv_utils.AttachPanelIcons(item, item_st)
 
 			self.belt_items_back:AttachChild(item_st)
@@ -390,7 +393,8 @@ function SlotSelectorOverlay:ShowCompatible(slot_num)
 				ui_inv_utils.CellItemFitToSize(params, item_st, nil, self.belt_items_icon.size)
 			end			
 			
-			params:set_shader(item_st)
+			--params:set_shader(item_st)
+			SetCellIcon(item_st, params)
 			ui_inv_utils.AttachPanelIcons(item, item_st)
 
 			self.belt_items_back:AttachChild(item_st)
@@ -580,7 +584,8 @@ function SlotSelectorOverlay:ShowWeapon(slot_num)
 				ui_inv_utils.CellItemFitToSize(params, item_st, nil, self.weapon_items_icon.size)
 			end
 			
-			params:set_shader(item_st)
+			--params:set_shader(item_st)
+			SetCellIcon(item_st, params)
 			ui_inv_utils.AttachPanelIcons(item, item_st)
 			
 			if slot_item:get_inventory_item():can_attach_addon(item:get_inventory_item()) then
@@ -623,7 +628,8 @@ function SlotSelectorOverlay:ShowWeapon(slot_num)
 				ui_inv_utils.CellItemFitToSize(params, item_st, nil, self.weapon_items_icon.size)
 			end
 				
-			params:set_shader(item_st)
+			--params:set_shader(item_st)
+			SetCellIcon(item_st, params)
 			--ui_inv_utils.AttachPanelIcons(item, item_st)
 				
 			ui_inv_utils.UpdateAdditionalText(addon_sect, item_st)

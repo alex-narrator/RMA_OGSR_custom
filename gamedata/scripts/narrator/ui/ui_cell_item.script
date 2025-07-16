@@ -93,7 +93,10 @@ function UICellItem:InitControls(cell_pos)
 	self.icon = CUIStatic()	
 	self:AttachChild(self.icon)	
 	self.icon:Init(0, 0, icon_w, icon_h)
-	params:set_shader(self.icon)
+	--params:set_shader(self.icon)
+
+	SetCellIcon(self.icon, params)
+	
 	if vertical then
 		self.icon:EnableHeading(true)
 		self.icon:SetHeading(VERTICAL_HEADING)

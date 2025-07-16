@@ -199,7 +199,8 @@ function UpdateWpnIcons(item, icon)
 						addon_st = addon_st:GetCUIStatic()
 					else
 						addon_st = CUIStatic()
-						params:set_shader(addon_st)
+						--params:set_shader(addon_st)
+						SetCellIcon(addon_st, params)
 						addon_st:SetWindowName("no_"..v)
 						icon:AttachChild(addon_st)
 					end
@@ -254,7 +255,8 @@ function UpdateWpnIcons(item, icon)
 						addon_st = addon_st:GetCUIStatic()
 					else
 						addon_st = CUIStatic()
-						params:set_shader(addon_st)
+						--params:set_shader(addon_st)
+						SetCellIcon(addon_st, params)
 						addon_st:SetWindowName(v)
 						icon:AttachChild(addon_st)
 					end
@@ -309,7 +311,8 @@ function UpdateWpnIcons(item, icon)
 					addon_st = addon_st:GetCUIStatic()
 				else
 					addon_st = CUIStatic()
-					params:set_shader(addon_st)
+					--params:set_shader(addon_st)
+					SetCellIcon(addon_st, params)
 					addon_st:SetWindowName("grenade")
 					icon:AttachChild(addon_st)
 				end
@@ -494,7 +497,8 @@ function UpdateAmmoInBoxIcon(item, icon)
 		ammo_in_box:Show(ammo.box_curr > 0)
 		if ammo_in_box:IsShown() then
 			local params = CIconParams(ammo:ammo_sect())
-			params:set_shader(ammo_in_box)		
+			--params:set_shader(ammo_in_box)
+			SetCellIcon(ammo_in_box, params)
 		end
 		return
 	end
@@ -512,7 +516,8 @@ function UpdateAmmoInBoxIcon(item, icon)
 	local height = params.grid_height * cell_h * scale
 	
 	ammo_in_box = CUIStatic()
-	params:set_shader(ammo_in_box)
+	--params:set_shader(ammo_in_box)
+	SetCellIcon(ammo_in_box, params)
 	
 	ammo_in_box:SetWidth(width)
 	ammo_in_box:SetHeight(height)
@@ -551,7 +556,8 @@ function UpdateArmorPlateIcon(item, icon)
 	local height = params.grid_height * cell_h * scale
 	
 	armor_plate = CUIStatic()
-	params:set_shader(armor_plate)
+	--params:set_shader(armor_plate)
+	SetCellIcon(armor_plate, params)
 	
 	armor_plate:SetWidth(width)
 	armor_plate:SetHeight(height)
@@ -615,7 +621,8 @@ function UpdateMarkedIcon(item, icon)
 	local height = params.grid_height * cell_h
 	
 	marked_icon = CUIStatic()
-	params:set_shader(marked_icon)
+	--params:set_shader(marked_icon)
+	SetCellIcon(marked_icon, params)
 	
 	marked_icon:SetWidth(width)
 	marked_icon:SetHeight(height)
@@ -663,7 +670,8 @@ function UpdateUpgrageIcon(item, icon)
 	end
 		
 	upgrade_icon = CUIStatic()
-	params:set_shader(upgrade_icon)
+	--params:set_shader(upgrade_icon)
+	SetCellIcon(upgrade_icon, params)
 	
 	update(upgrade_icon)
 	
@@ -705,7 +713,8 @@ function UpdateLayerIcons(item, icon)
 				update(layer_icon, params, offset_type, scale)
 			else
 				layer_icon = CUIStatic()
-				params:set_shader(layer_icon)
+				--params:set_shader(layer_icon)
+				SetCellIcon(layer_icon, params)
 				update(layer_icon, params, offset_type, scale)
 				layer_icon:SetWindowName("layer_icon_"..i)
 				icon:AttachChild(layer_icon)
@@ -766,7 +775,8 @@ function UpdatePdaLockIcon(item, icon)
 
 	pda_lock_icon = CUIStatic()
 	pda_lock_icon:SetColor(icon_color)
-	params:set_shader(pda_lock_icon)
+	--params:set_shader(pda_lock_icon)
+	SetCellIcon(pda_lock_icon, params)
 	
 	update(pda_lock_icon)
 	
@@ -871,7 +881,8 @@ function UpdateQuestIcon(item, icon)
 	end
 		
 	quest_icon = CUIStatic()
-	params:set_shader(quest_icon)
+	--params:set_shader(quest_icon)
+	SetCellIcon(quest_icon, params)
 	
 	update(quest_icon)
 	
@@ -898,7 +909,8 @@ function UpdateInSlotIcon(item, icon)
 	local height = params.grid_height * cell_h
 	
 	in_slot_icon = CUIStatic()
-	params:set_shader(in_slot_icon)
+	--params:set_shader(in_slot_icon)
+	SetCellIcon(in_slot_icon, params)
 	
 	in_slot_icon:SetWidth(width)
 	in_slot_icon:SetHeight(height)
@@ -941,7 +953,8 @@ function UpdateAttachAddonIcon(icon)
 	local params = CIconParams("addon_attach_icon")
 	
 	attach_addon_icon = CUIStatic()
-	params:set_shader(attach_addon_icon)
+	--params:set_shader(attach_addon_icon)
+	SetCellIcon(attach_addon_icon, params)
 	
 	attach_addon_icon:SetWidth(icon:GetWidth())
 	attach_addon_icon:SetHeight(icon:GetHeight())
@@ -958,7 +971,8 @@ function UpdateDetachAddonIcon(icon)
 	local params = CIconParams("addon_detach_icon")
 	
 	detach_addon_icon = CUIStatic()
-	params:set_shader(detach_addon_icon)
+	--params:set_shader(detach_addon_icon)
+	SetCellIcon(detach_addon_icon, params)
 	
 	detach_addon_icon:SetWidth(icon:GetWidth())
 	detach_addon_icon:SetHeight(icon:GetHeight())

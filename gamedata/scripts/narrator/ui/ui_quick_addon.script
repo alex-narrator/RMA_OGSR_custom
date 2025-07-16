@@ -112,7 +112,8 @@ function QuickAddonOverlay:CheckBelt(check_item)
 			
 			ui_inv_utils.CellItemFitToSize(params, item_icon, nil, base_size)
 			
-			params:set_shader(item_icon)
+			--params:set_shader(item_icon)
+			SetCellIcon(item_icon, params)
 			ui_inv_utils.AttachPanelIcons(item, item_icon)
 
 			local offset = ui_inv_utils.GetOffset("center", item_icon, item_back)
@@ -181,7 +182,8 @@ function QuickAddonOverlay:CheckLoadout(check_item)
 			local offset = ui_inv_utils.GetOffset("center", item_icon, item_back)
 			item_icon:SetWndPos(pos_down.x + offset.x, pos_down.y + offset.y)
 		
-			params:set_shader(item_icon)
+			--params:set_shader(item_icon)
+			SetCellIcon(item_icon, params)
 			ui_inv_utils.AttachPanelIcons(item, item_icon)
 
 			self.loadout_items[id] = {back = item_back, icon = item_icon}
@@ -242,7 +244,8 @@ function QuickAddonOverlay:CheckAmmo(check_item)
 		local offset = ui_inv_utils.GetOffset("center", item_icon, item_back)
 		item_icon:SetWndPos(pos_down.x + offset.x, pos_down.y + offset.y)
 		
-		params:set_shader(item_icon)
+		--params:set_shader(item_icon)
+		SetCellIcon(item_icon, params)
 		ui_inv_utils.AttachPanelIcons(item, item_icon)
 
 		self.loadout_items[id] = {back = item_back, icon = item_icon}
@@ -291,7 +294,8 @@ function QuickAddonOverlay:CheckScopes(check_item)
 		local offset = ui_inv_utils.GetOffset("center", item_icon, item_back)
 		item_icon:SetWndPos(pos_up.x + offset.x, pos_up.y + offset.y)
 		
-		params:set_shader(item_icon)
+		--params:set_shader(item_icon)
+		SetCellIcon(item_icon, params)
 		ui_inv_utils.UpdateDetachAddonIcon(item_back)		
 
 		self.scope_items[addon_sect] = {back = item_back, icon = item_icon}
@@ -347,7 +351,8 @@ function QuickAddonOverlay:CheckScopes(check_item)
 			local offset = ui_inv_utils.GetOffset("center", item_icon, item_back)
 			item_icon:SetWndPos(pos_up.x + offset.x, pos_up.y + offset.y)
 		
-			params:set_shader(item_icon)
+			--params:set_shader(item_icon)
+			SetCellIcon(item_icon, params)
 			ui_inv_utils.UpdateAttachAddonIcon(item_back)				
 
 			self.scope_items[id] = {back = item_back, icon = item_icon}
@@ -397,7 +402,8 @@ function QuickAddonOverlay:CheckSilencers(check_item)
 		local offset = ui_inv_utils.GetOffset("center", item_icon, item_back)
 		item_icon:SetWndPos(pos_left.x + offset.x, pos_left.y + offset.y)
 		
-		params:set_shader(item_icon)
+		--params:set_shader(item_icon)
+		SetCellIcon(item_icon, params)
 		ui_inv_utils.UpdateDetachAddonIcon(item_back)		
 
 		self.silencer_items[addon_sect] = {back = item_back, icon = item_icon}
@@ -453,7 +459,8 @@ function QuickAddonOverlay:CheckSilencers(check_item)
 			local offset = ui_inv_utils.GetOffset("center", item_icon, item_back)
 			item_icon:SetWndPos(pos_left.x + offset.x, pos_left.y + offset.y)
 		
-			params:set_shader(item_icon)
+			--params:set_shader(item_icon)
+			SetCellIcon(item_icon, params)
 			ui_inv_utils.UpdateAttachAddonIcon(item_back)				
 
 			self.silencer_items[id] = {back = item_back, icon = item_icon}
@@ -503,7 +510,8 @@ function QuickAddonOverlay:CheckLaunchers(check_item)
 		local offset = ui_inv_utils.GetOffset("center", item_icon, item_back)
 		item_icon:SetWndPos(pos_right.x + offset.x, pos_right.y + offset.y)
 		
-		params:set_shader(item_icon)
+		--params:set_shader(item_icon)
+		SetCellIcon(item_icon, params)
 		ui_inv_utils.UpdateDetachAddonIcon(item_back)		
 
 		self.launcher_items[addon_sect] = {back = item_back, icon = item_icon}
@@ -559,7 +567,8 @@ function QuickAddonOverlay:CheckLaunchers(check_item)
 			local offset = ui_inv_utils.GetOffset("center", item_icon, item_back)
 			item_icon:SetWndPos(pos_right.x + offset.x, pos_right.y + offset.y)
 		
-			params:set_shader(item_icon)
+			--params:set_shader(item_icon)
+			SetCellIcon(item_icon, params)
 			ui_inv_utils.UpdateAttachAddonIcon(item_back)				
 
 			self.launcher_items[id] = {back = item_back, icon = item_icon}
@@ -609,7 +618,8 @@ function QuickAddonOverlay:CheckFlashlights(check_item)
 		local offset = ui_inv_utils.GetOffset("center", item_icon, item_back)
 		item_icon:SetWndPos(pos_left_top.x + offset.x, pos_left_top.y + offset.y)
 		
-		params:set_shader(item_icon)
+		--params:set_shader(item_icon)
+		SetCellIcon(item_icon, params)
 		ui_inv_utils.UpdateDetachAddonIcon(item_back)		
 
 		self.flashlight_items[addon_sect] = {back = item_back, icon = item_icon}
@@ -666,7 +676,8 @@ function QuickAddonOverlay:CheckFlashlights(check_item)
 			local offset = ui_inv_utils.GetOffset("center", item_icon, item_back)
 			item_icon:SetWndPos(pos_left_top.x + offset.x, pos_left_top.y + offset.y)
 		
-			params:set_shader(item_icon)
+			--params:set_shader(item_icon)
+			SetCellIcon(item_icon, params)
 			ui_inv_utils.UpdateAttachAddonIcon(item_back)				
 
 			self.flashlight_items[id] = {back = item_back, icon = item_icon}
@@ -717,7 +728,8 @@ function QuickAddonOverlay:CheckLasers(check_item)
 		local offset = ui_inv_utils.GetOffset("center", item_icon, item_back)
 		item_icon:SetWndPos(pos_right_top.x + offset.x, pos_right_top.y + offset.y)
 		
-		params:set_shader(item_icon)
+		--params:set_shader(item_icon)
+		SetCellIcon(item_icon, params)
 		ui_inv_utils.UpdateDetachAddonIcon(item_back)		
 
 		self.laser_items[addon_sect] = {back = item_back, icon = item_icon}
@@ -774,7 +786,8 @@ function QuickAddonOverlay:CheckLasers(check_item)
 			local offset = ui_inv_utils.GetOffset("center", item_icon, item_back)
 			item_icon:SetWndPos(pos_right_top.x + offset.x, pos_right_top.y + offset.y)
 		
-			params:set_shader(item_icon)
+			--params:set_shader(item_icon)
+			SetCellIcon(item_icon, params)
 			ui_inv_utils.UpdateAttachAddonIcon(item_back)				
 
 			self.laser_items[id] = {back = item_back, icon = item_icon}
@@ -825,7 +838,8 @@ function QuickAddonOverlay:CheckStocks(check_item)
 		local offset = ui_inv_utils.GetOffset("center", item_icon, item_back)
 		item_icon:SetWndPos(pos_left_down.x + offset.x, pos_left_down.y + offset.y)
 		
-		params:set_shader(item_icon)
+		--params:set_shader(item_icon)
+		SetCellIcon(item_icon, params)
 		ui_inv_utils.UpdateDetachAddonIcon(item_back)		
 
 		self.stock_items[addon_sect] = {back = item_back, icon = item_icon}
@@ -882,7 +896,8 @@ function QuickAddonOverlay:CheckStocks(check_item)
 			local offset = ui_inv_utils.GetOffset("center", item_icon, item_back)
 			item_icon:SetWndPos(pos_left_down.x + offset.x, pos_left_down.y + offset.y)
 		
-			params:set_shader(item_icon)
+			--params:set_shader(item_icon)
+			SetCellIcon(item_icon, params)
 			ui_inv_utils.UpdateAttachAddonIcon(item_back)				
 
 			self.stock_items[id] = {back = item_back, icon = item_icon}
