@@ -25,3 +25,7 @@ end
 function on_pda_custom_tab(idx)
 	return ui_pda.get_custom_tab(idx)
 end
+
+function can_put_in_belt(item)
+	return actor_menu.belt_list:FindFreeCell(item, true)
+end

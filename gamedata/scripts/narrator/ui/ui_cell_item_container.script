@@ -91,6 +91,7 @@ function UICellItemContainer:InitControls()
 	self.cell_container = CUIStatic()
 	self.scroll:AddWindow(self.cell_container)
 	
+	self.auto_grow = self.xml:ReadAttribInt(self.path, "auto_grow", 0) > 0 and true or false
 	self.group_by_type = self.xml:ReadAttribInt(self.path, "group_by_type", 0) > 0 and true or false
 	self.group_similar = self.xml:ReadAttribInt(self.path, "group_similar", 0) > 0 and true or false
 	self.vertical = self.xml:ReadAttribInt(self.path, "vertical", 0) > 0 and true or false
@@ -111,7 +112,7 @@ function UICellItemContainer:InitControls()
 	
 	self.cell_container:SetWidth(self.cols * self.cell_size.w)
 	
-	self:AdjustContainerHeight()
+	--self:AdjustContainerHeight()
 	
 	local grid_size = vector2():set(self.cell_size.w * self.cols, self.cell_size.h * self.rows)
 	local pos = self.scroll:GetWndPos()
@@ -131,6 +132,10 @@ function UICellItemContainer:InitControls()
 	self:Register(self.service_back, name)
 	self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnFocusReceived() end, self)
 	self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnFocusLost() end, self)
+	
+	while table.size(self.grid) < self.rows do
+		self:Grow()
+	end
 end
 
 function UICellItemContainer:AdjustContainerHeight()
@@ -149,7 +154,10 @@ function UICellItemContainer:Reinit()
 	self.curr_type = -1
 	
 	self.cell_container:DetachAll()
-	self:AdjustContainerHeight()	
+	while table.size(self.grid) < self.rows do
+		self:Grow()
+	end	
+	self:AdjustContainerHeight()
 end
 
 function UICellItemContainer:Update()
@@ -301,7 +309,7 @@ function UICellItemContainer:FindItem(item)
 	return nil
 end
 
-function UICellItemContainer:FindFreeCell(item)
+function UICellItemContainer:FindFreeCell(item, check_only)
 	local params = CIconParams(item:section())
 	
 	local w = self.vertical and params.grid_height or params.grid_width
@@ -322,10 +330,13 @@ function UICellItemContainer:FindFreeCell(item)
 	for r=row_s, rows do
 		for c=1,cols do
 			if self:IsFreeRoom(r, c, w, h) then
-				return self:TakeRoom(r, c , w, h)
+				return check_only and true or self:TakeRoom(r, c , w, h)
 			end
 		end
 	end
+	
+	if not self.auto_grow then
+	return false end
 	
 	self:Grow()
 	

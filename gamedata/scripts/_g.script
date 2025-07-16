@@ -2399,11 +2399,14 @@ function get_find_person_spot()
 	return read_if_exists(sys_ini, "r_string", "user_spots", "find_person_spot", "red_location")
 end
 
-function CIconParams(section)
-	local texture_name = "ui\\ui_icon_equipment"
+function CIconParams(sect)
+	local section = read_if_exists(sys_ini, "r_string", sect, "icon_section", sect)
+	local icon_name = read_if_exists(sys_ini, "r_string", section, "icon_name", nil)
+	
+	local texture = "ui\\ui_icon_equipment"
 	local icon_group = read_if_exists(sys_ini, "r_string", section, "icon_group", nil)
 	if icon_group then
-		texture_name = texture_name.."_"..icon_group
+		texture = texture.."_"..icon_group
 	end
 	
 	local params = {
@@ -2411,7 +2414,8 @@ function CIconParams(section)
 		grid_height = read_if_exists(sys_ini, "r_u32", section, "inv_grid_height", 1),
 		grid_x = read_if_exists(sys_ini, "r_u32", section, "inv_grid_x", 0),
 		grid_y = read_if_exists(sys_ini, "r_u32", section, "inv_grid_y", 0),
-		texture = texture_name,
+		texture = texture,
+		icon_name = icon_name,
 	}
 	
 	return params
@@ -2419,8 +2423,12 @@ end
 
 function SetCellIcon(static, params)
 	static = static:GetCUIStatic() --//сюди може і вікно прилетіти, наприклад через FindChild
-	static:InitTexture(params.texture)
-	static:SetOriginalRect(params.grid_x * CELL_W, params.grid_y * CELL_H, params.grid_width * CELL_W, params.grid_height * CELL_H)
+	if params.icon_name then
+		static:InitTexture(params.icon_name)
+	else
+		static:InitTexture(params.texture)
+		static:SetOriginalRect(params.grid_x * CELL_W, params.grid_y * CELL_H, params.grid_width * CELL_W, params.grid_height * CELL_H)
+	end
 	static:SetStretchTexture(true)
 end
 
