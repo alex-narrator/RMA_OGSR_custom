@@ -90,10 +90,14 @@ function on_zoom_in(weapon)
 		return end
 		
 		local wpn = weapon:get_weapon()
+		
+		local s3ds = wpn:is_3dss_enabled()
 
-		local marks = ui_scope_collimator_mark.can_switch_marks(weapon)
-		local illum = ui_scope_texture.has_illum()
-		local nvd = nvd.get_nv_sect(weapon) and not wpn:aim_alt_mode()
+		local marks = ui_scope_collimator_mark.can_switch_marks(weapon) and not s3ds
+		local illum = ui_scope_collimator_mark.can_switch_marks(weapon) and s3ds
+		
+		local is_nvd = nvd.aim_nvd_weapon()--nvd.get_nv_sect(weapon) and not wpn:aim_alt_mode()
+		local is_hv = nvd.aim_hv_weapon()
 		local alt_aim = read_if_exists(sys_ini, "r_bool", weapon:section(), "aim_alt_forced", false) or (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope) and read_if_exists(sys_ini, "r_bool", wpn:get_addon_name(addon.scope), "aim_alt", false))
 
 		local tip = game.translate_string("st_hold_key_to_hard_hold")		
@@ -103,8 +107,11 @@ function on_zoom_in(weapon)
 		if illum then
 			tip = tip.."\\n"..game.translate_string("st_press_key_to_switch_illum")
 		end
-		if nvd then
+		if is_nvd then
 			tip = tip.."\\n"..game.translate_string("st_press_key_to_switch_night_vision")
+		end
+		if is_hv then
+			tip = tip.."\\n"..game.translate_string("st_press_key_to_switch_heat_vision")
 		end
 		if alt_aim then
 			tip = tip.."\\n"..game.translate_string("st_press_key_to_switch_aim")

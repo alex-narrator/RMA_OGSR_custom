@@ -40,9 +40,13 @@
 
 --db.actor.power = -10
 
-local tgt = level.get_target_obj()
+local tgt --= level.get_target_obj()
 if tgt then
+	--tgt:change_goodwill(-1000, actor)
+	--actor:change_character_reputation(-1000)
 	log3("~tgt name %s", tgt:name())
+	--log3("~personal goodwill %s", tgt:goodwill(actor))
+	--log3("~community_goodwill %s", relation_registry.community_goodwill(tgt:character_community(), actor:id()))
 	--alife():release(alife():object(tgt:id()), true)
 	-- interact_item_anim.action_use()
 	-- return
@@ -68,7 +72,7 @@ if tgt then
 		-- tgt:name(), 
 		-- tgt:profile_name() and tgt:profile_name() or "NO PROFILE", 
 		-- get_species(tgt),
-		-- tgt:is_nonscript_usable(),
+		-- tgt:get_nonscript_usable(),
 		-- tgt:position().x, tgt:position().y, tgt:position().z,
 		-- tgt:level_vertex_id(),
 		-- tgt:game_vertex_id(),
@@ -602,15 +606,22 @@ end
 
 --log3("~is accel %s", IsMoveState(move_command.mcAccel))
 
-local item = nil--actor:active_item()
+local item --= actor:active_item()
 if item then
+	-- local sobj = alife():object(item:id())
+	-- log3("~item is_nvd_on %s", sobj.is_nvd_on or "NONE")
+	-- log3("~item attached_silencer_condition %s", sobj.attached_silencer_condition or "NONE")
 	local wpn = item:get_weapon()
 	if wpn then
-		local wpn_m = item:get_weapon_m()
-		if wpn_m then
-			wpn_m.shell_drop_delay = 1.4
-			log3("~wpn_m.shell_drop_delay %s", wpn_m.shell_drop_delay)
-		end
+		wpn.zoom_factor = 1
+		-- wpn.zoom_rotate_time = 0.12
+		-- local zrt = wpn.zoom_rotate_time
+		-- log3("~zrt %s", zrt)
+		-- local wpn_m = item:get_weapon_m()
+		-- if wpn_m then
+			-- wpn_m.shell_drop_delay = 1.4
+			-- log3("~wpn_m.shell_drop_delay %s", wpn_m.shell_drop_delay)
+		-- end
 		--wpn_m:set_laser_angle(300)
 		--wpn.scope_inertion_factor = 0.5
 		--wpn.zoom_factor = 1
@@ -696,3 +707,75 @@ end
 --log3("~main_input_receiver %s", not not level.main_input_receiver())
 
 --actor:activate_slot(NO_ACTIVE_SLOT)
+
+-- local pattern = "/^af_/"
+-- pattern = pattern:gsub("/.-", "")
+-- log3("~pattern: %s", pattern)
+-- local target = "test_af_electra_sparkler"
+-- local res = string.match(target, pattern)
+-- log3("~%s", not not res)
+
+-- local se_obj = alife():object(1341)
+-- if se_obj then
+	-- log3("~parent id %s", se_obj.parent_id)
+-- end
+
+--local test_line = "section_1, 0.15, section_2, section_3, 0.95"
+
+--log3("~%s", parse_key_val_line(test_line, 1))
+
+--log3("~device().is_paused() %s", device():is_paused())
+-- log3("~active random tasks %s", task_manager.get_active_tasks())
+-- log3("~active task %s", actor:get_active_task() and actor:get_active_task():get_title() or "NO_TASK_TITLE")
+-- log3("~active task id %s", actor:get_active_task() and actor:get_active_task():get_id() or "NO_TASK_ID")
+
+-- for k,v in pairs(task_manager.get_active_tasks()) do
+	-- log3("~task info %s %s", k, task_manager.get_task_info(v))
+-- end
+
+-- local give_task_time = actor:get_active_task() and task_manager.get_task_info(actor:get_active_task():get_id()) and task_manager.get_task_info(actor:get_active_task():get_id()).give_task_time or "NONE"
+-- log3("~give_task_time %s", give_task_time)
+
+local act_task --= actor:get_active_task()
+if act_task then
+	log3("~act_task")
+	local task_info = task_manager.get_task_info(task_manager.get_active_tasks()[act_task:get_id()])
+	if task_info then
+		log3("~task_info")
+		local give_task_time = task_info.give_task_time
+		if give_task_time then
+			log3("~task %s | give_task_time %s", act_task:get_id(), give_task_time:timeToString(game.CTime.TimeToMinutes))
+		end
+		local task_deadline = task_info.time
+		if task_deadline then
+			log3("~task %s | task_deadline %s", act_task:get_id(), task_deadline)
+			
+			local c_time = game.CTime()
+			c_time:setHMS(task_deadline, 0, 0)
+			local deadline_time = give_task_time + c_time
+			log3("~task %s | task_deadline time %s", act_task:get_id(), deadline_time:timeToString(game.CTime.TimeToMinutes))
+			local deadline_time_diff = deadline_time - game.get_game_time()
+			log3("~task %s | diff time %s", act_task:get_id(), deadline_time_diff:timeToString(game.CTime.TimeToMinutes))
+		end
+	end
+end
+
+-- local anim = [[camera_effects\hud_state_switch\bm16_shoot_l]]
+-- level.add_cam_effector(anim..".anm", 123456, false, "")
+
+--inventory.repack_ammo(actor)
+
+--log3("~has bolt %s", not not actor:object("bolt"))
+--interact_item_anim.action_use()
+
+	-- function perform_action(obj)
+		-- if obj:is_anomaly() then
+			-- obj:disable_anomaly()
+			-- log3("~disabling anomaly %s | id %s", obj:name(), obj:id())
+		-- end
+	-- end
+	-- level.iterate_nearest(actor:position(), 255, perform_action)
+	
+--outfit_effects.set_breath_speed(0.05)
+--outfit_effects.set_breath_max(0.75)
+outfit_effects.set_breath_k(3)

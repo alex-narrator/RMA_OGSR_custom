@@ -40,7 +40,7 @@ function on_key_press(key, game_action)
 	level.add_complex_effector(eff_name, hud_effector_id)
 	
 	local switch_mode = game_action == key_bindings.kTORCH and
-		level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) and 
+		key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) and 
 		torch.get_light_sect_second(curr_torch)
 	
 	add_time_delayed_action(

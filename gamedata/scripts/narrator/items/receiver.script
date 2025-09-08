@@ -82,7 +82,7 @@ function on_key_press(key, game_action)
 	
 	local add_val = 1
 	for k,v in pairs(switch_freq_keys_mod) do
-		if level.get_key_state(k) then
+		if key_state(k) then
 			add_val = v
 			break
 		end

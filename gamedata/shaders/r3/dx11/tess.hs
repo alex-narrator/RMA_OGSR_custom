@@ -54,6 +54,10 @@ main(InputPatch<p_bumped, 3> ip, uint i
 #ifdef USE_LM_HEMI
     ouput.lmh = ip[i].lmh;
 #endif
+    ouput.RDrops = ip[i].RDrops;
+
+    ouput.hpos_curr = ip[i].hpos_curr;
+    ouput.hpos_old = ip[i].hpos_old;
 
     return ouput;
 }

@@ -194,15 +194,15 @@ function ActorMenuOverlay:InitControls()
 	self.target_list:SetID("target_list")
 	--//buy/sell
 	self.sell_buy_back = xml:InitStatic("sell_buy_back", self)
-		--//background
+	--//background
 	self.buy_list_back = xml:InitStatic("buy_back", self.sell_buy_back)
 	self.sell_list_back = xml:InitStatic("sell_back", self.sell_buy_back)
-		--//list
+	--//list
 	self.buy_list = ui_cell_item_container.UICellItemContainer(xml, "dragdrop_buy", self.sell_buy_back)
 	self.buy_list:SetID("buy_list")
 	self.sell_list = ui_cell_item_container.UICellItemContainer(xml, "dragdrop_sell", self.sell_buy_back)
 	self.sell_list:SetID("sell_list")
-		--//costs
+	--//costs
 	self.buy_cost = xml:InitStatic("buy_cost", self.sell_buy_back)
 	self.buy_cost.base_color = self.buy_cost:GetTextColor()
 	self.sell_cost = xml:InitStatic("sell_cost", self.sell_buy_back)
@@ -1489,7 +1489,7 @@ function ActorMenuOverlay:OnCellItemDBClick(item, cell_item)
 	local item = cell_item:GetAnyItem()
 	
 	local mode = self:GetMode()
-	local key_all = level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION))
+	local key_all = key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION))
 	
 	if mode == "repair" then
 		self:ShowRepairRequest()

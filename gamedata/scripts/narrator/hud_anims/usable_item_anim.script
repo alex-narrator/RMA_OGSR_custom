@@ -13,7 +13,7 @@ function can_play_anim()
 	return false end
 	if target:is_entity_alive() and target:alive() then
 	return false end
-	return target --and target:is_nonscript_usable()
+	return target --and target:get_nonscript_usable()
 end
 
 function on_key_press(key, game_action)

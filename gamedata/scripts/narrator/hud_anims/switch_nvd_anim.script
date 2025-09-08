@@ -30,15 +30,16 @@ function on_key_press(key, game_action)
 	local curr_nvd = nvd.get_current_nvd()
 	if not nvd_action[game_action] or
 		level.main_input_receiver() or
-		level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) or
+		key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) or
 		active_pda() or
 		not curr_nvd
 		or not actor_hands_free() 
 		or nvd.aim_nvd_weapon() 
+		or nvd.aim_hv_weapon() 
 		or (aim_scope() and not curr_nvd:is_outfit())
 		or SCRIPT_ANIM_PLAYING 
 	then
-		if nvd_action[game_action] and curr_nvd and aim_scope() and not nvd.aim_nvd_weapon() then
+		if nvd_action[game_action] and curr_nvd and aim_scope() and not nvd.aim_nvd_weapon() and not nvd.aim_hv_weapon() then
 			hud_add_info_message("item_usage", game.translate_string("st_scope_aim_block_nvd"), 2)
 		end
 	return end
@@ -77,8 +78,14 @@ function on_key_press(key, game_action)
 		local action = is_on and "_hide" or "_show"
 		
 		if is_on then --//turn off sequence
-			nvd.switch_nvd(curr_nvd)
+			-- nvd.switch_nvd(curr_nvd)
 			play_fade()
+			add_time_delayed_action(
+				post_fade_delay * 0.5,
+				function()
+					nvd.switch_nvd(curr_nvd)				
+				end
+			)
 			add_time_delayed_action(
 				post_fade_delay,
 				function()

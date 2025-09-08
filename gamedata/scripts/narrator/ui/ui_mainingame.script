@@ -659,7 +659,7 @@ function MainIngameOverlay:UpdateActiveItem()
 	
 	if self.active_item_icon_2:IsShown() then
 		--params_2:set_shader(self.active_item_icon_2)
-		SetCellIcon(self.active_item_icon_2, params)
+		SetCellIcon(self.active_item_icon_2, params_2)
 		if params_2.grid_height > 1 or params_2.grid_width > 2 then
 			scale_2 = scale_2 * 0.75
 		end
@@ -678,7 +678,7 @@ function MainIngameOverlay:UpdateActiveItem()
 		show_sect_3 = act_device:section()
 		params_3 = CIconParams(show_sect_3)
 		--params_3:set_shader(self.active_item_icon_3)
-		SetCellIcon(self.active_item_icon_3, params)
+		SetCellIcon(self.active_item_icon_3, params_3)
 		if params_3.grid_height > 1 or params_3.grid_width > 2 then
 			scale_3 = scale * 0.75
 		end		
@@ -704,7 +704,7 @@ function MainIngameOverlay:UpdateActiveItem()
 	
 	self.zoom_counter:Show(wpn and wpn:is_addon_attached(addon.scope) and wpn.zoom_mode and wpn.zoom_rotation_factor == 1)
 	if self.zoom_counter:IsShown() then
-		local zoom = wpn:second_vp_enabled() and wpn:second_vp_zoom() or wpn.zoom_factor--wpn.zoom_factor
+		local zoom = wpn.zoom_factor--wpn:second_vp_enabled() and wpn:second_vp_zoom() or wpn.zoom_factor
 		-- if zoom > 2 then
 			-- zoom = math.floor(zoom+0.1)
 		-- end
@@ -1023,6 +1023,10 @@ function MainIngameOverlay:UpdateTargetTip()
 		self.target_tip:SetText(game.translate_string(tip))
 		self.target_tip:AdjustWidthToText()
 		self.target_tip:AdjustHeightToText()
+		
+		self.target_tip:SetWidth(self.target_tip:GetWidth() + 6)
+		self.target_tip:SetHeight(self.target_tip:GetHeight() + 6)
+		
 		local offset = ui_inv_utils.GetOffset(self.target_tip.offset, self.target_tip, self.owner)
 		offset.x = offset.x + self.target_tip.offset_shift[1]
 		offset.y = offset.y + self.target_tip.offset_shift[2]

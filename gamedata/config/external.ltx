@@ -79,6 +79,13 @@ skip_shoc_xml_errors = false
 ;Может кому-то он нужен, но на мой взгляд очень странная штука.
 enable_spawn_artefacts = false
 
+;Данную опцию надо отключить если используются шрифты для языков, которые неправильно обрабатывает новый парсер текста. Для китайского языка например.
+;При отключении на юникодных шрифтах перестанет работать перенос слов между строками.
+use_new_parse_text = true
+
+;Включить поддержку ANSI-символов кириллицы для юникодных шрифтов. Полезно тем, что можно юзать эти шрифты но не надо конвертировать все ресурсы игры в utf-8
+enable_ansi_aupport_for_mb_fonts = true
+
 
 [user_spots]
 ; Переопределить тип метки, используемой для пользовательских меток на карте. По умолчанию используется red_location
@@ -138,8 +145,8 @@ pull_force_factor 	= 4  ; force factor that applied to target to pull
 velocity_scale 		= 1 ;0.022 ; velocity scale for pulling 1- normal
 capture_force  		= 6500  ; max force for holding tagett
 
-holding_distance 	= 0.5 	;расстояние перед актором на котором находится удерживаемый предмет
-throw_impulse 		= 5 	;сила с которой актор отбрасывает предмет
+; holding_distance 	= 0.5 	;расстояние перед актором на котором находится удерживаемый предмет
+; throw_impulse 		= 5 	;сила с которой актор отбрасывает предмет
 
 ; Тоже самое для сталкеров
 [stalker_capture]:actor_capture
@@ -174,3 +181,15 @@ movement_layer_5        = movement\newrunreload.anm, 1,      0.15
 [ui_tweaks]
 cursor_scale_x 			= .7
 cursor_scale_y 			= .7
+
+;Пример конфига шрифта с поддержкой юникода. Используется в меню настройки звукового устройства.
+[ui_font_utf]
+skip_prefix = true
+shader    = font
+texture   = ui\fonts\unicode\Bender-Bold
+scale_x   = 0.35
+scale_y   = 0.35
+
+[shader_params_export]
+test_shader_param
+s3ds_nv_mode

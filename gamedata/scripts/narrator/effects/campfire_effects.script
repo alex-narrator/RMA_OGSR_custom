@@ -73,7 +73,7 @@ function on_campfire_use(campfire_usable, campfire_zone)
 		
 		actor:hide_weapon(true)
 		level.disable_input()
-		actor:hide_crosshair(true)
+		--actor:hide_crosshair(true)
 		
 		local hud_sect = get_hud_sect(matches)
 		if hud_sect then
@@ -97,7 +97,7 @@ function on_campfire_use(campfire_usable, campfire_zone)
 							_G.SCRIPT_ANIM_PLAYING = false
 							actor:restore_weapon(true)
 							level.enable_input()
-							actor:hide_crosshair(false)
+							--actor:hide_crosshair(false)
 							try_ignit(campfire_zone)
 						end
 					)				
@@ -116,7 +116,7 @@ function on_campfire_use(campfire_usable, campfire_zone)
 				function()
 					actor:restore_weapon(true)
 					level.enable_input()
-					actor:hide_crosshair(false)
+					--actor:hide_crosshair(false)
 					try_ignit(campfire_zone)
 				end
 			)

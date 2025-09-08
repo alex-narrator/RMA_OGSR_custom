@@ -15,10 +15,7 @@ function attach(sm)
 	--sm:subscribe({signal = "on_weapon_fire", fun = this.on_weapon_fire})
 end
 
-local show_hud = false
 function on_update(dt)
-	show_hud = not show_hud
-	level.show_item_hud(show_hud)
 end
 
 function on_take(item)
@@ -49,7 +46,12 @@ function on_task(_task, _objective, _state)
 end
 
 function on_key_press(key, game_action)
-	local show_tgt_info = (game_action == key_bindings.kCHECKACTIVEITEM) and level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION))
+	if game_action == key_bindings.kTEST then
+		ogse_signals.get_mgr():call("on_test_key_press")
+		return
+	end
+
+	local show_tgt_info = (game_action == key_bindings.kCHECKACTIVEITEM) and key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION))
 	local tgt = level.get_target_obj()
 	if show_tgt_info and tgt then
 		local tgt_info = string.format("section: %s\\n id: %s\\n story_id: %s\\n name: %s\\n profile: %s\\n community: %s\\n species: %s\\n nonscript usable: %s\\n position: (%s, %s, %s) lvid: %s gvid: %s\\n direction: (%s, %s, %s)\\n visual: %s\\n gulag: %s\\n mesh count: %s\\n bone_protection: %s\\n immunities: %s",
@@ -60,7 +62,7 @@ function on_key_press(key, game_action)
 				tgt:profile_name() and tgt:profile_name() or "NO PROFILE", 
 				check_obj_has_method(tgt, character_community) and tgt:character_community() or "NO COMMUNITY",
 				get_species(tgt),
-				tgt:is_nonscript_usable(),
+				tgt:get_nonscript_usable(),
 				tgt:position().x, tgt:position().y, tgt:position().z,
 				tgt:level_vertex_id(),
 				tgt:game_vertex_id(),

@@ -44,6 +44,8 @@
     output.M3 = M3;
     float3 Normal = normalize(float3(M1.z, M2.z, M3.z));
 
+    output.RDrops = bp[0].RDrops * w + bp[1].RDrops * v + bp[2].RDrops * u;
+
     float3 triPos = output.position.xyz;
 
 #ifdef USE_TDETAIL
@@ -75,6 +77,11 @@
     // output.M2.z = Normal.y;
     // output.M3.z = Normal.z;
     output.hpos = mul(m_P, float4(output.position.xyz, 1));
+
+    output.hpos_curr = bp[0].hpos_curr * w + bp[1].hpos_curr * v + bp[2].hpos_curr * u;
+    output.hpos_old = bp[0].hpos_old * w + bp[1].hpos_old * v + bp[2].hpos_old * u;
+
+    output.hpos.xy = get_taa_jitter(output.hpos);
 
     return output;
 }

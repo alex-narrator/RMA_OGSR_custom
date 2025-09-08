@@ -24,8 +24,11 @@ function on_spawn()
 end
 
 function on_first_update()
-	if not LIMITED_BOLTS and not actor:object(bolt_sect) then
-		spawn_to_owner(bolt_sect, actor:id())
+	-- if not LIMITED_BOLTS and not actor:object(bolt_sect) then
+		-- spawn_to_owner(bolt_sect, actor:id())
+	-- end
+	if not LIMITED_BOLTS then
+		add_update_delayed_action(1, function() if not actor:object(bolt_sect) then spawn_to_owner(bolt_sect, actor:id()) end end)
 	end
 end
 

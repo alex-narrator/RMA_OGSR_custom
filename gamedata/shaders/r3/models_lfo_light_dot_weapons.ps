@@ -93,7 +93,7 @@ float4 main(vf I): SV_Target
 	parallax_tc.x = (parallax_tc.x + (SIZE_FACTOR - 1) / 2) / SIZE_FACTOR;
 	parallax_tc.y = (parallax_tc.y + (SIZE_FACTOR - 1) / 2) / SIZE_FACTOR;
 	
-	if	(markswitch_params.y > 0)
+	if	(mark_number.y > 0)
 	{
 		parallax_tc = mark_adjust(parallax_tc);
 	}
@@ -103,7 +103,7 @@ float4 main(vf I): SV_Target
     // Important2: We do not want to sample mip levels of the mark texture, let's keep this thing sharp as fuck
     float4 color = s_base.SampleLevel(smp_rtlinear, parallax_tc, 0.0);
 	
-	color.rgb += markswitch_color.xyz;
+	color.rgb += mark_color.xyz;
 
     return color;
 }

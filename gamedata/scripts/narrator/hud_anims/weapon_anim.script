@@ -50,15 +50,6 @@ function on_zoom_out(weapon)
 	level.add_cam_effector(aim, 1907, false, "")
 end
 
-function get_zoom_data(item)
-	local wpn = item:get_weapon()
-	if not wpn then
-		return nil 
-	end
-	local zoom_sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or item:section()
-	return split_string(read_if_exists(sys_ini, "r_string", zoom_sect, "scope_zoom_factor", nil), ",")
-end
-
 function on_mouse_wheel(forward)
 	if is_switch_slot() or not actor_hands_free() then
 	return end

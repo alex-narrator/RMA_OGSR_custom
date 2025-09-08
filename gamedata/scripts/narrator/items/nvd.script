@@ -1,5 +1,6 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
+	sm:subscribe({signal = "on_spawn",   							fun = this.on_spawn})
 	sm:subscribe({signal = "on_slot",   							fun = this.on_slot})
 	sm:subscribe({signal = "on_ruck",   							fun = this.on_ruck})
 	sm:subscribe({signal = "on_drop",   							fun = this.on_ruck})
@@ -9,6 +10,8 @@ function attach(sm)
 	sm:subscribe({signal = "on_key_press",   						fun = this.on_key_press})
 	sm:subscribe({signal = "on_actor_weapon_scope_mode_change",  	fun = this.on_scope_mode_change})
 end
+
+local console = get_console()
 
 --//слоти в яких можуть бути предмети з ПНБ
 local nvd_slots = {
@@ -31,25 +34,54 @@ function get_current_nvd()
 end
 
 function get_nvd_params(sect)
-	local _tmp = read_if_exists(sys_ini, "r_string", sect, "nv_color", nil)
-	if not _tmp then return nil end
-	_tmp = split_string(_tmp, ",")
+	local NVD_MODE = read_if_exists(sys_ini, "r_u32", sect, "nv_mode", nil)
+	if not NVD_MODE then return nil end
+	local nv_color = read_if_exists(sys_ini, "r_string", sect, "nv_color", "0.2, 0.3, 0.2")
+	nv_color = split_string(nv_color, ",")
 	local params = {
 		--//color and intensity
-		R 			= _tmp[1], 
-		G 			= _tmp[2], 
-		B 			= _tmp[3], 
-		INTENSITY 	= read_if_exists(sys_ini, "r_float", sect, "nv_intensity", 	20),
+		R 				= nv_color[1], 
+		G 				= nv_color[2], 
+		B 				= nv_color[3], 
+		INTENSITY 		= read_if_exists(sys_ini, "r_float", sect, "nv_intensity", 		2),
 		--//effects
-		NOISE 		= read_if_exists(sys_ini, "r_float", sect, "nv_noise", 		0),
-		SCANLINES 	= read_if_exists(sys_ini, "r_float", sect, "nv_scanlines", 	0),
-		VIGNETTE 	= read_if_exists(sys_ini, "r_float", sect, "nv_vignette", 	0),
-		FLICKERING 	= read_if_exists(sys_ini, "r_float", sect, "nv_flickering", 0),
-		TUBE_NUM 	= read_if_exists(sys_ini, "r_float", sect, "nv_tube_num", 	1),
-		WORK_AREA 	= read_if_exists(sys_ini, "r_float", sect, "nv_work_area", 	1),
-		STEP 		= read_if_exists(sys_ini, "r_float", sect, "nv_step", 		0),
-		STEP_COUNT 	= read_if_exists(sys_ini, "r_float", sect, "nv_step_count", 1),
+		RADIUS 			= read_if_exists(sys_ini, "r_float", sect, "nv_radius", 		0.5),
+		NOISE 			= read_if_exists(sys_ini, "r_float", sect, "nv_noise", 			0),
+		SCANLINES 		= read_if_exists(sys_ini, "r_float", sect, "nv_scanlines", 		0),
+		SCINTILLATION 	= read_if_exists(sys_ini, "r_float", sect, "nv_scintillation", 	0),
+		VIGNETTE_SIZE 	= read_if_exists(sys_ini, "r_float", sect, "nv_vignette_size", 	0),
+		VIGNETTE_MODE 	= read_if_exists(sys_ini, "r_float", sect, "nv_vignette_mode", 	0),
+		GLITCH 			= read_if_exists(sys_ini, "r_float", sect, "nv_glitch", 		0),
+		TUBE_NUM 		= read_if_exists(sys_ini, "r_float", sect, "nv_tube_num", 		2),
+		STEP 			= read_if_exists(sys_ini, "r_float", sect, "nv_step", 			0),
+		STEP_COUNT 		= read_if_exists(sys_ini, "r_float", sect, "nv_step_count", 	1),
 	}
+	--//heatvision params
+	local tmp 			= read_if_exists(sys_ini, "r_string", sect, "hv_steps", 		"0, 0, 0, 0")
+	tmp = split_string(tmp, ",")
+	params.HV_STEPS = {
+		x = tmp[1],
+		y = tmp[2],
+		z = tmp[3],
+		w = tmp[4],
+	}
+	tmp 				= read_if_exists(sys_ini, "r_string", sect, "hv_blurring", 		"0, 0, 0, 0")
+	tmp = split_string(tmp, ",")
+	params.HV_BLUR = {
+		x = tmp[1],
+		y = tmp[2],
+		z = tmp[3],
+		w = tmp[4],
+	}
+	tmp 				= read_if_exists(sys_ini, "r_string", sect, "hv_fade_distance", "0, 0, 0, 0")
+	tmp = split_string(tmp, ",")
+	params.HV_FADE_DIST = {
+		x = tmp[1],
+		y = tmp[2],
+		z = tmp[3],
+		w = tmp[4],
+	}
+	
 	return params
 end
 
@@ -74,6 +106,15 @@ function switch_nvd_intensity(item)
 		CURR_INTENSITY = max_i
 	end
 	set_nvd_effector(sect, alife():object(item:id()).is_nvd_on)
+	-- local switch_snd = read_if_exists(sys_ini, "r_string", sect, "snd_nvd_switch", "interface\\mark_adjust")
+	-- if switch_snd then
+		-- xr_sound.get_safe_sound_object(switch_snd):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+	-- end
+	-- level.add_cam_effector([[camera_effects\item_use\mark_adjust.anm]], 5559, false, "")
+	play_switch_sound(sect)
+end
+
+function play_switch_sound(sect)
 	local switch_snd = read_if_exists(sys_ini, "r_string", sect, "snd_nvd_switch", "interface\\mark_adjust")
 	if switch_snd then
 		xr_sound.get_safe_sound_object(switch_snd):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
@@ -141,14 +182,31 @@ end
 function set_nvd_effector(sect, enable)
 	--log3("~set_nvd_effector item %s, enable %s", sect, enable)
 	if not enable then
-		set_pnv_color(0,0,0,0)
-		set_pnv_params(0,0,0,0)
-		set_pnv_params_2(0,0,0,0)
+		console:execute("r_pnv_mode 0")
 	else
 		local params = get_nvd_params(sect)
-		set_pnv_color(params.R, params.G, params.B, params.INTENSITY + CURR_INTENSITY)
-		set_pnv_params(params.NOISE, params.SCANLINES, params.VIGNETTE, params.FLICKERING)
-		set_pnv_params_2(params.TUBE_NUM, params.WORK_AREA, 0, 0)
+		console:execute("r_pnv_mode 1")
+		
+		shader_set_custom_param("pnv_color", params.R, params.G, params.B, 0)
+		
+		local gain = params.INTENSITY + CURR_INTENSITY
+		console:execute("r_pnv_gain_current "..gain)
+		
+		console:execute("r_pnv_radius "..params.RADIUS)
+		console:execute("r_pnv_noise "..params.NOISE)
+		console:execute("r_pnv_scanlines "..params.SCANLINES)
+		local scint = 1 - params.SCINTILLATION
+		console:execute("r_pnv_scintillation "..scint)
+		
+		console:execute("r_pnv_size_vignet "..params.VIGNETTE_SIZE)
+		console:execute("r_pnv_alfa_vignete "..params.VIGNETTE_MODE)
+		
+		console:execute("r_pnv_glitch "..params.GLITCH)
+		console:execute("r_pnv_num_tubes "..params.TUBE_NUM)
+		
+		shader_set_custom_param("heat_vision_steps", params.HV_STEPS.x, params.HV_STEPS.y, params.HV_STEPS.z, params.HV_STEPS.w)
+		shader_set_custom_param("heat_vision_blurring", params.HV_BLUR.x, params.HV_BLUR.y, params.HV_BLUR.z, params.HV_BLUR.w)
+		shader_set_custom_param("heat_fade_distance", params.HV_FADE_DIST.x, params.HV_FADE_DIST.y, params.HV_FADE_DIST.z, params.HV_FADE_DIST.w)
 	end
 end
 
@@ -170,6 +228,7 @@ function on_ruck(obj, prev_place)
 	if obj:is_weapon() then return end
 	local sobj = alife():object(obj:id())
 	if get_nvd_params(obj:section()) and prev_place == item_place.slot then
+		log3("~nvd to ruck")
 		if sobj.is_nvd_on then
 			enable_nvd(obj, false)
 			CURR_INTENSITY = 0
@@ -195,11 +254,44 @@ function on_death(victim, killer)
 	end
 end
 
+function on_spawn()
+	set_nvd_effector(nil, false)
+end
+
 --//scope night vision
 
 function aim_nvd_weapon()
+	-- local act_item = actor:active_item()
+	-- return act_item and act_item:get_weapon() and act_item:get_weapon().zoom_mode and get_nv_sect(act_item) and not act_item:get_weapon():aim_alt_mode()
 	local act_item = actor:active_item()
-	return act_item and act_item:get_weapon() and act_item:get_weapon().zoom_mode and get_nv_sect(act_item) and not act_item:get_weapon():aim_alt_mode()
+	if not act_item then
+	return false end
+	local wpn = act_item:get_weapon()
+	if not wpn then
+	return false end
+	if not wpn:is_3dss_enabled() then
+	return false end	
+	if not wpn.zoom_mode then
+	return false end
+	local sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or act_item:section()
+	return read_if_exists(sys_ini, "r_u32", sect, "s3ds_image_type", 0) == IT_NV
+end
+
+function aim_hv_weapon()
+	-- local act_item = actor:active_item()
+	-- return act_item and act_item:get_weapon() and act_item:get_weapon().zoom_mode and get_nv_sect(act_item) and not act_item:get_weapon():aim_alt_mode()
+	local act_item = actor:active_item()
+	if not act_item then
+	return false end
+	local wpn = act_item:get_weapon()
+	if not wpn then
+	return false end
+	if not wpn:is_3dss_enabled() then
+	return false end	
+	if not wpn.zoom_mode then
+	return false end
+	local sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or act_item:section()
+	return read_if_exists(sys_ini, "r_u32", sect, "s3ds_image_type", 0) > IT_NV
 end
 
 function get_nv_sect(item)
@@ -217,7 +309,7 @@ end
 function wpn_scope_allow_nvd(weapon)
 	local wpn = weapon:get_weapon()
 	local sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or weapon:section()
-	return read_if_exists(sys_ini, "r_bool", sect, "scope_allow_nvd", false) or wpn:aim_alt_mode()
+	return read_if_exists(sys_ini, "r_bool", sect, "scope_allow_nvd", true) or wpn:aim_alt_mode()
 end
 
 function on_zoom_in(weapon)
@@ -256,7 +348,7 @@ end
 function try_switch_nvd_intensity(key, game_action)
 	if not nvd_action[game_action] then
 	return end
-	if not level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) then
+	if not key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) then
 	return end
 	if not actor_hands_free() then
 	return end

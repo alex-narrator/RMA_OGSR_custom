@@ -4,8 +4,8 @@ function attach(sm)
 end
 
 local tactical_light_actions = {
-	[key_bindings.kLASER_ON] = true,
-	[key_bindings.kFLASHLIGHT] = true,
+	[key_bindings.kWPN_LASER] = true,
+	[key_bindings.kWPN_FLASHLIGHT] = true,
 }
 
 function on_key_press(key, game_action)
@@ -19,19 +19,25 @@ function on_key_press(key, game_action)
 	return end
 	if not tactical_light_actions[game_action] then
 	return end
-	if game_action == key_bindings.kLASER_ON then
+	
+	local snd_switch_light = read_if_exists(sys_ini, "r_string", act_item:section(), "snd_switch_light", [[device\torch\switch_torch]])
+	local snd = xr_sound.get_safe_sound_object(snd_switch_light)
+	
+	if game_action == key_bindings.kWPN_LASER then
 		if act_wpn and act_wpn:is_addon_attached(addon.laser) then
 			level.add_cam_effector([[camera_effects\item_use\mark_adjust.anm]], 1914, false, "")
 			act_wpn:switch_laser(not act_wpn:is_laser_on())
+			snd:play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 		end
 	end
-	if game_action == key_bindings.kFLASHLIGHT then
+	if game_action == key_bindings.kWPN_FLASHLIGHT then
 		if act_wpn and (act_wpn:is_addon_attached(addon.flashlight) or act_wpn:is_addon_attached(addon.laser) and read_if_exists(sys_ini, "r_string", act_wpn:get_addon_name(addon.laser), "light_definition", nil)) then
 			level.add_cam_effector([[camera_effects\item_use\mark_adjust.anm]], 1914, false, "")
-			if level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) then
+			if key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) then
 			else
 				act_wpn:switch_flashlight(not act_wpn:is_flashlight_on())
 			end
+			snd:play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 		end
 	end		
 end

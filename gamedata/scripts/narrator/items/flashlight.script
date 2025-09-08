@@ -30,7 +30,7 @@ end
 
 function try_glowstick_drop_enable(game_action, device)
 	if device and is_glowstick(device) and 
-		game_action == key_bindings.kDROP and level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) then
+		game_action == key_bindings.kDROP and key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) then
 		level.add_call(
 			function() return not device:parent() end,
 			function() device:switch_power(not is_power_device(device) or device:binded_object():get_power_level() > 0) end

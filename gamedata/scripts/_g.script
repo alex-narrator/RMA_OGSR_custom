@@ -1512,6 +1512,11 @@ CELL_H = 50
 UI_BASE_HEIGHT = 768
 UI_BASE_WIDTH = 1024
 
+--//S3DS image type
+IT_NONE, IT_NV, IT_THERMAL, IT_THERMAL_COLOR = 0, 1, 2, 3
+--//S3DS reticle type
+RT_NONE, RT_LED, RT_LED_MASKED, RT_ACOG, RT_SPECTER, RT_GIPERON, RT_SCREEN, RT_ADDITIVE = 0, 1, 2, 3, 4, 5, 6, 7
+
 function get_current_kx()
     return (device().height / device().width) / (UI_BASE_HEIGHT / UI_BASE_WIDTH)
 end
@@ -1992,6 +1997,24 @@ function is_quest_item(section)
 	return read_if_exists(sys_ini, "r_string", section, "quest_item", false)
 end
 
+function get_lv_gv(level_name, pos)
+    local lg, ct
+    if level.name() == level_name then
+        lg = level_graph()
+        ct = cross_table()
+    else
+        lg = level_graph(level_name)
+        ct = cross_table(level_name)
+    end
+
+    local lv = lg:vertex_id(pos)
+    if not lg:valid_vertex_id(lv) then
+        lv = lg:nearest_vertex_id(pos)
+    end
+    local gv = ct:vertex(lv):game_vertex_id()
+    return lv, gv
+end
+
 --//заповнює глобальні таблиці lv_ids та gv_ids валідними левел- та гейм-вертексами відповідно
 --//ключ таблиці - ім'я ігрової локації
 function fill_vertex_data()
@@ -2153,6 +2176,10 @@ function is_3d_pda()
 	return actor_get_pda() and actor_get_pda():is_hud_item() and get_console():get_bool("g_3d_pda")
 end
 
+function is_3d_scopes_enabled()
+	return get_console():get_bool("g_3d_scopes")
+end
+
 function get_species(npc)
 	return read_if_exists(sys_ini, "r_string", npc:section(), "species", "NO SPECIES")
 end
@@ -2172,6 +2199,15 @@ local immunity_type = {
 }
 function get_hit_type_name(hit_type)
 	return immunity_type[hit_type+1]
+end
+
+function get_zoom_data(item)
+	local wpn = item:get_weapon()
+	if not wpn then
+		return nil 
+	end
+	local zoom_sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or item:section()
+	return split_string(read_if_exists(sys_ini, "r_string", zoom_sect, "scope_zoom_factor", nil), ",", true)
 end
 
 function aim_camera_to_pos(pos)
@@ -2217,7 +2253,9 @@ function check_obj_has_method(obj, method_name)
 end
 
 function change_game_time(days, hours, minutes)
-	level.change_game_time(days, hours, minutes)
+	local value = days * 86400 + hours * 3600 + minutes * 60
+	value = value * 1000
+	level.advance_game_time(math.round(value))
 	level_weathers.select_weather(true)
 end
 

@@ -2,6 +2,8 @@
 local hud_sect = "pickup_hud"
 local hud_effector_id = 5559
 
+local pull_dist = read_if_exists(sys_ini, "r_float", "actor_capture", "pull_distance", 1.4)
+
 function is_quick_info_shown()
 	return actor_obj:get_default_action_for_obj()
 end
@@ -9,7 +11,7 @@ end
 function get_carbody_target()
 	local tgt = level.get_target_obj()
 	if not tgt or 
-		not tgt:is_nonscript_usable() or
+		not tgt:get_nonscript_usable() or
 		not is_quick_info_shown() or 
 		actor:ph_capture()
 	then return false end
@@ -37,7 +39,7 @@ function play()
 	return end
 	
 	local tgt = get_carbody_target()
-	local add_act = level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION))
+	local add_act = key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION))
 	
 	if tgt and tgt:is_monster() and not add_act and harvest.try_harvest(tgt) then
 	return end
@@ -46,7 +48,7 @@ function play()
 	block_non_move_action(true)
 	
 	local to_center = is_crosshair_hard()
-	actor:center_crosshair(to_center)
+	--actor:center_crosshair(to_center)
 		
 	if actor:active_item() then
 		actor:active_item():zoom_out()
@@ -74,7 +76,7 @@ function play()
 					elseif tgt:get_eatable_item() then
 						actor:transfer_item(tgt, actor)
 						actor:eat(tgt)
-					elseif tgt:get_physics_shell() and level.get_target_dist() <= read_if_exists(sys_ini, "r_float", "actor_capture", "pull_distance", 1.4) then
+					elseif tgt:get_physics_shell() and level.get_target_dist() <= pull_dist then
 						local rq = level.get_current_ray_query()
 						local bone_id = rq and rq.element or 0
 						actor:ph_capture_object(tgt, bone_id)
@@ -86,7 +88,7 @@ function play()
 					if not tgt:get_container() then --//без цього інвентарний контейнер буде одразу підібраний у інвентар
 						action_use() 				--//це важливо робити ДО імовірного відкриття вікна actor_menu щоб спрацював колбек on_use
 					end
-					if (tgt:is_stalker() and not tgt:alive()) or (tgt:get_inventory_box() and tgt:is_nonscript_usable()) then
+					if (tgt:is_stalker() and not tgt:alive()) or (tgt:get_inventory_box() and tgt:get_nonscript_usable()) then
 						ui_actor_menu.ShowHideMenu("carbody", tgt)
 					end
 				end
@@ -95,7 +97,7 @@ function play()
 			end
 			_G.SCRIPT_ANIM_PLAYING = false
 			if to_center then
-				actor:center_crosshair(false)
+				--actor:center_crosshair(false)
 			end
 		end
 	)

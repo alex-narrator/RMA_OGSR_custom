@@ -115,8 +115,8 @@ function create_scope_static(weapon)
 end
 
 function on_zoom_in(weapon)
-	if weapon:get_weapon():second_vp_enabled() then
-	return end
+	-- if weapon:get_weapon():second_vp_enabled() then
+	-- return end
 	scope_static, parallax_static = create_scope_static(weapon)
 	if not scope_static then
 	return end
@@ -127,7 +127,7 @@ function on_zoom_in(weapon)
 		function()
 			if not scope_static then
 			return end
-			level.show_item_hud(false)
+			weapon:show_item_hud(false)
 			if not main_wnd:IsChild(scope_static) then
 				main_wnd:AttachChild(scope_static)
 			end
@@ -142,7 +142,7 @@ function on_zoom_in(weapon)
 end
 
 function on_zoom_out(weapon)
-	level.show_item_hud(true)
+	weapon:show_item_hud(true)
 	if scope_static and main_wnd:IsChild(scope_static) then
 		main_wnd:DetachChild(scope_static)
 		unsubscribe()

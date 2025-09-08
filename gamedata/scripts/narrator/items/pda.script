@@ -159,6 +159,7 @@ end
 
 function on_state_switch(item, state, old_state)
 	if not item:get_pda() then
+		set_pda_params(vector():set(0,0,0))
 	return end
 	if old_state == global_flags.eHidden then
 		set_pda_params(vector():set(0.5,0,0))

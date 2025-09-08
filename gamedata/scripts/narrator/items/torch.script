@@ -18,9 +18,9 @@ function set_torch_params(item)
 	local torch_sect = item:section()
 	local light_sect = alife():object(item:id()).is_second_mode and read_if_exists(sys_ini, "r_string", torch_sect, "light_definition_second", nil) or read_if_exists(sys_ini, "r_string", torch_sect, "light_definition", nil)
 
-	local vis_ini = item:get_visual_ini()
-	local range = read_if_exists(vis_ini, "r_float", light_sect, "range", 10)
-	local angle = read_if_exists(vis_ini, "r_float", light_sect, "spot_angle", 90)
+	-- local vis_ini = item:get_visual_ini()
+	local range = read_if_exists(sys_ini, "r_float", light_sect, "range", 10)
+	local angle = read_if_exists(sys_ini, "r_float", light_sect, "spot_angle", 90)
 	
 	local clr_rgba = split_string(read_if_exists(vis_ini, "r_string", light_sect, "color_r2", nil), ",")	
 

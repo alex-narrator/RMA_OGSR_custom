@@ -29,7 +29,7 @@ local instrument = false
 function play(item)
 	actor:hide_weapon(true)
 	block_non_move_action(true)
-	actor:hide_crosshair(true)
+	--actor:hide_crosshair(true)
 	
 	instrument = item
 	local data = instruments[instrument]
@@ -97,7 +97,7 @@ end
 function restore_control()
 	actor:restore_weapon()
 	block_non_move_action(false)
-	actor:hide_crosshair(true)
+	--actor:hide_crosshair(true)
 	if subscribed then
 		subscribed = { signal = "on_key_press", fun = this.on_key_press }
 		sm:unsubscribe( subscribed )

@@ -53,12 +53,26 @@ function get_marks_count(item)
 	return read_if_exists(sys_ini, "r_u32", sect, "collimator_mark_count", 0)
 end
 
+function get_mark_color(item, current_mark)
+	if not item then
+	return vector() end
+	local wpn = item:get_weapon()
+	if not wpn then
+	return vector() end
+	local sect = item:section()
+	local res_sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or item:section()
+	return read_if_exists(sys_ini, "r_vector", res_sect, sect.."_s3ds_mark_color", read_if_exists(sys_ini, "r_vector", res_sect, "s3ds_mark_color", nil)) or read_if_exists(sys_ini, "r_vector", res_sect, "collimator_mark_color_"..current_mark, vector())
+end
+
 function can_switch_marks(item)
 	return get_marks_count(item) > 0
 end
 
-function apply_mark(current, count)
-	set_markswitch_params(current, count, 0, 0)
+function apply_mark(current, count, item)
+	shader_set_custom_param("mark_number", current, count, 0, 0)
+	local mark_color = get_mark_color(item, current)
+	shader_set_custom_param("mark_color", mark_color.x, mark_color.y, mark_color.z, 0)
+	--set_markswitch_params(current, count, 0, 0)
 	--set_markswitch_current(current)
 	--set_markswitch_count(count)
 	--log3("~apply mark %s | count %s", current, count)
@@ -74,7 +88,7 @@ function on_key_press(key, game_action)
 	if marks_count == 0 then
 	return end
 	
-	local fwd = not level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION))
+	local fwd = not key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION))
 	
 	local mark_num = get_current_mark_num(act_item:id()) or 0
 	
@@ -88,7 +102,7 @@ function on_key_press(key, game_action)
 		mark_num = max_mark
 	end
 	
-	apply_mark(mark_num, marks_count)
+	apply_mark(mark_num, marks_count, act_item)
 	
 	set_current_mark_num(act_item:id(), mark_num)
 	
@@ -99,15 +113,21 @@ end
 function try_apply_mark(weapon)
 	local marks_count = get_marks_count(weapon)
 	if marks_count == 0 then
-		apply_mark(0, 0)
+		apply_mark(0, 0, weapon)
 	return end
 	local current_mark = get_current_mark_num(weapon:id()) or 0
-	apply_mark(current_mark, marks_count)
+	apply_mark(current_mark, marks_count, weapon)
 end
 
+local process_states = {
+	[global_flags.eShowing] = true,
+	-- [global_flags.eIdle] = true,
+}
 function on_state_switch(item, state, old_state)
-	local process = state == global_flags.eIdle and old_state == global_flags.eShowing
-	if not process then
+	-- local process = state == global_flags.eIdle and old_state == global_flags.eShowing
+	-- if not process then
+	-- return end
+	if not process_states[state] then
 	return end
 	try_apply_mark(item)
 end

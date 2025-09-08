@@ -173,6 +173,30 @@ snd_switch_mode 		= device\torch\switch_torch
 light_definition 		= torch_definition
 light_definition_second = torch_definition_long_range
 
+[torch_definition]
+range           = 20									; range                 <in meters>
+range_r2        = 20									; range                 <in meters>
+color           = 1.0,1.0,1.0,0.2						; four color components <r,g,b,a> 0.f<X<3.f
+color_r2        = 1.2,1.2,1.2,0.2						; four color components <r,g,b,a> 0.f<X<3.f
+omni_range      = 1.5									; range                 <in meters>
+omni_range_r2   = 0;0.75								; range                 <in meters>
+omni_color      = 1.0,1.0,1.0,0.1						; four color components <r,g,b,a> 0.f<X<3.f
+omni_color_r2   = 1.0,1.0,1.0,0.1						; four color components <r,g,b,a> 0.f<X<3.f
+color_animator  = empty									; color animator name   (empty - not using animator)
+spot_texture    = internal\internal_light_torch_r2_new	; spot texture name     (using only in Second Render)
+spot_angle      = 80									; spot angle            <in gradus>
+glow_texture    = glow\glow_torch_r2					; glow texture name     (required)
+glow_radius     = 0.3									; glow radius           <in meters>
+guide_bone      = lights_bone							; guid bone name        (required)
+volumetric_enabled 		= true
+;volumetric_for_actor 	= true
+brightness_min_k 	= 0.3 ; when device power low light brightness can`t be less then 30% of nominal
+
+[torch_definition_long_range]:torch_definition
+range           = 40									; range                 <in meters>
+range_r2        = 40									; range                 <in meters>
+spot_angle      = 40									; spot angle            <in gradus>
+
 [nvd_base]:device_base
 $spawn					= "devices\nvg"
 $prefetch 				= 32
@@ -197,6 +221,12 @@ snd_nvd_operate 		= device\night_vision\nvg_loop
 
 nv_hud 					= nvg_binocular_hud
 
+nv_mode 				= 1
+
+hv_fade_distance 		= 13, 20, 0, 0
+hv_blurring 			= 1, 1, 1.1, 1.1
+hv_steps 				= -0.5, 0, 0, 1
+
 [device_nvd_mono]:device_base,nvd_base
 cost					= 138000
 
@@ -214,10 +244,10 @@ inv_grid_y         		= 4
 ;night_vision_effector 	= effector_nightvision ;postprocess_night
 
 nv_color 				= 0.2, 0.3, 0.2
-nv_intensity 			= 40
-nv_vignette 			= 0.05
-nv_work_area 			= 0.5
-nv_step 				= 10
+nv_intensity 			= 1
+nv_vignette_size 		= 0.05
+nv_radius 				= 0.5
+nv_step 				= 0.2
 nv_step_count 			= 1
 nv_tube_num 			= 1
 nv_noise 				= 0.3
@@ -241,10 +271,10 @@ inv_grid_y         		= 4
 ;night_vision_effector 	= effector_nightvision ;postprocess_night
 
 nv_color 				= 0.2, 0.3, 0.2
-nv_intensity 			= 30
-nv_vignette 			= 0.1
-nv_work_area 			= 0.5
-nv_step 				= 10
+nv_intensity 			= 2
+nv_vignette_size 		= 0.1
+nv_radius 				= 0.5
+nv_step 				= 0.3
 nv_step_count 			= 2
 nv_tube_num 			= 2
 nv_noise 				= 0.1

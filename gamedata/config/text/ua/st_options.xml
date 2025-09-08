@@ -198,7 +198,7 @@
 		<text>Тінь головного героя - r2_actor_shadow</text>
 	</string>	
 	<string id="video_settings_name_ssao">
-		<text>Глобальне освітлення - r2_ssao</text>
+		<text>Якість глобального освітлення - r2_ssao</text>
 	</string>
 	<string id="video_settings_name_r2_steep_parallax">
 		<text>Покращений рельєф поверхонь - r2_steep_parallax</text>
@@ -248,7 +248,8 @@
 
 	<string id="video_settings_desc_cam_inert">
 		<text>Ця опція регулює ступінь інерції точки огляду гравця. Чим вона вище, тим сильніше буде розгойдуватись точка огляду підчас ходьби та бігу, при ударах, а також сильнішим буде ефект "ведення" прицілу коли вичерпано запас витривалості. 
-		\nУВАГА! Не всім подобається такий ефект, більш того, подекуди він може викликати нудоту, тож якщо ви не певні у своєму виборі - краще виставте значення на 0.</text>
+		\nУВАГА! Не всім подобається такий ефект, більш того, подекуди він може викликати нудоту, тож якщо ви не певні у своєму виборі - краще виставте значення на 0.
+		\nУ цій версії гри легке погойдування камери при ходьбі вже реалізовано через ефекти камери, тож здебільшого немає потреби встановлювати це значення відмінним від нуля.</text>
 	</string>
 	<string id="video_settings_desc_detail_density">
 		<text>Ця опція регулює наскільки щільно один до одного малюються кущики трави. Чим далі вправо повзунок, тим юлижче одне до одного малюються элементи трави і гусітша вона буде. 
@@ -268,7 +269,12 @@
 		<text>Це налаштування вмикає вертикальну синхронізацію, тобто синхронізує частоту кадрів з частотою оновлення монітору. Дозволяє усунути ефект горизонтального розриву кадру при різких рухах мишею, але може дещо знизити продуктивність.</text>
 	</string>
 	<string id="video_settings_desc_aa">
-		<text>Ця опція перемикає тип згладжування. Доступним є SMAA (Subpixel Morphological AntiAliasing).</text>
+		<text>Ця опція перемикає типи згладжування. Доступними є:
+		\nNVIDIA DLSS (Deep learning super sampling) - доступна для відеокарт NVIDIA починаючи із серії RTX20
+		\nAMD FSR2 (FidelityFX Super Resolution) - доступна для відеокарт AMD починаючи із серії RX 400 та відеокарт NVIDIA починаючи із серії 1000
+		\nTAA (Temporal anti-aliasing)
+		\nSMAA (Subpixel Morphological AntiAliasing)
+		</text>
 	</string>
 	<string id="video_settings_desc_sun_shafts">
 		<text>Визначення типу сонячних променів. Оберіть за смаком.</text>
@@ -330,6 +336,71 @@
 	</string>
 	<string id="video_settings_desc_msaa">
 		<text>MSAA - дуже "важкий" але й дуже якісний тип згладжування. Якісно сгладжує дроти, рослинність, напівпрозору геометрію.</text>
+	</string>
+	<string id="video_settings_name_cas">
+		<text>Різкість зображення після згладжування - r_aa_cas</text>
+	</string>
+	<string id="video_settings_desc_cas">
+		<text>""</text>
+	</string>
+	<string id="video_settings_name_3dss_scale_factor">
+		<text>Апскейлінг зображення у 3D прицілах - r_3dss_scale_factor</text>
+	</string>
+	<string id="video_settings_desc_3dss_scale_factor">
+		<text>Якщо увімкнено DLSS або FSR, ця опція регулює масштабування зображенян у 3D прицілі для покращення його чіткості.
+		\n%c[yellow]Значення 1 - зображення не масштабується
+		\n%c[green]Значення 2 - оптимальне
+		\n%c[red]Значення більше 2 - може викликати відчутні просадки частоти кадрів</text>
+	</string>
+	<string id="video_settings_name_vis_dist">
+		<text>Дальність видимості - rs_vis_distance</text>
+	</string>
+	<string id="video_settings_desc_vis_dist">
+		<text>Ця опція регулює величину, на яку множиться гранична дальність видимості що встановлена у профілі поточної погоди. Діапазон значень - від 0.4 (мінімум повзунка) до 1 (максимум повзунка).
+		\nНаприклад у погоді встановлено дальність огляду у 150 метрів. На мінімумі повзунка ви будете бачити на 60 метрів, на максимумі - на 150.</text>
+	</string>
+	<string id="video_settings_name_geometry_lod">
+		<text>Деталізація віддалених об'єктів - r__geometry_lod</text>
+	</string>
+	<string id="video_settings_desc_geometry_lod">
+		<text>Ця опція регулює деталізацію відмальовування та освітлення моделей людей, монстрів та зброї, що знаходяться вдалині. Чим далі повзунок, тим більш деталізованими вони будуть.</text>
+	</string>
+	<string id="video_settings_name_opt_dist">
+		<text>Дальність рендерінгу динамічних об'єктів - r__dyn_opt_dist</text>
+	</string>
+	<string id="video_settings_desc_opt_dist">
+		<text>Ця опція регулює дальність рендерінгу динамічних об'єктів, за виключенням гелікоптерів, ворон та автомобілів. Чим більша дальність - тим більше об'єктів буде опрацьовано рендером, і відповідно може зменшитись частота кадрів.
+		\n%c[red]В більшості випадків значення за замовчуванням (250 метрів) має бути оптимальним. Збільшувати його варто лише у випадку потреби збільшити дальність рендеру об'єктів.</text>
+	</string>
+	<string id="video_settings_name_lens_flare">
+		<text>Флари (бліки на "об'єктиві" камери) від сонця - r_lens_flare</text>
+	</string>
+	<string id="video_settings_name_ao_mode">
+		<text>Тип AO - r_ao_mode</text>
+	</string>
+	<string id="video_settings_desc_ao_mode">
+		<text>Ця опція регулює режим роботи ефекту глобального освітлення у грі. Доступні для вибору GTAO (Ground Truth-based Ambient Occlusion) та SSDO (ScreenSpace Directional Occlusion)</text>
+	</string>
+	<string id="video_settings_name_r2_mask">
+		<text>Шейдерний эфект шолому - r2_mask</text>
+	</string>
+	<string id="video_settings_desc_r2_mask">
+		<text>Опція вмикає ефект маски, що покривається тріщинами при пошкодженні шолому/костюму</text>
+	</string>
+	<string id="video_settings_name_50">
+		<text>Об'ємне світло - r2_volumetric_lights</text>
+	</string>
+	<string id="video_settings_desc_50">
+		<text>Опція вмикає об'ємне світло для деяких ламп</text>
+	</string>
+	<string id="video_settings_name_mblur">
+		<text>Розмиття у русі - r2_mblur_enable</text>
+	</string>
+	<string id="video_settings_name_mblur_param">
+		<text>Розмиття в русі - розмиття зображення під час повороту камери, відтворення сцен руху або швидкорухомих об'єктів</text>
+	</string>
+	<string id="video_settings_name_mblur_param">
+		<text>Інтенсивність розмиття у русі - r2_mblur</text>
 	</string>
 	
 <!-- опції для скриптів -->	
@@ -455,6 +526,16 @@
 	</string>
 	<string id="gameplay_settings_desc_task_autosave">
 		<text>При отриманні та виконанні завдання буде створення збереження із статусом та назвою завдання</text>
+	</string>
+
+	<string id="ui_mm_breath_shader_effect">
+		<text>Шейдерний ефект дихання у протигазі</text>
+	</string>	
+	<string id="gameplay_settings_name_breath_shader_effect">
+		<text>Шейдерний ефект дихання у протигазі</text>
+	</string>
+	<string id="gameplay_settings_desc_breath_shader_effect">
+		<text>Якщо опцію увімкнено - то ефект дихання у протигазі/масці костюму буде відстворено за допомогою шейдеру, а не текстур</text>
 	</string>	
 	
 <!-- режими збереження - токени-->

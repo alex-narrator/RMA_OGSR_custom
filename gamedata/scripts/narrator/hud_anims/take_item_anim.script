@@ -19,7 +19,7 @@ end
 function can_play_for_container()
 	return not pickup_item:get_container() or 
 		not is_quick_info_shown() or
-		level.get_key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) or
+		key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) or
 		(not level.get_target_obj() or level.get_target_obj():id() ~= pickup_item:id())
 end
 

@@ -3,17 +3,73 @@
 
 #include "common.h"
 
-#ifdef MSAA_ALPHATEST_DX10_1
-#if MSAA_SAMPLES == 2
-static const float2 MSAAOffsets[2] = {float2(4, 4), float2(-4, -4)};
+#define USE_ERROR_CORRECTION
+//#define RECALCULATENORMALZ
+//#define NORMALIZE_TEXTURES
+static const float NORMAL_STRENGTH = 1.0;
+static const float DETAIL_STRENGTH = 1.0;
+static const float DETAIL_TINT = 1.0;
+static const float DETAIL_GLOSS = 1.0;
+
+uniform float4 ssfx_pom; // Samples, Range, Height, AO
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// Texture samplers and blenders             //
+//////////////////////////////////////////////////////////////////////////////////////////
+
+float3 NormalBlend(float3 A, float3 B) { return normalize(float3(A.rg + B.rg, A.b * B.b)); }
+
+float3 SampleNormal(float4 N, float4 NE)
+{
+    float3 Norm = unpack_normal(N.wzy);
+#ifdef USE_ERROR_CORRECTION
+    Norm += unpack_normal(NE.xyz);
 #endif
-#if MSAA_SAMPLES == 4
-static const float2 MSAAOffsets[4] = {float2(-2, -6), float2(6, -2), float2(-6, 2), float2(2, 6)};
+#ifdef RECALCULATENORMALZ
+    Norm.z = sqrt(1 - saturate(dot(Norm.xy, Norm.xy)));
 #endif
-#if MSAA_SAMPLES == 8
-static const float2 MSAAOffsets[8] = {float2(1, -3), float2(-1, 3), float2(5, 1), float2(-3, -5), float2(-5, 5), float2(-7, -1), float2(3, 7), float2(7, -7)};
+#ifdef NORMALIZE_TEXTURES
+    Norm = normalize(Norm);
 #endif
-#endif //	MSAA_ALPHATEST_DX10_1
+    return Norm;
+}
+
+float3 NormalStrength(float3 N, float Strength)
+{
+    if (Strength != 1.0)
+    {
+        N.xy *= Strength;
+        N.z = sqrt(1 - saturate(dot(N.xy, N.xy)));
+        N = normalize(N);
+    }
+    return N;
+}
+
+float SampleGloss(float4 N) { return N.x; }
+
+float SampleHeight(float4 NE) { return NE.w; }
+
+float3 ApplyDetailAlbedo(float3 A1, float3 A2)
+{
+    // return saturate(A1 * A2 * 2);
+    return saturate(A1 * exp2(DETAIL_TINT * (A2 * 2 - 1)));
+}
+
+float3 ApplyDetailNormal(float3 N1, float3 N2)
+{
+    N1 += float3(0, 0, 1);
+    N2 *= float3(-1, -1, 1);
+    return normalize(N1 * dot(N1, N2) / N1.z - N2);
+}
+
+float ApplyDetailGloss(float G1, float G2)
+{
+    // return saturate(G1 * G2 * 2);
+    // return saturate(G1 + (DETAIL_GLOSS * (G2 * 2 - 1)));
+    return saturate(G1 * exp2(DETAIL_GLOSS * (G2 * 2 - 1)));
+}
+
+float ApplyDetailHeight(float H1, float H2) { return H1 + (H2 * 2 - 1); }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Bumped surface loader                //
@@ -30,195 +86,189 @@ float4 tbase(float2 tc) { return s_base.Sample(smp_base, tc); }
 
 #if defined(ALLOW_STEEPPARALLAX) && defined(USE_STEEPPARALLAX)
 
-static const float fParallaxStartFade = 8.0f;
-static const float fParallaxStopFade = 12.0f;
-
-void UpdateTC(inout p_bumped I)
+/**
+ * @ Version: SCREEN SPACE SHADERS - UPDATE 22
+ * @ Description: POM Shader - Modified version from the terrain POM implementation
+ * @ Author: https://www.moddb.com/members/ascii1457
+ * @ Mod: https://www.moddb.com/mods/stalker-anomaly/addons/screen-space-shaders
+ */
+void UpdateTC(inout p_bumped I, inout float H)
 {
-    if (I.position.z < fParallaxStopFade)
+    // Distance attenuation
+    float dist_att = 1.0f - smoothstep(ssfx_pom.y * 0.8f, ssfx_pom.y, I.position.z);
+
+    if (I.position.z >= ssfx_pom.y)
+        return;
+
+    float3 eye = normalize(mul(float3x3(I.M1.x, I.M2.x, I.M3.x, I.M1.y, I.M2.y, I.M3.y, I.M1.z, I.M2.z, I.M3.z), -I.position));
+
+    float view_angle = abs(dot(float3(0.0, 0.0, 1.0), eye));
+
+    // Dynamic steps
+    float _step = rcp(lerp(ssfx_pom.x, 3, view_angle));
+    _step *= 0.5; // We are working with 0.0 ~ 0.5
+
+    // View direction + bias to try to minimize issues with some slopes.
+    float2 viewdir = eye.xy / (abs(eye.z) + 0.41f);
+
+    // Offset direction
+    float2 tc_step = _step * viewdir * ssfx_pom.z * dist_att;
+
+    // Init vars to store steps
+    float curr_step = 0;
+    float2 parallax_tc = I.tcdh;
+
+    // Store the previous & current sample to do the [POM] calc and [Contact Refinement] if needed.
+    float prev_Height = 0;
+    float curr_Height = 0.5f;
+
+    do // Step Parallax
     {
-        const float maxSamples = 25;
-        const float minSamples = 5;
-        const float fParallaxOffset = -0.013;
+        // Save previous data
+        prev_Height = curr_Height;
 
-        float3 eye = mul(float3x3(I.M1.x, I.M2.x, I.M3.x, I.M1.y, I.M2.y, I.M3.y, I.M1.z, I.M2.z, I.M3.z), -I.position.xyz);
+        // Step TexCoor
+        parallax_tc -= tc_step;
+        curr_step += _step;
 
-        eye = normalize(eye);
+        // Sample
+        curr_Height = 0.5f - s_bumpX.SampleLevel(smp_base, parallax_tc, 0).a;
 
-        //	Calculate number of steps
-        float nNumSteps = lerp(maxSamples, minSamples, eye.z);
+    } while (curr_Height >= curr_step);
 
-        float fStepSize = 1.0 / nNumSteps;
-        float2 vDelta = eye.xy * fParallaxOffset * 1.2;
-        float2 vTexOffsetPerStep = fStepSize * vDelta;
+// [ Contact Refinement ]
+#ifdef SSFX_POM_REFINE
 
-        //	Prepare start data for cycle
-        float2 vTexCurrentOffset = I.tcdh;
-        float fCurrHeight = 0.0;
-        float fCurrentBound = 1.0;
+    // Step back
+    parallax_tc += tc_step;
+    curr_step -= _step;
+    curr_Height = prev_Height; // Previous height
 
-        for (int i = 0; i < nNumSteps; ++i)
-        {
-            if (fCurrHeight < fCurrentBound)
-            {
-                vTexCurrentOffset += vTexOffsetPerStep;
-                fCurrHeight = s_bumpX.SampleLevel(smp_base, vTexCurrentOffset.xy, 0).a;
-                fCurrentBound -= fStepSize;
-            }
-        }
+    // Increase precision ( 3 times seems like a good balance )
+    _step /= 3;
+    tc_step /= 3;
 
-        /*
-                [unroll(25)]	//	Doesn't work with [loop]
-                for( ;fCurrHeight < fCurrentBound; fCurrentBound -= fStepSize )
-                {
-                    vTexCurrentOffset += vTexOffsetPerStep;
-                    fCurrHeight = s_bumpX.SampleLevel( smp_base, vTexCurrentOffset.xy, 0 ).a;
-                }
-        */
-        //	Reconstruct previouse step's data
-        vTexCurrentOffset -= vTexOffsetPerStep;
-        float fPrevHeight = s_bumpX.Sample(smp_base, float3(vTexCurrentOffset.xy, 0)).a;
+    do // Step Parallax
+    {
+        // Save previous data ( Used for interpolation )
+        prev_Height = curr_Height;
 
-        //	Smooth tc position between current and previouse step
-        float fDelta2 = ((fCurrentBound + fStepSize) - fPrevHeight);
-        float fDelta1 = (fCurrentBound - fCurrHeight);
-        float fParallaxAmount = (fCurrentBound * fDelta2 - (fCurrentBound + fStepSize) * fDelta1) / (fDelta2 - fDelta1);
-        float fParallaxFade = smoothstep(fParallaxStopFade, fParallaxStartFade, I.position.z);
-        float2 vParallaxOffset = vDelta * ((1 - fParallaxAmount) * fParallaxFade);
-        float2 vTexCoord = I.tcdh + vParallaxOffset;
+        // Step TexCoor
+        parallax_tc -= tc_step;
+        curr_step += _step;
 
-        //	Output the result
-        I.tcdh = vTexCoord;
+        // Sample
+        curr_Height = 0.5f - s_bumpX.SampleLevel(smp_base, parallax_tc, 0).a;
 
-#if defined(USE_TDETAIL) && defined(USE_STEEPPARALLAX)
-        I.tcdbump = vTexCoord * dt_params;
+    } while (curr_Height >= curr_step);
+
 #endif
-    }
+
+    // [ POM ] Interpolation between the previous offset and the current offset
+    float currentDiff = curr_Height - curr_step;
+    float ratio = currentDiff / (currentDiff - saturate(prev_Height - curr_step + _step));
+
+    // Final TexCoor
+    float2 final_tc = lerp(parallax_tc, parallax_tc + tc_step, ratio);
+
+#if defined(USE_TDETAIL)
+    I.tcdbump = final_tc * dt_params; // Apply detail_scaler
+#endif
+
+    // Apply Parallax TC
+    I.tcdh = final_tc;
 }
 
-#elif defined(USE_PARALLAX) && defined(USE_STEEPPARALLAX)
+#elif defined(USE_PARALLAX) || defined(USE_STEEPPARALLAX)
 
-void UpdateTC(inout p_bumped I)
+void UpdateTC(inout p_bumped I, inout float H)
 {
     float3 eye = mul(float3x3(I.M1.x, I.M2.x, I.M3.x, I.M1.y, I.M2.y, I.M3.y, I.M1.z, I.M2.z, I.M3.z), -I.position.xyz);
 
-    float height = s_bumpX.Sample(smp_base, I.tcdh).w; //
-    // height  /= 2;
-    // height  *= 0.8;
-    height = height * (parallax.x) + (parallax.y); //
-    float2 new_tc = I.tcdh + height * normalize(eye); //
+    float height = s_bumpX.Sample(smp_base, I.tcdh).w;
+    H = height;
+    height = height * (parallax.x) + (parallax.y);
+    float2 new_tc = I.tcdh + height * normalize(eye);
 
     //	Output the result
     I.tcdh.xy = new_tc;
+
+#if defined(USE_TDETAIL)
+    I.tcdbump = new_tc * dt_params; // Apply detail_scaler
+#endif
 }
 
-#else //	USE_PARALLAX
+#else
 
-void UpdateTC(inout p_bumped I) { ; }
+void UpdateTC(inout p_bumped I, inout float H) {}
 
-#endif //	USE_PARALLAX
+#endif
 
 surface_bumped sload_i(p_bumped I)
 {
     surface_bumped S;
 
-    UpdateTC(I); //	All kinds of parallax are applied here.
+    float H = 0;
 
-    float4 Nu = s_bump.Sample(smp_base, I.tcdh); // IN:	normal.gloss
-    float4 NuE = s_bumpX.Sample(smp_base, I.tcdh); // IN:	normal_error.height
+    UpdateTC(I, H); // Parallax
 
-    S.base = tbase(I.tcdh); //	IN:  rgb.a
-    S.normal = Nu.wzy + (NuE.xyz - 1.0h); //	(Nu.wzyx - .5h) + (E-.5)
-    S.gloss = Nu.x * Nu.x; //	S.gloss = Nu.x*Nu.x;
-    S.height = NuE.w;
-    // S.height	= 0;
+    float4 Nu = s_bump.Sample(smp_base, I.tcdh);
+
+#if defined(ALLOW_STEEPPARALLAX) && defined(USE_STEEPPARALLAX)
+    H = s_bumpX.Sample(smp_base, I.tcdh); // Only requiered when the full parallax is used
+#endif
+
+    S.base = tbase(I.tcdh);
+    S.normal = unpack_normal(Nu.wzy);
+    S.gloss = Nu.x;
+    S.height = H;
+
+#if defined(ALLOW_STEEPPARALLAX) && defined(USE_STEEPPARALLAX)
+    S.base.rgb *= lerp(1.0f, saturate((S.height + 0.15f) * 2.0f), ssfx_pom.w); // Apply AO
+#endif
 
 #ifdef USE_TDETAIL
 #ifdef USE_TDETAIL_BUMP
+
     float4 NDetail = s_detailBump.Sample(smp_base, I.tcdbump);
     float4 NDetailX = s_detailBumpX.Sample(smp_base, I.tcdbump);
+
+    float3 DetailNormal = unpack_normal(NDetail.wzy) + unpack_normal(NDetailX.xyz);
+    S.normal = NormalBlend(S.normal, DetailNormal);
     S.gloss = S.gloss * NDetail.x * 2;
-    // S.normal			+= NDetail.wzy-.5;
-    S.normal += NDetail.wzy + NDetailX.xyz - 1.0h; //	(Nu.wzyx - .5h) + (E-.5)
 
     float4 detail = s_detail.Sample(smp_base, I.tcdbump);
     S.base.rgb = S.base.rgb * detail.rgb * 2;
 
-//	S.base.rgb			= float3(1,0,0);
-#else //	USE_TDETAIL_BUMP
+#else
+
     float4 detail = s_detail.Sample(smp_base, I.tcdbump);
     S.base.rgb = S.base.rgb * detail.rgb * 2;
     S.gloss = S.gloss * detail.w * 2;
 
-#endif //	USE_TDETAIL_BUMP
+#endif
 #endif
 
     return S;
 }
 
-surface_bumped sload_i(p_bumped I, float2 pixeloffset)
+surface_bumped sload(p_bumped I) { return sload_i(I); }
+
+surface_bumped sload(p_bumped I, float2 pixeloffset) { return sload_i(I); }
+
+#ifdef USE_HAT
+void calc_alpha_test(float2 tc, float alpha)
 {
-    surface_bumped S;
-
-    // apply offset
-#ifdef MSAA_ALPHATEST_DX10_1
-    I.tcdh.xy += pixeloffset.x * ddx(I.tcdh.xy) + pixeloffset.y * ddy(I.tcdh.xy);
-#endif
-
-    UpdateTC(I); //	All kinds of parallax are applied here.
-
-    float4 Nu = s_bump.Sample(smp_base, I.tcdh); // IN:	normal.gloss
-    float4 NuE = s_bumpX.Sample(smp_base, I.tcdh); // IN:	normal_error.height
-
-    S.base = tbase(I.tcdh); //	IN:  rgb.a
-    S.normal = Nu.wzyx + (NuE.xyz - 1.0h); //	(Nu.wzyx - .5h) + (E-.5)
-    S.gloss = Nu.x * Nu.x; //	S.gloss = Nu.x*Nu.x;
-    S.height = NuE.w;
-    // S.height	= 0;
-
-#ifdef USE_TDETAIL
-#ifdef USE_TDETAIL_BUMP
-#ifdef MSAA_ALPHATEST_DX10_1
-#if ((!defined(ALLOW_STEEPPARALLAX)) && defined(USE_STEEPPARALLAX))
-    I.tcdbump.xy += pixeloffset.x * ddx(I.tcdbump.xy) + pixeloffset.y * ddy(I.tcdbump.xy);
-#endif
-#endif
-
-    float4 NDetail = s_detailBump.Sample(smp_base, I.tcdbump);
-    float4 NDetailX = s_detailBumpX.Sample(smp_base, I.tcdbump);
-    S.gloss = S.gloss * NDetail.x * 2;
-    // S.normal			+= NDetail.wzy-.5;
-    S.normal += NDetail.wzy + NDetailX.xyz - 1.0h; //	(Nu.wzyx - .5h) + (E-.5)
-
-    float4 detail = s_detail.Sample(smp_base, I.tcdbump);
-    S.base.rgb = S.base.rgb * detail.rgb * 2;
-
-//	S.base.rgb			= float3(1,0,0);
-#else //	USE_TDETAIL_BUMP
-#ifdef MSAA_ALPHATEST_DX10_1
-    I.tcdbump.xy += pixeloffset.x * ddx(I.tcdbump.xy) + pixeloffset.y * ddy(I.tcdbump.xy);
-#endif
-    float4 detail = s_detail.Sample(smp_base, I.tcdbump);
-    S.base.rgb = S.base.rgb * detail.rgb * 2;
-    S.gloss = S.gloss * detail.w * 2;
-#endif //	USE_TDETAIL_BUMP
-#endif
-
-    return S;
+    // if (m_taa_jitter.z > 0.f)
+    //{
+    // }
+    // else
+    //{
+    clip(alpha - def_aref);
+    //}
 }
-
-surface_bumped sload(p_bumped I)
-{
-    surface_bumped S = sload_i(I);
-    //	S.normal.z			*=	0.5;		//. make bump twice as contrast (fake, remove me if possible)
-    return S;
-}
-
-surface_bumped sload(p_bumped I, float2 pixeloffset)
-{
-    surface_bumped S = sload_i(I, pixeloffset);
-    //	S.normal.z			*=	0.5;		//. make bump twice as contrast (fake, remove me if possible)
-    return S;
-}
+#else
+void calc_alpha_test(float2 tc, float alpha) { clip(alpha - def_aref); }
+#endif
 
 #endif

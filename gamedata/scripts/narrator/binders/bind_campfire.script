@@ -24,8 +24,10 @@ function campfire_zone_binder:net_spawn(data)
 	--self.object:disable_anomaly()
 	self.sm:call("on_campfire_zone_spawn", self.object)
 	if not self.se_object.enabled then
-		self.object:disable_anomaly()
+		-- self.object:disable_anomaly()
+		add_update_delayed_action(1, function() self.object:disable_anomaly() end)
 	end
+	--log3("~%s net_spawn for campfire anomaly %s | id %s | enabled %s", script_name(), self.object:name(), self.object:id(), self.se_object.enabled)
     local spawned = object_binder.net_spawn(self, data)	
 	return spawned
 end

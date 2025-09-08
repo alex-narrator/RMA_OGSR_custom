@@ -1,7 +1,7 @@
 /**
- * @ Version: SCREEN SPACE SHADERS - UPDATE 14.3
+ * @ Version: SCREEN SPACE SHADERS - UPDATE 18
  * @ Description: SSR implementation
- * @ Modified time: 2023-01-29 08:40
+ * @ Modified time: 2023-09-29 06:42
  * @ Author: https://www.moddb.com/members/ascii1457
  * @ Mod: https://www.moddb.com/mods/stalker-anomaly/addons/screen-space-shaders
  */
@@ -9,7 +9,7 @@
 #include "screenspace_common.h"
 #include "settings_screenspace_SSR.h"
 
-uniform float4 rain_params;
+uniform float4 ssfx_is_underground;
 
 static const int2 q_ssr_steps[6] =
 {
@@ -47,7 +47,7 @@ float4 SSFX_ssr_fast_ray(float3 ray_start_vs, float3 ray_dir_vs, float2 tc, uint
 
 	// Depth from the start of the ray
 	float ray_depthstart = SSFX_get_depth(ssr_ray.r_start, iSample);
-	
+
 	// Ray-march
 	[unroll (q_ssr_steps[G_SSR_QUALITY].x)]
 	for (int i = 0; i < q_ssr_steps[G_SSR_QUALITY].x; i++)
@@ -80,7 +80,7 @@ float4 SSFX_ssr_fast_ray(float3 ray_start_vs, float3 ray_dir_vs, float2 tc, uint
 				return float4(ssr_ray.r_pos, 0, 0);
 
 #if G_SSR_QUALITY > 2 // 1 Binary Search step in higher quality settigns ( Quality 4 & 5 )
-			
+
 			// Current ray pos & step to restore later...
 			float4 prev_step = 0;
 			prev_step.xy = ssr_ray.r_pos;
@@ -111,7 +111,7 @@ float4 SSFX_ssr_fast_ray(float3 ray_start_vs, float3 ray_dir_vs, float2 tc, uint
 			// TexCoor for sky ( Used to fade "SSFX_calc_SSR_fade" )
 			if (ray_check.y <= SKY_EPS)
 				sky_tc = ssr_ray.r_pos;
-			
+
 			behind_hit = ssr_ray.r_pos;
 
 			// Reset or keep depending on... ( > 1.3f = no interaction with weapons and sky )
@@ -129,7 +129,7 @@ float4 SSFX_ssr_fast_ray(float3 ray_start_vs, float3 ray_dir_vs, float2 tc, uint
 void SSFX_ScreenSpaceReflections(float2 tc, float4 P, float3 N, float gloss, inout float3 color, uint iSample : SV_SAMPLEINDEX)
 {
 	// Note: Distance falloff on "rain_patch_normal.ps"
-	
+
 	// Material conditions ( MAT_FLORA and Terrain for now... )
 	bool m_terrain = abs(P.w - 0.95f) <= 0.02f;
 	bool m_flora = abs(P.w - MAT_FLORA) <= 0.04f;
@@ -163,9 +163,9 @@ void SSFX_ScreenSpaceReflections(float2 tc, float4 P, float3 N, float gloss, ino
 
 	// Sky is the reflection base...
 #ifdef G_SSR_CHEAP_SKYBOX
-	reflection = SSFX_calc_env(v2reflect) * G_SSR_SKY_INTENSITY;
+	reflection = SSFX_calc_env(v2reflect) * G_SSR_SKY_INTENSITY * !ssfx_is_underground.x;
 #else
-	reflection = SSFX_calc_sky(v2reflect) * G_SSR_SKY_INTENSITY;
+	reflection = SSFX_calc_sky(v2reflect) * G_SSR_SKY_INTENSITY * !ssfx_is_underground.x;
 #endif
 
 	// Valid UV coor? SSFX_trace_ssr_ray return 0.0f if uv is out of bounds or sky.
@@ -203,10 +203,10 @@ void SSFX_ScreenSpaceReflections(float2 tc, float4 P, float3 N, float gloss, ino
 
 	// Terrain MAT overwrite WeaponFactor.
 	WeaponFactor = saturate(WeaponFactor + 1.0f * m_terrain);
-	
+
 	// Global intensity and limit max value.
 	float main_clamp = clamp(refl_power * G_SSR_INTENSITY, 0, G_SSR_MAX_INTENSITY);
-	
+
 	// Raise reflection intensity and max limit when raining. ( NOTE: Reverted to rain intensity, but improvements are on the way... )
 	float rain_extra = G_SSR_WEAPON_RAIN_FACTOR * rain_params.x;
 
@@ -225,7 +225,7 @@ void SSFX_ScreenSpaceReflections(float2 tc, float4 P, float3 N, float gloss, ino
 
 	// 'Beefs Shader Based NVGs' optional intensity adjustment
 #ifdef G_SSR_BEEFS_NVGs_ADJUSTMENT
-	refl_power *= saturate(1.0f - (1.0f - G_SSR_BEEFS_NVGs_ADJUSTMENT) * (shader_param_8.x > 0.0f));
+	refl_power *= saturate(1.0f - (1.0f - G_SSR_BEEFS_NVGs_ADJUSTMENT) * (pnv_param_1.z == 1.f));
 #endif
 
 	// Add the reflection to the scene.

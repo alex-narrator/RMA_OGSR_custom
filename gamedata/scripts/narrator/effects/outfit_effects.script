@@ -1,14 +1,26 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 local main_wnd = get_main_window()
 local mask_texture = [[ui\dinamic_hud\hud_]]
-local breathe_texture = [[ui\dinamic_hud\breathe]]
+local breath_texture = [[ui\dinamic_hud\breath]]
 local brake_sound = xr_sound.get_safe_sound_object([[material\glass\glass_fall01hl]])
 
-local hud_obj, mask_static, breathe_static, last_cond_idx, last_power_idx, last_power_idx, breathe_val
+local hud_obj, mask_static, breath_static, last_cond_idx, last_power_idx, last_power_idx, breath_val
 
-local breathe, texture, breakable = false, false, false
+local texture, breakable = false, false
 
-local dec_breathe, show_minimap = false, false
+local breath_speed, breath_max, breath_k = 0.1, 1, 1
+
+local dec_breath, show_minimap, breath_shader = false, false, false
+
+function set_breath_speed(val)
+	breath_speed = val
+end
+function set_breath_max(val)
+	breath_max = val
+end
+function set_breath_k(val)
+	breath_k = val
+end
 
 function get_cond_idx()
 	local cond = hud_obj:condition()
@@ -134,9 +146,10 @@ function enable_effects(obj)
 		switch_shader_effects(true)
 	end
 	
-	if read_if_exists(sys_ini, "r_float", sect, "hud_breathe", 0) > 0 then
-		breathe = read_if_exists(sys_ini, "r_float", sect, "hud_breathe", 0)
-		switch_breathe(true)
+	if read_if_exists(sys_ini, "r_bool", sect, "hud_breath", false) then
+		breath_shader = get_script_option_value("breath_shader_effect")
+		breath_max = breath_shader and read_if_exists(sys_ini, "r_float", sect, "hud_breath_size", 0.6) or 1
+		switch_breath(true)
 	end
 	
 	if read_if_exists(sys_ini, "r_string", sect, "hud_texture", nil) then
@@ -166,9 +179,8 @@ function disable_effects(obj, prev_place)
 	if read_if_exists(sys_ini, "r_bool", sect, "hud_shader", false) then
 		switch_shader_effects(false)
 	end
-	if read_if_exists(sys_ini, "r_float", sect, "hud_breathe", 0) > 0 then
-		breathe = 0
-		switch_breathe(false)
+	if read_if_exists(sys_ini, "r_bool", sect, "hud_breath", false) then
+		switch_breath(false)
 	end
 	
 	if read_if_exists(sys_ini, "r_string", sect, "hud_texture", nil) then
@@ -184,22 +196,28 @@ function switch_shader_effects(val)
 	val = val and 1 or 0
 	console:execute("r2_rain_drops_control "..val)
 	console:execute("r2_visor_refl_control "..val)
+	console:execute("r2_mask_control "..val)
+	console:execute("breath_size 0")
 end
 
-function switch_breathe(val)
+function switch_breath(val)
 	local sm = ogse_signals.get_mgr()
-	breathe_val = 0
-	dec_breathe = false
+	breath_val = 0
+	dec_breath = false
 	local subscribe = {signal = "update_items_effect", fun = this.on_update_mask}
 	if val then
 		sm:subscribe(subscribe)
-		breathe_static = create_breathe_static()
-		main_wnd:AttachChild(breathe_static)
-		main_wnd:BringToBottom(breathe_static)
+		if not breath_shader then
+			breath_static = create_breath_static()
+			main_wnd:AttachChild(breath_static)
+			main_wnd:BringToBottom(breath_static)
+		end
 	else
 		sm:unsubscribe(subscribe)
-		main_wnd:DetachChild(breathe_static)
-		breathe_static = nil
+		if not breath_shader then
+			main_wnd:DetachChild(breath_static)
+			breath_static = nil
+		end
 	end	
 end
 
@@ -231,11 +249,11 @@ function create_mask_static()
 	return static
 end
 
-function create_breathe_static()
+function create_breath_static()
 	last_power_idx = get_power_idx()
 	local static = CUIStatic()
 	static:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
-	static:InitTexture(breathe_texture..last_power_idx)
+	static:InitTexture(breath_texture..last_power_idx)
 	static:SetStretchTexture(true)
 	return static
 end
@@ -277,32 +295,37 @@ end
 
 function on_update_mask(delta)
 	--log3("%s | %s", script_name(), delta)
-	local change = delta * breathe
-	change = change + (change * (1 - actor.power))
+	local change = delta * breath_speed * breath_max
+	change = change + (change * (1 - actor.power) * breath_k)
 	
-	if dec_breathe then
+	if dec_breath then
 		change = -change
 	end	
 	
-	breathe_val = breathe_val + change
+	breath_val = breath_val + change
 	
-	if breathe_val <= 0 then
-		breathe_val = 0
-		dec_breathe = false
-	elseif breathe_val >= 1 then
-		breathe_val = 1
-		dec_breathe = true
+	if breath_val <= 0 then
+		breath_val = 0
+		dec_breath = false
+	elseif breath_val >= breath_max then
+		breath_val = breath_max
+		dec_breath = true
 	end
 	
-	breathe_static:SetColor(GetARGB(breathe_val*255,255,255,255))
+	if breath_shader then
+		--shader_set_custom_param("breath_idx", math.random(0, 200))
+		shader_set_custom_param("breath_size", breath_val, 0)
+	else
+		breath_static:SetColor(GetARGB(breath_val*255,255,255,255))
 	
-	local power_idx = get_power_idx()
-	if last_power_idx ~= power_idx and breathe_val == 0 then
-		breathe_static:InitTexture(breathe_texture..power_idx)
-		last_power_idx = power_idx
-		--log3("last_power_idx %s", last_power_idx)
+		local power_idx = get_power_idx()
+		if last_power_idx ~= power_idx and breath_val == 0 then
+			breath_static:InitTexture(breath_texture..power_idx)
+			last_power_idx = power_idx
+			--log3("last_power_idx %s", last_power_idx)
+		end
 	end
-	--log3("breathe_val %s", breathe_val)
+	--log3("breath_val %s", breath_val)
 end
 
 -- function on_update_minimap()

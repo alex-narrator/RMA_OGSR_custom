@@ -1,0 +1,27 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_weapon_shell_drop", fun = this.on_shell_drop})
+end
+
+local tactical_light_actions = {
+	[key_bindings.kWPN_LASER] = true,
+	[key_bindings.kWPN_FLASHLIGHT] = true,
+}
+
+function on_shell_drop(wpn, pos, vel)
+	local shell_drop_delay = read_if_exists(sys_ini, "r_float", wpn:section(), "shell_drop_delay", nil)
+	if not shell_drop_delay then
+	return end
+	local shell_particle = read_if_exists(sys_ini, "r_string", wpn:section(), "shell_drop_delay_particle", nil)
+	if not shell_particle then
+	return end
+	local dir = read_if_exists(sys_ini, "r_vector", wpn:section(), "shell_dir", vector())
+	add_time_delayed_action(
+		shell_drop_delay,
+		function()
+			shell_particle = particles_object(shell_particle)
+			shell_particle:set_direction(dir)
+			shell_particle:play_at_pos(pos, true)
+		end
+	)
+end

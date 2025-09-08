@@ -23,7 +23,7 @@ function play_outfit(anim_type)
 			return not actor:active_item() and not actor:active_device()
 		end,
 		function()
-			actor:hide_crosshair(true)
+			--actor:hide_crosshair(true)
 			
 			game.play_hud_motion(2, hud_sect, "anm_use", false, 1, true)
 			_G.SCRIPT_ANIM_PLAYING = true
@@ -44,7 +44,7 @@ function play_outfit(anim_type)
 					if mode == "inventory" or mode == "carbody"	then
 						backpack.play_anim(3)
 					end
-					actor:hide_crosshair(false)
+					--actor:hide_crosshair(false)
 				end
 			)
 		end
@@ -84,7 +84,7 @@ function play_gasmask(item, is_on)
 			return not actor:active_item() and not actor:active_device()
 		end,
 		function()
-			actor:hide_crosshair(true)
+			--actor:hide_crosshair(true)
 			
 			game.play_hud_motion(2, hud_sect, is_on and "anm_equip" or "anm_unequip", false, 1, true)
 			_G.SCRIPT_ANIM_PLAYING = true
@@ -115,7 +115,7 @@ function play_gasmask(item, is_on)
 					if mode == "inventory" or mode == "carbody" then
 						backpack.play_anim(3)
 					end
-					actor:hide_crosshair(false)
+					--actor:hide_crosshair(false)
 					if is_on then 
 						outfit_effects.enable_effects(item)
 					end

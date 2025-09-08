@@ -3,114 +3,134 @@ class						= WP_BINOC
 snd_zoomin				    = silence
 snd_zoomout				    = silence
 slot 						= 4
-second_vp_enabled 			= true
 scope_texture				=
-dof_aim_intensity 			= 0.6
-const_zoom_hud_fov 			= 30
+
 aim_alt 					= true
 
-shader_scope_zoom 			= 1
-shader_scope_mark_scale 	= 1
-shader_scope_vignette 		= 1.1
-shader_scope_chroma 		= 0
+scope_inertion_factor 		= 2
+
+s3ds_fake_zoom 				= 1.1
+
+snd_nvd_on 					= device\night_vision\nv_start
+snd_nvd_off 				= device\night_vision\nv_off
+;snd_nvd_operate 			= device\night_vision\nvg_loop
 
 [wpn_addon_scope_pso1]:wpn_binoc,wpn_addon_scope_pso1_simple,wpn_binoc_scope_base
 hud							= wpn_addon_scope_pso1_hud
-collimator_mark_count 		= 2
 
-shader_scope_mark_scale 	= 1.3
+collimator_mark_count 		= 2
+collimator_mark_color_1		= 1,0,0
+
+s3ds_reticle_size 			= 3.5
+s3ds_exit_pupil 			= 0.37
 
 [wpn_addon_scope_pso1_m1]:wpn_binoc,wpn_addon_scope_pso1_m1_simple,wpn_binoc_scope_base
 hud							= wpn_addon_scope_pso1_m1_hud
+
 collimator_mark_count 		= 2
+collimator_mark_color_1		= 1,0,0
+
+s3ds_reticle_size 			= 3
+s3ds_exit_pupil 			= 0.37
 
 [wpn_addon_scope_1p29]:wpn_binoc,wpn_addon_scope_1p29_simple,wpn_binoc_scope_base
 hud							= wpn_addon_scope_1p29_hud
 
-shader_scope_vignette 		= 1.15
+s3ds_reticle_size 			= 2.6
+s3ds_eye_relief 			= 4
+s3ds_exit_pupil 			= 0.47
 
 [wpn_addon_scope_1p59]:wpn_binoc,wpn_addon_scope_1p59_simple,wpn_binoc_scope_base
 hud							= wpn_addon_scope_1p59_hud
 
-dof_aim_intensity 			= 0.7
+s3ds_reticle_type 			= 5
+s3ds_reticle_size 			= 2.5
+s3ds_eye_relief 			= 3.8
 
-shader_scope_vignette 		= 1.2
-shader_scope_mark_ffp 		= true
+collimator_mark_count 		= 2
+collimator_mark_color_1		= 1,0,0
 
 [wpn_addon_scope_1pn93]:wpn_binoc,wpn_addon_scope_1pn93_simple,wpn_binoc_scope_base
 hud							= wpn_addon_scope_1pn93_hud
 
-nv_color 					= 0.2, 0.3, 0.2
-nv_intensity 				= 10
+s3ds_image_type 			= 1
+s3ds_reticle_size 			= 3.5
+s3ds_eye_relief 			= 5
+s3ds_exit_pupil 			= 0.31
 
-[wpn_addon_scope_pn23]:wpn_binoc,wpn_addon_scope_pn23_simple,wpn_binoc_scope_base
-hud							= wpn_addon_scope_pn23_hud
 collimator_mark_count 		= 2
-
-nv_color 					= 0.2, 0.3, 0.2
-nv_intensity 				= 10
-
-dof_aim_intensity 			= 0.65
-
-[wpn_addon_scope_po4x34]:wpn_binoc,wpn_addon_scope_po4x34_simple,wpn_binoc_scope_base
-hud 						= wpn_addon_scope_po4x34_hud
-
-dof_aim_intensity 			= 0.65
+collimator_mark_color_1		= 1,0,0
 
 [wpn_addon_scope_acog]:wpn_binoc,wpn_addon_scope_acog_simple,wpn_binoc_scope_base
 hud							= wpn_addon_scope_acog_hud
 
-shader_scope_vignette 		= 1.3
+s3ds_reticle_type 			= 3
+s3ds_reticle_size 			= 3
+s3ds_exit_pupil 			= 0.43
+s3ds_mark_color 			= 1,0,0
 
-dof_aim_intensity 			= 0.7
+;wpn_remington870_s3ds_exit_pupil = 0.65
+
+[wpn_addon_scope_hunting_3x9]:wpn_binoc,wpn_addon_scope_hunting_3x9_simple,wpn_binoc_scope_base
+hud							= wpn_addon_scope_hunting_3x9_hud
+
+s3ds_exit_pupil 			= 0.3
+s3ds_ffp 					= 1
+
+;wpn_remington870_s3ds_exit_pupil = 0.5
+
+[wpn_addon_scope_pn23]:wpn_binoc,wpn_addon_scope_pn23_simple,wpn_binoc_scope_base
+hud							= wpn_addon_scope_pn23_hud
+collimator_mark_count 		= 2
+collimator_mark_color_1		= 1,0,0
+
+s3ds_image_type 			= 1
+s3ds_exit_pupil 			= 0.4
+
+;wpn_remington870_s3ds_exit_pupil = 0.55
+
+[wpn_addon_scope_specter]:wpn_binoc,wpn_addon_scope_specter_simple,wpn_binoc_scope_base
+hud							= wpn_addon_scope_specter_hud
+
+s3ds_reticle_type 			= 4
+s3ds_exit_pupil 			= 0.5
+s3ds_min_zoom_1x 			= 1
+s3ds_mark_color 			= 1,0,0
+
+; wpn_remington870_s3ds_reticle_size = 3
+; wpn_remington870_s3ds_exit_pupil = 0.7
+
+collimator_mark_count 		= 3
+
+[wpn_addon_scope_pks07]:wpn_binoc,wpn_addon_scope_pks07_simple,wpn_binoc_scope_base
+hud							= wpn_addon_scope_pks07_hud
+
+s3ds_exit_pupil 			= 0.39
+
+;wpn_remington870_s3ds_exit_pupil = 0.55
 
 [wpn_addon_scope_susat]:wpn_binoc,wpn_addon_scope_susat_simple,wpn_binoc_scope_base
 hud							= wpn_addon_scope_susat_hud
 ignore_aim_alt 				= true
 
-shader_scope_vignette 		= 1.3
-shader_scope_chroma 		= 0
-shader_scope_mark_scale 	= 0.9
+s3ds_exit_pupil 			= 0.5
 
-[wpn_addon_scope_hunting_3x9]:wpn_binoc,wpn_addon_scope_hunting_3x9_simple,wpn_binoc_scope_base
-hud							= wpn_addon_scope_hunting_3x9_hud
+[wpn_addon_scope_po4x34]:wpn_binoc,wpn_addon_scope_po4x34_simple,wpn_binoc_scope_base
+hud 						= wpn_addon_scope_po4x34_hud
 
-shader_scope_mark_ffp 		= true
-
-dof_aim_intensity 			= 0.7
-
-[wpn_addon_scope_specter]:wpn_binoc,wpn_addon_scope_specter_simple,wpn_binoc_scope_base
-hud							= wpn_addon_scope_specter_hud
-
-collimator_mark_count 		= 3
-
-shader_scope_vignette 		= 1.3
-shader_scope_mark_scale 	= 1
-
-dof_aim_intensity 			= 0.65
-
-[wpn_addon_scope_pks07]:wpn_binoc,wpn_addon_scope_pks07_simple,wpn_binoc_scope_base
-hud							= wpn_addon_scope_pks07_hud
-
-shader_scope_vignette 		= 1.15
-
-dof_aim_intensity 			= 0.65
+s3ds_exit_pupil 			= 0.37
 
 [wpn_addon_scope_remington700]:wpn_binoc,wpn_addon_scope_remington700_simple,wpn_binoc_scope_base
 hud							= wpn_addon_scope_remington700_hud
 
-;shader_scope_mark_ffp 		= true
-
-dof_aim_intensity 			= 0.7
-
-[wpn_addon_scope_ac11090]:wpn_binoc,wpn_addon_scope_ac11090_simple,wpn_binoc_scope_base
-hud							= wpn_addon_scope_ac11090_hud
-
-dof_aim_intensity 			= 0.7
+s3ds_exit_pupil 			= 0.35
 
 [wpn_addon_scope_pu]:wpn_binoc,wpn_addon_scope_pu_simple,wpn_binoc_scope_base
 hud							= wpn_addon_scope_pu_hud
 
-shader_scope_vignette 		= 1.05
+s3ds_reticle_size 			= 2
+s3ds_eye_relief 			= 3
+s3ds_exit_pupil 			= 0.7
 
-dof_aim_intensity 			= 0.65
+[wpn_addon_scope_ac11090]:wpn_binoc,wpn_addon_scope_ac11090_simple,wpn_binoc_scope_base
+hud							= wpn_addon_scope_ac11090_hud

@@ -5,6 +5,7 @@ local subscribed = false
 local sm = ogse_signals.get_mgr()
 
 local color_focused = GetARGB(255, 255, 255, 0)
+local color_none = GetARGB(255, 255, 255, 255)
 
 class "QuickAddonOverlay" (CUIScriptWnd)
 
@@ -21,7 +22,7 @@ function QuickAddonOverlay:Subscribe()
 			{signal = "on_quick_addon_show", self = self, fun = self.OnShow},
 			{signal = "on_quick_addon_hide", self = self, fun = self.OnHide},
 			{signal = "on_drop", self = self, fun = self.UpdateCompatible},
-			{signal = "on_hud_state_switch", self = self, fun = self.UpdateCompatible},
+			-- {signal = "on_hud_state_switch", self = self, fun = self.UpdateCompatible},
 		}
 		for _, s in ipairs( self.subscribed ) do
 			sm:subscribe( s )
@@ -67,16 +68,105 @@ function QuickAddonOverlay:InitControls()
 	
 	self.tip = xml:InitStatic("tip", self)
 	self.tip:Show(false)
+	
+	self.slots_back = CUIStatic()
+	self.back:AttachChild(self.slots_back)
+	
+	self.slot_offset = split_string(xml:ReadAttrib("background", "slot_offset", "0,0"), ",", true)
+	self.slot_scale = xml:ReadAttribFlt("background", "slot_scale", 1)
+	
+	--self.slots_back:SetWidth(0)
+	--self.slots_back:SetHeight(0)
+	
+	self.slots = {}
+	local slots = split_string(xml:ReadAttrib("background", "slots", ""), ",", true)
+	for _,i in pairs(slots) do
+		self.slots[i] = {}
+		self.slots[i].back = CUIStatic()
+		self.slots[i].back:SetStretchTexture(true)
+		self.slots[i].back:InitTexture(self.back_texture)
+		self.slots[i].item = CUIStatic()
+		self.slots[i].item:SetStretchTexture(true)
+		self.slots[i].back:AttachChild(self.slots[i].item)
+		self.slots_back:AttachChild(self.slots[i].back)
+			
+		local name = "slot_"..i
+		self:Register(self.slots[i].back, name)
+		self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnItemSlotFocusReceived(i) end)
+		self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnItemSlotFocusLost(i) end)
+		self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnItemSlotClick(i) end)			
+	end
 end
 
 function QuickAddonOverlay:Update()
 	CUIScriptWnd.Update(self)
-	if not actor_hands_free() then
+	if not self:CanShow() then
 		self.target_item_id = nil
-	end
-	if not self.target_item_id then
 		self:ShowHide()
 	end
+end
+
+function QuickAddonOverlay:UpdateItemInSlots()
+	local result_width = 0
+	local result_height = 0
+	local pos_x = 0
+	local act_item = actor:active_item()
+	for i,v in pairs(self.slots) do
+		v.item:DetachAll()
+		self:HighlightStatic(v.back, color_none)
+		local item = actor:item_in_slot(i)
+		if item then
+			v.back:Show(true)
+			local params = CIconParams(item:section())
+			SetCellIcon(v.item, params)
+			local icon_size = vector2():set(params.grid_width * CELL_W * get_current_kx() * self.slot_scale, params.grid_height * CELL_H * self.slot_scale)
+			v.item:SetWidth(icon_size.x)
+			v.item:SetHeight(icon_size.y)
+			v.back:SetWidth(icon_size.x)
+			v.back:SetHeight(icon_size.y)
+			
+			ogse_signals.get_mgr():call("on_cell_item_show", item, v.item)
+			v.back:SetText(game.translate_string("ui_use_slot_"..i))
+			v.back:SetTextColor(GetARGB(255, 238, 153, 26))
+			
+			v.back:SetWndPos(pos_x, 0)
+			pos_x = pos_x + v.back:GetWidth() + self.items_indent
+			result_width = result_width + v.back:GetWidth() + self.items_indent
+			if v.back:GetHeight() > result_height then
+				result_height = v.back:GetHeight()
+			end
+			
+			if act_item and act_item:id() == item:id() then
+				self:HighlightStatic(v.back, color_focused)
+			end
+		else
+			v.back:Show(false)
+		end
+	end
+	
+	self.slots_back:SetWidth(result_width)
+	self.slots_back:SetHeight(result_height)
+	local offset = ui_inv_utils.GetOffset("center", self.slots_back, self.back)
+	offset.x = offset.x + self.slot_offset[1]
+	offset.y = offset.y + self.slot_offset[2]
+	self.slots_back:SetWndPos(offset.x, offset.y)
+end
+
+function QuickAddonOverlay:OnItemSlotFocusReceived(i)
+	local static = self.slots[i].back
+	self:HighlightStatic(static, color_focused)
+end
+
+function QuickAddonOverlay:OnItemSlotFocusLost(i)
+	local static = self.slots[i].back
+	self:HighlightStatic(static, color_none)
+end
+
+function QuickAddonOverlay:OnItemSlotClick(i)
+	if actor:active_slot() == i then
+		actor:activate_slot(NO_ACTIVE_SLOT, false)
+	return end
+	actor:activate_slot(i, false)
 end
 
 function QuickAddonOverlay:CheckBelt(check_item)
@@ -1047,7 +1137,7 @@ end
 function QuickAddonOverlay:OnBeltFocusLost(idx)
 	local item = actor:item_on_belt(idx)
 	local static = self.belt_items[idx].back
-	self:HighlightStatic(static, GetARGB(255, 255, 255, 255))
+	self:HighlightStatic(static, color_none)
 	sm:call("on_cell_item_focus_lost", item)
 	
 	self:SetTip()
@@ -1083,7 +1173,7 @@ end
 function QuickAddonOverlay:OnLoadoutFocusLost(id)
 	local item = level.object_by_id(id)
 	local static = self.loadout_items[id].back
-	self:HighlightStatic(static, GetARGB(255, 255, 255, 255))
+	self:HighlightStatic(static, color_none)
 	sm:call("on_cell_item_focus_lost", item)
 	
 	self:SetTip()
@@ -1134,7 +1224,7 @@ function QuickAddonOverlay:OnDetachFocusLost(sect)
 				or self.flashlight_items[sect] and self.flashlight_items[sect].back
 				or self.laser_items[sect] and self.laser_items[sect].back
 				or self.stock_items[sect] and self.stock_items[sect].back
-	self:HighlightStatic(static, GetARGB(255, 255, 255, 255))
+	self:HighlightStatic(static, color_none)
 	
 	self:SetTip()
 end
@@ -1196,7 +1286,7 @@ function QuickAddonOverlay:OnAttachFocusLost(id)
 				or self.flashlight_items[id] and self.flashlight_items[id].back
 				or self.laser_items[id] and self.laser_items[id].back
 				or self.stock_items[id] and self.stock_items[id].back				
-	self:HighlightStatic(static, GetARGB(255, 255, 255, 255))
+	self:HighlightStatic(static, color_none)
 	sm:call("on_cell_item_focus_lost", item)
 	
 	self:SetTip()
@@ -1271,13 +1361,29 @@ function QuickAddonOverlay:TrySignalHide()
 	end
 end
 
+function QuickAddonOverlay:CanShow()
+	if not actor_hands_free() then
+		return false
+	end
+	if self.target_item_id then
+		return true
+	end
+	for i,v in pairs(self.slots) do
+		local item = actor:item_in_slot(i)
+		if item then
+			return true
+		end
+	end
+	return false
+end
+
 function QuickAddonOverlay:ShowHide()
 	if not level.main_input_receiver() or self:IsShown() then
 		level.start_stop_menu(self,false)
 		self.was_shown = self:IsShown()
 		if self.was_shown then
 			self:UpdateCompatible()
-			if not self.target_item_id then
+			if not self:CanShow() then
 			return end
 			self:Subscribe()
 			sm:call("on_quick_addon_show")
@@ -1303,6 +1409,7 @@ function QuickAddonOverlay:OnShow()
 		-- end		
 	-- end
 	self:ProcessSlowMotion()
+	self:UpdateItemInSlots()
 end
 
 function QuickAddonOverlay:OnHide()
