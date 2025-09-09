@@ -18,6 +18,22 @@ local relation_color = {
 }
 local dead_color = GetARGB(255, 168, 168, 168)
 
+function get_target_tip_point(tgt)
+	if not tgt then
+	return nil end
+	local bone_name = "none"
+	if tgt:is_trader() then
+		bone_name = "bip01_neck"
+	end
+	if tgt:is_monster() then
+		bone_name = get_species(tgt) == "zombie" and "bip01_spine1" or "bip01_spine2"
+	end
+	if tgt:is_stalker() then
+		bone_name = tgt:alive() and "bip01_neck" or "bip01_spine1"
+	end
+	return tgt:get_bone_id(bone_name) ~= 65535 and tgt:bone_position(bone_name) or tgt:center()
+end
+
 function visibility()
 	return USE_LUMINOCITY and actor:get_luminocity() or actor_obj:get_visibility()
 end
@@ -333,6 +349,7 @@ function MainIngameOverlay:InitControls()
 	self.target_tip = xml:InitStatic("target_tip", self)
 	self.target_tip.offset = xml:ReadAttrib("target_tip", "offset", "center")
 	self.target_tip.offset_shift = split_string(xml:ReadAttrib("target_tip", "offset_shift", "0,0"), ",", true)
+	self.target_tip.show_on_object = xml:ReadAttribInt("target_tip", "show_on_object", 0) > 0 and true or false
 	self.tip_cursor = xml:InitStatic("tip_cursor", self)
 	local offset = ui_inv_utils.GetOffset("center", self.tip_cursor, self.owner)
 	self.tip_cursor:SetWndPos(offset.x, offset.y)
@@ -1027,7 +1044,17 @@ function MainIngameOverlay:UpdateTargetTip()
 		self.target_tip:SetWidth(self.target_tip:GetWidth() + 6)
 		self.target_tip:SetHeight(self.target_tip:GetHeight() + 6)
 		
-		local offset = ui_inv_utils.GetOffset(self.target_tip.offset, self.target_tip, self.owner)
+		local offset = vector2()
+		if self.target_tip.show_on_object then
+			local point = get_target_tip_point(tgt)
+			local pos = tgt and point_on_screen.point_projection(point) or nil
+			if pos then
+				offset.x = pos.x - self.target_tip:GetWidth() * 0.5
+				offset.y = pos.y - self.target_tip:GetHeight() * 0.5
+			end
+		else
+			ui_inv_utils.GetOffset(self.target_tip.offset, self.target_tip, self.owner)
+		end
 		offset.x = offset.x + self.target_tip.offset_shift[1]
 		offset.y = offset.y + self.target_tip.offset_shift[2]
 		self.target_tip:SetWndPos(offset.x, offset.y)
