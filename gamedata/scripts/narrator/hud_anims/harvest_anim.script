@@ -54,6 +54,7 @@ function play_blood_fx()
 		function()
 			local pos = device().cam_pos
 			pos:add(device().cam_dir:set_length(0.3))
+			--pos.y = pos.y - 0.05
 			local dir = vector():set(0,1,0)
 			for k,v in pairs(blood_particle) do
 				local particle = particles_object(v)

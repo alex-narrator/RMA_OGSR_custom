@@ -29,9 +29,13 @@ function get_carbody_target()
 	return false
 end
 
-function action_use()
-	level.send_event_key_press(bind_to_dik(key_bindings.kUSE))
-	level.send_event_key_release(bind_to_dik(key_bindings.kUSE))
+function action_use(tgt)
+	if tgt and (tgt:get_inventory_box() or ((tgt:is_monster() or tgt:is_stalker()) and not tgt:alive())) then
+		tgt:get_game_object():use(actor)
+	else
+		level.send_event_key_press(bind_to_dik(key_bindings.kUSE))
+		level.send_event_key_release(bind_to_dik(key_bindings.kUSE))
+	end
 end
 
 function play()
@@ -86,7 +90,7 @@ function play()
 					end
 				else
 					if not tgt:get_container() then --//без цього інвентарний контейнер буде одразу підібраний у інвентар
-						action_use() 				--//це важливо робити ДО імовірного відкриття вікна actor_menu щоб спрацював колбек on_use
+						action_use(tgt) 			--//це важливо робити ДО імовірного відкриття вікна actor_menu щоб спрацював колбек on_use
 					end
 					if (tgt:is_stalker() and not tgt:alive()) or (tgt:get_inventory_box() and tgt:get_nonscript_usable()) then
 						ui_actor_menu.ShowHideMenu("carbody", tgt)

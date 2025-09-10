@@ -350,6 +350,7 @@ function MainIngameOverlay:InitControls()
 	self.target_tip.offset = xml:ReadAttrib("target_tip", "offset", "center")
 	self.target_tip.offset_shift = split_string(xml:ReadAttrib("target_tip", "offset_shift", "0,0"), ",", true)
 	self.target_tip.show_on_object = xml:ReadAttribInt("target_tip", "show_on_object", 0) > 0 and true or false
+	self.target_tip.border = xml:ReadAttribInt("target_tip", "border", 0)
 	self.tip_cursor = xml:InitStatic("tip_cursor", self)
 	local offset = ui_inv_utils.GetOffset("center", self.tip_cursor, self.owner)
 	self.tip_cursor:SetWndPos(offset.x, offset.y)
@@ -1031,7 +1032,7 @@ end
 
 function MainIngameOverlay:UpdateTargetTip()
 	local tip = actor_obj:get_default_action_for_obj()
-	self.target_tip:Show(tip and tip ~= "" and (actor_hands_free() or actor:ph_capture()))
+	self.target_tip:Show(tip and tip ~= "" and (actor_hands_free() or actor:ph_capture()))-- and not actor_obj:is_zoom_aiming_mode())
 	if self.target_tip:IsShown() then
 		local tgt = level.get_target_obj()
 		if tgt and tgt:get_eatable_item() then
@@ -1039,10 +1040,10 @@ function MainIngameOverlay:UpdateTargetTip()
 		end
 		self.target_tip:SetText(game.translate_string(tip))
 		self.target_tip:AdjustWidthToText()
-		self.target_tip:AdjustHeightToText()
+		self.target_tip:AdjustHeightToText()		
 		
-		self.target_tip:SetWidth(self.target_tip:GetWidth() + 6)
-		self.target_tip:SetHeight(self.target_tip:GetHeight() + 6)
+		self.target_tip:SetWidth(self.target_tip:GetWidth() + self.target_tip.border)
+		self.target_tip:SetHeight(self.target_tip:GetHeight() + self.target_tip.border)
 		
 		local offset = vector2()
 		if self.target_tip.show_on_object then
