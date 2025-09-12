@@ -95,6 +95,7 @@ function UIItemInfo:InitControls()
 	
 	self.descr_list = self.xml:InitScrollView("background_frame:descr_list", self.background_frame)
 	self.descr_list.font = self.xml:ReadAttrib("background_frame:descr_list:descr_text", "font", def_font)
+	self.descr_list.separator = game.translate_string(self.xml:ReadAttrib("background_frame:descr_list:descr_text", "descr_text_separator", ""))
 	tmp_tbl = split_string(self.xml:ReadAttrib("background_frame:descr_list:descr_text", "text_color", def_color), ",")
 	self.descr_list.text_color = GetARGB(tmp_tbl[1], tmp_tbl[2], tmp_tbl[3], tmp_tbl[4])
 end
@@ -162,6 +163,17 @@ function UIItemInfo:InitItemInfo()
 		self.descr_text:SetTextComplexMode(true)
 		self.descr_text:SetTextColor(self.descr_list.text_color)
 		self.descr_text:SetFont(GetFontCustom(self.descr_list.font))
+		--self.descr_text:AdjustHeightToText()
+		
+		for i=1, 255 do
+			local add_descr = read_if_exists(sys_ini, "r_string", sect, "description_"..i, nil)
+			if add_descr then
+				local add_text = self.descr_text:GetText().."\\n"..self.descr_list.separator.."\\n"..game.translate_string(add_descr)
+				self.descr_text:SetText(add_text)
+				log3("~set text %s", add_text)
+			end
+		end
+		
 		self.descr_text:AdjustHeightToText()
 		self.descr_list:AddWindow(self.descr_text)
 	end

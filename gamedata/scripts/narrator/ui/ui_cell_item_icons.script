@@ -48,6 +48,17 @@ function update_custom_icons(item, cell_item_icon, count, alt_icon)
 		text = string.format("%s%s/%s%s", color, weapon_mag.ammo_elapsed, weapon_mag.ammo_mag_size, get_fire_mode_str(item))
 	end
 	
+	if get_clsid(item) == clsid.wpn_binocular_s then
+		local zoom_params = get_zoom_data(item)
+		if zoom_params then
+			if zoom_params[2] then
+				text = string.format("%sx-%sx", zoom_params[1], zoom_params[2])
+			else
+				text = string.format("%sx", zoom_params[1])
+			end
+		end
+	end
+	
 	if item:get_container() and item:get_inventory_item():item_effect(effect.add_weight) > 0 then
 		text = string.format("+%.0f%s", item:get_inventory_item():item_effect(effect.add_weight) * actor.inventory.max_weight, game.translate_string("st_kg"))
 	end
