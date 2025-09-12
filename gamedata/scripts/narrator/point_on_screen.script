@@ -33,9 +33,6 @@ function compass_ui_projection(point, ui_w, ui_h, hide_off_bounds)
 	if not point then
 	return false end
 	
-	local UI_BASE_WIDTH = ui_w
-	local UI_BASE_HEIGHT = ui_h
-	
     local dev = device()
     local scr_w = dev.width
     local scr_h = dev.height
@@ -46,23 +43,23 @@ function compass_ui_projection(point, ui_w, ui_h, hide_off_bounds)
     local ppp = vector():sub(point, dev.cam_pos)
     local dp = dev.cam_dir:dotproduct(ppp)
 
-    local x = UI_BASE_WIDTH * 0.5 + dev.cam_right:dotproduct(ppp) * scr_dist / dp * (UI_BASE_WIDTH/scr_w)
-    local y = UI_BASE_HEIGHT * 0.5
+    local x = ui_w * 0.5 + dev.cam_right:dotproduct(ppp) * scr_dist / dp * (ui_w/scr_w)
+    local y = ui_h * 0.5
 	
 	if hide_off_bounds then
-		if dp < 0 or x < 0 or x > UI_BASE_WIDTH then
+		if dp < 0 or x < 0 or x > ui_w then
 			return false
 		end
 	end
 	
 	if dp < 0 then
-		if x <= UI_BASE_WIDTH * 0.5 then
+		if x >= ui_w * 0.5 then
 			x = 0
 		else
-			x = UI_BASE_WIDTH
+			x = ui_w
 		end
 	end
-	x = math.clamp(x, 0, UI_BASE_WIDTH)
+	x = math.clamp(x, 0, ui_w)
 	
     return {x = x, y = y}
 end
