@@ -9,6 +9,11 @@ local base_k = false
 local zoom_factor = 1
 local subscribed = false
 
+local AIM_INERTION_HARD_HOLD = 0.2
+local HUD_FOV_K_HARDHOLD = 0.95
+local HARDHOLD_FOV_CHANGE_TIME = 0.25 * 1000 * level.get_time_factor()
+local FOV_CHANGE_PART = HUD_FOV_K_HARDHOLD / HARDHOLD_FOV_CHANGE_TIME
+
 local DEBUG_DISABLE = false
 
 local ZOOM_SOMNOLENCE_K = read_if_exists(sys_ini, "r_float", "actor_condition", "somnolence_zoom_effector_k", 10)
@@ -27,7 +32,7 @@ function get_zoom_effector_k()
 end
 
 function force_disable_hard_hold()
-	return stamina.get_val() == 0 or somnolence.get_val() == 0 or actor_obj.condition.cant_sprint or actor_obj.condition.limping
+	return stamina.get_val() == 0 or somnolence.get_val() == 1 or actor_obj.condition.cant_sprint or actor_obj.condition.limping
 end
 
 function is_hard_hold()
@@ -40,15 +45,23 @@ function set_hard_hold(on)
 	hard_hold = on
 end
 
-function set_stop_aim_inertion(on)
+function apply_aim_params(hard_hold, delta)
 	local act_item = actor:active_item()
 	local act_item_2 = actor:active_device()
 	
+	local inertion = hard_hold and AIM_INERTION_HARD_HOLD or 1
+	
 	if act_item then
-		act_item:stop_aim_inertion(on)
+		act_item:set_aim_inertion(inertion)
 	end
 	if act_item_2 then
-		act_item_2:stop_aim_inertion(on)
+		act_item_2:set_aim_inertion(inertion)
+	end
+	
+	if hard_hold and act_item:get_weapon().zoom_hud_fov_k > HUD_FOV_K_HARDHOLD then
+		act_item:get_weapon().zoom_hud_fov_k = act_item:get_weapon().zoom_hud_fov_k - delta * FOV_CHANGE_PART
+	elseif not hard_hold and act_item:get_weapon().zoom_hud_fov_k <= 1 then
+		act_item:get_weapon().zoom_hud_fov_k = act_item:get_weapon().zoom_hud_fov_k + delta * FOV_CHANGE_PART
 	end
 end
 
@@ -150,5 +163,5 @@ function on_update(delta)
 		set_hard_hold(false)
 	end
 	
-	set_stop_aim_inertion(is_hard_hold())
+	apply_aim_params(is_hard_hold(), delta)
 end

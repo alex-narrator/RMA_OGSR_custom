@@ -3,13 +3,15 @@ function attach(sm)
 	sm:subscribe({signal = "on_save",   				fun = this.on_save})
 	sm:subscribe({signal = "on_load",   				fun = this.on_load})
 	sm:subscribe({signal = "on_update",   				fun = this.on_update})
-	sm:subscribe({signal = "on_weapon_shell_drop",   	fun = this.on_shell_drop})
+	sm:subscribe({signal = "on_weapon_fire",   			fun = this.on_weapon_fire})
+	sm:subscribe({signal = "on_hud_state_switch",   	fun = this.on_state_switch})
 end
 
 local stamina = 1
-local stamina_dec = -1 / (read_if_exists(sys_ini, "r_u32", "actor_condition", "stamina_dec_time", 3) * 1000)
+local stamina_dec = -1 / (read_if_exists(sys_ini, "r_u32", "actor_condition", "stamina_dec_time", 6) * 1000)
 local stamina_inc = 1 / (read_if_exists(sys_ini, "r_u32", "actor_condition", "stamina_inc_time", 6) * 1000)
 local RECOIL_K = 0.1
+local stamina_k = 1
 
 function on_save(packet)
 	xr_vars.save_var(script_name(), stamina)
@@ -20,16 +22,12 @@ function on_load(reader)
 end
 
 function on_update(delta)
-	local diff = ezi_control.get_hard_hold() and stamina_dec or (stamina_inc / (1 + somnolence.get_val()))
+	local diff = weapon_hardhold.get_hard_hold() and stamina_dec * stamina_k or (stamina_inc / stamina_k / (1 + somnolence.get_val()))
 	change_val(diff * delta)
 end
 
-function on_shell_drop(wpn, pos, vel)
-	if not wpn:is_weapon() then
-	return end
+function on_weapon_fire(wpn, pos, vel)
 	local recoil = sys_ini:r_float(wpn:section(), "cam_dispersion") * RECOIL_K
-	if wpn:get_weapon().state == global_flags.eShutter then --//при смиканні затвору стаміну не витрачаємо
-	return end
 	change_val(-recoil)
 end
 
@@ -42,4 +40,15 @@ end
 
 function get_val()
 	return stamina
+end
+
+local process_states = {
+	[global_flags.eShowing] = true,
+	[global_flags.eHidden] = true,
+}
+function on_state_switch(item, state, old_state)
+	if not process_states[state] or not item:get_weapon_m() then
+	return end
+	stamina_k = state == global_flags.eShowing and read_if_exists(sys_ini, "r_float", item:section(), "control_inertion_factor", 1) or 1
+	--log3("~stamina_k %s", stamina_k)
 end

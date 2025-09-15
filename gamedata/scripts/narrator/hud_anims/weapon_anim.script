@@ -160,7 +160,7 @@ function zoom_factor()
 	return actor:active_item() and actor:active_item():get_zoom_factor() or 1
 end
 function shake_force()
-	if not actor_obj:is_zoom_aiming_mode() or ezi_control.is_hard_hold() or DEBUG_DISABLED then
+	if not actor_obj:is_zoom_aiming_mode() or weapon_hardhold.is_hard_hold() or DEBUG_DISABLED then
 	return 0 end
 	local res = shake_force_k + shake_force_k * somnolence.get_val()
 	if actor_obj:is_actor_crouch() then
@@ -173,7 +173,7 @@ function shake_speed()
 end
 
 function on_update(dt)
-	local power_k = (level.main_input_receiver() or ezi_control.is_hard_hold()) and 0 or 1 - actor.power
+	local power_k = (level.main_input_receiver() or weapon_hardhold.is_hard_hold()) and 0 or 1 - actor.power
 	game.play_hud_anm(anim_breath, 2, 1, power_k, true, true)
 	game.play_hud_anm(anim_shake, 2, shake_speed(), shake_force(), true, true)
 
