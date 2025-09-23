@@ -55,7 +55,7 @@ function add_to_list(item)
 	if restricted then
 		--log_news("~%s : item %s | id %s restricted to clean", script_name(), item:name(), item:id())
 	return end
-	items_to_remove[item:id()] = game.get_game_time()
+	items_to_remove[item:id()] = ctime_to_table(game.get_game_time())
 	--log_news("~%s : item %s | id %s droped and marked to clean", script_name(), item:name(), item:id())
 end
 
@@ -72,13 +72,19 @@ function on_location_change()
 	local sim = alife()
 	local game_time = game.get_game_time()
 	for id,drop_time in pairs(items_to_remove) do
-		if game_time:diffSec(drop_time) >= stay_after_drop_time_interval then
+		local drop_ctime = table_to_ctime(drop_time)
+		if game_time:diffSec(drop_ctime) >= stay_after_drop_time_interval then
 			local sobj = sim:object(id)
 			if sobj and sobj.parent_id == 65535 then
 				sim:release(sobj, true)
-				log3("~%s : item id %s removed", script_name(), id)
+				log_news("~%s : item id %s removed", script_name(), id)
 			end
 			remove_from_list(id)
 		end		
 	end
+end
+
+function clear_items_table()
+	items_to_remove = {}
+	log_news("~%s: droped items tale cleared",script_name())
 end

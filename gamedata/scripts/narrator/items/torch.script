@@ -22,7 +22,7 @@ function set_torch_params(item)
 	local range = read_if_exists(sys_ini, "r_float", light_sect, "range", 10)
 	local angle = read_if_exists(sys_ini, "r_float", light_sect, "spot_angle", 90)
 	
-	local clr_rgba = split_string(read_if_exists(vis_ini, "r_string", light_sect, "color_r2", nil), ",")	
+	local clr_rgba = split_string(read_if_exists(sys_ini, "r_string", light_sect, "color_r2", nil), ",")	
 
 	local torch_obj = item:get_torch()	
 	torch_obj:set_range(range)

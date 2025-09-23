@@ -73,33 +73,44 @@ function play_harvest(monster)
 	--log3("~height diff %s", device().cam_pos.y - monster:center().y)
 	
 	level.disable_input()
-	--backpack.force_crouch(true)
-	game.play_hud_motion(2, "harv_"..get_hud_sect(knife), "anm_show", true, 1, true)
-	_G.SCRIPT_ANIM_PLAYING = true
-	for k,v in pairs(effects) do
-		if k ~= "lean" or device().cam_pos.y - monster:center().y > height_diff then
-			level.add_cam_effector(v.effect, v.id, false, "")
-		end
-	end
-	xr_sound.get_safe_sound_object(cut_snd):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
-	play_blood_fx()
+	
+	actor:hide_weapon(backpack.play_fast())
+	
 	level.add_call(
-		function()
-			return game.hud_motion_allowed()
+		function() 
+			return not actor:active_item() and not actor:active_device()
 		end,
 		function()
-			game.play_hud_motion(2, meat_hud, "anm_show", true, 1, true)
-			level.add_cam_effector(effects["loot"].effect, effects["loot"].id, false, "")
-			xr_sound.get_safe_sound_object(take_snd):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+			--backpack.force_crouch(true)
+			game.play_hud_motion(2, "harv_"..get_hud_sect(knife), "anm_show", true, 1, true)
+			_G.SCRIPT_ANIM_PLAYING = true
+			for k,v in pairs(effects) do
+				if k ~= "lean" or device().cam_pos.y - monster:center().y > height_diff then
+					level.add_cam_effector(v.effect, v.id, false, "")
+				end
+			end
+			xr_sound.get_safe_sound_object(cut_snd):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+			play_blood_fx()
 			level.add_call(
 				function()
 					return game.hud_motion_allowed()
 				end,
 				function()
-					harvest.take_loot(monster, knife)
-					_G.SCRIPT_ANIM_PLAYING = false
-					--backpack.force_crouch(false)
-					level.enable_input()
+					game.play_hud_motion(2, meat_hud, "anm_show", true, 1, true)
+					level.add_cam_effector(effects["loot"].effect, effects["loot"].id, false, "")
+					xr_sound.get_safe_sound_object(take_snd):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+					level.add_call(
+						function()
+							return game.hud_motion_allowed()
+						end,
+						function()
+							harvest.take_loot(monster, knife)
+							_G.SCRIPT_ANIM_PLAYING = false
+							--backpack.force_crouch(false)
+							level.enable_input()
+							actor:restore_weapon(backpack.play_fast())
+						end
+					)
 				end
 			)
 		end

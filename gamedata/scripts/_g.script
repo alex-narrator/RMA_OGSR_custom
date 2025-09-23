@@ -1851,7 +1851,7 @@ function can_be_reloaded_by(item, item_to_load)
 			--//load weapon with ammo
 			if param_name == "ammo_class" then
 				--//for shotguns we need only free space. to change the ammo type need extract at least 1 cartridge
-				if wpn and get_clsid(item) == clsid.wpn_shotgun_s then
+				if wpn and (get_clsid(item) == clsid.wpn_shotgun_s or get_clsid(item) == clsid.wpn_bm16_s) then
 					return wpn.ammo_elapsed < wpn.ammo_mag_size
 				end
 				--//magazine feeded weapon can be reloaded strait to chamber if hase one

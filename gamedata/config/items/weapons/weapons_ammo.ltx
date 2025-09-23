@@ -676,10 +676,43 @@ k_impulse			= 0
 k_pierce			= 2.25
 ;k_ap 				= 2
 
+[ammo_12x70_dragon_breath]:ammo_12x70_buck
+cost				= 2500
+inv_weight			= .45
+
+inv_grid_y         	= 6
+
+inv_name			= st_ammo_12x70_dragon_breath_name
+inv_name_short		= st_ammo_12x70_dragon_breath_short
+description			= st_ammo_12x70_dragon_breath_descr
+icon_text			= st_ammo_12x70_dragon_breath_text
+
+k_dist 				= -0.6
+k_speed 			= -0.25
+k_hit 				= -0.5
+impair				= 2
+
+shoot_mark 			= false
+hit_type 			= burn
+hit_fx 				= true
+hit_fx_particles 	= damage_fx\burn_creatures
+
+shot_particles 		= amik\weapons\flame_particles\btr_flame
+shot_light 			= true
+
+light_color 		= 1,1,1
+light_range 		= 10.0
+light_var_color 	= 0.05
+light_var_range 	= 0.5
+light_time 			= 0.4
+
+layer_icon_sect_0 	= flamable_icon
+layer_icon_scale_0 	= 0.8
+layer_icon_offset_0 = right_down
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [ammo_12x76_zhekan_heli]:ammo_12x76_zhekan
 $spawn				= "weapons\ammo\ammo_12x76_zhekan_heli" ; option for Level Editor
-explosive			= on
+hit_fx				= on
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [ammo_og-7b]:heavy_ammo

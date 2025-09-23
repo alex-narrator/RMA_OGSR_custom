@@ -170,7 +170,6 @@ function UIItemInfo:InitItemInfo()
 			if add_descr then
 				local add_text = self.descr_text:GetText().."\\n"..self.descr_list.separator.."\\n"..game.translate_string(add_descr)
 				self.descr_text:SetText(add_text)
-				log3("~set text %s", add_text)
 			end
 		end
 		
@@ -812,6 +811,8 @@ function set_ammo_icon(icon, sect)
 	icon:Show(true)
 	icon:SetWndPos(pos_x, icon:GetWndPos().y)
 	pos_x = pos_x + icon:GetWidth()
+	
+	ui_inv_utils.UpdateLayerIcons(sect, icon)
 end
 
 ------------------------------------------LOADED WEAPON AMMO WND-----------------------------------------------------------------------------------------------------------------

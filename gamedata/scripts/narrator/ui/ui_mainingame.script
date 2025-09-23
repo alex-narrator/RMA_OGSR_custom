@@ -290,7 +290,11 @@ function MainIngameOverlay:InitControls()
 	
 	--//missile throw progressshape
 	self.missile_throw = xml:InitProgressShape("throw_progress", self)
+	local offset = ui_inv_utils.GetOffset("center", self.missile_throw, self.owner)
+	self.missile_throw:SetWndPos(offset.x, offset.y)
 	self.missile_text = xml:InitStatic("throw_text", self)
+	local offset = ui_inv_utils.GetOffset("center", self.missile_text, self.owner)
+	self.missile_text:SetWndPos(offset.x, offset.y)
 	
 	--//pickup item icon
 	self.pickup_item_icon = xml:InitStatic("pick_up_item", self)
@@ -672,6 +676,9 @@ function MainIngameOverlay:UpdateActiveItem()
 		end
 		self.active_item_icon:SetWidth(params.grid_width * scale * CELL_W * get_current_kx())
 		self.active_item_icon:SetHeight(params.grid_height * scale * CELL_H)
+		
+		self.active_item_icon:DetachAll()
+		ui_inv_utils.UpdateLayerIcons(show_sect, self.active_item_icon)
 	end
 	self.ammo_counter:SetWndPos(self.active_item_icon:GetWidth() + indent, self.ammo_counter:GetWndPos().y)
 	
@@ -689,6 +696,9 @@ function MainIngameOverlay:UpdateActiveItem()
 		end
 		pos.x = pos.x - self.active_item_icon_2:GetWidth() - indent
 		self.active_item_icon_2:SetWndPos(pos.x, pos.y)
+		
+		self.active_item_icon_2:DetachAll()
+		ui_inv_utils.UpdateLayerIcons(show_sect_2, self.active_item_icon_2)
 	end
 	
 	self.active_item_icon_3:Show(act_device)
@@ -718,6 +728,9 @@ function MainIngameOverlay:UpdateActiveItem()
 		if self.active_item:GetText() == "" then
 			self.active_item:SetText(game.translate_string(get_inv_name_short(show_sect_3)))
 		end
+		
+		self.active_item_icon_3:DetachAll()
+		ui_inv_utils.UpdateLayerIcons(show_sect_3, self.active_item_icon_3)
 	end
 	
 	self.zoom_counter:Show(wpn and wpn:is_addon_attached(addon.scope) and wpn.zoom_mode and wpn.zoom_rotation_factor == 1)
