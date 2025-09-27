@@ -222,6 +222,7 @@ snd_nvd_operate 		= device\night_vision\nvg_loop
 nv_hud 					= nvg_binocular_hud
 
 nv_mode 				= 1
+nv_step 				= 0.5
 
 hv_fade_distance 		= 13, 20, 0, 0
 hv_blurring 			= 1, 1, 1.1, 1.1
@@ -244,13 +245,11 @@ inv_grid_y         		= 4
 ;night_vision_effector 	= effector_nightvision ;postprocess_night
 
 nv_color 				= 0.2, 0.3, 0.2
-nv_intensity 			= 1
+nv_gain 				= 2
 nv_vignette_size 		= 0.05
 nv_radius 				= 0.5
-nv_step 				= 0.2
-nv_step_count 			= 1
 nv_tube_num 			= 1
-nv_noise 				= 0.3
+nv_noise 				= 0.1
 
 repair_icon_sect 		= nvd_mono_repair
 
@@ -271,13 +270,13 @@ inv_grid_y         		= 4
 ;night_vision_effector 	= effector_nightvision ;postprocess_night
 
 nv_color 				= 0.2, 0.3, 0.2
-nv_intensity 			= 2
+nv_gain 				= 2
 nv_vignette_size 		= 0.1
 nv_radius 				= 0.5
-nv_step 				= 0.3
-nv_step_count 			= 2
 nv_tube_num 			= 2
-nv_noise 				= 0.1
+nv_noise 				= 0.05
+
+nv_hud_info_offset 		= 350, 650
 
 repair_icon_sect 		= nvd_bino_repair
 
@@ -312,7 +311,6 @@ torch_inertion_speed_min = 0.5
 torch_inertion_speed_max = 7.5
 light_definition 		= device_flashlight_definition
 light_definition_second = device_flashlight_definition_second
-flashlight_section 		= device_flashlight_definition_second
 light_trace_bone 		= light_bone_1
 
 attach_angle_offset 	= 3.062, 0.008, -1.532
@@ -338,8 +336,8 @@ icon_group 				= addon
 
 [device_flashlight_definition]
 type 					= 2 ; type  0-Direct 1-Point 2-Spot 3-OMNIPART 4-Reflected
-range 					= 30 ; range                 <in meters>
-range_r2 				= 30 ; range                 <in meters>
+range 					= 40 ; range                 <in meters>
+range_r2 				= 40 ; range                 <in meters>
 color 					= 0.8,0.7,0.8,0.2 ; four color components <r,g,b,a> 0.f<X<3.f
 color_r2 				= 1.0,0.9,1.0,0.9 ; four color components <r,g,b,a> 0.f<X<3.f
 color_animator 			= empty ; color animator name   (empty - not using animator) //light_torch_01
@@ -365,9 +363,9 @@ volumetric_enabled 		= true
 volumetric_for_actor 	= true
 
 [device_flashlight_definition_second]:device_flashlight_definition
-spot_angle 				= 30
-range 					= 60 ; range                 <in meters>
-range_r2 				= 60 ; range                 <in meters>
+spot_angle 				= 45
+range 					= 80 ; range                 <in meters>
+range_r2 				= 80 ; range                 <in meters>
 
 [device_anpeq_16]:device_flashlight
 visual 					= dynamics\weapons\wpn_addon\wpn_light_anpeq_16

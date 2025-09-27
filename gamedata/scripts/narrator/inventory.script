@@ -1,23 +1,32 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
 	sm:subscribe({signal = "on_first_update",   fun = this.on_first_update})
+	sm:subscribe({signal = "on_slot", 			fun = this.on_slot})
 end
 
 function on_first_update()
+	drop_slots_to_ruck()
+end
+
+function on_slot(obj, prev_place)
+	drop_slots_to_ruck()
+end
+
+function drop_belt_to_ruck()
+	while actor:belt_count() > 0 do
+		actor:move_to_ruck(actor:item_on_belt(0))
+	end
+end
+
+function drop_slots_to_ruck()
 	local inv = actor.inventory
 	local item
 	for i = 0, sys_ini:r_u32("inventory","slots") - 1 do
 		item = actor:item_in_slot(i)
 		if item and not inv:is_slot_allowed(i) then
 			actor:move_to_ruck(item)
-			log3("! item [%s] founded in not allowed slot [%s], moving to ruck", item:section(), i)
+			--log3("! item [%s] founded in not allowed slot [%s], moving to ruck", item:section(), i)
 		end
-	end
-end
-
-function drop_belt_to_ruck()
-	while actor:belt_count() > 0 do
-		actor:move_to_ruck(actor:item_on_belt(0))
 	end
 end
 

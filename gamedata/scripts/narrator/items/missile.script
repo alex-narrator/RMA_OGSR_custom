@@ -105,12 +105,29 @@ function on_key_press(key, game_action)
 	
 	local new_missile = get_other_missile(act_item)
 	if new_missile then
-		actor:move_to_ruck(act_item)
-		actor:move_to_slot(new_missile)
-		if new_missile:is_grenade() then
-			ogse_signals.get_mgr():call("on_grenade_type_switch", act_item, new_missile)
-		end
-		--log3("get_other_missile %s",new_missile:section())
+		-- actor:move_to_ruck(act_item)
+		-- actor:move_to_slot(new_missile)
+		-- if new_missile:is_grenade() then
+			-- ogse_signals.get_mgr():call("on_grenade_type_switch", act_item, new_missile)
+		-- end
+		-- --log3("get_other_missile %s",new_missile:section())
+		block_non_move_action(true)
+		--//щоб спочатку анімка hide відігралася і було плавно і красиво
+		actor:activate_slot(NO_ACTIVE_SLOT)
+		level.add_call(
+			function() 
+				return not actor:active_item() and not actor:active_device()
+			end,
+			function()
+				block_non_move_action(false)
+				actor:move_to_ruck(act_item)
+				actor:move_to_slot(new_missile)
+				if new_missile:is_grenade() then
+					ogse_signals.get_mgr():call("on_grenade_type_switch", act_item, new_missile)
+				end
+				--log3("get_other_missile %s",new_missile:section())			
+			end
+		)		
 	end
 end
 

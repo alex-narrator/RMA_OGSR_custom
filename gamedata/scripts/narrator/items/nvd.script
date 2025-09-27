@@ -20,8 +20,13 @@ local nvd_slots = {
 	HELMET_SLOT,
 }
 
-local CURR_INTENSITY = 0
+local INTENSITY_MIN, INTENSITY_MAX, INTENSITY_DEFAULT = 0.5, 3, 1.5
+local CURR_INTENSITY = INTENSITY_DEFAULT
 local operate_sound
+
+function get_current_intensity()
+	return CURR_INTENSITY
+end
 
 function get_current_nvd()
 	for k, v in ipairs(nvd_slots) do
@@ -43,7 +48,7 @@ function get_nvd_params(sect)
 		R 				= nv_color[1], 
 		G 				= nv_color[2], 
 		B 				= nv_color[3], 
-		INTENSITY 		= read_if_exists(sys_ini, "r_float", sect, "nv_intensity", 		2),
+		GAIN 			= read_if_exists(sys_ini, "r_float", sect, "nv_gain", 			2),
 		--//effects
 		RADIUS 			= read_if_exists(sys_ini, "r_float", sect, "nv_radius", 		0.5),
 		NOISE 			= read_if_exists(sys_ini, "r_float", sect, "nv_noise", 			0),
@@ -53,8 +58,10 @@ function get_nvd_params(sect)
 		VIGNETTE_MODE 	= read_if_exists(sys_ini, "r_float", sect, "nv_vignette_mode", 	0),
 		GLITCH 			= read_if_exists(sys_ini, "r_float", sect, "nv_glitch", 		0),
 		TUBE_NUM 		= read_if_exists(sys_ini, "r_float", sect, "nv_tube_num", 		2),
-		STEP 			= read_if_exists(sys_ini, "r_float", sect, "nv_step", 			0),
-		STEP_COUNT 		= read_if_exists(sys_ini, "r_float", sect, "nv_step_count", 	1),
+		STEP 			= read_if_exists(sys_ini, "r_float", sect, "nv_step", 			0.5),
+		--STEP_COUNT 		= read_if_exists(sys_ini, "r_float", sect, "nv_step_count", 	1),
+		
+		HUD_INFO_OFFSET = read_if_exists(sys_ini, "r_string", sect, "nv_hud_info_offset", nil),
 	}
 	--//heatvision params
 	local tmp 			= read_if_exists(sys_ini, "r_string", sect, "hv_steps", 		"0, 0, 0, 0")
@@ -96,14 +103,14 @@ end
 function switch_nvd_intensity(item)
 	local sect = item:section()
 	local params = get_nvd_params(sect)
-	local max_i = params.STEP * params.STEP_COUNT
-	local min_i = -max_i
+	-- local max_i = params.STEP * params.STEP_COUNT
+	-- local min_i = -max_i
 	CURR_INTENSITY = CURR_INTENSITY + params.STEP
-	if CURR_INTENSITY > max_i then
-		CURR_INTENSITY = min_i
+	if CURR_INTENSITY > INTENSITY_MAX then--max_i then
+		CURR_INTENSITY = INTENSITY_MIN--min_i
 	end
-	if CURR_INTENSITY < min_i then
-		CURR_INTENSITY = max_i
+	if CURR_INTENSITY < INTENSITY_MIN then --min_i then
+		CURR_INTENSITY = INTENSITY_MAX--max_i
 	end
 	set_nvd_effector(sect, alife():object(item:id()).is_nvd_on)
 	-- local switch_snd = read_if_exists(sys_ini, "r_string", sect, "snd_nvd_switch", "interface\\mark_adjust")
@@ -183,14 +190,15 @@ function set_nvd_effector(sect, enable)
 	--log3("~set_nvd_effector item %s, enable %s", sect, enable)
 	if not enable then
 		console:execute("r_pnv_mode 0")
+		CURR_INTENSITY = INTENSITY_DEFAULT
 	else
 		local params = get_nvd_params(sect)
 		console:execute("r_pnv_mode 1")
 		
 		shader_set_custom_param("pnv_color", params.R, params.G, params.B, 0)
 		
-		local gain = params.INTENSITY + CURR_INTENSITY
-		console:execute("r_pnv_gain_current "..gain)
+		console:execute("r_pnv_gain_current "..params.GAIN)
+		console:execute("r_pnv_gain_offset "..CURR_INTENSITY)
 		
 		console:execute("r_pnv_radius "..params.RADIUS)
 		console:execute("r_pnv_noise "..params.NOISE)
@@ -228,10 +236,10 @@ function on_ruck(obj, prev_place)
 	if obj:is_weapon() then return end
 	local sobj = alife():object(obj:id())
 	if get_nvd_params(obj:section()) and prev_place == item_place.slot then
-		log3("~nvd to ruck")
+		--log3("~nvd to ruck")
 		if sobj.is_nvd_on then
 			enable_nvd(obj, false)
-			CURR_INTENSITY = 0
+			CURR_INTENSITY = INTENSITY_DEFAULT
 		end
 	end
 end

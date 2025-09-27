@@ -1657,6 +1657,7 @@ end
 function ActorMenuOverlay:OnMaxBeltSet(max_belt)
 	if self.belt_list:GetColsNum() ~= max_belt then
 		self.belt_list:SetColsNum(max_belt)
+		self.belt_list:Reinit()
 	end
 end
 

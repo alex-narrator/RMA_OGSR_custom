@@ -361,6 +361,10 @@ function MainIngameOverlay:InitControls()
 	
 	self.flashing_icon = xml:InitStatic("flashing_icon", self)
 	self.flashing_icon:Show(false)
+	
+	self.nvd_info = xml:InitStatic("nvd_info", self)
+	self.nvd_info.default_offset = {xml:ReadAttribInt("nvd_info", "x", 0), xml:ReadAttribInt("nvd_info", "y", 0)}
+	self.nvd_info:Show(false)
 end
 
 function MainIngameOverlay:UpdateConditions()
@@ -1196,6 +1200,24 @@ function MainIngameOverlay:OnTaskUpdate(_task, _objective, _stage)
 	add_time_delayed_action(5, function() self:ShowTask(false) end)
 end
 
+function MainIngameOverlay:UpdateNVDInfo()
+	self.nvd_info:Show(nvd.is_nvd_on())
+	if not self.nvd_info:IsShown() then
+	return end
+	local item_nvd = nvd.get_current_nvd()
+	local text = ""
+	if is_power_device(item_nvd) then
+		text = string.format("%s: %.1f\\n%s: %.f%s", game.translate_string("st_nvd_intensity"), nvd.get_current_intensity(), game.translate_string("st_nvd_power_level"), item_nvd:binded_object():get_power_level() * 100, "%")
+	else
+		text = string.format("%s: %.1f", game.translate_string("st_nvd_intensity"), nvd.get_current_intensity())
+	end
+	self.nvd_info:SetText(text)
+	local params = nvd.get_nvd_params(item_nvd:section())
+	self.nvd_info:SetTextColor(GetARGB(255, params.R * 255, params.G * 255, params.B * 255))
+	local offset = params.HUD_INFO_OFFSET and split_string(params.HUD_INFO_OFFSET, ",", true) or self.nvd_info.default_offset
+	self.nvd_info:SetWndPos(offset[1], offset[2])
+end
+
 function MainIngameOverlay:Update()
 	CUIScriptWnd.Update(self)
 	local alive = actor:alive()
@@ -1217,6 +1239,7 @@ function MainIngameOverlay:Update()
 	self:UpdatePickupItem()
 	self:UpdateCompass()
 	self:UpdateFPS()
+	self:UpdateNVDInfo()
 	
 	self.slot_selector:TrySignalHide()
 	self.quick_addon:TrySignalHide()

@@ -56,7 +56,7 @@ uniform float4 s3ds_param_3;
 uniform float4 s3ds_param_4;
 //uniform float4 mark_number;
 uniform float4 mark_color;
-uniform float4 s3ds_nv_mode;
+uniform float4 s3ds_param_5;
 // uniform float4 shader_param_8;
 
 struct vf
@@ -95,9 +95,9 @@ float4 sample_shadow(float2 tc, float shadow_width)
     return float4(0, 0, 0, a);
 }
 
-float4 sample_zoom_switch_shadow(float2 tc, float min_zoom, float max_zoom)
+float4 sample_zoom_switch_shadow(float2 tc, float min_zoom, float max_zoom, float fov_zoom_factor)
 {
-    float shift = smoothstep(min_zoom, max_zoom, ogse_c_screen.x);
+    float shift = smoothstep(min_zoom, max_zoom, fov_zoom_factor);
     float a = smoothstep(1 - 0.1, 1, distance(tc, float2(0.5 + shift * 3, 0.5)));
     float b = smoothstep(1 - 0.4, 1, distance(tc, float2(-2.5 + shift * 3, 0.5)));
     return float4(0, 0, 0, a * b);
@@ -374,6 +374,9 @@ float4 main(vf I) : SV_Target
 
     float3 LENS_COLOR = s3ds_param_4.xyz;
     int SETTINGS = s3ds_param_4.w;
+	
+	int NV_MODE = s3ds_param_5.x;
+	float FOV_ZOOM_FACTOR = s3ds_param_5.y;
 
     // ZOOM_FACTOR = 1 => (0, 1); ZOOM_FACTOR = 1.5 => (0.4, 1.1)
     float IMAGE_PROJECT = 0.8 * ZOOM_FACTOR - 0.8;
@@ -488,7 +491,7 @@ float4 main(vf I) : SV_Target
     float4 zoom_switch_shadow = float4(0, 0, 0, 0);
     if (RETICLE_TYPE == RT_SPECTER)
     {
-        zoom_switch_shadow = sample_zoom_switch_shadow(reticle_lens_tc, MIN_ZOOM_FOV, MAX_ZOOM_FOV);
+        zoom_switch_shadow = sample_zoom_switch_shadow(reticle_lens_tc, MIN_ZOOM_FOV, MAX_ZOOM_FOV, FOV_ZOOM_FACTOR);
     }
 
     // Sight bound
@@ -545,14 +548,14 @@ float4 main(vf I) : SV_Target
 
     float3 back;
     //if ((IMAGE_TYPE == IT_THERMAL || IMAGE_TYPE == IT_THERMAL_COLOR) && mark_number.x < 2)
-	if ((IMAGE_TYPE == IT_THERMAL || IMAGE_TYPE == IT_THERMAL_COLOR) && s3ds_nv_mode.x > 0)
+	if ((IMAGE_TYPE == IT_THERMAL || IMAGE_TYPE == IT_THERMAL_COLOR) && NV_MODE > 0)
     {
         float pixelate = SETTING(SETTINGS, ST_THERMAL_PIXELATION) ? int(current_zoom) : 1;
         scope_tc = (floor(scope_tc * screen_res.xy / pixelate) * pixelate + 0.5) / screen_res.xy;
         gbuffer_data gbd = gbuffer_load_data(scope_tc, scope_tc * screen_res.xy, 0);
         back = infrared(gbd, scope_tc * screen_res.xy, scope_tc);
         //if (mark_number.x == 1)
-		if (s3ds_nv_mode.x == 2)
+		if (NV_MODE == 2)
         {
             back = 1 - back;
         }
@@ -574,7 +577,7 @@ float4 main(vf I) : SV_Target
     }
 
     //if (IMAGE_TYPE == IT_NV && mark_number.x == 0)
-	if (IMAGE_TYPE == IT_NV && s3ds_nv_mode.x == 1)
+	if (IMAGE_TYPE == IT_NV && NV_MODE == 1)
     {
         back = apply_nvg(scope_tc, back);
     }

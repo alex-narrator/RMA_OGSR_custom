@@ -127,6 +127,20 @@ function UIDebugMenu:InitControls()
 	self:Register(self.jump_to_level_list, name)
 	self:AddCallback(name, ui_events.LIST_ITEM_SELECT, self.OnListItemSelect, self)
 	
+	--//change time
+	name = "change_time_current"
+	self.change_time_current = xml:InitStatic(prefix..":"..name, self.background)
+	name = "auto_static"
+	xml:InitAutoStaticGroup(prefix..":"..name, self.change_time_current)
+	name = "change_time_track_hours"
+	self.change_time_track_hours = xml:InitTrackBar(prefix..":"..name, self.background)
+	name = "change_time_track_minutes"
+	self.change_time_track_minutes = xml:InitTrackBar(prefix..":"..name, self.background)	
+	name = "change_time_button"
+	self.change_time_button = xml:Init3tButton(prefix..":"..name, self.background)
+	self:Register(self.change_time_button, name)
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.OnChangeTime, self)
+	
 	name = "exit_button"
 	self.exit_button = xml:Init3tButton(prefix..":"..name, self.background)
 	self:Register(self.exit_button, name)
@@ -134,6 +148,7 @@ function UIDebugMenu:InitControls()
 	
 	self:InitSpawnData()
 	self:InitJumpToLevelData()
+	self:InitChangeTime()
 end
 
 function UIDebugMenu:Update()
@@ -356,4 +371,24 @@ function UIDebugMenu:OnChangeConditions()
 			end
 		end
 	)
+end
+
+function UIDebugMenu:InitChangeTime()
+	self.change_time_track_hours:SetTrackValue(0)
+	self.change_time_track_minutes:SetTrackValue(0)
+	
+	local _time = game.get_game_time()
+	local time_text = _time:timeToString(game.CTime.TimeToMinutes)
+	local date_text = string.format("%s %s", get_current_weekday_name(true), _time:dateToString(game.CTime.DateToDay))	
+	local text = string.format("%s - %s", time_text, date_text)
+	self.change_time_current:SetText(text)
+end
+
+function UIDebugMenu:OnChangeTime()
+	local val_h = self.change_time_track_hours:GetTrackValue()
+	local val_m = self.change_time_track_minutes:GetTrackValue()
+	if not val_h and not val_m or val_h == 0 and val_m == 0 then
+	return end
+	change_game_time(0, val_h, val_m)
+	self:InitChangeTime()
 end

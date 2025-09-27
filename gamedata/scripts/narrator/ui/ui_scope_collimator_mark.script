@@ -127,7 +127,7 @@ function on_state_switch(item, state, old_state)
 	-- local process = state == global_flags.eIdle and old_state == global_flags.eShowing
 	-- if not process then
 	-- return end
-	if not process_states[state] then
+	if not process_states[state] or item:get_slot() == DETECTOR_SLOT then
 	return end
 	try_apply_mark(item)
 end
