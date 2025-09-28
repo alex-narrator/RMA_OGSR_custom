@@ -133,12 +133,14 @@ function try_apply_params(item)
 		local SEE_THROUGH = read_if_exists(sys_ini, "r_bool", param_sect, sect.."_s3ds_see_through", read_if_exists(sys_ini, "r_bool", param_sect, "s3ds_see_through", true))
 		local THERMAL_PIXELATION = read_if_exists(sys_ini, "r_bool", param_sect, sect.."_s3ds_thermal_pixelation", read_if_exists(sys_ini, "r_bool", param_sect, "s3ds_thermal_pixelation", true))
 		local CHROMATISM = read_if_exists(sys_ini, "r_bool", param_sect, sect.."_s3ds_chromatism", read_if_exists(sys_ini, "r_bool", param_sect, "s3ds_chromatism", true))
+		local THERMAL_PIXELATION_ZOOM_SCALE = read_if_exists(sys_ini, "r_bool", param_sect, sect.."_s3ds_thermal_pixelation", read_if_exists(sys_ini, "r_bool", param_sect, "s3ds_thermal_pixelation_zoom_scale", false))
 
 		return (NVG_BLUR and 1 or 0)
 			+ (PARALLAX_SHADOW and 1 or 0) * 2
 			+ (SEE_THROUGH and 1 or 0) * 4
 			+ (THERMAL_PIXELATION and 1 or 0) * 8
 			+ (CHROMATISM and 1 or 0) * 16
+			+ (THERMAL_PIXELATION_ZOOM_SCALE and 1 or 0) * 32
 	end
 
 	shader_set_custom_param("s3ds_param_1", reticle_size, eye_relief, exit_pupil, ffp)
@@ -146,7 +148,7 @@ function try_apply_params(item)
 	shader_set_custom_param("s3ds_param_3", image_type, reticle_type, dirt_intensity, chroma_power)
 	shader_set_custom_param("s3ds_param_4", lens_color.x, lens_color.y, lens_color.z, pack_binary_settings())
 	
-	shader_set_custom_param("s3ds_param_5", 0, 0, 0, 0)
+	shader_set_custom_param("s3ds_param_5", zoom_params[2] or zoom_params[1], 0, 0, 0)
 	if mark_color then
 		shader_set_custom_param("mark_color", mark_color.x, mark_color.y, mark_color.z, 0)
 	end
@@ -154,9 +156,9 @@ function try_apply_params(item)
 	
 	if alife():object(item:id()).is_nvd_on and image_type > IT_NONE then
 		local s3ds_param_5 = shader_get_custom_param_vector("s3ds_param_5")
-		s3ds_param_5.x = 1
+		s3ds_param_5.z = 1
 		shader_set_custom_param_vector("s3ds_param_5", s3ds_param_5)
-		-- log3("~item %s | section %s | NV %s", sect, param_sect, s3ds_param_5.x)
+		-- log3("~item %s | section %s | NV %s", sect, param_sect, s3ds_param_5.z)
 	end
 	
 	--log_news("~item %s | sect %s | reticle_type %s", sect, param_sect, reticle_type)
@@ -195,10 +197,10 @@ function on_key_press(key, game_action)
 	
 	local s3ds_param_5 = shader_get_custom_param_vector("s3ds_param_5")
 	
-	local switch_on = s3ds_param_5.x == 0
+	local switch_on = s3ds_param_5.z == 0
 	
 	if add_act and s3ds_param_3.x > IT_NV then
-		s3ds_param_5.x = s3ds_param_5.x == 2 and 1 or 2
+		s3ds_param_5.z = s3ds_param_5.z == 2 and 1 or 2
 		if switch_on then
 			nvd.play_nvd_sound(params.param_sect, true)
 		else
@@ -206,13 +208,13 @@ function on_key_press(key, game_action)
 		end
 	else
 		nvd.play_nvd_sound(params.param_sect, switch_on)
-		s3ds_param_5.x = switch_on and 1 or 0
+		s3ds_param_5.z = switch_on and 1 or 0
 	end
 	
 	shader_set_custom_param_vector("s3ds_param_5", s3ds_param_5)
 	level.add_complex_effector("fire_mode", 1918)
 	
-	alife():object(act_item:id()).is_nvd_on = s3ds_param_5.x > 0
+	alife():object(act_item:id()).is_nvd_on = s3ds_param_5.z > 0
 	
 	--//далі це натискання клавіші не обробляємо у скрипті ПНБ
 	-- return true

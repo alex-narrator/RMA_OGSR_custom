@@ -281,8 +281,9 @@ function aim_nvd_weapon()
 	return false end	
 	if not wpn.zoom_mode then
 	return false end
-	local sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or act_item:section()
-	return read_if_exists(sys_ini, "r_u32", sect, "s3ds_image_type", 0) == IT_NV
+	-- local sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or act_item:section()
+	-- return read_if_exists(sys_ini, "r_u32", sect, "s3ds_image_type", 0) == IT_NV
+	return shader_get_custom_param_vector("s3ds_param_3").x == IT_NV
 end
 
 function aim_hv_weapon()
@@ -298,8 +299,9 @@ function aim_hv_weapon()
 	return false end	
 	if not wpn.zoom_mode then
 	return false end
-	local sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or act_item:section()
-	return read_if_exists(sys_ini, "r_u32", sect, "s3ds_image_type", 0) > IT_NV
+	-- local sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or act_item:section()
+	-- return read_if_exists(sys_ini, "r_u32", sect, "s3ds_image_type", 0) > IT_NV
+	return shader_get_custom_param_vector("s3ds_param_3").x > IT_NV
 end
 
 function get_nv_sect(item)

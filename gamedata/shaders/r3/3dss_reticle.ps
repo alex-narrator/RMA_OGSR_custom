@@ -39,7 +39,8 @@
 #define ST_SEE_THROUGH 2
 #define ST_THERMAL_PIXELATION 3
 #define ST_CHROMATISM 4
-#define ST_NEXT 5
+#define ST_THERMAL_PIXELATION_ZOOM_SCALE 5
+#define ST_NEXT 6
 
 #define SETTING(settings, shift) (settings & (1 << shift))
 
@@ -359,8 +360,9 @@ float4 main(vf I) : SV_Target
     int FFP = s3ds_param_1.w;
 
 	// у мене тут не FOV приходить а самі значення зуму
-    float MIN_ZOOM_FOV = m_hud_params.w;// * 0.75;
-    float MAX_ZOOM_FOV = m_hud_params.y;// * 0.75;
+    float MIN_ZOOM = m_hud_params.w;// * 0.75;
+    float MAX_ZOOM = s3ds_param_5.x;// * 0.75;
+	float CURRENT_ZOOM = m_hud_params.y;
 	
     float REFLECTION_HUE = s3ds_param_2.x;
     int MIN_ZOOM_1X = s3ds_param_2.z;
@@ -375,7 +377,7 @@ float4 main(vf I) : SV_Target
     float3 LENS_COLOR = s3ds_param_4.xyz;
     int SETTINGS = s3ds_param_4.w;
 	
-	int NV_MODE = s3ds_param_5.x;
+	int NV_MODE = s3ds_param_5.z;
 	float FOV_ZOOM_FACTOR = s3ds_param_5.y;
 
     // ZOOM_FACTOR = 1 => (0, 1); ZOOM_FACTOR = 1.5 => (0.4, 1.1)
@@ -385,12 +387,6 @@ float4 main(vf I) : SV_Target
     float RETICLE_PROJECT = 10;
     float SHADOW_WIDTH = 0.15;
 
-// #if SCOPE_PRECISION_MODE
-//		float3x3 TBN = float3x3(I.v_T + 0.0039, I.v_B + 0.0039, I.v_N);
-// #else
-// 		float3x3 TBN = cotangent_frame(I.v_N, I.v_P, I.tc0.xy);
-// #endif
-
 	float3x3 TBN;
 	if (SCOPE_PRECISION_MODE) 
 		TBN = float3x3(I.v_T + 0.0039, I.v_B + 0.0039, I.v_N);
@@ -399,12 +395,11 @@ float4 main(vf I) : SV_Target
 
     float3 V_tangent = normalize(float3(dot(-I.v_P, TBN[0]), dot(-I.v_P, TBN[1]), dot(-I.v_P, TBN[2])));
 
-    float current_zoom = max(MAX_ZOOM_FOV / MIN_ZOOM_FOV, 1);// max(MIN_ZOOM_FOV / ogse_c_screen.x, 1);
-    float zoom_part = current_zoom;// max(0, (ogse_c_screen.x - MIN_ZOOM_FOV) / (MAX_ZOOM_FOV - MIN_ZOOM_FOV));
-    if (MAX_ZOOM_FOV == MIN_ZOOM_FOV)
-    {
-        zoom_part = 0;
-    }
+    float zoom_part = max(CURRENT_ZOOM / MIN_ZOOM, 1);
+    //if (MAX_ZOOM == MIN_ZOOM)
+    //{
+    //    zoom_part = 0;
+    //}
 
     if (MIN_ZOOM_1X)
     {
@@ -420,8 +415,8 @@ float4 main(vf I) : SV_Target
     float lum = current_lum();
 
     // Sight reticle
-    float2 reticle_lens_tc = project(I.tc0, V_tangent.xy, RETICLE_PROJECT, RETICLE_SIZE) + fisheye(I.tc0, V_tangent.xy) / current_zoom;
-    float2 reticle_tc = project(I.tc0, V_tangent.xy, RETICLE_PROJECT, RETICLE_SIZE * (FFP || RETICLE_TYPE == RT_GIPERON ? current_zoom : 1)) + fisheye(I.tc0, V_tangent.xy) / current_zoom;
+    float2 reticle_lens_tc = project(I.tc0, V_tangent.xy, RETICLE_PROJECT, RETICLE_SIZE) + fisheye(I.tc0, V_tangent.xy) / CURRENT_ZOOM;
+    float2 reticle_tc = project(I.tc0, V_tangent.xy, RETICLE_PROJECT, RETICLE_SIZE * (FFP || RETICLE_TYPE == RT_GIPERON ? zoom_part : 1)) + fisheye(I.tc0, V_tangent.xy) / CURRENT_ZOOM;
 
     float4 mark_texture = float4(0, 0, 0, 0);
     if (reticle_tc.x >= 0 && reticle_tc.x <= 1 && reticle_tc.y >= 0 && reticle_tc.y <= 1)
@@ -435,7 +430,7 @@ float4 main(vf I) : SV_Target
         mark_texture = mark_texture.r;
         float finder = s_base.Sample(smp_base, clamp(reticle_lens_tc, 0, 1)).g;
         float shift_3x = 0.053;
-        float angle = -PI * giperon_angle(current_zoom);//(zoom_part + shift_3x) / (1 + shift_3x);
+        float angle = -PI * giperon_angle(zoom_part);//(zoom_part + shift_3x) / (1 + shift_3x);
         float2 tc = reticle_lens_tc - 0.5;
         tc = float2(tc.x * cos(angle) - tc.y * sin(angle), tc.x * sin(angle) + tc.y * cos(angle));
         tc += 0.5;
@@ -491,7 +486,7 @@ float4 main(vf I) : SV_Target
     float4 zoom_switch_shadow = float4(0, 0, 0, 0);
     if (RETICLE_TYPE == RT_SPECTER)
     {
-        zoom_switch_shadow = sample_zoom_switch_shadow(reticle_lens_tc, MIN_ZOOM_FOV, MAX_ZOOM_FOV, FOV_ZOOM_FACTOR);
+        zoom_switch_shadow = sample_zoom_switch_shadow(reticle_lens_tc, MIN_ZOOM, MAX_ZOOM, FOV_ZOOM_FACTOR);
     }
 
     // Sight bound
@@ -508,7 +503,7 @@ float4 main(vf I) : SV_Target
 
     // Parallax shadow
     float2 exit_pupil_tc = project(I.tc0, V_tangent.xy, -EYE_RELIEF, EXIT_PUPIL * (SETTING(SETTINGS, ST_SEE_THROUGH) ? 1 : m_hud_params.x));
-    float4 shadow_texture = sample_shadow(exit_pupil_tc, SHADOW_WIDTH + 0.02 * (current_zoom - 1));
+    float4 shadow_texture = sample_shadow(exit_pupil_tc, SHADOW_WIDTH + 0.02 * (CURRENT_ZOOM - 1));
     if (!SETTING(SETTINGS, ST_PARALLAX_SHADOW))
     {
         shadow_texture *= 1 - m_hud_params.x;
@@ -550,7 +545,8 @@ float4 main(vf I) : SV_Target
     //if ((IMAGE_TYPE == IT_THERMAL || IMAGE_TYPE == IT_THERMAL_COLOR) && mark_number.x < 2)
 	if ((IMAGE_TYPE == IT_THERMAL || IMAGE_TYPE == IT_THERMAL_COLOR) && NV_MODE > 0)
     {
-        float pixelate = SETTING(SETTINGS, ST_THERMAL_PIXELATION) ? int(current_zoom) : 1;
+        float zoom_scale = SETTING(SETTINGS, ST_THERMAL_PIXELATION_ZOOM_SCALE) ? int(CURRENT_ZOOM) : int(zoom_part);
+		float pixelate = SETTING(SETTINGS, ST_THERMAL_PIXELATION) ? zoom_scale : 1;//int(CURRENT_ZOOM) : 1;
         scope_tc = (floor(scope_tc * screen_res.xy / pixelate) * pixelate + 0.5) / screen_res.xy;
         gbuffer_data gbd = gbuffer_load_data(scope_tc, scope_tc * screen_res.xy, 0);
         back = infrared(gbd, scope_tc * screen_res.xy, scope_tc);
