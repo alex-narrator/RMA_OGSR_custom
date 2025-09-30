@@ -32,6 +32,25 @@ function on_key_press(key, game_action)
 		not torch.get_light_sect(curr_torch)
 	then return end
 	
+	local was_zoomed = false
+	if actor:active_item() and actor:active_item():is_zoomed() then
+		actor:active_item():zoom_out()
+		was_zoomed = true
+	end
+	
+	if was_zoomed then
+		level.add_call(
+			function()
+				return actor_hands_free()
+			end,
+			function()
+				if actor:active_item() then
+					actor:active_item():zoom_in()
+				end
+			end
+		)
+	end	
+	
 	local hud_sect = get_hud_sect(actor_get_torch())
 	
 	game.play_hud_motion(1, hud_sect, "anm_use", false, 1, false)

@@ -50,6 +50,25 @@ function on_key_press(key, game_action)
 		-- actor:active_item():zoom_out()
 	-- end
 	
+	local was_zoomed = false
+	if actor:active_item() and actor:active_item():is_zoomed() then
+		actor:active_item():zoom_out()
+		was_zoomed = true
+	end
+	
+	if was_zoomed then
+		level.add_call(
+			function()
+				return actor_hands_free()
+			end,
+			function()
+				if actor:active_item() then
+					actor:active_item():zoom_in()
+				end
+			end
+		)
+	end	
+	
 	if not hud_sect then
 		hud_sect = hud_sect_simple
 		game.play_hud_motion(1, hud_sect, "anm_use", false, 1, false)

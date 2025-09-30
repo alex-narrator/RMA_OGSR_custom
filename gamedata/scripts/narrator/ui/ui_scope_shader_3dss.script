@@ -12,6 +12,7 @@ local DEBUG_LOG = true
 local DEBUG_DOF_INENSITY = nil
 
 local sm = ogse_signals.get_mgr()
+local s3ds_subscribe = false
 
 local params = nil
 
@@ -240,7 +241,7 @@ function on_zoom_in(weapon)
 		end
 	)
 	
-	sm:subscribe( { signal = "on_update", fun = this.on_update } )
+	subscribe_signals()
 end
 
 function on_zoom_out(weapon)
@@ -265,7 +266,32 @@ function on_zoom_out(weapon)
 		function()
 		end		
 	)
-	sm:unsubscribe( { signal = "on_update", fun = this.on_update } )
+	unsubscribe_signals()
+end
+
+function on_update()
+	local s3ds_param_5 = shader_get_custom_param_vector("s3ds_param_5")
+	s3ds_param_5.y = actor:get_camera_fov() / device().fov
+	shader_set_custom_param_vector("s3ds_param_5", s3ds_param_5)
+end
+
+function subscribe_signals()
+	if not s3ds_subscribe then
+		s3ds_subscribe = { 
+			{ signal = "on_update", fun = this.on_update },
+		}
+		for _,s in ipairs(s3ds_subscribe) do
+			sm:subscribe( s )
+		end
+	end
+end
+function unsubscribe_signals()
+	if s3ds_subscribe then
+		for _,s in ipairs(s3ds_subscribe) do
+			sm:unsubscribe( s )
+		end
+		s3ds_subscribe = false
+	end
 end
 
 --//для особливого випадку гвинтівки Мосіна-Нагана
@@ -299,10 +325,4 @@ function on_fire(weapon)
 			shader_set_custom_param_vector("s3ds_param_2", s3ds_param_2)
 		end
 	)	
-end
-
-function on_update()
-	local s3ds_param_5 = shader_get_custom_param_vector("s3ds_param_5")
-	s3ds_param_5.y = actor:get_camera_fov() / device().fov
-	shader_set_custom_param_vector("s3ds_param_5", s3ds_param_5)
 end
