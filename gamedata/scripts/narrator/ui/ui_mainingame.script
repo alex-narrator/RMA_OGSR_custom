@@ -4,7 +4,7 @@ local overlay = nil
 local subscribed = false
 local DYNAMIC_SHOW = true
 local DEBUG_WARNING_SHOW = false
-local USE_LUMINOCITY = false --read_if_exists(sys_ini, "r_bool", "features", "use_luminicity")
+local USE_LUMINOCITY = false --read_if_exists(sys_ini, "bool", "features", "use_luminicity")
 
 local MOTION_TEXTURE_PREFIX = "ui_hud_soldier_"
 local MOTION_TEXTURE_POSTFIX = "_warning"
@@ -452,7 +452,7 @@ function MainIngameOverlay:UpdatePanelItems()
 	-- self.slot_panel:DetachAll()
 	-- for _,i in ipairs(self.slot_panel.slots) do
 		-- item = actor:item_in_slot(i)
-		-- if item and (tonumber(i) ~= BACKPACK_SLOT or read_if_exists(sys_ini, "r_bool", item:section(), "quick_drop", false)) then
+		-- if item and (tonumber(i) ~= BACKPACK_SLOT or read_if_exists(sys_ini, "bool", item:section(), "quick_drop", false)) then
 			-- params = CIconParams(item:section())
 			-- item_st = CUIStatic()
 			-- params:set_shader(item_st)
@@ -618,7 +618,7 @@ function MainIngameOverlay:UpdateActiveItem()
 			params_2 = CIconParams(show_sect_2)
 		end
 		
-		val = game.translate_string(read_if_exists(sys_ini, "r_string", show_sect, "inv_name_short", get_inv_name(show_sect)))
+		val = game.translate_string(read_if_exists(sys_ini, "string", show_sect, "inv_name_short", get_inv_name(show_sect)))
 		if act_item:get_ammo_in_magazine() == 0 then
 			val = game.translate_string("st_not_loaded")
 		end
@@ -918,7 +918,7 @@ function MainIngameOverlay:ShowFrontViewMarks()
 	return end
 	local params = self.compass_modern.params
 	local pda = actor_get_pda()
-	local pda_radius = pda and read_if_exists(sys_ini, "r_float", pda:section(), "radius", 50) or 50
+	local pda_radius = pda and read_if_exists(sys_ini, "float", pda:section(), "radius", 50) or 50
 	local objective = actor:get_active_objective()
 	local tgt_id = objective and objective:get_object_id() or nil
 	--//nearest objects

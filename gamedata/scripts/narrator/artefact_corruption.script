@@ -11,7 +11,7 @@ function try_add_to_list(item)
 	if not item:is_artefact() then
 	return end
 	local sect = item:section()
-	local corruption_time = read_if_exists(sys_ini, "r_u32", sect, "corruption_time", nil)
+	local corruption_time = read_if_exists(sys_ini, "u32", sect, "corruption_time", nil)
 	if not corruption_time then
 	return end
 	if condition_decrease[sect] then

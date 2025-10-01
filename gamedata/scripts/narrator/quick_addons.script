@@ -49,7 +49,7 @@ function on_key_press(key, game_action)
 	else
 		if act_wpn:addon_attachable(addon_type) and not act_wpn:is_addon_attached(addon_type) then
 			local _type = for_scope and "scope" or "silencer"
-			local addons = read_if_exists(sys_ini, "r_string", act_item:section(), _type.."_name")
+			local addons = read_if_exists(sys_ini, "string", act_item:section(), _type.."_name")
 			local addons_list = split_string(addons, ",")
 			for k,addon_sect in pairs(addons_list) do
 				local item = actor:object(addon_sect)

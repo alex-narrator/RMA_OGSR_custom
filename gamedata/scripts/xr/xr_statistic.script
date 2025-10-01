@@ -141,7 +141,7 @@ function try_add_item(item)
 	local sect = item:section()
 	local stat_sect = item:is_artefact() and "artefacts" or "trophies"
 	actor_stats.add_points(stat_sect, get_inv_name(sect), 1, 1)
-	local rank = read_if_exists(sys_ini, "r_u32", sect, "rank", 0)
+	local rank = read_if_exists(sys_ini, "u32", sect, "rank", 0)
 	actor:change_character_rank(rank)
 end
 function already_counted(item)

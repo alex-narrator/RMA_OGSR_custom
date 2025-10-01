@@ -44,7 +44,7 @@ function on_key_press(key, game_action)
 		end
 	return end
 	
-	local hud_sect = read_if_exists(sys_ini, "r_string", curr_nvd:section(), "nv_hud", nil)
+	local hud_sect = read_if_exists(sys_ini, "string", curr_nvd:section(), "nv_hud", nil)
 	
 	-- if actor:active_item() and actor:active_item():is_zoomed() then
 		-- actor:active_item():zoom_out()
@@ -73,11 +73,11 @@ function on_key_press(key, game_action)
 		hud_sect = hud_sect_simple
 		game.play_hud_motion(1, hud_sect, "anm_use", false, 1, false)
 		_G.SCRIPT_ANIM_PLAYING = true
-		local eff_name = read_if_exists(sys_ini, "r_string", hud_sect, "hud_effector", nil)
+		local eff_name = read_if_exists(sys_ini, "string", hud_sect, "hud_effector", nil)
 		level.add_complex_effector(eff_name, hud_effector_id)
 	
 		add_time_delayed_action(
-			read_if_exists(sys_ini, "r_float", hud_sect, "use_delay", 1.5),
+			read_if_exists(sys_ini, "float", hud_sect, "use_delay", 1.5),
 			function()
 				nvd.switch_nvd(curr_nvd)
 			end
@@ -108,7 +108,7 @@ function on_key_press(key, game_action)
 			add_time_delayed_action(
 				post_fade_delay,
 				function()
-					level.add_complex_effector(read_if_exists(sys_ini, "r_string", transition_sect, "eff"..action, nil), hud_effector_id)
+					level.add_complex_effector(read_if_exists(sys_ini, "string", transition_sect, "eff"..action, nil), hud_effector_id)
 					local length = game.play_hud_motion(1, hud_sect, "anm"..action, false, speed, true)
 					add_time_delayed_action(
 						length * 0.001,
@@ -126,7 +126,7 @@ function on_key_press(key, game_action)
 				end
 			)
 		else --//turn on sequence
-			level.add_complex_effector(read_if_exists(sys_ini, "r_string", transition_sect, "eff"..action, nil), hud_effector_id)
+			level.add_complex_effector(read_if_exists(sys_ini, "string", transition_sect, "eff"..action, nil), hud_effector_id)
 			local length = game.play_hud_motion(1, transition_sect, "anm"..action, false, speed, true)
 			add_time_delayed_action(
 				length * 0.001,

@@ -7,7 +7,7 @@ local anim_check = {
 }
 
 function play_sound_for_actor(item, sound)
-	local snd_name = read_if_exists(sys_ini, "r_string", item:section(), sound, nil)
+	local snd_name = read_if_exists(sys_ini, "string", item:section(), sound, nil)
 	if snd_name then
 		xr_sound.get_safe_sound_object(snd_name):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 	end

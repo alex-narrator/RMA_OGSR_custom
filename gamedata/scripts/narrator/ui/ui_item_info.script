@@ -154,7 +154,7 @@ function UIItemInfo:InitItemInfo()
 	
 	self.descr_list:Clear()
 	ogse_signals.get_mgr():call("on_item_info_init", self.descr_list, item)
-	text = read_if_exists(sys_ini, "r_string", sect, "description", nil)
+	text = read_if_exists(sys_ini, "string", sect, "description", nil)
 	if text then
 		text = game.translate_string(text)
 		self.descr_text = CUIStatic()
@@ -166,7 +166,7 @@ function UIItemInfo:InitItemInfo()
 		--self.descr_text:AdjustHeightToText()
 		
 		for i=1, 255 do
-			local add_descr = read_if_exists(sys_ini, "r_string", sect, "description_"..i, nil)
+			local add_descr = read_if_exists(sys_ini, "string", sect, "description_"..i, nil)
 			if add_descr then
 				local add_text = self.descr_text:GetText().."\\n"..self.descr_list.separator.."\\n"..game.translate_string(add_descr)
 				self.descr_text:SetText(add_text)
@@ -276,7 +276,7 @@ end
 function attach_condition_params(UIDesc, obj)
 	local condition = obj:condition()
 	
-	local show_cond = condition < 1 or read_if_exists(sys_ini, "r_bool", obj:section(), "use_condition", false)
+	local show_cond = condition < 1 or read_if_exists(sys_ini, "bool", obj:section(), "use_condition", false)
 	if not show_cond then
 	return end
 	
@@ -503,11 +503,11 @@ function attach_booster_params(UIDesc, item)
 		-- if v.st_name == "somnolence" then
 			-- val = somnolence.get_boost(item)
 		-- elseif v.st_name == "painkiller" then
-			-- val = read_if_exists(sys_ini, "r_float", sect, "boost_pain", 0)
+			-- val = read_if_exists(sys_ini, "float", sect, "boost_pain", 0)
 		if v.st_name == "boost_time" then
-			val = read_if_exists(sys_ini, "r_float", sect, "boost_time", 0)
+			val = read_if_exists(sys_ini, "float", sect, "boost_time", 0)
 		else
-			val = read_if_exists(sys_ini, "r_float", sect, BOOST_PARAMS[k], 0)--eatable:get_boost(k-1)
+			val = read_if_exists(sys_ini, "float", sect, BOOST_PARAMS[k], 0)--eatable:get_boost(k-1)
 		end
 		-- log3("item %s | boost val %s | boost type %s", item:name(), val, v.st_name)
 		if val ~= 0 then
@@ -591,7 +591,7 @@ function attach_armor_params(UIDesc, item)
 	sn = game.translate_string("st_armor_class")
 	local params_list = xml:InitScrollView("params_list", UIDesc)
 	for k,v in ipairs(armor_params) do
-		bone_protect_str = read_if_exists(sys_ini, "r_string", bones_protect_sect, v.bone, nil)
+		bone_protect_str = read_if_exists(sys_ini, "string", bones_protect_sect, v.bone, nil)
 		if bone_protect_str then
 			tmp_tbl = split_string(bone_protect_str, ",")
 			val = tonumber(tmp_tbl[2])
@@ -623,7 +623,7 @@ function attach_armor_params(UIDesc, item)
 	end
 	
 	--hit fraction
-	val = read_if_exists(sys_ini, "r_float", bones_protect_sect, "hit_fraction", 0.1)
+	val = read_if_exists(sys_ini, "float", bones_protect_sect, "hit_fraction", 0.1)
 	if val > 0 then
 		armor_st["hit_fraction"] = CUIStatic()--xml:InitStatic("hit_fraction", params_list)
 		armor_st["hit_fraction"]:SetWidth(params_list:GetDesiredChildWidth())
@@ -648,9 +648,9 @@ function attach_power_params(UIDesc, obj)
 	xml:ParseFile("script_overlays\\power_params.xml")
 	local power_params = xml:InitScrollView("power_params", UIDesc)--xml:InitStatic("power_params", UIDesc)
 	
-	if not read_if_exists(sys_ini, "r_bool", obj:section(), "condition_as_power", false) then
+	if not read_if_exists(sys_ini, "bool", obj:section(), "condition_as_power", false) then
 		local cap_power = xml:InitStatic("power_params:cap_power", power_params)
-		cap_power:SetText(game.translate_string(read_if_exists(sys_ini, "r_string", obj:section(), "power_level_name", "st_power_level")))
+		cap_power:SetText(game.translate_string(read_if_exists(sys_ini, "string", obj:section(), "power_level_name", "st_power_level")))
 		cap_power:AdjustHeightToText()
 		
 		local power_progress = xml:InitProgressBar("power_params:progress_power", power_params)
@@ -671,7 +671,7 @@ end
 
 ------------------------------------------WEAPON PARAMS WND-----------------------------------------------------------------------------------------------------------------
 function atach_wpn_params(UIDesc, obj)
-	if not read_if_exists(sys_ini, "r_bool", obj:section(), "show_wpn_properties", true) then
+	if not read_if_exists(sys_ini, "bool", obj:section(), "show_wpn_properties", true) then
 	return end
 	
 	local xml = CScriptXmlInit()
@@ -718,7 +718,7 @@ end
 
 ------------------------------------------KNIFE PARAMS WND-----------------------------------------------------------------------------------------------------------------
 function atach_knife_params(UIDesc, obj)
-	if not read_if_exists(sys_ini, "r_bool", obj:section(), "show_wpn_properties", true) then
+	if not read_if_exists(sys_ini, "bool", obj:section(), "show_wpn_properties", true) then
 	return end
 	
 	local xml = CScriptXmlInit()
@@ -831,7 +831,7 @@ function attach_magazin_ammo(UIDesc, obj)
 	
 	local sect = ammo:ammo_sect()
 	set_ammo_icon(ammo_icon, sect)
-	ammo_icon:SetText(game.translate_string(read_if_exists(sys_ini, "r_string", sect, "inv_name_short", get_inv_name(sect))))
+	ammo_icon:SetText(game.translate_string(read_if_exists(sys_ini, "string", sect, "inv_name_short", get_inv_name(sect))))
 	ammo_icon:SetTextPos(ammo_icon:GetWidth(), ammo_icon:GetHeight()/2)
 end
 
@@ -873,10 +873,10 @@ function attach_weapon_addons(UIDesc, obj)
 	local addons = {}
 	addons_st = {}
 	for i,addon in pairs(addon_type) do
-		addon_str = read_if_exists(sys_ini, "r_string", obj:section(), addon.."_name", nil)
-		addon_status = read_if_exists(sys_ini, "r_u32", obj:section(), addon.."_status", 0)
+		addon_str = read_if_exists(sys_ini, "string", obj:section(), addon.."_name", nil)
+		addon_status = read_if_exists(sys_ini, "u32", obj:section(), addon.."_status", 0)
 		if i > 8 then
-			addon_str = read_if_exists(sys_ini, "r_string", obj:section(), addon.."_class", nil)
+			addon_str = read_if_exists(sys_ini, "string", obj:section(), addon.."_class", nil)
 			addon_status = addon_str and 2 or 0
 		end
 		if addon_str and addon_status == 2 then
@@ -920,7 +920,7 @@ function attach_loadout_slots(UIDesc, item)
 	local sect = item:section()
 	local count, icon, text
 	for k,v in ipairs(loadout_slots) do
-		count = read_if_exists(sys_ini, "r_u32", sect, v, 0)
+		count = read_if_exists(sys_ini, "u32", sect, v, 0)
 		--log3("~count %s", count)
 		if count > 0 then
 			icon = xml:InitStatic("scroll_view_loadout:"..v.."_icon", slots_scroll_view)
@@ -952,7 +952,7 @@ function attach_ammo_params(UIDesc, item)
 	local sect = item:section()
 	local val, static, text, color
 	for k,v in ipairs(ammo_params) do
-		val = read_if_exists(sys_ini, "r_float", sect, v.name, v.default)
+		val = read_if_exists(sys_ini, "float", sect, v.name, v.default)
 		if val ~= v.default then
 			v.static = CUIStatic()
 			v.static:SetTextComplexMode(true)
@@ -994,7 +994,7 @@ function attach_addon_params(UIDesc, item)
 	local sect = item:section()
 	local val, text, color
 	for k,v in ipairs(addon_params) do
-		val = read_if_exists(sys_ini, "r_float", sect, v.name, v.default)
+		val = read_if_exists(sys_ini, "float", sect, v.name, v.default)
 		if val ~= v.default then
 			v.static = CUIStatic()
 			v.static:SetTextComplexMode(true)
@@ -1076,7 +1076,7 @@ end
 -----------------------------------------------------BELT SLOTS PARAMS-----------------------------------------------------------------------------------------------------------
 local belt_slots_st
 function attach_belt_params(UIDesc, item)
-	local belt_size = read_if_exists(sys_ini, "r_u32", item:section(), "belt_size", 0)
+	local belt_size = read_if_exists(sys_ini, "u32", item:section(), "belt_size", 0)
 	if belt_size <= 0 then return end
 	
 	local xml = CScriptXmlInit()
@@ -1170,16 +1170,16 @@ end
 -----------------------------------------------------REPAIR PARAMS-----------------------------------------------------------------------------------------------------------
 local repair_params = {
 		--//service
-		{name = "service_type", 			prefix="", unit = "", default = "", _type = "r_string"},
-		{name = "service_cond_threshold", 		prefix="", unit = "%", default = 0, _type = "r_float"},
-		{name = "service_condition_gain", 	prefix="", unit = "%", default = 0, _type = "r_float"},
+		{name = "service_type", 			prefix="", unit = "", default = "", _type = "string"},
+		{name = "service_cond_threshold", 		prefix="", unit = "%", default = 0, _type = "float"},
+		{name = "service_condition_gain", 	prefix="", unit = "%", default = 0, _type = "float"},
 		--//repair
-		{name = "repair_type", 				prefix="", unit = "", default = "", _type = "r_string"},
-		{name = "repair_bonus", 			prefix="x", unit = "", default = 0, _type = "r_float"},
+		{name = "repair_type", 				prefix="", unit = "", default = "", _type = "string"},
+		{name = "repair_bonus", 			prefix="x", unit = "", default = 0, _type = "float"},
 	}
 function attach_repair_params(UIDesc, item)
 	local sect = item:section()
-	if read_if_exists(sys_ini, "r_float", sect, "service_condition_gain", 0) <= 0 and read_if_exists(sys_ini, "r_float", sect, "repair_bonus", 0) <= 0 then
+	if read_if_exists(sys_ini, "float", sect, "service_condition_gain", 0) <= 0 and read_if_exists(sys_ini, "float", sect, "repair_bonus", 0) <= 0 then
 	return end
 	
 	local xml = CScriptXmlInit()
@@ -1189,7 +1189,7 @@ function attach_repair_params(UIDesc, item)
 	for k,v in ipairs(repair_params) do
 		local val = read_if_exists(sys_ini, v._type, sect, v.name, v.default)
 		if val ~= v.default then
-			val = v._type == "r_string" and game.translate_string("st_repair_"..val) or math.round(val, 2)
+			val = v._type == "string" and game.translate_string("st_repair_"..val) or math.round(val, 2)
 			if v.unit == "%" then
 				val = val * 100
 			end

@@ -57,7 +57,7 @@ function start_inspect(item)
 end
 
 function play(item)
-	hud_sect = read_if_exists(sys_ini, "r_string", item:section(), hud_sect_name, nil)
+	hud_sect = read_if_exists(sys_ini, "string", item:section(), hud_sect_name, nil)
 	if not hud_sect then
 	return end
 
@@ -68,7 +68,7 @@ function play(item)
 	end
 	--actor:hide_crosshair(true)
 	
-	if not read_if_exists(sys_ini, "r_string", hud_sect, "anm_idle", nil) then --//simple variant without draw-idle-hide sequence
+	if not read_if_exists(sys_ini, "string", hud_sect, "anm_idle", nil) then --//simple variant without draw-idle-hide sequence
 		level.add_call(
 			function() 
 				return not actor:active_item() and not actor:active_device()
@@ -129,7 +129,7 @@ end
 
 function play_hud_sound(sect, snd_name)
 	local sound = nil
-	local snd_name = read_if_exists(sys_ini, "r_string", sect, snd_name, nil)
+	local snd_name = read_if_exists(sys_ini, "string", sect, snd_name, nil)
 	if snd_name then
 		--//random sounds in format hud_sound = path_to_sound, n (count of sound files)
 		--//sound expected as sound_1, sound_2, ... sound_n
@@ -146,7 +146,7 @@ function play_hud_sound(sect, snd_name)
 end
 
 function play_hud_effector(sect, eff_name)
-	local eff_name = read_if_exists(sys_ini, "r_string", sect, eff_name, nil)
+	local eff_name = read_if_exists(sys_ini, "string", sect, eff_name, nil)
 	if eff_name then
 		level.remove_complex_effector(hud_effector_id)
 		level.add_complex_effector(eff_name, hud_effector_id)
@@ -216,5 +216,5 @@ function on_key_press_simple(key, game_action)
 end
 
 function anim_allowed(item)
-	return parent_is_actor(item) and read_if_exists(sys_ini, "r_string", item:section(), hud_sect_name, nil) and actor_menu:GetMode() == "inventory"
+	return parent_is_actor(item) and read_if_exists(sys_ini, "string", item:section(), hud_sect_name, nil) and actor_menu:GetMode() == "inventory"
 end

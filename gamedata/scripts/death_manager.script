@@ -54,7 +54,7 @@ function spawn_monster_loot(monster, killer)
 	if get_species(monster) == "arena_monstr" then
 	return end
 	local sect = monster:section()
-	local spawn_sect = read_if_exists(sys_ini, "r_string", sect, "Spawn_Inventory_Item_Section", nil)
+	local spawn_sect = read_if_exists(sys_ini, "string", sect, "Spawn_Inventory_Item_Section", nil)
 	if not spawn_sect then return end
 
 	local spawn_table = parse_key_val_line(spawn_sect, 1)
@@ -182,7 +182,7 @@ function fill_dependent_ammo(item, tbl)
 	
 	local sect = item:section()
 	
-	local check_line = read_if_exists(sys_ini, "r_string", sect, "ammo_class", nil)
+	local check_line = read_if_exists(sys_ini, "string", sect, "ammo_class", nil)
 	if check_line then
 		check_line = split_string(check_line, ",")
 		for k,v in pairs(check_line) do
@@ -194,7 +194,7 @@ function fill_dependent_ammo(item, tbl)
 			end
 		end
 	end
-	check_line = read_if_exists(sys_ini, "r_string", sect, "magazine_class", nil)
+	check_line = read_if_exists(sys_ini, "string", sect, "magazine_class", nil)
 	if check_line then
 		check_line = split_string(check_line, ",")
 		--//тільки перший магазин з сумісних
@@ -216,7 +216,7 @@ function fill_dependent_ammo(item, tbl)
 	end
 	local wpn = item:get_weapon()
 	if wpn and wpn:is_addon_attached(addon.launcher) then
-		check_line = read_if_exists(sys_ini, "r_string", sect, "grenade_class", nil)
+		check_line = read_if_exists(sys_ini, "string", sect, "grenade_class", nil)
 		if check_line then
 			check_line = split_string(check_line, ",")
 			for k,v in pairs(check_line) do
@@ -254,8 +254,8 @@ end
 function keep_item(npc, item)
     local section = item:section()
 	local res = 
-		read_if_exists(sys_ini, "r_bool", section, "quest_item", false) or 
-		read_if_exists(sys_ini, "r_bool", section, "unique_item", false) or 
+		read_if_exists(sys_ini, "bool", section, "quest_item", false) or 
+		read_if_exists(sys_ini, "bool", section, "unique_item", false) or 
 		always_keep_item[section] or get_clsid(item) == clsid.obj_bolt
 		
     local item_id = item:id()
@@ -298,12 +298,12 @@ function create_items(npc, section, number, rnd)
             if _random <=  rnd then
 				--log3("~section %s, math.random %s, rnd %s", section, _random, rnd)
 				if is_magazine(section) then
-					local rnd_ammo_count = math.random(read_if_exists(sys_ini, "r_u32", section, "box_size", 30))
+					local rnd_ammo_count = math.random(read_if_exists(sys_ini, "u32", section, "box_size", 30))
 					sobj = spawn_ammo_to_owner(section, npc:id(), rnd_ammo_count)
 				else
 					sobj = spawn_to_owner(section, npc:id())
 					if sobj:clsid() ~= clsid.artefact_s then
-						alife():object(sobj.id):get_inventory_item().item_radiation_restore_speed = math.clamp(npc.radiation,0,read_if_exists(sys_ini, "r_float", sobj:section_name(), "radiation_accum_limit", 0))
+						alife():object(sobj.id):get_inventory_item().item_radiation_restore_speed = math.clamp(npc.radiation,0,read_if_exists(sys_ini, "float", sobj:section_name(), "radiation_accum_limit", 0))
 						--log3("~npc %s, radiation %s, spawn item %s", npc:name(), npc.radiation, sobj:section_name())
 					end
 				end

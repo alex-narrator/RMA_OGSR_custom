@@ -63,7 +63,7 @@ function on_campfire_use(campfire_usable, campfire_zone)
 		if not matches then
 		return end
 		
-		local cond_dec = 1 / read_if_exists(sys_ini, "r_u32", matches:section(), "use_count", 10)
+		local cond_dec = 1 / read_if_exists(sys_ini, "u32", matches:section(), "use_count", 10)
 		matches:change_condition(-cond_dec)
 		
 		if matches:condition() <= 0 then
@@ -105,7 +105,7 @@ function on_campfire_use(campfire_usable, campfire_zone)
 			)
 		else
 		
-			local sound = xr_sound.get_safe_sound_object(read_if_exists(sys_ini, "r_string", matches:section(), "use_sound", nil))
+			local sound = xr_sound.get_safe_sound_object(read_if_exists(sys_ini, "string", matches:section(), "use_sound", nil))
 			if sound then
 				sound:play(actor, 0, sound_object.s2d)
 			end
@@ -150,7 +150,7 @@ end
 
 function play_hud_sound(sect)
 	local sound = nil
-	local snd_name = read_if_exists(sys_ini, "r_string", sect, "hud_sound", nil)
+	local snd_name = read_if_exists(sys_ini, "string", sect, "hud_sound", nil)
 	if snd_name then
 		--//random sounds in format hud_sound = path_to_sound, n (count of sound files)
 		--//sound expected as sound_1, sound_2, ... sound_n
@@ -167,7 +167,7 @@ function play_hud_sound(sect)
 end
 
 function play_hud_effector(sect)
-	local eff_name = read_if_exists(sys_ini, "r_string", sect, "hud_effector", nil)
+	local eff_name = read_if_exists(sys_ini, "string", sect, "hud_effector", nil)
 	if eff_name then
 		level.remove_complex_effector(hud_effector_id)
 		level.add_complex_effector(eff_name, hud_effector_id)

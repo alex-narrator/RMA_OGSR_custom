@@ -31,21 +31,21 @@ function ui_display:__init(item) super()
 	self.item 					= item
 	self.item_sect 				= item:section()
 	
-	--self.detect_r 			= read_if_exists(sys_ini, "r_float", self.item_sect, "detect_radius", 10)
+	--self.detect_r 			= read_if_exists(sys_ini, "float", self.item_sect, "detect_radius", 10)
 	-- self.detect_zones 		= {}
 	-- local zone_sect
 	-- for i = 1, 255 do
-		-- zone_sect = read_if_exists(sys_ini, "r_string", self.item_sect, "zone_class_"..i, nil)
+		-- zone_sect = read_if_exists(sys_ini, "string", self.item_sect, "zone_class_"..i, nil)
 		-- if zone_sect then
 			-- self.detect_zones[zone_sect] = true
 		-- end
 	-- end
 	
-	self.detect_r 				= read_if_exists(sys_ini, "r_float", self.item_sect, "af_radius", 10)
+	self.detect_r 				= read_if_exists(sys_ini, "float", self.item_sect, "af_radius", 10)
 	self.detect_artefacts 			= {}
 	local af_sect
 	for i = 1, 255 do
-		af_sect = read_if_exists(sys_ini, "r_string", self.item_sect, "af_class_"..i, nil)
+		af_sect = read_if_exists(sys_ini, "string", self.item_sect, "af_class_"..i, nil)
 		if af_sect then
 			self.detect_artefacts[af_sect] = true
 		end

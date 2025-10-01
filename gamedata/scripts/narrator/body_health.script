@@ -163,12 +163,12 @@ end
 
 function load_groggy_params()
 	local sect = "actor_groggy"
-	groggy_treshold = read_if_exists(sys_ini, "r_float", sect, "treshold", nil)
-	groggy_snd = read_if_exists(sys_ini, "r_string", sect, "snd", nil)
-	groggy_eff = read_if_exists(sys_ini, "r_string", sect, "effector", nil)
+	groggy_treshold = read_if_exists(sys_ini, "float", sect, "treshold", nil)
+	groggy_snd = read_if_exists(sys_ini, "string", sect, "snd", nil)
+	groggy_eff = read_if_exists(sys_ini, "string", sect, "effector", nil)
 	if groggy_eff then
-		groggy_cam_eff = read_if_exists(sys_ini, "r_string", groggy_eff, "cam_eff_name", nil)
-		groggy_ppe_eff = read_if_exists(sys_ini, "r_string", groggy_eff, "pp_eff_name", nil)
+		groggy_cam_eff = read_if_exists(sys_ini, "string", groggy_eff, "cam_eff_name", nil)
+		groggy_ppe_eff = read_if_exists(sys_ini, "string", groggy_eff, "pp_eff_name", nil)
 	end
 end
 
@@ -313,7 +313,7 @@ function on_actor_kick(target, power, power_dec)
 end
 
 function heal_injure(item, limb)
-	local snd_name = read_if_exists(sys_ini, "r_string", item:section(), "use_sound", nil)
+	local snd_name = read_if_exists(sys_ini, "string", item:section(), "use_sound", nil)
 	local action_delay = 1
 	if snd_name then
 		local snd = xr_sound.get_safe_sound_object(snd_name)
@@ -321,12 +321,12 @@ function heal_injure(item, limb)
 		action_delay = snd:length() * 0.001
 	end
 
-	local effector = read_if_exists(sys_ini, "r_string", item:section(), "use_effector", nil)
+	local effector = read_if_exists(sys_ini, "string", item:section(), "use_effector", nil)
 	if effector then
 		level.add_complex_effector(effector, 5598)
 	end
 
-	local use_count = read_if_exists(sys_ini, "r_float", item:section(), "use_count", 1)
+	local use_count = read_if_exists(sys_ini, "float", item:section(), "use_count", 1)
 	item:change_condition(-1/use_count)
 	if item:condition() == 0 then
 		alife():release(alife():object(item:id()), true)
@@ -350,7 +350,7 @@ end
 local painkiller_sect = {}
 
 function apply_pain_effect(sect, enable)
-	local pain_boost = read_if_exists(sys_ini, "r_float", sect, "boost_pain", 0)
+	local pain_boost = read_if_exists(sys_ini, "float", sect, "boost_pain", 0)
 	if pain_boost == 0 then
 	return end
 	if (enable and not painkiller_sect[sect]) or (not enable and painkiller_sect[sect])  then
@@ -376,14 +376,14 @@ end
 
 --//script menu actions
 function can_heal_nand(item)
-	return hand_injured and read_if_exists(sys_ini, "r_bool", item:section(), "heal_injuries", false)
+	return hand_injured and read_if_exists(sys_ini, "bool", item:section(), "heal_injuries", false)
 end
 function heal_nand(item)
 	heal_injure(item, "hand")
 end
 
 function can_heal_leg(item)
-	return leg_injured and read_if_exists(sys_ini, "r_bool", item:section(), "heal_injuries", false)
+	return leg_injured and read_if_exists(sys_ini, "bool", item:section(), "heal_injuries", false)
 end
 function heal_leg(item)
 	heal_injure(item, "leg")

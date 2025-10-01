@@ -44,12 +44,12 @@ recharge_effector_id = 20001
 
 function change_plate(obj, drop_on_obj)
 	local plate_sect = obj:section()
-	local action_delay = read_if_exists(sys_ini, "r_float", plate_sect, "use_delay", 2)
-	-- local change_plate_sound = read_if_exists(sys_ini, "r_string", plate_sect, "use_sound", nil)
+	local action_delay = read_if_exists(sys_ini, "float", plate_sect, "use_delay", 2)
+	-- local change_plate_sound = read_if_exists(sys_ini, "string", plate_sect, "use_sound", nil)
 	-- if change_plate_sound then
 		-- xr_sound.get_safe_sound_object(change_plate_sound):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 	-- end
-	local effector = read_if_exists(sys_ini, "r_string", plate_sect, "use_effector", nil)
+	local effector = read_if_exists(sys_ini, "string", plate_sect, "use_effector", nil)
 	if effector then
 		level.remove_complex_effector(recharge_effector_id)
 		level.add_complex_effector(effector, recharge_effector_id)
@@ -80,7 +80,7 @@ end
 function detach_plate(obj)
 	local vest = obj:binded_object()
 	local plate_sect = vest:get_plate_sect()
-	local action_delay = read_if_exists(sys_ini, "r_float", plate_sect, "use_delay", 2)
+	local action_delay = read_if_exists(sys_ini, "float", plate_sect, "use_delay", 2)
 	ballistic_plate_anim.play_hud_sound(get_hud_sect(plate_sect))
 	
 	block_non_move_action(true)

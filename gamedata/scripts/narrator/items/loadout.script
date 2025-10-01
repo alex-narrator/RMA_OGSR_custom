@@ -71,7 +71,7 @@ end
 
 function get_slot_type(item)
 	local sect = type(item) == "userdata" and item:section() or item
-	return read_if_exists(sys_ini, "r_string", sect, "loadout_type", nil)
+	return read_if_exists(sys_ini, "string", sect, "loadout_type", nil)
 end
 
 function is_module(item)
@@ -80,7 +80,7 @@ function is_module(item)
 	local slot_volume
 	local sect = item:section()
 	for k,v in pairs(slots) do
-		slot_volume = read_if_exists(sys_ini, "r_u32", sect, k, 0)
+		slot_volume = read_if_exists(sys_ini, "u32", sect, k, 0)
 		if slot_volume > 0 then
 			--log3("~item %s is module for loadout type %s [%s]", item:name(), k, slot_volume)
 			return true
@@ -95,7 +95,7 @@ function has_drop_pouch()
 	local item
 	for i = 0, actor:belt_count() - 1 do
 		item = actor:item_on_belt(i)
-		if read_if_exists(sys_ini, "r_bool", item:section(), "is_drop_pouch", false) then
+		if read_if_exists(sys_ini, "bool", item:section(), "is_drop_pouch", false) then
 		return true end
 	end
 	return false
@@ -128,7 +128,7 @@ function update_max_count(item, item_in)
 	local slot_volume = 0
 	local sect = item:section()
 	for k,v in pairs(slots) do
-		slot_volume = read_if_exists(sys_ini, "r_u32", sect, k, 0)
+		slot_volume = read_if_exists(sys_ini, "u32", sect, k, 0)
 		if slot_volume > 0 then
 			v.max_count = item_in and v.max_count + slot_volume or v.max_count - slot_volume
 			if v.max_count < 0 then

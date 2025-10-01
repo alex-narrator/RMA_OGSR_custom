@@ -273,7 +273,7 @@ function UIDebugMenu:OnSpawnItemClick(section, i)
 	self.spawn_button:Enable(true)
 	local text = get_inv_name(section)
 	self.spawn_items_name:SetText(game.translate_string(text))
-	text = read_if_exists(sys_ini, "r_string", section, "description", "")
+	text = read_if_exists(sys_ini, "string", section, "description", "")
 	self.spawn_items_descr:SetText(game.translate_string(text))
 	
 	self.spawn_items_icon:DetachAll()

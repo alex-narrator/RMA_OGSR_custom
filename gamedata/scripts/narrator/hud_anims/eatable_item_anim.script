@@ -57,7 +57,7 @@ function play(item)
 			
 			--actor:hide_crosshair(true)
 			
-			local anm_speed = read_if_exists(sys_ini, "r_string", hud_sect, anm_name.."_speed_k", 1)
+			local anm_speed = read_if_exists(sys_ini, "string", hud_sect, anm_name.."_speed_k", 1)
 			
 			local anm_length = game.play_hud_motion(2, hud_sect, anm_name, false, anm_speed * anm_snd_speed(), true)
 			--log3("~anm_length %s", anm_length * 0.001)
@@ -70,13 +70,13 @@ function play(item)
 			set_use_delay(hud_sect, item, anm_length)
 			block_non_move_action(true)
 			
-			local anim_start_func = read_if_exists(sys_ini, "r_string", hud_sect, "function_on_start", nil)
+			local anim_start_func = read_if_exists(sys_ini, "string", hud_sect, "function_on_start", nil)
 			if anim_start_func then
 				local func = loadstring( anim_start_func .. "(...)" )
 				func(item)
 			end
 			
-			local anim_stop_func = read_if_exists(sys_ini, "r_string", hud_sect, "function_on_stop", nil)
+			local anim_stop_func = read_if_exists(sys_ini, "string", hud_sect, "function_on_stop", nil)
 			if anim_stop_func then
 				stop_func = loadstring( anim_stop_func .. "(...)" )
 			end
@@ -106,7 +106,7 @@ end
 
 function play_hud_sound(sect)
 	local sound = nil
-	local snd_name = read_if_exists(sys_ini, "r_string", sect, "hud_sound", nil)
+	local snd_name = read_if_exists(sys_ini, "string", sect, "hud_sound", nil)
 	if snd_name then
 		--//random sounds in format hud_sound = path_to_sound, n (count of sound files)
 		--//sound expected as sound_1, sound_2, ... sound_n
@@ -124,7 +124,7 @@ function play_hud_sound(sect)
 end
 
 function play_hud_effector(sect)
-	local eff_name = read_if_exists(sys_ini, "r_string", sect, "hud_effector", nil)
+	local eff_name = read_if_exists(sys_ini, "string", sect, "hud_effector", nil)
 	if eff_name then
 		level.remove_complex_effector(hud_effector_id)
 		level.add_complex_effector(eff_name, hud_effector_id)
@@ -133,7 +133,7 @@ end
 
 function set_use_delay(sect, item, anm_length)
 	add_time_delayed_action(
-		read_if_exists(sys_ini, "r_float", sect, "use_delay", anm_length) * 1 / anm_snd_speed(), 
+		read_if_exists(sys_ini, "float", sect, "use_delay", anm_length) * 1 / anm_snd_speed(), 
 		function()
 			--unsubscribe()
 			hud_remove_info_message("item_usage")

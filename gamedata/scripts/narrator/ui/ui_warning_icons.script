@@ -48,7 +48,7 @@ function WarningIcons:InitWnd(xml, owner)
 		v.icon = xml:InitStatic("warning_icons_back:"..v.name, self.warning_icons_back)
 		v.icon:Show(false)
 		//v.threshold = split_string(xml:ReadAttrib("warning_icons_back:"..v.name, "threshold", nil), ",", true)
-		v.threshold = split_string(read_if_exists(sys_ini, "r_string", thresholds_sect, v.name, nil), ",", true)
+		v.threshold = split_string(read_if_exists(sys_ini, "string", thresholds_sect, v.name, nil), ",", true)
 		
 		self:Register(v.icon, v.name)
 		self:AddCallback(v.name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnFocusReceived(v.name, v.icon) end)

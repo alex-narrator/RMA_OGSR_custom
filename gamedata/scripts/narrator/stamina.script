@@ -8,8 +8,8 @@ function attach(sm)
 end
 
 local stamina = 1
-local stamina_dec = -1 / (read_if_exists(sys_ini, "r_u32", "actor_condition", "stamina_dec_time", 6) * 1000)
-local stamina_inc = 1 / (read_if_exists(sys_ini, "r_u32", "actor_condition", "stamina_inc_time", 6) * 1000)
+local stamina_dec = -1 / (read_if_exists(sys_ini, "u32", "actor_condition", "stamina_dec_time", 6) * 1000)
+local stamina_inc = 1 / (read_if_exists(sys_ini, "u32", "actor_condition", "stamina_inc_time", 6) * 1000)
 local RECOIL_K = 0.1
 local stamina_k = 1
 
@@ -49,6 +49,6 @@ local process_states = {
 function on_state_switch(item, state, old_state)
 	if not process_states[state] or not item:get_weapon_m() then
 	return end
-	stamina_k = state == global_flags.eShowing and read_if_exists(sys_ini, "r_float", item:section(), "control_inertion_factor", 1) or 1
+	stamina_k = state == global_flags.eShowing and read_if_exists(sys_ini, "float", item:section(), "control_inertion_factor", 1) or 1
 	--log3("~stamina_k %s", stamina_k)
 end

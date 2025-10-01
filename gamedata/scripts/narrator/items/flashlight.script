@@ -67,10 +67,10 @@ function on_state_switch(item, state, old_state)
 end
 
 function get_light_sect(item)
-	return read_if_exists(sys_ini, "r_string", item:section(), "light_definition", nil)
+	return read_if_exists(sys_ini, "string", item:section(), "light_definition", nil)
 end
 function get_light_sect_second(item)
-	return read_if_exists(sys_ini, "r_string", item:section(), "light_definition_second", nil)
+	return read_if_exists(sys_ini, "string", item:section(), "light_definition_second", nil)
 end
 
 function can_switch(item)
@@ -79,11 +79,11 @@ end
 
 function set_light_params(item)
 	local sect = item:section()
-	local light_sect = alife():object(item:id()).is_second_mode and read_if_exists(sys_ini, "r_string", sect, "light_definition_second", nil) or read_if_exists(sys_ini, "r_string", sect, "light_definition", nil)
+	local light_sect = alife():object(item:id()).is_second_mode and read_if_exists(sys_ini, "string", sect, "light_definition_second", nil) or read_if_exists(sys_ini, "string", sect, "light_definition", nil)
 
-	local range = read_if_exists(sys_ini, "r_float", light_sect, "range", 10)
-	local angle = read_if_exists(sys_ini, "r_float", light_sect, "spot_angle", 90)
-	local clr_rgba = split_string(read_if_exists(sys_ini, "r_string", light_sect, "color_r2", nil), ",")
+	local range = read_if_exists(sys_ini, "float", light_sect, "range", 10)
+	local angle = read_if_exists(sys_ini, "float", light_sect, "spot_angle", 90)
+	local clr_rgba = split_string(read_if_exists(sys_ini, "string", light_sect, "color_r2", nil), ",")
 
 	local flashlight_obj = item:get_flashlight()	
 	flashlight_obj:set_range(range)
@@ -97,8 +97,8 @@ function update_brightness(item)
 	if not is_power_device(item) then
 	return end
 	local brightness = item:binded_object():get_power_level()
-	local light_sect = read_if_exists(sys_ini, "r_string", item:section(), "light_definition", nil)
-	local brightness_min_k = read_if_exists(sys_ini, "r_float", light_sect, "brightness_min_k", 0.3)
+	local light_sect = read_if_exists(sys_ini, "string", item:section(), "light_definition", nil)
+	local brightness_min_k = read_if_exists(sys_ini, "float", light_sect, "brightness_min_k", 0.3)
 	item:get_flashlight():set_brightness(math.clamp(brightness, brightness_min_k, 1))	
 end
 

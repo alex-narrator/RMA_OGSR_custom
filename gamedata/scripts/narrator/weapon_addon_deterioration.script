@@ -16,10 +16,10 @@ function on_weapon_fire(item)
 	if not wpn then return end
 	local silencer_sect = (wpn:addon_attachable(addon.silencer) and wpn:is_addon_attached(addon.silencer)) and wpn:get_addon_name(addon.silencer) or nil
 	if not silencer_sect then return end
-	local deterioration_per_shot = read_if_exists(sys_ini, "r_float", silencer_sect, "condition_shot_dec", nil)
+	local deterioration_per_shot = read_if_exists(sys_ini, "float", silencer_sect, "condition_shot_dec", nil)
 	if not deterioration_per_shot then
 	return end
-	local ammo_impair = read_if_exists(sys_ini, "r_float", get_cur_ammo_sect(item), "impair", 0)
+	local ammo_impair = read_if_exists(sys_ini, "float", get_cur_ammo_sect(item), "impair", 0)
 	local cond_dec = deterioration_per_shot + (deterioration_per_shot * ammo_impair)
 	--log3("~cond dec %s", cond_dec)
 	local sobj = alife():object(item:id())

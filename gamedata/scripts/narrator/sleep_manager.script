@@ -18,18 +18,18 @@ local is_sleeping = false
 local params_sect 			= "sleep_params"
 local cond_sect 			= "sleep_conditions"
 --//params
-local ENEMY_CHECK_RADIUS 	= read_if_exists(sys_ini, "r_float", 	params_sect, 	"enemy_radius", 	50)
-local SLEEP_SPOT 			= read_if_exists(sys_ini, "r_string", 	params_sect, 	"spot", 			"spot_place_to_rest_cop")
-local PROP_SECT 			= read_if_exists(sys_ini, "r_string", 	params_sect, 	"prop_sect", 		"mattress")
-local PROP_PREFIX 			= read_if_exists(sys_ini, "r_string", 	params_sect, 	"prop_prefix", 		"sleep_prop_")
-local SAVE_AFTER_SLEEP 		= read_if_exists(sys_ini, "r_bool", 	params_sect, 	"save_after_sleep", true)
+local ENEMY_CHECK_RADIUS 	= read_if_exists(sys_ini, "float", 	params_sect, 	"enemy_radius", 	50)
+local SLEEP_SPOT 			= read_if_exists(sys_ini, "string", 	params_sect, 	"spot", 			"spot_place_to_rest_cop")
+local PROP_SECT 			= read_if_exists(sys_ini, "string", 	params_sect, 	"prop_sect", 		"mattress")
+local PROP_PREFIX 			= read_if_exists(sys_ini, "string", 	params_sect, 	"prop_prefix", 		"sleep_prop_")
+local SAVE_AFTER_SLEEP 		= read_if_exists(sys_ini, "bool", 	params_sect, 	"save_after_sleep", true)
 --//conditions
-local SOMNOLENCE_K 			= read_if_exists(sys_ini, "r_float", 	cond_sect, 		"somnolence_k", 	0.5)
-local HEALTH_K 				= read_if_exists(sys_ini, "r_float", 	cond_sect, 		"health_k", 		0.5)
-local POWER_K 				= read_if_exists(sys_ini, "r_float", 	cond_sect, 		"power_k", 			0.5)
-local SATIETY_K 			= read_if_exists(sys_ini, "r_float", 	cond_sect, 		"satiety_k", 		0.5)
-local ALCOHOL_K 			= read_if_exists(sys_ini, "r_float", 	cond_sect, 		"alcohol_k", 		0.5)
-local PSY_HEALTH_K 			= read_if_exists(sys_ini, "r_float", 	cond_sect, 		"psy_health_k", 	0.5)
+local SOMNOLENCE_K 			= read_if_exists(sys_ini, "float", 	cond_sect, 		"somnolence_k", 	0.5)
+local HEALTH_K 				= read_if_exists(sys_ini, "float", 	cond_sect, 		"health_k", 		0.5)
+local POWER_K 				= read_if_exists(sys_ini, "float", 	cond_sect, 		"power_k", 			0.5)
+local SATIETY_K 			= read_if_exists(sys_ini, "float", 	cond_sect, 		"satiety_k", 		0.5)
+local ALCOHOL_K 			= read_if_exists(sys_ini, "float", 	cond_sect, 		"alcohol_k", 		0.5)
+local PSY_HEALTH_K 			= read_if_exists(sys_ini, "float", 	cond_sect, 		"psy_health_k", 	0.5)
 
 --//пише координати спавну матрасу у файл sleeping_props.txt
 --//файл буде лежати у каталозі bin_x64

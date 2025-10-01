@@ -115,7 +115,7 @@ function UIDetailInfo:SetItem(item)
 	
 	self.descr_list:Clear()
 	ogse_signals.get_mgr():call("on_item_info_init", self.descr_list, item)
-	local text = read_if_exists(sys_ini, "r_string", item:section(), "description", nil)
+	local text = read_if_exists(sys_ini, "string", item:section(), "description", nil)
 	if text then
 		text = game.translate_string(text)
 		self.descr_text = CUIStatic()

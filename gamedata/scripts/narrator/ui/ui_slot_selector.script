@@ -513,7 +513,7 @@ function SlotSelectorOverlay:ShowWeapon(slot_num)
 	end
 	
 	for k, addon in pairs(ADDON_TYPES) do
-		local addons = read_if_exists(sys_ini, "r_string", slot_item:section(), addon.."_name", nil)
+		local addons = read_if_exists(sys_ini, "string", slot_item:section(), addon.."_name", nil)
 		local addons_list = split_string(addons, ",")
 		if addons_list then
 			for k,addon_sect in pairs(addons_list) do

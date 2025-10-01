@@ -15,7 +15,7 @@ function on_take(item)
 end
 
 function generate_password(rank)
-	local passwords = read_if_exists(sys_ini, "r_string", "passwords_by_rank", rank, nil)
+	local passwords = read_if_exists(sys_ini, "string", "passwords_by_rank", rank, nil)
 	if not passwords then
 		log_news("~no passwords for rank %s", rank)
 	return nil end
@@ -165,7 +165,7 @@ function on_state_switch(item, state, old_state)
 		set_pda_params(vector():set(0.5,0,0))
 	end
 	if state == global_flags.eHiding then
-		local delay = read_if_exists(sys_ini, "r_float", item:section(), "screen_off_delay", 0.1)
+		local delay = read_if_exists(sys_ini, "float", item:section(), "screen_off_delay", 0.1)
 		add_time_delayed_action(delay, 
 			function()
 				set_pda_params(vector():set(0.5,0,0))
@@ -174,7 +174,7 @@ function on_state_switch(item, state, old_state)
 		return
 	end
 	if state == global_flags.eShowing then
-		local delay = read_if_exists(sys_ini, "r_float", item:section(), "screen_on_delay", 0.1)
+		local delay = read_if_exists(sys_ini, "float", item:section(), "screen_on_delay", 0.1)
 		add_time_delayed_action(delay, 
 			function()
 				if item:is_power_on() then
@@ -197,7 +197,7 @@ function play_power_off_anim(item)
 		function()
 			block_non_move_action(true)
 			local length = item:play_hud_motion("anm_empty")
-			local snd_name = read_if_exists(sys_ini, "r_string", item:section(), "snd_empty", nil)
+			local snd_name = read_if_exists(sys_ini, "string", item:section(), "snd_empty", nil)
 			xr_sound.get_safe_sound_object(snd_name):play(actor, 0, sound_object.s2d)
 			add_time_delayed_action(
 				length * 0.001 - 0.9,

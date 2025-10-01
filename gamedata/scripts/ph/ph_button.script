@@ -144,12 +144,12 @@ function set_scheme(npc, ini, scheme, section, gulag_name)
        st.blending = true 
     end
 	
-	st.sound = read_if_exists(ini, "r_string", section, "sound", nil)
-	st.particle = read_if_exists(ini, "r_string", section, "particle", nil)
-	st.particle_pos = read_if_exists(ini, "r_vector", section, "particle_pos", vector())
+	st.sound = read_if_exists(ini, "string", section, "sound", nil)
+	st.particle = read_if_exists(ini, "string", section, "particle", nil)
+	st.particle_pos = read_if_exists(ini, "vector", section, "particle_pos", vector())
 	
-	st.switch_sound = read_if_exists(ini, "r_string", section, "switch_sound", nil)
-	st.switch_particle = read_if_exists(ini, "r_string", section, "switch_particle", nil)
-	st.switch_particle_pos = read_if_exists(ini, "r_vector", section, "switch_particle_pos", vector())	
+	st.switch_sound = read_if_exists(ini, "string", section, "switch_sound", nil)
+	st.switch_particle = read_if_exists(ini, "string", section, "switch_particle", nil)
+	st.switch_particle_pos = read_if_exists(ini, "vector", section, "switch_particle_pos", vector())	
 end
 

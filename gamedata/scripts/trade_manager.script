@@ -16,12 +16,12 @@ function attach(sm)
 	sm:subscribe({signal = "on_trade_purchase_item_process", 	fun = this.on_trade_purchase_item_process})
 end
 
-local BUY_ENEMY_FACTOR 		= read_if_exists(sys_ini, "r_float", "trade", "buy_price_factor_hostile", 1)
-local BUY_FRIEND_FACTOR 	= read_if_exists(sys_ini, "r_float", "trade", "buy_price_factor_friendly", 1)
-local SELL_ENEMY_FACTOR 	= read_if_exists(sys_ini, "r_float", "trade", "sell_price_factor_hostile", 1)
-local SELL_FRIEND_FACTOR 	= read_if_exists(sys_ini, "r_float", "trade", "sell_price_factor_friendly", 1)
-local MIN_DEFICIT 			= read_if_exists(sys_ini, "r_float", "trade", "min_deficit_factor", 1)
-local MAX_DEFICIT 			= read_if_exists(sys_ini, "r_float", "trade", "max_deficit_factor", 1)
+local BUY_ENEMY_FACTOR 		= read_if_exists(sys_ini, "float", "trade", "buy_price_factor_hostile", 1)
+local BUY_FRIEND_FACTOR 	= read_if_exists(sys_ini, "float", "trade", "buy_price_factor_friendly", 1)
+local SELL_ENEMY_FACTOR 	= read_if_exists(sys_ini, "float", "trade", "sell_price_factor_hostile", 1)
+local SELL_FRIEND_FACTOR 	= read_if_exists(sys_ini, "float", "trade", "sell_price_factor_friendly", 1)
+local MIN_DEFICIT 			= read_if_exists(sys_ini, "float", "trade", "min_deficit_factor", 1)
+local MAX_DEFICIT 			= read_if_exists(sys_ini, "float", "trade", "max_deficit_factor", 1)
 
 --local MIN_H, MAX_H 			= 8, 12--//межі рандомайзеру часу до оновлення асортиментів (ігрові години)
 local RESUPPLY_INTERVAL = "8, 12"
@@ -101,7 +101,7 @@ function trade_init(npc, cfg)
 	end
 	
 	-- коэфициенты покупки
-	local str = read_if_exists(tt.config, "r_string", "trader", "buy_condition", nil)
+	local str = read_if_exists(tt.config, "string", "trader", "buy_condition", nil)
 	if not str then
 		abort("Incorrect trader settings. Cannot find buy_condition. [%s]->[%s]", npc:name(), cfg)
 	end
@@ -109,7 +109,7 @@ function trade_init(npc, cfg)
 	tt.buy_condition = xr_logic.parse_condlist(npc, "trade_manager", "buy_condition", str)
 	
 	-- коэфициенты продажи
-	str = read_if_exists(tt.config, "r_string", "trader", "sell_condition", nil)
+	str = read_if_exists(tt.config, "string", "trader", "sell_condition", nil)
 	if not str then
 		abort("Incorrect trader settings. Cannot find sell_condition. [%s]->[%s]", npc:name(), cfg)
 	end
@@ -117,7 +117,7 @@ function trade_init(npc, cfg)
 	tt.sell_condition = xr_logic.parse_condlist(npc, "trade_manager", "sell_condition", str)
 	
 	-- список закупки
-	str = read_if_exists(tt.config, "r_string", "trader", "buy_supplies", nil)
+	str = read_if_exists(tt.config, "string", "trader", "buy_supplies", nil)
 	if str then
 		tt.buy_supplies = xr_logic.parse_condlist(npc, "trade_manager", "buy_supplies", str)
 		--log3("TRADE INIT: [%s] tt.buy_supplies = %s", npc:name(), str)
@@ -126,13 +126,13 @@ function trade_init(npc, cfg)
 	end
 	
 	--//дефіцити
-	tt.min_deficit = read_if_exists(tt.config, "r_float", "trader", "min_deficit_factor", MIN_DEFICIT)
-	tt.max_deficit = read_if_exists(tt.config, "r_float", "trader", "max_deficit_factor", MAX_DEFICIT)
+	tt.min_deficit = read_if_exists(tt.config, "float", "trader", "min_deficit_factor", MIN_DEFICIT)
+	tt.max_deficit = read_if_exists(tt.config, "float", "trader", "max_deficit_factor", MAX_DEFICIT)
 	
 	--//час оновлення асортименту
-	tt.resuply_interval = split_string(read_if_exists(tt.config, "r_string", "trader", "resuply_interval", RESUPPLY_INTERVAL), ",", true)
-	-- tt.min_resuply_h = read_if_exists(tt.config, "r_float", "trader", "min_resuply_h", MIN_H)
-	-- tt.max_resuply_h = read_if_exists(tt.config, "r_float", "trader", "max_resuply_h", MAX_H)
+	tt.resuply_interval = split_string(read_if_exists(tt.config, "string", "trader", "resuply_interval", RESUPPLY_INTERVAL), ",", true)
+	-- tt.min_resuply_h = read_if_exists(tt.config, "float", "trader", "min_resuply_h", MIN_H)
+	-- tt.max_resuply_h = read_if_exists(tt.config, "float", "trader", "max_resuply_h", MAX_H)
 end
 
 function update(npc)
@@ -373,7 +373,7 @@ function buy_supplies(npc)
 		local spawned = 0
 		for ii=1, count do
 			if math.random(0,1) <= prob then
-				if read_if_exists(sys_ini, "r_string", sect, "ammo_types", nil) then
+				if read_if_exists(sys_ini, "string", sect, "ammo_types", nil) then
 					sobj = spawn_ammo_to_owner(sect, npc_id, 0)
 				else
 					sobj = spawn_to_owner(sect, npc_id)
@@ -416,7 +416,7 @@ function get_trade_cost(item)
 end
 
 function tradable(item)
-	return read_if_exists(sys_ini, "r_bool", item:section(), "can_trade", true) and not read_if_exists(sys_ini, "r_bool", item:section(), "quest_item", false) and get_trade_cost(item) > 0
+	return read_if_exists(sys_ini, "bool", item:section(), "can_trade", true) and not read_if_exists(sys_ini, "bool", item:section(), "quest_item", false) and get_trade_cost(item) > 0
 end
 
 function fill_conditions(tt, config, section, for_buy)

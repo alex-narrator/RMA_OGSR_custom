@@ -24,19 +24,19 @@ function on_zoom_in(weapon)
 	
 	local param_sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or weapon:section()
 	
-	local zoom = read_if_exists(sys_ini, "r_float", param_sect, "shader_scope_zoom", 0)
+	local zoom = read_if_exists(sys_ini, "float", param_sect, "shader_scope_zoom", 0)
 	if zoom == 0 then
 	return end
 	
-	local vignette = read_if_exists(sys_ini, "r_float", param_sect, "shader_scope_vignette", 0)
-	local chroma = read_if_exists(sys_ini, "r_float", param_sect, "shader_scope_chroma", 0)
-	local mark_scale = read_if_exists(sys_ini, "r_float", param_sect, "shader_scope_mark_scale", 0)
+	local vignette = read_if_exists(sys_ini, "float", param_sect, "shader_scope_vignette", 0)
+	local chroma = read_if_exists(sys_ini, "float", param_sect, "shader_scope_chroma", 0)
+	local mark_scale = read_if_exists(sys_ini, "float", param_sect, "shader_scope_mark_scale", 0)
 	set_scope_params(zoom, vignette, chroma, mark_scale)
 	
 	--first focal plain mark, means then scope crosshair zooms with the image
-	local ffp_mark = read_if_exists(sys_ini, "r_bool", param_sect, "shader_scope_mark_ffp", false)
+	local ffp_mark = read_if_exists(sys_ini, "bool", param_sect, "shader_scope_mark_ffp", false)
 	if ffp_mark then
-		local ffp_factor = 1 / read_if_exists(sys_ini, "r_float", param_sect, "scope_zoom_factor", 1)
+		local ffp_factor = 1 / read_if_exists(sys_ini, "float", param_sect, "scope_zoom_factor", 1)
 		shader_scope_params = {
 			zoom = zoom,
 			vignette = vignette,
@@ -49,7 +49,7 @@ function on_zoom_in(weapon)
 		set_scope_params(zoom, vignette, chroma, mark_scale * ffp_factor * zoom_factor)
 	end
 	
-	local color = read_if_exists(sys_ini, "r_string", param_sect, "shader_scope_color", nil)
+	local color = read_if_exists(sys_ini, "string", param_sect, "shader_scope_color", nil)
 	color = split_string(color, ",")
 	if not color then
 	return end

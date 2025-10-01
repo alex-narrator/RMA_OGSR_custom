@@ -58,7 +58,7 @@ function on_key_press(key, game_action)
 	
 	local length = game.play_hud_motion(2, hud_sect, "anm_use", true, ANM_SPEED, false)
 	_G.SCRIPT_ANIM_PLAYING = true
-	-- local eff_name = read_if_exists(sys_ini, "r_string", hud_sect, "hud_effector", nil)
+	-- local eff_name = read_if_exists(sys_ini, "string", hud_sect, "hud_effector", nil)
 	-- level.add_complex_effector(eff_name, hud_effector_id)
 	
 	local sound_name = "interface\\kick\\swing\\swing_"..math.random(1,6)
@@ -66,7 +66,7 @@ function on_key_press(key, game_action)
 	local kick_forward = key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION))
 	
 	add_time_delayed_action(
-		read_if_exists(sys_ini, "r_float", hud_sect, "use_delay", 0.5) / ANM_SPEED,
+		read_if_exists(sys_ini, "float", hud_sect, "use_delay", 0.5) / ANM_SPEED,
 		function()
 			kick(kick_forward)
 			if act_item and (act_item:is_knife() or act_item:is_missile()) then
@@ -141,7 +141,7 @@ function kick(forward_dir)
 	if target:is_stalker() or target:is_monster() then
 		sound_name = "interface\\kick\\flesh\\flesh_"..math.random(1,6)
 	else
-		local spawn_name = read_if_exists(sys_ini, "r_string", target:section(), "$spawn", nil)
+		local spawn_name = read_if_exists(sys_ini, "string", target:section(), "$spawn", nil)
 		if spawn_name and string.find(spawn_name,"wood") then
 			sound_name = "interface\\kick\\wood\\wood_"..math.random(1,4)
 		end

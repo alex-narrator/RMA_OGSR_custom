@@ -19,21 +19,21 @@ function check_use_enabled(item, user)
 	
 	local sect = item:section()
 	
-	if item:is_food_item() and not item:is_bottle_item() and not (read_if_exists(sys_ini, "r_bool", sect, "non_food", false)) and actor.satiety > 0.95 then	
+	if item:is_food_item() and not item:is_bottle_item() and not (read_if_exists(sys_ini, "bool", sect, "non_food", false)) and actor.satiety > 0.95 then	
 		eatable_item.can_be_eaten = false
 		news_manager.item_tip(item, "satiety_block_eat")
 	return end
 	
-	if not read_if_exists(sys_ini, "r_bool", sect, "helmet_use", true) then
+	if not read_if_exists(sys_ini, "bool", sect, "helmet_use", true) then
 
 		local check_item = actor:item_in_slot(6)
-		if check_item and read_if_exists(sys_ini, "r_bool", check_item:section(), "block_eat", false) then
+		if check_item and read_if_exists(sys_ini, "bool", check_item:section(), "block_eat", false) then
 			eatable_item.can_be_eaten = false
 			news_manager.item_tip(check_item, "outfit_block_eat")
 		return end
 	
 		check_item = actor:item_in_slot(11)
-		if check_item and read_if_exists(sys_ini, "r_bool", check_item:section(), "block_eat", false) then
+		if check_item and read_if_exists(sys_ini, "bool", check_item:section(), "block_eat", false) then
 			eatable_item.can_be_eaten = false
 			news_manager.item_tip(check_item, "outfit_block_eat")
 		return end
@@ -52,7 +52,7 @@ end
 function use_item_effects(obj, user)
 	local sect = obj:section()
 	--sounds
-	local snd_name = read_if_exists(sys_ini, "r_string", sect, "use_sound", nil)
+	local snd_name = read_if_exists(sys_ini, "string", sect, "use_sound", nil)
 	if snd_name then
 		xr_sound.get_safe_sound_object(snd_name):play_no_feedback(user, sound_object.s2d, 0, vector(), 1.0)
 	end
@@ -63,7 +63,7 @@ function use_item_effects(obj, user)
 		end
 		actor_break_sprint()
 		--use effectors
-		local eff_name = read_if_exists(sys_ini, "r_string", sect, "use_effector", nil)
+		local eff_name = read_if_exists(sys_ini, "string", sect, "use_effector", nil)
 		if eff_name then
 			level.remove_complex_effector(use_effector_id)
 			level.add_complex_effector(eff_name, use_effector_id)
@@ -73,15 +73,15 @@ function use_item_effects(obj, user)
 end
 
 function enable_effect(booster)
-	local effector_name = read_if_exists(sys_ini, "r_string", booster.section, "boost_effector", nil)
+	local effector_name = read_if_exists(sys_ini, "string", booster.section, "boost_effector", nil)
 	if not effector_name then return end
-	local effector_id = read_if_exists(sys_ini, "r_float", booster.section, "boost_effector_id", boost_efefctor_id)	
+	local effector_id = read_if_exists(sys_ini, "float", booster.section, "boost_effector_id", boost_efefctor_id)	
 	level.add_complex_effector(effector_name, effector_id)
 end
 
 function disable_effect(booster)
-	local effector_name = read_if_exists(sys_ini, "r_string", booster.section, "boost_effector", nil)
+	local effector_name = read_if_exists(sys_ini, "string", booster.section, "boost_effector", nil)
 	if not effector_name then return end
-	local effector_id = read_if_exists(sys_ini, "r_float", booster.section, "boost_effector_id", boost_efefctor_id)	
+	local effector_id = read_if_exists(sys_ini, "float", booster.section, "boost_effector_id", boost_efefctor_id)	
 	level.remove_complex_effector(effector_id)
 end

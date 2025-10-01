@@ -20,10 +20,10 @@ function mounted_weapon_binder:__init(obj) super(obj)
 	self.overheated = false
 	self.overheat = 0
 	local sect = obj:section()
-	self.overheat_inc = read_if_exists(sys_ini, "r_float", sect, "overheat_inc", 0)
-	self.overheat_dec = read_if_exists(sys_ini, "r_float", sect, "overheat_dec", 0)
-	self.overheat_particle = read_if_exists(sys_ini, "r_string", sect, "overheat_particle", nil)
-	self.overheat_particle_pos = read_if_exists(sys_ini, "r_vector", sect, "overheat_particle_pos", vector())
+	self.overheat_inc = read_if_exists(sys_ini, "float", sect, "overheat_inc", 0)
+	self.overheat_dec = read_if_exists(sys_ini, "float", sect, "overheat_dec", 0)
+	self.overheat_particle = read_if_exists(sys_ini, "string", sect, "overheat_particle", nil)
+	self.overheat_particle_pos = read_if_exists(sys_ini, "vector", sect, "overheat_particle_pos", vector())
 	if self.overheat_particle then
 		self.overheat_particle = particles_object(self.overheat_particle)
 	end

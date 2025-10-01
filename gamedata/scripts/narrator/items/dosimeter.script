@@ -55,9 +55,9 @@ function enable(item, prev_place)
 			detector:switch_power(true)
 			
 			local sect = detector:section()
-			detect_radius = read_if_exists(sys_ini, "r_float", sect, "detect_radius", 10)
-			min_freq = read_if_exists(sys_ini, "r_float", sect, "min_snd_freq", 0.5)
-			max_freq = read_if_exists(sys_ini, "r_float", sect, "max_snd_freq", 30)
+			detect_radius = read_if_exists(sys_ini, "float", sect, "detect_radius", 10)
+			min_freq = read_if_exists(sys_ini, "float", sect, "min_snd_freq", 0.5)
+			max_freq = read_if_exists(sys_ini, "float", sect, "max_snd_freq", 30)
 			
 			result_power = 0
 			sound_time = {}
@@ -114,7 +114,7 @@ function detect_radiation(dt)
 				
 				play_sound(obj, power, dt)
 				
-				result_power = result_power + power * read_if_exists(sys_ini, "r_float", obj:section(), "min_start_power", 1)
+				result_power = result_power + power * read_if_exists(sys_ini, "float", obj:section(), "min_start_power", 1)
 			end
 		end
 	end		
@@ -150,7 +150,7 @@ function can_detect_radiation()
 		
 		local zone_sect
 		for i = 1, 255 do
-			zone_sect = read_if_exists(sys_ini, "r_string", sect, "zone_class_"..i, nil)
+			zone_sect = read_if_exists(sys_ini, "string", sect, "zone_class_"..i, nil)
 			if zone_sect and string.find(zone_sect, "zone_radioactive") then
 				detect_radzone = true
 				break

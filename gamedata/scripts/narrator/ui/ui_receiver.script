@@ -45,8 +45,8 @@ function UI3D_RF:__init(item) super()
 	
 	self.item 					= item
 	
-	self.min_light_time 		= read_if_exists(sys_ini, "r_float", self.item:section(), "min_light_time", 30)
-	self.max_light_time 		= read_if_exists(sys_ini, "r_float", self.item:section(), "max_light_time", 300)
+	self.min_light_time 		= read_if_exists(sys_ini, "float", self.item:section(), "min_light_time", 30)
+	self.max_light_time 		= read_if_exists(sys_ini, "float", self.item:section(), "max_light_time", 300)
 end
 
 function UI3D_RF:__finalize() 

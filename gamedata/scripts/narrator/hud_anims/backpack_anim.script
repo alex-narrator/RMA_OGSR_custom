@@ -66,7 +66,7 @@ function play(_type)
 end
 
 function play_hud_sound(sect)
-	local snd_name = read_if_exists(sys_ini, "r_string", sect, "hud_sound", nil)
+	local snd_name = read_if_exists(sys_ini, "string", sect, "hud_sound", nil)
 	if snd_name then
 		local sound = xr_sound.get_safe_sound_object(snd_name)
 		sound.frequency = anm_snd_speed()
@@ -75,7 +75,7 @@ function play_hud_sound(sect)
 end
 
 function play_hud_effector(sect)
-	local eff_name = read_if_exists(sys_ini, "r_string", sect, "hud_effector", nil)
+	local eff_name = read_if_exists(sys_ini, "string", sect, "hud_effector", nil)
 	if eff_name then
 		level.remove_complex_effector(hud_effector_id)
 		level.add_complex_effector(eff_name, hud_effector_id)

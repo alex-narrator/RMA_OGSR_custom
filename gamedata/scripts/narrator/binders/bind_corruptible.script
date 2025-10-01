@@ -32,9 +32,9 @@ end
 function corruptible_binder:reload(section)
 	--log3("%s reload for object %s", script_name(), self.object:name())
     object_binder.reload(self, section)
-	self.corruption_time = read_if_exists(sys_ini, "r_u32", self.object:section(), "corruption_time", 1)
+	self.corruption_time = read_if_exists(sys_ini, "u32", self.object:section(), "corruption_time", 1)
 	self.condition_decrease = (1 / (3600 * self.corruption_time))
-	self.destroy_corrupted = read_if_exists(sys_ini, "r_bool", self.object:section(), "destroy_corrupted", false)
+	self.destroy_corrupted = read_if_exists(sys_ini, "bool", self.object:section(), "destroy_corrupted", false)
 end
  
 function corruptible_binder:net_spawn(data)

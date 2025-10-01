@@ -1269,7 +1269,7 @@ function set_scheme(npc, ini, scheme, section, gulag_name)
 	    st.fire_target      = utils.cfg_get_string(ini, section, "target",          npc, false, gulag_name, "points")
 	    st.fire_track_target= utils.cfg_get_bool(ini,   section, "track_target",    npc, false, false)
 		
-		st.community 		= read_if_exists(ini, "r_string", section, "community", nil)
+		st.community 		= read_if_exists(ini, "string", section, "community", nil)
 
 	    st.on_target_vis    = xr_logic.cfg_get_string_and_condlist(ini, section, "on_target_vis", npc)
 	    st.on_target_nvis   = xr_logic.cfg_get_string_and_condlist(ini, section, "on_target_nvis", npc)

@@ -29,11 +29,11 @@ recharge_effector_id = 20001
 function recharge(obj, drop_on_obj)
 	drop_on_obj:binded_object():recharge(obj)
 	local battery_sect = obj:section()	
-	local recharge_sound = read_if_exists(sys_ini, "r_string", battery_sect, "use_sound", nil)
+	local recharge_sound = read_if_exists(sys_ini, "string", battery_sect, "use_sound", nil)
 	if recharge_sound then
 		xr_sound.get_safe_sound_object(recharge_sound):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 	end
-	local recharge_effector = read_if_exists(sys_ini, "r_string", battery_sect, "use_effector", nil)
+	local recharge_effector = read_if_exists(sys_ini, "string", battery_sect, "use_effector", nil)
 	if recharge_effector then
 		level.remove_complex_effector(recharge_effector_id)
 		level.add_complex_effector(recharge_effector, recharge_effector_id)

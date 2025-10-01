@@ -8,39 +8,39 @@ function attach(sm)
 end
 
 local actor_cond 				= actor_obj.condition--actor.conditions
-local cond_sect 				= read_if_exists(sys_ini, "r_string", "actor", "condition_sect", "actor_condition")
+local cond_sect 				= read_if_exists(sys_ini, "string", "actor", "condition_sect", "actor_condition")
 
-local def_walk_accel 			= read_if_exists(sys_ini, "r_float", "actor", "walk_accel", 17)
-local def_walk_accel 			= read_if_exists(sys_ini, "r_float", "actor", "walk_accel", 17)
-local def_sprint_koef 			= read_if_exists(sys_ini, "r_float", "actor", "sprint_koef", 2.6)
-local def_jump_speed 			= read_if_exists(sys_ini, "r_float", "actor", "jump_speed", 6)
-local def_max_weight 			= read_if_exists(sys_ini, "r_float", "inventory", "max_weight", 50)
+local def_walk_accel 			= read_if_exists(sys_ini, "float", "actor", "walk_accel", 17)
+local def_walk_accel 			= read_if_exists(sys_ini, "float", "actor", "walk_accel", 17)
+local def_sprint_koef 			= read_if_exists(sys_ini, "float", "actor", "sprint_koef", 2.6)
+local def_jump_speed 			= read_if_exists(sys_ini, "float", "actor", "jump_speed", 6)
+local def_max_weight 			= read_if_exists(sys_ini, "float", "inventory", "max_weight", 50)
 
-local def_bleeding_v 			= read_if_exists(sys_ini, "r_float", cond_sect, "bleeding_v", 0)
-local def_satiety_v 			= read_if_exists(sys_ini, "r_float", cond_sect, "satiety_v", 0)
-local def_alcohol_v 			= read_if_exists(sys_ini, "r_float", cond_sect, "alcohol_v", 0)
+local def_bleeding_v 			= read_if_exists(sys_ini, "float", cond_sect, "bleeding_v", 0)
+local def_satiety_v 			= read_if_exists(sys_ini, "float", cond_sect, "satiety_v", 0)
+local def_alcohol_v 			= read_if_exists(sys_ini, "float", cond_sect, "alcohol_v", 0)
 
-local def_wound_incarnation_v 	= read_if_exists(sys_ini, "r_float", cond_sect, "wound_incarnation_v", 0)
-local def_health_restore_v 		= read_if_exists(sys_ini, "r_float", cond_sect, "health_restore_v", 0)
-local def_psy_health_v 			= read_if_exists(sys_ini, "r_float", cond_sect, "psy_health_v", 0)
-local def_power_v 				= read_if_exists(sys_ini, "r_float", cond_sect, "power_v", 0)
+local def_wound_incarnation_v 	= read_if_exists(sys_ini, "float", cond_sect, "wound_incarnation_v", 0)
+local def_health_restore_v 		= read_if_exists(sys_ini, "float", cond_sect, "health_restore_v", 0)
+local def_psy_health_v 			= read_if_exists(sys_ini, "float", cond_sect, "psy_health_v", 0)
+local def_power_v 				= read_if_exists(sys_ini, "float", cond_sect, "power_v", 0)
 
-local min_power_walk_jump 		= read_if_exists(sys_ini, "r_float", cond_sect, "min_power_walk_jump", 0.1)
-local stress_factor 			= read_if_exists(sys_ini, "r_float", cond_sect, "stress_factor", 1)
-local min_regen_k 				= read_if_exists(sys_ini, "r_float", cond_sect, "min_regen_k", 0)
-local bleeding_power_dec 		= read_if_exists(sys_ini, "r_float", cond_sect, "bleeding_power_dec", 0)
-local bleeding_stress_inc 		= read_if_exists(sys_ini, "r_float", cond_sect, "bleeding_stress_inc", 0.01)
+local min_power_walk_jump 		= read_if_exists(sys_ini, "float", cond_sect, "min_power_walk_jump", 0.1)
+local stress_factor 			= read_if_exists(sys_ini, "float", cond_sect, "stress_factor", 1)
+local min_regen_k 				= read_if_exists(sys_ini, "float", cond_sect, "min_regen_k", 0)
+local bleeding_power_dec 		= read_if_exists(sys_ini, "float", cond_sect, "bleeding_power_dec", 0)
+local bleeding_stress_inc 		= read_if_exists(sys_ini, "float", cond_sect, "bleeding_stress_inc", 0.01)
 
-local power_slowdown_threshold 	= read_if_exists(sys_ini, "r_float", cond_sect, "power_slowdown_threshold", 1)
+local power_slowdown_threshold 	= read_if_exists(sys_ini, "float", cond_sect, "power_slowdown_threshold", 1)
 
-local satiety_to_alcohol_effector_intensity = read_if_exists(sys_ini, "r_float", cond_sect, "satiety_to_alcohol_effector_intensity", 1)
+local satiety_to_alcohol_effector_intensity = read_if_exists(sys_ini, "float", cond_sect, "satiety_to_alcohol_effector_intensity", 1)
 
 local protection_index 			= 12 --//порядковий номер з якого починаються секції захисту від різновидів ушкоджень (відлік починається з 1)
 
-local alcohol_effector_name 	= read_if_exists(sys_ini, "r_sring", cond_sect, "alcohol_effector", "effector_alcohol")
+local alcohol_effector_name 	= read_if_exists(sys_ini, "sring", cond_sect, "alcohol_effector", "effector_alcohol")
 local alcohol_effector_id 		= 1000
 
-local psy_health_effector_name 	= read_if_exists(sys_ini, "r_sring", cond_sect, "psy_health_effector", "effector_psy_health")
+local psy_health_effector_name 	= read_if_exists(sys_ini, "sring", cond_sect, "psy_health_effector", "effector_psy_health")
 local psy_health_effector_id 	= 1001
 
 --//tutorial thresholds
@@ -48,7 +48,7 @@ local thresholds_sect 			= "tutorial_conditions_thresholds"
 local tutorial_data 			= {
 	["encyclopedy_tutorial_weakness"] = { 
 			cond = function() return actor.power end,  
-			thr = function() return read_if_exists(sys_ini, "r_float", thresholds_sect, "power", 0) end,
+			thr = function() return read_if_exists(sys_ini, "float", thresholds_sect, "power", 0) end,
 			action = function() on_actor_critical_power() end,
 	},
 }
@@ -140,7 +140,7 @@ function update_psy_health_effector()
 	
 	if actor.psy_health < 1 then
 		if not has_effector then
-			local level_psy_effector = read_if_exists(sys_ini, "r_sring", cond_sect, "psy_health_effector_"..level.name(), nil)
+			local level_psy_effector = read_if_exists(sys_ini, "sring", cond_sect, "psy_health_effector_"..level.name(), nil)
 			level.add_complex_effector(level_psy_effector or psy_health_effector_name, psy_health_effector_id, psy_damage())
 		else
 			level.set_complex_effector_factor(psy_health_effector_id, psy_damage())
@@ -224,7 +224,7 @@ function on_item_use(item, user)
 	if not user:is_actor() then
 	return end
 	local sect = item:section()
-	local eat_satiety = read_if_exists(sys_ini, "r_float", sect, "eat_satiety", nil)
+	local eat_satiety = read_if_exists(sys_ini, "float", sect, "eat_satiety", nil)
 	if not eat_satiety or eat_satiety < 0 then
 	return end
 	

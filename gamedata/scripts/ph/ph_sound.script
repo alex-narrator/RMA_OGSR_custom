@@ -145,9 +145,9 @@ function set_scheme(npc, ini, scheme, section, gulag_name)
 	st.pause_min 	= utils.cfg_get_number (ini, section, "min_idle", npc, false, 0)
 	st.pause_max 	= utils.cfg_get_number (ini, section, "max_idle", npc, false, 0)
 	st.no_hit   	= utils.cfg_get_bool (ini, section, "no_hit", npc, false, true)
-	st.volume 		= read_if_exists(ini, "r_float", section, "volume", nil)
+	st.volume 		= read_if_exists(ini, "float", section, "volume", nil)
 	st.on_use    	= xr_logic.cfg_get_condlist(ini, section, "on_use", npc)
-	st.tips  		= read_if_exists(ini, "r_string", section, "tips", "")
+	st.tips  		= read_if_exists(ini, "string", section, "tips", "")
 	npc:set_tip_text(st.tips)
 	
 	if st.pause_max < st.pause_min then

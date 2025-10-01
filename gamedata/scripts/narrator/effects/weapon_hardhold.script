@@ -16,7 +16,7 @@ local FOV_CHANGE_PART = HUD_FOV_K_HARDHOLD / HARDHOLD_FOV_CHANGE_TIME
 
 local DEBUG_DISABLE = false
 
-local ZOOM_SOMNOLENCE_K = read_if_exists(sys_ini, "r_float", "actor_condition", "somnolence_zoom_effector_k", 10)
+local ZOOM_SOMNOLENCE_K = read_if_exists(sys_ini, "float", "actor_condition", "somnolence_zoom_effector_k", 10)
 local CROUCH_K = 0.25
 
 function can_set_hard_hold(game_action)
@@ -111,7 +111,7 @@ function on_zoom_in(weapon)
 		
 		local is_nvd = nvd.aim_nvd_weapon()--nvd.get_nv_sect(weapon) and not wpn:aim_alt_mode()
 		local is_hv = nvd.aim_hv_weapon()
-		local alt_aim = read_if_exists(sys_ini, "r_bool", weapon:section(), "aim_alt_forced", false) or (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope) and read_if_exists(sys_ini, "r_bool", wpn:get_addon_name(addon.scope), "aim_alt", false))
+		local alt_aim = read_if_exists(sys_ini, "bool", weapon:section(), "aim_alt_forced", false) or (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope) and read_if_exists(sys_ini, "bool", wpn:get_addon_name(addon.scope), "aim_alt", false))
 
 		local tip = game.translate_string("st_hold_key_to_hard_hold")		
 		if marks then

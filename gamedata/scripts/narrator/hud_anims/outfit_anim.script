@@ -52,7 +52,7 @@ function play_outfit(anim_type)
 end
 
 function play_hud_sound(sect)
-	local snd_name = read_if_exists(sys_ini, "r_string", sect, "hud_sound", nil)
+	local snd_name = read_if_exists(sys_ini, "string", sect, "hud_sound", nil)
 	if snd_name then
 		local sound = xr_sound.get_safe_sound_object(snd_name)
 		sound:play(actor, 0, sound_object.s2d)
@@ -60,7 +60,7 @@ function play_hud_sound(sect)
 end
 
 function play_hud_effector(sect)
-	local eff_name = read_if_exists(sys_ini, "r_string", sect, "hud_effector", nil)
+	local eff_name = read_if_exists(sys_ini, "string", sect, "hud_effector", nil)
 	if eff_name then
 		level.remove_complex_effector(hud_effector_id)
 		level.add_complex_effector(eff_name, hud_effector_id)
@@ -89,12 +89,12 @@ function play_gasmask(item, is_on)
 			game.play_hud_motion(2, hud_sect, is_on and "anm_equip" or "anm_unequip", false, 1, true)
 			_G.SCRIPT_ANIM_PLAYING = true
 
-			local snd_name = read_if_exists(sys_ini, "r_string", hud_sect, is_on and "sound_on" or "sound_off", nil)
+			local snd_name = read_if_exists(sys_ini, "string", hud_sect, is_on and "sound_on" or "sound_off", nil)
 			if snd_name then
 				xr_sound.get_safe_sound_object(snd_name):play(actor, 0, sound_object.s2d)
 			end
 
-			local eff_name = read_if_exists(sys_ini, "r_string", hud_sect, is_on and "hud_effector_on" or "hud_effector_off", nil)
+			local eff_name = read_if_exists(sys_ini, "string", hud_sect, is_on and "hud_effector_on" or "hud_effector_off", nil)
 			if eff_name and actor:alive() then
 				level.remove_complex_effector(hud_effector_id)
 				level.add_complex_effector(eff_name, hud_effector_id)

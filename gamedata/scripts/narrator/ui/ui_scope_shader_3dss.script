@@ -84,7 +84,7 @@ function try_apply_params(item)
 	local sect = item:section()
 	
 	local param_sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or sect
-	local fake_zoom = read_if_exists(sys_ini, "r_float", param_sect, sect.."_s3ds_fake_zoom", read_if_exists(sys_ini, "r_float", param_sect, "s3ds_fake_zoom", nil))
+	local fake_zoom = read_if_exists(sys_ini, "float", param_sect, sect.."_s3ds_fake_zoom", read_if_exists(sys_ini, "float", param_sect, "s3ds_fake_zoom", nil))
 	if not fake_zoom then
 		reset_shader_zoom_params()
 		--log_news("~return with item %s | sect %s", sect, param_sect)
@@ -103,38 +103,38 @@ function try_apply_params(item)
 	params.weapon_id = item:id()
 	params.param_sect = param_sect
 	
-	local reticle_size = read_if_exists(sys_ini, "r_float", param_sect, sect.."_s3ds_reticle_size", read_if_exists(sys_ini, "r_float", param_sect, "s3ds_reticle_size", 4))
-	local eye_relief = read_if_exists(sys_ini, "r_float", param_sect, sect.."_s3ds_eye_relief", read_if_exists(sys_ini, "r_float", param_sect, "s3ds_eye_relief", 4))
-	local exit_pupil = read_if_exists(sys_ini, "r_float", param_sect, sect.."_s3ds_exit_pupil", read_if_exists(sys_ini, "r_float", param_sect, "s3ds_exit_pupil", 0.3))
-	local ffp = read_if_exists(sys_ini, "r_u32", param_sect, sect.."_s3ds_ffp", read_if_exists(sys_ini, "r_u32", param_sect, "s3ds_ffp", 0))
+	local reticle_size = read_if_exists(sys_ini, "float", param_sect, sect.."_s3ds_reticle_size", read_if_exists(sys_ini, "float", param_sect, "s3ds_reticle_size", 4))
+	local eye_relief = read_if_exists(sys_ini, "float", param_sect, sect.."_s3ds_eye_relief", read_if_exists(sys_ini, "float", param_sect, "s3ds_eye_relief", 4))
+	local exit_pupil = read_if_exists(sys_ini, "float", param_sect, sect.."_s3ds_exit_pupil", read_if_exists(sys_ini, "float", param_sect, "s3ds_exit_pupil", 0.3))
+	local ffp = read_if_exists(sys_ini, "u32", param_sect, sect.."_s3ds_ffp", read_if_exists(sys_ini, "u32", param_sect, "s3ds_ffp", 0))
 	
-	local reflection_hue = read_if_exists(sys_ini, "r_float", param_sect, sect.."_s3ds_reflection_hue", read_if_exists(sys_ini, "r_float", param_sect, "s3ds_reflection_hue", 0))
-	local precision_mode = read_if_exists(sys_ini, "r_u32", param_sect, sect.."_s3ds_precision_mode", read_if_exists(sys_ini, "r_u32", param_sect, "s3ds_precision_mode", 0))
-	local min_zoom_1x = read_if_exists(sys_ini, "r_u32", param_sect, sect.."_s3ds_min_zoom_1x", read_if_exists(sys_ini, "r_u32", param_sect, "s3ds_min_zoom_1x", 0))
-	local fake_zoom = read_if_exists(sys_ini, "r_float", param_sect, sect.."_s3ds_fake_zoom", read_if_exists(sys_ini, "r_float", param_sect, "s3ds_fake_zoom", 1))
+	local reflection_hue = read_if_exists(sys_ini, "float", param_sect, sect.."_s3ds_reflection_hue", read_if_exists(sys_ini, "float", param_sect, "s3ds_reflection_hue", 0))
+	local precision_mode = read_if_exists(sys_ini, "u32", param_sect, sect.."_s3ds_precision_mode", read_if_exists(sys_ini, "u32", param_sect, "s3ds_precision_mode", 0))
+	local min_zoom_1x = read_if_exists(sys_ini, "u32", param_sect, sect.."_s3ds_min_zoom_1x", read_if_exists(sys_ini, "u32", param_sect, "s3ds_min_zoom_1x", 0))
+	local fake_zoom = read_if_exists(sys_ini, "float", param_sect, sect.."_s3ds_fake_zoom", read_if_exists(sys_ini, "float", param_sect, "s3ds_fake_zoom", 1))
 	
-	local image_type = read_if_exists(sys_ini, "r_u32", param_sect, sect.."_s3ds_image_type", read_if_exists(sys_ini, "r_u32", param_sect, "s3ds_image_type", 0))
-	local reticle_type = read_if_exists(sys_ini, "r_u32", param_sect, sect.."_s3ds_reticle_type", read_if_exists(sys_ini, "r_u32", param_sect, "s3ds_reticle_type", 0))
-	local dirt_intensity = read_if_exists(sys_ini, "r_float", param_sect, sect.."_s3ds_dirt_intensity", read_if_exists(sys_ini, "r_float", param_sect, "s3ds_dirt_intensity", 0))
-	local chroma_power = read_if_exists(sys_ini, "r_float", param_sect, sect.."_s3ds_chroma_power", read_if_exists(sys_ini, "r_float", param_sect, "s3ds_chroma_power", 0.02))
+	local image_type = read_if_exists(sys_ini, "u32", param_sect, sect.."_s3ds_image_type", read_if_exists(sys_ini, "u32", param_sect, "s3ds_image_type", 0))
+	local reticle_type = read_if_exists(sys_ini, "u32", param_sect, sect.."_s3ds_reticle_type", read_if_exists(sys_ini, "u32", param_sect, "s3ds_reticle_type", 0))
+	local dirt_intensity = read_if_exists(sys_ini, "float", param_sect, sect.."_s3ds_dirt_intensity", read_if_exists(sys_ini, "float", param_sect, "s3ds_dirt_intensity", 0))
+	local chroma_power = read_if_exists(sys_ini, "float", param_sect, sect.."_s3ds_chroma_power", read_if_exists(sys_ini, "float", param_sect, "s3ds_chroma_power", 0.02))
 
-	local lens_color = read_if_exists(sys_ini, "r_vector", param_sect, sect.."_s3ds_lens_color", read_if_exists(sys_ini, "r_vector", param_sect, "s3ds_lens_color", vector():set(1,1,1)))
+	local lens_color = read_if_exists(sys_ini, "vector", param_sect, sect.."_s3ds_lens_color", read_if_exists(sys_ini, "vector", param_sect, "s3ds_lens_color", vector():set(1,1,1)))
 	
-	local mark_color = read_if_exists(sys_ini, "r_vector", param_sect, sect.."_s3ds_mark_color", read_if_exists(sys_ini, "r_vector", param_sect, "s3ds_mark_color", nil))
+	local mark_color = read_if_exists(sys_ini, "vector", param_sect, sect.."_s3ds_mark_color", read_if_exists(sys_ini, "vector", param_sect, "s3ds_mark_color", nil))
 
 	-- local mark_number = get_float(scope_name, "mark_number", 0)
 	
 	-- if image_type == IT_NONE then
-		-- params.nv_mode = read_if_exists(sys_ini, "r_float", param_sect, "s3ds_param_5", nil)
+		-- params.nv_mode = read_if_exists(sys_ini, "float", param_sect, "s3ds_param_5", nil)
 	-- end
 
 	local function pack_binary_settings()
-		local NVG_BLUR = read_if_exists(sys_ini, "r_bool", param_sect, sect.."_s3ds_nvg_blur", read_if_exists(sys_ini, "r_bool", param_sect, "s3ds_nvg_blur", false))
-		local PARALLAX_SHADOW = read_if_exists(sys_ini, "r_bool", param_sect, sect.."_s3ds_parallax_shadow", read_if_exists(sys_ini, "r_bool", param_sect, "s3ds_parallax_shadow", true))
-		local SEE_THROUGH = read_if_exists(sys_ini, "r_bool", param_sect, sect.."_s3ds_see_through", read_if_exists(sys_ini, "r_bool", param_sect, "s3ds_see_through", true))
-		local THERMAL_PIXELATION = read_if_exists(sys_ini, "r_bool", param_sect, sect.."_s3ds_thermal_pixelation", read_if_exists(sys_ini, "r_bool", param_sect, "s3ds_thermal_pixelation", true))
-		local CHROMATISM = read_if_exists(sys_ini, "r_bool", param_sect, sect.."_s3ds_chromatism", read_if_exists(sys_ini, "r_bool", param_sect, "s3ds_chromatism", true))
-		local THERMAL_PIXELATION_ZOOM_SCALE = read_if_exists(sys_ini, "r_bool", param_sect, sect.."_s3ds_thermal_pixelation", read_if_exists(sys_ini, "r_bool", param_sect, "s3ds_thermal_pixelation_zoom_scale", false))
+		local NVG_BLUR = read_if_exists(sys_ini, "bool", param_sect, sect.."_s3ds_nvg_blur", read_if_exists(sys_ini, "bool", param_sect, "s3ds_nvg_blur", false))
+		local PARALLAX_SHADOW = read_if_exists(sys_ini, "bool", param_sect, sect.."_s3ds_parallax_shadow", read_if_exists(sys_ini, "bool", param_sect, "s3ds_parallax_shadow", true))
+		local SEE_THROUGH = read_if_exists(sys_ini, "bool", param_sect, sect.."_s3ds_see_through", read_if_exists(sys_ini, "bool", param_sect, "s3ds_see_through", true))
+		local THERMAL_PIXELATION = read_if_exists(sys_ini, "bool", param_sect, sect.."_s3ds_thermal_pixelation", read_if_exists(sys_ini, "bool", param_sect, "s3ds_thermal_pixelation", true))
+		local CHROMATISM = read_if_exists(sys_ini, "bool", param_sect, sect.."_s3ds_chromatism", read_if_exists(sys_ini, "bool", param_sect, "s3ds_chromatism", true))
+		local THERMAL_PIXELATION_ZOOM_SCALE = read_if_exists(sys_ini, "bool", param_sect, sect.."_s3ds_thermal_pixelation", read_if_exists(sys_ini, "bool", param_sect, "s3ds_thermal_pixelation_zoom_scale", false))
 
 		return (NVG_BLUR and 1 or 0)
 			+ (PARALLAX_SHADOW and 1 or 0) * 2
@@ -228,7 +228,7 @@ function on_zoom_in(weapon)
 	
 	local sect = weapon:section()
 	local param_sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or sect
-	local dof_aim_intensity = DEBUG_DOF_INENSITY or read_if_exists(sys_ini, "r_string", param_sect, sect.."_s3ds_dof_aim_intensity", read_if_exists(sys_ini, "r_string", param_sect, "s3ds_dof_aim_intensity", 1))
+	local dof_aim_intensity = DEBUG_DOF_INENSITY or read_if_exists(sys_ini, "string", param_sect, sect.."_s3ds_dof_aim_intensity", read_if_exists(sys_ini, "string", param_sect, "s3ds_dof_aim_intensity", 1))
 	
 	level.add_call(
 		function()
@@ -251,7 +251,7 @@ function on_zoom_out(weapon)
 	
 	local sect = weapon:section()
 	local param_sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or sect
-	local dof_aim_intensity = DEBUG_DOF_INENSITY or read_if_exists(sys_ini, "r_string", param_sect, sect.."_s3ds_dof_aim_intensity", read_if_exists(sys_ini, "r_string", param_sect, "s3ds_dof_aim_intensity", 1))
+	local dof_aim_intensity = DEBUG_DOF_INENSITY or read_if_exists(sys_ini, "string", param_sect, sect.."_s3ds_dof_aim_intensity", read_if_exists(sys_ini, "string", param_sect, "s3ds_dof_aim_intensity", 1))
 	
 	level.add_call(
 		function()

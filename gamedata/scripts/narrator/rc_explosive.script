@@ -20,7 +20,7 @@ end
 function on_first_update()
 	for id,_ in pairs(explosive_frequency) do
 		local se_item = alife():object(id)
-		if not se_item or not read_if_exists(sys_ini, "r_bool", se_item:section_name(), "rc_explosive", false) then
+		if not se_item or not read_if_exists(sys_ini, "bool", se_item:section_name(), "rc_explosive", false) then
 			set_frequency(id, nil)
 			--log3("~remove item id %s from explosive frequency list", id)
 		end
@@ -32,8 +32,8 @@ function deploy_tip(item)
 end
 
 function can_deploy(item)
-	local deploy_info = read_if_exists(sys_ini, "r_string", item:section(), "need_for_use_info", nil)
-	return read_if_exists(sys_ini, "r_bool", item:section(), "rc_explosive", false) and parent_is_actor(item) and (not deploy_info or actor:has_info(deploy_info))
+	local deploy_info = read_if_exists(sys_ini, "string", item:section(), "need_for_use_info", nil)
+	return read_if_exists(sys_ini, "bool", item:section(), "rc_explosive", false) and parent_is_actor(item) and (not deploy_info or actor:has_info(deploy_info))
 end
 
 local explosive
@@ -121,7 +121,7 @@ function on_receiver_signal(item, frequency, radius)
 end
 
 function defuse_landmines(explosive)
-	local radius = read_if_exists(sys_ini, "r_float", explosive:section(), "blast_r", 1)
+	local radius = read_if_exists(sys_ini, "float", explosive:section(), "blast_r", 1)
 	local sim = alife()
 	function perform_action(obj)
 		if get_clsid(obj) == clsid.zone_mine_s then

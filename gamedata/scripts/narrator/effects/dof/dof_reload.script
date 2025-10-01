@@ -3,8 +3,8 @@ function attach(sm)
 	sm:subscribe({signal = "on_hud_state_switch", fun = this.on_state_switch})
 end
 
-local RELOAD_DOF = read_if_exists(sys_ini, "r_string", "dof_effect", "dof_reload", nil)
-local DOF_RELOAD_TIME = read_if_exists(sys_ini, "r_float", "dof_effect", "dor_reload_time", 0.25)
+local RELOAD_DOF = read_if_exists(sys_ini, "string", "dof_effect", "dof_reload", nil)
+local DOF_RELOAD_TIME = read_if_exists(sys_ini, "float", "dof_effect", "dor_reload_time", 0.25)
 local DOF_RELOAD_FACTOR = 0
 
 local reload_states = {
@@ -18,7 +18,7 @@ function on_state_switch(item, state, old_state)
 	local change_dof = reload_states[state] or reload_states[old_state]
 	if not change_dof then return end
 	
-	local dof_params = read_if_exists(sys_ini, "r_string", item:section(), "dof_reload", RELOAD_DOF)
+	local dof_params = read_if_exists(sys_ini, "string", item:section(), "dof_reload", RELOAD_DOF)
 	local dof = split_string(dof_params, ",")
 	if not dof then return end
 	

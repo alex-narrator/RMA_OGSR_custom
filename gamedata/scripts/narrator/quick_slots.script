@@ -35,7 +35,7 @@ end
 
 function try_set_item(cell_item)
 	local obj = cell_item:GetAnyItem()
-	local item_allowed = read_if_exists(sys_ini, "r_bool", obj:section(), "quick_slot", false)
+	local item_allowed = read_if_exists(sys_ini, "bool", obj:section(), "quick_slot", false)
 	if not quick_selected or 
 		not item_allowed 
 	then 
@@ -81,7 +81,7 @@ function get_item(slot_num)
 	local sect = quick_sect[slot_num]
 	local item = nil
 	--шукаємо їстивні предмети щоб взяти той в якого найменше порцій
-	if read_if_exists(sys_ini, "r_u32", sect, "eat_portions_num", 1) > 1 then
+	if read_if_exists(sys_ini, "u32", sect, "eat_portions_num", 1) > 1 then
 		local items = {}
 		for k,v in pairs(loadout.get_loaded_items()) do
 			item = level.object_by_id(k)
@@ -210,7 +210,7 @@ end
 --//функції для скриптового пункту контекстного меню
 local selected_slot = nil
 function can_set(item)
-	if not read_if_exists(sys_ini, "r_bool", item:section(), "quick_slot", false) then
+	if not read_if_exists(sys_ini, "bool", item:section(), "quick_slot", false) then
 	return false end
 	
 	if not parent_is_actor(item) then

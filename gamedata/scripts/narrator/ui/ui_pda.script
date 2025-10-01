@@ -290,7 +290,7 @@ function PDAOverlay:UpdateRelationSpotText()
 			end			
 		end
 	end	
-	local detect_radius = read_if_exists(sys_ini, "r_float", actor_get_pda():section(), "radius", 50)
+	local detect_radius = read_if_exists(sys_ini, "float", actor_get_pda():section(), "radius", 50)
 	level.iterate_nearest(actor:position(), detect_radius, perform_action)
 end
 

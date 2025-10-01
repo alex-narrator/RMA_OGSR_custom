@@ -37,7 +37,7 @@ function send_tip(victim, killer)
 	local pda = actor_get_pda()
 	if not pda or not pda:is_power_on() then
 	return end
-	local pda_radius = read_if_exists(sys_ini, "r_float", pda:section(), "radius", 50)
+	local pda_radius = read_if_exists(sys_ini, "float", pda:section(), "radius", 50)
 	if distance_between(actor, victim) > pda_radius then
 	return end
 	

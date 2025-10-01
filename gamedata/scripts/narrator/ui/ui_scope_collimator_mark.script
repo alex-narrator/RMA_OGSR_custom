@@ -47,10 +47,10 @@ end
 
 function get_marks_count(item)
 	local wpn = item:get_weapon()
-	if not wpn or (wpn:aim_alt_mode() and not read_if_exists(sys_ini, "r_bool", item:section(), "collimator_mark_alt_enable", false)) then
+	if not wpn or (wpn:aim_alt_mode() and not read_if_exists(sys_ini, "bool", item:section(), "collimator_mark_alt_enable", false)) then
 	return 0 end
 	local sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or item:section()
-	return read_if_exists(sys_ini, "r_u32", sect, "collimator_mark_count", 0)
+	return read_if_exists(sys_ini, "u32", sect, "collimator_mark_count", 0)
 end
 
 function get_mark_color(item, current_mark)
@@ -61,7 +61,7 @@ function get_mark_color(item, current_mark)
 	return vector() end
 	local sect = item:section()
 	local res_sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or item:section()
-	return read_if_exists(sys_ini, "r_vector", res_sect, sect.."_s3ds_mark_color", read_if_exists(sys_ini, "r_vector", res_sect, "s3ds_mark_color", nil)) or read_if_exists(sys_ini, "r_vector", res_sect, "collimator_mark_color_"..current_mark, vector())
+	return read_if_exists(sys_ini, "vector", res_sect, sect.."_s3ds_mark_color", read_if_exists(sys_ini, "vector", res_sect, "s3ds_mark_color", nil)) or read_if_exists(sys_ini, "vector", res_sect, "collimator_mark_color_"..current_mark, vector())
 end
 
 function can_switch_marks(item)
@@ -133,7 +133,7 @@ function on_state_switch(item, state, old_state)
 end
 
 function on_before_addon_detach(item, addon_sect)
-	local scopes = read_if_exists(sys_ini, "r_string", item:section(), "scope_name", nil)
+	local scopes = read_if_exists(sys_ini, "string", item:section(), "scope_name", nil)
 	if not scopes then
 	return end
 	if not string.find(scopes, addon_sect) then

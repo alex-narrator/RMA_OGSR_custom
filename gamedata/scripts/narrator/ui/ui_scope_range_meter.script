@@ -24,24 +24,24 @@ function create_range_meter_static(weapon)
 	return false end
 	local sect = weapon:section()
 	local range_meter_sect = wpn:addon_attachable(addon.scope) and wpn:get_addon_name(addon.scope) or sect
-	local range_meter_forced = (range_meter_sect ~= sect) and read_if_exists(sys_ini, "r_string", sect, range_meter_sect.."_range_meter", false) or false
-	if read_if_exists(sys_ini, "r_bool", range_meter_sect, "ignore_range_meter", false) and not range_meter_forced then
+	local range_meter_forced = (range_meter_sect ~= sect) and read_if_exists(sys_ini, "string", sect, range_meter_sect.."_range_meter", false) or false
+	if read_if_exists(sys_ini, "bool", range_meter_sect, "ignore_range_meter", false) and not range_meter_forced then
 	return false end
 	local range_meter_type = wpn:aim_alt_mode() and "range_meter_second" or "range_meter"	
-	local range_meter = range_meter_forced or read_if_exists(sys_ini, "r_string", range_meter_sect, range_meter_type, false)
+	local range_meter = range_meter_forced or read_if_exists(sys_ini, "string", range_meter_sect, range_meter_type, false)
 	if not range_meter then
 	return false end
 	local static = CUIStatic()
 	static:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
 	static:SetStretchTexture(true)
 	static:SetTextComplexMode(true)
-	local offset = read_if_exists(sys_ini, "r_string", range_meter_sect, range_meter_type.."_offset", "0,0")
+	local offset = read_if_exists(sys_ini, "string", range_meter_sect, range_meter_type.."_offset", "0,0")
 	offset = split_string(offset, ",", true)
 	local center = get_screen_center()
 	static:SetTextPos(center.x + offset[1], center.y + offset[2])
-	local font = read_if_exists(sys_ini, "r_string", range_meter_sect, range_meter_type.."_font", "letterica16")
+	local font = read_if_exists(sys_ini, "string", range_meter_sect, range_meter_type.."_font", "letterica16")
 	static:SetFont(GetFontCustom(font))
-	local color = read_if_exists(sys_ini, "r_string", range_meter_sect, range_meter_type.."_color", "255,255,255,255")
+	local color = read_if_exists(sys_ini, "string", range_meter_sect, range_meter_type.."_color", "255,255,255,255")
 	color = split_string(color, ",", true)
 	static:SetTextColor(GetARGB(color[1], color[2], color[3], color[4]))
 	return static

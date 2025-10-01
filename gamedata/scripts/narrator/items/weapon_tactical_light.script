@@ -20,7 +20,7 @@ function on_key_press(key, game_action)
 	if not tactical_light_actions[game_action] then
 	return end
 	
-	local snd_switch_light = read_if_exists(sys_ini, "r_string", act_item:section(), "snd_switch_light", [[device\torch\switch_torch]])
+	local snd_switch_light = read_if_exists(sys_ini, "string", act_item:section(), "snd_switch_light", [[device\torch\switch_torch]])
 	local snd = xr_sound.get_safe_sound_object(snd_switch_light)
 	
 	if game_action == key_bindings.kWPN_LASER then
@@ -31,7 +31,7 @@ function on_key_press(key, game_action)
 		end
 	end
 	if game_action == key_bindings.kWPN_FLASHLIGHT then
-		if act_wpn and (act_wpn:is_addon_attached(addon.flashlight) or act_wpn:is_addon_attached(addon.laser) and read_if_exists(sys_ini, "r_string", act_wpn:get_addon_name(addon.laser), "light_definition", nil)) then
+		if act_wpn and (act_wpn:is_addon_attached(addon.flashlight) or act_wpn:is_addon_attached(addon.laser) and read_if_exists(sys_ini, "string", act_wpn:get_addon_name(addon.laser), "light_definition", nil)) then
 			level.add_cam_effector([[camera_effects\item_use\mark_adjust.anm]], 1914, false, "")
 			if key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) then
 			else

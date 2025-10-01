@@ -163,8 +163,8 @@ local addon_name = {
 }
 
 function get_addon_offset(i, addon_sect, weapon_sect)
-	local x = read_if_exists(sys_ini, "r_float", weapon_sect, addon_sect.."_x", read_if_exists(sys_ini, "r_float", weapon_sect, addon_name[i].."_x", 0))
-	local y = read_if_exists(sys_ini, "r_float", weapon_sect, addon_sect.."_y", read_if_exists(sys_ini, "r_float", weapon_sect, addon_name[i].."_y", 0))
+	local x = read_if_exists(sys_ini, "float", weapon_sect, addon_sect.."_x", read_if_exists(sys_ini, "float", weapon_sect, addon_name[i].."_x", 0))
+	local y = read_if_exists(sys_ini, "float", weapon_sect, addon_sect.."_y", read_if_exists(sys_ini, "float", weapon_sect, addon_name[i].."_y", 0))
 	return vector2():set(x,y)
 end
 
@@ -190,7 +190,7 @@ function UpdateWpnIcons(item, icon)
 				end
 				
 				--//no_addon icons
-				local no_addon_sect = read_if_exists(sys_ini, "r_string", sect, "no_"..v, nil)
+				local no_addon_sect = read_if_exists(sys_ini, "string", sect, "no_"..v, nil)
 				if no_addon_sect then
 					offset = get_addon_offset(k, "no_"..v, sect)
 					params = CIconParams(no_addon_sect)
@@ -244,7 +244,7 @@ function UpdateWpnIcons(item, icon)
 				end
 				
 				local addon_sect = wpn:get_addon_name(i)
-				icon_sect = read_if_exists(sys_ini, "r_string", addon_sect, sect.."_icon_sect", read_if_exists(sys_ini, "r_string", addon_sect, "addon_icon_sect", v ~= "magazine" and addon_sect or nil))
+				icon_sect = read_if_exists(sys_ini, "string", addon_sect, sect.."_icon_sect", read_if_exists(sys_ini, "string", addon_sect, "addon_icon_sect", v ~= "magazine" and addon_sect or nil))
 				offset = get_addon_offset(k, addon_sect, sect)
 				--log3("wpn %s, addon %s, icon_sect %s, offset.x %s, offset.y %s", item:name(), v, icon_sect, offset.x, offset.y)
 				if icon_sect then
@@ -303,7 +303,7 @@ function UpdateWpnIcons(item, icon)
 			end
 		else
 			icon_sect = get_cur_ammo_sect(item)
-			offset = vector2():set(read_if_exists(sys_ini, "r_float", sect, "grenade_x", 0), read_if_exists(sys_ini, "r_float", sect, "grenade_y", 0))
+			offset = vector2():set(read_if_exists(sys_ini, "float", sect, "grenade_x", 0), read_if_exists(sys_ini, "float", sect, "grenade_y", 0))
 			if icon_sect then
 				params = CIconParams(icon_sect)
 				addon_st = icon:FindChild("grenade")
@@ -375,7 +375,7 @@ end
 
 function UpdateAdditionalText(item, icon)
 	local sect = type(item) == "string" and item or item:section()
-	local text = read_if_exists(sys_ini, "r_string", sect, "icon_text", nil)
+	local text = read_if_exists(sys_ini, "string", sect, "icon_text", nil)
 	if not text then
 	return end
 	text = game.translate_string(text)
@@ -428,7 +428,7 @@ function UpdateCellItemCount(item, icon, count)
 end
 
 function UpdateConditionStatic(item, icon)
-	if not read_if_exists(sys_ini, "r_bool", item:section(), "use_condition", false) then
+	if not read_if_exists(sys_ini, "bool", item:section(), "use_condition", false) then
 	return end
 	local text = string.format("%.0f%s", item:condition() * 100, "%")
 
@@ -455,13 +455,13 @@ function UpdateConditionProgress(item, icon)
 	if not get_script_option_value("inv_item_condition") then
 	return end
 	local condition_progess_bar = icon:FindChild("condition_progess_bar")
-	--if not read_if_exists(sys_ini, "r_bool", item:section(), "use_condition", false) and not is_power_device(item) then
+	--if not read_if_exists(sys_ini, "bool", item:section(), "use_condition", false) and not is_power_device(item) then
 	if item:condition() == 1 and not is_power_device(item) then
 		if condition_progess_bar then
 			icon:DetachChild(condition_progess_bar)
 		end
 	return end
-	local pos = (is_power_device(item) and not read_if_exists(sys_ini, "r_bool", item:section(), "condition_as_power", false)) and item:binded_object():get_power_level() or item:condition()
+	local pos = (is_power_device(item) and not read_if_exists(sys_ini, "bool", item:section(), "condition_as_power", false)) and item:binded_object():get_power_level() or item:condition()
 
 	local function update(progress_bar)
 		-- progress_bar:Show(actor:is_in_slot(item))
@@ -511,7 +511,7 @@ function UpdateAmmoInBoxIcon(item, icon)
 	
 	local cell_w = icon:GetWidth() / icon_params.grid_width
 	local cell_h = icon:GetHeight() / icon_params.grid_height
-	local scale = read_if_exists(sys_ini, "r_float", sect, "ammo_icon_scale", 1)
+	local scale = read_if_exists(sys_ini, "float", sect, "ammo_icon_scale", 1)
 	local width = params.grid_width * cell_w * scale
 	local height = params.grid_height * cell_h * scale
 	
@@ -522,7 +522,7 @@ function UpdateAmmoInBoxIcon(item, icon)
 	ammo_in_box:SetWidth(width)
 	ammo_in_box:SetHeight(height)
 	
-	local offset = GetOffset(read_if_exists(sys_ini, "r_string", sect, "ammo_icon_offset", "center"), ammo_in_box, icon)
+	local offset = GetOffset(read_if_exists(sys_ini, "string", sect, "ammo_icon_offset", "center"), ammo_in_box, icon)
 
 	ammo_in_box:SetWndPos(offset.x, offset.y)
 	ammo_in_box:SetWindowName("ammo_in_box")
@@ -551,7 +551,7 @@ function UpdateArmorPlateIcon(item, icon)
 	
 	local cell_w = icon:GetWidth() / icon_params.grid_width
 	local cell_h = icon:GetHeight() / icon_params.grid_height
-	local scale = read_if_exists(sys_ini, "r_float", sect, "plate_icon_scale", 0.7)
+	local scale = read_if_exists(sys_ini, "float", sect, "plate_icon_scale", 0.7)
 	local width = params.grid_width * cell_w * scale
 	local height = params.grid_height * cell_h * scale
 	
@@ -562,7 +562,7 @@ function UpdateArmorPlateIcon(item, icon)
 	armor_plate:SetWidth(width)
 	armor_plate:SetHeight(height)
 	
-	local offset = GetOffset(read_if_exists(sys_ini, "r_string", sect, "plate_icon_offset", "center"), armor_plate, icon)
+	local offset = GetOffset(read_if_exists(sys_ini, "string", sect, "plate_icon_offset", "center"), armor_plate, icon)
 
 	armor_plate:SetWndPos(offset.x, offset.y)
 	armor_plate:SetWindowName("armor_plate")
@@ -608,7 +608,7 @@ function UpdateMarkedIcon(item, icon)
 	if not loadout.can_remove(item) then
 	return end
 	
-	local marked_icon_sect = read_if_exists(sys_ini, "r_string", sect, "marked_icon_sect", nil)
+	local marked_icon_sect = read_if_exists(sys_ini, "string", sect, "marked_icon_sect", nil)
 	if not marked_icon_sect then
 	return end
 	
@@ -627,7 +627,7 @@ function UpdateMarkedIcon(item, icon)
 	marked_icon:SetWidth(width)
 	marked_icon:SetHeight(height)
 	
-	local offset = GetOffset(read_if_exists(sys_ini, "r_string", sect, "marked_icon_offset", "right_top"), marked_icon, icon)
+	local offset = GetOffset(read_if_exists(sys_ini, "string", sect, "marked_icon_offset", "right_top"), marked_icon, icon)
 	
 	marked_icon:SetWndPos(offset.x, offset.y)
 	marked_icon:SetWindowName("marked_icon")
@@ -637,7 +637,7 @@ end
 function UpdateUpgrageIcon(item, icon)
 	local sect = item:section()
 	
-	local upgrade_icon_sect = read_if_exists(sys_ini, "r_string", sect, "upgrade_icon_sect", nil)
+	local upgrade_icon_sect = read_if_exists(sys_ini, "string", sect, "upgrade_icon_sect", nil)
 	if not upgrade_icon_sect then
 	return end
 	
@@ -646,7 +646,7 @@ function UpdateUpgrageIcon(item, icon)
 	
 	local heading = icon:GetCUIStatic():GetHeading()
 	
-	local offset_type = read_if_exists(sys_ini, "r_string", sect, "upgrade_icon_offset", "left_down")
+	local offset_type = read_if_exists(sys_ini, "string", sect, "upgrade_icon_offset", "left_down")
 	local function update(static)
 		local cell_w = icon:GetWidth() / icon_params.grid_width
 		local cell_h = icon:GetHeight() / icon_params.grid_height
@@ -702,11 +702,11 @@ function UpdateLayerIcons(item, icon)
 	end	
 	
 	for i=0,MAX_ICON_LAYER do
-		local layer_icon_sect = read_if_exists(sys_ini, "r_string", sect, "layer_icon_sect_"..i, nil)
+		local layer_icon_sect = read_if_exists(sys_ini, "string", sect, "layer_icon_sect_"..i, nil)
 		if layer_icon_sect then
 			local params = CIconParams(layer_icon_sect)
-			local offset_type = read_if_exists(sys_ini, "r_string", sect, "layer_icon_offset_"..i, "left_down")
-			local scale = read_if_exists(sys_ini, "r_float", sect, "layer_icon_scale_"..i, 1)
+			local offset_type = read_if_exists(sys_ini, "string", sect, "layer_icon_offset_"..i, "left_down")
+			local scale = read_if_exists(sys_ini, "float", sect, "layer_icon_scale_"..i, 1)
 
 			local layer_icon = icon:FindChild("layer_icon_"..i)	
 			if layer_icon then
@@ -732,7 +732,7 @@ function UpdatePdaLockIcon(item, icon)
 	
 	local sect = item:section()
 	
-	local pda_lock_icon_sect = read_if_exists(sys_ini, "r_string", sect, "pda_lock_icon_sect", "pda_lock_icon")
+	local pda_lock_icon_sect = read_if_exists(sys_ini, "string", sect, "pda_lock_icon_sect", "pda_lock_icon")
 	if not pda_lock_icon_sect then
 	return end
 	
@@ -750,7 +750,7 @@ function UpdatePdaLockIcon(item, icon)
 		icon_color = red
 	end
 	
-	local offset_type = read_if_exists(sys_ini, "r_string", sect, "pda_lock_offset", "left_down")
+	local offset_type = read_if_exists(sys_ini, "string", sect, "pda_lock_offset", "left_down")
 	local function update(static)
 		local cell_w = icon:GetWidth() / icon_params.grid_width
 		local cell_h = icon:GetHeight() / icon_params.grid_height
@@ -808,8 +808,8 @@ function UpdatePdaRankIcon(item, icon)
 		icon_color = red
 	end
 	
-	local offset_type = read_if_exists(sys_ini, "r_string", sect, "pda_rank_offset", "right_down")
-	local scale = read_if_exists(sys_ini, "r_string", sect, "pda_rank_scale", 0.35)
+	local offset_type = read_if_exists(sys_ini, "string", sect, "pda_rank_offset", "right_down")
+	local scale = read_if_exists(sys_ini, "string", sect, "pda_rank_scale", 0.35)
 	local function update(static)
 		local cell_w = icon:GetWidth() / icon_params.grid_width
 		local cell_h = icon:GetHeight() / icon_params.grid_height
@@ -845,10 +845,10 @@ end
 function UpdateQuestIcon(item, icon)
 	local sect = item:section()
 	
-	if not read_if_exists(sys_ini, "r_bool", sect, "quest_item", false) then
+	if not read_if_exists(sys_ini, "bool", sect, "quest_item", false) then
 	return end
 	
-	local quest_icon_sect = read_if_exists(sys_ini, "r_string", sect, "quest_icon_sect", "quest_icon")
+	local quest_icon_sect = read_if_exists(sys_ini, "string", sect, "quest_icon_sect", "quest_icon")
 	if not quest_icon_sect then
 	return end
 	
@@ -857,7 +857,7 @@ function UpdateQuestIcon(item, icon)
 	
 	local heading = icon:GetCUIStatic():GetHeading()
 	
-	local offset_type = read_if_exists(sys_ini, "r_string", sect, "quest_icon_sect", "right_top")
+	local offset_type = read_if_exists(sys_ini, "string", sect, "quest_icon_sect", "right_top")
 	local function update(static)
 		local cell_w = icon:GetWidth() / icon_params.grid_width
 		local cell_h = icon:GetHeight() / icon_params.grid_height
@@ -1076,7 +1076,7 @@ function get_type(item)
 	if item:is_outfit() or item:is_helmet() or loadout.is_module(item) or item:get_container() or string.find(item:section(), "pouch") or string.find(item:section(), "plate_") then
 		return 3
 	end
-	if item:is_eatable_item() or read_if_exists(sys_ini, "r_bool", item:section(), "heal_injuries", false) then
+	if item:is_eatable_item() or read_if_exists(sys_ini, "bool", item:section(), "heal_injuries", false) then
 		return 4
 	end
 	if item:is_artefact() or string.find(item:section(), "mutant_") then
@@ -1128,7 +1128,7 @@ function need_highlight(item1, item2)
 	local sect1, sect2 = item1:section(), item2:section()
 	
 	local function check_sect(check_string, section_a, section_b)
-		local tbl = split_string(read_if_exists(sys_ini, "r_string", section_a, check_string, nil), ",")
+		local tbl = split_string(read_if_exists(sys_ini, "string", section_a, check_string, nil), ",")
 		if not tbl then
 			return false
 		end

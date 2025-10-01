@@ -24,10 +24,10 @@ function can_service(obj, drop_on_obj)
 	return false end
 	if not drop_on_obj then
 	return false end
-	local service_type = read_if_exists(sys_ini, "r_string", obj:section(), "service_type", nil)
+	local service_type = read_if_exists(sys_ini, "string", obj:section(), "service_type", nil)
 	local can_service = false
 	if not service_type then
-		local parts = read_if_exists(sys_ini, "r_string", drop_on_obj:section(), "disassemble_parts", nil)
+		local parts = read_if_exists(sys_ini, "string", drop_on_obj:section(), "disassemble_parts", nil)
 		can_service = parts and string.find(parts, obj:section())
 	else
 		can_service = (service_type == "knife" and drop_on_obj:is_knife()) or
@@ -53,14 +53,14 @@ end
 
 function check_condition(obj, drop_on_obj)
 	local victim_cond = drop_on_obj:condition()
-	local min_cond = read_if_exists(sys_ini, "r_float", obj:section(), "service_cond_threshold", 0)
+	local min_cond = read_if_exists(sys_ini, "float", obj:section(), "service_cond_threshold", 0)
 	return victim_cond > 0 and victim_cond < 1 and victim_cond > min_cond
 end
 
 function max_cond_add(obj, drop_on_obj)
-	local cond_gain = read_if_exists(sys_ini, "r_float", obj:section(), "service_condition_gain", 0)
+	local cond_gain = read_if_exists(sys_ini, "float", obj:section(), "service_condition_gain", 0)
 	local cond_add = cond_gain * get_rank_k()
-	local parts = read_if_exists(sys_ini, "r_string", drop_on_obj:section(), "disassemble_parts", nil)
+	local parts = read_if_exists(sys_ini, "string", drop_on_obj:section(), "disassemble_parts", nil)
 	if parts and string.find(parts, obj:section()) then
 		cond_add = cond_add * obj:condition()
 	end
@@ -74,7 +74,7 @@ function show_service_wnd(obj, drop_on_obj)
 	local service_msg_box = ui_message_box.MessageBoxWnd()
 	local msg_text = string.format(
 		"%s %s\\n%s %s ?\\n-\\n%s %s%s",
-		game.translate_string(read_if_exists(sys_ini, "r_string", drop_on_obj:section(), "service_tip", "st_service_item")), 
+		game.translate_string(read_if_exists(sys_ini, "string", drop_on_obj:section(), "service_tip", "st_service_item")), 
 		game.translate_string(get_inv_name(drop_on_obj:section())), 
 		game.translate_string("st_service_with"), 
 		game.translate_string(get_inv_name(obj:section())),
@@ -90,14 +90,14 @@ local repair_effector_id = 20000
 function service(obj, drop_on_obj)
 	local rep_kit_sect = obj:section()
 	
-	local repair_sound = read_if_exists(sys_ini, "r_string", rep_kit_sect, "use_sound", nil)
+	local repair_sound = read_if_exists(sys_ini, "string", rep_kit_sect, "use_sound", nil)
 	local action_delay = 1
 	if repair_sound then
 		local snd = xr_sound.get_safe_sound_object(repair_sound)
 		snd:play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 		action_delay = snd:length() * 0.001
 	end
-	local repair_effector = read_if_exists(sys_ini, "r_string", rep_kit_sect, "use_effector", nil)
+	local repair_effector = read_if_exists(sys_ini, "string", rep_kit_sect, "use_effector", nil)
 	if repair_effector then
 		level.remove_complex_effector(repair_effector_id)
 		level.add_complex_effector(repair_effector, repair_effector_id)
@@ -111,7 +111,7 @@ function service(obj, drop_on_obj)
 		local text = string.format("%s %s %.1f%s", game.translate_string(get_inv_name(drop_on_obj:section())), game.translate_string("st_codition_gain"), (cond_end-cond_start)*100, game.translate_string("st_percent"))
 		news_manager.custom_news(game.translate_string("st_service_news_header"), text, "ui_icon_repair_tool")
 		
-		local use_count = read_if_exists(sys_ini, "r_float", rep_kit_sect, "use_count", 0)
+		local use_count = read_if_exists(sys_ini, "float", rep_kit_sect, "use_count", 0)
 		if use_count > 0 then
 			obj:change_condition(-1/use_count)
 			if obj:condition() == 0 then
@@ -229,7 +229,7 @@ function disassemble_item(tool, item, cell_item)
 	local sect = item:section()
 	local parent = item:parent()
 	
-	local snd_name = read_if_exists(sys_ini, "r_string", sect, "disassemble_snd", nil)
+	local snd_name = read_if_exists(sys_ini, "string", sect, "disassemble_snd", nil)
 	if not snd_name then
 		snd_name = item:is_weapon() and wpn_prefix or outfit_prefix
 		local rnd_max = item:is_weapon() and 4 or 3
@@ -260,7 +260,7 @@ function disassemble_item(tool, item, cell_item)
 		alife():release(alife():object(item:id()), true)
 	
 		if tool then
-			local use_count = read_if_exists(sys_ini, "r_float", tool:section(), "use_count", 0)			
+			local use_count = read_if_exists(sys_ini, "float", tool:section(), "use_count", 0)			
 			if use_count > 0 then
 				tool:change_condition(-1/use_count)
 				if tool:condition() == 0 then
@@ -333,12 +333,12 @@ function parse_parts(line)
 end
 
 function get_tool_sect(item)
-	return read_if_exists(sys_ini, "r_string", item:section(), "disassemble_tool", nil)
+	return read_if_exists(sys_ini, "string", item:section(), "disassemble_tool", nil)
 end
 
 function can_disassemble_item(item)
 	local sect = item:section()
-	local parts = read_if_exists(sys_ini, "r_string", sect, "disassemble_parts", nil)
+	local parts = read_if_exists(sys_ini, "string", sect, "disassemble_parts", nil)
 	local tool = get_tool_sect(item)
 	return parts and (not tool or actor:object(tool)) and action_allowed(item)
 end
@@ -351,7 +351,7 @@ function show_disassemble_wnd(obj, drop_on_obj, cell_item)
 	local service_msg_box = ui_message_box.MessageBoxWnd("red")
 	local msg_text = string.format(
 		"%s %s%s?\\n%s\\n", 
-		game.translate_string(read_if_exists(sys_ini, "r_string", drop_on_obj:section(), "disassemble_tip", "st_disassemble_item")), 
+		game.translate_string(read_if_exists(sys_ini, "string", drop_on_obj:section(), "disassemble_tip", "st_disassemble_item")), 
 		count > 1 and string.format("%s ", count) or "",
 		game.translate_string(get_inv_name(drop_on_obj:section())),
 		game.translate_string("st_disassemble_parts")
@@ -370,11 +370,11 @@ function show_disassemble_wnd(obj, drop_on_obj, cell_item)
 end
 
 function get_saw_off_tool_sect(item)
-	return read_if_exists(sys_ini, "r_string", item:section(), "sawed_off_tool", nil)
+	return read_if_exists(sys_ini, "string", item:section(), "sawed_off_tool", nil)
 end
 
 function can_saw_off_item(item)
-	local sawed_off_sect = read_if_exists(sys_ini, "r_string", item:section(), "sawed_off", nil)
+	local sawed_off_sect = read_if_exists(sys_ini, "string", item:section(), "sawed_off", nil)
 	if not sawed_off_sect then
 	return false end
 	local tool = get_saw_off_tool_sect(item)
@@ -387,7 +387,7 @@ function saw_off_item(tool, item)
 	local sect = item:section()
 	local parent = item:parent()
 	
-	local snd_name = read_if_exists(sys_ini, "r_string", sect, "saw_off_sound", def_saw_off_snd)
+	local snd_name = read_if_exists(sys_ini, "string", sect, "saw_off_sound", def_saw_off_snd)
 	local snd = xr_sound.get_safe_sound_object(snd_name)
 	snd:play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 	
@@ -399,7 +399,7 @@ function saw_off_item(tool, item)
 		item:get_weapon_m():respawn_weapon(sys_ini:r_string(sect, "sawed_off"))
 	
 		if tool then
-			local use_count = read_if_exists(sys_ini, "r_float", tool:section(), "use_count", 0)
+			local use_count = read_if_exists(sys_ini, "float", tool:section(), "use_count", 0)
 			if use_count > 0 then
 				tool:change_condition(-1/use_count)
 				if tool:condition() == 0 then

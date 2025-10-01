@@ -67,7 +67,7 @@ function drop()
 	if not backpack then 
 	return end
 	
-	local has_quick_drop = read_if_exists(sys_ini, "r_bool", backpack:section(), "quick_drop", false)
+	local has_quick_drop = read_if_exists(sys_ini, "bool", backpack:section(), "quick_drop", false)
 	
 	local menu_shown = actor_menu:IsShown()
 	
@@ -90,7 +90,7 @@ function drop()
 end
 
 function set_map_spot(backpack)
-	local name_short = read_if_exists(sys_ini, "r_string", backpack:section(), "inv_name_short", read_if_exists(sys_ini, "r_string", backpack:section(), "inv_name", nil))
+	local name_short = read_if_exists(sys_ini, "string", backpack:section(), "inv_name_short", read_if_exists(sys_ini, "string", backpack:section(), "inv_name", nil))
 	local text = string.format("%s: %s", game.translate_string("ui_st_dropped_backpack"), game.translate_string(name_short))
 	hud_add_info_message("item_usage", text)
 	level.map_add_object_spot_ser(backpack:id(), backpack_spot, text)

@@ -184,9 +184,9 @@ function enable(item, prev_place)
 			receiver:switch_power(true)
 			
 			local sect = receiver:section()
-			detect_radius = read_if_exists(sys_ini, "r_float", sect, "detect_radius", 10)
-			min_snd_freq = read_if_exists(sys_ini, "r_float", sect, "min_snd_freq", 0.5)
-			max_snd_freq = read_if_exists(sys_ini, "r_float", sect, "max_snd_freq", 30)
+			detect_radius = read_if_exists(sys_ini, "float", sect, "detect_radius", 10)
+			min_snd_freq = read_if_exists(sys_ini, "float", sect, "min_snd_freq", 0.5)
+			max_snd_freq = read_if_exists(sys_ini, "float", sect, "max_snd_freq", 30)
 			
 			sound_time = {}
 			if not subscribed then
@@ -265,7 +265,7 @@ end
 
 function get_object_freq(object)
 	local sect = object:section()
-	local freq_by_cfg = read_if_exists(sys_ini, "r_float", sect, "radio_frequency", nil)
+	local freq_by_cfg = read_if_exists(sys_ini, "float", sect, "radio_frequency", nil)
 	if freq_by_cfg then
 		return freq_by_cfg
 	end

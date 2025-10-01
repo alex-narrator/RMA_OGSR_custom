@@ -131,30 +131,30 @@ function enable_effects(obj)
 	local sm = ogse_signals.get_mgr()
 	local sect = obj:section()
 	
-	local icon = read_if_exists(sys_ini, "r_string", sect, "actor_icon", nil)
+	local icon = read_if_exists(sys_ini, "string", sect, "actor_icon", nil)
 	if obj:is_outfit() and icon then
 		actor:set_character_icon(icon)
 		sm:call("on_actor_icon_update", icon)
 	end
 	
-	show_minimap = read_if_exists(sys_ini, "r_bool", sect, "show_minimap", false)
+	show_minimap = read_if_exists(sys_ini, "bool", sect, "show_minimap", false)
 	-- if show_minimap then
 		-- sm:subscribe({signal = "on_update", fun = this.on_update_minimap})
 	-- end
 	
-	if read_if_exists(sys_ini, "r_bool", sect, "hud_shader", false) then
+	if read_if_exists(sys_ini, "bool", sect, "hud_shader", false) then
 		switch_shader_effects(true)
 	end
 	
-	if read_if_exists(sys_ini, "r_bool", sect, "hud_breath", false) then
+	if read_if_exists(sys_ini, "bool", sect, "hud_breath", false) then
 		breath_shader = get_script_option_value("breath_shader_effect")
-		breath_max = breath_shader and read_if_exists(sys_ini, "r_float", sect, "hud_breath_size", 0.6) or 1
+		breath_max = breath_shader and read_if_exists(sys_ini, "float", sect, "hud_breath_size", 0.6) or 1
 		switch_breath(true)
 	end
 	
-	if read_if_exists(sys_ini, "r_string", sect, "hud_texture", nil) then
-		texture = mask_texture..read_if_exists(sys_ini, "r_string", sect, "hud_texture", nil)
-		breakable = read_if_exists(sys_ini, "r_bool", sect, "hud_breakable", false)
+	if read_if_exists(sys_ini, "string", sect, "hud_texture", nil) then
+		texture = mask_texture..read_if_exists(sys_ini, "string", sect, "hud_texture", nil)
+		breakable = read_if_exists(sys_ini, "bool", sect, "hud_breakable", false)
 		hud_obj = obj
 		switch_hud_texture(true)
 	end
@@ -176,14 +176,14 @@ function disable_effects(obj, prev_place)
 		-- sm:unsubscribe({signal = "on_update", fun = this.on_update_minimap})
 	end
 	
-	if read_if_exists(sys_ini, "r_bool", sect, "hud_shader", false) then
+	if read_if_exists(sys_ini, "bool", sect, "hud_shader", false) then
 		switch_shader_effects(false)
 	end
-	if read_if_exists(sys_ini, "r_bool", sect, "hud_breath", false) then
+	if read_if_exists(sys_ini, "bool", sect, "hud_breath", false) then
 		switch_breath(false)
 	end
 	
-	if read_if_exists(sys_ini, "r_string", sect, "hud_texture", nil) then
+	if read_if_exists(sys_ini, "string", sect, "hud_texture", nil) then
 		texture = nil
 		breakable = false
 		hud_obj = nil

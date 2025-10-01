@@ -182,7 +182,7 @@ function RepairOverlay:IsDonor(item)
 	local res = item:section() == self.item:section() and not item:is_knife()
 	if res then return res end
 	
-	local repair_compat = read_if_exists(sys_ini, "r_string", item:section(), "repair_compat", nil)
+	local repair_compat = read_if_exists(sys_ini, "string", item:section(), "repair_compat", nil)
 	if repair_compat then
 		repair_compat = split_string(repair_compat, ",")
 		for k,v in pairs (repair_compat) do
@@ -192,9 +192,9 @@ function RepairOverlay:IsDonor(item)
 		end
 	end
 	
-	local service_type = read_if_exists(sys_ini, "r_string", item:section(), "service_type", nil)
+	local service_type = read_if_exists(sys_ini, "string", item:section(), "service_type", nil)
 	if service_type then
-		local service_cond_threshold = read_if_exists(sys_ini, "r_float", item:section(), "service_cond_threshold", 0)
+		local service_cond_threshold = read_if_exists(sys_ini, "float", item:section(), "service_cond_threshold", 0)
 		return self.item:condition() >= service_cond_threshold and 
 		(	
 			(service_type == "knife" and self.item:is_knife()) or 
@@ -208,10 +208,10 @@ function RepairOverlay:IsDonor(item)
 end
 
 function RepairOverlay:IsRepairTool(item)
-	local repair_bonus = read_if_exists(sys_ini, "r_float", item:section(), "repair_bonus", nil)
+	local repair_bonus = read_if_exists(sys_ini, "float", item:section(), "repair_bonus", nil)
 	if not repair_bonus then
 	return false end
-	local repair_type = read_if_exists(sys_ini, "r_string", item:section(), "repair_type", nil)
+	local repair_type = read_if_exists(sys_ini, "string", item:section(), "repair_type", nil)
 	if not repair_type then
 	return true end
 	if (repair_type == "weapon" and self.item:is_weapon()) or (repair_type == "helmet" and self.item:is_helmet()) or (repair_type == "outfit" and (self.item:is_outfit() or self.item:get_container())) then
@@ -256,7 +256,7 @@ end
 function RepairOverlay:AttachItemIcon(item, parent_wnd)
 	parent_wnd:DetachAll()
 	local item_static = CUIStatic()
-	local icon_sect = read_if_exists(sys_ini, "r_string", item:section(), "repair_icon_sect", item:section())
+	local icon_sect = read_if_exists(sys_ini, "string", item:section(), "repair_icon_sect", item:section())
 	local params = CIconParams(icon_sect)
 	parent_wnd:AttachChild(item_static)
 	--params:set_shader(item_static)
@@ -271,7 +271,7 @@ function RepairOverlay:UpdateRepairInfo()
 	
 	self.res_cond_gain = 0
 	if self.donor_item then
-		self.res_cond_gain = read_if_exists(sys_ini, "r_float", self.donor_item:section(), "service_condition_gain", math.clamp(self.donor_item:condition() * BASE_DONOR_COND_K, 0.01, 1))
+		self.res_cond_gain = read_if_exists(sys_ini, "float", self.donor_item:section(), "service_condition_gain", math.clamp(self.donor_item:condition() * BASE_DONOR_COND_K, 0.01, 1))
 		self.res_cond_gain = self.res_cond_gain + self.res_cond_gain * campfire_effects.repair_bonus()
 		local text = string.format("%+.1f%s", self.res_cond_gain * 100, game.translate_string("st_percent"))
 		self.selected_donor:SetText(text)
@@ -279,7 +279,7 @@ function RepairOverlay:UpdateRepairInfo()
 		
 	end
 	if self.tool_item then
-		local bonus = read_if_exists(sys_ini, "r_float", self.tool_item:section(), "repair_bonus", 0)
+		local bonus = read_if_exists(sys_ini, "float", self.tool_item:section(), "repair_bonus", 0)
 		
 		if self.donor_item then
 			self.res_cond_gain = self.res_cond_gain * bonus
@@ -298,7 +298,7 @@ function RepairOverlay:UpdateRepairInfo()
 end
 
 function RepairOverlay:PerformRepair()
-	local sound = read_if_exists(sys_ini, "r_string", self.donor_item:section(), "use_sound", self.item:is_weapon() and repair_sound_weapon or repair_sound_armor)
+	local sound = read_if_exists(sys_ini, "string", self.donor_item:section(), "use_sound", self.item:is_weapon() and repair_sound_weapon or repair_sound_armor)
 	local snd = xr_sound.get_safe_sound_object(sound)
 	local length = snd:length()
 	local snd_end_time = time_global() + length
@@ -308,7 +308,7 @@ function RepairOverlay:PerformRepair()
 	
 	if self.donor_item then
 		service_kit.prepair(self.donor_item)
-		local use_count = read_if_exists(sys_ini, "r_u32", self.donor_item:section(), "use_count", 1)
+		local use_count = read_if_exists(sys_ini, "u32", self.donor_item:section(), "use_count", 1)
 		if use_count > 0 then
 			self.donor_item:change_condition(-1/use_count)
 			if self.donor_item:condition() == 0 then
@@ -321,7 +321,7 @@ function RepairOverlay:PerformRepair()
 	end
 	
 	if self.tool_item then
-		local use_count = read_if_exists(sys_ini, "r_u32", self.tool_item:section(), "use_count", 0)
+		local use_count = read_if_exists(sys_ini, "u32", self.tool_item:section(), "use_count", 0)
 		if use_count > 0 then
 			self.tool_item:change_condition(-1/use_count)
 			if self.tool_item:condition() == 0 then

@@ -35,28 +35,28 @@ function create_scope_vision(weapon)
 	return false end
 	local sect = weapon:section()
 	local scope_vision_sect = wpn:addon_attachable(addon.scope) and wpn:get_addon_name(addon.scope) or sect
-	local scope_vision_forced = (scope_vision_sect ~= sect) and read_if_exists(sys_ini, "r_bool", sect, scope_vision_sect.."_scope_vision", false) or false
-	if read_if_exists(sys_ini, "r_bool", scope_vision_sect, "ignore_scope_vision", false) and not scope_vision_forced then
+	local scope_vision_forced = (scope_vision_sect ~= sect) and read_if_exists(sys_ini, "bool", sect, scope_vision_sect.."_scope_vision", false) or false
+	if read_if_exists(sys_ini, "bool", scope_vision_sect, "ignore_scope_vision", false) and not scope_vision_forced then
 	return false end
-	if not read_if_exists(sys_ini, "r_bool", scope_vision_sect, "scope_vision", false) then
+	if not read_if_exists(sys_ini, "bool", scope_vision_sect, "scope_vision", false) then
 	return false end
 	local static = CUIStatic()
 	static:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
 	
-	local size_k = read_if_exists(sys_ini, "r_float", scope_vision_sect, "size_k", 4)
+	local size_k = read_if_exists(sys_ini, "float", scope_vision_sect, "size_k", 4)
 	local vision_params = {
-		focus_speed = 1 / read_if_exists(sys_ini, "r_float", scope_vision_sect, "vision_focus_speed", 10),
-		found_snd = xr_sound.get_safe_sound_object(read_if_exists(sys_ini, "r_string", scope_vision_sect, "found_snd", "")),
-		lost_snd = xr_sound.get_safe_sound_object(read_if_exists(sys_ini, "r_string", scope_vision_sect, "lost_snd", "")),
+		focus_speed = 1 / read_if_exists(sys_ini, "float", scope_vision_sect, "vision_focus_speed", 10),
+		found_snd = xr_sound.get_safe_sound_object(read_if_exists(sys_ini, "string", scope_vision_sect, "found_snd", "")),
+		lost_snd = xr_sound.get_safe_sound_object(read_if_exists(sys_ini, "string", scope_vision_sect, "lost_snd", "")),
 		startup_size = vector2():set(end_size.x * size_k, end_size.y * size_k),
-		target_info = read_if_exists(sys_ini, "r_bool", scope_vision_sect, "vision_target_info", false),
-		target_relation = read_if_exists(sys_ini, "r_bool", scope_vision_sect, "vision_target_relation", false),
-		show_delay = read_if_exists(sys_ini, "r_float", scope_vision_sect, "vision_show_delay", 0.4) * 1000,
-		area_width = read_if_exists(sys_ini, "r_float", scope_vision_sect, "vision_area_width", 180),
-		area_height = read_if_exists(sys_ini, "r_float", scope_vision_sect, "vision_area_height", 180),
-		center_offset = read_if_exists(sys_ini, "r_vector", scope_vision_sect, "vision_center_offset", vector2():set(0,0)),
-		square_mode = read_if_exists(sys_ini, "r_bool", scope_vision_sect, "vision_square_mode", false),
-		memory_time = read_if_exists(sys_ini, "r_float", scope_vision_sect, "vision_memory_time", 1) * 1000,
+		target_info = read_if_exists(sys_ini, "bool", scope_vision_sect, "vision_target_info", false),
+		target_relation = read_if_exists(sys_ini, "bool", scope_vision_sect, "vision_target_relation", false),
+		show_delay = read_if_exists(sys_ini, "float", scope_vision_sect, "vision_show_delay", 0.4) * 1000,
+		area_width = read_if_exists(sys_ini, "float", scope_vision_sect, "vision_area_width", 180),
+		area_height = read_if_exists(sys_ini, "float", scope_vision_sect, "vision_area_height", 180),
+		center_offset = read_if_exists(sys_ini, "vector", scope_vision_sect, "vision_center_offset", vector2():set(0,0)),
+		square_mode = read_if_exists(sys_ini, "bool", scope_vision_sect, "vision_square_mode", false),
+		memory_time = read_if_exists(sys_ini, "float", scope_vision_sect, "vision_memory_time", 1) * 1000,
 		check_time = memory_time,
 	}
 	

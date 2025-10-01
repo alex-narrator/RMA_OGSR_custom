@@ -5,7 +5,7 @@ function attach(sm)
 end
 
 function on_update_addons_visibility(item)
-	local scope_mesh = read_if_exists(sys_ini, "r_string", item:section(), "scope_mesh", nil)
+	local scope_mesh = read_if_exists(sys_ini, "string", item:section(), "scope_mesh", nil)
 	if scope_mesh then
 		local wpn = item:get_weapon()
 		local scope_mesh_table = split_string(scope_mesh, ",")
@@ -22,7 +22,7 @@ function on_update_addons_visibility(item)
 end
 
 function on_update_hud_addons_visibility(item)
-	local scope_mesh = read_if_exists(sys_ini, "r_string", get_hud_sect(item), "scope_mesh", nil)
+	local scope_mesh = read_if_exists(sys_ini, "string", get_hud_sect(item), "scope_mesh", nil)
 	if scope_mesh then
 		local wpn = item:get_weapon()
 		scope_mesh_table = split_string(scope_mesh, ",")

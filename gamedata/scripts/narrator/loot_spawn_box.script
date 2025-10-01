@@ -8,13 +8,13 @@ function is_spawn_loot_box(item)
 end
 
 function get_spawn_items(section)
-	return read_if_exists(sys_ini, "r_string", section, "spawn_items", nil)
+	return read_if_exists(sys_ini, "string", section, "spawn_items", nil)
 end
 
 function get_spawn_items_random(section)
 	local res = nil
 	for i=1, 255 do
-		local str = read_if_exists(sys_ini, "r_string", section, "spawn_items_"..i, nil)
+		local str = read_if_exists(sys_ini, "string", section, "spawn_items_"..i, nil)
 		if str then
 			if not res then
 				res = {}
@@ -26,13 +26,13 @@ function get_spawn_items_random(section)
 end
 
 function tip_text(item)
-	return read_if_exists(sys_ini, "r_string", item:section(), "spawn_loot_tip", "st_unpack")
+	return read_if_exists(sys_ini, "string", item:section(), "spawn_loot_tip", "st_unpack")
 end
 
 function spawn_loot(item)
 	local sect = item:section()
 	
-	local snd_name = read_if_exists(sys_ini, "r_string", sect, "unpack_sound", "")
+	local snd_name = read_if_exists(sys_ini, "string", sect, "unpack_sound", "")
 	local snd = xr_sound.get_safe_sound_object(snd_name)
 	if snd then
 		snd:play(actor, 0, sound_object.s2d)

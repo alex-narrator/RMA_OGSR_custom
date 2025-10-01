@@ -20,7 +20,7 @@ function on_drag_drop(obj, drop_on_obj)
 	
 	--//драгдроп на предмет в слоті актора
 	if parent_is_actor(obj) and actor:is_in_slot(drop_on_obj) then
-		local slots = read_if_exists(sys_ini, "r_string", obj:section(), "slot", nil)
+		local slots = read_if_exists(sys_ini, "string", obj:section(), "slot", nil)
 		if slots then
 			slots = split_string(slots, ",", true)
 			for k,i in pairs(slots) do
@@ -35,7 +35,7 @@ function on_drag_drop(obj, drop_on_obj)
 	end
 	--//драгдроп на предмет на поясі
 	if parent_is_actor(obj) and actor:is_on_belt(drop_on_obj) then
-		if read_if_exists(sys_ini, "r_bool", obj:section(), "belt", false) then
+		if read_if_exists(sys_ini, "bool", obj:section(), "belt", false) then
 			local params_obj = CIconParams(obj:section())
 			local params_drop_on_obj = CIconParams(drop_on_obj:section())
 			if params_obj.grid_width <= params_drop_on_obj.grid_width then
@@ -49,7 +49,7 @@ function on_drag_drop(obj, drop_on_obj)
 	if not drop_on_obj:get_weapon() or actor:is_in_slot(drop_on_obj) then
 		if drop_on_obj:is_direct_reload(obj) then
 			if drop_on_obj:get_weapon_ammo() then
-				local snd_name = read_if_exists(sys_ini, "r_string", drop_on_obj:section(), "load_sound", nil)
+				local snd_name = read_if_exists(sys_ini, "string", drop_on_obj:section(), "load_sound", nil)
 				if snd_name then
 					xr_sound.get_safe_sound_object(snd_name):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 				end				
@@ -68,7 +68,7 @@ function on_drag_drop(obj, drop_on_obj)
 	else
 		detach_addon_type = nil
 		for k, addon in pairs(ADDON_TYPES) do
-			local addons = read_if_exists(sys_ini, "r_string", drop_on_obj:section(), addon.."_name", nil)
+			local addons = read_if_exists(sys_ini, "string", drop_on_obj:section(), addon.."_name", nil)
 			local addons_list = split_string(addons, ",")
 			if addons_list then
 				for _, addon_sect in pairs(addons_list) do

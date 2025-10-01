@@ -69,7 +69,7 @@ function box_open_message(box, custom_text)
 	--box sound
 	local c_box = level.object_by_id(box.id)
 	if c_box then
-		local sound_name = read_if_exists(sys_ini, "r_string", c_box:section(), "unlock_snd", nil)
+		local sound_name = read_if_exists(sys_ini, "string", c_box:section(), "unlock_snd", nil)
 		xr_sound.get_safe_sound_object(sound_name):play_at_pos(c_box, c_box:position())
 	end
 end

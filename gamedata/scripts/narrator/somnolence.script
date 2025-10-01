@@ -7,7 +7,7 @@ function attach(sm)
 end
 
 local somnolence = 0
-local max_time_awake = read_if_exists(sys_ini, "r_u32", "actor_condition", "max_time_awake", 36) --//максимальний час неспання (за скільки ігрових годин сонливість сягне максимуму)
+local max_time_awake = read_if_exists(sys_ini, "u32", "actor_condition", "max_time_awake", 36) --//максимальний час неспання (за скільки ігрових годин сонливість сягне максимуму)
 local somnolence_v = 1 / (3600 * max_time_awake)
 local add_v = 0
 local last_time_called = false
@@ -115,11 +115,11 @@ function proceed_effect()
 end
 
 function get_influence(item)
-	return read_if_exists(sys_ini, "r_float", item:section(), "eat_somnolence", 0)
+	return read_if_exists(sys_ini, "float", item:section(), "eat_somnolence", 0)
 end
 
 function get_influence_sect(sect)
-	return read_if_exists(sys_ini, "r_float", sect, "eat_somnolence", 0)
+	return read_if_exists(sys_ini, "float", sect, "eat_somnolence", 0)
 end
 
 function apply_influence(item)
@@ -129,11 +129,11 @@ function apply_influence(item)
 end
 
 function get_boost(item)
-	return read_if_exists(sys_ini, "r_float", item:section(), "boost_somnolence", 0)
+	return read_if_exists(sys_ini, "float", item:section(), "boost_somnolence", 0)
 end
 
 function get_boost_sect(sect)
-	return read_if_exists(sys_ini, "r_float", sect, "boost_somnolence", 0)
+	return read_if_exists(sys_ini, "float", sect, "boost_somnolence", 0)
 end
 
 function apply_boost(item)

@@ -24,11 +24,11 @@ function on_item_use(item, user)
 	if not user:is_actor() then
 	return end
 	local sect = item:section()
-	local boost_time = read_if_exists(sys_ini, "r_float", sect, "boost_time", nil)
+	local boost_time = read_if_exists(sys_ini, "float", sect, "boost_time", nil)
 	if not boost_time then
 	return end
 	for k,v in pairs(BOOST_PARAMS) do
-		local val = read_if_exists(sys_ini, "r_float", sect, v, nil)
+		local val = read_if_exists(sys_ini, "float", sect, v, nil)
 		if val then
 			local booster = {
 				type = k,

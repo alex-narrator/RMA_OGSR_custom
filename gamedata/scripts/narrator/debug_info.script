@@ -70,8 +70,8 @@ function on_key_press(key, game_action)
 				tgt:get_visual_name() or "NO VISUAL",
 				(tgt:is_stalker() or tgt:is_monster() or tgt:is_trader()) and xr_gulag.get_npc_gulag(tgt) and xr_gulag.get_npc_gulag(tgt).name or "NONE",
 				tgt:get_mesh_count(),
-				read_if_exists(tgt:get_visual_ini(), "r_string", "bone_protection", "bones_protection_sect", "NONE"),
-				read_if_exists(tgt:get_visual_ini(), "r_string", "immunities", "immunities_sect", "NONE")
+				read_if_exists(tgt:get_visual_ini(), "string", "bone_protection", "bones_protection_sect", "NONE"),
+				read_if_exists(tgt:get_visual_ini(), "string", "immunities", "immunities_sect", "NONE")
 			)
 		log3("~%s", tgt_info)
 		hud_add_info_message("debug_msg", tgt_info, 10)

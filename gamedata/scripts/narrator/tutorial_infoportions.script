@@ -107,37 +107,37 @@ local thresholds_sect 			= "tutorial_conditions_thresholds"
 local tutorial_data 			= {
 	--//power
 	["encyclopedy_tutorial_weakness"] = { 
-			condition = function() return actor.power < read_if_exists(sys_ini, "r_float", thresholds_sect, "power", 0.1) end,  
+			condition = function() return actor.power < read_if_exists(sys_ini, "float", thresholds_sect, "power", 0.1) end,  
 			action = function() on_actor_critical_power() end,
 	},
 	--//bleeding
 	["encyclopedy_tutorial_wound"] = { 
-			condition = function() return actor:get_bleeding() > read_if_exists(sys_ini, "r_float", thresholds_sect, "bleeding", 0.1) end,
+			condition = function() return actor:get_bleeding() > read_if_exists(sys_ini, "float", thresholds_sect, "bleeding", 0.1) end,
 			action = function() on_actor_bleeding() end,
 	},
 	--//satiety
 	["encyclopedy_tutorial_satiety"] = { 
-			condition = function() return actor.satiety < read_if_exists(sys_ini, "r_float", thresholds_sect, "satiety", 0.1) end,
+			condition = function() return actor.satiety < read_if_exists(sys_ini, "float", thresholds_sect, "satiety", 0.1) end,
 			action = function() on_actor_satiety() end,
 	},
 	--//radiation
 	["encyclopedy_tutorial_radiation"] = { 
-			condition = function() return actor.radiation > read_if_exists(sys_ini, "r_float", thresholds_sect, "radiation", 0.1) end,
+			condition = function() return actor.radiation > read_if_exists(sys_ini, "float", thresholds_sect, "radiation", 0.1) end,
 			action = function() on_actor_radiation() end,
 	},
 	--//psy_health
 	["encyclopedy_tutorial_psy_health"] = { 
-			condition = function() return actor.psy_health < read_if_exists(sys_ini, "r_float", thresholds_sect, "psy_health", 0.9) end,
+			condition = function() return actor.psy_health < read_if_exists(sys_ini, "float", thresholds_sect, "psy_health", 0.9) end,
 			action = function() on_actor_psy_health() end,
 	},
 	--//somnolence
 	["encyclopedy_tutorial_somnolence"] = { 
-			condition = function() return somnolence.get_val() > read_if_exists(sys_ini, "r_float", thresholds_sect, "somnolence", 0.1) end,
+			condition = function() return somnolence.get_val() > read_if_exists(sys_ini, "float", thresholds_sect, "somnolence", 0.1) end,
 			action = function() on_actor_somnolence() end,
 	},
 	--//stamina
 	["encyclopedy_tutorial_stamina"] = { 
-			condition = function() return stamina.get_val() < read_if_exists(sys_ini, "r_float", thresholds_sect, "stamina", 0.1) end,
+			condition = function() return stamina.get_val() < read_if_exists(sys_ini, "float", thresholds_sect, "stamina", 0.1) end,
 			action = function() on_actor_stamina() end,
 	},	
 	--//overweight
@@ -162,11 +162,11 @@ function on_state_switch(item, state, old_state)
 	if wpn and wpn:is_misfire() and not actor:has_info("encyclopedy_tutorial_weapon_misfire") then
 		on_actor_weapon_jammed()
 	end
-	if wpn and not actor:has_info("encyclopedy_tutorial_weapon_condition") and item:condition() < read_if_exists(sys_ini, "r_float", thresholds_sect, "weapon_condition", 0.9) then
+	if wpn and not actor:has_info("encyclopedy_tutorial_weapon_condition") and item:condition() < read_if_exists(sys_ini, "float", thresholds_sect, "weapon_condition", 0.9) then
 		on_actor_weapon_condition()
 	end	
 	local knife = item:is_knife() 
-	if knife and not actor:has_info("encyclopedy_tutorial_knife_condition") and item:condition() < read_if_exists(sys_ini, "r_float", thresholds_sect, "knife_condition", 0.9) then
+	if knife and not actor:has_info("encyclopedy_tutorial_knife_condition") and item:condition() < read_if_exists(sys_ini, "float", thresholds_sect, "knife_condition", 0.9) then
 		on_actor_knife_condition()
 	end
 end

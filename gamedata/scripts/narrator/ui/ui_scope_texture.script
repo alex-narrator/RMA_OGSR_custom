@@ -70,14 +70,14 @@ function create_scope_static(weapon)
 	return false end
 	local sect = weapon:section()
 	local scope_tex_sect = wpn:addon_attachable(addon.scope) and wpn:get_addon_name(addon.scope) or sect
-	local scope_texture_forced = (scope_tex_sect ~= sect) and read_if_exists(sys_ini, "r_string", sect, scope_tex_sect.."_scope_texture", nil) or nil
-	if read_if_exists(sys_ini, "r_bool", scope_tex_sect, "ignore_scope_texture", false) and not scope_texture_forced then
+	local scope_texture_forced = (scope_tex_sect ~= sect) and read_if_exists(sys_ini, "string", sect, scope_tex_sect.."_scope_texture", nil) or nil
+	if read_if_exists(sys_ini, "bool", scope_tex_sect, "ignore_scope_texture", false) and not scope_texture_forced then
 	return false end
 	local scope_tex_type = wpn:aim_alt_mode() and "scope_texture_second" or "scope_texture"	
-	texture_name = scope_texture_forced or read_if_exists(sys_ini, "r_string", scope_tex_sect, scope_tex_type, nil)
+	texture_name = scope_texture_forced or read_if_exists(sys_ini, "string", scope_tex_sect, scope_tex_type, nil)
 	if not texture_name then
 	return false end
-	texture_ilum_name = read_if_exists(sys_ini, "r_string", scope_tex_sect, "scope_texture_illum", nil)
+	texture_ilum_name = read_if_exists(sys_ini, "string", scope_tex_sect, "scope_texture_illum", nil)
 	local static = CUIStatic()
 	static:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
 	--log3("~actor luminocity %s", actor:get_luminocity())
@@ -90,10 +90,10 @@ function create_scope_static(weapon)
 	static:SetStretchTexture(true)
 	
 	local static_parallax = nil
-	local parallax_texture_name = read_if_exists(sys_ini, "r_string", scope_tex_sect, "scope_texture_parallax", nil)
+	local parallax_texture_name = read_if_exists(sys_ini, "string", scope_tex_sect, "scope_texture_parallax", nil)
 	if parallax_texture_name then
 		static_parallax = CUIStatic()
-		local diameter = read_if_exists(sys_ini, "r_float", scope_tex_sect, "scope_texture_parallax_diameter", 700)
+		local diameter = read_if_exists(sys_ini, "float", scope_tex_sect, "scope_texture_parallax_diameter", 700)
 		static_parallax:Init(0, 0, diameter * get_current_kx(), diameter)
 		local offset = ui_inv_utils.GetOffset("center", static_parallax, main_wnd)
 		static_parallax:SetWndPos(offset.x, offset.y)
@@ -101,13 +101,13 @@ function create_scope_static(weapon)
 		static_parallax:SetStretchTexture(true)
 		
 		parallax_params = {
-			speed = read_if_exists(sys_ini, "r_float", scope_tex_sect, "scope_texture_parallax_speed", 0.5),
-			max_shift = read_if_exists(sys_ini, "r_float", scope_tex_sect, "scope_texture_parallax_max_shift", 13),
-			offset_k = read_if_exists(sys_ini, "r_float", scope_tex_sect, "scope_texture_parallax_offset_k", 0.3),
+			speed = read_if_exists(sys_ini, "float", scope_tex_sect, "scope_texture_parallax_speed", 0.5),
+			max_shift = read_if_exists(sys_ini, "float", scope_tex_sect, "scope_texture_parallax_max_shift", 13),
+			offset_k = read_if_exists(sys_ini, "float", scope_tex_sect, "scope_texture_parallax_offset_k", 0.3),
 		}
 		
 		if not PARALLAX_DEBUG then
-			local parallax_rect = split_string(read_if_exists(sys_ini, "r_string", scope_tex_sect, "scope_texture_parallax_rect", "0, 0, 1024, 1024"), ",", true)
+			local parallax_rect = split_string(read_if_exists(sys_ini, "string", scope_tex_sect, "scope_texture_parallax_rect", "0, 0, 1024, 1024"), ",", true)
 			static_parallax:SetOriginalRect(parallax_rect[1], parallax_rect[2], parallax_rect[3], parallax_rect[4])
 		end
 	end

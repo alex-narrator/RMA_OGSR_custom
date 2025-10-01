@@ -32,12 +32,12 @@ end
 function outfit_binder:reload(section)
     object_binder.reload(self, section)
 	
-	local plates_str = read_if_exists(sys_ini, "r_string", self.object:section(), "plates", self.object:section())
+	local plates_str = read_if_exists(sys_ini, "string", self.object:section(), "plates", self.object:section())
 	self.t_plates = self:parse_plates(plates_str)
 end
 
 function outfit_binder:parse_plates(line)
-	local DEF_BONE_PROTECTION = read_if_exists(sys_ini, "r_string", self.object:section(), "bones_koeff_protection", nil)
+	local DEF_BONE_PROTECTION = read_if_exists(sys_ini, "string", self.object:section(), "bones_koeff_protection", nil)
 	local t = se_respawn.parse_names(line)
 	--log3("~t %s",t)
 	local ret_table = {}
@@ -80,7 +80,7 @@ end
 
 function outfit_binder:init_plate()
 	local sect = self.object:section()
-	local protection_sect = self:is_plate_attached() and self:get_protection_sect() or read_if_exists(sys_ini, "r_string", sect, "bones_koeff_protection", nil)
+	local protection_sect = self:is_plate_attached() and self:get_protection_sect() or read_if_exists(sys_ini, "string", sect, "bones_koeff_protection", nil)
 	--log3("~init protection_sect %s", protection_sect)
 	local iitem = self.object:get_inventory_item()
 	iitem.bone_protection_sect = protection_sect
@@ -88,11 +88,11 @@ function outfit_binder:init_plate()
 		local plate_sect = self:get_plate_sect()
 		iitem.inv_weight = iitem.inv_weight + sys_ini:r_float(plate_sect, "inv_weight")
 		iitem.cost = iitem.cost + sys_ini:r_u32(plate_sect, "cost") * self:get_plate_condition()
-		iitem.power_loss = iitem.power_loss + read_if_exists(sys_ini, "r_float", plate_sect, "power_loss", 0)
+		iitem.power_loss = iitem.power_loss + read_if_exists(sys_ini, "float", plate_sect, "power_loss", 0)
 	else
 		iitem.inv_weight = sys_ini:r_float(sect, "inv_weight")
 		iitem.cost = sys_ini:r_u32(sect, "cost")
-		iitem.power_loss = read_if_exists(sys_ini, "r_float", sect, "power_loss", 0)
+		iitem.power_loss = read_if_exists(sys_ini, "float", sect, "power_loss", 0)
 	end
 end
 
@@ -179,7 +179,7 @@ end
 function outfit_binder:is_plate_bone(bone_id)
 	if not actor:get_bone_name(bone_id) then
 	return false end
-	local bone_protect_str = read_if_exists(sys_ini, "r_string", get_bone_protection_sect(self:get_plate_sect()), actor:get_bone_name(bone_id), nil)
+	local bone_protect_str = read_if_exists(sys_ini, "string", get_bone_protection_sect(self:get_plate_sect()), actor:get_bone_name(bone_id), nil)
 	if not bone_protect_str then
 	return false end
 	local tmp_tbl = split_string(bone_protect_str, ",")
@@ -195,7 +195,7 @@ function outfit_binder:hit(victim, health_lost, direction, draftsman, bone_id, h
 	
 	--log3("~hit outfit %s to plate %s | hitted bone %s protection type %s", self.object:section(), self:get_plate_sect(), actor:get_bone_name(bone_id), immunity_type[hit_type+1])
 	
-	local immunity = read_if_exists(sys_ini, "r_float", get_immunities_sect(self:get_plate_sect()), get_hit_type_name(hit_type).."_immunity", 1)
+	local immunity = read_if_exists(sys_ini, "float", get_immunities_sect(self:get_plate_sect()), get_hit_type_name(hit_type).."_immunity", 1)
 	local val = -health_lost * immunity
 	--log3("~plate cond dec %s | hit power %s | hit type %s | immunity %s", val, health_lost, immunity_type[hit_type+1], immunity)
 	self:change_plate_condition(val)

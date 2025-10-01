@@ -1,6 +1,6 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function get_mine_zone_sect(item)
-	return read_if_exists(sys_ini, "r_string", item:section(), "spawn_mine_zone", nil)
+	return read_if_exists(sys_ini, "string", item:section(), "spawn_mine_zone", nil)
 end
 
 function deploy_tip(item)
@@ -8,7 +8,7 @@ function deploy_tip(item)
 end
 
 function can_deploy(item)
-	local deploy_info = read_if_exists(sys_ini, "r_string", item:section(), "need_for_use_info", nil)
+	local deploy_info = read_if_exists(sys_ini, "string", item:section(), "need_for_use_info", nil)
 	return not not get_mine_zone_sect(item) and parent_is_actor(item) and (not deploy_info or actor:has_info(deploy_info))
 end
 
@@ -17,7 +17,7 @@ function deploy(item)
 	if not mine_zone_sect then
 	return end
 	
-	local zone_radius = read_if_exists(sys_ini, "r_float", mine_zone_sect, "effective_radius", 1)
+	local zone_radius = read_if_exists(sys_ini, "float", mine_zone_sect, "effective_radius", 1)
 	
 	if item:parent() and parent_is_actor(item) then
 		actor:drop_item(item)

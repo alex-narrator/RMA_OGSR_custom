@@ -403,7 +403,7 @@ function QuickAddonOverlay:CheckScopes(check_item)
 	end
 	
 	local items = {}
-	local addons = read_if_exists(sys_ini, "r_string", check_item:section(), "scope_name", nil)
+	local addons = read_if_exists(sys_ini, "string", check_item:section(), "scope_name", nil)
 	local addons_list = split_string(addons, ",")
 	if addons_list and weapon:addon_attachable(addon_type) then
 		for k,addon_sect in pairs(addons_list) do
@@ -511,7 +511,7 @@ function QuickAddonOverlay:CheckSilencers(check_item)
 	end
 	
 	local items = {}
-	local addons = read_if_exists(sys_ini, "r_string", check_item:section(), "silencer_name", nil)
+	local addons = read_if_exists(sys_ini, "string", check_item:section(), "silencer_name", nil)
 	local addons_list = split_string(addons, ",")
 	if addons_list and weapon:addon_attachable(addon_type) then
 		for k,addon_sect in pairs(addons_list) do
@@ -619,7 +619,7 @@ function QuickAddonOverlay:CheckLaunchers(check_item)
 	end
 	
 	local items = {}
-	local addons = read_if_exists(sys_ini, "r_string", check_item:section(), "grenade_launcher_name", nil)
+	local addons = read_if_exists(sys_ini, "string", check_item:section(), "grenade_launcher_name", nil)
 	local addons_list = split_string(addons, ",")
 	if addons_list and weapon:addon_attachable(addon_type) then
 		for k,addon_sect in pairs(addons_list) do
@@ -728,7 +728,7 @@ function QuickAddonOverlay:CheckFlashlights(check_item)
 	end
 	
 	local items = {}
-	local addons = read_if_exists(sys_ini, "r_string", check_item:section(), "flashlight_name", nil)
+	local addons = read_if_exists(sys_ini, "string", check_item:section(), "flashlight_name", nil)
 	local addons_list = split_string(addons, ",")
 	if addons_list and weapon:addon_attachable(addon_type) then
 		for k,addon_sect in pairs(addons_list) do
@@ -838,7 +838,7 @@ function QuickAddonOverlay:CheckLasers(check_item)
 	end
 	
 	local items = {}
-	local addons = read_if_exists(sys_ini, "r_string", check_item:section(), "laser_name", nil)
+	local addons = read_if_exists(sys_ini, "string", check_item:section(), "laser_name", nil)
 	local addons_list = split_string(addons, ",")
 	if addons_list and weapon:addon_attachable(addon_type) then
 		for k,addon_sect in pairs(addons_list) do
@@ -948,7 +948,7 @@ function QuickAddonOverlay:CheckStocks(check_item)
 	end
 	
 	local items = {}
-	local addons = read_if_exists(sys_ini, "r_string", check_item:section(), "stock_name", nil)
+	local addons = read_if_exists(sys_ini, "string", check_item:section(), "stock_name", nil)
 	local addons_list = split_string(addons, ",")
 	if addons_list and weapon:addon_attachable(addon_type) then
 		for k,addon_sect in pairs(addons_list) do
@@ -1307,7 +1307,7 @@ function QuickAddonOverlay:OnAttachClick(id)
 	
 	if not slot_iitem:can_attach_addon(desired_iitem) then
 		for k, addon in pairs(ADDON_TYPES) do
-			local addons = read_if_exists(sys_ini, "r_string", slot_item:section(), addon.."_name", nil)
+			local addons = read_if_exists(sys_ini, "string", slot_item:section(), addon.."_name", nil)
 			local addons_list = split_string(addons, ",")
 			if addons_list then
 				for _, addon_sect in pairs(addons_list) do

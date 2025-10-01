@@ -2,7 +2,7 @@
 
 --//donate item
 function can_donate(item)
-	local quest_item = read_if_exists(sys_ini, "r_bool", item:section(), "quest_item", false)
+	local quest_item = read_if_exists(sys_ini, "bool", item:section(), "quest_item", false)
 	return not quest_item and parent_is_actor(item) and actor_menu:GetMode() == "trade"
 end
 function donate(item)
@@ -20,7 +20,7 @@ end
 
 --//eat item
 function eat_item_tip(item)
-	return read_if_exists(sys_ini, "r_string", item:section(), "menu_use_tip", "st_use")
+	return read_if_exists(sys_ini, "string", item:section(), "menu_use_tip", "st_use")
 end
 
 function can_eat(item)

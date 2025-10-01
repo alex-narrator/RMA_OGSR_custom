@@ -553,7 +553,7 @@ end
 
 function ActorMenuOverlay:OnCellItemFocus(obj, cell_item)
 	local sect = obj:section()
-	local highlight_quick_slots = read_if_exists(sys_ini, "r_bool", sect, "quick_slot", false)
+	local highlight_quick_slots = read_if_exists(sys_ini, "bool", sect, "quick_slot", false)
 	if highlight_quick_slots then
 		for i=0,3 do
 			self.slots[i].highlight:Show(true)--.back:SetColor(self.quick_color_highlight)
@@ -581,13 +581,13 @@ function ActorMenuOverlay:OnCellItemFocus(obj, cell_item)
 	if cell_item then
 		self.cell_item_focused = cell_item
 	end
-	if read_if_exists(sys_ini, "r_bool", sect, "belt", false) and not actor:is_on_belt(obj) then
+	if read_if_exists(sys_ini, "bool", sect, "belt", false) and not actor:is_on_belt(obj) then
 		self.belt_list:Highlight(true)
 	end
 	if loadout.is_loadout_item(obj) then
 		self.loadout_list:Highlight(not loadout.can_remove(obj))
 	end
-	local slots = read_if_exists(sys_ini, "r_string", sect, "slot", nil)
+	local slots = read_if_exists(sys_ini, "string", sect, "slot", nil)
 	if slots then
 		slots = split_string(slots, ",", true)
 		for k,v in pairs(slots) do
@@ -756,7 +756,7 @@ function ActorMenuOverlay:OnDragItemDrop(cell_item)
 			elseif cic_f:GetID() == "loadout_list" then
 				loadout.try_set_item(item)
 			else
-				local slots = read_if_exists(sys_ini, "r_string", item:section(), "slot", nil)
+				local slots = read_if_exists(sys_ini, "string", item:section(), "slot", nil)
 				if slots then
 					slots = split_string(slots, ",", true)
 					for k,i in pairs(slots) do
@@ -823,7 +823,7 @@ function ActorMenuOverlay:UpdateSlots()
 end
 
 function ActorMenuOverlay:CheckNeedUpdate(obj, prev_place)
-	local item_allowed = read_if_exists(sys_ini, "r_bool", obj:section(), "quick_slot", false)
+	local item_allowed = read_if_exists(sys_ini, "bool", obj:section(), "quick_slot", false)
 	if not item_allowed then
 		return
 	end
@@ -1200,7 +1200,7 @@ function ActorMenuOverlay:OnNPCIconUpdate()
 	end
 	
 	local npc_icon = self.target:get_character_icon()
-	local icon = npc_icon and npc_icon or read_if_exists(sys_ini, "r_string", self.target:section(), "icon", nil)
+	local icon = npc_icon and npc_icon or read_if_exists(sys_ini, "string", self.target:section(), "icon", nil)
 	self.char_info_icon_npc:Show(icon)
 	if not icon then
 	return end
@@ -1500,7 +1500,7 @@ function ActorMenuOverlay:OnCellItemDBClick(item, cell_item)
 			return
 		end
 	
-		local slots = read_if_exists(sys_ini, "r_string", item:section(), "slot", nil)
+		local slots = read_if_exists(sys_ini, "string", item:section(), "slot", nil)
 		if slots then
 			slots = split_string(slots, ",", true)
 			for k,i in pairs(slots) do
@@ -1712,7 +1712,7 @@ function ActorMenuOverlay:OnKeyboard(dik, keyboard_action)
 			if self.cell_item_selected then
 				local item = self.cell_item_selected:GetAnyItem()
 				local item_sect = item:section()
-				if read_if_exists(sys_ini, "r_bool", item_sect, "quick_slot", false) then
+				if read_if_exists(sys_ini, "bool", item_sect, "quick_slot", false) then
 					local slot_num = game_action - key_bindings.kQUICK_SLOT_0
 					quick_slots.set_item(item_sect, slot_num)
 					return true
@@ -1954,8 +1954,8 @@ function ActorMenuOverlay:UpdateInvTip(cell_item)
 	local item = cell_item and cell_item:GetAnyItem()
 	local text = ""
 	if self:GetMode() == "inventory" and item then
-		text = game.translate_string(read_if_exists(sys_ini, "r_string", item:section(), "selected_tip", ""))		
-		if read_if_exists(sys_ini, "r_bool", item:section(), "quick_slot", false) then
+		text = game.translate_string(read_if_exists(sys_ini, "string", item:section(), "selected_tip", ""))		
+		if read_if_exists(sys_ini, "bool", item:section(), "quick_slot", false) then
 			text = text.."\\n"..game.translate_string("st_tip_quick_slot")
 		end
 		if service_kit.can_disassemble(item) then
@@ -1995,7 +1995,7 @@ function ActorMenuOverlay:UpdateRepair(cell_item)
 	local is_hack = self.repair:HackAllowed(item)
 	self.repair_button:SetText(game.translate_string(is_hack and "ui_st_hack" or"ui_st_repair"))
 	
-	local icon_sect = read_if_exists(sys_ini, "r_string", item:section(), "repair_icon_sect", item:section())
+	local icon_sect = read_if_exists(sys_ini, "string", item:section(), "repair_icon_sect", item:section())
 	local params = CIconParams(icon_sect)
 	--params:set_shader(self.repair_item)
 	SetCellIcon(self.repair_item, params)

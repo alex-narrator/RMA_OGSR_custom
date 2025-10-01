@@ -43,7 +43,7 @@ end
 
 function artefact_binder:fill_random_k()
 	if self.se_obj.random_k == 1 then
-		local random_param = read_if_exists(sys_ini, "r_string", self.object:section(), "random_k", nil)
+		local random_param = read_if_exists(sys_ini, "string", self.object:section(), "random_k", nil)
 		if random_param then
 			random_param = split_string(random_param, ",", true)
 			if table.size(random_param) > 1 then

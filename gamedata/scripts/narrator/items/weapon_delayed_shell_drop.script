@@ -9,13 +9,13 @@ local tactical_light_actions = {
 }
 
 function on_shell_drop(wpn, pos, vel)
-	local shell_drop_delay = read_if_exists(sys_ini, "r_float", wpn:section(), "shell_drop_delay", nil)
+	local shell_drop_delay = read_if_exists(sys_ini, "float", wpn:section(), "shell_drop_delay", nil)
 	if not shell_drop_delay then
 	return end
-	local shell_particle = read_if_exists(sys_ini, "r_string", wpn:section(), "shell_drop_delay_particle", nil)
+	local shell_particle = read_if_exists(sys_ini, "string", wpn:section(), "shell_drop_delay_particle", nil)
 	if not shell_particle then
 	return end
-	local dir = read_if_exists(sys_ini, "r_vector", wpn:section(), "shell_dir", vector())
+	local dir = read_if_exists(sys_ini, "vector", wpn:section(), "shell_dir", vector())
 	add_time_delayed_action(
 		shell_drop_delay,
 		function()

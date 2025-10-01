@@ -18,7 +18,7 @@ end
 function get_medkit()
 	for k,sect in pairs(medicine) do
 		--шукаємо їстивні предмети щоб взяти той в якого найменше порцій
-		if read_if_exists(sys_ini, "r_u32", sect, "eat_portions_num", 1) > 1 then
+		if read_if_exists(sys_ini, "u32", sect, "eat_portions_num", 1) > 1 then
 			local items = {}
 			function perform_action(dummy, item)
 				if sect == item:section() then

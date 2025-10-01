@@ -9,7 +9,7 @@ function attach(sm)
 	sm:subscribe({signal = "on_take_npc", 			fun = this.on_take_npc})
 end
 
-local stay_after_drop_time_interval = read_if_exists(sys_ini, "r_u32", "features", "stay_after_drop_time_interval", 24) * 60 * 60
+local stay_after_drop_time_interval = read_if_exists(sys_ini, "u32", "features", "stay_after_drop_time_interval", 24) * 60 * 60
 
 local items_to_remove = {}
 
@@ -48,9 +48,9 @@ function add_to_list(item)
 	if not sobj or sobj.parent_id ~= 65535 then
 	return end
 	local sect = item:section()
-	local restricted = not read_if_exists(sys_ini, "r_bool", sect, "can_trade", true) or 
-		read_if_exists(sys_ini, "r_bool", sect, "quest_item", false) or 
-		read_if_exists(sys_ini, "r_bool", sect, "unique_item", false) or
+	local restricted = not read_if_exists(sys_ini, "bool", sect, "can_trade", true) or 
+		read_if_exists(sys_ini, "bool", sect, "quest_item", false) or 
+		read_if_exists(sys_ini, "bool", sect, "unique_item", false) or
 		item:story_id() ~= NO_STORY_ID
 	if restricted then
 		--log_news("~%s : item %s | id %s restricted to clean", script_name(), item:name(), item:id())

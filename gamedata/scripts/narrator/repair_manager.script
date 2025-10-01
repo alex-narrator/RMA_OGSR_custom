@@ -76,7 +76,7 @@ end
 function RepairManager:GetRepairCost(item)
 	local item_cost = item:cost() * self.cost_k
 	local item_corruption = 1 - item:condition()
-	local unique_k = read_if_exists(sys_ini, "r_bool", item:section(), "unique_item", false) and self.uniquie_k or 1
+	local unique_k = read_if_exists(sys_ini, "bool", item:section(), "unique_item", false) and self.uniquie_k or 1
 	return math.floor(item_cost * item_corruption * unique_k)
 end
 

@@ -21,10 +21,10 @@ function has_info(item)
 	if get_clsid(item) == clsid.wpn_binocular_s then
 	return false end
 	for i,addon in pairs(addon_type) do
-		local addon_str = read_if_exists(sys_ini, "r_string", item:section(), addon.."_name", nil)
-		addon_str = read_if_exists(sys_ini, "r_string", item:section(), addon.."_name", nil)
+		local addon_str = read_if_exists(sys_ini, "string", item:section(), addon.."_name", nil)
+		addon_str = read_if_exists(sys_ini, "string", item:section(), addon.."_name", nil)
 		if i > 8 then
-			addon_str = read_if_exists(sys_ini, "r_string", item:section(), addon.."_class", nil)
+			addon_str = read_if_exists(sys_ini, "string", item:section(), addon.."_class", nil)
 		end
 		if addon_str then
 			return true
@@ -44,10 +44,10 @@ function show_info(item)
 	local addon_str, addon_status
 	
 	for i,addon in pairs(addon_type) do
-		addon_str = read_if_exists(sys_ini, "r_string", item:section(), addon.."_name", nil)
-		addon_status = read_if_exists(sys_ini, "r_u32", item:section(), addon.."_status", 0)
+		addon_str = read_if_exists(sys_ini, "string", item:section(), addon.."_name", nil)
+		addon_status = read_if_exists(sys_ini, "u32", item:section(), addon.."_status", 0)
 		if i > 8 then
-			addon_str = read_if_exists(sys_ini, "r_string", item:section(), addon.."_class", nil)
+			addon_str = read_if_exists(sys_ini, "string", item:section(), addon.."_class", nil)
 			addon_status = addon_str and 2 or 0
 		end
 		if addon_str and addon_status == 2 then

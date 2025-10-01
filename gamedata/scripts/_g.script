@@ -1525,24 +1525,53 @@ function get_screen_center()
 	return vector2():set(UI_BASE_WIDTH*0.5, UI_BASE_HEIGHT*0.5)
 end
 
-function read_if_exists(ltx, val_type, section, value, default)
-	if ltx and ltx:line_exist(section,value) then
-		if val_type == "r_string" then
-			return ltx:r_string(section,value)
-		elseif val_type == "r_bool" then
-			return ltx:r_bool(section,value)
-		elseif val_type == "r_float" then
-			return ltx:r_float(section,value)
-		elseif val_type == "r_u32" then
-			return ltx:r_u32(section,value)
-		elseif val_type == "r_s32" then
-			return ltx:r_s32(section,value)			
-		elseif val_type == "r_vector" then
-			return ltx:r_vector(section,value)			
+function read_if_exists(ltx, val_type, section, val_name, default)
+	if ltx and ltx:line_exist(section,val_name) then
+		if val_type == "string" then
+			return ltx:r_string(section,val_name)
+		elseif val_type == "bool" then
+			return ltx:r_bool(section,val_name)
+		elseif val_type == "float" then
+			return ltx:r_float(section,val_name)
+		elseif val_type == "u32" then
+			return ltx:r_u32(section,val_name)
+		elseif val_type == "s32" then
+			return ltx:r_s32(section,val_name)			
+		elseif val_type == "vector" then
+			return ltx:r_vector(section,val_name)			
 		end
+		log3("!read_if_exists - value type [%s] undefined", val_type)
+		return default
 	else
 		return default
 	end
+end
+
+function write_if_exists(ltx, val_type, section, val_name, value)
+	if not ltx then
+		log3("!write_if_exists - ini file not existed - trying to write value [%s][%s] to section [%s]", val_name, val_type, section)
+	return end
+	ltx.readonly = false
+	if val_type == "string" then
+		ltx:w_string(section,val_name,value)
+		return
+	elseif val_type == "bool" then
+		ltx:w_bool(section,val_name,value)
+		return
+	elseif val_type == "float" then
+		ltx:w_float(section,val_name,value)
+		return
+	elseif val_type == "u32" then
+		ltx:w_u32(section,val_name,value)
+		return
+	elseif val_type == "s32" then
+		ltx:w_s32(section,val_name,value)
+		return
+	elseif val_type == "vector" then
+		ltx:w_vector(section,val_name,value)
+		return
+	end
+	log3("!write_if_exists - value type [%s] undefined", val_type)
 end
 
 function get_section_keys_and_values(section, ini_file)
@@ -1557,7 +1586,7 @@ function get_section_keys_and_values(section, ini_file)
 end
 
 function is_osoznanie_mode(npc)
-	return read_if_exists(sys_ini, "r_bool", npc:section(), "need_osoznanie_mode", false)
+	return read_if_exists(sys_ini, "bool", npc:section(), "need_osoznanie_mode", false)
 end
 
 function get_inv_name(section)
@@ -1565,11 +1594,11 @@ function get_inv_name(section)
 end
 
 function get_inv_name_short(section)
-	return read_if_exists(sys_ini, "r_string", section, "inv_name_short", get_inv_name(section))
+	return read_if_exists(sys_ini, "string", section, "inv_name_short", get_inv_name(section))
 end
 
 function get_inv_icon_text(section)
-	return read_if_exists(sys_ini, "r_string", section, "icon_text", get_inv_name_short(section))
+	return read_if_exists(sys_ini, "string", section, "icon_text", get_inv_name_short(section))
 end
 
 function cobj_by_name(name)
@@ -1581,14 +1610,14 @@ function sobj_by_name(name)
 end
 
 function hud_anim_exists(item, anim_name)
-	return read_if_exists(sys_ini, "r_string", get_hud_sect(item), anim_name, nil)
+	return read_if_exists(sys_ini, "string", get_hud_sect(item), anim_name, nil)
 end
 
 function get_hud_sect(item)
 	if type(item) == "userdata" then
-		return item:is_hud_item() and item:get_hud_sect() or read_if_exists(sys_ini, "r_string", item:section(), "hud", nil)
+		return item:is_hud_item() and item:get_hud_sect() or read_if_exists(sys_ini, "string", item:section(), "hud", nil)
 	else
-		read_if_exists(sys_ini, "r_string", item, "hud", nil)
+		read_if_exists(sys_ini, "string", item, "hud", nil)
 	end
 end
 
@@ -1759,7 +1788,7 @@ function add_update_delayed_action(updates_count, func)
 end
 
 function has_fire_modes(wpn)
-	local f_modes_str = read_if_exists(sys_ini, "r_string", wpn:section(), "fire_modes", nil)
+	local f_modes_str = read_if_exists(sys_ini, "string", wpn:section(), "fire_modes", nil)
     return f_modes_str and #split_string(f_modes_str, ",") > 1
 end
 
@@ -1767,7 +1796,7 @@ function get_fire_mode_str(wpn)
 	if wpn:get_gl_mode() then
 		return string.format("(%s)", game.translate_string("st_gl_firemode"))
 	end
-	local f_modes_str = read_if_exists(sys_ini, "r_string", wpn:section(), "fire_modes", nil)
+	local f_modes_str = read_if_exists(sys_ini, "string", wpn:section(), "fire_modes", nil)
 	if not f_modes_str then
 		return ""
 	end
@@ -1783,14 +1812,14 @@ function get_fire_modes(wpn)
 	return false end
 	if not wpn:get_weapon_m() then
 	return false end
-	local f_modes_str = read_if_exists(sys_ini, "r_string", wpn:section(), "fire_modes", nil)
+	local f_modes_str = read_if_exists(sys_ini, "string", wpn:section(), "fire_modes", nil)
 	if not f_modes_str then
 	return false end
 	return split_string(f_modes_str, ",")
 end
 
 function get_cur_ammo_sect(obj)
-	local ammo_sect = read_if_exists(sys_ini, "r_string", obj:section(), obj:get_gl_mode() and "grenade_class" or "ammo_class", nil)
+	local ammo_sect = read_if_exists(sys_ini, "string", obj:section(), obj:get_gl_mode() and "grenade_class" or "ammo_class", nil)
 	local ammo_table = split_string(ammo_sect, ",")
 	--return ammo_table[obj:get_ammo_type()+1]
 	
@@ -1799,25 +1828,25 @@ function get_cur_ammo_sect(obj)
 end
 
 function get_cur_ammo2_sect(obj)
-	local ammo_sect = read_if_exists(sys_ini, "r_string", obj:section(), obj:get_gl_mode() and "ammo_class" or "grenade_class", nil)
+	local ammo_sect = read_if_exists(sys_ini, "string", obj:section(), obj:get_gl_mode() and "ammo_class" or "grenade_class", nil)
 	local ammo_table = split_string(ammo_sect, ",")
 	return ammo_table[obj:get_underbarrel_ammo_type()+1]
 end
 
 function get_ammo_sects(obj)
-	local ammo_sect = read_if_exists(sys_ini, "r_string", obj:section(), "ammo_class", nil)
+	local ammo_sect = read_if_exists(sys_ini, "string", obj:section(), "ammo_class", nil)
 	local ammo_table = split_string(ammo_sect, ",")
 	return ammo_table
 end
 
 function get_magazine_sects(obj)
-	local ammo_sect = read_if_exists(sys_ini, "r_string", obj:section(), "magazine_class", nil)
+	local ammo_sect = read_if_exists(sys_ini, "string", obj:section(), "magazine_class", nil)
 	local ammo_table = split_string(ammo_sect, ",")
 	return ammo_table
 end
 
 function get_ammo2_sects(obj)
-	local ammo_sect = read_if_exists(sys_ini, "r_string", obj:section(), "grenade_class", nil)
+	local ammo_sect = read_if_exists(sys_ini, "string", obj:section(), "grenade_class", nil)
 	local ammo_table = split_string(ammo_sect, ",")
 	return ammo_table
 end
@@ -1831,7 +1860,7 @@ function can_be_reloaded_by(item, item_to_load)
 	local sect = item_to_load:section()
 	
 	for _, param_name in pairs (AMMO_PARAM_NAMES) do
-		local ammo_str = read_if_exists(sys_ini, "r_string", item:section(), param_name, nil)
+		local ammo_str = read_if_exists(sys_ini, "string", item:section(), param_name, nil)
 		if ammo_str and string.find(ammo_str, sect) then
 			--//load magazine with ammo
 			if param_name == "ammo_types" then
@@ -1856,7 +1885,7 @@ function can_be_reloaded_by(item, item_to_load)
 				end
 				--//magazine feeded weapon can be reloaded strait to chamber if hase one
 				if wpn and wpn:addon_attachable(addon.magazine) then
-					return wpn.ammo_elapsed == 0 and read_if_exists(sys_ini, "r_bool", item:section(), "has_chamber", true)
+					return wpn.ammo_elapsed == 0 and read_if_exists(sys_ini, "bool", item:section(), "has_chamber", true)
 				end
 				--//vanilla reload condition in other cases
 				return wpn and (wpn.ammo_elapsed < wpn.ammo_mag_size or wpn:get_ammo_sect() ~= sect)
@@ -1875,7 +1904,7 @@ function get_best_ammo(item)
 	local compat_ammo = {}
 	function perform_action(dummy, _item)
 		for k,param_name in pairs(AMMO_PARAM_NAMES) do
-			local ammo_str = read_if_exists(sys_ini, "r_string", item:section(), param_name, nil)
+			local ammo_str = read_if_exists(sys_ini, "string", item:section(), param_name, nil)
 			local ammo = _item:get_weapon_ammo()
 			if ammo_str and string.find(ammo_str, _item:section()) and ammo and ammo.box_curr > 0 then
 				local key = (ammo and ammo:is_magazine()) and (_item:section().."_"..ammo:ammo_sect()) or _item:section()
@@ -1940,7 +1969,7 @@ function get_wpn_scope_zoom_params(item)
 	if not wpn or not wpn:is_addon_attached(addon.scope) then
 	return nil end
 	local sect = wpn:addon_attachable(addon.scope) and wpn:get_addon_name(addon.scope) or item:section()
-	local zoom_params = split_string(read_if_exists(sys_ini, "r_string", sect, "scope_zoom_factor", nil), ",")
+	local zoom_params = split_string(read_if_exists(sys_ini, "string", sect, "scope_zoom_factor", nil), ",")
 	return zoom_params
 end
 
@@ -1969,7 +1998,7 @@ function is_actor_looking_to_pos(pos, radius)
 end
 
 function get_custom_logic_ini(obj)
-	local custom_logic_ini = read_if_exists(sys_ini, "r_string", obj:section(), "logic_cfg", nil)
+	local custom_logic_ini = read_if_exists(sys_ini, "string", obj:section(), "logic_cfg", nil)
 	if custom_logic_ini then
 		return ini_file_cached(custom_logic_ini)
 	end
@@ -1981,7 +2010,7 @@ function is_ammo(section)
 end
 
 function is_magazine(section)
-	return is_ammo(section) and read_if_exists(sys_ini, "r_string", section, "ammo_types", nil)
+	return is_ammo(section) and read_if_exists(sys_ini, "string", section, "ammo_types", nil)
 end
 
 local explosive_ammo_classes = {
@@ -1994,7 +2023,7 @@ function is_explosive_ammo(section)
 end
 
 function is_quest_item(section)
-	return read_if_exists(sys_ini, "r_string", section, "quest_item", false)
+	return read_if_exists(sys_ini, "string", section, "quest_item", false)
 end
 
 function get_lv_gv(level_name, pos)
@@ -2069,7 +2098,7 @@ function spawn_ammo_to_level(section, spawn_pos, level_name, count, ammo_type, s
 	spawn_dir = spawn_dir or vector()
 	local sim = alife()	
 	local gvid = get_any_gvid_by_level(level_name)
-	local count_in_box = read_if_exists(sys_ini, "r_s32", section, "box_size", 1)
+	local count_in_box = read_if_exists(sys_ini, "s32", section, "box_size", 1)
 	local s_obj
 	while count > count_in_box do
 		s_obj = sim:create_ammo(section, spawn_pos, -1,	gvid, -1, count_in_box, ammo_type)
@@ -2165,11 +2194,11 @@ function ini_file_cached(fname)
 end
 
 function get_immunities_sect(section)
-	return read_if_exists(sys_ini, "r_string", section, "immunities_sect", nil)
+	return read_if_exists(sys_ini, "string", section, "immunities_sect", nil)
 end
 
 function get_bone_protection_sect(section)
-	return read_if_exists(sys_ini, "r_string", section, "bones_koeff_protection", nil)
+	return read_if_exists(sys_ini, "string", section, "bones_koeff_protection", nil)
 end
 
 function is_3d_pda()
@@ -2181,7 +2210,7 @@ function is_3d_scopes_enabled()
 end
 
 function get_species(npc)
-	return read_if_exists(sys_ini, "r_string", npc:section(), "species", "NO SPECIES")
+	return read_if_exists(sys_ini, "string", npc:section(), "species", "NO SPECIES")
 end
 
 local immunity_type = {
@@ -2207,7 +2236,7 @@ function get_zoom_data(item)
 		return nil 
 	end
 	local zoom_sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or item:section()
-	return split_string(read_if_exists(sys_ini, "r_string", zoom_sect, "scope_zoom_factor", nil), ",", true)
+	return split_string(read_if_exists(sys_ini, "string", zoom_sect, "scope_zoom_factor", nil), ",", true)
 end
 
 function aim_camera_to_pos(pos)
@@ -2331,7 +2360,7 @@ end
 
 function has_addons(item)
 	for k, addon in pairs(ADDON_TYPES) do
-		local addons = read_if_exists(sys_ini, "r_string", item:section(), addon.."_name", nil)
+		local addons = read_if_exists(sys_ini, "string", item:section(), addon.."_name", nil)
 		local addons_list = split_string(addons, ",")
 		if addons_list then
 			return true
@@ -2345,7 +2374,7 @@ function is_in_addon_list(item, section, addon_type)
 	if not addon then
 	return false end
 	--log3("~item %s | addon %s | addon_type %s", item:name(), addon, addon_type)
-	local addons = read_if_exists(sys_ini, "r_string", item:section(), addon.."_name", nil)
+	local addons = read_if_exists(sys_ini, "string", item:section(), addon.."_name", nil)
 	if not addons then
 	return false end
 	local addons = split_string(addons, ",")
@@ -2434,24 +2463,24 @@ function set_script_option_value(opt, val)
 end
 
 function get_find_person_spot()
-	return read_if_exists(sys_ini, "r_string", "user_spots", "find_person_spot", "red_location")
+	return read_if_exists(sys_ini, "string", "user_spots", "find_person_spot", "red_location")
 end
 
 function CIconParams(sect)
-	local section = read_if_exists(sys_ini, "r_string", sect, "icon_section", sect)
-	local icon_name = read_if_exists(sys_ini, "r_string", section, "icon_name", nil)
+	local section = read_if_exists(sys_ini, "string", sect, "icon_section", sect)
+	local icon_name = read_if_exists(sys_ini, "string", section, "icon_name", nil)
 	
 	local texture = "ui\\ui_icon_equipment"
-	local icon_group = read_if_exists(sys_ini, "r_string", section, "icon_group", nil)
+	local icon_group = read_if_exists(sys_ini, "string", section, "icon_group", nil)
 	if icon_group then
 		texture = texture.."_"..icon_group
 	end
 	
 	local params = {
-		grid_width = read_if_exists(sys_ini, "r_u32", section, "inv_grid_width", 1),
-		grid_height = read_if_exists(sys_ini, "r_u32", section, "inv_grid_height", 1),
-		grid_x = read_if_exists(sys_ini, "r_u32", section, "inv_grid_x", 0),
-		grid_y = read_if_exists(sys_ini, "r_u32", section, "inv_grid_y", 0),
+		grid_width = read_if_exists(sys_ini, "u32", section, "inv_grid_width", 1),
+		grid_height = read_if_exists(sys_ini, "u32", section, "inv_grid_height", 1),
+		grid_x = read_if_exists(sys_ini, "u32", section, "inv_grid_x", 0),
+		grid_y = read_if_exists(sys_ini, "u32", section, "inv_grid_y", 0),
 		texture = texture,
 		icon_name = icon_name,
 	}
@@ -2513,9 +2542,9 @@ BOOST_PARAMS = {
 	"boost_pain",	
 }
 
--- ACTIVE_ITEM_INFO_TTL 	= read_if_exists(sys_ini, "r_u32", "actor", "active_item_info_ttl", 3)
--- GEAR_INFO_TTL 			= read_if_exists(sys_ini, "r_u32", "actor", "gear_info_ttl", 3)
-LIMITED_BOLTS 			= read_if_exists(sys_ini, "r_bool", "features", "limited_bolts", false)
+-- ACTIVE_ITEM_INFO_TTL 	= read_if_exists(sys_ini, "u32", "actor", "active_item_info_ttl", 3)
+-- GEAR_INFO_TTL 			= read_if_exists(sys_ini, "u32", "actor", "gear_info_ttl", 3)
+LIMITED_BOLTS 			= read_if_exists(sys_ini, "bool", "features", "limited_bolts", false)
 
 function start_game_callback()
 	--
@@ -2528,6 +2557,3 @@ function start_game_callback()
 	--
 	log3("--engine version %s", _G.main_menu.get_main_menu():GetGSVer())
 end
-
---//завантажуємо кастомні опції
-mm_custom_options.init_options()

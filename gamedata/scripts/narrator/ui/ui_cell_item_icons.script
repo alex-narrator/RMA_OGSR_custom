@@ -36,7 +36,7 @@ function update_custom_icons(item, cell_item_icon, count, alt_icon)
 		text = string.format("%s%s/%s", color, eatable.eat_portions_num, eatable.eat_start_portions_num)
 	end
 	
-	local use_count = read_if_exists(sys_ini, "r_float", item:section(), "use_count", 0)
+	local use_count = read_if_exists(sys_ini, "float", item:section(), "use_count", 0)
 	if use_count > 1 then
 		color = get_val_color(use_count*item:condition() / use_count)
 		text = string.format("%s%.0f/%s", color, use_count*item:condition(), use_count)

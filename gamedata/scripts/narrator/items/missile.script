@@ -65,7 +65,7 @@ function on_state_switch(item, state, old_state)
 		actor.power = power_dec
 		--log_news("~throw - power_dec %s", power_dec)
 		--log_news("~throw - throw_force_k %s", throw_force_k)
-		local destroy_time = split_string(read_if_exists(sys_ini, "r_string", item:section(), "destroy_time", nil), ",", true)
+		local destroy_time = split_string(read_if_exists(sys_ini, "string", item:section(), "destroy_time", nil), ",", true)
 		if destroy_time and table.size(destroy_time) > 1 then
 			missile.destroy_time_max = math.random(destroy_time[1], destroy_time[2])
 		end

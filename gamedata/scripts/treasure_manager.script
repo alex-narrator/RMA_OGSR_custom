@@ -61,20 +61,20 @@ function parse_treasures()
 		
 		treasure_info[id] = {}
 
-		treasure_info[id].target		= read_if_exists(sys_ini, "r_u32", id, "target", nil)
-		treasure_info[id].name			= read_if_exists(sys_ini, "r_string", id, "name", "")
-		treasure_info[id].description	= read_if_exists(sys_ini, "r_string", id, "description", "")
-		treasure_info[id].items			= parse_spawns(read_if_exists(sys_ini, "r_string", id, "items", ""))
+		treasure_info[id].target		= read_if_exists(sys_ini, "u32", id, "target", nil)
+		treasure_info[id].name			= read_if_exists(sys_ini, "string", id, "name", "")
+		treasure_info[id].description	= read_if_exists(sys_ini, "string", id, "description", "")
+		treasure_info[id].items			= parse_spawns(read_if_exists(sys_ini, "string", id, "items", ""))
 		
 		ASSERT(table.size(treasure_info[id].items) > 0, "cant find items in treasure %s", id)
 
-		local community	= parse_names(read_if_exists(sys_ini, "r_string", id, "community", "stalker, bandit, dolg, freedom"))
+		local community	= parse_names(read_if_exists(sys_ini, "string", id, "community", "stalker, bandit, dolg, freedom"))
 		treasure_info[id].community = {}
 		for k,v in pairs(community) do
 			treasure_info[id].community[v] = true
 		end
 
-		treasure_info[id].condlist		= xr_logic.parse_condlist(actor, "treasure_manager", "condlist", read_if_exists(sys_ini, "r_string", id, "condlist", ""))
+		treasure_info[id].condlist		= xr_logic.parse_condlist(actor, "treasure_manager", "condlist", read_if_exists(sys_ini, "string", id, "condlist", ""))
 	end
 
 	--' Вспомогательные таблицы для облегчения поиска

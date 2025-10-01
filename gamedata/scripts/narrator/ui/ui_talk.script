@@ -157,7 +157,7 @@ end
 
 function TalkOverlay:OnNPCIconUpdate()
 	local npc_icon = self.target:get_character_icon()
-	local icon = npc_icon and npc_icon or read_if_exists(sys_ini, "r_string", self.target:section(), "icon", nil)
+	local icon = npc_icon and npc_icon or read_if_exists(sys_ini, "string", self.target:section(), "icon", nil)
 	self.char_info_icon_npc:Show(icon)
 	if not icon then
 	return end

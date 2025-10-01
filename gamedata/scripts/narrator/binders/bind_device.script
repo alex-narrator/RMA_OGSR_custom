@@ -38,10 +38,10 @@ function device_binder:reload(section)
 	--log3("%s reload for object %s", script_name(), self.object:name())
     object_binder.reload(self, section)
 	
-	local power_str = read_if_exists(sys_ini, "r_string", self.object:section(), "power_source", self.object:section())
+	local power_str = read_if_exists(sys_ini, "string", self.object:section(), "power_source", self.object:section())
 	self.t_power_sources = self:parse_sorces(power_str)
 	
-	self.b_condition_as_power = read_if_exists(sys_ini, "r_bool", self.object:section(), "condition_as_power", false)
+	self.b_condition_as_power = read_if_exists(sys_ini, "bool", self.object:section(), "condition_as_power", false)
 	
 	-- for k,v in pairs(self.t_power_sources) do
 		-- log3("device %s power section %s, work_time %s", self.object:section(), v.section, v.work_time )
@@ -264,7 +264,7 @@ function device_binder:detach_power_source()
 	self.object:get_inventory_item().inv_weight = sys_ini:r_float(self.object:section(), "inv_weight")
 	self:set_power_level(0)
 	self.object:switch_power(false)
-	local detach_sound = read_if_exists(sys_ini, "r_string", self.object:section(), "use_sound", nil)
+	local detach_sound = read_if_exists(sys_ini, "string", self.object:section(), "use_sound", nil)
 	if detach_sound then
 		xr_sound.get_safe_sound_object(detach_sound):play_no_feedback(parent, sound_object.s2d, 0, vector(), 1.0)
 	end

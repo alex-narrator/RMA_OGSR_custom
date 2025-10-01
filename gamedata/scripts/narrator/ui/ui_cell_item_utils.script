@@ -19,7 +19,7 @@ end
 
 function can_drop(cell_item)
 	local item = cell_item:GetAnyItem()
-	return parent_is_actor(item) and not read_if_exists(sys_ini, "r_bool", item:section(), "quest_item", false) and (get_clsid(item) ~= clsid.obj_bolt or LIMITED_BOLTS)
+	return parent_is_actor(item) and not read_if_exists(sys_ini, "bool", item:section(), "quest_item", false) and (get_clsid(item) ~= clsid.obj_bolt or LIMITED_BOLTS)
 end
 
 function drop_cell_item(cell_item, for_all)
@@ -79,7 +79,7 @@ end
 function unload_magazine(cell_item, for_all)
 	local function try_play_sound(item)
 		if item:get_weapon_ammo() then
-			local snd_name = read_if_exists(sys_ini, "r_string", item:section(), "unload_sound", nil)
+			local snd_name = read_if_exists(sys_ini, "string", item:section(), "unload_sound", nil)
 			if snd_name then
 				xr_sound.get_safe_sound_object(snd_name):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 			end
@@ -105,7 +105,7 @@ end
 
 function add_move_to_slot(pbox, item)
 	local name, precondition, action
-	local slots = read_if_exists(sys_ini, "r_string", item:section(), "slot", nil)
+	local slots = read_if_exists(sys_ini, "string", item:section(), "slot", nil)
 	if slots and parent_is_actor(item) then
 		slots = split_string(slots, ",", true)
 		for k,i in pairs(slots) do
@@ -168,7 +168,7 @@ function add_reload_weapon(pbox, cell_item)
 		end
 		action = function(item, _item)
 			item:is_direct_reload(_item)
-			local snd_name = read_if_exists(sys_ini, "r_string", item:section(), "load_sound", nil)
+			local snd_name = read_if_exists(sys_ini, "string", item:section(), "load_sound", nil)
 			if snd_name then
 				xr_sound.get_safe_sound_object(snd_name):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 			end
@@ -207,7 +207,7 @@ function add_attach_addon(pbox, cell_item)
 		if slot_item and parent_is_actor(item) then
 			local iitem = item:get_inventory_item()
 			local slot_iitem = slot_item:get_inventory_item()
-			local attach_tip = read_if_exists(sys_ini, "r_string", item:section(), "menu_attach_tip", "st_attach")
+			local attach_tip = read_if_exists(sys_ini, "string", item:section(), "menu_attach_tip", "st_attach")
 			name = string.format("%s %s", game.translate_string(attach_tip), game.translate_string(get_inv_name_short(slot_item:section())))
 			precondition = function(iitem, slot_iitem)
 				return slot_iitem:can_attach_addon(iitem)
@@ -230,7 +230,7 @@ function add_detach_addon(pbox, cell_item)
 		for i=0,7 do --//all addons except magazine
 			if wpn:addon_attachable(i) and wpn:is_addon_attached(i) then
 				local addon_sect = wpn:get_addon_name(i)
-				local detach_tip = read_if_exists(sys_ini, "r_string", addon_sect, "menu_detach_tip", "st_detach")
+				local detach_tip = read_if_exists(sys_ini, "string", addon_sect, "menu_detach_tip", "st_detach")
 				name = string.format("%s %s", game.translate_string(detach_tip), game.translate_string(get_inv_name_short(addon_sect)))
 				precondition = function(item)
 					return parent_is_actor(item) or actor_menu:GetMode() ~= "trade"
@@ -256,7 +256,7 @@ function add_move_to_carbody(pbox, cell_item)
 	local new_owner = parent_is_actor(item) and actor_menu.target or actor
 	name = "st_move"
 	precondition = function(cell_item)
-		return not read_if_exists(sys_ini, "r_bool", item:section(), "quest_item", false) and actor_menu:GetMode() == "carbody" and (get_clsid(item) ~= clsid.obj_bolt or LIMITED_BOLTS)
+		return not read_if_exists(sys_ini, "bool", item:section(), "quest_item", false) and actor_menu:GetMode() == "carbody" and (get_clsid(item) ~= clsid.obj_bolt or LIMITED_BOLTS)
 	end
 	action = function(cell_item)
 		transfer_cell_item(cell_item, new_owner)
