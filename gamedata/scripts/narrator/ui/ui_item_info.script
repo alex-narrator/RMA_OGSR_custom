@@ -437,7 +437,7 @@ function attach_eatable_params(UIDesc, item)
 	eatable_st = {}
 	local params_list = xml:InitScrollView("params_list", UIDesc)
 	for k,v in ipairs(eatable_params) do
-		val = v.st_name == "somnolence" and somnolence.get_influence(item) or eatable:get_influence(k-1)
+		val = v.st_name == "somnolence" and somnolence.get_influence(item) or eatable:influence(k-1)
 		if val ~= 0 then
 			sn = game.translate_string("st_percent")
 			val = val * 100

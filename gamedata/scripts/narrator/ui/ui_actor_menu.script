@@ -453,6 +453,14 @@ function ActorMenuOverlay:InitControls()
 	self:Register(self.organize_button, name)
 	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.Organize, self)
 	
+	--//inventory mode
+	--//craft button
+	self.craft_button = xml:Init3tButton("craft_btn", self)
+	self.key_accels[self.craft_button:GetAccelerator(0)] = true
+	name = "craft_button"
+	self:Register(self.craft_button, name)
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.Craft, self)	
+	
 	--//carbody mode
 	--//take all button
 	self.take_all_button = xml:Init3tButton("take_all_btn", self)
@@ -1109,6 +1117,7 @@ function ActorMenuOverlay:OnShow()
 		self.repair = repair_manager.RepairManager(self.target)
 	end
 	
+	self.craft_button:Show(mode == "inventory" and campfire_effects.actor_used_campfire())
 	self.take_all_button:Show(mode == "carbody")
 	self.move_all_ruck_button:Show(mode == "carbody")	
 	self.trade_button:Show(mode == "trade")
@@ -1343,8 +1352,8 @@ function ActorMenuOverlay:PerformTrade()
 	self:UpdatePrices()
 end
 
-function ActorMenuOverlay:PerformRepair()
-end
+-- function ActorMenuOverlay:PerformRepair()
+-- end
 
 function ActorMenuOverlay:SwitchToTalk()
 	--actor:switch_to_talk()
@@ -1390,6 +1399,10 @@ function ActorMenuOverlay:TakeAll()
 end
 function ActorMenuOverlay:MoveAllRuck()
 	inventory.move_all_ruck(self.target)
+end
+
+function ActorMenuOverlay:Craft()
+	log_news("~Craft button clicked")
 end
 
 function ActorMenuOverlay:ReinitLists(show_type)

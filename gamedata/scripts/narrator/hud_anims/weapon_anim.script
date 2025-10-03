@@ -1,20 +1,25 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
-	sm:subscribe({signal = "on_key_press",   			fun = this.on_key_press})
-	sm:subscribe({signal = "on_mouse_wheel",   			fun = this.on_mouse_wheel})
-	sm:subscribe({signal = "on_actor_weapon_zoom_in",   fun = this.on_zoom_in})
-	sm:subscribe({signal = "on_actor_weapon_zoom_out", 	fun = this.on_zoom_out})
-	sm:subscribe({signal = "on_update",   				fun = this.on_update})
-	sm:subscribe({signal = "on_actor_jump",   			fun = this.on_actor_jump})
-	sm:subscribe({signal = "on_actor_land",   			fun = this.on_actor_land})
-	sm:subscribe({signal = "on_hit_actor",   			fun = this.on_actor_hit})
-	sm:subscribe({signal = "on_spawn",   				fun = this.on_spawn})
-	sm:subscribe({signal = "on_hud_state_switch",   	fun = this.on_state_switch})
+	sm:subscribe({signal = "on_key_press",   				fun = this.on_key_press})
+	sm:subscribe({signal = "on_mouse_wheel",   				fun = this.on_mouse_wheel})
+	sm:subscribe({signal = "on_actor_weapon_zoom_in",   	fun = this.on_zoom_in})
+	sm:subscribe({signal = "on_actor_weapon_zoom_out", 		fun = this.on_zoom_out})
+	sm:subscribe({signal = "on_update",   					fun = this.on_update})
+	sm:subscribe({signal = "on_actor_jump",   				fun = this.on_actor_jump})
+	sm:subscribe({signal = "on_actor_land",   				fun = this.on_actor_land})
+	sm:subscribe({signal = "on_hit_actor",   				fun = this.on_actor_hit})
+	sm:subscribe({signal = "on_spawn",   					fun = this.on_spawn})
+	sm:subscribe({signal = "on_hud_state_switch", 			fun = this.on_state_switch})
+	sm:subscribe({signal = "on_actor_weapon_zoom_change", 	fun = this.on_zoom_change})
 end
 
 local firemode_switch = {
 	[key_bindings.kWPN_FIREMODE_PREV] = true,
 	[key_bindings.kWPN_FIREMODE_NEXT] = true,
+	--[key_bindings.kWPN_FUNC] = true,
+}
+
+local gl_switch = {
 	[key_bindings.kWPN_FUNC] = true,
 }
 
@@ -56,7 +61,11 @@ function on_mouse_wheel(forward)
 	
 	local act_item = actor:active_item()
 	local act_wpn = act_item and act_item:get_weapon_m() or nil
-	if not act_wpn or not has_fire_modes(act_item) or act_item:get_gl_mode() or (get_zoom_data(act_item) and table.size(get_zoom_data(act_item)) > 1 and actor_obj:is_zoom_aiming_mode()) then
+	
+	local zoom_params = get_zoom_data(act_item)
+	local can_switch_zoom = zoom_params and zoom_params[2]
+	
+	if not act_wpn or not has_fire_modes(act_item) or act_item:get_gl_mode() or (act_item:is_zoomed() and can_switch_zoom) then
 	return end
 	
 	local fire_modes = get_fire_modes(act_item)
@@ -77,12 +86,21 @@ function on_key_press(key, game_action)
 	
 	if not act_wpn then
 	return end
+	
+	if key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) then
+	return end
 		
-	if firemode_switch[game_action] then
-		if act_wpn and (has_fire_modes(act_item) or act_wpn:is_addon_attached(addon.launcher)) then
-			play_switch_anim(act_item)
-		end
+	if firemode_switch[game_action] and has_fire_modes(act_item) then
+		play_switch_anim(act_item)
 	end
+	
+	if gl_switch[game_action] and act_wpn:is_addon_attached(addon.launcher) then
+		play_switch_anim(act_item)
+	end
+end
+
+function on_zoom_change(weapon)
+	play_zoom_switch_anim(weapon)
 end
 
 function play_switch_anim(item)
@@ -92,6 +110,17 @@ function play_switch_anim(item)
 	xr_sound.get_safe_sound_object(switch_snd):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 	level.add_cam_effector(fire_mode, 1912, false, "")
 	game.play_hud_anm(fire_mode, 2, 1, 0.25, false, false)	
+	ui_hud_info.try_show_active_item_info()
+	-- if hud_anim_exists(item, "anm_switch") then
+		-- game.play_hud_motion(2, get_hud_sect(item), "anm_switch", false, 1, false)
+	-- end
+end
+
+function play_zoom_switch_anim(item)
+	--level.add_complex_effector("fire_mode", 1912)
+
+	level.add_cam_effector(fire_mode, 1912, false, "")
+	game.play_hud_anm(fire_mode, 2, 1, 0.1, false, false)	
 	ui_hud_info.try_show_active_item_info()
 	-- if hud_anim_exists(item, "anm_switch") then
 		-- game.play_hud_motion(2, get_hud_sect(item), "anm_switch", false, 1, false)

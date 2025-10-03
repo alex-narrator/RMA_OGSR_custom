@@ -85,6 +85,7 @@ float4 main(v2p I) : SV_Target
         extra_col = saturate(Layer0.x + Layer1.x) * result.z * 0.25f;
     }
 
-    float4 final_clr = (m_affects.a > 0 && m_affects.x >= 0.08) ? loading_main(I) : problems_main(I);
+    //float4 final_clr = (m_affects.y > 0 && m_affects.x >= 0.08) ? loading_main(I) : problems_main(I);
+	float4 final_clr = (m_affects.y > 0) ? loading_main(I) : problems_main(I);
     return final_clr + extra_col;
 }

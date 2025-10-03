@@ -4,7 +4,7 @@ function attach(sm)
 	sm:subscribe({signal = "on_booster_enable",   	fun = this.on_booster_enable})
 	sm:subscribe({signal = "on_booster_disable",   	fun = this.on_booster_disable})
 	sm:subscribe({signal = "on_actor_jump",   		fun = this.on_jump})
-	sm:subscribe({signal = "on_use",   				fun = this.on_item_use})
+	sm:subscribe({signal = "on_before_use_item",   	fun = this.on_before_use})
 end
 
 local actor_cond 				= actor_obj.condition--actor.conditions
@@ -220,16 +220,19 @@ function on_jump()
 	actor_obj.jump_speed = actor_obj.jump_speed + actor_obj.jump_speed * boosters.get_boosted_params(10)
 end
 
-function on_item_use(item, user)
-	if not user:is_actor() then
+function on_before_use(item)
+	local eatable_item = item:get_eatable_item()
+	if not eatable_item or not eatable_item.can_be_eaten then
 	return end
-	local sect = item:section()
-	local eat_satiety = read_if_exists(sys_ini, "float", sect, "eat_satiety", nil)
-	if not eat_satiety or eat_satiety < 0 then
+	local eat_satiety = eatable_item:influence(influence.satiety)
+	if eat_satiety <= 0 or eat_satiety ~= read_if_exists(sys_ini, "float", item:section(), "eat_satiety", 0) then
 	return end
-	
-	local calc_satiety = eat_satiety * (1 - actor.radiation)
-	local diff = calc_satiety - eat_satiety
-	--log3("~diff %s", diff)
-	actor.satiety = diff
+	eatable_item:influence(influence.satiety, eat_satiety * (1 - actor.radiation))
+	add_update_delayed_action(1, 
+		function() 
+			if item and inv_item then 
+				eatable_item:influence(influence.satiety, eat_satiety)
+			end
+		end
+	)
 end

@@ -159,21 +159,18 @@ end
 
 function on_state_switch(item, state, old_state)
 	if not item:get_pda() then
-		set_pda_params(vector():set(0,0,0))
 	return end
-	if old_state == global_flags.eHidden then
-		set_pda_params(vector():set(0.5,0,0))
-	end
 	if state == global_flags.eHiding then
 		local delay = read_if_exists(sys_ini, "float", item:section(), "screen_off_delay", 0.1)
 		add_time_delayed_action(delay, 
 			function()
-				set_pda_params(vector():set(0.5,0,0))
+				set_pda_params(vector():set(0,1,0))
 			end
 		)		
 		return
 	end
 	if state == global_flags.eShowing then
+		set_pda_params(vector():set(0,1,0))
 		local delay = read_if_exists(sys_ini, "float", item:section(), "screen_on_delay", 0.1)
 		add_time_delayed_action(delay, 
 			function()
