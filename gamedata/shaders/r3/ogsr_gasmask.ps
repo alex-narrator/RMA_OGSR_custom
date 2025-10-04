@@ -21,43 +21,39 @@ float4 main(p_screen I) : SV_Target
 
     I.tc0 = applyInertia(I.tc0);
 
-	float mask_condition = m_actor_params.y;
-	if (m_actor_params.z > -1)
-		mask_condition = m_actor_params.z;
-
-    if (mask_condition > 0.9)
+    if (m_actor_params.y > 0.9)
     {
         gasmask_tex = s_mask_nm_1.Sample(smp_nofilter, I.tc0);
     }
-    else if (mask_condition > 0.8)
+    else if (m_actor_params.y > 0.8)
     {
         gasmask_tex = s_mask_nm_2.Sample(smp_nofilter, I.tc0);
     }
-    else if (mask_condition > 0.7)
+    else if (m_actor_params.y > 0.7)
     {
         gasmask_tex = s_mask_nm_3.Sample(smp_nofilter, I.tc0);
     }
-    else if (mask_condition > 0.6)
+    else if (m_actor_params.y > 0.6)
     {
         gasmask_tex = s_mask_nm_4.Sample(smp_nofilter, I.tc0);
     }
-    else if (mask_condition > 0.5)
+    else if (m_actor_params.y > 0.5)
     {
         gasmask_tex = s_mask_nm_5.Sample(smp_nofilter, I.tc0);
     }
-    else if (mask_condition > 0.4)
+    else if (m_actor_params.y > 0.4)
     {
         gasmask_tex = s_mask_nm_6.Sample(smp_nofilter, I.tc0);
     }
-    else if (mask_condition > 0.3)
+    else if (m_actor_params.y > 0.3)
     {
         gasmask_tex = s_mask_nm_7.Sample(smp_nofilter, I.tc0);
     }
-    else if (mask_condition > 0.2)
+    else if (m_actor_params.y > 0.2)
     {
         gasmask_tex = s_mask_nm_8.Sample(smp_nofilter, I.tc0);
     }
-    else if (mask_condition > 0.1)
+    else if (m_actor_params.y > 0.1)
     {
         gasmask_tex = s_mask_nm_9.Sample(smp_nofilter, I.tc0);
     }
@@ -78,7 +74,7 @@ float4 main(p_screen I) : SV_Target
 
         float2 center = float2(0.5, 0.5);
         float distFromCenter = length(refr_tc.xy - center);
-        image = lerp(image, blurredImage, (mask_condition / 10) * abs(distFromCenter * 1.5));
+        image = lerp(image, blurredImage, (m_actor_params.y / 10) * abs(distFromCenter * 1.5));
     }
     else
     {

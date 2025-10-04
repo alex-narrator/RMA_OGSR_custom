@@ -141,16 +141,18 @@ function MainIngameOverlay:InitControls()
 	-- self.screen_debug:SetHeight(dbg_size)
 	-- self.screen_debug:SetWndPos(UI_BASE_WIDTH / 2 - self.screen_debug:GetWidth() / 2, UI_BASE_HEIGHT / 2 - self.screen_debug:GetHeight() / 2)
 	
-	self.blood_overlay = CUIStatic()
-	self.blood_overlay:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
-	self.blood_overlay:InitTexture("ui_blood_overlay")
-	self.blood_overlay:SetStretchTexture(true)
-	self:AttachChild(self.blood_overlay)	
+	-- self.blood_overlay = CUIStatic()
+	-- self.blood_overlay:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
+	-- self.blood_overlay:InitTexture("ui_blood_overlay")
+	-- self.blood_overlay:SetStretchTexture(true)
+	-- self:AttachChild(self.blood_overlay)	
 	
 	local xml = CScriptXmlInit()
 	xml:ParseFile(OVERLAY_XML)
 	
 	self.fps_counter = xml:InitStatic("fps_counter", self)
+	
+	self.blood_overlay = xml:InitStatic("blood_overlay", self)	
 	
 	self.actor_params = xml:InitStatic("actor_params", self)
 	self.conditions = {
