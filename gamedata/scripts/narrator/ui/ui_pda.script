@@ -102,9 +102,9 @@ function PDAOverlay:__init(owner) super()
 	self.owner = owner
 	self:InitControls()
 	self:Subscribe()
-	self.wait_h = 0
-	self.wait_m = 0
-	self:UpdateTimer()
+	-- self.wait_h = 0
+	-- self.wait_m = 0
+	-- self:UpdateTimer()
 end
 
 function PDAOverlay:Subscribe()
@@ -171,37 +171,37 @@ function PDAOverlay:InitControls()
 	self:AddCallback("off_btn", ui_events.BUTTON_CLICKED, self.HidePda, self)
 	
 	--//skip timer
-	self.skip_time_frame = xml:InitFrame("timer_frame", self)
-	self.skip_time_frame:Show(false)
+	-- self.skip_time_frame = xml:InitFrame("timer_frame", self)
+	-- self.skip_time_frame:Show(false)
 	
-	self.skip_time_header = xml:InitStatic("timer_header", self.skip_time_frame)
-	self.hour_st = xml:InitStatic("hour_static", self.skip_time_frame)
-	self.minute_st = xml:InitStatic("minute_static", self.skip_time_frame)
-	self.hm_separator = xml:InitStatic("separator_static", self.skip_time_frame)
+	-- self.skip_time_header = xml:InitStatic("timer_header", self.skip_time_frame)
+	-- self.hour_st = xml:InitStatic("hour_static", self.skip_time_frame)
+	-- self.minute_st = xml:InitStatic("minute_static", self.skip_time_frame)
+	-- self.hm_separator = xml:InitStatic("separator_static", self.skip_time_frame)
 	
-	self.minus_h = xml:Init3tButton("minus_button_h", self.hour_st)
-	self:Register(self.minus_h, "minus_hour")
-	self:AddCallback("minus_hour", ui_events.BUTTON_CLICKED, self.DecHour, self)
+	-- self.minus_h = xml:Init3tButton("minus_button_h", self.hour_st)
+	-- self:Register(self.minus_h, "minus_hour")
+	-- self:AddCallback("minus_hour", ui_events.BUTTON_CLICKED, self.DecHour, self)
 	
-	self.plus_h = xml:Init3tButton("plus_button_h", self.hour_st)
-	self:Register(self.plus_h, "plus_hour")
-	self:AddCallback("plus_hour", ui_events.BUTTON_CLICKED, self.IncHour, self)
+	-- self.plus_h = xml:Init3tButton("plus_button_h", self.hour_st)
+	-- self:Register(self.plus_h, "plus_hour")
+	-- self:AddCallback("plus_hour", ui_events.BUTTON_CLICKED, self.IncHour, self)
 	
-	self.minus_m = xml:Init3tButton("minus_button_m", self.minute_st)
-	self:Register(self.minus_m, "minus_minute")
-	self:AddCallback("minus_minute", ui_events.BUTTON_CLICKED, self.DecMinute, self)
+	-- self.minus_m = xml:Init3tButton("minus_button_m", self.minute_st)
+	-- self:Register(self.minus_m, "minus_minute")
+	-- self:AddCallback("minus_minute", ui_events.BUTTON_CLICKED, self.DecMinute, self)
 	
-	self.plus_m = xml:Init3tButton("plus_button_m", self.minute_st)
-	self:Register(self.plus_m, "plus_minute")
-	self:AddCallback("plus_minute", ui_events.BUTTON_CLICKED, self.IncMinute, self)
+	-- self.plus_m = xml:Init3tButton("plus_button_m", self.minute_st)
+	-- self:Register(self.plus_m, "plus_minute")
+	-- self:AddCallback("plus_minute", ui_events.BUTTON_CLICKED, self.IncMinute, self)
 	
-	self.skip_time = xml:Init3tButton("wait_button", self.skip_time_frame)
-	self:Register(self.skip_time, "skip_time")
-	self:AddCallback("skip_time", ui_events.BUTTON_CLICKED, self.SkipTime, self)
+	-- self.skip_time = xml:Init3tButton("wait_button", self.skip_time_frame)
+	-- self:Register(self.skip_time, "skip_time")
+	-- self:AddCallback("skip_time", ui_events.BUTTON_CLICKED, self.SkipTime, self)
 	
-	self.clear_time = xml:Init3tButton("clear_button", self.skip_time_frame)
-	self:Register(self.clear_time, "clear_time")
-	self:AddCallback("clear_time", ui_events.BUTTON_CLICKED, self.ClearTime, self)
+	-- self.clear_time = xml:Init3tButton("clear_button", self.skip_time_frame)
+	-- self:Register(self.clear_time, "clear_time")
+	-- self:AddCallback("clear_time", ui_events.BUTTON_CLICKED, self.ClearTime, self)
 	
 	--//personal notes
 	self.notes_left_frame = xml:InitFrame("notes_left_frame", self)
@@ -294,62 +294,62 @@ function PDAOverlay:UpdateRelationSpotText()
 	level.iterate_nearest(actor:position(), detect_radius, perform_action)
 end
 
-function PDAOverlay:UpdateTimer()
-	self.hour_st:SetText(self.wait_h)
-	self.minute_st:SetText(self.wait_m)
-end
+-- function PDAOverlay:UpdateTimer()
+	-- self.hour_st:SetText(self.wait_h)
+	-- self.minute_st:SetText(self.wait_m)
+-- end
 
-function PDAOverlay:DecHour()
-	self.wait_h = self.wait_h - 1
-	if self.wait_h < 0 then
-		self.wait_h = 24
-	end
-	self:UpdateTimer()
-end
+-- function PDAOverlay:DecHour()
+	-- self.wait_h = self.wait_h - 1
+	-- if self.wait_h < 0 then
+		-- self.wait_h = 24
+	-- end
+	-- self:UpdateTimer()
+-- end
 
-function PDAOverlay:IncHour()
-	self.wait_h = self.wait_h + 1
-	if self.wait_h > 24 then
-		self.wait_h = 0
-	end
-	self:UpdateTimer()
-end
+-- function PDAOverlay:IncHour()
+	-- self.wait_h = self.wait_h + 1
+	-- if self.wait_h > 24 then
+		-- self.wait_h = 0
+	-- end
+	-- self:UpdateTimer()
+-- end
 
-function PDAOverlay:DecMinute()
-	self.wait_m = self.wait_m - 5
-	if self.wait_m < 0 then
-		self.wait_m = 55
-	end
-	self:UpdateTimer()
-end
+-- function PDAOverlay:DecMinute()
+	-- self.wait_m = self.wait_m - 5
+	-- if self.wait_m < 0 then
+		-- self.wait_m = 55
+	-- end
+	-- self:UpdateTimer()
+-- end
 
-function PDAOverlay:IncMinute()
-	self.wait_m = self.wait_m + 5
-	if self.wait_m > 55 then
-		self.wait_m = 0
-	end
-	self:UpdateTimer()
-end
+-- function PDAOverlay:IncMinute()
+	-- self.wait_m = self.wait_m + 5
+	-- if self.wait_m > 55 then
+		-- self.wait_m = 0
+	-- end
+	-- self:UpdateTimer()
+-- end
 
-function PDAOverlay:SkipTime()
-	if self.wait_h == 0 and self.wait_m == 0 then
-	return end
+-- function PDAOverlay:SkipTime()
+	-- if self.wait_h == 0 and self.wait_m == 0 then
+	-- return end
 	
-	skip_time(self.wait_h, self.wait_m)
-	self:ClearTime()
-	self:ShowSkipTimer()
-end
+	-- skip_time(self.wait_h, self.wait_m)
+	-- self:ClearTime()
+	-- self:ShowSkipTimer()
+-- end
 
-function PDAOverlay:ClearTime()
-	self.wait_h = 0
-	self.wait_m = 0
-	self:UpdateTimer()
-end
+-- function PDAOverlay:ClearTime()
+	-- self.wait_h = 0
+	-- self.wait_m = 0
+	-- self:UpdateTimer()
+-- end
 
-function PDAOverlay:ShowSkipTimer()
-	local is_shown = self.skip_time_frame:IsShown()
-	self.skip_time_frame:Show(not is_shown)
-end
+-- function PDAOverlay:ShowSkipTimer()
+	-- local is_shown = self.skip_time_frame:IsShown()
+	-- self.skip_time_frame:Show(not is_shown)
+-- end
 
 function PDAOverlay:OnNotesClick()
 	--log3("~button state %s", self.notes_btn:GetCheck())
@@ -477,7 +477,7 @@ function PDAOverlay:OnShow()
 end
 
 function PDAOverlay:OnHide()
-	self.skip_time_frame:Show(false)
+	--self.skip_time_frame:Show(false)
 	if self.msg_box then
 		self.msg_box:HideWnd()
 	end

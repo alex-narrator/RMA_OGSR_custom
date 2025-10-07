@@ -1,21 +1,22 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
-local OVERLAY_XML = "script_overlays\\sleep_overlay.xml"
+local OVERLAY_XML = "script_overlays\\skip_time_overlay.xml"
 
 local subscribed = false
 
-function show_sleep_window()
-	level.start_stop_menu(SleepOverlay(),true)
+function show_skip_time_window(button_type, action, ...)
+	level.start_stop_menu(SkipTimeOverlay(button_type, action, ...),true)
 end
 
-class "SleepOverlay" (CUIScriptWnd)
+class "SkipTimeOverlay" (CUIScriptWnd)
 
-function SleepOverlay:__init() super()
+function SkipTimeOverlay:__init(button_type, action, ...) super()
 	self.sleep_h = 1
-	self.sleep_m = 0	
-	self:InitControls()
+	self.action = action
+	self.args = {...}
+	self:InitControls(button_type)
 end
 
-function SleepOverlay:InitControls()
+function SkipTimeOverlay:InitControls(button_type)
 	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
 	
 	local xml = CScriptXmlInit()
@@ -24,26 +25,31 @@ function SleepOverlay:InitControls()
 	local name
 	--//background
 	self.back = xml:InitStatic("background", self)
+	local offset = ui_inv_utils.GetOffset("center", self.back, level.main_input_receiver() or get_main_window())
+	self.back:SetWndPos(offset.x, offset.y)
 	xml:InitAutoStaticGroup("background:auto_static", self.back)
 
 	self.panorama = xml:InitStatic("panorama", self.back)
+	self.panorama_shift = xml:ReadAttribFlt("panorama", "shift", 0)
+	self.scale_texture_w = xml:ReadAttribFlt("panorama", "scale_texture_w", 591)
+	self.scale_texture_h = xml:ReadAttribFlt("panorama", "scale_texture_h", 114)
+	self.scale_k = self.scale_texture_w / self.panorama:GetWidth()
 	self.marker = xml:InitStatic("panorama:marker", self.panorama)
 	self.panorama_move_part = self.panorama:GetWidth() / 24
-	self.panorama_scale = xml:ReadAttribFlt("panorama", "scale", 0)
 	self.marker:SetWidth(self.panorama_move_part)
 
-    local x = level.get_time_hours() * self.panorama_move_part 	--//Frect x1
-    local y = 0 												--//Frect y1
-    local width = self.panorama:GetWidth() 						--//Frect x2
-    local height = self.panorama:GetHeight() 					--//Frect y2
-	self.panorama:SetOriginalRect(x, y, width * self.panorama_scale, height)
+    -- local x = level.get_time_hours() * self.panorama_move_part 	--//Frect x1
+    -- local y = 0 												--//Frect y1
+    -- local width = self.panorama:GetWidth() 						--//Frect x2
+    -- local height = self.panorama:GetHeight() 					--//Frect y2
+	-- self.panorama:SetOriginalRect(x, y, width, height)
 
 	--//date/time
 	self.date_time = xml:InitFrameLine("time_frame_line", self.back)
 	self.date = xml:InitStatic("date", self.date_time)
 	self.time = xml:InitStatic("time", self.date_time)
 	
-	name = "sleep_track"
+	name = "skip_time_track"
 	self.time_track = xml:InitTrackBar("time_track", self.back)
 	self:Register(self.time_track, name)
 	self:AddCallback(name, ui_events.TRACKBAR_CHANGED, self.ChangeTime, self)
@@ -52,10 +58,11 @@ function SleepOverlay:InitControls()
 	self.timer_line = xml:InitFrameLine("timer_frame_line", self.back)
 	self.time_value = xml:InitStatic("time_value", self.timer_line)
 	
-	name = "sleep_button"
-	self.skip_time = xml:Init3tButton("sleep_button", self.back)
+	--//skip time button
+	name = "skip_time_button"
+	self.skip_time = xml:Init3tButton(button_type.."_button", self.back)
 	self:Register(self.skip_time, name)
-	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.StartSleep, self)
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.SkipTime, self)
 		
 	--// quit button
 	name = "quit_button"
@@ -69,7 +76,7 @@ function SleepOverlay:InitControls()
 	self:ChangeTime()
 end
 
-function SleepOverlay:Update()
+function SkipTimeOverlay:Update()
 	CUIScriptWnd.Update(self)
 	local pda = actor_get_pda()
 	
@@ -80,9 +87,20 @@ function SleepOverlay:Update()
 	local date_text = string.format("%s %s", get_current_weekday_name(true), _time:dateToString(game.CTime.DateToDay))
 	self.date:SetText(date_text)
 	self.time:SetText(_time:timeToString(game.CTime.TimeToMinutes))
+	
+	self:UpdatePanorama()
 end
 
-function SleepOverlay:ChangeTime()
+function SkipTimeOverlay:UpdatePanorama()
+	local start_pos = level.get_time_hours() * self.panorama_move_part * self.scale_k
+	local x = start_pos + self.panorama_shift 	--//Frect x1
+    local y = 0 								--//Frect y1
+    local width = self.scale_texture_w 			--//Frect x2
+    local height = self.scale_texture_h 		--//Frect y2
+	self.panorama:SetOriginalRect(x, y, width, height)
+end
+
+function SkipTimeOverlay:ChangeTime()
 	self.sleep_h = self.time_track:GetTrackValue()
 	local tmp = string.format("%d %s", self.sleep_h, game.translate_string("ui_st_hours"))
 	self.time_value:SetText(tmp)
@@ -92,14 +110,10 @@ function SleepOverlay:ChangeTime()
 	self.marker:SetWndPos(marker_pos.x, marker_pos.y)
 end
 
-function SleepOverlay:StartSleep()
-	if not sleep_manager.can_sleep() then
-		sleep_manager.show_cant_sleep_msg()
-		self:Hide()
+function SkipTimeOverlay:SkipTime()
+	if self.sleep_h == 0 then
 	return end
-	if self.sleep_h == 0 and self.sleep_m == 0 then
-	return end
-	sleep_manager.start_sleep(self.sleep_h, self.sleep_m)
+	self.action(self.sleep_h, unpack(self.args))
 	self:Hide()
 end
 
@@ -112,7 +126,7 @@ local keys = {
 	[DIK_keys.DIK_D] = true,
 }
 
-function SleepOverlay:OnKeyboard(dik, keyboard_action)
+function SkipTimeOverlay:OnKeyboard(dik, keyboard_action)
 	if keyboard_action == ui_events.WINDOW_KEY_PRESSED then
 		local dk = dik_to_bind(dik)
 		if actions[dk] or keys[dik] then
@@ -126,7 +140,7 @@ function SleepOverlay:OnKeyboard(dik, keyboard_action)
 	return CUIScriptWnd.OnKeyboard( self, dik, keyboard_action )
 end
 
-function SleepOverlay:Hide()
+function SkipTimeOverlay:Hide()
 	self:ClearCallbacks()
 	self:GetHolder():start_stop_menu(self,true)
 end

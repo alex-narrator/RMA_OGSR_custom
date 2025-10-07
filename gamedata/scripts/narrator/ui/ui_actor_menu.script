@@ -459,7 +459,14 @@ function ActorMenuOverlay:InitControls()
 	self.key_accels[self.craft_button:GetAccelerator(0)] = true
 	name = "craft_button"
 	self:Register(self.craft_button, name)
-	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.Craft, self)	
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.Craft, self)
+	
+	--//skip time button
+	self.skip_time_button = xml:Init3tButton("skip_time_btn", self)
+	self.key_accels[self.skip_time_button:GetAccelerator(0)] = true
+	name = "skip_time_button"
+	self:Register(self.skip_time_button, name)
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.SkipTime, self)		
 	
 	--//carbody mode
 	--//take all button
@@ -1118,6 +1125,7 @@ function ActorMenuOverlay:OnShow()
 	end
 	
 	self.craft_button:Show(mode == "inventory" and campfire_effects.actor_used_campfire())
+	self.skip_time_button:Show(mode == "inventory" and campfire_effects.actor_used_campfire())
 	self.take_all_button:Show(mode == "carbody")
 	self.move_all_ruck_button:Show(mode == "carbody")	
 	self.trade_button:Show(mode == "trade")
@@ -1403,6 +1411,14 @@ end
 
 function ActorMenuOverlay:Craft()
 	log_news("~Craft button clicked")
+end
+
+function ActorMenuOverlay:SkipTime()
+	local function wait_time(sleep_h)
+		level.add_pp_effector("blink.ppe", 999, false)
+		change_game_time(0, sleep_h, 0)
+	end
+	ui_skip_time.show_skip_time_window("wait", wait_time)
 end
 
 function ActorMenuOverlay:ReinitLists(show_type)

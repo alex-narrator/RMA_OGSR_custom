@@ -67,7 +67,8 @@ function on_mattress_use(obj)
 		if is_3d_pda() and actor:active_item() and actor:active_item():get_pda() then
 			actor:activate_slot(NO_ACTIVE_SLOT)
 		end
-		ui_sleep.show_sleep_window()
+		--ui_sleep.show_sleep_window()
+		ui_skip_time.show_skip_time_window("sleep", start_sleep)
 	else
 		show_cant_sleep_msg()
 	end
@@ -122,7 +123,7 @@ end
 
 function start_sleep(h, m)
 	sleep_h = h
-	sleep_m = m
+	sleep_m = m or 0
 	
 	actor:stop_talk()
 	actor:hide_weapon()

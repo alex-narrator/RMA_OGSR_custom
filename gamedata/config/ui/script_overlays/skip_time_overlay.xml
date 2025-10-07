@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <w>
-	<background x="240" y="256" width="541" height="265" stretch="1">
+	<background x="0" y="0" width="541" height="265" stretch="1">
 		<texture>ui_inGame2_message_box</texture>
 		<auto_static x="29" y="32" width="480" height="128" stretch="1">
 			<texture>ui_inGame2_panorama_window</texture>
@@ -10,8 +10,8 @@
 		<!-- </auto_static> -->
 	</background>
 
-	<panorama x="32" y="36" width="473" height="124" stretch="1" scale="1.25">
-		<texture>ui\ui_actor_sleep_panorama</texture>
+	<panorama x="32" y="36" width="473" height="124" stretch="1" shift="-10" scale_texture_w="591" scale_texture_h="118">
+		<texture>ui_actor_sleep_panorama</texture>
 		<marker x="0" y="0" width="1" height="124" stretch="1">
 			<texture>ui_inGame2_marker</texture>
 		</marker>
@@ -38,7 +38,19 @@
 		<text y="0" font="graffiti19" r="238" g="153" b="26" align="c" v_align="c"/>
 	</time_value>
 
-	<!-- SLEEP WAIT BTN -->
+	<!-- WAIT BUTTON -->
+    <wait_button x="115" y="222" width="90" height="30" stretch="1" hint="st_hint_skip_time" accel="kS">
+        <texture>ui_button_ordinary</texture>
+        <text font="graffiti19" r="238" g="153" b="26" align="c" v_align="c">ui_inv_skip_time</text>
+        <text_color>
+			<e r="240"	g="217" b="182"/>				
+			<t r="0"	g="0"	b="0"/>				
+			<d r="135"	g="123" b="116"/>
+			<h r="0"	g="0"	b="0"/>
+		</text_color>
+    </wait_button>
+	
+	<!-- SLEEP BUTTON -->
     <sleep_button x="115" y="222" width="90" height="30" stretch="1" hint="st_hint_sleep" accel="kS">
         <texture>ui_button_ordinary</texture>
         <text font="graffiti19" r="238" g="153" b="26" align="c" v_align="c">ui_inv_sleep</text>
@@ -48,7 +60,7 @@
 			<d r="135"	g="123" b="116"/>
 			<h r="0"	g="0"	b="0"/>
 		</text_color>
-    </sleep_button>
+    </sleep_button>	
 	
     <quit_button x="335" y="222" width="90" height="30" stretch="1" hint="st_sleep_quit">
         <texture>ui_button_ordinary</texture>
