@@ -22,6 +22,8 @@ function SkipTimeOverlay:InitControls(button_type)
 	local xml = CScriptXmlInit()
 	xml:ParseFile(OVERLAY_XML)
 	
+	self.key_accels = {}
+	
 	local name
 	--//background
 	self.back = xml:InitStatic("background", self)
@@ -37,12 +39,6 @@ function SkipTimeOverlay:InitControls(button_type)
 	self.marker = xml:InitStatic("panorama:marker", self.panorama)
 	self.panorama_move_part = self.panorama:GetWidth() / 24
 	self.marker:SetWidth(self.panorama_move_part)
-
-    -- local x = level.get_time_hours() * self.panorama_move_part 	--//Frect x1
-    -- local y = 0 												--//Frect y1
-    -- local width = self.panorama:GetWidth() 						--//Frect x2
-    -- local height = self.panorama:GetHeight() 					--//Frect y2
-	-- self.panorama:SetOriginalRect(x, y, width, height)
 
 	--//date/time
 	self.date_time = xml:InitFrameLine("time_frame_line", self.back)
@@ -63,6 +59,7 @@ function SkipTimeOverlay:InitControls(button_type)
 	self.skip_time = xml:Init3tButton(button_type.."_button", self.back)
 	self:Register(self.skip_time, name)
 	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.SkipTime, self)
+	self.key_accels[self.skip_time:GetAccelerator(0)] = true
 		
 	--// quit button
 	name = "quit_button"
@@ -114,7 +111,14 @@ function SkipTimeOverlay:SkipTime()
 	if self.sleep_h == 0 then
 	return end
 	self.action(self.sleep_h, unpack(self.args))
-	self:Hide()
+	--//костиль на випадок коли акселераторами кнопок сну/очікування призначені клавіші що також відповідають за рух персонажу, наприклад W/S
+	--//якщо закрити вікно одразу (і воно буде риатачено до вікна яке рух дозволяє, наприклад вікно інвентарю) то з точки зору гри персонаж буде рухатись увесь час очікування
+	--//відповідно витратить всю витривалість
+	add_update_delayed_action(1,
+		function()
+			self:Hide()
+		end
+	)
 end
 
 local actions = {
@@ -127,6 +131,7 @@ local keys = {
 }
 
 function SkipTimeOverlay:OnKeyboard(dik, keyboard_action)
+	CUIScriptWnd.OnKeyboard( self, dik, keyboard_action )
 	if keyboard_action == ui_events.WINDOW_KEY_PRESSED then
 		local dk = dik_to_bind(dik)
 		if actions[dk] or keys[dik] then
@@ -137,7 +142,7 @@ function SkipTimeOverlay:OnKeyboard(dik, keyboard_action)
 			return true
 		end
 	end
-	return CUIScriptWnd.OnKeyboard( self, dik, keyboard_action )
+	return self.key_accels[dik]
 end
 
 function SkipTimeOverlay:Hide()

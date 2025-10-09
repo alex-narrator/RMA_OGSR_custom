@@ -3,10 +3,81 @@ function attach(sm)
 	--sm:subscribe({signal = "on_take",   			fun = this.on_take})
 	sm:subscribe({signal = "on_pda_hack",   		fun = this.on_pda_hack})
 	sm:subscribe({signal = "on_hud_state_switch", 	fun = this.on_state_switch})
+	sm:subscribe({signal = "on_save", 				fun = this.on_save})
+	sm:subscribe({signal = "on_load", 				fun = this.on_load})	
 end
 
 local msg_box = nil
 local error_msg = nil
+
+local screen_brightness = 0.75
+local sound_mode = 0
+local sound_volume = 0.5
+
+--//tokens for listbox option
+local script_options_tokens = {
+	["message_sound_mode"] = {
+		"pda_sound_on",
+		"pda_sound_vibro",
+		"pda_sound_off",
+	},
+}
+
+function get_script_option_tokens(option)
+	return script_options_tokens[option]
+end
+
+function on_save(packet)
+	xr_vars.save_var("screen_brightness", screen_brightness)
+	xr_vars.save_var("sound_mode", sound_mode)
+	xr_vars.save_var("sound_volume", sound_volume)
+end
+
+function on_load(reader)
+	screen_brightness = xr_vars.load_var("screen_brightness", screen_brightness)
+	set_screen_brightness(screen_brightness)
+	sound_mode = xr_vars.load_var("sound_mode", sound_mode)
+	sound_volume = xr_vars.load_var("sound_volume", sound_volume)
+end
+
+function get_sound_mode()
+	return sound_mode
+end
+
+function set_sound_mode(val)
+	sound_mode = val
+end
+
+function get_sound_volume()
+	return sound_volume
+end
+
+function set_sound_volume(val)
+	sound_volume = val
+end
+
+function get_screen_brisghtness()
+	return screen_brightness
+end
+
+function set_screen_brightness(val)
+	screen_brightness = val--math.clamp(val, 0.01, 1)
+	local pda_params = get_pda_params()
+	pda_params.z = screen_brightness
+	set_pda_params(pda_params)
+end
+
+function set_power_disabled(val)
+	local pda_params = get_pda_params()
+	pda_params.y = val and 1 or 0
+	set_pda_params(pda_params)	
+end
+
+function set_screen_enabled(val)
+	local pda_params = get_pda_params()
+	pda_params.z = val and screen_brightness or 0
+	set_pda_params(pda_params)	
+end
 
 function on_take(item)
 	if actor_get_pda() and actor_get_pda():id() == item:id() then
@@ -160,22 +231,26 @@ end
 function on_state_switch(item, state, old_state)
 	if not item:get_pda() then
 	return end
+	-- set_power_disabled(false)
 	if state == global_flags.eHiding then
 		local delay = read_if_exists(sys_ini, "float", item:section(), "screen_off_delay", 0.1)
 		add_time_delayed_action(delay, 
 			function()
-				set_pda_params(vector():set(0,1,0))
+				set_screen_enabled(false)
+				set_power_disabled(false)
 			end
 		)		
 		return
 	end
 	if state == global_flags.eShowing then
-		set_pda_params(vector():set(0,1,0))
+		set_screen_enabled(false)
+		set_power_disabled(false)
 		local delay = read_if_exists(sys_ini, "float", item:section(), "screen_on_delay", 0.1)
 		add_time_delayed_action(delay, 
 			function()
 				if item:is_power_on() then
-					set_pda_params(vector():set(0,0,0))
+					set_screen_enabled(true)
+					set_power_disabled(false)
 				end
 			end
 		)	
@@ -189,6 +264,7 @@ end
 function play_power_off_anim(item)
 	if not actor:active_item() or actor:active_item():id() ~= item:id() then
 	return end
+	set_power_disabled(true)
 	item:zoom_out()
 	add_update_delayed_action(1,
 		function()

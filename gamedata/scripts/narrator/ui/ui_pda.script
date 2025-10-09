@@ -500,7 +500,7 @@ local custom_tabs = {
 
 function get_custom_tab(idx)
 	if not custom_tabs[idx] then
-		log3("!PDA CUSTOM TAB %s IS NOT DESCRIBED IN %s", idx, script_name())
+		log_news("!PDA CUSTOM TAB %s IS NOT DESCRIBED IN %s", idx, script_name())
 	return end
 	if not custom_tabs[idx].wnd then
 		custom_tabs[idx].wnd = custom_tabs[idx].init_func(idx)
@@ -508,6 +508,7 @@ function get_custom_tab(idx)
 	return custom_tabs[idx].wnd
 end
 
+--//options tab
 
 class "UICustomTab7" (CUIScriptWnd)
 function UICustomTab7:__init(idx) super()
@@ -549,5 +550,58 @@ function UICustomTab7:InitControls(idx)
 	local xml = CScriptXmlInit()
 	xml:ParseFile(custom_tabs[idx].overlay_xml)
 
-	self.background_frame = xml:InitFrame("background_frame", self)	
+	local name
+	self.back = xml:InitFrame("background_frame", self)
+	
+	self.screen_brightness = xml:InitStatic("background_frame:screen_brightness", self.back)
+	name = "screen_brightness_track"
+	self.screen_brightness_track = xml:InitTrackBar("background_frame:screen_brightness:"..name, self.screen_brightness)
+	self:Register(self.screen_brightness_track, name)
+	self:AddCallback(name, ui_events.TRACKBAR_CHANGED, self.ChangeBrightness, self)
+	self.screen_brightness_track:SetTrackValue(pda.get_screen_brisghtness() * 100)
+	
+	self.sound_mode = xml:InitStatic("background_frame:sound_mode", self.back)
+	
+	self.sound_check_button = xml:Init3tButton("background_frame:sound_mode:sound_check_button", self.sound_mode)
+	name = "sound_check_button"
+	self:Register(self.sound_check_button, name)
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.CheckSound, self)	
+	
+	self.sound_volume = xml:InitStatic("background_frame:sound_volume", self.back)
+	name = "sound_volume_track"
+	self.sound_volume_track = xml:InitTrackBar("background_frame:sound_volume:"..name, self.sound_volume)
+	self:Register(self.sound_volume_track, name)
+	self:AddCallback(name, ui_events.TRACKBAR_CHANGED, self.ChangeVolume, self)
+	self.sound_volume_track:SetTrackValue(pda.get_sound_volume() * 100)	
+	
+	name = "sound_mode_combobox"
+	self.sound_mode_combobox = xml:InitComboBox("background_frame:sound_mode:list_sound_mode", self.sound_mode)
+	self:Register(self.sound_mode_combobox, name)
+	self:AddCallback(name, ui_events.LIST_ITEM_SELECT, self.ChangeSoundMode, self)
+	local tokens = pda.get_script_option_tokens("message_sound_mode")
+	if tokens then
+		for k,v in pairs(tokens) do
+			self.sound_mode_combobox:AddItem(v)
+		end
+	end
+	self.sound_mode_combobox:SetCurrentID(pda.get_sound_mode())
+end
+
+function UICustomTab7:ChangeBrightness()
+	local brightness = self.screen_brightness_track:GetTrackValue() * 0.01
+	pda.set_screen_brightness(brightness)
+end
+
+function UICustomTab7:ChangeSoundMode()
+	local mode = self.sound_mode_combobox:CurrentID()
+	pda.set_sound_mode(mode)
+end
+
+function UICustomTab7:CheckSound()
+	news_manager.play_news_sound("news")
+end
+
+function UICustomTab7:ChangeVolume()
+	local volume = self.sound_volume_track:GetTrackValue() * 0.01
+	pda.set_sound_volume(volume)
 end

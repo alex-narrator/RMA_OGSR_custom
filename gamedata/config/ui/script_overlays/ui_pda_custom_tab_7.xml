@@ -4,33 +4,41 @@
 		<texture>ui_pda_frame_sub</texture>	
 		<!-- <texture>ui_icons_PDA_tooltips</texture> -->
 		<!-- <texture>ui_icons_PDA_dialog</texture> -->
+		<screen_brightness x="10" y="20" width="300" height="20" stretch="1">
+			<texture a="200">ui_inv_back_green</texture>
+			<text align="l" x="0" y="0" font="letterica18" v_align="c">ui_st_pda_screen_brightness</text>
+			<screen_brightness_track x="100" y="2" width="200" height="16" step="1" min="1" max="100"/>
+		</screen_brightness>
 		
-		<static_name x="5" y="5" width="235" height="20" stretch="1">
-			<text font="letterica18" r="238" g="155" b="23" complex_mode="1" align="l" vert_align="t"/>		
-		</static_name>
+		<sound_volume x="10" y="45" width="300" height="20" stretch="1">
+			<texture a="200">ui_inv_back_green</texture>
+			<text align="l" x="0" y="0" font="letterica18" v_align="c">ui_st_pda_sound_volume</text>
+			<sound_volume_track x="100" y="2" width="200" height="16" step="1" min="1" max="100"/>
+		</sound_volume>
+		
+		<sound_mode x="10" y="70" width="300" height="20" complex_mode = "1" stretch="1">
+			<texture a="200">ui_inv_back_green</texture>
+			<text font="letterica18" v_align="c">ui_st_pda_sound_mode</text>			
+			
+			<list_sound_mode x="180" y="0" width="55" height="20" always_show_scroll="0" list_length="3" skip_option="1">	
+				<text_color>
+					<e r="216" g="186" b="140"/>
+				</text_color>
+				<list_font_s r="240" g="217" b="182"/>
+				<list_font	 r="216" g="186" b="140" font="letterica16"/>
+			</list_sound_mode>
 
-		<static_weight x="5" y="25" width="30" height="20" stretch="1">
-			<text font="letterica16" r="238" g="155" b="23" align="l" vert_align="c"/>
-		</static_weight>
+			<sound_check_button x="240" y="0" width="60" height="20" stretch="1">
+				<texture>ui_inGame2_big_inventory_button</texture>
+				<text font="letterica16" r="238" g="153" b="26" align="c" v_align="c">ui_st_pda_sound_check</text>
+				<text_color>
+					<e r="240"	g="217" b="182"/>				
+					<t r="0"	g="0"	b="0"/>				
+					<d r="135"	g="123" b="116"/>
+					<h r="0"	g="0"	b="0"/>
+				</text_color>
+			</sound_check_button>
+		</sound_mode>		
 		
-		<static_cost x="50" y="25" width="30" height="20" stretch="1">
-			<text font="letterica16" r="238" g="155" b="23" align="l" vert_align="c"/>
-		</static_cost>		
-
-		<descr_list x="5" y="45" width="235" height="130" always_show_scroll="0" left_ident="10" bottom_indent="5" vert_interval="2">
-			<text font="letterica16" r="240" g="217" b="182"/>
-			<!-- <descr_text text_color="255,238,153,26" font="letterica18"/> -->
-		</descr_list>
-		
-		<quit_button x="226" y="2" width="10" height="16" stretch="1" hint="st_hint_quit">
-			<texture>ui_button_ordinary</texture>
-			<text font="graffiti19" r="238" g="153" b="26" align="c" v_align="c">X</text>
-			<text_color>
-				<e r="240"	g="217" b="182"/>				
-				<t r="0"	g="0"	b="0"/>				
-				<d r="135"	g="123" b="116"/>
-				<h r="0"	g="0"	b="0"/>
-			</text_color>
-		</quit_button>		
 	</background_frame>
 </w>
