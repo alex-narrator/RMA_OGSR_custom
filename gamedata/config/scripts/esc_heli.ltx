@@ -4,13 +4,13 @@ active = heli_move@idle
 [heli_move@idle]
 path_move = heli_idle_move
 engine_sound = false
-on_info = {+esc_heli_go} heli_move@fly %=turn_off(20) =esc_vagon_newbie_to_online%
+on_info = {+esc_heli_go} heli_move@fly %=turn_off(20) =esc_vagon_scene_to_online%
 combat_safe_altitude = -50
 
 [heli_move@fly]
 path_move = heli_fly
 on_signal = heli_radio| {-esc_heli_direct} %+esc_heli_direct%
-on_signal2 = spawn_newbie| {-tutorial_wounded_start} %+tutorial_wounded_start =play_snd(device\pda\pda_sos)%
+on_signal2 = spawn_newbie| {-tutorial_wounded_start} %+tutorial_wounded_start%;=play_snd(device\pda\pda_sos)%
 on_signal3 = fly_end| heli_move@fly_attack %+esc_heli_attack%
 combat_safe_altitude = -50
 
@@ -29,7 +29,7 @@ combat_safe_altitude = -50
 path_move = heli_actor_attack
 combat_safe_altitude = -50
 combat_enemy = actor
-combat_use_rocket = true
+combat_use_rocket = false;true
 combat_use_mgun = true
 mute = true
 on_info = {=actor_dead} heli_move@heli_wait_sound %+esc_heli_killed_actor%
@@ -40,7 +40,7 @@ on_info3 = {+esc_heli_actor_res} heli_move@fly_attack
 path_move = heli_actor_attack
 combat_safe_altitude = -50
 combat_enemy = actor
-combat_use_rocket = true
+combat_use_rocket = false;true
 combat_use_mgun = true
 mute = true
 on_info = {=heli_see_actor -esc_heli_actor_res} heli_move@heli_attack_actor

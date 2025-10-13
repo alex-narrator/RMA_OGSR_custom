@@ -1,0 +1,32 @@
+[helihunter]
+dist = 100
+
+[logic]
+active = walker
+heli_hunter = helihunter
+
+[walker]
+path_walk = esc_stalker_vagon_1_walk
+path_look = esc_stalker_vagon_walker_1_look
+heli_hunter = {-esc_heli_attack_end} true, false
+meet = no_meet
+soundgroup = esc_stalker_vagon
+on_info = {+esc_heli_go -esc_heli_attack_end} camper, {+esc_heli_go +esc_heli_attack_end} nil
+danger = danger_condition
+
+[camper]
+path_walk = esc_stalker_vagon_1_walk
+path_look = esc_stalker_vagon_camper_1_look
+def_state_moving = assault
+heli_hunter = {-esc_heli_attack_end} true, false
+meet = no_meet
+soundgroup = esc_stalker_vagon
+on_info = {+esc_heli_attack_end} nil
+danger = danger_condition
+
+[danger_condition]
+ignore_distance       = 2
+ignore_distance_grenade = 10
+ignore_distance_corpse  = 0
+ignore_distance_sound   = 2
+danger_inertion_time_sound = 5

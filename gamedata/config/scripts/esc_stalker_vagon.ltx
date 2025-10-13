@@ -1,0 +1,22 @@
+[helihunter]
+dist = 100
+
+[logic]
+active = walker
+heli_hunter = helihunter
+
+[walker]
+path_walk = esc_stalker_vagon_2_walk
+path_look = esc_stalker_vagon_2_look
+heli_hunter = true
+meet = no_meet
+soundgroup = esc_stalker_vagon
+on_info = {+tutorial_wounded_start} nil %=hit_npc(14:bip01_spine1:2000:10)%
+danger = danger_condition
+
+[danger_condition]
+ignore_distance       = 2
+ignore_distance_grenade = 10
+ignore_distance_corpse  = 0
+ignore_distance_sound   = 2
+danger_inertion_time_sound = 5

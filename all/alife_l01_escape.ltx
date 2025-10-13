@@ -19222,18 +19222,7 @@ level_vertex_id = 594270
 object_flags = 0xffffff3e
 custom_data = <<END
 [logic]
-active = sr_idle
-
-[sr_idle]
-on_actor_inside = {+esc_heli_can_attack_actor} nil, {+esc_heli_go +esc_heli_attack -esc_heli_attack_end} sr_idle@wait %+esc_heli_can_attack_actor%
-on_info = {+esc_heli_attack_end} nil
-
-[sr_idle@wait]
-on_info = {+esc_heli_direct} sr_sound_act@attack
-
-[sr_sound_act@attack]
-snd = characters_voice\scenario\escape\heli_radio_part_4
-on_signal = sound_end| nil
+cfg = scripts\esc_heli_attack_zone.ltx
 END
 
 ; cse_shape properties
@@ -24237,38 +24226,8 @@ custom_data = <<END
 [smart_terrains]
 none = true
 
-[helihunter]
-dist = 100
-
 [logic]
-active = walker
-heli_hunter = helihunter
-
-[walker]
-path_walk = esc_stalker_vagon_1_walk
-path_look = esc_stalker_vagon_walker_1_look
-heli_hunter = {-esc_heli_attack_end} true, false
-meet = no_meet
-soundgroup = esc_stalker_vagon
-on_info = {+esc_heli_go -esc_heli_attack_end} camper, {+esc_heli_go +esc_heli_attack_end} nil
-danger = danger_condition
-
-[camper]
-path_walk = esc_stalker_vagon_1_walk
-path_look = esc_stalker_vagon_camper_1_look
-def_state_moving = assault
-heli_hunter = {-esc_heli_attack_end} true, false
-meet = no_meet
-soundgroup = esc_stalker_vagon
-on_info = {+esc_heli_attack_end} nil
-danger = danger_condition
-
-[danger_condition]
-ignore_distance       = 2
-ignore_distance_grenade = 10
-ignore_distance_corpse  = 0
-ignore_distance_sound   = 2
-danger_inertion_time_sound = 5
+cfg = scripts\esc_stalker_vagon_2.ltx
 
 ; [known_info]
 ; esc_tutorial_secret
@@ -24667,28 +24626,8 @@ custom_data = <<END
 [smart_terrains]
 none = true
 
-[helihunter]
-dist = 100
-
 [logic]
-active = walker
-heli_hunter = helihunter
-
-[walker]
-path_walk = esc_stalker_vagon_2_walk
-path_look = esc_stalker_vagon_2_look
-heli_hunter = true
-meet = no_meet
-soundgroup = esc_stalker_vagon
-on_info = {+tutorial_wounded_start} nil %=hit_npc(14:bip01_spine1:2000:10)%
-danger = danger_condition
-
-[danger_condition]
-ignore_distance       = 2
-ignore_distance_grenade = 10
-ignore_distance_corpse  = 0
-ignore_distance_sound   = 2
-danger_inertion_time_sound = 5
+cfg = scripts\esc_stalker_vagon.ltx
 END
 
 ; cse_visual properties

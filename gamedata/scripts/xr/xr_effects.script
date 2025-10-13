@@ -747,12 +747,47 @@ function esc_lager_rage_actor(actor, npc)
 end
 
 -- Переводим новичка в online, если актёр далеко (для сценки с обстрелом вертолёта)
-function esc_vagon_newbie_to_online()
-	local npc = alife():story_object(87)
-	if npc then
-		alife():set_switch_offline(npc.id, false)
-		alife():set_switch_online(npc.id, true)
-		alife():set_interactive(npc.id, true)
+--//всю сцену переводимо бо до того її упхали в офлайн
+local esc_vagon_actors = {
+	story_ids.esc_newbee,
+	-- story_ids.Escape_tutorial_wounded, --//це Толік, його в офлайн уведе логіка смарту esc_corps у gulag_escape.script
+	"esc_stalker_vagon",
+	"esc_medkit",
+}
+
+function esc_vagon_scene_to_online()
+	local sim = alife()
+	for k,v in pairs(esc_vagon_actors) do
+		local npc
+		if tonumber(v) then
+			npc = sim:story_object(tonumber(v))
+		else
+			npc = sim:object(v)
+		end
+		if npc then
+			--log_news("~esc_vagon_scene_to_online %s", v)
+			sim:set_switch_offline(npc.id, false)
+			sim:set_switch_online(npc.id, true)
+			sim:set_interactive(npc.id, true)
+		end		
+	end
+end
+
+function esc_vagon_scene_to_offline()
+	local sim = alife()
+	for k,v in pairs(esc_vagon_actors) do
+		local npc
+		if type(v) == "number" then
+			npc = sim:story_object(v)
+		else
+			npc = sim:object(v)
+		end
+		if npc then
+			--log_news("~esc_vagon_scene_to_offline %s", v)
+			sim:set_switch_offline(npc.id, true)
+			sim:set_switch_online(npc.id, false)
+			sim:set_interactive(npc.id, false)
+		end		
 	end
 end
 

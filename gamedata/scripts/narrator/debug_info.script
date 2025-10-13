@@ -19,30 +19,30 @@ function on_update(dt)
 end
 
 function on_take(item)
-	log3("~take item %s|%s", item:name(), item:section())
+	log_news("~take item %s|%s", item:name(), item:section())
 end
 
 function on_hit(victim, health_lost, direction, draftsman, bone_id, hit_type)
-	log3("~on_hit: victim %s | health_lost %s | draftsman %s | bone %s | hit_type %s",	victim:name(),  health_lost, draftsman:name(), victim:get_bone_name(bone_id), get_hit_type_name(hit_type))
-	log3("~%s current health %.2f | bleeding %.2f", victim:name(), victim.health, victim:get_bleeding())
+	log_news("~on_hit: victim %s | health_lost %s | draftsman %s | bone %s | hit_type %s",	victim:name(),  health_lost, draftsman:name(), victim:get_bone_name(bone_id), get_hit_type_name(hit_type))
+	log_news("~%s current health %.2f | bleeding %.2f", victim:name(), victim.health, victim:get_bleeding())
 end
 
 function on_before_hit(object, hit)
-	log3("~%s on_before_hit: power %s | full power %s | type %s | draftsman %s | bone %s | ap %s", object:name(), hit.power, hit.full_power, get_hit_type_name(hit.hit_type), hit.who:name(), object:get_bone_name(hit.bone_id), hit.ap)
+	log_news("~%s on_before_hit: power %s | full power %s | type %s | draftsman %s | bone %s | ap %s", object:name(), hit.power, hit.full_power, get_hit_type_name(hit.hit_type), hit.who:name(), object:get_bone_name(hit.bone_id), hit.ap)
 end
 
 function on_death(victim, killer)
 	if victim:is_actor() then
-		log3("~actor on_death")
+		log_news("~actor on_death")
 	end
 end
 
 function on_info_portion(npc, info_id)
-	log3("~received infoportion %s", info_id)
+	log_news("~received infoportion %s", info_id)
 end
 
 function on_task(_task, _objective, _state)
-	log3("~task %s | _objective %s | _state %s", _task:get_id(), _objective:get_idx(), _state)
+	log_news("~task %s | _objective %s | _state %s", _task:get_id(), _objective:get_idx(), _state)
 end
 
 function on_key_press(key, game_action)
@@ -73,7 +73,7 @@ function on_key_press(key, game_action)
 				read_if_exists(tgt:get_visual_ini(), "string", "bone_protection", "bones_protection_sect", "NONE"),
 				read_if_exists(tgt:get_visual_ini(), "string", "immunities", "immunities_sect", "NONE")
 			)
-		log3("~%s", tgt_info)
+		log_news("~%s", tgt_info)
 		hud_add_info_message("debug_msg", tgt_info, 10)
 	end
 	
@@ -84,7 +84,7 @@ function on_key_press(key, game_action)
 end
 
 function update_items_effect(update_time)
-	log3("~update_items_effect update_time %s", update_time)
+	log_news("~update_items_effect update_time %s", update_time)
 end
 
 local dbg_particle_name = "anomaly2\\plasma_generator_death"
@@ -100,7 +100,7 @@ function show_patrol_points(path_name)
 end
 
 function on_weapon_fire(wpn)
-	log3("~item %s | ammo sect %s", wpn:name(), get_cur_ammo_sect(wpn))
+	log_news("~item %s | ammo sect %s", wpn:name(), get_cur_ammo_sect(wpn))
 end
 
 class "p_timer"
@@ -119,5 +119,5 @@ function p_timer:stop()
 	self.p_timer:stop()
 	local p_time_micro_s = self.p_timer:time()
 	local p_time_s = p_time_micro_s * 0.000001
-	log3("~[%s] profiled time %s micro-seconds | %s seconds", self.p_name, p_time_micro_s, p_time_s)
+	log_news("~[%s] profiled time %s micro-seconds | %s seconds", self.p_name, p_time_micro_s, p_time_s)
 end

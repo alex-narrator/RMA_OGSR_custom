@@ -1472,8 +1472,8 @@ if type == "esc_specnaz" then
 		t = { section = "logic@esc_corps_wounded_no",
 			idle = 4,
 			prior = 10, state = {0},
-			online = true,
 			in_rest = "", out_rest = "",
+			online = "{+tutorial_wounded_start)}",
 			predicate = function(obj_info)
         					return obj_info.name == "esc_vagon_wounded"
 						end
@@ -1488,7 +1488,7 @@ if type == "esc_specnaz" then
         					return obj_info.name == "esc_vagon_wounded"
 						end
 		}
-		table.insert(sj, t)
+		table.insert(sj, t)		
 	end
 
 	if type == "esc_assault" then
