@@ -138,20 +138,19 @@ function CraftOverlay:InitCraftInfo()
 	
 	self.craft_receipts_list:Clear()
 	for receipt_sect,data in pairs(self.craft_receipts) do
-		local i = table.size(self.craft_receipts_static)
-				
 		local size = vector2():set(self.craft_receipts_list:GetDesiredChildWidth(), 10)
 		local static = CUIStatic()
+		table.insert(self.craft_receipts_static, static)
+		local i = table.size(self.craft_receipts_static)		
 		static:SetWidth(size.x)
 		static:SetHeight(size.y)
 		static:SetTextComplexMode(true)
-		static:SetText(string.format("%s. %s", i+1, game.translate_string(get_inv_name(data.result))))
+		static:SetText(string.format("%s. %s", i, game.translate_string(get_inv_name(data.result))))
 		static:AdjustHeightToText()
 		static:SetStretchTexture(true)
 		static:InitTexture(back_texture)
 		static:SetColor(color_default)
 		static:SetVTextAlign(CGameFont.valCenter)
-		table.insert(self.craft_receipts_static, static)
 		self.craft_receipts_list:AddWindow(static)
 		
 		local name = receipt_sect
