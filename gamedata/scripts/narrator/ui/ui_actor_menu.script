@@ -806,13 +806,14 @@ function ActorMenuOverlay:DrawSlotIcon(slot_num)
 	s.icon:Show(show_icon)
 	if show_icon then
 		SetCellIcon(s.icon, CIconParams(sect))
+		ui_inv_utils.UpdateLayerIcons(sect, s.icon)
 	end	
 	
 	local count = quick_slots.get_item_count(slot_num)
 	local count_text = string.format("x%s", count)
 	s.count:SetText(count_text)
 	s.count:Show(count > 0)
-			
+
 	if count > 0 then
 		s.icon:SetColor(self.quick_color_has_item)
 	else
@@ -1410,7 +1411,7 @@ function ActorMenuOverlay:MoveAllRuck()
 end
 
 function ActorMenuOverlay:Craft()
-	log_news("~Craft button clicked")
+	ui_craft.CraftOverlay("craft_campfire")
 end
 
 function ActorMenuOverlay:SkipTime()

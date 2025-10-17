@@ -64,7 +64,7 @@ end
 
 function opt_debug:OnMenuButtonClicked()
 	if not self.debug_dialog then
-		self.debug_dialog = debug_menu.UIDebugMenu(self)
+		self.debug_dialog = debug_menu.UIDebugMenu()
 	end
 	get_console():execute("main_menu off")
 	level.start_stop_menu(self.debug_dialog, false)

@@ -47,7 +47,11 @@ end
 
 function on_key_press(key, game_action)
 	if game_action == key_bindings.kTEST then
-		ogse_signals.get_mgr():call("on_test_key_press")
+		if key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) then
+			level.start_stop_menu(debug_menu.UIDebugMenu(), false)
+		else
+			ogse_signals.get_mgr():call("on_test_key_press")
+		end
 		return
 	end
 

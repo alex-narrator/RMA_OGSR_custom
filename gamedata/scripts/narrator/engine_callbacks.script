@@ -18,8 +18,10 @@ function can_artefact_affect(item)
 end
 
 function on_actor_condition_hit(hit_power, hit_type)
-	--log3("~on_actor_condition_hit: power %s | type %s", hit_power, get_hit_type_name(hit_type))
-	return actor_conditions.on_condition_hit(hit_power, hit_type)
+	--log_news("~on_actor_condition_hit: power %s | type %s", hit_power, get_hit_type_name(hit_type))
+	local res = actor_conditions.on_condition_hit(hit_power, hit_type)
+	--log_news("~on_actor_condition_hit: result power %s", res)
+	return res
 end
 
 function on_pda_custom_tab(idx)

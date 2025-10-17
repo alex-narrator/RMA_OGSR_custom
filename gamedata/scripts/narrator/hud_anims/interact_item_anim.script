@@ -31,7 +31,10 @@ end
 
 function action_use(tgt)
 	if tgt and (tgt:get_inventory_box() or ((tgt:is_monster() or tgt:is_stalker()) and not tgt:alive())) then
-		tgt:get_game_object():use(actor)
+		local go = tgt and tgt:get_game_object()
+		if go then
+			go:use(actor)
+		end
 	else
 		level.send_event_key_press(bind_to_dik(key_bindings.kUSE))
 		level.send_event_key_release(bind_to_dik(key_bindings.kUSE))

@@ -194,7 +194,7 @@ function on_condition_hit(hit_power, hit_type)
 	if hit_type_name == "telepatic" then
 		res = res * (1 - actor.alcohol)
 	end
-	return res + res * boosters.get_boosted_params(hit_type + protection_index)
+	return res - res * boosters.get_boosted_params(hit_type + protection_index)
 end
 
 function on_booster_enable(booster)

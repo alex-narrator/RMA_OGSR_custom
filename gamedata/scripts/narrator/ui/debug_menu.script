@@ -11,10 +11,6 @@ local color_default 	= GetARGB(0, 255, 255, 255)
 local color_focused 	= GetARGB(100, 200, 200, 200)
 local color_selected 	= GetARGB(170, 255, 255, 255)
 
-local actor_conditions = {
-	
-}
-
 class "UIDebugMenu" (CUIScriptWnd)
 
 function UIDebugMenu:__init() super()
@@ -140,6 +136,11 @@ function UIDebugMenu:InitControls()
 	self.change_time_button = xml:Init3tButton(prefix..":"..name, self.background)
 	self:Register(self.change_time_button, name)
 	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.OnChangeTime, self)
+	
+	name = "run_personal_test_button"
+	self.run_personal_test_button = xml:Init3tButton(prefix..":"..name, self.background)
+	self:Register(self.run_personal_test_button, name)
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.RunPersonalTest, self)	
 	
 	name = "exit_button"
 	self.exit_button = xml:Init3tButton(prefix..":"..name, self.background)
@@ -391,4 +392,8 @@ function UIDebugMenu:OnChangeTime()
 	return end
 	change_game_time(0, val_h, val_m)
 	self:InitChangeTime()
+end
+
+function UIDebugMenu:RunPersonalTest()
+	xpcall(function() dofile(getFS():update_path("$game_scripts$", "personal_test.lua")) end, log1)
 end

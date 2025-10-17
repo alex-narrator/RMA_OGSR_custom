@@ -1,0 +1,388 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+local OVERLAY_XML = "script_overlays\\ui_craft_overlay.xml"
+
+local back_texture 		= "square_light_grey"
+local color_default 	= GetARGB(0, 255, 255, 255)
+local color_focused 	= GetARGB(100, 200, 200, 200)
+local color_selected 	= GetARGB(170, 255, 255, 255)
+
+local color_available 	= GetARGB(255, 255, 255, 255)
+local color_unavailable = GetARGB(150, 255, 100, 100)
+
+local default_craft_sounds = {
+	["craft_campfire"] = [[interface\item_usage\inv_cooking_2]],
+}
+
+class "CraftOverlay" (CUIScriptWnd)
+
+function CraftOverlay:__init(craft_sect) super()
+	self:InitControls()
+	self:Subscribe()
+	self.craft_sect = craft_sect
+	self:InitCraftInfo()
+	level.start_stop_menu(self, false)
+end
+
+function CraftOverlay:Subscribe()
+	self.subscribed = false
+	if not self.subscribed then
+		self.subscribed = {
+			-- {signal = "on_cell_item_select", 	self = self, fun = self.OnCellItemSelect},
+			-- {signal = "on_drop", 				self = self, fun = self.OnDrop},
+		}
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs( self.subscribed ) do
+			sm:subscribe( s )
+		end
+	end
+end
+
+function CraftOverlay:Unsubscribe()
+	if self.subscribed then
+		local sm = ogse_signals.get_mgr()
+		for _, s in ipairs( self.subscribed ) do
+			sm:unsubscribe( s )
+		end
+		self.subscribed = false
+	end
+end
+
+function CraftOverlay:DetachWnd()
+	level.start_stop_menu(self, true)
+	self:Unsubscribe()
+	self:ClearCallbacks()
+end
+
+function CraftOverlay:InitControls()
+	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
+	
+	local xml = CScriptXmlInit()
+	xml:ParseFile(OVERLAY_XML)
+
+	local name, prefix
+
+	self.craft_back = xml:InitStatic("craft_back", self)
+	local offset = ui_inv_utils.GetOffset("center", self.craft_back, self)
+	self.craft_back:SetWndPos(offset.x, offset.y)
+	
+	prefix = "craft_back"
+	name = "auto_static"
+	
+	xml:InitAutoStaticGroup(prefix..":"..name, self.craft_back)
+	
+	name = "craft_receipts_list"
+	self.craft_receipts_list = xml:InitScrollView(prefix..":"..name, self.craft_back)
+	
+	name = "craft_result"
+	self.craft_result = xml:InitStatic(prefix..":"..name, self.craft_back)
+	self.craft_result.icon_scale = xml:ReadAttribFlt(prefix..":"..name, "icon_scale", 1)
+	self.craft_result:Show(false)
+	
+	name = "craft_components"
+	self.craft_components = xml:InitStatic(prefix..":"..name, self.craft_back)
+	self.craft_components.icon_scale = xml:ReadAttribFlt(prefix..":"..name, "icon_scale", 1)
+	self.craft_components.indent = xml:ReadAttribFlt(prefix..":"..name, "indent", 1)
+	self.craft_components:Show(false)
+	
+	name = "receipt_info"
+	self.receipt_info = xml:InitStatic(prefix..":"..name, self.craft_back)
+	self.receipt_info:Show(false)
+	
+	name = "craft_progress"
+	self.craft_progress = xml:InitProgressBar(prefix..":"..name, self.craft_back)
+	self.craft_progress:Show(false)
+
+	name = "craft_button"
+	self.craft_button = xml:Init3tButton(prefix..":"..name, self.craft_back)
+	name = "craft_button"
+	self:Register(self.craft_button, name)
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.PerformCraft, self)
+	self.craft_button:Enable(false)
+	
+	name = "exit_button"
+	self.exit_button = xml:Init3tButton(prefix..":"..name, self.craft_back)
+	name = "exit_button"
+	self:Register(self.exit_button, name)
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.DetachWnd, self)
+end
+
+function CraftOverlay:Update()
+	CUIScriptWnd.Update(self)
+end
+
+function CraftOverlay:InitCraftInfo()
+	self.craft_receipts = {}
+	self.craft_receipts_static = {}
+
+	local n = sys_ini:line_count(self.craft_sect)
+	local name, value = "", ""
+	for i=0,n-1 do
+		result, receipt_sect, value = sys_ini:r_line(self.craft_sect,i,"","")
+		
+		local receipt_data = {}
+		
+		receipt_data.info = read_if_exists(sys_ini, "string", receipt_sect, "info", nil)
+		
+		receipt_data.result = read_if_exists(sys_ini, "string", receipt_sect, "result", nil)
+		
+		local components = read_if_exists(sys_ini, "string", receipt_sect, "components", nil)
+		components = parse_key_val_line(components, 1)
+		receipt_data.components = components
+		
+		receipt_data.craft_cound = read_if_exists(sys_ini, "string", receipt_sect, "craft_cound", nil)
+		
+		if not receipt_data.info or actor:has_info(receipt_data.info) then
+			self.craft_receipts[receipt_sect] = receipt_data
+		end
+	end
+	
+	self.craft_receipts_list:Clear()
+	for receipt_sect,data in pairs(self.craft_receipts) do
+		local i = table.size(self.craft_receipts_static)
+				
+		local size = vector2():set(self.craft_receipts_list:GetDesiredChildWidth(), 10)
+		local static = CUIStatic()
+		static:SetWidth(size.x)
+		static:SetHeight(size.y)
+		static:SetTextComplexMode(true)
+		static:SetText(string.format("%s. %s", i+1, game.translate_string(get_inv_name(data.result))))
+		static:AdjustHeightToText()
+		static:SetStretchTexture(true)
+		static:InitTexture(back_texture)
+		static:SetColor(color_default)
+		static:SetVTextAlign(CGameFont.valCenter)
+		table.insert(self.craft_receipts_static, static)
+		self.craft_receipts_list:AddWindow(static)
+		
+		local name = receipt_sect
+		self:Register(static, name)
+		self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnCraftReceiptClick(receipt_sect, i) end, self)
+		self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnCraftReceiptFocus(receipt_sect, i) end, self)
+		self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnListCraftReceiptFocusLost(receipt_sect, i) end, self)		
+	end
+end
+
+function CraftOverlay:OnCraftReceiptClick(k, i)
+	self.craft_receipts_static[i]:SetColor(color_selected)
+	if self.selected_receipt_static and self.craft_receipts_static[self.selected_receipt_static] then
+		self.craft_receipts_static[self.selected_receipt_static]:SetColor(color_default)
+	end
+	self.selected_receipt_static = i
+	self.selected_receipt = k
+	
+	self:ShowReceiptInfo()
+end
+
+function CraftOverlay:OnCraftReceiptFocus(k, i)
+	if i ~= self.selected_receipt_static then
+		self.craft_receipts_static[i]:SetColor(color_focused)
+	end
+end
+
+function CraftOverlay:OnListCraftReceiptFocusLost(k, i)
+	if i ~= self.selected_receipt_static then
+		self.craft_receipts_static[i]:SetColor(color_default)
+	end
+end
+
+function CraftOverlay:ShowReceiptInfo()
+	self.craft_progress:Show(false)
+	self.craft_result:Show(true)
+	self.craft_components:Show(true)
+	self.receipt_info:Show(true)
+	local receipt_info_text = game.translate_string("ui_st_craft_components")..":"
+
+	local receipt = self.craft_receipts[self.selected_receipt]
+	
+	self:FindComponents()
+	
+	local can_craft = self:CanCraft()
+	self.craft_button:Enable(can_craft)
+	
+	self.craft_result:DetachAll()
+	local scale = self.craft_result.icon_scale
+	
+	local static = CUIStatic()
+	local sect = receipt.result
+	local params = CIconParams(sect)
+	SetCellIcon(static, params)
+	static:SetWidth(params.grid_width * scale * CELL_W * get_current_kx())
+	static:SetHeight(params.grid_height * scale * CELL_H)
+	static:DetachAll()
+	ui_inv_utils.UpdateLayerIcons(sect, static)
+	local offset = ui_inv_utils.GetOffset("center", static, self.craft_result)
+	static:SetWndPos(offset.x, offset.y)
+	self.craft_result:AttachChild(static)
+	if not can_craft then
+		static:SetColor(color_unavailable)
+	end
+	
+	self.craft_components:DetachAll()
+	local y = 0
+	local x = 0
+	local scale = self.craft_components.icon_scale
+	local indent = self.craft_components.indent
+	local static_back = CUIStatic()
+	for sect,count in pairs(receipt.components) do
+		local static = CUIStatic()
+		local params = CIconParams(sect)
+		SetCellIcon(static, params)
+		static:SetWidth(params.grid_width * scale * CELL_W * get_current_kx())
+		static:SetHeight(params.grid_height * scale * CELL_H)
+		ui_inv_utils.UpdateLayerIcons(sect, static)
+		if count > 1 then
+			static:SetText(string.format("x%s", count))
+		end
+		static:SetWndPos(x, y)
+		x = x + static:GetWidth() + indent
+		static_back:AttachChild(static)
+		if static:GetHeight() > static_back:GetHeight() then
+			static_back:SetHeight(static:GetHeight())
+		end
+		
+		local has_count = self.current_components[sect] and table.size(self.current_components[sect]) or 0
+		if has_count < count then
+			static:SetColor(color_unavailable)
+		end
+		
+		local color = has_count >= count and "%c[green]" or "%c[red]"
+		receipt_info_text = receipt_info_text.."\\n"..color..game.translate_string(get_inv_name(sect)).." "..count.."/"..has_count
+	end
+	static_back:SetWidth(x-indent)
+	local offset = ui_inv_utils.GetOffset("center", static_back, self.craft_components)
+	static_back:SetWndPos(offset.x, offset.y)
+	self.craft_components:AttachChild(static_back)
+	
+	receipt_info_text = receipt_info_text.."\\n".."%c[default]".."* * *".."\\n"..game.translate_string(read_if_exists(sys_ini, "string", sect, "description", ""))
+	self.receipt_info:SetText(receipt_info_text)	
+end
+
+function CraftOverlay:FindComponents()
+	local receipt = self.craft_receipts[self.selected_receipt]
+	
+	self.current_components = {}
+	
+	function perform_check(dummy, item)
+		local sect = item:section()
+		local id = item:id()
+		if receipt.components[sect] then
+			if not self.current_components[sect] then
+				self.current_components[sect] = {}
+			end
+			table.insert(self.current_components[sect], id)
+		end
+	end		
+	actor:iterate_inventory(perform_check, nil)
+	
+	--//за станом від найгіршого
+	local function sort_by_condition(a, b)
+		local item_1 = level.object_by_id(a)
+		local item_2 = level.object_by_id(b)
+		local cond_1 = item_1 and item_1:condition() or 0
+		local cond_2 = item_2 and item_2:condition() or 0
+		if cond_1 < cond_2 then
+			return true 
+		end
+		return false
+	end
+	
+	for sect,v in pairs(self.current_components) do
+		table.sort(v, sort_by_condition)
+	end
+end
+
+function CraftOverlay:CanCraft()
+	if not self.selected_receipt then
+	return false end
+
+	local receipt = self.craft_receipts[self.selected_receipt]
+	
+	if not self.current_components then
+		self:FindComponents()
+	end
+	
+	for sect,count in pairs(receipt.components) do
+		local has_count = self.current_components[sect] and table.size(self.current_components[sect]) or 0
+		if has_count < count then
+		return false end
+	end
+	
+	return true
+end
+
+function CraftOverlay:PerformCraft()
+	local receipt = self.craft_receipts[self.selected_receipt]
+	
+	local sound = receipt.craft_cound or default_craft_sounds[self.craft_sect]
+	local snd = xr_sound.get_safe_sound_object(sound)
+	local length = snd:length()
+	local snd_end_time = time_global() + length
+	snd:play_at_pos(actor, actor:position())
+	
+	self.craft_progress:Show(true)
+	
+	local sim = alife()
+		
+	level.disable_input()
+	
+	for sect,count in pairs(receipt.components) do
+		local cnt = count
+		local item_num = 1
+		while cnt > 0 do
+			local item_id = self.current_components[sect][item_num]
+			local item = level.object_by_id(item_id)
+			if item then
+				if item:parent() then
+					item:parent():drop_item(item)
+				end
+				sim:release(sim:object(item_id), true)
+			end
+			item_num = item_num + 1
+			cnt = cnt - 1
+		end
+	end
+	
+	level.add_call(
+		function()
+			local val = math.clamp((snd_end_time - time_global()) / length, 0, 1)
+			val = 1 - val
+			self.craft_progress:SetProgressPos(val)
+			return not snd or not snd:playing()
+		end,
+		function()
+			level.enable_input()
+			spawn_to_owner(receipt.result)
+			self:ShowReceiptInfo()
+		end		
+	)
+end
+
+local actions = {
+	[key_bindings.kUP] = true,
+	[key_bindings.kDOWN] = true,
+}
+-- local keys = {
+	-- [DIK_keys.DIK_A] = true,
+	-- [DIK_keys.DIK_D] = true,
+-- }
+
+function CraftOverlay:OnKeyboard(dik, keyboard_action)
+	CUIScriptWnd.OnKeyboard( self, dik, keyboard_action )
+	if keyboard_action == ui_events.WINDOW_KEY_PRESSED then
+		local dk = dik_to_bind(dik)
+		if actions[dk] then
+			local add = (dk == key_bindings.kDOWN) and 1 or -1
+			local target_i = self.selected_receipt_static or 0
+			target_i = target_i + add
+			if target_i <= 0 then
+				target_i = table.size(self.craft_receipts_static)
+			elseif target_i > table.size(self.craft_receipts_static) then
+				target_i = 1
+			end
+			local target_sect = self.craft_receipts_static[target_i]:WindowName()
+			self:OnCraftReceiptClick(target_sect, target_i)
+			return true
+		end
+	end
+	return true
+end

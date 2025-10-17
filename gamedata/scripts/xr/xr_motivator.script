@@ -102,7 +102,7 @@ function motivator_binder:net_spawn(sobject)
 	--self.object:set_callback(callback.sound, motivator_binder.hear_callback, self)
 	self.sm:call("on_npc_before_spawn", self.object, self)
 
-    --' «агрузка историй дл€ лагер€.
+    --завантаження історія для багаття, інформації на продаж і т.д.
 	if self.loaded == false then
 		local char_ini = self.object:spawn_ini() or ini_file_cached("scripts\\dummy.ltx")
 		xr_info.loadInfo(self.object, char_ini)
