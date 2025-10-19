@@ -1,6 +1,7 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
 	sm:subscribe({signal = "on_monster_update",   	fun = this.on_monster_update})
+	sm:subscribe({signal = "on_monster_spawn",   	fun = this.on_monster_spawn})
 end
 
 local HARVEST_DEBUG = false
@@ -10,6 +11,12 @@ function on_monster_update(monster, delta)
 	return end
 	local tip_text = has_loot(monster) and (get_good_knife() and "monster_use_or_drag" or "monster_use_or_drag_no_knife") or "game_object_drag"
 	monster:set_tip_text(tip_text)
+end
+
+function on_monster_spawn(monster)
+	if monster:alive() then
+	return end
+	add_update_delayed_action(1, function() hide_loot_bones(monster) end)
 end
 
 function can_harvest(monster)
@@ -34,6 +41,9 @@ function take_loot(monster, knife)
 			news_manager.item_tip(item, "harvest")
 		end
 	end
+	
+	set_hidden_loot_bones(monster)
+	hide_loot_bones(monster)
 end
 
 function has_loot(monster)
@@ -48,4 +58,47 @@ function get_good_knife()
 		end
 	end
 	return nil
+end
+
+function set_hidden_loot_bones(monster)
+	local se_monster = alife():object(monster:id())
+	if not se_monster then
+	return end
+	local spawn_item_visual_bones_str = read_if_exists(sys_ini, "string", monster:section(), "spawn_item_visual_bones", nil)
+	if not spawn_item_visual_bones_str then
+	return end
+	local spawn_item_visual_bones = split_string(spawn_item_visual_bones_str, ",")
+	if table.size(spawn_item_visual_bones) > 1 then
+		if read_if_exists(sys_ini, "bool", monster:section(), "spawn_item_visual_bones_hide_all", false) then
+			se_monster.hidden_loot_bones = spawn_item_visual_bones_str
+		else
+			local dist = 1000
+			local cam_pos = device().cam_pos
+			cam_pos.y = cam_pos.y + 1
+			for k,bone in pairs(spawn_item_visual_bones) do
+				local pos = monster:bone_position(bone)
+				local dst_btw = cam_pos:distance_to(pos)
+				-- log_news("~bone %s - dist %s", bone, dst_btw)
+				if dst_btw <= dist then
+					dist = dst_btw
+					se_monster.hidden_loot_bones = bone
+				end
+			end		
+		end		
+	else
+		se_monster.hidden_loot_bones = spawn_item_visual_bones[1]
+	end
+end
+
+function hide_loot_bones(monster)
+	local se_monster = alife():object(monster:id())
+	if not se_monster then
+	return end
+	if not se_monster.hidden_loot_bones or se_monster.hidden_loot_bones == "" then
+	return end
+	local spawn_item_visual_bones = split_string(se_monster.hidden_loot_bones, ",")
+	for k,bone in pairs(spawn_item_visual_bones) do
+		monster:set_bone_visible(bone, 0)
+		--log_news("~monster %s - hidden loot bone %s", monster:name(), bone)	
+	end
 end

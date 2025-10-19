@@ -28,6 +28,8 @@ function se_monster:__init (section) super (section)
 
 	-- посещал ли сталкер хоть один smart_terrain
 	self.was_in_smart_terrain = false
+	
+	self.hidden_loot_bones = ""
 end
 --------------------
 function se_monster:get_ini()
@@ -142,6 +144,8 @@ function se_monster:STATE_Write(packet)
 	end
 
 	packet:w_bool(self.was_in_smart_terrain)
+	
+	packet:w_stringZ(self.hidden_loot_bones)
 end
 --------------------
 function se_monster:STATE_Read(packet, size)
@@ -166,6 +170,10 @@ function se_monster:STATE_Read(packet, size)
 	if self.script_version >= 5 then
 		self.was_in_smart_terrain = packet:r_bool()
 	end
+	
+	if packet:r_eof() then
+	return end
+	self.hidden_loot_bones = packet:r_stringZ()
 end
 --------------------
 function se_monster:on_before_register()
