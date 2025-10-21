@@ -3,6 +3,8 @@
 -- Вырезал поддержку загрузки патчей, первого рендера (т.к. он не поддерживается движком) и прочий мусор.
 -- Сделано специально для использования с движком OGSR.
 
+local tab_x, tab_y, tab_w, tab_h = 55, 74, 738, 616
+
 class "options_dialog" (CUIScriptWnd)
 function options_dialog:__init() super()
 	self:SetFont(GetFontMedium())
@@ -41,36 +43,36 @@ function options_dialog:InitControls()
 	xml:InitStatic("main_dialog:cap_options", self.dialog)
 
 	self.dlg_video = ui_mm_opt_video.opt_video()
-	self.dlg_video:InitControls(55, 74, xml, self)
+	self.dlg_video:InitControls(tab_x, tab_y, tab_w, tab_h, xml, self)
 	self.dialog:AttachChild(self.dlg_video)
 
 	self.dlg_sound = ui_mm_opt_sound.opt_sound()
-	self.dlg_sound:InitControls(55, 74, xml, self)
+	self.dlg_sound:InitControls(tab_x, tab_y, tab_w, tab_h, xml, self)
 	self.dlg_sound:Show(false)
 	self.dialog:AttachChild(self.dlg_sound)
 
 	self.dlg_gameplay = ui_mm_opt_gameplay.opt_gameplay()
-	self.dlg_gameplay:InitControls(55, 74, xml, self)
+	self.dlg_gameplay:InitControls(tab_x, tab_y, tab_w, tab_h, xml, self)
 	self.dlg_gameplay:Show(false)
 	self.dialog:AttachChild(self.dlg_gameplay)
 
 	self.dlg_controls = ui_mm_opt_controls.opt_controls()
-	self.dlg_controls:InitControls(55, 74, xml, self)
+	self.dlg_controls:InitControls(tab_x, tab_y, tab_w, tab_h, xml, self)
 	self.dlg_controls:Show(false)
 	self.dialog:AttachChild(self.dlg_controls)
 	
 	self.dlg_custom = ui_mm_opt_custom.opt_custom()
-	self.dlg_custom:InitControls(55, 74, xml, self)
+	self.dlg_custom:InitControls(tab_x, tab_y, tab_w, tab_h, xml, self)
 	self.dlg_custom:Show(false)
 	self.dialog:AttachChild(self.dlg_custom)	
 	
 	self.dlg_debug = ui_mm_opt_debug.opt_debug()
-	self.dlg_debug:InitControls(55, 74, xml, self)
+	self.dlg_debug:InitControls(tab_x, tab_y, tab_w, tab_h, xml, self)
 	self.dlg_debug:Show(false)
 	self.dialog:AttachChild(self.dlg_debug)
 
 	self.dlg_video_adv = ui_mm_opt_video_adv.opt_video_adv()
-	self.dlg_video_adv:InitControls(55, 74, xml, self)
+	self.dlg_video_adv:InitControls(tab_x, tab_y, tab_w, tab_h, xml, self)
 	self.dlg_video_adv:Show(false)
 	self.dialog:AttachChild(self.dlg_video_adv)
 

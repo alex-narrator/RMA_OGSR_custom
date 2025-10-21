@@ -87,6 +87,27 @@
 	<string id="gameplay_settings_desc_difficulty">
 		<text>Вибір рівня складності гри</text>
 	</string>
+
+	<string id="gameplay_settings_name_font_scale_x">
+		<text>Ширина шрифтів - g_font_scale_x</text>
+	</string>
+	<string id="gameplay_settings_desc_font_scale_x">
+		<text>Дозволяє додатково налаштувати ширину шрифтів.\nЗастосовується до усіх шрифтів у грі.</text>
+	</string>
+
+	<string id="gameplay_settings_name_font_scale_y">
+		<text>Висота шрифтів - g_font_scale_y</text>
+	</string>
+	<string id="gameplay_settings_desc_font_scale_y">
+		<text>Дозволяє додатково налаштувати висоту шрифтів.\nЗастосовується до усіх шрифтів у грі.</text>
+	</string>
+
+	<string id="gameplay_settings_name_font_shadows">
+		<text>Тінь тексту - r_font_shadows</text>
+	</string>
+	<string id="gameplay_settings_desc_font_shadows">
+		<text>Вмикає відображення тіні під текстом.\nЗастосовується до усіх шрифтів у грі.</text>
+	</string>	
 	
 <!-- опции управления -->	
 	<string id="controls_settings_name_mousesens">
@@ -365,10 +386,10 @@
 	<string id="video_settings_desc_geometry_lod">
 		<text>Ця опція регулює деталізацію відмальовування та освітлення моделей людей, монстрів та зброї, що знаходяться вдалині. Чим далі повзунок, тим більш деталізованими вони будуть.</text>
 	</string>
-	<string id="video_settings_name_opt_dist">
+	<string id="video_settings_name_dyn_opt_dist">
 		<text>Дальність рендерінгу динамічних об'єктів - r__dyn_opt_dist</text>
 	</string>
-	<string id="video_settings_desc_opt_dist">
+	<string id="video_settings_desc_dyn_opt_dist">
 		<text>Ця опція регулює дальність рендерінгу динамічних об'єктів, за виключенням гелікоптерів, ворон та автомобілів. Чим більша дальність - тим більше об'єктів буде опрацьовано рендером, і відповідно може зменшитись частота кадрів.
 		\n%c[red]В більшості випадків значення за замовчуванням (250 метрів) має бути оптимальним. Збільшувати його варто лише у випадку потреби збільшити дальність рендеру об'єктів.</text>
 	</string>
@@ -387,10 +408,10 @@
 	<string id="video_settings_desc_r2_mask">
 		<text>Опція вмикає ефект маски, що покривається тріщинами при пошкодженні шолому/костюму</text>
 	</string>
-	<string id="video_settings_name_50">
+	<string id="video_settings_name_volumetric_light">
 		<text>Об'ємне світло - r2_volumetric_lights</text>
 	</string>
-	<string id="video_settings_desc_50">
+	<string id="video_settings_desc_volumetric_light">
 		<text>Опція вмикає об'ємне світло для деяких ламп</text>
 	</string>
 	<string id="video_settings_name_mblur">
@@ -402,6 +423,12 @@
 	<string id="video_settings_name_mblur_param">
 		<text>Інтенсивність розмиття у русі - r2_mblur</text>
 	</string>
+	<string id="video_settings_name_r2_sun_details">
+		<text>Тінь від трави - r2_sun_details</text>
+	</string>
+	<string id="video_settings_desc_r2_sun_details">
+		<text>Ця опція вмикає відкидання травою тіней від сонячного світла таінших джерел динамічного освітлення. Тепер ця опція працює - її було полагоджено.\nУВАГА!\nОпція неймовірно знижує продуктивність. Не використовуйте її з великим радіусом відмальовування трави або високою щільністю трави!</text>
+	</string>	
 	
 <!-- опції для скриптів -->	
 	<string id="ui_mm_floating_show_delay">
@@ -432,7 +459,7 @@
 	</string>
 	<string id="gameplay_settings_desc_check_enemy_radius">
 		<text>Радіус зони навколо гравця, у якому буде проводитись перевірка на наявних ворогів.
-		\nВикористовується для перевірки можливості збереження при увімкненому режимі збереження "Без ворогів поруч".</text>
+		\nВикористовується при перевірці можливості заснути для персонажа, а також при при спробі збереження в режимі збереження "Без ворогів поруч".</text>
 	</string>	
 	
 	<string id="ui_mm_active_item_info_ttl">
@@ -579,6 +606,8 @@
 		-Створення (спавн) предметів в інвентар персонажа. Перелік предметів заповнюється вручну у секції [spawn_items_list]\n
 		-Переміщення персонажа на обрану локацію\n
 		-Керування параметрами стану персонажа такими як здоров'я, кровотеча, голод і т.п.\n
+		* * *\n
+		Натисніть %c[UI_orange][$$ACTION_ADDITIONAL_ACTION$$]%c[default] + %c[UI_orange][$$ACTION_TEST$$]%c[default] щоб викликати це меню підчас гри.\n
 		</text>
 	</string>
 	

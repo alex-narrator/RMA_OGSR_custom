@@ -23,12 +23,12 @@ local debug_opt_params = {
 	{ "show_wnd_rect_names", 		"check", "gameplay_settings_name_show_wnd_rect_names", 			"gameplay_settings_desc_show_wnd_rect_names" 	},
 	
 	{ "hud_adjust_mode", 			"track", "gameplay_settings_name_hud_adjust_mode", 				"gameplay_settings_desc_hud_adjust_mode" 		},
-	{ "hud_adjust_delta_pos", 		"track", "gameplay_settings_name_hud_adjust_delta_pos", 		"gameplay_settings_desc_hud_adjust_delta_pos" 	},
-	{ "hud_adjust_delta_rot", 		"track", "gameplay_settings_name_hud_adjust_delta_rot", 		"gameplay_settings_desc_hud_adjust_delta_rot" 	},
+	-- { "hud_adjust_delta_pos", 		"track", "gameplay_settings_name_hud_adjust_delta_pos", 		"gameplay_settings_desc_hud_adjust_delta_pos" 	},
+	-- { "hud_adjust_delta_rot", 		"track", "gameplay_settings_name_hud_adjust_delta_rot", 		"gameplay_settings_desc_hud_adjust_delta_rot" 	},
 }
 
-function opt_debug:InitControls(x, y, xml, handler)
-	self:Init(x, y, 738, 416)
+function opt_debug:InitControls(x, y, w, h, xml, handler)
+	self:Init(x, y, w, h)
 	self:SetAutoDelete(true)
 
 	xml:InitFrame("frame", self)

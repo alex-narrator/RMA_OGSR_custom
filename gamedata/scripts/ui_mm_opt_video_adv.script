@@ -13,7 +13,7 @@ local adv_vid_opt_params = {
 	{ "fov",                   	"track", 0, hint_colors.green , "video_settings_name_fov", "video_settings_desc_fov" },
 	{ "hud_fov",               	"track", 0, hint_colors.green , "video_settings_name_hud_fov", "video_settings_desc_hud_fov" },
 	--
-	{ "aa",                    	"list",  0, hint_colors.green , "video_settings_name_aa", "video_settings_desc_aa" },
+	{ "aa",                    	"list",  0, hint_colors.yellow , "video_settings_name_aa", "video_settings_desc_aa" },
 	{ "cas", 					"track", 0, hint_colors.green , "video_settings_name_cas", "video_settings_desc_cas" },
 	{ "3dss_scale_factor", 		"track", 0, hint_colors.yellow, "video_settings_name_3dss_scale_factor", "video_settings_desc_3dss_scale_factor" },
 	--
@@ -62,8 +62,8 @@ local adv_vid_opt_params = {
 
 	{ "bloodmarks_on_dynamics", "check", 0, hint_colors.yellow, "video_settings_name_bloodmarks_on_dynamics", "video_settings_desc_bloodmarks_on_dynamics"},
 	{ "cam_inert",             	"track", 0, hint_colors.green , "video_settings_name_cam_inert" , "video_settings_desc_cam_inert"  },
-	{ "cam_lookout_speed",     	"track", 0, hint_colors.green , "video_settings_name_cam_lookout_speed" , "video_settings_desc_cam_lookout_speed"  },
-	{ "cam_height_speed",      	"track", 0, hint_colors.green , "video_settings_name_cam_height_speed" , "video_settings_desc_cam_height_speed"  },
+	-- { "cam_lookout_speed",     	"track", 0, hint_colors.green , "video_settings_name_cam_lookout_speed" , "video_settings_desc_cam_lookout_speed"  },
+	-- { "cam_height_speed",      	"track", 0, hint_colors.green , "video_settings_name_cam_height_speed" , "video_settings_desc_cam_height_speed"  },
 }
 
 class "opt_video_adv" (CUIWindow)
@@ -74,8 +74,8 @@ function opt_video_adv:__finalize()
 	--log1("--opt_video_adv:__finalize() called!")
 end
 
-function opt_video_adv:InitControls(x, y, xml, handler)
-	self:Init(x, y, 738, 416)
+function opt_video_adv:InitControls(x, y, w, h, xml, handler)
+	self:Init(x, y, w, h)
 	self:SetAutoDelete(true)
 
 	xml:InitFrame("frame", self)

@@ -161,19 +161,23 @@ function save_load_dialog:InitControlsLoad()
 
 	xml:InitStatic("background", self)
 	
+	xml:InitFrame("frame_hint", self)	
+	
 	xml:InitAutoStaticGroup("window:auto_static", self)
+	
+	self.file_info = xml:InitStatic("file_info", self)
+	
+	self.picture = xml:InitStatic("file_info:picture", self.file_info)
+	self.picture:SetWindowName("static_pict")
+	self.picture:Show(false)
+
+	self.file_caption = xml:InitStatic("file_info:file_caption", self.file_info)
+
+	self.file_data = xml:InitStatic("file_info:file_data", self.file_info)	
 
 	self.form = xml:InitStatic("form", self)
 
 	xml:InitStatic("form:caption", self.form)
-
-	xml:InitStatic("form:picture", self.form):SetWindowName("static_pict")
-
-	xml:InitStatic("form:file_info", self.form)
-
-	self.file_caption = xml:InitStatic("form:file_caption", self.form)
-
-	self.file_data = xml:InitStatic("form:file_data", self.form)
 
 	xml:InitFrame("form:list_frame", self.form)
 
@@ -241,12 +245,11 @@ end
 
 function save_load_dialog:OnListItemClickedLoad()
 	local list_box = self:GetListWnd("list_window")
-	local picture = self:GetStatic("static_pict")
 
 	self.file_caption:SetText("")
 	self.file_data:SetText("")
-	picture:ResetOriginalRect()
-	picture:InitTexture("ui\\ui_noise")
+	self.picture:ResetOriginalRect()
+	self.picture:InitTexture("ui\\ui_noise")
 
 	if list_box:GetSize() == 0 then return end
 
@@ -265,8 +268,9 @@ function save_load_dialog:OnListItemClickedLoad()
 	end
 
 	if getFS():exist("$game_saves$", item_text..".dds") then
-		picture:ResetOriginalRect()
-		picture:InitTexture(item_text)
+		self.picture:Show(true)
+		self.picture:ResetOriginalRect()
+		self.picture:InitTexture(item_text)
 	end
 end
 

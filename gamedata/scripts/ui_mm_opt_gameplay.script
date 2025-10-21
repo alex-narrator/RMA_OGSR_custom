@@ -25,16 +25,17 @@ local gameplay_opt_params = {
 	{ "crosshair_hard", 			"check", "gameplay_settings_name_crosshair_hard", 				"gameplay_settings_desc_crosshair_hard"				},
 	{ "3d_pda", 					"check", "gameplay_settings_name_3d_pda", 						"gameplay_settings_desc_3d_pda"						},
 	{ "ambient", 					"check", "gameplay_settings_name_ambient", 						"gameplay_settings_desc_ambient"					},
+	{ "font_shadows", 				"check", "gameplay_settings_name_font_shadows", 				"gameplay_settings_desc_font_shadows"				},
 	
-	{ "font_scale_x", 				"track", "", "" },
-	{ "font_scale_y", 				"track", "", "" },
+	{ "font_scale_x", 				"track", "gameplay_settings_name_font_scale_x", 				"gameplay_settings_desc_font_scale_x" 				},
+	{ "font_scale_y", 				"track", "gameplay_settings_name_font_scale_y", 				"gameplay_settings_desc_font_scale_y" 				},
 	
 	--{ "game_save_mode", 			"list", "gameplay_settings_name_game_save_mode", 				"gameplay_settings_desc_game_save_mode"				},
 	{ "difficulty", 				"list", "gameplay_settings_name_difficulty", 					"gameplay_settings_desc_difficulty"					},
 }
 
-function opt_gameplay:InitControls(x, y, xml, handler)
-	self:Init(x, y, 738, 416)
+function opt_gameplay:InitControls(x, y, w, h, xml, handler)
+	self:Init(x, y, w, h)
 	self:SetAutoDelete(true)
 
 	xml:InitFrame("frame", self)

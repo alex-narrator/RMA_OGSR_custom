@@ -343,22 +343,23 @@ end
 --actor:give_info_portion("non_existed_info")
 
 
--- local tgt = level.get_target_obj()
--- if tgt then
-	-- --tgt:get_physics_shell():get_element_by_order(0):fix()
-	-- --tgt:get_physics_shell():get_element_by_bone_name("link"):fix()
-	-- tgt:kill(tgt)
-	-- --tgt:set_show_model_mesh(2, false)
-	-- -- for i=0, 999 do
-		-- -- local bone_name = tgt:get_bone_name(i)
-		-- -- if bone_name then
-			-- -- log3("~[%s] bone name %s", i, bone_name)
-		-- -- else
-			-- -- break
-		-- -- end
-	-- -- end
-	-- --tgt:set_bone_visible(tgt:get_bone_name(13), false)
--- end
+local tgt = level.get_target_obj()
+if tgt then
+	--tgt:get_physics_shell():get_element_by_order(0):fix()
+	--tgt:get_physics_shell():get_element_by_bone_name("link"):fix()
+	--tgt:kill(tgt)
+	--tgt:set_show_model_mesh(2, false)
+	for i=0, 999 do
+		local bone_name = tgt:get_bone_name(i)
+		if bone_name then
+			log3("~[%s] bone name %s", i, bone_name)
+		else
+			break
+		end
+	end
+	--tgt:set_bone_visible(tgt:get_bone_name(7), 1)
+	tgt:set_bone_visible("bip01_l_forearm", 0)
+end
 
 --actor:change_character_rank(100)
 
@@ -613,7 +614,7 @@ if item then
 	-- log3("~item attached_silencer_condition %s", sobj.attached_silencer_condition or "NONE")
 	local wpn = item:get_weapon()
 	if wpn then
-		wpn.zoom_factor = 1
+		--wpn.scope_zoom_hud_fov = 0.65
 		-- wpn.zoom_rotate_time = 0.12
 		-- local zrt = wpn.zoom_rotate_time
 		-- log3("~zrt %s", zrt)
@@ -631,6 +632,10 @@ if item then
 		--log3("~second VP fov K %s", wpn.scope_lense_fov_k)
 		--wpn.scope_lense_fov_factor = 1.6
 		--log3("~second VP fov %s", wpn.scope_lense_fov_factor)		
+	end
+	local wpn_m = item:get_weapon_m()
+	if wpn_m then
+		wpn_m.laserdot_attach_aim_rotation = vector():set(0,0,0)
 	end
 end
 
@@ -778,4 +783,73 @@ end
 	
 --outfit_effects.set_breath_speed(0.05)
 --outfit_effects.set_breath_max(0.75)
-outfit_effects.set_breath_k(3)
+--outfit_effects.set_breath_k(3)
+
+--actor:hide_weapon(false)
+
+-- log3("~force disable %s", weapon_hardhold.force_disable_hard_hold())
+-- log3("~stamina %s", stamina.get_val())
+-- log3("~somnolence %s", somnolence.get_val())
+
+--droped_items_cleaner.clear_items_table()
+
+-- local counter = 0
+-- log_news("~start measure: fov %s", device().fov)
+-- level.add_call(
+	-- function()
+		-- log_news("~process measure: fov %s", device().fov)
+		-- counter = counter + 1
+		-- return counter >= 1000
+	-- end,
+	-- function()
+		-- log_news("~end measure: fov %s", device().fov)
+	-- end
+-- )
+--log3("~fov zoom factor %s", actor:get_camera_fov() / device().fov)
+
+--set_pda_params(vector():set(0,0,0.2))
+-- local pda_params = get_pda_params()
+-- log3("~pda_params %s %s %s", pda_params.x, pda_params.y, pda_params.z)
+
+-- level.set_active_pda_tab_idx(1)
+-- log3("~active tab idx %s", level.get_active_pda_tab_idx())
+--pda.set_power_disabled(true)
+
+-- add_time_delayed_action(1,
+	-- function()
+		-- somnolence.run_effects()
+	-- end
+-- )
+
+-- local craft_sect = "craft_campfire"
+-- local craft_receipts = {}
+
+-- local n = sys_ini:line_count(craft_sect)
+-- local name, value = "", ""
+-- for i=0,n-1 do
+	-- result, receipt_sect, value = sys_ini:r_line(craft_sect,i,"","")
+	
+	-- local receipt_data = {}
+	
+	-- receipt_data.result = read_if_exists(sys_ini, "string", receipt_sect, "result", nil)
+	
+	-- local components = read_if_exists(sys_ini, "string", receipt_sect, "components", nil)
+	-- components = parse_key_val_line(components, 1)
+	-- receipt_data.components = components
+	
+	-- craft_receipts[receipt_sect] = receipt_data
+-- end
+
+-- log3("~craft_receipts %s", craft_receipts)
+
+-- local info = {
+	-- "info_craft_vodka_dog_tail_receipt",
+	-- "info_craft_vodka_psevdodog_tail_receipt",
+	-- "info_craft_vodka_flesh_eye_receipt",
+	-- "info_craft_vodka_boar_leg_receipt",
+	-- "info_craft_vodka_krovosos_jaw_receipt",
+-- }
+
+-- for k,v in pairs(info) do
+	-- actor:give_info_portion(v)
+-- end
