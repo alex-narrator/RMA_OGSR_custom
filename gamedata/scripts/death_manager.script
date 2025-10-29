@@ -59,6 +59,7 @@ function spawn_monster_loot(monster, killer)
 
 	local spawn_table = parse_key_val_line(spawn_sect, 1)
 	
+	local hide_loot_bones = false
 	for section,spawn_prob in pairs(spawn_table) do
 		local prob = math.random()
 		-- if prob < spawn_prob or  math.fsimilar(spawn_prob, 1) then
@@ -68,12 +69,18 @@ function spawn_monster_loot(monster, killer)
 			if loot_to_killer then
 				if killer:is_monster() or killer:is_stalker() then
 					loot_owner_id = killer:id()
+					hide_loot_bones = true
 					--log3("~killer %s receives loot from victim %s", killer:name(), monster:name())
 				end
 			end
 			spawn_to_owner(section, loot_owner_id)
 			--log3("~monster %s - spawn part %s with probability %s | spawn_prob %s", monster:name(), section, prob, spawn_prob)		
 		end
+	end
+	
+	if hide_loot_bones then
+		harvest.set_hidden_loot_bones(monster, killer)
+		harvest.hide_loot_bones(monster)		
 	end
 end
 

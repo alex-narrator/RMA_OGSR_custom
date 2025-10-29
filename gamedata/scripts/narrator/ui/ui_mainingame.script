@@ -101,6 +101,8 @@ function MainIngameOverlay:Subscribe()
 			
 			{signal = "on_slot_selector_show", self = self, fun = self.ShowActiveTask},
 			{signal = "on_slot_selector_hide", self = self, fun = self.HideActiveTask},
+			
+			{signal = "on_custom_options_save", self = self, fun = self.OnCustomOptionsSave},
 		}
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
@@ -358,6 +360,9 @@ function MainIngameOverlay:InitControls()
 	self.target_tip.show_on_object = xml:ReadAttribInt("target_tip", "show_on_object", 0) > 0 and true or false
 	self.target_tip.border = xml:ReadAttribInt("target_tip", "border", 0)
 	self.tip_cursor = xml:InitStatic("tip_cursor", self)
+	local size = xml:ReadAttribInt("tip_cursor", "size", 30)
+	self.tip_cursor:SetWidth(size * get_current_kx())
+	self.tip_cursor:SetHeight(size)
 	local offset = ui_inv_utils.GetOffset("center", self.tip_cursor, self.owner)
 	self.tip_cursor:SetWndPos(offset.x, offset.y)
 	
@@ -367,6 +372,31 @@ function MainIngameOverlay:InitControls()
 	self.nvd_info = xml:InitStatic("nvd_info", self)
 	self.nvd_info.default_offset = {xml:ReadAttribInt("nvd_info", "x", 0), xml:ReadAttribInt("nvd_info", "y", 0)}
 	self.nvd_info:Show(false)
+	
+	--//crosshair
+	self.crosshair = xml:InitStatic("crosshair", self)
+	self.crosshair_parts = {
+		["left"] 		= { static = CUIStatic(), offset_type = "left_center_out"},
+		["right"] 		= { static = CUIStatic(), offset_type = "right_center_out"},
+		["top"] 		= { static = CUIStatic(), offset_type = "center_top_out"},
+		["down"] 		= { static = CUIStatic(), offset_type = "center_down_out"},
+		["left_top"] 	= { static = CUIStatic(), offset_type = "left_top_out"},
+		["right_top"] 	= { static = CUIStatic(), offset_type = "right_top_out"},
+		["left_down"] 	= { static = CUIStatic(), offset_type = "left_down_out"},
+		["right_down"] 	= { static = CUIStatic(), offset_type = "right_down_out"},	
+	}
+	for k,v in pairs(self.crosshair_parts) do
+		v.static:SetStretchTexture(true)
+		self.crosshair:AttachChild(v.static)
+	end
+	self.crosshair.min_size = xml:ReadAttribInt("crosshair", "min_size", 10)
+	self.crosshair.max_size = xml:ReadAttribInt("crosshair", "max_size", 600)
+	self.crosshair.scale_time = xml:ReadAttribFlt("crosshair", "scale_time", 2)
+	self.crosshair:SetWidth(self.crosshair.min_size * get_current_kx())
+	self.crosshair:SetHeight(self.crosshair.min_size)
+	
+	self:SetCrosshair()
+	self:SetCrosshairColor()
 end
 
 function MainIngameOverlay:UpdateConditions()
@@ -801,9 +831,18 @@ local update_states = {
 	[global_flags.eReload] = true,
 	[global_flags.eShutter] = true,
 }
+local crosshair_set_states = {
+	[global_flags.eShowing] = true,
+	-- [global_flags.eHidden] = true,
+	-- [global_flags.eHiding] = true,	
+}
 function MainIngameOverlay:OnHudStateSwitch(item, state, old_state)
 	if update_states[old_state] then
 		self:SetPanelItemsNeedUpdate()
+	end
+	if crosshair_set_states[state] then
+		self:SetCrosshair(read_if_exists(sys_ini, "string", item:section(), "crosshair", nil))
+		self:UpdateCrosshair(true)
 	end
 end
 
@@ -1051,7 +1090,7 @@ end
 
 function MainIngameOverlay:UpdateTargetTip()
 	local tip = actor_obj:get_default_action_for_obj()
-	self.target_tip:Show(tip and tip ~= "" and (actor_hands_free() or actor:ph_capture()))-- and not actor_obj:is_zoom_aiming_mode())
+	self.target_tip:Show(tip and tip ~= "" and (actor_hands_free() or actor:ph_capture()))
 	if self.target_tip:IsShown() then
 		local tgt = level.get_target_obj()
 		if tgt and tgt:get_eatable_item() then
@@ -1083,7 +1122,24 @@ function MainIngameOverlay:UpdateTargetTip()
 		self.target_tip:SetText("")
 		--hud_remove_info_message("quick_info")
 	end
-	self.tip_cursor:Show(tip and tip ~= "" and not get_console():get_bool("hud_crosshair"))
+	--self.tip_cursor:Show(tip and tip ~= "" and not get_console():get_bool("hud_crosshair"))
+	local is_zoom = actor_obj:is_zoom_aiming_mode()
+	local hud_target_mode = get_script_option_value("hud_target_mode")
+	local show = false
+	if hud_target_mode == 3 then
+		show = true
+	elseif hud_target_mode == 2 then
+		show = not is_zoom and not self.crosshair:IsShown() and actor_hands_free()
+	elseif hud_target_mode == 1 then
+		show = not is_zoom and tip and tip ~= ""
+	end
+	self.tip_cursor:Show(show)
+	local target_dist = ""
+	--if get_console():get_bool("hud_crosshair_dist") then
+	if get_script_option_value("hud_target_dist") then
+		target_dist = string.format("%.1f", level.get_target_dist())
+	end
+	self.tip_cursor:SetText(target_dist)
 end
 
 function MainIngameOverlay:OnKeyPress(key, game_action)
@@ -1220,6 +1276,129 @@ function MainIngameOverlay:UpdateNVDInfo()
 	self.nvd_info:SetWndPos(offset[1], offset[2])
 end
 
+local crosshair_hide_states = {
+	[global_flags.eReload] = true,
+	[global_flags.eHiding] = true,
+	[global_flags.eHidden] = true,
+}
+
+function MainIngameOverlay:UpdateCrosshair(forced)
+	self.crosshair:Show(not actor_obj:is_zoom_aiming_mode() and get_script_option_value("hud_crosshair"))
+	if not self.crosshair:IsShown() then
+	return end
+	local act_item = actor:active_item()
+	if not act_item or act_item:get_pda() then
+		self.crosshair:Show(false)
+	return end
+	
+	if act_item:is_hud_item() and crosshair_hide_states[act_item:get_hud_item_state()] then
+		self.crosshair:Show(false)
+	return end
+	
+	if actor_obj:is_actor_sprinting() then
+		self.crosshair:Show(false)
+	return end
+	
+	local act_wpn = act_item and act_item:get_weapon()
+	if act_wpn then
+		if act_wpn.zoom_rotation_factor > 0 then
+			self.crosshair:Show(false)
+		end
+	end
+	local dispertion = act_wpn and act_wpn:get_fire_dispertion(true) or 0
+	self:DrawCrosshair(dispertion, forced)
+end
+
+function MainIngameOverlay:DrawCrosshair(dispertion, forced)
+	local size = self.crosshair.min_size
+	if self.crosshair.auto_scale and dispertion > 0 then
+		--//розраховуємо розкид зброї в розмірах UI
+		--log3("~dispertion %s", dispertion)
+		--//обчислюємо висоту рівнобедреного трикутника знаючи його основу (висоту екрану scr_h) та кут вершини (FOV)
+		local dev = device()
+		local scr_h = dev.height
+		local fov2 = math.rad(dev.fov * 0.5)
+		local scr_dist = 0.5 * scr_h / math.tan(fov2)
+		--//обчислюємо основу рівнобедреного трикутника знаючи його висоту (scr_dist) та кут вершини (dispertion зброї)
+		size = 2 * scr_dist * math.tan(dispertion * 0.5)
+	end
+	
+	size = size * self.crosshair.const_scale
+	--log3("~size %s", size)
+	if forced then
+		self.crosshair:SetWidth(size * get_current_kx())
+		self.crosshair:SetHeight(size)	
+	else
+		local current_size = self.crosshair:GetHeight()
+		if not math.fsimilar(size, current_size, 1) then
+			--log3("~calc size")
+			local delta = device().f_time_delta / self.crosshair.scale_time * 1000
+			delta = math.clamp(delta, 0, math.abs(size - current_size))
+			--log3("~delta %s", delta)
+			local dk = size < current_size and -1 or 1
+			local set_size = current_size + delta * dk
+			--log3("~set_size %s", set_size)
+			set_size = math.clamp(set_size, self.crosshair.min_size, self.crosshair.max_size)
+			self.crosshair:SetWidth(set_size * get_current_kx())
+			self.crosshair:SetHeight(set_size)
+		end
+	end
+
+	local ui_pos = level.get_crosshair_pos()
+	--log3("~ui_pos %s %s", ui_pos.x, ui_pos.y)
+	self.crosshair:SetWndPos(ui_pos.x - self.crosshair:GetWidth() / 2, ui_pos.y - self.crosshair:GetHeight() / 2)
+	
+	for k, v in pairs(self.crosshair_parts) do
+		local offset = ui_inv_utils.GetOffset(v.offset_type, v.static, self.crosshair)
+		v.static:SetWndPos(offset.x, offset.y)
+	end
+end
+
+function MainIngameOverlay:SetCrosshair(section)
+	if not section then
+		section = "crosshair_default"
+	end
+	
+	self.crosshair.auto_scale = read_if_exists(sys_ini, "bool", section, "auto_scale", true)
+	self.crosshair.const_scale = read_if_exists(sys_ini, "float", section, "const_scale", 1)
+	
+	-- local color = split_string(read_if_exists(sys_ini, "string", section, "color", "255,255,255,255"), ",")
+	-- self.crosshair.color = GetARGB(color[1],color[2],color[2],color[4])
+	
+	local center = read_if_exists(sys_ini, "string", section, "center", "none")
+	self.crosshair:InitTexture(center)
+	--self.crosshair:SetColor(self.crosshair.color)
+	
+	for part_name, v in pairs(self.crosshair_parts) do
+		local params = read_if_exists(sys_ini, "string", section, part_name, nil)
+		v.static:Show(params)
+		if params then
+			params = split_string(params, ",")
+			v.static:InitTexture(params[1])
+			v.static:SetWidth((params[2] or 1) * get_current_kx())
+			v.static:SetHeight(params[3] or 1)
+			-- v.static:SetColor(self.crosshair.color)
+		end
+	end
+end
+
+function MainIngameOverlay:SetCrosshairColor()
+	self.crosshair.color = GetARGB(
+		get_script_option_value("crosshair_color_a"),
+		get_script_option_value("crosshair_color_r"),
+		get_script_option_value("crosshair_color_g"),
+		get_script_option_value("crosshair_color_b")
+	)
+	self.crosshair:SetColor(self.crosshair.color)
+	for part_name, v in pairs(self.crosshair_parts) do
+		v.static:SetColor(self.crosshair.color)
+	end
+end
+
+function MainIngameOverlay:OnCustomOptionsSave()
+	self:SetCrosshairColor()
+end
+
 function MainIngameOverlay:Update()
 	CUIScriptWnd.Update(self)
 	local alive = actor:alive()
@@ -1242,6 +1421,7 @@ function MainIngameOverlay:Update()
 	self:UpdateCompass()
 	self:UpdateFPS()
 	self:UpdateNVDInfo()
+	self:UpdateCrosshair()
 	
 	self.slot_selector:TrySignalHide()
 	self.quick_addon:TrySignalHide()

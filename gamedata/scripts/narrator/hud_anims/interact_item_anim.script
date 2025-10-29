@@ -54,9 +54,6 @@ function play()
 	actor_obj:block_action(key_bindings.kUSE)
 	block_non_move_action(true)
 	
-	local to_center = is_crosshair_hard()
-	--actor:center_crosshair(to_center)
-		
 	if actor:active_item() then
 		actor:active_item():zoom_out()
 	end
@@ -103,9 +100,6 @@ function play()
 				action_use()
 			end
 			_G.SCRIPT_ANIM_PLAYING = false
-			if to_center then
-				--actor:center_crosshair(false)
-			end
 		end
 	)
 end

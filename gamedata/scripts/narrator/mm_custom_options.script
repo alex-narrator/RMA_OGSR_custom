@@ -7,20 +7,29 @@ local CFG = ini_file(CFG_NAME)
 
 --// [option name (used also in ui_mm_opt_custom.script)] = option default value, option data type
 local script_options = {
-	["floating_info"] 				= { true, 	"bool" 	},
-	["floating_show_delay"] 		= { 1, 		"float" 	},
-	["quick_save_max"] 				= { 10, 	"u32" 	},
-	["inv_item_condition"] 			= { true, 	"bool" 	},
-	["wpn_addon_ammo_wnd_separate"] = { true, 	"bool" 	},
-	["game_save_mode"] 				= { 0, 		"u32" 	},
-	["check_enemy_radius"] 			= { 50, 	"float" 	},
-	-- ["front_view_compass"] 			= { true, 	"bool" 	},
-	-- ["compass_on_demand"] 			= { false, 	"bool" 	},
-	["select_new_task"] 			= { true, 	"bool" 	},
-	["task_autosave"] 				= { true, 	"bool" 	},
-	["active_item_info_ttl"] 		= { 3, 		"float" 	},
-	["gear_info_ttl"] 				= { 3, 		"float" 	},
-	["breath_shader_effect"] 		= { true, 	"bool" 	},
+	["floating_info"] 				= { true, 	"bool" },
+	["floating_show_delay"] 		= { 1, 		"float" },
+	["quick_save_max"] 				= { 10, 	"u32" },
+	["inv_item_condition"] 			= { true, 	"bool" },
+	["wpn_addon_ammo_wnd_separate"] = { true, 	"bool" },
+	["game_save_mode"] 				= { 0, 		"u32" },
+	["check_enemy_radius"] 			= { 50, 	"float" },
+	-- ["front_view_compass"] 			= { true, 	"bool" },
+	-- ["compass_on_demand"] 			= { false, 	"bool" },
+	["select_new_task"] 			= { true, 	"bool" },
+	["task_autosave"] 				= { true, 	"bool" },
+	["active_item_info_ttl"] 		= { 3, 		"float" },
+	["gear_info_ttl"] 				= { 3, 		"float" },
+	["breath_shader_effect"] 		= { true, 	"bool" },
+	
+	["crosshair_color_a"] 			= { 255, 	"u32" },
+	["crosshair_color_r"] 			= { 255, 	"u32" },
+	["crosshair_color_g"] 			= { 255, 	"u32" },
+	["crosshair_color_b"] 			= { 255, 	"u32" },
+
+	["hud_crosshair"] 				= { true, 	"bool" },	
+	["hud_target_dist"] 			= { false, 	"bool" },
+	["hud_target_mode"] 			= { 1, 		"u32" },
 }
 
 --//tokens for listbox option
@@ -30,6 +39,12 @@ local script_options_tokens = {
 		"sg_no_enemies",
 		"sg_fireplace",
 	},
+	["hud_target_mode"] = {
+		"ht_none",
+		"ht_on_target_tip",
+		"ht_no_crosshair",
+		"ht_always",
+	},	
 }
 
 function get_script_option(name)
@@ -55,4 +70,7 @@ function cfg_save()
 	end
 	CFG:save()
 	log3("- saving custom options config file [%s]", CFG_NAME)
+	if level.present() then
+		ogse_signals.get_mgr():call("on_custom_options_save")
+	end
 end

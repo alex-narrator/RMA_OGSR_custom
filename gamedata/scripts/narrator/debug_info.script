@@ -6,6 +6,7 @@ function attach(sm)
 	--sm:subscribe({signal = "on_death",   fun = this.on_death})
 	--sm:subscribe({signal = "on_npc_before_hit", fun = this.on_before_hit})
 	--sm:subscribe({signal = "on_hit_npc", fun = this.on_hit})
+	--sm:subscribe({signal = "on_hit_monster", fun = this.on_hit})
 	--sm:subscribe({signal = "on_info_portion", fun = this.on_info_portion})
 	--sm:subscribe({signal = "on_task", fun = this.on_task})
 	--sm:subscribe({signal = "on_take", fun = this.on_take})
@@ -22,7 +23,13 @@ function on_take(item)
 	log_news("~take item %s|%s", item:name(), item:section())
 end
 
+local only_from_actor = true
+
 function on_hit(victim, health_lost, direction, draftsman, bone_id, hit_type)
+	if only_from_actor and draftsman:id() ~= actor:id() then
+	return end
+	if health_lost <= 0 then
+	return end
 	log_news("~on_hit: victim %s | health_lost %s | draftsman %s | bone %s | hit_type %s",	victim:name(),  health_lost, draftsman:name(), victim:get_bone_name(bone_id), get_hit_type_name(hit_type))
 	log_news("~%s current health %.2f | bleeding %.2f", victim:name(), victim.health, victim:get_bleeding())
 end

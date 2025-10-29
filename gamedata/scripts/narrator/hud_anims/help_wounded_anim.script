@@ -16,7 +16,6 @@ end
 function play(npc)
 	actor:hide_weapon(true)
 	level.disable_input()
-	--actor:hide_crosshair(true)
 	
 	local pos = npc:center()
 	pos.y = pos.y + 0.25
@@ -47,7 +46,6 @@ function play(npc)
 					_G.SCRIPT_ANIM_PLAYING = false
 					actor:restore_weapon(true)
 					level.enable_input()
-					--actor:hide_crosshair(false)
 				end
 			)				
 		end

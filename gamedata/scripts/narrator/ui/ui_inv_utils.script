@@ -1,41 +1,69 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function GetOffset(offset_type, icon, parent_icon)
 	local offset = vector2():set(0,0)
-	if offset_type == "center" then
-		return offset:set(
-			(parent_icon:GetWidth() / 2) - (icon:GetWidth() / 2), 
-			(parent_icon:GetHeight() / 2) - (icon:GetHeight() / 2))
-	elseif offset_type == "left_down" then
-		return offset:set(
-			0, 
-			parent_icon:GetHeight() - icon:GetHeight())
-	elseif offset_type == "left_top" then
+	if string.find(offset_type, "left_down") then
+		offset:set(0, parent_icon:GetHeight() - icon:GetHeight())
+		if string.find(offset_type, "_out") then
+			offset.x = offset.x - icon:GetWidth()
+			offset.y = offset.y + icon:GetHeight()
+		end
 		return offset
-	elseif offset_type == "left_center" then
-		return offset:set(
-			0, 
-			(parent_icon:GetHeight() / 2) - (icon:GetHeight() / 2))
-	elseif offset_type == "right_top" then
-		return offset:set(
-			parent_icon:GetWidth() - icon:GetWidth(),
-			0)
-	elseif offset_type == "right_down" then
-		return offset:set(
-			parent_icon:GetWidth() - icon:GetWidth(),
-			parent_icon:GetHeight() - icon:GetHeight())
-	elseif offset_type == "right_center" then
-		return offset:set(
-			parent_icon:GetWidth() - icon:GetWidth(),
-			(parent_icon:GetHeight() / 2) - (icon:GetHeight() / 2))
-	elseif offset_type == "center_top" then
-		return offset:set(
-			(parent_icon:GetWidth() / 2) - (icon:GetWidth() / 2),
-			0)
-	elseif offset_type == "center_down" then
-		return offset:set(
-			(parent_icon:GetWidth() / 2) - (icon:GetWidth() / 2),
-			parent_icon:GetHeight() - icon:GetHeight())			
 	end
+	if string.find(offset_type, "left_top") then
+		if string.find(offset_type, "_out") then
+			offset.x = offset.x - icon:GetWidth()
+			offset.y = offset.y - icon:GetHeight()
+		end	
+		return offset
+	end
+	if string.find(offset_type, "left_center") then
+		offset:set(0, (parent_icon:GetHeight() / 2) - (icon:GetHeight() / 2))
+		if string.find(offset_type, "_out") then
+			offset.x = offset.x - icon:GetWidth()
+		end		
+		return offset
+	end
+	if string.find(offset_type, "right_top") then
+		offset:set(parent_icon:GetWidth() - icon:GetWidth(), 0)
+		if string.find(offset_type, "_out") then
+			offset.x = offset.x + icon:GetWidth()
+			offset.y = offset.y - icon:GetHeight()
+		end		
+		return offset
+	end
+	if string.find(offset_type, "right_down") then
+		offset:set(parent_icon:GetWidth() - icon:GetWidth(), parent_icon:GetHeight() - icon:GetHeight())
+		if string.find(offset_type, "_out") then
+			offset.x = offset.x + icon:GetWidth()
+			offset.y = offset.y + icon:GetHeight()
+		end		
+		return offset
+	end
+	if string.find(offset_type, "right_center") then
+		offset:set(parent_icon:GetWidth() - icon:GetWidth(), (parent_icon:GetHeight() / 2) - (icon:GetHeight() / 2))
+		if string.find(offset_type, "_out") then
+			offset.x = offset.x + icon:GetWidth()
+		end		
+		return offset
+	end
+	if string.find(offset_type, "center_top") then
+		offset:set((parent_icon:GetWidth() / 2) - (icon:GetWidth() / 2), 0)
+		if string.find(offset_type, "_out") then
+			offset.y = offset.y - icon:GetHeight()		
+		end		
+		return offset
+	end
+	if string.find(offset_type, "center_down") then
+		offset:set((parent_icon:GetWidth() / 2) - (icon:GetWidth() / 2), parent_icon:GetHeight() - icon:GetHeight())
+		if string.find(offset_type, "_out") then
+			offset.y = offset.y + icon:GetHeight()
+		end		
+		return offset
+	end
+	if string.find(offset_type, "center") then
+		offset:set((parent_icon:GetWidth() / 2) - (icon:GetWidth() / 2), (parent_icon:GetHeight() / 2) - (icon:GetHeight() / 2))	
+		return offset
+	end	
 	log3("!incorrect offset type %s", offset_type or "NONE")
 	return offset
 end

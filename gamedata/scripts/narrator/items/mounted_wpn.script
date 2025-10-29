@@ -6,7 +6,6 @@ function attach(sm)
 end
 
 local console = get_console()
-local hide_crosshair_after_use = false
 local subscribed = false
 
 local current_mgun = false
@@ -14,16 +13,10 @@ local binded_mgun = false
 
 function on_use(mounted_wpn)
 	actor:hide_weapon(true)
-	hide_crosshair_after_use = not console:get_bool("hud_crosshair")
-	--log3("~hide_crosshair_after_use %s", hide_crosshair_after_use)
-		
-	if hide_crosshair_after_use then
-		console:execute("hud_crosshair 1")
-	end
-		
+
 	current_mgun = mounted_wpn
 	binded_mgun = current_mgun:binded_object()
-		
+
 	if not subscribed then
 		subscribed = {
 			{ signal = "on_update_mounted_weapon", fun = this.on_update },
@@ -38,10 +31,6 @@ end
 
 function on_update(mounted_wpn)
 	if not actor:get_holder() or current_mgun:id() ~= actor:get_holder():id() then
-		if hide_crosshair_after_use then
-			console:execute("hud_crosshair 0")
-		end
-		
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( subscribed ) do
 			sm:unsubscribe( s )

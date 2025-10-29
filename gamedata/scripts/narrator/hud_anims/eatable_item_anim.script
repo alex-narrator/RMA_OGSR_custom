@@ -41,6 +41,7 @@ function play(item)
 	local hud_sect = get_hud_sect(item)
 	if not hud_sect then
 	return end
+	FORCE_STOP = false
 
 	local already_blocked = actor.inventory:is_active_slot_blocked()
 	
@@ -54,9 +55,7 @@ function play(item)
 		end,
 		function()
 			subscribe()
-			
-			--actor:hide_crosshair(true)
-			
+
 			local anm_speed = read_if_exists(sys_ini, "string", hud_sect, anm_name.."_speed_k", 1)
 			
 			local anm_length = game.play_hud_motion(2, hud_sect, anm_name, false, anm_speed * anm_snd_speed(), true)
@@ -97,7 +96,6 @@ function play(item)
 					if mode == "inventory" or mode == "carbody"	then					
 						backpack.play_anim(3)
 					end
-					--actor:hide_crosshair(false)
 				end
 			)
 		end

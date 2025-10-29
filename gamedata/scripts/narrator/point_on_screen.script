@@ -8,7 +8,7 @@ function point_projection(point, show_behind)
     local scr_w = dev.width
     local scr_h = dev.height
 
-    local fov2 = (dev.fov/2) * (math.pi/180)
+    local fov2 = math.rad(dev.fov/2)
     local scr_dist = 0.5 * scr_h / math.tan(fov2)
 
     local ppp = vector():sub(point, dev.cam_pos)
@@ -37,7 +37,7 @@ function compass_ui_projection(point, ui_w, ui_h, hide_off_bounds)
     local scr_w = dev.width
     local scr_h = dev.height
 
-    local fov2 = (dev.fov/2) * (math.pi/180)
+    local fov2 = math.rad(dev.fov/2)
     local scr_dist = 0.5 * scr_h / math.tan(fov2)
 
     local ppp = vector():sub(point, dev.cam_pos)

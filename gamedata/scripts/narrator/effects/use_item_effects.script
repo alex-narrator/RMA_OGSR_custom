@@ -25,7 +25,6 @@ function check_use_enabled(item, user)
 	return end
 	
 	if not read_if_exists(sys_ini, "bool", sect, "helmet_use", true) then
-
 		local check_item = actor:item_in_slot(6)
 		if check_item and read_if_exists(sys_ini, "bool", check_item:section(), "block_eat", false) then
 			eatable_item.can_be_eaten = false

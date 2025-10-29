@@ -66,7 +66,6 @@ function play(item)
 	if not already_blocked then
 		actor:hide_weapon(ANIM_FAST)
 	end
-	--actor:hide_crosshair(true)
 	
 	if not read_if_exists(sys_ini, "string", hud_sect, "anm_idle", nil) then --//simple variant without draw-idle-hide sequence
 		level.add_call(
@@ -95,7 +94,6 @@ function play(item)
 						if not already_blocked then
 							actor:restore_weapon(ANIM_FAST)
 						end
-						--actor:hide_crosshair(false)
 					end
 				)				
 			end
@@ -178,7 +176,6 @@ function stop_anim()
 			if mode == "inventory" or mode == "carbody"	then					
 				backpack.play_anim(3)
 			end
-			--actor:hide_crosshair(false)
 		end
 	)
 end

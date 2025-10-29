@@ -224,6 +224,31 @@ animation_slot		= 4
 ;hud item
 hud 				= afak_hud
 
+[surgery_kit]:drugs_base
+$spawn 				= "food and drugs\surgery_kit"
+visual				= efp\itm_surv12
+
+inv_name			= st_surgery_kit_name
+inv_name_short		= st_surgery_kit_short
+description			= st_surgery_kit_descr
+
+inv_weight			= 1.2
+
+icon_text 			= st_surgery_kit_short
+
+inv_grid_width     	= 2
+inv_grid_x			= 0
+inv_grid_y			= 8
+cost				= 5000
+; eatable item
+eat_wounds_heal 	= 1
+eat_health 			= 0.5
+eat_portions_num 	= 5
+; food item
+animation_slot		= 4
+;hud item
+hud 				= surgery_kit_hud
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;boosters from COP;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -403,8 +428,9 @@ loadout_type 		=
 
 heal_injuries 		= true
 
-use_effector 		= bandage_use
-use_sound 			= interface\item_usage\inv_medkitzipper
+hud 				= splint_hud
+; use_effector 		= bandage_use
+; use_sound 			= interface\item_usage\inv_medkitzipper
 
 [splint_adv]:splint
 visual				= efp\itm_alusplint

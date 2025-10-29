@@ -60,7 +60,7 @@ function get_good_knife()
 	return nil
 end
 
-function set_hidden_loot_bones(monster)
+function set_hidden_loot_bones(monster, harvester)
 	local se_monster = alife():object(monster:id())
 	if not se_monster then
 	return end
@@ -72,12 +72,12 @@ function set_hidden_loot_bones(monster)
 		if read_if_exists(sys_ini, "bool", monster:section(), "spawn_item_visual_bones_hide_all", false) then
 			se_monster.hidden_loot_bones = spawn_item_visual_bones_str
 		else
-			local dist = 1000
-			local cam_pos = device().cam_pos
-			cam_pos.y = cam_pos.y + 1
+			local dist = 1000000
+			local harvester_pos = harvester and harvester:position() or device().cam_pos
+			harvester_pos.y = harvester_pos.y + 1
 			for k,bone in pairs(spawn_item_visual_bones) do
 				local pos = monster:bone_position(bone)
-				local dst_btw = cam_pos:distance_to(pos)
+				local dst_btw = harvester_pos:distance_to(pos)
 				-- log_news("~bone %s - dist %s", bone, dst_btw)
 				if dst_btw <= dist then
 					dist = dst_btw

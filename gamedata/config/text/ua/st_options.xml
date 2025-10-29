@@ -448,7 +448,7 @@
 		<text>Максимум унікальних швидких збережень</text>
 	</string>
 	<string id="gameplay_settings_desc_quick_save_max">
-		<text>Максимальна кількість унікальних швидких збережень, у форматі quick_save_1, quick_save_2 ... quick_save_max, ісля досягнення якої швидкі зереження почнуть перезаписуватись з quick_save_1.</text>
+		<text>Максимальна кількість унікальних швидких збережень, у форматі quick_save_1, quick_save_2 ... quick_save_max, після досягнення якої швидкі зереження почнуть перезаписуватись з quick_save_1.</text>
 	</string>
 	
 	<string id="ui_mm_check_enemy_radius">
@@ -480,6 +480,70 @@
 	</string>
 	<string id="gameplay_settings_desc_gear_info_ttl">
 		<text>Скільки секунд після натискання кнопки %c[UI_orange][$$ACTION_CHECK_GEAR$$]%c[default] буде відображено інформацію про предмети у розгрузці, на поясі та мінікарту</text>
+	</string>
+
+	<string id="ui_mm_crosshair_color">
+		<text>Колір перехрестя прицілу:</text>
+	</string>
+	<string id="gameplay_settings_name_crosshair_color">
+		<text>Колір перехрестя прицілу</text>
+	</string>
+	<string id="gameplay_settings_desc_crosshair_color">
+		<text>
+			Налаштування кольору та прозорості перехрестя прицілу, що відображається коли в руках персонажа є зброя
+			\n
+			\nНижче наведено кілька прикладів кольорів з ігрового інтерфейсу описаних у форматі RGB (червоний - зелений - синій)
+			\n
+			\n%c[white]Білий%c[default] - 255, 255, 255
+			\n
+			\n%c[gray]Сірий%c[default] - 128, 128, 128
+			\n
+			\n%c[UI_orange]Помаранчевий%c[default] - 238, 153, 26
+			\n
+			\n%c[yellow]Жовтий%c[default] - 255, 255, 0
+			\n
+			\n%c[ui_clr_1]Колір_1%c[default] - 240, 217, 182
+			\n
+			\n%c[ui_clr_2]Колір_2%c[default] - 216, 186, 140
+			\n
+			\n%c[ui_clr_3]Колір_3%c[default] - 135, 123, 116
+		</text>
+	</string>	
+	<string id="ui_mm_crosshair_color_a">
+		<text>прозорість</text>
+	</string>	
+	<string id="gameplay_settings_name_crosshair_color_a">
+		<text>Прозорість перехрестя прицілу</text>
+	</string>
+	<string id="gameplay_settings_desc_crosshair_color_a">
+		<text>Визначає прозорість перехрестя від 0 (абсолюдно прозорий) до 255 (абсолюдно непрозорий)</text>
+	</string>
+	<string id="ui_mm_crosshair_color_r">
+		<text>червоний</text>
+	</string>	
+	<string id="gameplay_settings_name_crosshair_color_r">
+		<text>Червона компонента кольору перехрестя прицілу</text>
+	</string>
+	<string id="gameplay_settings_desc_crosshair_color_r">
+		<text>Визначає долю червоної компоненти у кольорі перехрестя</text>
+	</string>
+	<string id="ui_mm_crosshair_color_g">
+		<text>зелений</text>
+	</string>	
+	<string id="gameplay_settings_name_crosshair_color_g">
+		<text>Зелена компонента кольору перехрестя прицілу</text>
+	</string>
+	<string id="gameplay_settings_desc_crosshair_color_g">
+		<text>Визначає долю зеленої компоненти у кольорі перехрестя</text>
+	</string>
+	<string id="ui_mm_crosshair_color_b">
+		<text>синій</text>
+	</string>	
+	<string id="gameplay_settings_name_crosshair_color_b">
+		<text>Синя компонента кольору перехрестя прицілу</text>
+	</string>
+	<string id="gameplay_settings_desc_crosshair_color_b">
+		<text>Визначає долю синьої компоненти у кольорі перехрестя</text>
 	</string>	
 	
 	<string id="ui_mm_floating_info">
@@ -563,6 +627,26 @@
 	</string>
 	<string id="gameplay_settings_desc_breath_shader_effect">
 		<text>Якщо опцію увімкнено - то ефект дихання у протигазі/масці костюму буде відстворено за допомогою шейдеру, а не текстур</text>
+	</string>
+
+	<string id="ui_mm_hud_target_dist">
+		<text>Дистанція до цілі</text>
+	</string>	
+	<string id="gameplay_settings_name_hud_target_dist">
+		<text>Дистанція до цілі</text>
+	</string>
+	<string id="gameplay_settings_desc_hud_target_dist">
+		<text>Відображувати дистанцію до цілі, на яку направлено курсор</text>
+	</string>
+	
+	<string id="ui_mm_hud_crosshair">
+		<text>Перехрестя прицілу</text>
+	</string>	
+	<string id="gameplay_settings_name_hud_crosshair">
+		<text>Показувати перехрестя прицілу</text>
+	</string>
+	<string id="gameplay_settings_desc_hud_crosshair">
+		<text>Показувати перехрестя прицілу коли в руках персонажа є зброя</text>
 	</string>	
 	
 <!-- режими збереження - токени-->
@@ -583,14 +667,52 @@
 		<text>Режим збереження гри</text>
 	</string>
 	<string id="gameplay_settings_desc_game_save_mode">
-		<text>Вибір режиму збереження гри гри. 
+		<text>Вибір режиму збереження гри гри.
 		\n
-		\nБез обмежень - збереження з оригінальної гри. 
+		\nБез обмежень - збереження з оригінальної гри
 		\n
 		\nБез ворогів поруч - дозволяє зберегти гру тільки коли у певному радусі від гравця немає ворожих сутностей, як то сталкерів, монстрів, гелікоптерів. 
-		Радіус визначається парметром "Радіус перевірки ворогів поруч" (див. повзунок вище).
+		Радіус визначається парметром "Радіус перевірки ворогів поруч" (див. повзунок нижче)
 		\n
-		\nБіля багаття - зберегти гру можна тільки якщо гравець сидить біля розпаленого багаття. 
+		\nБіля багаття - зберегти гру можна тільки якщо гравець сидить біля розпаленого багаття
+		</text>
+	</string>
+	
+<!-- режими показу курсора - токени-->
+	<string id="ht_none">
+		<text>ніколи</text>
+	</string>
+	<string id="ht_on_target_tip">
+		<text>при наведенні на інтерактивний об'єкт</text>
+	</string>	
+	<string id="ht_no_crosshair">
+		<text>коли не відображено перехрестя</text>
+	</string>
+	<string id="ht_always">
+		<text>завжди</text>
+	</string>	
+<!-- режими показу курсора - токени END -->
+	<string id="ui_mm_hud_target_mode">
+		<text>Відображати курсор</text>
+	</string>
+	<string id="gameplay_settings_name_hud_target_mode">
+		<text>Режими відображення курсора</text>
+	</string>
+	<string id="gameplay_settings_desc_hud_target_mode">
+		<text>Вибір режиму відображення курсора
+		\n
+		\nКурсор допомагає орієнтуватися при взаємодії з об'єктами, відображуючись по центру екрану. Також під ним виводиться показник дистанції до цілі, якщо обрано відповідну опцію.
+		\nЗверніть увагу - курсор не є еквівалентом перехрестя прицілу і не завжди вказує у те місце, куди влучить куля при пострілі.
+		\n
+		\nНижче наведено опис доступних режимів:
+		\n
+		\nНіколи - курсор буде приховано
+		\n
+		\nПри наведенні на інтерактивний об'єкт - курсор буде відображено коли гравець дивиться на інтерактивний об'єкт, з яким можна взаємодіяти
+		\n
+		\nКоли не відображено перехрестя - курсор буде відображено якщо зараз не відображується перехрестя прицілу
+		\n
+		\nЗавжди - курсор буде відображено постійно, навіть коли гравець цілиться у приціл зброї
 		</text>
 	</string>	
 	

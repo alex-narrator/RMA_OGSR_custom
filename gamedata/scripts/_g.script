@@ -1969,7 +1969,11 @@ function get_inv_item_hidden(item)
 end
 
 function wpn_IsRotatingToZoom( wpn )
-  return wpn:get_weapon().zoom_rotation_factor < 1
+  return wpn:get_weapon() and wpn:get_weapon().zoom_rotation_factor < 1
+end
+
+function wpn_IsRotatingFromZoom( wpn )
+  return wpn:get_weapon() and wpn:get_weapon().zoom_rotation_factor > 0
 end
 
 function get_wpn_scope_zoom_params(item)
@@ -2462,8 +2466,8 @@ function IsMoveState(state, compare_state)
 	return (bit_and(compare_state, state) ~= 0)
 end
 
-function get_script_option_value(opt)
-	return mm_custom_options.get_script_option(opt)
+function get_script_option_value(opt, get_default)
+	return mm_custom_options.get_script_option(opt, get_default)
 end
 
 function set_script_option_value(opt, val)

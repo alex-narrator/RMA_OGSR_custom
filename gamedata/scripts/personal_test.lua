@@ -408,7 +408,7 @@ end
 	-- log3("~%s is wounded %s | health %s", tgt:profile_name(), tgt:wounded(), tgt.health)
 -- end
 
---body_health.try_upper_limbs_injure(0.3)
+body_health.try_upper_limbs_injure(0.3)
 --body_health.try_lower_limbs_injure(0.3)
 
 -- local flist = getFS():file_list_open_ex( "$game_saves$", FS.FS_ListFiles + FS.FS_ClampExt + FS.FS_RootOnly + FS.FS_NoLower, "*.sav" )

@@ -52,6 +52,9 @@ local UPPER_LIMBS_HIT_AMOUNT = 0.3
 local LOWER_LIMBS_HIT_AMOUNT = 0.3
 local DEFAULT_HIT_POWER = 0.01
 
+local hud_effector_id = 5598
+local anm_name = "anm_use"
+
 local sm = ogse_signals.get_mgr()
 local legs_subscribe = false
 local hands_subscribe = false
@@ -313,24 +316,83 @@ function on_actor_kick(target, power, power_dec)
 end
 
 function heal_injure(item, limb)
-	local snd_name = read_if_exists(sys_ini, "string", item:section(), "use_sound", nil)
 	local action_delay = 1
-	if snd_name then
-		local snd = xr_sound.get_safe_sound_object(snd_name)
-		snd:play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
-		action_delay = snd:length() * 0.001
-	end
+	local sect = item:section()
+	
+	local hud_sect = get_hud_sect(item)
+	if hud_sect then		
+		local already_blocked = actor.inventory:is_active_slot_blocked()
+		
+		if not already_blocked then
+			actor:hide_weapon(ANIM_FAST)
+		end
+		
+		action_delay = read_if_exists(sys_ini, "float", hud_sect, "use_delay", action_delay)
+		
+		level.add_call(
+			function() 
+				return not actor:active_item() and not actor:active_device()
+			end,
+			function()
+				local anm_speed = read_if_exists(sys_ini, "string", hud_sect, anm_name.."_speed_k", 1)
+				local anm_length = game.play_hud_motion(2, hud_sect, anm_name, false, anm_speed, true)
+				
+				--log_news("~anm_length %s", anm_length)
+				
+				_G.SCRIPT_ANIM_PLAYING = true
+				
+				block_non_move_action(true)
+				
+				local snd_name = read_if_exists(sys_ini, "string", hud_sect, "hud_sound", nil)
+				if snd_name then
+					local snd = xr_sound.get_safe_sound_object(snd_name)
+					snd:play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+				end
+				local effector = read_if_exists(sys_ini, "string", hud_sect, "hud_effector", nil)
+				if effector then
+					level.add_complex_effector(effector, hud_effector_id)
+				end
+				
+				level.add_call(
+					function()
+						return game.hud_motion_allowed()
+					end,
+					function()
+						block_non_move_action(false)
+						level.remove_complex_effector(hud_effector_id)
+						_G.SCRIPT_ANIM_PLAYING = false
+						if not already_blocked then
+							actor:restore_weapon(ANIM_FAST)
+						end
+						local mode = actor_menu:GetMode()
+						if mode == "inventory" or mode == "carbody"	then
+							backpack.play_anim(3)
+						end
+					end
+				)
+			end
+		)
+	else
+		local snd_name = read_if_exists(sys_ini, "string", sect, "use_sound", nil)
+		if snd_name then
+			local snd = xr_sound.get_safe_sound_object(snd_name)
+			snd:play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+			action_delay = snd:length() * 0.001
+		end
 
-	local effector = read_if_exists(sys_ini, "string", item:section(), "use_effector", nil)
-	if effector then
-		level.add_complex_effector(effector, 5598)
+		local effector = read_if_exists(sys_ini, "string", sect, "use_effector", nil)
+		if effector then
+			level.add_complex_effector(effector, hud_effector_id)
+		end
 	end
-
-	local use_count = read_if_exists(sys_ini, "float", item:section(), "use_count", 1)
+	
+	local use_count = read_if_exists(sys_ini, "float", sect, "use_count", 1)
 	item:change_condition(-1/use_count)
 	if item:condition() == 0 then
 		alife():release(alife():object(item:id()), true)
 	end
+	
+	--log_news("~action_delay %s", action_delay)
 	
 	block_non_move_action(true)
 	add_time_delayed_action(action_delay, 
@@ -343,6 +405,9 @@ function heal_injure(item, limb)
 				unsubscribe_legs()
 			end
 			block_non_move_action(false)
+			
+			local str = string.format("%s: %s", game.translate_string("st_item_used"), game.translate_string(get_inv_name(sect)))
+			hud_add_info_message("item_usage", str, 2)			
 		end
 	)	
 end

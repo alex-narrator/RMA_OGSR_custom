@@ -100,7 +100,7 @@
 		<cap_resolution x="20" y="50" width="143" height="21">
 			<text font="letterica16" r="215" g="195" b="170">ui_mm_resolution</text>
 		</cap_resolution>
-		<list_resolution x="194" y="45" width="311" height="21" list_length="14" always_show_scroll="0">
+		<list_resolution x="194" y="45" width="311" height="21" list_length="14" always_show_scroll="0" align="c">
 			<options_item entry="vid_mode" group="mm_opt_video"/>
 			<text_color>
 				<e r="216" g="186" b="140"/>
@@ -938,11 +938,11 @@
 		</btn_default>
 	</tab_controls>
 	
-	<frame_custom x="18" y="150" width="490" height="330">
+	<frame_custom x="18" y="270" width="490" height="210">
 		<texture>ui_cb_listbox</texture>		
 	</frame_custom>	
 	<tab_custom>
-		<scroll_view	x="20" y="150" width="490" height="330" 
+		<scroll_view	x="20" y="270" width="490" height="210" 
 					right_ident="0" left_ident="0" top_indent="0" bottom_indent="0" 
 					vert_interval="4" always_show_scroll="0" flip_vert="0"/>
 					
@@ -956,36 +956,76 @@
 			<list_font_s r="240" g="217" b="182"/>
 			<list_font	 r="216" g="186" b="140" font="letterica16"/>
 		</list_game_save_mode>
+		
+		<cap_hud_target_mode x="20" y="45" width="485" height="21" complex_mode = "1">
+			<text font="letterica16" r="215" g="195" b="170">ui_mm_hud_target_mode</text>			
+		</cap_hud_target_mode>
+		<list_hud_target_mode x="194" y="40" width="311" height="21" always_show_scroll="0" list_length="4" skip_option="1">	
+			<text_color>
+				<e r="216" g="186" b="140"/>
+			</text_color>
+			<list_font_s r="240" g="217" b="182"/>
+			<list_font	 r="216" g="186" b="140" font="letterica16"/>
+		</list_hud_target_mode>		
 
-		<cap_quick_save_max x="20" y="50" width="485" height="21">
+		<cap_quick_save_max x="20" y="70" width="485" height="21">
 			<text font="letterica16" r="215" g="195" b="170">ui_mm_quick_save_max</text>
 		</cap_quick_save_max>
-		<track_quick_save_max x="194" y="45" width="311" height="21" step="1" min="1" max="50">
+		<track_quick_save_max x="194" y="65" width="311" height="21" step="1" min="1" max="50">
 		</track_quick_save_max>		
 
-		<cap_floating_show_delay x="20" y="70" width="485" height="21" complex_mode="1">
+		<cap_floating_show_delay x="20" y="90" width="485" height="21" complex_mode="1">
 			<text font="letterica16" r="215" g="195" b="170">ui_mm_floating_show_delay</text>
 		</cap_floating_show_delay>
-		<track_floating_show_delay x="194" y="65" width="311" height="21" step="0.1" min="0.1" max="2">
+		<track_floating_show_delay x="194" y="85" width="311" height="21" step="0.1" min="0.1" max="2">
 		</track_floating_show_delay>
 		
-		<cap_check_enemy_radius x="20" y="90" width="485" height="21" complex_mode="1">
+		<cap_check_enemy_radius x="20" y="110" width="485" height="21" complex_mode="1">
 			<text font="letterica16" r="215" g="195" b="170">ui_mm_check_enemy_radius</text>
 		</cap_check_enemy_radius>
-		<track_check_enemy_radius x="194" y="85" width="311" height="21" step="5" min="10" max="150">
+		<track_check_enemy_radius x="194" y="105" width="311" height="21" step="5" min="10" max="150">
 		</track_check_enemy_radius>
 
-		<cap_active_item_info_ttl x="20" y="110" width="485" height="21" complex_mode="1">
+		<cap_active_item_info_ttl x="20" y="130" width="485" height="21" complex_mode="1">
 			<text font="letterica16" r="215" g="195" b="170">ui_mm_active_item_info_ttl</text>
 		</cap_active_item_info_ttl>
-		<track_active_item_info_ttl x="194" y="105" width="311" height="21" step="1" min="1" max="10">
+		<track_active_item_info_ttl x="194" y="125" width="311" height="21" step="1" min="1" max="10">
 		</track_active_item_info_ttl>
 		
-		<cap_gear_info_ttl x="20" y="130" width="485" height="21" complex_mode="1">
+		<cap_gear_info_ttl x="20" y="150" width="485" height="21" complex_mode="1">
 			<text font="letterica16" r="215" g="195" b="170">ui_mm_gear_info_ttl</text>
 		</cap_gear_info_ttl>
-		<track_gear_info_ttl x="194" y="125" width="311" height="21" step="1" min="1" max="10">
-		</track_gear_info_ttl>		
+		<track_gear_info_ttl x="194" y="145" width="311" height="21" step="1" min="1" max="10">
+		</track_gear_info_ttl>
+		
+		<crosshair_color_header x="20" y="170" width="485" height="21" stretch="1">
+			<text font="letterica16" r="225" g="195" b="170">ui_mm_crosshair_color</text>
+			<!-- <texture a="150">ui_inv_back_gray</texture> -->
+			<color_example x="90" y="25" width="45" height="60" stretch="1">
+				<!-- <texture>ui\white_square</texture> -->
+				<texture>ui\crosshairs\crosshair_example</texture>
+			</color_example>
+		</crosshair_color_header>		
+		<cap_crosshair_color_a x="20" y="190" width="485" height="21">
+			<text font="letterica16" r="215" g="195" b="170">ui_mm_crosshair_color_a</text>
+		</cap_crosshair_color_a>
+		<track_crosshair_color_a x="194" y="185" width="311" height="21" step="1" min="0" max="255">
+		</track_crosshair_color_a>
+		<cap_crosshair_color_r x="20" y="210" width="485" height="21">
+			<text font="letterica16" r="215" g="195" b="170">ui_mm_crosshair_color_r</text>
+		</cap_crosshair_color_r>
+		<track_crosshair_color_r x="194" y="205" width="311" height="21" step="1" min="0" max="255">
+		</track_crosshair_color_r>
+		<cap_crosshair_color_g x="20" y="230" width="485" height="21">
+			<text font="letterica16" r="225" g="195" b="170">ui_mm_crosshair_color_g</text>
+		</cap_crosshair_color_g>
+		<track_crosshair_color_g x="194" y="225" width="311" height="21" step="1" min="0" max="255">
+		</track_crosshair_color_g>
+		<cap_crosshair_color_b x="20" y="250" width="485" height="21">
+			<text font="letterica16" r="225" g="195" b="170">ui_mm_crosshair_color_b</text>
+		</cap_crosshair_color_b>
+		<track_crosshair_color_b x="194" y="245" width="311" height="21" step="1" min="0" max="255">
+		</track_crosshair_color_b>		
 
 		<check_floating_info x="0" y="0" width="485" height="18">
 			<text font="letterica16" r="215" g="195" b="170">ui_mm_floating_info</text>
@@ -1010,7 +1050,13 @@
 		</check_task_autosave>
 		<check_breath_shader_effect x="0" y="0" width="485" height="18">
 			<text font="letterica16" r="215" g="195" b="170">ui_mm_breath_shader_effect</text>
-		</check_breath_shader_effect>		
+		</check_breath_shader_effect>
+		<check_hud_target_dist x="0" y="0" width="485" height="18">
+			<text font="letterica16" r="215" g="195" b="170">ui_mm_hud_target_dist</text>
+		</check_hud_target_dist>
+		<check_hud_crosshair x="0" y="0" width="485" height="18">
+			<text font="letterica16" r="215" g="195" b="170">ui_mm_hud_crosshair</text>
+		</check_hud_crosshair>	
 	</tab_custom>	
 	
 	<frame_debug x="18" y="50" width="490" height="430">
