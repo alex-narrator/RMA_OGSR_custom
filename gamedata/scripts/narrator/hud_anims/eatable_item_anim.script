@@ -4,8 +4,9 @@ local ANIM_FAST = false
 local ANM_SND_SLOWDOWN = 1.1
 local anim_sound = nil
 local FORCE_STOP = false
+local ITEM_USED = false
 local anm_name = "anm_use"
-local stop_func
+local forced_stop_func
 
 local subscribed = false
 function subscribe()
@@ -41,7 +42,7 @@ function play(item)
 	local hud_sect = get_hud_sect(item)
 	if not hud_sect then
 	return end
-	FORCE_STOP = false
+	ITEM_USED = false
 
 	local already_blocked = actor.inventory:is_active_slot_blocked()
 	
@@ -75,16 +76,22 @@ function play(item)
 				func(item)
 			end
 			
+			local anim_forced_stop_func = read_if_exists(sys_ini, "string", hud_sect, "function_on_forced_stop", nil)
+			if anim_forced_stop_func then
+				forced_stop_func = loadstring( anim_forced_stop_func .. "(...)" )
+			end			
+			
 			local anim_stop_func = read_if_exists(sys_ini, "string", hud_sect, "function_on_stop", nil)
-			if anim_stop_func then
-				stop_func = loadstring( anim_stop_func .. "(...)" )
-			end
 			
 			level.add_call(
 				function()
 					return game.hud_motion_allowed()
 				end,
 				function()
+					if anim_stop_func then
+						local stop_func = loadstring( anim_stop_func .. "(...)" )
+						stop_func(item, FORCE_STOP)
+					end				
 					unsubscribe()
 					block_non_move_action(false)
 					level.remove_complex_effector(hud_effector_id)
@@ -135,12 +142,16 @@ function set_use_delay(sect, item, anm_length)
 		function()
 			--unsubscribe()
 			hud_remove_info_message("item_usage")
+			--log_news("~use delay function called for item %s", sect)
 			if FORCE_STOP then
-				FORCE_STOP = false
+				FORCE_STOP = false				
+				--log_news("~ues delay function force stopped for item %s", sect)
 			return end
-			use_item_effects.delay_use = true
-			item:get_eatable_item().can_be_eaten = true
 			actor:eat(item)
+			ITEM_USED = true
+		end,
+		function()
+			return FORCE_STOP
 		end
 	)
 end
@@ -157,15 +168,17 @@ function on_key_press(key, game_action)
 	return end
 	if not force_stop_action[game_action] then
 	return end
-	FORCE_STOP = true
+	if not ITEM_USED then
+		FORCE_STOP = true
+		if forced_stop_func then
+			forced_stop_func()
+			forced_stop_func = nil
+		end		
+	end
 	level.remove_complex_effector(hud_effector_id)
 	hud_remove_info_message("item_usage")
 	game.stop_hud_motion()
 	if anim_sound then
 		anim_sound:stop()
-	end
-	if stop_func then
-		stop_func()
-		stop_func = nil
 	end
 end

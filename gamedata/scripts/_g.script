@@ -1779,18 +1779,18 @@ function split_string(inputstr, sep, tonum, tokeys)
 	return t
 end
 
-function add_time_delayed_action(delay_time, func)
+function add_time_delayed_action(delay_time, func, forced_func)
 	local delay = time_global() + delay_time * 1000
 	function time_check()
-		return time_global() >= delay
+		return (forced_func and forced_func()) or time_global() >= delay
 	end
 	level.add_call(time_check, func)
 end
 
-function add_update_delayed_action(updates_count, func)
+function add_update_delayed_action(updates_count, func, forced_func)
 	function update_count_check()
 		updates_count = updates_count-1 
-		return updates_count == 0
+		return (forced_func and forced_func()) or updates_count == 0
 	end
 	level.add_call(update_count_check, func)
 end
@@ -2243,6 +2243,9 @@ function get_hit_type_name(hit_type)
 end
 
 function get_zoom_data(item)
+	if not item then
+		return nil 
+	end	
 	local wpn = item:get_weapon()
 	if not wpn then
 		return nil 

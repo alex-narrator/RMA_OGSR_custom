@@ -577,20 +577,6 @@ function add_download_info(pbox, item)
 	pbox:AddItem(name, precondition, action, item)
 end
 
-function add_heal_injure(pbox, item)
-	local name, precondition, action
-	
-	name = "ui_st_heal_hand_injure"
-	precondition = body_health.can_heal_nand
-	action = body_health.heal_nand
-	pbox:AddItem(name, precondition, action, item)
-	
-	name = "ui_st_heal_leg_injure"
-	precondition = body_health.can_heal_leg
-	action = body_health.heal_leg
-	pbox:AddItem(name, precondition, action, item)
-end
-
 function add_play_music(pbox, item)
 	local name, precondition, action
 	name = "ui_st_music_play"

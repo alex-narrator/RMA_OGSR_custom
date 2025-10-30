@@ -1,4 +1,5 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
+local sm = ogse_signals.get_mgr()
 
 --//donate item
 function can_donate(item)
@@ -28,5 +29,12 @@ function can_eat(item)
 end
 
 function eat(item)
+	sm:call("on_before_use_item_script", item)
+	if not use_item_effects.is_use_enabled(item) then
+	return end
+	if get_hud_sect(item) then
+		eatable_item_anim.play(item)
+		return
+	end
 	actor:eat(item)
 end

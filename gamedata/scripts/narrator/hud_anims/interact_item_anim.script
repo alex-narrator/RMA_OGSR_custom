@@ -79,7 +79,7 @@ function play()
 						actor:transfer_item(tgt, actor)
 					elseif tgt:get_eatable_item() then
 						actor:transfer_item(tgt, actor)
-						actor:eat(tgt)
+						script_actions.eat(tgt)
 					elseif tgt:get_physics_shell() and level.get_target_dist() <= pull_dist then
 						local rq = level.get_current_ray_query()
 						local bone_id = rq and rq.element or 0

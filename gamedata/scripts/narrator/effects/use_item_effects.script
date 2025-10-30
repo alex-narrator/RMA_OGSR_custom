@@ -1,7 +1,6 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
 	sm:subscribe({signal = "on_use",   				fun = this.use_item_effects})
-	sm:subscribe({signal = "on_before_use_item",   	fun = this.check_use_enabled})
 	sm:subscribe({signal = "on_booster_enable",   	fun = this.enable_effect})
 	sm:subscribe({signal = "on_booster_disable",   	fun = this.disable_effect})
 end
@@ -10,65 +9,62 @@ end
 local use_effector_id = 66613 --спеціальний id для ефектору використання, щоб саме його видаляти при використанні іншого предмету
 local boost_efefctor_id = 666650 --id ефектору бустера за замовчуванням
 
-delay_use = false
-
-function check_use_enabled(item, user)
+function is_use_enabled(item)
 	local eatable_item = item:get_eatable_item()
-	if not eatable_item or not user:is_actor() then
-	return end
+	if not eatable_item then
+		return false
+	end
 	
 	local sect = item:section()
 	
 	if item:is_food_item() and not item:is_bottle_item() and not (read_if_exists(sys_ini, "bool", sect, "non_food", false)) and actor.satiety > 0.95 then	
-		eatable_item.can_be_eaten = false
 		news_manager.item_tip(item, "satiety_block_eat")
-	return end
+		return false
+	end
 	
 	if not read_if_exists(sys_ini, "bool", sect, "helmet_use", true) then
 		local check_item = actor:item_in_slot(6)
 		if check_item and read_if_exists(sys_ini, "bool", check_item:section(), "block_eat", false) then
-			eatable_item.can_be_eaten = false
 			news_manager.item_tip(check_item, "outfit_block_eat")
-		return end
+			return false
+		end
 	
 		check_item = actor:item_in_slot(11)
 		if check_item and read_if_exists(sys_ini, "bool", check_item:section(), "block_eat", false) then
-			eatable_item.can_be_eaten = false
 			news_manager.item_tip(check_item, "outfit_block_eat")
-		return end
+			return false
+		end
 	end
 	
-	if get_hud_sect(item) then
-		if not delay_use then
-			eatable_item.can_be_eaten = false
-			eatable_item_anim.play(item)
-		return end
+	if read_if_exists(sys_ini, "bool", sect, "heal_injuries", false) then
+		if body_health.get_injured_limb() == "none" then
+			news_manager.item_tip(item, "no_limbs_injured")
+			return false
+		end
+		if not body_health.get_limb_to_heal() then
+			return false
+		end
 	end
-		
-	eatable_item.can_be_eaten = true
+
+	return true
 end
 
-function use_item_effects(obj, user)
+function use_item_effects(obj)
 	local sect = obj:section()
 	--sounds
 	local snd_name = read_if_exists(sys_ini, "string", sect, "use_sound", nil)
 	if snd_name then
-		xr_sound.get_safe_sound_object(snd_name):play_no_feedback(user, sound_object.s2d, 0, vector(), 1.0)
+		xr_sound.get_safe_sound_object(snd_name):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 	end
-	--тільки для актора
-	if user:is_actor() then
-		if delay_use then
-			delay_use = false
-		end
-		actor_break_sprint()
-		--use effectors
-		local eff_name = read_if_exists(sys_ini, "string", sect, "use_effector", nil)
-		if eff_name then
-			level.remove_complex_effector(use_effector_id)
-			level.add_complex_effector(eff_name, use_effector_id)
-		end
-		somnolence.apply_influence(obj)
+
+	actor_break_sprint()
+	--use effectors
+	local eff_name = read_if_exists(sys_ini, "string", sect, "use_effector", nil)
+	if eff_name then
+		level.remove_complex_effector(use_effector_id)
+		level.add_complex_effector(eff_name, use_effector_id)
 	end
+	somnolence.apply_influence(obj)
 end
 
 function enable_effect(booster)

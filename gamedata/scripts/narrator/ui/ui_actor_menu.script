@@ -1714,7 +1714,7 @@ function ActorMenuOverlay:OnKeyboard(dik, keyboard_action)
 			if self.cell_item_selected then
 				local item = self.cell_item_selected:GetAnyItem()
 				if script_actions.can_eat(item) then
-					actor:eat(item)
+					script_actions.eat(item)
 					self.cell_item_selected = nil
 					self:UpdateInvTip()
 					return true
@@ -1790,8 +1790,6 @@ function ActorMenuOverlay:ShowPropertiesBox(item, cell_item)
 	ui_cell_item_utils.add_move_to_ruck(pbox, item)
 	--//eat
 	ui_cell_item_utils.add_eat(pbox, item)
-	--//heal injure
-	ui_cell_item_utils.add_heal_injure(pbox, item)
 	--//play music
 	ui_cell_item_utils.add_play_music(pbox, item)
 	--//deploy landmine

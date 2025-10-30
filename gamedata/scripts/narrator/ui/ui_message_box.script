@@ -323,3 +323,63 @@ function MessageBoxErrorWnd:HideWnd()
 	end
 	self:DetachWnd()
 end
+
+
+class "MessageBoxHealLimbsWnd" (CUIScriptWnd)
+local msg_box_type = "message_box_heal_limbs"
+
+function MessageBoxHealLimbsWnd:__init(healing_item, attach) super()
+	self.owner = level.main_input_receiver()
+	self:InitWnd(attach)
+	self.healing_item = healing_item
+end
+
+function MessageBoxHealLimbsWnd:DetachWnd()
+	self:ClearCallbacks()
+end
+
+function MessageBoxHealLimbsWnd:InitWnd(attach)
+	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
+	local xml = CScriptXmlInit()
+	xml:ParseFile(OVERLAY_XML)
+	
+	self.message_box = CUIMessageBox()
+	self:AttachChild(self.message_box)
+	self.message_box:Init(msg_box_type)
+	self:Register(self.message_box, "message_box")
+	
+	self:AddCallback("message_box", ui_events.MESSAGE_BOX_YES_CLICKED, self.HealHands, self)
+	self:AddCallback("message_box", ui_events.MESSAGE_BOX_NO_CLICKED, self.HealLegs, self)
+	self:AddCallback("message_box", ui_events.MESSAGE_BOX_CANCEL_CLICKED, self.HideWnd, self)
+	
+	self.tip_text = xml:InitStatic(msg_box_type..":tip_text", self.message_box)
+	
+	if not attach then
+		level.start_stop_menu(self, true)
+	else
+		self.owner:AttachChild(self)
+		self:Enable(true)
+		self:Show(true)
+	end
+end
+
+function MessageBoxHealLimbsWnd:HealHands()
+	body_health.set_limb_to_heal("hand")
+	script_actions.eat(self.healing_item)
+	self:HideWnd()
+end
+
+function MessageBoxHealLimbsWnd:HealLegs()
+	body_health.set_limb_to_heal("leg")
+	script_actions.eat(self.healing_item)
+	self:HideWnd()
+end
+
+function MessageBoxHealLimbsWnd:HideWnd()
+	if self.owner and self.owner:IsChild(self) then
+		self.owner:DetachChild(self)
+	elseif self:IsShown() then
+		level.start_stop_menu(self, true)
+	end
+	self:DetachWnd()
+end
