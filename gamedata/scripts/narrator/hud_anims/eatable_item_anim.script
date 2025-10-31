@@ -57,10 +57,29 @@ function play(item)
 		function()
 			subscribe()
 
-			local anm_speed = read_if_exists(sys_ini, "string", hud_sect, anm_name.."_speed_k", 1)
+			local anm_speed = read_if_exists(sys_ini, "float", hud_sect, anm_name.."_speed_k", 1)
 			
 			local anm_length = game.play_hud_motion(2, hud_sect, anm_name, false, anm_speed * anm_snd_speed(), true)
-			--log3("~anm_length %s", anm_length * 0.001)
+			--log_news("~anm_length %s", anm_length * 0.001)
+			
+			local anm_stop_k = read_if_exists(sys_ini, "float", hud_sect, anm_name.."_stop_k", 1)
+			anm_stop_k = math.clamp(anm_stop_k, 0.001, 1)
+			if anm_stop_k < 1 then
+				anm_length = anm_length * anm_stop_k
+				--log_news("~anm_stop_k %s", anm_stop_k)
+				--log_news("~anm_length new %s", anm_length * 0.001)
+				add_time_delayed_action(
+					anm_length * anm_stop_k * 0.001,
+					function()
+						if not FORCE_STOP then
+							game.stop_hud_motion()
+						end
+					end,
+					function()
+						return FORCE_STOP
+					end					
+				)
+			end
 			
 			hud_add_info_message("item_usage", game.translate_string("st_key_to_stop_anim"), 10)
 			
@@ -91,10 +110,14 @@ function play(item)
 					if anim_stop_func then
 						local stop_func = loadstring( anim_stop_func .. "(...)" )
 						stop_func(item, FORCE_STOP)
-					end				
+					end
 					unsubscribe()
 					block_non_move_action(false)
 					level.remove_complex_effector(hud_effector_id)
+					hud_remove_info_message("item_usage")
+					if anim_sound then
+						anim_sound:stop()
+					end					
 					_G.SCRIPT_ANIM_PLAYING = false
 					if not already_blocked then
 						actor:restore_weapon(ANIM_FAST)
@@ -138,7 +161,7 @@ end
 
 function set_use_delay(sect, item, anm_length)
 	add_time_delayed_action(
-		read_if_exists(sys_ini, "float", sect, "use_delay", anm_length) * 1 / anm_snd_speed(), 
+		read_if_exists(sys_ini, "float", sect, "use_delay", anm_length * 0.001) * 1 / anm_snd_speed(), 
 		function()
 			--unsubscribe()
 			hud_remove_info_message("item_usage")
@@ -175,10 +198,5 @@ function on_key_press(key, game_action)
 			forced_stop_func = nil
 		end		
 	end
-	level.remove_complex_effector(hud_effector_id)
-	hud_remove_info_message("item_usage")
 	game.stop_hud_motion()
-	if anim_sound then
-		anim_sound:stop()
-	end
 end
