@@ -235,6 +235,7 @@ function add_custom_info(UIDesc, obj)
 	if obj:is_eatable_item() then
 		attach_eatable_params(UIDesc, obj)
 		attach_booster_params(UIDesc, obj)
+		attach_anm_use_params(UIDesc, obj)
 	end
 	if is_power_device(obj) then
 		attach_power_params(UIDesc, obj)
@@ -551,6 +552,30 @@ function attach_booster_params(UIDesc, item)
 	if not show then
 		params_list:Show(false)
 	end		
+end
+
+function attach_anm_use_params(UIDesc, item)
+	local hud_sect = get_hud_sect(item)
+	if not hud_sect then
+	return end
+	local anm_name = "anm_use"
+	local anm_speed = read_if_exists(sys_ini, "float", hud_sect, anm_name.."_speed_k", 1)
+	local anm_length = game.get_motion_length(hud_sect, anm_name, anm_speed)
+	local anm_stop_k = read_if_exists(sys_ini, "float", hud_sect, anm_name.."_stop_k", 1)
+	anm_stop_k = math.clamp(anm_stop_k, 0.001, 1)
+	if anm_stop_k < 1 then
+		anm_length = anm_length * anm_stop_k
+	end
+	
+	local use_delay = read_if_exists(sys_ini, "float", hud_sect, "use_delay", anm_length * 0.001)
+	
+	local xml = CScriptXmlInit()
+	xml:ParseFile("script_overlays\\anm_use_time.xml")
+	local static = xml:InitStatic("anm_use_time", UIDesc)
+	local text = string.format("%s %s %s%.1f %s", game.translate_string("st_list_mark"), game.translate_string("st_anm_use_time"), "%c[UI_orange]", use_delay, game.translate_string("st_time_second"))
+	static:SetText(text)
+	--static:AdjustHeightToText()
+	static:AdjustWidthToText()
 end
 
 ------------------------------------------ARMOR WND-------------------------------------------------------------------------------------------------------------------

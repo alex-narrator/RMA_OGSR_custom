@@ -276,6 +276,13 @@ function UIDebugMenu:OnSpawnItemClick(section, i)
 	self.spawn_items_name:SetText(game.translate_string(text))
 	text = read_if_exists(sys_ini, "string", section, "description", "")
 	self.spawn_items_descr:SetText(game.translate_string(text))
+	for i=1, 255 do
+		local add_descr = read_if_exists(sys_ini, "string", section, "description_"..i, nil)
+		if add_descr then
+			local add_text = self.spawn_items_descr:GetText().."\\n"..game.translate_string(add_descr)
+			self.spawn_items_descr:SetText(add_text)
+		end
+	end		
 	
 	self.spawn_items_icon:DetachAll()
 	local icon_static = CUIStatic()
