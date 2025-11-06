@@ -47,6 +47,12 @@ local script_options_tokens = {
 	},	
 }
 
+function init_options()
+	for k,v in pairs (script_options) do
+		v[1] = get_script_option(k)
+	end
+end
+
 function get_script_option(name)
 	local v = script_options[name]
 	if not v then

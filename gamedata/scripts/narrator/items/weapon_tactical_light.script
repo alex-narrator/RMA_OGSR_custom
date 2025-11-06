@@ -1,6 +1,7 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
 	sm:subscribe({signal = "on_key_press",   		fun = this.on_key_press})
+	sm:subscribe({signal = "on_hud_state_switch", 	fun = this.on_state_switch})
 end
 
 local tactical_light_actions = {
@@ -27,6 +28,8 @@ function on_key_press(key, game_action)
 		if act_wpn and act_wpn:is_addon_attached(addon.laser) then
 			level.add_cam_effector([[camera_effects\item_use\mark_adjust.anm]], 1914, false, "")
 			act_wpn:switch_laser(not act_wpn:is_laser_on())
+			local color = get_laser_color(act_item)
+			shader_set_custom_param("laser_params", color[1], color[2], color[3], act_wpn:is_laser_on() and 1 or 0)
 			snd:play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 		end
 	end
@@ -40,4 +43,26 @@ function on_key_press(key, game_action)
 			snd:play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 		end
 	end		
+end
+
+local process_states = {
+	[global_flags.eShowing] = true,
+}
+function on_state_switch(item, state, old_state)
+	local wpn = item:get_weapon_m()
+	if not process_states[state] or not wpn then
+	return end
+	if not wpn:is_addon_attached(addon.laser) then
+		shader_set_custom_param("laser_params", 0, 0, 0, 0)
+		return
+	end
+	local color = get_laser_color(item)
+	shader_set_custom_param("laser_params", color[1], color[2], color[3], wpn:is_laser_on() and 1 or 0)
+end
+
+function get_laser_color(item)
+	local wpn = item:get_weapon_m()
+	local sect = wpn:addon_attachable(addon.laser) and wpn:get_addon_name(addon.laser) or item:section()
+	local laser_light_sect = read_if_exists(sys_ini, "string", sect, "laser_light_definition", nil)
+	return split_string(read_if_exists(sys_ini, "string", laser_light_sect, "color_r2", "1, 0, 0, 1"), ",", true)
 end

@@ -4,6 +4,7 @@ local custom_opt_controls = {}
 
 class "opt_custom" (CUIWindow)
 function opt_custom:__init() super()
+	mm_custom_options.init_options()
 end
 
 function opt_custom:__finalize()
@@ -93,7 +94,7 @@ function opt_custom:OnTrackChange(opt)
 	set_script_option_value(opt, custom_opt_controls[opt]:GetTrackValue())
 	
 	if string.find(opt, "crosshair_color_") then
-		log3("~opt %s", opt)
+		--log3("~opt %s", opt)
 		self.crosshair_color_exaple:SetColor(
 			GetARGB(
 				custom_opt_controls["crosshair_color_a"]:GetTrackValue(),

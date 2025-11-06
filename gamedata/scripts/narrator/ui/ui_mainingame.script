@@ -43,7 +43,7 @@ function attach(sm)
 	sm:subscribe({signal = "on_destroy",   			fun = this.destroy_window})
 end
 
-function get_window()
+function get_overlay()
 	return overlay
 end
 
@@ -840,7 +840,7 @@ function MainIngameOverlay:OnHudStateSwitch(item, state, old_state)
 	if update_states[old_state] then
 		self:SetPanelItemsNeedUpdate()
 	end
-	if crosshair_set_states[state] then
+	if crosshair_set_states[state] and not item:get_device() then
 		self:SetCrosshair(read_if_exists(sys_ini, "string", item:section(), "crosshair", nil))
 		self:UpdateCrosshair(true)
 	end
