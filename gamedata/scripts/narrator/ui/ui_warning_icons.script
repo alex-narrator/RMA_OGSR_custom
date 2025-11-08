@@ -33,7 +33,8 @@ function WarningIcons:InitWnd(xml, owner)
 		{ name = "limbs_injure", 	val = function() return body_health.get_injured_limb() end },
 		{ name = "overweight", 		val = function() return inventory.get_overweight() end },
 		--//gear
-		{ name = "weapon", 			val = function() return (actor:active_item() and not actor:active_item():is_knife()) and 1 - actor:active_item():condition() or 0 end },
+		{ name = "weapon", 			val = function() return (actor:active_item() and not actor:active_item():is_knife() and not (actor:active_item():get_weapon() and actor:active_item():get_weapon():is_misfire())) and 1 - actor:active_item():condition() or 0 end },
+		{ name = "weapon_misfire", 	val = function() return (actor:active_item() and not actor:active_item():is_knife() and actor:active_item():get_weapon() and actor:active_item():get_weapon():is_misfire()) and 1 - actor:active_item():condition() or 0 end },
 		{ name = "knife", 			val = function() return (actor:active_item() and actor:active_item():is_knife()) and 1 - actor:active_item():condition() or 0 end },
 		{ name = "armor", 			val = function() return actor_get_outfit() and 1 - actor_get_outfit():condition() or 0 end },
 		{ name = "helmet", 			val = function() return actor_get_helmet() and 1 - actor_get_helmet():condition() or 0 end },
@@ -47,8 +48,11 @@ function WarningIcons:InitWnd(xml, owner)
 	for k,v in ipairs(self.warning_icons) do
 		v.icon = xml:InitStatic("warning_icons_back:"..v.name, self.warning_icons_back)
 		v.icon:Show(false)
-		//v.threshold = split_string(xml:ReadAttrib("warning_icons_back:"..v.name, "threshold", nil), ",", true)
+		--v.threshold = split_string(xml:ReadAttrib("warning_icons_back:"..v.name, "threshold", nil), ",", true)
 		v.threshold = split_string(read_if_exists(sys_ini, "string", thresholds_sect, v.name, nil), ",", true)
+		if v.name == "weapon_misfire" then
+			v.threshold = split_string(read_if_exists(sys_ini, "string", thresholds_sect, "weapon", nil), ",", true)
+		end
 		
 		self:Register(v.icon, v.name)
 		self:AddCallback(v.name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnFocusReceived(v.name, v.icon) end)

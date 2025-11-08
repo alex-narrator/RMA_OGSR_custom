@@ -1,34 +1,107 @@
 [flashlight_definition]
-;DIRECT		= 0,
-;POINT		= 1,
-;SPOT		= 2,
-;OMNIPART	= 3,
-;REFLECTED	= 4,
-omni_type = 2 ;KRodin: вообще omni это обычно поинт, но поинт светит во все стороны от себя, поэтому тут спот используется.
+;DIRECT					= 0,
+;POINT					= 1,
+;SPOT					= 2,
+;OMNIPART				= 3,
+;REFLECTED				= 4,
+omni_type 				= 2 											;KRodin: вообще omni это обычно поинт, но поинт светит во все стороны от себя, поэтому тут спот используется.
 
-range           = 50	                            ; дальность в метрах
-range_r2        = 50	                            ; дальность в метрах (для динамического освещения)
-color           = 1.0,1.0,1.0,0.6					; цвет, из 4 компонентов <r,g,b,a> значением от 0 до 3.
-color_r2        = 1.0,1.1,1.2,1.2					; цвет, из 4 компонентов <r,g,b,a> значением от 0 до 3. (для динамического освещения)
-omni_range      = 0.25								; дистанция освещения от фонариков неписей в метрах.
-omni_range_r2   = 0.25								; дистанция освещения от фонариков неписей в метрах. (для динамического освещения)
-omni_color      = 1.0,1.0,1.0,0.3					; цвет фонариков неписей, из 4 компонентов <r,g,b,a> значением от 0 до 3.
-omni_color_r2   = 1.0,1.1,1.2,0.2					; цвет фонариков неписей, из 4 компонентов <r,g,b,a> значением от 0 до 3. (для динамического освещения)
-color_animator  = empty								; цвет аниматора (empty - аниматор не используется). //light_torch_01
-spot_texture    = internal\internal_light_torch_tactical_r2 ; текстура яркой точки (только для динамического освещения).
-spot_angle      = 60	                            ; угол разлета света (определяет размер пятна)		; угол освещения в градусах.
-glow_texture    = glow\glow_torch_r2			    ; текстура свечения фонарика, когда он направлен в глаза (обязательный параметр).
-glow_radius     = 0.3								; радиус свечения в метрах.
+range           		= 50	                            			; дальность в метрах
+range_r2        		= 50	                            			; дальность в метрах (для динамического освещения)
+color           		= 1.0,1.0,1.0,0.6								; цвет, из 4 компонентов <r,g,b,a> значением от 0 до 3.
+color_r2        		= 1.0,1.1,1.2,1.2								; цвет, из 4 компонентов <r,g,b,a> значением от 0 до 3. (для динамического освещения)
+omni_range      		= 0.25											; дистанция освещения от фонариков неписей в метрах.
+omni_range_r2   		= 0.25											; дистанция освещения от фонариков неписей в метрах. (для динамического освещения)
+omni_color      		= 1.0,1.0,1.0,0.3								; цвет фонариков неписей, из 4 компонентов <r,g,b,a> значением от 0 до 3.
+omni_color_r2   		= 1.0,1.1,1.2,0.2								; цвет фонариков неписей, из 4 компонентов <r,g,b,a> значением от 0 до 3. (для динамического освещения)
+color_animator  		= empty											; цвет аниматора (empty - аниматор не используется). //light_torch_01
+spot_texture    		= internal\internal_light_torch_tactical_r2 	; текстура яркой точки (только для динамического освещения).
+spot_angle      		= 60	                            			; угол разлета света (определяет размер пятна)		; угол освещения в градусах.
+glow_texture    		= glow\glow_torch_r2			    			; текстура свечения фонарика, когда он направлен в глаза (обязательный параметр).
+glow_radius     		= 0.3											; радиус свечения в метрах.
 
 [red_laser_definition]
-range           = 100	                            ; дальность в метрах
-range_r2        = 100	                            ; дальность в метрах (для динамического освещения)
-color           = 3, 0, 0, 3			; цвет, из 4 компонентов <r,g,b,a> значением от 0 до 3.
-color_r2        = 3, 0, 0, 3			; цвет, из 4 компонентов <r,g,b,a> значением от 0 до 3. (для динамического освещения)
-color_animator  = ;battery_low								; цвет аниматора (empty - аниматор не используется). //light_torch_01
-;spot_texture    = internal\internal_light_torch_r3	; текстура яркой точки (только для динамического освещения).
-spot_angle      = 0.3	                            ; угол разлета света (определяет размер пятна)		; угол освещения в градусах.
+range           		= 100	                            			; дальность в метрах
+range_r2        		= 100	                            			; дальность в метрах (для динамического освещения)
+color           		= 3, 0, 0, 3									; цвет, из 4 компонентов <r,g,b,a> значением от 0 до 3.
+color_r2        		= 3, 0, 0, 3									; цвет, из 4 компонентов <r,g,b,a> значением от 0 до 3. (для динамического освещения)
+color_animator  		= ;battery_low									; цвет аниматора (empty - аниматор не используется). //light_torch_01
+;spot_texture    		= internal\internal_light_torch_r3				; текстура яркой точки (только для динамического освещения).
+spot_angle      		= 0.3	                            			; угол разлета света (определяет размер пятна)		; угол освещения в градусах.
 
 [green_laser_definition]:red_laser_definition
-color           = 0, 3, 0, 3			; цвет, из 4 компонентов <r,g,b,a> значением от 0 до 3.
-color_r2        = 0, 3, 0, 3			; цвет, из 4 компонентов <r,g,b,a> значением от 0 до 3. (для динамического освещения)
+color           		= 0, 3, 0, 3									; цвет, из 4 компонентов <r,g,b,a> значением от 0 до 3.
+color_r2        		= 0, 3, 0, 3									; цвет, из 4 компонентов <r,g,b,a> значением от 0 до 3. (для динамического освещения)
+
+[laser_base]:identity_immunities
+class					= II_ATTCH
+GroupControlSection		= spawn_group
+$prefetch 				= 16
+cform					= skeleton
+
+visual                  = dynamics\equipments\quest\safe_container
+
+inv_grid_width			= 1
+inv_grid_height			= 1
+icon_group 				= addon
+
+[laser_grl_base]:laser_base
+inv_weight				= 0.18
+
+description 			= st_wpn_addon_laser_grl_descr
+description_1 			= st_laser_color_red
+
+addon_icon_sect 		= laser_beam_red
+
+laser_light_definition 	= red_laser_definition
+
+attach_addon_sound 		= interface\item_usage\inv_repair_kit_use_fast_2p8
+detach_addon_sound 		= interface\item_usage\inv_repair_kit_use_fast_2p8
+
+quick_attach 			= false
+
+[wpn_addon_laser_grl_glock]:laser_grl_base
+cost                	= 19900
+
+description_2 			= st_guide_rod_glock_mount
+inv_name 				= st_wpn_addon_laser_grl_glock_name
+inv_name_short 			= st_wpn_addon_laser_grl_glock_short
+icon_text 				= st_wpn_addon_laser_grl_glock_text
+
+inv_grid_x         		= 0
+inv_grid_y         		= 4
+
+[wpn_addon_laser_grl_beretta]:laser_grl_base
+cost                	= 23100
+
+description_2 			= st_guide_rod_glock_mount
+inv_name 				= st_wpn_addon_laser_grl_beretta_name
+inv_name_short 			= st_wpn_addon_laser_grl_beretta_short
+icon_text 				= st_wpn_addon_laser_grl_beretta_text
+
+inv_grid_x         		= 1
+inv_grid_y         		= 4
+
+[wpn_addon_laser_grl_sig220]:laser_grl_base
+cost                	= 27720
+
+description_2 			= st_guide_rod_glock_mount
+inv_name 				= st_wpn_addon_laser_grl_sig220_name
+inv_name_short 			= st_wpn_addon_laser_grl_sig220_short
+icon_text 				= st_wpn_addon_laser_grl_sig220_text
+
+inv_grid_x         		= 2
+inv_grid_y         		= 4
+
+[laser_beam_common]
+icon_group 				= addon
+inv_grid_width     		= 1
+inv_grid_height    		= 1
+
+[laser_beam_red]:laser_beam_common
+inv_grid_x         		= 0
+inv_grid_y         		= 6
+
+[laser_beam_green]:laser_beam_common
+inv_grid_x         		= 1
+inv_grid_y         		= 6

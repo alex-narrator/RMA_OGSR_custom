@@ -363,7 +363,7 @@ function QuickAddonOverlay:CheckScopes(check_item)
 	local pos_up = vector2():set(base_pos.x, base_pos.y - base_size.y - self.items_indent)
 	local addon_type = addon.scope
 	
-	if weapon:is_addon_attached(addon_type) and weapon:addon_attachable(addon_type) then
+	if weapon:is_addon_attached(addon_type) and weapon:addon_attachable(addon_type) and read_if_exists(sys_ini, "bool", weapon:get_addon_name(addon_type), "quick_attach", true) then
 		self.target_item_id = check_item:id()
 		local addon_sect = weapon:get_addon_name(addon_type)
 		local name = "scope_"..addon_sect
@@ -408,7 +408,7 @@ function QuickAddonOverlay:CheckScopes(check_item)
 	if addons_list and weapon:addon_attachable(addon_type) then
 		for k,addon_sect in pairs(addons_list) do
 			local item = actor:object(addon_sect)
-			if item then
+			if item and read_if_exists(sys_ini, "bool", addon_sect, "quick_attach", true) then
 				ui_inv_utils.try_add_to_list(item, items, true)
 			end
 		end		
@@ -471,7 +471,7 @@ function QuickAddonOverlay:CheckSilencers(check_item)
 	local pos_left = vector2():set(base_pos.x - base_size.x - self.items_indent, base_pos.y)
 	local addon_type = addon.silencer
 	
-	if weapon:is_addon_attached(addon_type) and weapon:addon_attachable(addon_type) then
+	if weapon:is_addon_attached(addon_type) and weapon:addon_attachable(addon_type) and read_if_exists(sys_ini, "bool", weapon:get_addon_name(addon_type), "quick_attach", true) then
 		self.target_item_id = check_item:id()
 		local addon_sect = weapon:get_addon_name(addon_type)
 		local name = "silencer_"..addon_sect
@@ -516,7 +516,7 @@ function QuickAddonOverlay:CheckSilencers(check_item)
 	if addons_list and weapon:addon_attachable(addon_type) then
 		for k,addon_sect in pairs(addons_list) do
 			local item = actor:object(addon_sect)
-			if item then
+			if item and read_if_exists(sys_ini, "bool", addon_sect, "quick_attach", true) then
 				ui_inv_utils.try_add_to_list(item, items, true)
 			end
 		end		
@@ -579,7 +579,7 @@ function QuickAddonOverlay:CheckLaunchers(check_item)
 	local pos_right = vector2():set(base_pos.x + base_size.x + self.items_indent, base_pos.y)
 	local addon_type = addon.launcher
 	
-	if weapon:is_addon_attached(addon_type) and weapon:addon_attachable(addon_type) then
+	if weapon:is_addon_attached(addon_type) and weapon:addon_attachable(addon_type) and read_if_exists(sys_ini, "bool", weapon:get_addon_name(addon_type), "quick_attach", true) then
 		self.target_item_id = check_item:id()
 		local addon_sect = weapon:get_addon_name(addon_type)
 		local name = "grenade_launcher_"..addon_sect
@@ -624,7 +624,7 @@ function QuickAddonOverlay:CheckLaunchers(check_item)
 	if addons_list and weapon:addon_attachable(addon_type) then
 		for k,addon_sect in pairs(addons_list) do
 			local item = actor:object(addon_sect)
-			if item then
+			if item and read_if_exists(sys_ini, "bool", addon_sect, "quick_attach", true) then
 				ui_inv_utils.try_add_to_list(item, items, true)
 			end
 		end		
@@ -687,7 +687,7 @@ function QuickAddonOverlay:CheckFlashlights(check_item)
 	local pos_left_top = vector2():set(base_pos.x - base_size.x - self.items_indent, base_pos.y - base_size.y - self.items_indent)
 	local addon_type = addon.flashlight
 	
-	if weapon:is_addon_attached(addon_type) and weapon:addon_attachable(addon_type) then
+	if weapon:is_addon_attached(addon_type) and weapon:addon_attachable(addon_type) and read_if_exists(sys_ini, "bool", weapon:get_addon_name(addon_type), "quick_attach", true) then
 		self.target_item_id = check_item:id()
 		local addon_sect = weapon:get_addon_name(addon_type)
 		local name = "flashlight_"..addon_sect
@@ -733,7 +733,7 @@ function QuickAddonOverlay:CheckFlashlights(check_item)
 	if addons_list and weapon:addon_attachable(addon_type) then
 		for k,addon_sect in pairs(addons_list) do
 			local item = actor:object(addon_sect)
-			if item then
+			if item and read_if_exists(sys_ini, "bool", addon_sect, "quick_attach", true) then
 				ui_inv_utils.try_add_to_list(item, items, true)
 			end
 		end		
@@ -797,7 +797,7 @@ function QuickAddonOverlay:CheckLasers(check_item)
 	local pos_right_top = vector2():set(base_pos.x + base_size.x + self.items_indent, base_pos.y - base_size.y - self.items_indent)
 	local addon_type = addon.laser
 	
-	if weapon:is_addon_attached(addon_type) and weapon:addon_attachable(addon_type) then
+	if weapon:is_addon_attached(addon_type) and weapon:addon_attachable(addon_type) and read_if_exists(sys_ini, "bool", weapon:get_addon_name(addon_type), "quick_attach", true) then
 		self.target_item_id = check_item:id()
 		local addon_sect = weapon:get_addon_name(addon_type)
 		local name = "laser_"..addon_sect
@@ -843,7 +843,7 @@ function QuickAddonOverlay:CheckLasers(check_item)
 	if addons_list and weapon:addon_attachable(addon_type) then
 		for k,addon_sect in pairs(addons_list) do
 			local item = actor:object(addon_sect)
-			if item then
+			if item and read_if_exists(sys_ini, "bool", addon_sect, "quick_attach", true) then
 				ui_inv_utils.try_add_to_list(item, items, true)
 			end
 		end		
@@ -907,7 +907,7 @@ function QuickAddonOverlay:CheckStocks(check_item)
 	local pos_left_down = vector2():set(base_pos.x - base_size.x - self.items_indent, base_pos.y + base_size.y + self.items_indent)
 	local addon_type = addon.stock
 	
-	if weapon:is_addon_attached(addon_type) and weapon:addon_attachable(addon_type) then
+	if weapon:is_addon_attached(addon_type) and weapon:addon_attachable(addon_type) and read_if_exists(sys_ini, "bool", weapon:get_addon_name(addon_type), "quick_attach", true) then
 		self.target_item_id = check_item:id()
 		local addon_sect = weapon:get_addon_name(addon_type)
 		local name = "stock_"..addon_sect
@@ -953,7 +953,7 @@ function QuickAddonOverlay:CheckStocks(check_item)
 	if addons_list and weapon:addon_attachable(addon_type) then
 		for k,addon_sect in pairs(addons_list) do
 			local item = actor:object(addon_sect)
-			if item then
+			if item and read_if_exists(sys_ini, "bool", addon_sect, "quick_attach", true) then
 				ui_inv_utils.try_add_to_list(item, items, true)
 			end
 		end		
@@ -1245,7 +1245,8 @@ function QuickAddonOverlay:OnDetachClick(sect)
 			-- actor:restore_weapon()
 			
 			block_non_move_action(true)
-			local snd = xr_sound.get_safe_sound_object([[interface\inv_detach_addon]])
+			local snd_name = read_if_exists(sys_ini, "string", sect, "attach_addon_sound", "interface\\inv_detach_addon")
+			local snd = xr_sound.get_safe_sound_object(snd_name)
 			snd:play(actor, 0, sound_object.s2d)
 			level.add_call(
 				function()
@@ -1254,9 +1255,9 @@ function QuickAddonOverlay:OnDetachClick(sect)
 				function()
 					detach_addon(slot_item, sect)
 					block_non_move_action(false)
-					actor:restore_weapon()
-				end				
-			)			
+					actor:restore_weapon()				
+				end
+			)
 		end
 	)		
 	
@@ -1335,7 +1336,8 @@ function QuickAddonOverlay:OnAttachClick(id)
 			-- actor:restore_weapon()
 			
 			block_non_move_action(true)
-			local snd = xr_sound.get_safe_sound_object([[interface\inv_attach_addon]])
+			local snd_name = read_if_exists(sys_ini, "string", desired_item:section(), "attach_addon_sound", "interface\\inv_attach_addon")
+			local snd = xr_sound.get_safe_sound_object(snd_name)
 			snd:play(actor, 0, sound_object.s2d)
 			level.add_call(
 				function()
@@ -1344,8 +1346,8 @@ function QuickAddonOverlay:OnAttachClick(id)
 				function()
 					attach_addon(slot_item, desired_item)
 					block_non_move_action(false)
-					actor:restore_weapon()
-				end				
+					actor:restore_weapon()				
+				end
 			)
 		end
 	)	
