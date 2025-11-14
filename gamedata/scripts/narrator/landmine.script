@@ -4,7 +4,7 @@ function get_mine_zone_sect(item)
 end
 
 function deploy_tip(item)
-	return string.format("%s %s", game.translate_string("st_deploy"), game.translate_string(get_inv_name_short(item:section())))
+	return string.format("%s %s", game.translate_string("st_deploy"), get_inv_name_short(item:section()))
 end
 
 function can_deploy(item)
@@ -55,7 +55,7 @@ local spot = "anomaly_zone_location"
 local snd = [[device\pda\pda_tip]]
 
 function give_deploy_msg(item_sect, mine_zone_id)
-	local inv_name = game.translate_string(get_inv_name(item_sect))
+	local inv_name = get_inv_name(item_sect)
 	local news_text = string.format("%s%s\\n%s%s", 
 		"%c[red]",
 		game.translate_string("st_explosive_deployed"),

@@ -145,7 +145,7 @@ function CraftOverlay:InitCraftInfo()
 		static:SetWidth(size.x)
 		static:SetHeight(size.y)
 		static:SetTextComplexMode(true)
-		static:SetText(string.format("%s. %s", i, game.translate_string(get_inv_name(data.result))))
+		static:SetText(string.format("%s. %s", i, get_inv_name(data.result)))
 		static:AdjustHeightToText()
 		static:SetStretchTexture(true)
 		static:InitTexture(back_texture)
@@ -245,14 +245,14 @@ function CraftOverlay:ShowReceiptInfo()
 		end
 		
 		local color = has_count >= count and "%c[green]" or "%c[red]"
-		receipt_info_text = receipt_info_text.."\\n"..color..game.translate_string(get_inv_name(sect)).." "..count.."/"..has_count
+		receipt_info_text = receipt_info_text.."\\n"..color..get_inv_name(sect).." "..count.."/"..has_count
 	end
 	static_back:SetWidth(x-indent)
 	local offset = ui_inv_utils.GetOffset("center", static_back, self.craft_components)
 	static_back:SetWndPos(offset.x, offset.y)
 	self.craft_components:AttachChild(static_back)
 	
-	receipt_info_text = receipt_info_text.."\\n".."%c[default]".."* * *".."\\n"..game.translate_string(read_if_exists(sys_ini, "string", sect, "description", ""))
+	receipt_info_text = receipt_info_text.."\\n".."%c[default]".."* * *".."\\n"..get_inv_descr(sect)
 	self.receipt_info:SetText(receipt_info_text)	
 end
 

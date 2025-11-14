@@ -98,7 +98,7 @@ function UIDetailInfo:InitControls()
 end
 
 function UIDetailInfo:SetItem(item)
-	self.name_st:SetText(game.translate_string(get_inv_name(item:section())))
+	self.name_st:SetText(get_inv_name(item:section()))
 	self.weight_st:SetText(string.format("%3.2f %s", item:weight(), game.translate_string("st_kg")))
 	
 	local trade_partner = level.get_second_talker()

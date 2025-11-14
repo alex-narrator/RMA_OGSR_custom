@@ -35,15 +35,15 @@ function wear_mask(item)
 	
 	if actor:is_in_slot(item) then
 		actor:move_to_ruck(item)
-		str = string.format("%s %s", game.translate_string("st_gasmask_off"), game.translate_string(get_inv_name(item:section())))
+		str = string.format("%s %s", game.translate_string("st_gasmask_off"), get_inv_name(item:section()))
 	else
 		if actor:can_put_in_slot(item, item:get_slot()) then
 			actor:move_to_slot(item)
-			str = string.format("%s %s", game.translate_string("st_gasmask_on"), game.translate_string(get_inv_name(item:section())))
+			str = string.format("%s %s", game.translate_string("st_gasmask_on"), get_inv_name(item:section()))
 		elseif actor_get_helmet() then
 			actor:move_to_ruck(actor_get_helmet())
 			actor:move_to_slot(item)
-			str = string.format("%s %s", game.translate_string("st_gasmask_on"), game.translate_string(get_inv_name(item:section())))
+			str = string.format("%s %s", game.translate_string("st_gasmask_on"), get_inv_name(item:section()))
 		end
 	end
 	if str then

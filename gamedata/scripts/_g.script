@@ -1301,6 +1301,7 @@ function get_actor_id()
 	return level.actor():id()
 end
 -------------------------------------------------------------------------------------------
+local trader_clsids = {}
 local monster_clsids = {}
 local stalker_clsids = {}
 local heli_clsids = {}
@@ -1598,15 +1599,28 @@ function is_osoznanie_mode(npc)
 end
 
 function get_inv_name(section)
-	return sys_ini:r_string(section,"inv_name")
+	return game.translate_string(read_if_exists(sys_ini, "string", section, "inv_name", ""))
 end
 
 function get_inv_name_short(section)
-	return read_if_exists(sys_ini, "string", section, "inv_name_short", get_inv_name(section))
+	return game.translate_string(read_if_exists(sys_ini, "string", section, "inv_name_short", get_inv_name(section)))
 end
 
 function get_inv_icon_text(section)
-	return read_if_exists(sys_ini, "string", section, "icon_text", get_inv_name_short(section))
+	return game.translate_string(read_if_exists(sys_ini, "string", section, "icon_text", get_inv_name_short(section)))
+end
+
+function get_inv_descr(section, separator)
+	separator = separator or ""
+	local descr = read_if_exists(sys_ini, "string", section, "description", "")
+	descr = game.translate_string(descr)
+	for i=1, 255 do
+		local add_descr = read_if_exists(sys_ini, "string", section, "description_"..i, nil)
+		if add_descr then
+			descr = descr.."\\n"..separator.."\\n"..game.translate_string(add_descr)
+		end
+	end
+	return descr
 end
 
 function cobj_by_name(name)
@@ -1779,18 +1793,18 @@ function split_string(inputstr, sep, tonum, tokeys)
 	return t
 end
 
-function add_time_delayed_action(delay_time, func, forced_func)
+function add_time_delayed_action(delay_time, func, forced_stop_func)
 	local delay = time_global() + delay_time * 1000
 	function time_check()
-		return (forced_func and forced_func()) or time_global() >= delay
+		return (forced_stop_func and forced_stop_func()) or time_global() >= delay
 	end
 	level.add_call(time_check, func)
 end
 
-function add_update_delayed_action(updates_count, func, forced_func)
+function add_update_delayed_action(updates_count, func, forced_stop_func)
 	function update_count_check()
 		updates_count = updates_count-1 
-		return (forced_func and forced_func()) or updates_count == 0
+		return (forced_stop_func and forced_stop_func()) or updates_count == 0
 	end
 	level.add_call(update_count_check, func)
 end
@@ -2001,11 +2015,6 @@ function drop_item_to_angle(owner, item, angle)
 end
 
 function is_actor_looking_to_pos(pos, radius)
-	-- local k = vector():sub(pos, device().cam_pos)
-	-- local b = k:dotproduct(device().cam_dir)
-	-- local c = k:dotproduct(k) - radius * radius
-	-- local d = b * b - c
-	-- return d >= 0
 	return level.is_ray_intersect_sphere(device().cam_pos, device().cam_dir, pos, radius) >= 0	
 end
 
@@ -2458,7 +2467,7 @@ end
 
 function IsMoveState(state, compare_state)
 	if (not state) then 
-		printf("~IsMoveState | state {%s) not found ", state)
+		log_news("~IsMoveState | state {%s) not found ", state)
 		return false 
 	end
 	

@@ -13,7 +13,7 @@ function donate(item)
 	--log3("~npc %s, goodwill %s - donate on %s", level.get_second_talker():name(), level.get_second_talker():goodwill(actor), goodwill)
 	target:change_goodwill(goodwill, actor)
 	local header = string.format("%s", target:character_name())
-	local text = string.format("%s: %s\\n%s: %s%+.0f", game.translate_string("st_donate_item_tip"), game.translate_string(get_inv_name_short(item:section())), game.translate_string("st_goodwill_tip"), "%c[green]", goodwill)
+	local text = string.format("%s: %s\\n%s: %s%+.0f", game.translate_string("st_donate_item_tip"), get_inv_name_short(item:section()), game.translate_string("st_goodwill_tip"), "%c[green]", goodwill)
 	news_manager.custom_news(header, text, community.get_news_icon(target:character_community()))
 	actor_menu:UpdateCharInfos()
 end

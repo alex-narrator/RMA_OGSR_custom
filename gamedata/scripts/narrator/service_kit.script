@@ -75,9 +75,9 @@ function show_service_wnd(obj, drop_on_obj)
 	local msg_text = string.format(
 		"%s %s\\n%s %s ?\\n-\\n%s %s%s",
 		game.translate_string(read_if_exists(sys_ini, "string", drop_on_obj:section(), "service_tip", "st_service_item")), 
-		game.translate_string(get_inv_name(drop_on_obj:section())), 
+		get_inv_name(drop_on_obj:section()), 
 		game.translate_string("st_service_with"), 
-		game.translate_string(get_inv_name(obj:section())),
+		get_inv_name(obj:section()),
 		game.translate_string("st_max_codition_gain"),
 		max_cond_add(obj, drop_on_obj) * 100,
 		game.translate_string("st_percent")
@@ -108,7 +108,7 @@ function service(obj, drop_on_obj)
 		local cond_start = drop_on_obj:condition()
 		drop_on_obj:change_condition(cond_add)
 		local cond_end = drop_on_obj:condition()
-		local text = string.format("%s %s %.1f%s", game.translate_string(get_inv_name(drop_on_obj:section())), game.translate_string("st_codition_gain"), (cond_end-cond_start)*100, game.translate_string("st_percent"))
+		local text = string.format("%s %s %.1f%s", get_inv_name(drop_on_obj:section()), game.translate_string("st_codition_gain"), (cond_end-cond_start)*100, game.translate_string("st_percent"))
 		news_manager.custom_news(game.translate_string("st_service_news_header"), text, "ui_icon_repair_tool")
 		
 		local use_count = read_if_exists(sys_ini, "float", rep_kit_sect, "use_count", 0)
@@ -127,7 +127,7 @@ end
 
 --//script menu actions
 function service_0_tip(obj)
-	return string.format("%s %s", game.translate_string("st_service"), game.translate_string(get_inv_name_short(actor:item_in_slot(0):section())))
+	return string.format("%s %s", game.translate_string("st_service"), get_inv_name_short(actor:item_in_slot(0):section()))
 end
 function can_service_0(obj)
 	return can_service(obj, actor:item_in_slot(0))
@@ -138,7 +138,7 @@ function service_0(obj)
 end
 
 function service_1_tip(obj)
-	return string.format("%s %s", game.translate_string("st_service"), game.translate_string(get_inv_name_short(actor:item_in_slot(1):section())))
+	return string.format("%s %s", game.translate_string("st_service"), get_inv_name_short(actor:item_in_slot(1):section()))
 end
 function can_service_1(obj)
 	return can_service(obj, actor:item_in_slot(1))
@@ -149,7 +149,7 @@ function service_1(obj)
 end
 
 function service_2_tip(obj)
-	return string.format("%s %s", game.translate_string("st_service"), game.translate_string(get_inv_name_short(actor:item_in_slot(2):section())))
+	return string.format("%s %s", game.translate_string("st_service"), get_inv_name_short(actor:item_in_slot(2):section()))
 end
 function can_service_2(obj)
 	return can_service(obj, actor:item_in_slot(2))
@@ -160,7 +160,7 @@ function service_2(obj)
 end
 
 function service_4_tip(obj)
-	return string.format("%s %s", game.translate_string("st_service"), game.translate_string(get_inv_name_short(actor:item_in_slot(4):section())))
+	return string.format("%s %s", game.translate_string("st_service"), get_inv_name_short(actor:item_in_slot(4):section()))
 end
 function can_service_4(obj)
 	return can_service(obj, actor:item_in_slot(4))
@@ -171,7 +171,7 @@ function service_4(obj)
 end
 
 function service_6_tip(obj)
-	return string.format("%s %s", game.translate_string("st_service"), game.translate_string(get_inv_name_short(actor:item_in_slot(6):section())))
+	return string.format("%s %s", game.translate_string("st_service"), get_inv_name_short(actor:item_in_slot(6):section()))
 end
 function can_service_6(obj)
 	return can_service(obj, actor:item_in_slot(6))
@@ -353,7 +353,7 @@ function show_disassemble_wnd(obj, drop_on_obj, cell_item)
 		"%s %s%s?\\n%s\\n", 
 		game.translate_string(read_if_exists(sys_ini, "string", drop_on_obj:section(), "disassemble_tip", "st_disassemble_item")), 
 		count > 1 and string.format("%s ", count) or "",
-		game.translate_string(get_inv_name(drop_on_obj:section())),
+		get_inv_name(drop_on_obj:section()),
 		game.translate_string("st_disassemble_parts")
 	)
 	local parts = parse_parts(sys_ini:r_string(drop_on_obj:section(), "disassemble_parts"))
@@ -361,7 +361,7 @@ function show_disassemble_wnd(obj, drop_on_obj, cell_item)
 	for k,v in pairs(parts) do
 		part_str = string.format("%s %s x%s\\n", 
 			game.translate_string("st_list_mark"),
-			game.translate_string(get_inv_name(v.section)),
+			get_inv_name(v.section),
 			tonumber(v.count) * count
 		)
 		msg_text = msg_text..part_str
@@ -422,9 +422,9 @@ function show_saw_off_wnd(obj, drop_on_obj)
 	local msg_text = string.format(
 		"%s %s\\n%s %s ?", 
 		game.translate_string("st_saw_off_remove"), 
-		game.translate_string(get_inv_name(drop_on_obj:section())), 
+		get_inv_name(drop_on_obj:section()), 
 		game.translate_string("st_sawed_off_take"), 
-		game.translate_string(get_inv_name(sys_ini:r_string(drop_on_obj:section(), "sawed_off"))))
+		get_inv_name(sys_ini:r_string(drop_on_obj:section(), "sawed_off")))
 	service_msg_box:InitAction(msg_text, saw_off_item, obj, drop_on_obj)
 end
 

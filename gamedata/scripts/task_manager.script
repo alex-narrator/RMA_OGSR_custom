@@ -716,7 +716,7 @@ function GetRewardText(task_info)
 		local str_sect, str_count
 		for sect,count in pairs(items_list) do
 			str_count = count > 1 and string.format("x%s ", count) or ""
-			str_sect = string.format("%s%s %s\\n",list_prefix, game.translate_string(get_inv_name(sect)), str_count)
+			str_sect = string.format("%s%s %s\\n",list_prefix, get_inv_name(sect), str_count)
 			reward_text = string.format("%s%s", reward_text, str_sect)
 		end
 	end

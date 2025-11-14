@@ -229,7 +229,7 @@ function SlotSelectorOverlay:OnSlotFocusReceived(slot_num)
 		action = actor:active_device() and "ui_st_hide" or "ui_st_show"
 	end
 	action = game.translate_string(action)
-	local name = game.translate_string(get_inv_name_short(actor:item_in_slot(slot_num):section()))
+	local name = get_inv_name_short(actor:item_in_slot(slot_num):section())
 	local text = string.format("%s\\n%s", action, name)
 	self.center_tip:SetText(text)
 end
@@ -279,7 +279,7 @@ function SlotSelectorOverlay:OnQuickFocusReceived(quick_slot_num)
 	self.center_tip:Show(true)
 	local action = "ui_st_quick_use"
 	action = game.translate_string(action)
-	local name = game.translate_string(get_inv_name_short(item:section()))
+	local name = get_inv_name_short(item:section())
 	local text = string.format("%s\\n%s", action, name)
 	self.center_tip:SetText(text)	
 end
@@ -421,7 +421,7 @@ function SlotSelectorOverlay:OnBeltFocusReceived(idx)
 	self.center_tip:Show(true)
 	local action = "ui_st_compat_to_slot"
 	action = game.translate_string(action)
-	local name = game.translate_string(get_inv_name_short(actor:item_on_belt(idx):section()))
+	local name = get_inv_name_short(actor:item_on_belt(idx):section())
 	local text = string.format("%s\\n%s", action, name)
 	self.center_tip:SetText(text)	
 end
@@ -456,7 +456,7 @@ function SlotSelectorOverlay:OnLoadoutFocusReceived(id)
 	self.center_tip:Show(true)
 	local action = "ui_st_compat_to_slot"
 	action = game.translate_string(action)
-	local name = game.translate_string(get_inv_name_short(item:section()))
+	local name = get_inv_name_short(item:section())
 	local text = string.format("%s\\n%s", action, name)
 	self.center_tip:SetText(text)	
 end
@@ -660,7 +660,7 @@ function SlotSelectorOverlay:OnWeaponFocusReceived(id)
 	self.center_tip:Show(true)
 	local action = item:get_weapon_ammo() and "ui_st_reload" or "ui_st_attach"
 	action = game.translate_string(action)
-	local name = game.translate_string(get_inv_name_short(item:section()))
+	local name = get_inv_name_short(item:section())
 	local text = string.format("%s\\n%s", action, name)
 	self.center_tip:SetText(text)	
 end
@@ -722,7 +722,7 @@ function SlotSelectorOverlay:OnDetachFocusReceived(sect)
 	self.center_tip:Show(true)
 	local action = "ui_st_detach"
 	action = game.translate_string(action)
-	local name = game.translate_string(get_inv_name_short(sect))
+	local name = get_inv_name_short(sect)
 	local text = string.format("%s\\n%s", action, name)
 	self.center_tip:SetText(text)	
 end

@@ -701,7 +701,7 @@ function MainIngameOverlay:UpdateActiveItem()
 		
 		self.ammo_counter:SetText(text)
 		params = CIconParams(show_sect)
-		self.active_item:SetText(game.translate_string(get_inv_name_short(show_sect)))
+		self.active_item:SetText(get_inv_name_short(show_sect))
 	end
 	
 	if self.active_item_icon:IsShown() then
@@ -762,7 +762,7 @@ function MainIngameOverlay:UpdateActiveItem()
 			self.active_item_icon_3:SetText(string.format("%.f%s", act_device:binded_object():get_power_level() * 100, "%"))
 		end
 		if self.active_item:GetText() == "" then
-			self.active_item:SetText(game.translate_string(get_inv_name_short(show_sect_3)))
+			self.active_item:SetText(get_inv_name_short(show_sect_3))
 		end
 		
 		self.active_item_icon_3:DetachAll()
@@ -1152,6 +1152,15 @@ function MainIngameOverlay:OnKeyPress(key, game_action)
 	
 	if game_action == key_bindings.kQUICK_ADDON then
 		self.quick_addon:ShowHide()
+	end
+	
+	if game_action == key_bindings.kDROP then
+		local act_item = actor:active_item()
+		local act_device = actor:active_device()
+		local item_to_drop = key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) and act_device or act_item
+		if item_to_drop then
+			actor:drop_item(item_to_drop)
+		end
 	end
 end
 

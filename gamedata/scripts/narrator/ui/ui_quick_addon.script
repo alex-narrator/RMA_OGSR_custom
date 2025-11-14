@@ -1130,7 +1130,7 @@ function QuickAddonOverlay:OnBeltFocusReceived(idx)
 	self:HighlightStatic(static, color_focused)
 	sm:call("on_cell_item_focus", item)
 	
-	local text = game.translate_string("ui_st_take").."\\n"..game.translate_string(get_inv_name_short(item:section()))
+	local text = game.translate_string("ui_st_take").."\\n"..get_inv_name_short(item:section())
 	self:SetTip(text, static)
 end
 
@@ -1166,7 +1166,7 @@ function QuickAddonOverlay:OnLoadoutFocusReceived(id)
 	self:HighlightStatic(static, color_focused)
 	sm:call("on_cell_item_focus", item)
 	
-	local text = (item:get_weapon_ammo() and game.translate_string("ui_st_reload") or game.translate_string("ui_st_take")).."\\n"..game.translate_string(get_inv_name_short(item:section()))
+	local text = (item:get_weapon_ammo() and game.translate_string("ui_st_reload") or game.translate_string("ui_st_take")).."\\n"..get_inv_name_short(item:section())
 	self:SetTip(text, static)
 end
 
@@ -1213,7 +1213,7 @@ function QuickAddonOverlay:OnDetachFocusReceived(sect)
 				or self.stock_items[sect] and self.stock_items[sect].back
 	self:HighlightStatic(static, color_focused)
 	
-	local text = game.translate_string("ui_st_detach").."\\n"..game.translate_string(get_inv_name_short(sect))
+	local text = game.translate_string("ui_st_detach").."\\n"..get_inv_name_short(sect)
 	self:SetTip(text, static)
 end
 
@@ -1275,7 +1275,7 @@ function QuickAddonOverlay:OnAttachFocusReceived(id)
 	self:HighlightStatic(static, color_focused)
 	sm:call("on_cell_item_focus", item)
 	
-	local text = game.translate_string("ui_st_attach").."\\n"..game.translate_string(get_inv_name_short(item:section()))
+	local text = game.translate_string("ui_st_attach").."\\n"..get_inv_name_short(item:section())
 	self:SetTip(text, static)
 end
 

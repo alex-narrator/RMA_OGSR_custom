@@ -417,7 +417,7 @@ function soldiers_bribe_conditions_announcement(actor, npc)
 			local icon_texture, icon_rect = get_texture_info("ui_icon_handshake")
 			local text = ""
 			for k,section in pairs(bribe_items) do
-				text = text..list_prefix..game.translate_string(get_inv_name(section)).."\\n"
+				text = text..list_prefix..get_inv_name(section).."\\n"
 			end
 			actor:give_talk_message(text, icon_texture, icon_rect, "iconed_trade_info")
 		end

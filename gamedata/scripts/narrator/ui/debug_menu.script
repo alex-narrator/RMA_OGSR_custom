@@ -230,7 +230,7 @@ function UIDebugMenu:OnSpawnCategoryClick(k, i)
 		static:SetWidth(size.x)
 		static:SetHeight(size.y)
 		static:SetTextComplexMode(true)
-		static:SetText(game.translate_string(get_inv_name(section)))
+		static:SetText(get_inv_name(section))
 		static:AdjustHeightToText()
 		static:SetStretchTexture(true)
 		static:InitTexture(back_texture)		
@@ -274,15 +274,8 @@ function UIDebugMenu:OnSpawnItemClick(section, i)
 	self.spawn_button:Enable(true)
 	local text = get_inv_name(section)
 	self.spawn_items_name:SetText(game.translate_string(text))
-	text = read_if_exists(sys_ini, "string", section, "description", "")
-	self.spawn_items_descr:SetText(game.translate_string(text))
-	for i=1, 255 do
-		local add_descr = read_if_exists(sys_ini, "string", section, "description_"..i, nil)
-		if add_descr then
-			local add_text = self.spawn_items_descr:GetText().."\\n"..game.translate_string(add_descr)
-			self.spawn_items_descr:SetText(add_text)
-		end
-	end		
+	text = get_inv_descr(section)
+	self.spawn_items_descr:SetText(text)
 	
 	self.spawn_items_icon:DetachAll()
 	local icon_static = CUIStatic()

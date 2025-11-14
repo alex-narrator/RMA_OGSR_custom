@@ -135,7 +135,20 @@ local hud_state_anims = {
 	[global_flags.eFire2] = {name = "cam_anim_fire_2", default = [[camera_effects\actor_actions\knife_stab_2.anm]]},
 }
 
+local hud_state_zoom_out = {
+	[global_flags.eReload] 	= { param_name = "zoom_out_on_reload", 	def_val = true},
+	[global_flags.eMisfire] = { param_name = "zoom_out_on_misfire", def_val = false},
+	[global_flags.eShutter] = {	param_name = "zoom_out_on_shutter", def_val = true},
+}
+
 function on_state_switch(item, state, old_state)
+	local zoom_out_state = hud_state_zoom_out[state]
+	if zoom_out_state then
+		if item:is_zoomed() and read_if_exists(sys_ini, "bool", item:section(), zoom_out_state.param_name, zoom_out_state.def_val) then
+			item:zoom_out()
+		end
+	end
+
 	--level.remove_cam_effector(HUD_STATE_ID)
 	local cam_eff_data = hud_state_anims[state]
 	if not cam_eff_data then

@@ -367,7 +367,7 @@ function relocate_item(actor, type, item)
 	play_news_sound("task")
 	if type == "in" then
 		local task_texture, task_rect = get_texture_info("ui_iconsTotal_found_thing")
-		local news_text = "%c[255,160,160,160]"..game.translate_string("general_in_item").."\\n".."%c[default]"..game.translate_string(get_inv_name(item))		
+		local news_text = "%c[255,160,160,160]"..game.translate_string("general_in_item").."\\n".."%c[default]"..get_inv_name(item)
 		if db.actor:is_talking() then
 			db.actor:give_talk_message(news_text, task_texture, task_rect,"iconed_answer_item")
 		else
@@ -375,7 +375,7 @@ function relocate_item(actor, type, item)
 		end		
 	elseif type == "out" then
 		local task_texture, task_rect = get_texture_info("ui_iconsTotal_lost_thing")
-		local news_text = "%c[255,160,160,160]"..game.translate_string("general_out_item").."\\n".."%c[default]"..game.translate_string(get_inv_name(item))		
+		local news_text = "%c[255,160,160,160]"..game.translate_string("general_out_item").."\\n".."%c[default]"..get_inv_name(item)
 		if db.actor:is_talking() then
 			db.actor:give_talk_message(news_text, task_texture, task_rect,"iconed_answer_item")
 		else
@@ -436,6 +436,6 @@ local tip_by_type = {
 function item_tip(item, tip_type)
 	local tip = tip_by_type[tip_type]
 	local sect = type(item) == "string" and item or item:section()
-	local news = string.format("%s %s", game.translate_string(get_inv_name(sect)), game.translate_string(tip.news))
+	local news = string.format("%s %s", get_inv_name(sect), game.translate_string(tip.news))
 	custom_news(tip.header, news, tip.icon)
 end

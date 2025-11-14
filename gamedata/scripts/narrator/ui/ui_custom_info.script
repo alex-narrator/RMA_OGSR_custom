@@ -8,7 +8,7 @@ function tip_text(item)
 end
 
 function show_info(item)
-	local header = game.translate_string(get_inv_name(item:section()))
+	local header = get_inv_name(item:section())
 	local text = read_if_exists(sys_ini, "string", item:section(), "custom_info", "NO CUSTOM INFO TEXT")
 	ui_info_wnd.show_hide_wnd(text, header)
 end

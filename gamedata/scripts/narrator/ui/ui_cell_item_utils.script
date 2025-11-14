@@ -38,7 +38,8 @@ function drop_cell_item(cell_item, for_all)
 		else
 			item:parent():drop_item(item)
 		end
-	end			
+	end
+	actor_menu:PlayActionSound("drop")
 end
 
 function transfer_cell_item(cell_item, new_owner, for_all)
@@ -156,10 +157,10 @@ function add_reload_weapon(pbox, cell_item)
 	
 	for k,_item in pairs(get_best_ammo(item)) do
 		name = function(item, _item)
-			local str = string.format("%s %s", game.translate_string("st_reload_magazine"), game.translate_string(get_inv_name_short(_item:section())))
+			local str = string.format("%s %s", game.translate_string("st_reload_magazine"), get_inv_name_short(_item:section()))
 			local ammo = _item:get_weapon_ammo()
 			if ammo and ammo:is_magazine() then
-				str = string.format("%s %s (%s)", game.translate_string("st_reload_magazine"), game.translate_string(get_inv_name_short(_item:section())), game.translate_string(get_inv_icon_text(ammo:ammo_sect())))
+				str = string.format("%s %s (%s)", game.translate_string("st_reload_magazine"), get_inv_name_short(_item:section()), get_inv_icon_text(ammo:ammo_sect()))
 			end
 			return str
 		end
@@ -208,7 +209,7 @@ function add_attach_addon(pbox, cell_item)
 			local iitem = item:get_inventory_item()
 			local slot_iitem = slot_item:get_inventory_item()
 			local attach_tip = read_if_exists(sys_ini, "string", item:section(), "menu_attach_tip", "st_attach")
-			name = string.format("%s %s", game.translate_string(attach_tip), game.translate_string(get_inv_name_short(slot_item:section())))
+			name = string.format("%s %s", game.translate_string(attach_tip), get_inv_name_short(slot_item:section()))
 			precondition = function(iitem, slot_iitem)
 				return slot_iitem:can_attach_addon(iitem)
 			end
@@ -252,7 +253,7 @@ function add_detach_addon(pbox, cell_item)
 			if wpn:addon_attachable(i) and wpn:is_addon_attached(i) then
 				local addon_sect = wpn:get_addon_name(i)
 				local detach_tip = read_if_exists(sys_ini, "string", addon_sect, "menu_detach_tip", "st_detach")
-				name = string.format("%s %s", game.translate_string(detach_tip), game.translate_string(get_inv_name_short(addon_sect)))
+				name = string.format("%s %s", game.translate_string(detach_tip), get_inv_name_short(addon_sect))
 				precondition = function(item)
 					return parent_is_actor(item) or actor_menu:GetMode() ~= "trade"
 				end
@@ -458,7 +459,7 @@ function add_attach_power_source(pbox, cell_item)
 	for i = 0, sys_ini:r_u32("inventory","slots") - 1 do
 		local slot_item = actor:item_in_slot(i)
 		if slot_item then
-			name = string.format("%s %s", game.translate_string("st_attach_to"), game.translate_string(get_inv_name_short(slot_item:section())))
+			name = string.format("%s %s", game.translate_string("st_attach_to"), get_inv_name_short(slot_item:section()))
 			precondition = function(item, slot_item)
 				return recharge.can_recharge(item, slot_item)
 			end
@@ -567,7 +568,7 @@ function add_service(pbox, item)
 	for i = 0, sys_ini:r_u32("inventory","slots") - 1 do
 		local slot_item = actor:item_in_slot(i)
 		if slot_item then
-			name = string.format("%s %s", game.translate_string("st_service"), game.translate_string(get_inv_name_short(slot_item:section())))
+			name = string.format("%s %s", game.translate_string("st_service"), get_inv_name_short(slot_item:section()))
 			precondition = function(item, slot_item)
 				return service_kit.can_service(item, slot_item)
 			end

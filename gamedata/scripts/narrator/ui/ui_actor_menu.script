@@ -510,7 +510,7 @@ function ActorMenuOverlay:InitControls()
 	
 	--//action sounds
 	name = "action_sounds"
-	self.sounds = {}
+	self.action_sounds = {}
 	local sound_names = {
 		"open",
 		"close",
@@ -524,7 +524,7 @@ function ActorMenuOverlay:InitControls()
 		"trade",
 	}
 	for k,snd_name in pairs(sound_names) do
-		self.sounds[snd_name] = xr_sound.get_safe_sound_object(xml:ReadAttrib(name, snd_name, ""))
+		self.action_sounds[snd_name] = xr_sound.get_safe_sound_object(xml:ReadAttrib(name, snd_name, ""))
 	end
 	
 	--//operate sounds
@@ -1588,7 +1588,6 @@ function ActorMenuOverlay:OnRuck(item)
 	end
 	self.ruck_list:AddItem(item)
 	self:UpdateCustomDraw()
-	--self:PlayActionSound("to_ruck")
 	self:PlayOperateSound(item)
 end
 
@@ -1599,8 +1598,8 @@ function ActorMenuOverlay:OnDrop(item)
 		ci:GetOwnerList():RemoveItem(item)
 	end
 	self:UpdateCustomDraw()
-	self:PlayActionSound("drop")
-	self:PlayOperateSound(item)
+	-- self:PlayActionSound("drop")
+	-- self:PlayOperateSound(item)
 end
 
 function ActorMenuOverlay:OnSlot(item)
@@ -1610,7 +1609,6 @@ function ActorMenuOverlay:OnSlot(item)
 	end	
 	self.slot_list[item:get_slot()]:AddItem(item)
 	self:UpdateCustomDraw()
-	--self:PlayActionSound("to_slot")
 	self:PlayOperateSound(item)
 end
 
@@ -1620,7 +1618,6 @@ function ActorMenuOverlay:OnBelt(item)
 		ci:GetOwnerList():RemoveItem(item)
 	end
 	self.belt_list:AddItem(item)
-	--self:PlayActionSound("to_belt")
 	self:PlayOperateSound(item)
 end
 
@@ -1637,9 +1634,7 @@ function ActorMenuOverlay:OnMoveLoadout(item, item_in)
 	else
 		self.ruck_list:AddItem(item)
 	end
-	-- if ci then
-		-- ci:ForceUpdate()
-	-- end
+	self:PlayOperateSound(item)
 end
 
 function ActorMenuOverlay:OnUse(item)
@@ -1666,7 +1661,6 @@ function ActorMenuOverlay:OnItemToPartner(partner, item)
 	if self:GetMode() == "trade" and not trade_manager.tradable(item) then
 	return end
 	self.target_list:AddItem(item)
-	--self:PlayActionSound("to_ruck")
 	self:PlayOperateSound(item)
 end
 
@@ -1681,7 +1675,6 @@ function ActorMenuOverlay:OnItemFromPartner(partner, item)
 	return end
 	self.target_list:RemoveItem(item)
 	self:PlayOperateSound(item)
-	self:PlayActionSound("drop")
 end
 
 function ActorMenuOverlay:OnMaxBeltSet(max_belt)
@@ -1941,34 +1934,18 @@ function ActorMenuOverlay:UpdatePrices()
 end
 
 function ActorMenuOverlay:PlayActionSound(name)
-	local snd = self.sounds[name]
+	local snd = self.action_sounds[name]
 	if not snd then
-		log3("![%s]: action sound name [%s] not found in self.sounds", script_name(), name)
+		log_news("![%s]: action sound name [%s] not found in self.sounds", script_name(), name)
 	return end
 	snd:play(actor, 0, sound_object.s2d)
 end
 
 function ActorMenuOverlay:PlayOperateSound(item)
-	local sound_type = "generic"
-	if item:is_ammo() then
-		sound_type = "ammo"
-	elseif item:is_grenade() then
-		sound_type = "grenade"
-	elseif item:is_outfit() then
-		sound_type = "cloth"
-	elseif item:is_knife() then
-		sound_type = "knife"
-	elseif item:is_weapon() then
-		sound_type = "weapon"
-	elseif item:is_bottle_item() then
-		sound_type = "bottle"
-	elseif item:is_medkit() then
-		if get_clsid(item) ~= clsid.obj_bandage then
-			sound_type = "pills"
-		end
-	end
+	local sound_type = read_if_exists(sys_ini, "string", item:section(), "inv_operate_snd_type", "generic")
 	local sound_data = self.operate_sounds[sound_type]
 	if not sound_data then
+		log_news("!%s - operate sound type [%s] not found in self.operate_sounds", script_name(), sound_type)
 	return end
 	local sound_name = sound_data.sound_name
 	if sound_data.rnd_count then
@@ -2041,7 +2018,7 @@ function ActorMenuOverlay:UpdateRepair(cell_item)
 	
 	local text = string.format("%s%s %s %s", color, game.translate_string(is_hack and "ui_inv_hack_cost" or "ui_inv_repair_cost"), is_hack and self.repair:GetHackCost(item) or self.repair:GetRepairCost(item), game.translate_string("ui_st_money_regional"))
 	self.repair_item_back:SetText(text)
-	text = game.translate_string(get_inv_name(item:section()))
+	text = get_inv_name(item:section())
 	self.repair_back:SetText(text)
 
 	ui_inv_utils.AttachRepairMenuIcons(item, self.repair_item)
@@ -2099,7 +2076,7 @@ function ActorMenuOverlay:ShowRepairRequest()
 	local msg_text = string.format(
 		"%s %s\\n%s %s %s ?", 
 		game.translate_string("st_repair_item"), 
-		game.translate_string(get_inv_name(item:section())), 
+		get_inv_name(item:section()), 
 		game.translate_string("st_repair_pay"), 
 		self.repair:GetRepairCost(item),
 		game.translate_string("ui_st_money_regional")

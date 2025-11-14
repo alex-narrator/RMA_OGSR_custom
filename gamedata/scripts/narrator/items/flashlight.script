@@ -55,7 +55,7 @@ function on_state_switch(item, state, old_state)
 						xr_sound.get_safe_sound_object(SWITCH_SOUND):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 					end)
 			else
-				item:switch_power(true)
+				item:switch_power(not is_power_device(item) or item:binded_object():get_power_level() > 0)
 			end
 		elseif state == global_flags.eHiding and not is_glowstick(item) then
 			item:switch_power(false)

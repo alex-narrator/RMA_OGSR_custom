@@ -95,7 +95,6 @@ function UIItemInfo:InitControls()
 	
 	self.descr_list = self.xml:InitScrollView("background_frame:descr_list", self.background_frame)
 	self.descr_list.font = self.xml:ReadAttrib("background_frame:descr_list:descr_text", "font", def_font)
-	self.descr_list.separator = game.translate_string(self.xml:ReadAttrib("background_frame:descr_list:descr_text", "descr_text_separator", ""))
 	tmp_tbl = split_string(self.xml:ReadAttrib("background_frame:descr_list:descr_text", "text_color", def_color), ",")
 	self.descr_list.text_color = GetARGB(tmp_tbl[1], tmp_tbl[2], tmp_tbl[3], tmp_tbl[4])
 end
@@ -134,7 +133,7 @@ function UIItemInfo:InitItemInfo()
 	
 	self.background_frame:Show(true)
 	local sect = item:section()
-	local text = game.translate_string(get_inv_name(sect))
+	local text = get_inv_name(sect)
 	self.name_st:SetText(text)
 	text = string.format("%3.2f %s", item:weight(), game.translate_string("st_kg"))
 	self.weight_st:SetText(text)
@@ -154,9 +153,8 @@ function UIItemInfo:InitItemInfo()
 	
 	self.descr_list:Clear()
 	ogse_signals.get_mgr():call("on_item_info_init", self.descr_list, item)
-	text = read_if_exists(sys_ini, "string", sect, "description", nil)
+	text = get_inv_descr(sect)
 	if text then
-		text = game.translate_string(text)
 		self.descr_text = CUIStatic()
 		self.descr_text:SetWidth(self.descr_list:GetDesiredChildWidth())
 		self.descr_text:SetText(text)
@@ -164,14 +162,6 @@ function UIItemInfo:InitItemInfo()
 		self.descr_text:SetTextColor(self.descr_list.text_color)
 		self.descr_text:SetFont(GetFontCustom(self.descr_list.font))
 		--self.descr_text:AdjustHeightToText()
-		
-		for i=1, 255 do
-			local add_descr = read_if_exists(sys_ini, "string", sect, "description_"..i, nil)
-			if add_descr then
-				local add_text = self.descr_text:GetText().."\\n"..self.descr_list.separator.."\\n"..game.translate_string(add_descr)
-				self.descr_text:SetText(add_text)
-			end
-		end
 		
 		self.descr_text:AdjustHeightToText()
 		self.descr_list:AddWindow(self.descr_text)
@@ -686,7 +676,7 @@ function attach_power_params(UIDesc, obj)
 	local cap_work_time = xml:InitStatic("power_params:cap_work_time", power_params)
 	local worktime_text = string.format("%s %s %s", game.translate_string("st_work_time"), bind_obj:get_work_time(), game.translate_string("st_time_hour"))
 	if bind_obj:power_source_detachable() then
-		worktime_text = worktime_text..string.format(" [%s]", game.translate_string(get_inv_name(bind_obj:get_power_sect())))
+		worktime_text = worktime_text..string.format(" [%s]", get_inv_name(bind_obj:get_power_sect()))
 	end
 	cap_work_time:SetText(worktime_text)
 	cap_work_time:AdjustHeightToText()
@@ -910,7 +900,7 @@ function attach_weapon_addons(UIDesc, obj)
 				addons_st[addon_sect] = CUIStatic()
 				local _st = addons_st[addon_sect]
 				_st:SetWidth(addons_list:GetDesiredChildWidth())
-				addons_txt = string.format("%s %s", game.translate_string("st_list_mark"), game.translate_string(get_inv_name(addon_sect)))
+				addons_txt = string.format("%s %s", game.translate_string("st_list_mark"), get_inv_name(addon_sect))
 				_st:SetText(addons_txt)
 				_st:SetTextComplexMode(true)
 				_st:SetTextColor(addons_list.text_color)
@@ -1055,7 +1045,7 @@ function attach_plate_condition(UIDesc, obj)
 	local plate_params = xml:InitStatic("plate_params", UIDesc)
 	
 	local cap_plate = xml:InitStatic("plate_params:cap_plate", plate_params)
-	local text = string.format("%s:\\n%s", game.translate_string("st_attached_plate"), game.translate_string(get_inv_name_short(bind_obj:get_plate_sect())))
+	local text = string.format("%s:\\n%s", game.translate_string("st_attached_plate"), get_inv_name_short(bind_obj:get_plate_sect()))
 	cap_plate:SetTextComplexMode(true)
 	cap_plate:SetText(text)
 	
@@ -1087,7 +1077,7 @@ function attach_armor_plates(UIDesc, obj)
 		v.st = CUIStatic()
 		local _st = v.st
 		_st:SetWidth(plate_list:GetDesiredChildWidth())
-		text = string.format("%s %s", game.translate_string("st_list_mark"), game.translate_string(get_inv_name(v.section)))
+		text = string.format("%s %s", game.translate_string("st_list_mark"), get_inv_name(v.section))
 		_st:SetText(text)
 		_st:SetTextComplexMode(true)
 		_st:SetTextColor(plate_list.text_color)
@@ -1250,7 +1240,7 @@ function attach_loot_spawn_box(UIDesc, obj)
 		static = CUIStatic()
 		static:SetTextComplexMode(true)
 		static:SetWidth(params_list:GetDesiredChildWidth())
-		local text = string.format("%s%s %s", game.translate_string("st_list_mark"), game.translate_string(get_inv_name(section)), count > 1 and "x"..count or "")
+		local text = string.format("%s%s %s", game.translate_string("st_list_mark"), get_inv_name(section), count > 1 and "x"..count or "")
 		static:SetText(text)
 		static:AdjustHeightToText()
 		
