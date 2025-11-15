@@ -94,7 +94,8 @@ function UICellItemContainer:InitControls()
 	self.auto_grow = self.xml:ReadAttribInt(self.path, "auto_grow", 0) > 0 and true or false
 	self.group_by_type = self.xml:ReadAttribInt(self.path, "group_by_type", 0) > 0 and true or false
 	self.group_similar = self.xml:ReadAttribInt(self.path, "group_similar", 0) > 0 and true or false
-	self.vertical = self.xml:ReadAttribInt(self.path, "vertical", 0) > 0 and true or false
+	self.vertical = self.xml:ReadAttribInt(self.path, "vertical", 0)
+	self.is_vertical = self.vertical ~= 0
 	self.centered = self.xml:ReadAttribInt(self.path, "centered", 0) > 0 and true or false
 	self.drag_enabled = self.xml:ReadAttribInt(self.path, "drag_enabled", 1) > 0 and true or false
 	self.dbclick_enabled = self.xml:ReadAttribInt(self.path, "dbclick_enabled", 1) > 0 and true or false
@@ -252,8 +253,8 @@ function UICellItemContainer:AddItem(item)
 	if cell_pos then
 		local ci = ui_cell_item.UICellItem(self.cell_container, item, cell_pos, self.cell_size, self)
 		local params = CIconParams(item:section())
-		local w = self.vertical and params.grid_height or params.grid_width
-		local h = self.vertical and params.grid_width or params.grid_height
+		local w = self.is_vertical and params.grid_height or params.grid_width
+		local h = self.is_vertical and params.grid_width or params.grid_height
 		self.cell_items[ci] = {x=cell_pos.x, y=cell_pos.y, w=w, h=h}
 		self:ColorizeRestricted(item)
 	end
@@ -312,8 +313,8 @@ end
 function UICellItemContainer:FindFreeCell(item, check_only)
 	local params = CIconParams(item:section())
 	
-	local w = self.vertical and params.grid_height or params.grid_width
-	local h = self.vertical and params.grid_width or params.grid_height
+	local w = self.is_vertical and params.grid_height or params.grid_width
+	local h = self.is_vertical and params.grid_width or params.grid_height
 	
 	if w > self.cols then
 	return false end
@@ -473,7 +474,7 @@ function UICellItemContainer:GetColsNum()
 	return self.cols
 end
 
-function UICellItemContainer:IsVertical()
+function UICellItemContainer:GetVertical()
 	return self.vertical
 end
 

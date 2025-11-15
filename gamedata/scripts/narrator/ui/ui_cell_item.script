@@ -57,17 +57,19 @@ end
 
 function UICellItem:InitControls(cell_pos)
 	local item = level.object_by_id(self.item_id)
-	local params = CIconParams(item:section())	
+	local sect = item:section()
+	local params = CIconParams(sect)
 	
 	self.drag_enabled = self.owner_list:IsDragEnabled()
 	self.dbclick_enabled = self.owner_list:IsDbclickEnabled()
 	
-	local vertical = self.owner_list:IsVertical()
+	local vertical = self.owner_list:GetVertical()
+	local is_vertical = vertical ~= 0
 	local centered = self.owner_list:IsCentered()
 	
 	local cell_size = self.cell_size
-	local icon_w = cell_size.w * (vertical and params.grid_height or params.grid_width)
-	local icon_h = cell_size.h * (vertical and params.grid_width or params.grid_height)
+	local icon_w = cell_size.w * (is_vertical and params.grid_height or params.grid_width)
+	local icon_h = cell_size.h * (is_vertical and params.grid_width or params.grid_height)
 	local pos_x = centered and (self.owner:GetWidth() / 2) - (icon_w / 2) or (cell_pos.x - 1) * cell_size.w
 	local pos_y = centered and (self.owner:GetHeight() / 2) - (icon_h / 2) or (cell_pos.y - 1) * cell_size.h	
 	
@@ -93,15 +95,15 @@ function UICellItem:InitControls(cell_pos)
 	self.icon = CUIStatic()	
 	self:AttachChild(self.icon)	
 	self.icon:Init(0, 0, icon_w, icon_h)
-	--params:set_shader(self.icon)
 
 	SetCellIcon(self.icon, params)
 	
-	if vertical then
+	if is_vertical then
+		local heading = vertical * VERTICAL_HEADING
 		self.icon:EnableHeading(true)
-		self.icon:SetHeading(VERTICAL_HEADING)
+		self.icon:SetHeading(heading)
 		local pivot = vector2():set(cell_size.w * 0.5, cell_size.h * 0.5) --//обертаємо навколо центру лівої верхньої клітинки сітки
-		local offset = VERTICAL_HEADING > 0 and vector2():set(0, icon_h - cell_size.h) or vector2():set(icon_w - cell_size.w, 0)
+		local offset = heading > 0 and vector2():set(0, icon_h - cell_size.h) or vector2():set(icon_w - cell_size.w, 0)
 		self.icon:SetHeadingPivot(pivot, offset, true)
 	end	
 	
@@ -112,7 +114,6 @@ function UICellItem:InitControls(cell_pos)
 	self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnLButtonDown() end, self)
 	self:AddCallback(name, ui_events.WINDOW_RBUTTON_DOWN, function() self:OnRButtonDown() end, self)
 	self:AddCallback(name, ui_events.WINDOW_LBUTTON_DB_CLICK, function() self:OnDBClick() end, self)
-	
 	
 	self:AddCallback(name, ui_events.WINDOW_LBUTTON_UP, function() self:OnLButtonUp() end, self)
 	self:AddCallback(name, ui_events.WINDOW_MOUSE_MOVE, function() self:OnMouseMove() end, self)

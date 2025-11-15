@@ -678,7 +678,7 @@ function UpdateUpgrageIcon(item, icon)
 	local function update(static)
 		local cell_w = icon:GetWidth() / icon_params.grid_width
 		local cell_h = icon:GetHeight() / icon_params.grid_height
-		if heading > 0 then
+		if heading ~= 0 then
 			cell_h = icon:GetWidth() / icon_params.grid_height * get_current_kx()
 			cell_w = icon:GetHeight() / icon_params.grid_width
 		end		
@@ -716,12 +716,22 @@ function UpdateLayerIcons(item, icon)
 	local function update(static, params, offset_type, scale)
 		local cell_w = icon:GetWidth() / icon_params.grid_width
 		local cell_h = icon:GetHeight() / icon_params.grid_height
-		if heading > 0 then
+		
+		if heading ~= 0 then
 			cell_h = icon:GetWidth() / icon_params.grid_height * get_current_kx()
-			cell_w = icon:GetHeight() / icon_params.grid_width
+			cell_w = icon:GetHeight() / icon_params.grid_width			
 		end		
 		local width = params.grid_width * cell_w * scale
 		local height = params.grid_height * cell_h * scale
+		
+		if heading ~= 0 then
+			static = static:GetCUIStatic()
+			static:EnableHeading(true)
+			static:SetHeading(heading)
+			local heading_pivot = vector2():set(width * 0.5, height * 0.5)
+			local heading_offset = heading > 0 and vector2():set(0, height - cell_w) or vector2():set(width - cell_h, 0)
+			static:SetHeadingPivot(heading_pivot, heading_offset, true)
+		end
 		
 		static:SetWidth(width)
 		static:SetHeight(height)
@@ -782,7 +792,7 @@ function UpdatePdaLockIcon(item, icon)
 	local function update(static)
 		local cell_w = icon:GetWidth() / icon_params.grid_width
 		local cell_h = icon:GetHeight() / icon_params.grid_height
-		if heading > 0 then
+		if heading ~= 0 then
 			cell_h = icon:GetWidth() / icon_params.grid_height * get_current_kx()
 			cell_w = icon:GetHeight() / icon_params.grid_width
 		end		
@@ -841,7 +851,7 @@ function UpdatePdaRankIcon(item, icon)
 	local function update(static)
 		local cell_w = icon:GetWidth() / icon_params.grid_width
 		local cell_h = icon:GetHeight() / icon_params.grid_height
-		if heading > 0 then
+		if heading ~= 0 then
 			cell_h = icon:GetWidth() / icon_params.grid_height * get_current_kx()
 			cell_w = icon:GetHeight() / icon_params.grid_width
 		end		
@@ -889,7 +899,7 @@ function UpdateQuestIcon(item, icon)
 	local function update(static)
 		local cell_w = icon:GetWidth() / icon_params.grid_width
 		local cell_h = icon:GetHeight() / icon_params.grid_height
-		if heading > 0 then
+		if heading ~= 0 then
 			cell_h = icon:GetWidth() / icon_params.grid_height * get_current_kx()
 			cell_w = icon:GetHeight() / icon_params.grid_width
 		end		
