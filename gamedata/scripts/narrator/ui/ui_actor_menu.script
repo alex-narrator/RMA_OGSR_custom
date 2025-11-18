@@ -322,6 +322,9 @@ function ActorMenuOverlay:InitControls()
 		s.highlight = xml:InitStatic("quick_slots:slot:highlight", s)
 		s.highlight:Show(false)
 		s.icon = xml:InitStatic("quick_slots:slot:icon", s)
+		s.icon.image = CUIStatic()
+		s.icon.image:SetStretchTexture(true)
+		s.icon:AttachChild(s.icon.image)
 		s.count = xml:InitStatic("quick_slots:slot:count", s)
 		name = "quick_"..i
 		self:Register(s, name)
@@ -805,8 +808,10 @@ function ActorMenuOverlay:DrawSlotIcon(slot_num)
 	local show_icon = sect ~= ""
 	s.icon:Show(show_icon)
 	if show_icon then
-		SetCellIcon(s.icon, CIconParams(sect))
-		ui_inv_utils.UpdateLayerIcons(sect, s.icon)
+		local params = CIconParams(sect)
+		SetCellIcon(s.icon.image, params)
+		ui_inv_utils.CellItemFitToSize(params, s.icon.image, s.icon)
+		ui_inv_utils.UpdateLayerIcons(sect, s.icon.image)
 	end	
 	
 	local count = quick_slots.get_item_count(slot_num)
@@ -815,9 +820,9 @@ function ActorMenuOverlay:DrawSlotIcon(slot_num)
 	s.count:Show(count > 0)
 
 	if count > 0 then
-		s.icon:SetColor(self.quick_color_has_item)
+		s.icon.image:SetColor(self.quick_color_has_item)
 	else
-		s.icon:SetColor(self.quick_color_no_item)
+		s.icon.image:SetColor(self.quick_color_no_item)
 	end
 end
 
@@ -1681,6 +1686,12 @@ function ActorMenuOverlay:OnMaxBeltSet(max_belt)
 	if self.belt_list:GetColsNum() ~= max_belt then
 		self.belt_list:SetColsNum(max_belt)
 		self.belt_list:Reinit()
+		for i = 0, actor:belt_count() - 1 do
+			local item = actor:item_on_belt(i)
+			if item then
+				self.belt_list:AddItem(item)			
+			end
+		end		
 	end
 end
 

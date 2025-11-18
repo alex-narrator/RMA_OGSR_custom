@@ -21,7 +21,8 @@ function try_switch_mode(game_action, device)
 		not actor_hands_free() or
 		not device or
 		not device:get_flashlight() or
-		is_glowstick(device)
+		is_glowstick(device) or
+		not read_if_exists(sys_ini, "string", device:section(), "light_definition_second", nil)
 		then
 	return end
 	
@@ -61,7 +62,7 @@ function on_state_switch(item, state, old_state)
 			item:switch_power(false)
 			xr_sound.get_safe_sound_object(SWITCH_SOUND):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 		elseif state == global_flags.eHidden and is_glowstick(item) then
-			item:switch_power(false)	
+			item:switch_power(actor:is_in_slot(item) or actor:is_on_belt(item))
 		end
 	end
 end

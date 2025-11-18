@@ -6,7 +6,8 @@ end
 
 function death_reson_by_killer(killer)
 	if killer:is_monster() then
-		return get_species(killer):gsub("^%l", string.upper)
+		local props, sect = xr_statistic.getNpcType(killer)
+		return sect
 	end
 	if killer:is_stalker() or killer:is_actor() then
 		return "st_murder"

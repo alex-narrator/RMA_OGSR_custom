@@ -5,11 +5,11 @@ local hud_effector_id = 5559
 local pull_dist = read_if_exists(sys_ini, "float", "actor_capture", "pull_distance", 1.4)
 
 function is_quick_info_shown()
-	return actor_obj:get_default_action_for_obj()
+	return actor_obj:get_default_action_for_obj() or main_window.pickup_item
 end
 
 function get_carbody_target()
-	local tgt = level.get_target_obj()
+	local tgt = level.get_target_obj() or main_window.pickup_item
 	if not tgt or 
 		not tgt:get_nonscript_usable() or
 		not is_quick_info_shown() or 
@@ -72,7 +72,7 @@ function play()
 			block_non_move_action(false)
 			actor_obj:unblock_action(key_bindings.kUSE)
 
-			local tgt = level.get_target_obj()
+			local tgt = level.get_target_obj() or main_window.pickup_item
 			if tgt then
 				if add_act then
 					if tgt:get_container() then

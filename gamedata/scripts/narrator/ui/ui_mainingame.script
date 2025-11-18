@@ -9,14 +9,14 @@ local USE_LUMINOCITY = false --read_if_exists(sys_ini, "bool", "features", "use_
 local MOTION_TEXTURE_PREFIX = "ui_hud_soldier_"
 local MOTION_TEXTURE_POSTFIX = "_warning"
 
-local SHOW_FPS = false
-
 local relation_color = {
 	[0] = GetARGB(255, 50, 255, 0),
 	[1] = GetARGB(255, 255, 200, 0),
 	[2] = GetARGB(255, 255, 0, 0),
 }
 local dead_color = GetARGB(255, 168, 168, 168)
+
+_G.main_window = nil
 
 function get_target_tip_point(tgt)
 	if not tgt then
@@ -48,15 +48,15 @@ function get_overlay()
 end
 
 function create_window()
-	if not overlay then
-		overlay = MainIngameOverlay(get_main_window())
+	if not main_window then
+		_G.main_window = MainIngameOverlay(get_main_window())
 	end
 end
 
 function destroy_window()
-	if overlay then
-		overlay:DetachWnd()
-		overlay = nil
+	if main_window then
+		main_window:DetachWnd()
+		_G.main_window = nil
 	end
 end
 
@@ -1080,23 +1080,32 @@ function MainIngameOverlay:ShowFrontViewMarks()
 	end
 end
 
-function MainIngameOverlay:UpdateFPS()
-	self.fps_counter:Show(SHOW_FPS)
-	if not self.fps_counter:IsShown() then
-	return end
-	local fps = string.format("FPS: %7.2f", ogse_benchmark.get_fps())
-	self.fps_counter:SetText(fps)
-end
-
 function MainIngameOverlay:UpdateTargetTip()
 	local tip = actor_obj:get_default_action_for_obj()
+	if not tip and self.pickup_item then
+		tip = "inventory_item_use"
+	end
 	self.target_tip:Show(tip and tip ~= "" and (actor_hands_free() or actor:ph_capture()))
 	if self.target_tip:IsShown() then
-		local tgt = level.get_target_obj()
+		local tgt = level.get_target_obj() or self.pickup_item
 		if tgt and tgt:get_eatable_item() then
 			tip = "eatable_item_take_or_use"
 		end
-		self.target_tip:SetText(game.translate_string(tip))
+		local text = ""
+		if get_script_option_value("hud_target_info") then
+			if tgt:get_inventory_item() then
+				text = get_inv_name(tgt:section())
+			end
+			if tgt:is_stalker() or tgt:is_trader() then
+				text = string.format("%s%s%s", color_by_relation[tgt:relation(actor)], tgt:character_name(), "%c[default] ")
+			end
+			if tgt:is_monster() then
+				local props, sect = xr_statistic.getNpcType(tgt)
+				text = game.translate_string(sect)
+			end
+		end
+		text = string.format("%s\\n%s", text, game.translate_string(tip))
+		self.target_tip:SetText(text)
 		self.target_tip:AdjustWidthToText()
 		self.target_tip:AdjustHeightToText()		
 		
@@ -1162,12 +1171,56 @@ function MainIngameOverlay:OnKeyPress(key, game_action)
 			actor:drop_item(item_to_drop)
 		end
 	end
+	
+	local mir = level.main_input_receiver()
+	
+	if game_action == key_bindings.kCHECKACTIVEITEM and not SHOW_ACTIVE_ITEM_INFO and not mir then
+		local act_item = actor:active_item()
+		local act_device = actor:active_device()
+		if (not act_item and not act_device) then 
+			outfit_anim.play_outfit("inspect")
+		end
+		if act_item then
+			ammo_check_anim.try_play_anim(act_item)
+		end
+		local ACTIVE_ITEM_INFO_TTL = get_script_option_value("active_item_info_ttl")
+		if act_device and dosimeter.is_dosimeter(act_device) and act_device:is_power_on() then
+			dosimeter.show_actor_radiation()
+			local str = string.format("%s: %.2f %s ", game.translate_string("st_actor_radiation"), actor.radiation, game.translate_string("st_rad"))	
+			hud_add_info_message("item_usage", str, ACTIVE_ITEM_INFO_TTL)
+		end
+		_G.SHOW_ACTIVE_ITEM_INFO = true
+		self.active_item_info_hide_time = time_global() + ACTIVE_ITEM_INFO_TTL * 1000
+	end
+	
+	if game_action == key_bindings.kCHECKGEAR and not SHOW_GEAR_INFO and not mir then
+		_G.SHOW_GEAR_INFO = true
+		self.gear_info_hide_time = time_global() + get_script_option_value("gear_info_ttl") * 1000
+	end
 end
 
 function MainIngameOverlay:OnKeyRelease(key, game_action)
 	-- if game_action == key_bindings.kSCORES or key == DIK_keys.DIK_ESCAPE then
 		-- self:ShowActiveTask(false)
 	-- end
+end
+
+function MainIngameOverlay:UpdateActiveItemInfo()
+	if SHOW_ACTIVE_ITEM_INFO then
+		if self.active_item_info_hide_time and time_global() >= self.active_item_info_hide_time then
+			_G.SHOW_ACTIVE_ITEM_INFO = false
+			self.active_item_info_hide_time = nil
+		end
+	end
+end
+
+function MainIngameOverlay:UpdateGearInfo()
+	if SHOW_GEAR_INFO then
+		if self.gear_info_hide_time and time_global() >= self.gear_info_hide_time then
+			_G.SHOW_GEAR_INFO = false
+			self.gear_info_hide_time = nil
+		end
+	end
 end
 
 function MainIngameOverlay:ShowActiveTask()
@@ -1428,7 +1481,6 @@ function MainIngameOverlay:Update()
 	self:UpdateMissileThrow()
 	self:UpdatePickupItem()
 	self:UpdateCompass()
-	self:UpdateFPS()
 	self:UpdateNVDInfo()
 	self:UpdateCrosshair()
 	
@@ -1436,4 +1488,7 @@ function MainIngameOverlay:Update()
 	self.quick_addon:TrySignalHide()
 	
 	self:UpdateTargetTip()
+	
+	self:UpdateActiveItemInfo()
+	self:UpdateGearInfo()
 end

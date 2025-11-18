@@ -80,7 +80,12 @@ function CellItemFitToSize(params, icon, parent_icon, size)
 	local scale = math.min(scale_x, scale_y)
 	
 	icon:SetWidth(icon_size.x * scale)
-	icon:SetHeight(icon_size.y * scale)	
+	icon:SetHeight(icon_size.y * scale)
+	
+	if parent_icon then
+		local offset = GetOffset("center", icon, parent_icon)
+		icon:SetWndPos(offset.x, offset.y)
+	end
 end
 
 function try_add_to_list(item, tbl, group_similar)

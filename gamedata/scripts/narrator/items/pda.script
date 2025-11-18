@@ -197,7 +197,7 @@ function try_hack(item)
 	local od = se_obj.owner_data
 	local password = od.password
 	local password_tip = shuffle_string(password)
-	local msg = string.format("%s: %s%s%s \\n-\\n%s: %s%s", 
+	local msg = string.format("%s: %s%s%s \\n \\n%s: %s%s", 
 		game.translate_string("st_password_tip"), password == password_tip and "%c[green]" or "", password_tip, "%c[default]", 
 		game.translate_string("st_unlock_attempts"), se_obj.unlock_attempts > 1 and "%c[default]" or "%c[red]", se_obj.unlock_attempts)
 	

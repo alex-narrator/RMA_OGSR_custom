@@ -2,11 +2,13 @@
 local sm = ogse_signals.get_mgr()
 
 function can_save_game()
-	return game_save_manager.can_save_game()	
+	local res = game_save_manager.can_save_game()
+	return res
 end
 
 function is_ammo_for_reload(item)
-	return loadout.can_remove(item) or level.main_input_receiver()
+	local res = loadout.can_remove(item) or level.main_input_receiver()
+	return res
 end
 
 function on_pickup_item_set(item)
@@ -14,7 +16,8 @@ function on_pickup_item_set(item)
 end
 
 function can_artefact_affect(item)
-	return item:condition() > 0 and (actor:is_on_belt(item) or actor:is_in_slot(item))
+	local res = item:condition() > 0 and (actor:is_on_belt(item) or actor:is_in_slot(item))
+	return res
 end
 
 function on_actor_condition_hit(hit_power, hit_type)
@@ -29,5 +32,7 @@ function on_pda_custom_tab(idx)
 end
 
 function can_put_in_belt(item)
-	return actor_menu.belt_list:FindFreeCell(item, true)
+	local res = actor_menu.belt_list:FindFreeCell(item, true)
+	--log_news("~item %s - can_put_in_belt %s", item:name(), res)
+	return res
 end
