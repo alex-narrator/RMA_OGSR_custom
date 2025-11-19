@@ -4,10 +4,6 @@ function attach(sm)
 	sm:subscribe({signal = "on_drop",   			fun = this.on_drop})
 	sm:subscribe({signal = "on_belt",   			fun = this.on_belt})
 	sm:subscribe({signal = "on_ruck",   			fun = this.on_ruck})
-	sm:subscribe({signal = "on_place_item_to_box", 	fun = this.on_move_to_other})
-	sm:subscribe({signal = "on_ruck_npc", 			fun = this.on_move_to_other})
-	sm:subscribe({signal = "on_slot_npc", 			fun = this.on_move_to_other})
-	sm:subscribe({signal = "on_ruck_trader", 		fun = this.on_move_to_other})
 	sm:subscribe({signal = "on_key_press",   		fun = this.on_key_press})
 	sm:subscribe({signal = "on_hud_state_switch",   fun = this.on_state_switch})
 end
@@ -142,10 +138,4 @@ function on_ruck(obj)
 	if not is_glowstick(obj) then
 	return end
 	obj:switch_power(false)
-end
-
-function on_move_to_other(partner, item)
-	if not is_glowstick(item) then
-	return end
-	item:switch_power(false)
 end
