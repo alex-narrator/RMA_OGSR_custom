@@ -593,8 +593,6 @@ function ActorMenuOverlay:OnCellItemFocus(obj, cell_item)
 			end
 		end
 	end
-	
-	
 	--//dragdrop
 	if cell_item then
 		self.cell_item_focused = cell_item
@@ -677,6 +675,15 @@ function ActorMenuOverlay:OnCellItemSelect(item, cell_item)
 	self:UpdateInvTip(cell_item)
 end
 
+function ActorMenuOverlay:ResetCellItemSelected()
+	if not self.cell_item_selected then
+	return end
+	self.cell_item_selected:GetOwnerList():UnselectAll()
+	self.cell_item_selected:ClearColorize()
+	self.cell_item_selected = nil
+	self:UpdateInvTip()	
+end
+
 function ActorMenuOverlay:OnCellItemStartDrag(cell_item)
 	local item = cell_item:GetAnyItem()
 	local cell_pos = vector2():set(1, 1)
@@ -710,8 +717,7 @@ function ActorMenuOverlay:DestroyDragItem()
 end
 
 function ActorMenuOverlay:OnDragItemDrop(cell_item)
-	self.cell_item_selected = nil
-	self:UpdateInvTip()
+	self:ResetCellItemSelected()
 	
 	local item = cell_item:GetItem()
 	local parent = cell_item:GetOwnerList()
@@ -1719,12 +1725,17 @@ function ActorMenuOverlay:OnKeyboard(dik, keyboard_action)
 				local item = self.cell_item_selected:GetAnyItem()
 				if script_actions.can_eat(item) then
 					script_actions.eat(item)
-					self.cell_item_selected = nil
-					self:UpdateInvTip()
+					self:ResetCellItemSelected()
 					return true
 				end
 				if pda.can_try_hack(item) then
 					pda.try_hack(item)
+					self:ResetCellItemSelected()
+					return true
+				end
+				if glowstick.can_be_activated(item) then
+					glowstick.activate(item)
+					self:ResetCellItemSelected()
 					return true
 				end				
 			end
@@ -1826,6 +1837,8 @@ function ActorMenuOverlay:ShowPropertiesBox(item, cell_item)
 	ui_cell_item_utils.add_attach_armor_plate(pbox, item)
 	--//detach armor plate
 	ui_cell_item_utils.add_detach_armor_plate(pbox, cell_item)
+	--//activate glowstick
+	ui_cell_item_utils.add_activate_glowstick(pbox, item)		
 	--//move to carbody
 	ui_cell_item_utils.add_move_to_carbody(pbox, cell_item)
 	--//move to trade
@@ -1983,6 +1996,9 @@ function ActorMenuOverlay:UpdateInvTip(cell_item)
 		if ui_repair.can_repair(item) then
 			text = text.."\\n"..game.translate_string("st_tip_repair")
 		end
+		if glowstick.can_be_activated(item) then
+			text = text.."\\n"..game.translate_string("st_tip_activate_glowstick")
+		end		
 	end
 	self.selected_item_tip:SetText(text)
 end

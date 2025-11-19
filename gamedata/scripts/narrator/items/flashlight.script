@@ -1,7 +1,6 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
 	sm:subscribe({signal = "on_slot",   			fun = this.on_slot})
-	sm:subscribe({signal = "on_drop",   			fun = this.on_drop})
 	sm:subscribe({signal = "on_take",   			fun = this.on_take})
 	sm:subscribe({signal = "on_hud_state_switch",   fun = this.on_state_switch})
 	sm:subscribe({signal = "on_key_press",   		fun = this.on_key_press})
@@ -12,7 +11,6 @@ local SWITCH_SOUND = [[device\torch\switch_torch]]
 function on_key_press(key, game_action)
 	local device = actor:active_device()
 	try_switch_mode(game_action, device)
-	try_glowstick_drop_enable(game_action, device)
 end
 
 function try_switch_mode(game_action, device)
@@ -20,8 +18,7 @@ function try_switch_mode(game_action, device)
 		game_action ~= key_bindings.kWPN_FUNC or
 		not actor_hands_free() or
 		not device or
-		not device:get_flashlight() or
-		is_glowstick(device) or
+		not is_flashlight(device) or
 		not read_if_exists(sys_ini, "string", device:section(), "light_definition_second", nil)
 		then
 	return end
@@ -29,40 +26,21 @@ function try_switch_mode(game_action, device)
 	switch_mode(device)
 end
 
-function try_glowstick_drop_enable(game_action, device)
-	if device and is_glowstick(device) and 
-		game_action == key_bindings.kDROP and key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) then
-		level.add_call(
-			function() return not device:parent() end,
-			function() device:switch_power(not is_power_device(device) or device:binded_object():get_power_level() > 0) end
-		)
-	end
-end
-
-function is_glowstick(item)
-	return item:get_flashlight() and string.find(item:section(), "glowstick")
-end
-
 function on_state_switch(item, state, old_state)
-	if item:get_flashlight() then
+	if is_flashlight(item) then
 		if state == global_flags.eShowing then
-			if not is_glowstick(item) then
-				add_time_delayed_action(0.75, 
-					function() 
-						if not is_power_device(item) or item:binded_object():get_power_level() > 0 then
-							set_light_params(item)
-							item:switch_power(true)
-						end
-						xr_sound.get_safe_sound_object(SWITCH_SOUND):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
-					end)
-			else
-				item:switch_power(not is_power_device(item) or item:binded_object():get_power_level() > 0)
-			end
-		elseif state == global_flags.eHiding and not is_glowstick(item) then
+			add_time_delayed_action(0.75, 
+				function() 
+					if can_switch(item) then
+						set_light_params(item)
+						item:switch_power(true)
+					end
+					xr_sound.get_safe_sound_object(SWITCH_SOUND):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+				end
+			)
+		elseif state == global_flags.eHiding then
 			item:switch_power(false)
 			xr_sound.get_safe_sound_object(SWITCH_SOUND):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
-		elseif state == global_flags.eHidden and is_glowstick(item) then
-			item:switch_power(actor:is_in_slot(item) or actor:is_on_belt(item))
 		end
 	end
 end
@@ -120,20 +98,13 @@ function switch_mode(item)
 end
 
 function on_slot(obj, prev_place)
-	if obj:get_flashlight() and get_light_sect(obj) then
+	if is_flashlight(obj) and get_light_sect(obj) then
 		set_light_params(obj)
 	end
 end
 
-function on_drop(obj)
-	if obj:get_flashlight() and is_glowstick(obj) then
-		if actor_menu:GetMode() == "inventory" then
-			obj:switch_power(not is_power_device(obj) or obj:binded_object():get_power_level() > 0)
-		end
-	end
-end
 function on_take(obj)
-	if obj:get_flashlight() then
+	if is_flashlight(obj) then
 		obj:switch_power(false)
 	end
 end

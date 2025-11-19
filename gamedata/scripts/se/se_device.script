@@ -93,7 +93,6 @@ class "se_device" (cse_alife_item_device)
 function se_device:__init (section) super (section)
 	self.power_level = 1
 	self.cur_power_sect = 1
-	self.is_second_mode = false
 end
 function se_device:on_register()
 	cse_alife_item_device.on_register( self )
@@ -105,7 +104,6 @@ function se_device:STATE_Write (packet)
 	cse_alife_item_device.STATE_Write (self, packet)
 	packet:w_float(self.power_level)
 	packet:w_u8(self.cur_power_sect)
-	packet:w_bool(self.is_second_mode)
 end
 function se_device:STATE_Read (packet, size)
 	cse_alife_item_device.STATE_Read (self, packet, size)
@@ -113,7 +111,62 @@ function se_device:STATE_Read (packet, size)
 	return end	
 	self.power_level = packet:r_float()
 	self.cur_power_sect = packet:r_u8()
+end
+
+---FLASHLIGHT-------------------------------------------------------------------------------------
+class "se_flashlight" (cse_alife_item_device)
+function se_flashlight:__init (section) super (section)
+	self.power_level = 1
+	self.cur_power_sect = 1
+	self.is_second_mode = false
+end
+function se_flashlight:on_register()
+	cse_alife_item_device.on_register( self )
+end
+function se_flashlight:on_unregister()
+	cse_alife_item_device.on_unregister( self )
+end
+function se_flashlight:STATE_Write (packet)
+	cse_alife_item_device.STATE_Write (self, packet)
+	packet:w_float(self.power_level)
+	packet:w_u8(self.cur_power_sect)
+	packet:w_bool(self.is_second_mode)
+end
+function se_flashlight:STATE_Read (packet, size)
+	cse_alife_item_device.STATE_Read (self, packet, size)
+	if packet:r_eof() then
+	return end	
+	self.power_level = packet:r_float()
+	self.cur_power_sect = packet:r_u8()
 	self.is_second_mode = packet:r_bool()
+end
+
+---GLOWSTICK-------------------------------------------------------------------------------------
+class "se_glowstick" (cse_alife_item_device)
+function se_glowstick:__init (section) super (section)
+	self.power_level = 1
+	self.cur_power_sect = 1
+	self.is_activated = false
+end
+function se_glowstick:on_register()
+	cse_alife_item_device.on_register( self )
+end
+function se_glowstick:on_unregister()
+	cse_alife_item_device.on_unregister( self )
+end
+function se_glowstick:STATE_Write (packet)
+	cse_alife_item_device.STATE_Write (self, packet)
+	packet:w_float(self.power_level)
+	packet:w_u8(self.cur_power_sect)
+	packet:w_bool(self.is_activated)
+end
+function se_glowstick:STATE_Read (packet, size)
+	cse_alife_item_device.STATE_Read (self, packet, size)
+	if packet:r_eof() then
+	return end	
+	self.power_level = packet:r_float()
+	self.cur_power_sect = packet:r_u8()
+	self.is_activated = packet:r_bool()
 end
 
 function stats()

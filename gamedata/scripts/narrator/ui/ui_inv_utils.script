@@ -176,6 +176,11 @@ function similar_item(item1, item2)
 		similar = similar and (se_item1.lock_state == 0 and se_item2.lock_state == 0) and (not (od_1 and od_2) or rank_name(od_1.rank) == rank_name(od_2.rank))
 	end
 	
+	if is_glowstick(item1) and is_glowstick(item2) then
+		local se_item1, se_item2 = alife():object(item1:id()), alife():object(item2:id())
+		similar = similar and se_item1.is_activated == se_item2.is_activated
+	end	
+	
 	-- t:stop()
 	-- log3("~similar_item profiled time %s micro-seconds | %s seconds", t:time(), t:time() * 0.000001)	
 	

@@ -84,9 +84,13 @@ function device_binder:net_spawn(data)
 	if self.object:get_torch() then
 		torch.update_brightness(self.object)
 	end
-	if self.object:get_flashlight() then
+	if is_flashlight(self.object) then
 		flashlight.update_brightness(self.object)
-	end		
+	end
+	if is_glowstick(self.object) then
+		glowstick.try_enable_light(self.object)
+		glowstick.update_brightness(self.object)
+	end	
 
 	return spawned
 end
@@ -97,15 +101,7 @@ function device_binder:update(delta)
 	if DEBUG_DISABLED then
 	return end
 	
-	if self:is_working() then
-		--local item = self.object
-		--log3("~[%s]: device %s is working now (power %s)", script_name(), item:name(), self:get_power_level())
-		--якщо худ девайс не в худ-режимі - не витрачаємо батарейку
-		-- if item:is_hud_item() and 
-			-- not flashlight.is_glowstick(item) and
-			-- ((not actor:active_item() or item:id() ~= actor:active_item():id()) and (not actor:active_device() or item:id() ~= actor:active_device():id())) then
-			-- self.last_update_time = false
-		-- return end
+	if self:is_working() or self.se_obj.is_activated then
 		self:decrease_power()
 	elseif self.last_update_time then
 		self.last_update_time = nil
@@ -125,7 +121,7 @@ function device_binder:init_power_source()
 end
 
 function device_binder:is_working()
-	return parent_is_actor(self.object) and (self.object:is_power_on() or self.se_obj.is_nvd_on)
+	return parent_is_actor(self.object) and (self.object:is_power_on() or self.se_obj.is_nvd_on or self.se_obj.is_activated)
 end
 
 function device_binder:decrease_power()
@@ -162,9 +158,12 @@ function device_binder:decrease_power()
 	if self.object:get_torch() then
 		torch.update_brightness(self.object)
 	end
-	if self.object:get_flashlight() then
+	if is_flashlight(self.object) then
 		flashlight.update_brightness(self.object)
-	end	
+	end
+	if is_glowstick(self.object) then
+		glowstick.update_brightness(self.object)
+	end
 	
 	-- if self:get_power_level() <= LOW_POWER_LEVEL and not self.b_was_sended and not xr_conditions.black_screen() then
 		-- news_manager.item_tip(self.object, "low_power")
@@ -242,7 +241,7 @@ function device_binder:recharge(obj_battery)
 	self:init_power_source()
 	
 	alife():release(alife():object(obj_battery:id()), true)
-	if not self.object:is_power_on() and (actor:is_in_slot(self.object) or actor:is_on_belt(self.object)) then--not self.object:get_flashlight() then
+	if not self.object:is_power_on() and (actor:is_in_slot(self.object) or actor:is_on_belt(self.object)) then
 		self.object:switch_power(true)
 	end
 	

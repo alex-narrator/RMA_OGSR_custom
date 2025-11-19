@@ -687,3 +687,11 @@ function add_unpack_loot_spawn_box(pbox, item)
 	action = loot_spawn_box.spawn_loot
 	pbox:AddItem(name, precondition, action, item)
 end
+
+function add_activate_glowstick(pbox, item)
+	local name, precondition, action
+	name = glowstick.tip_text
+	precondition = glowstick.can_be_activated
+	action = glowstick.activate
+	pbox:AddItem(name, precondition, action, item)
+end

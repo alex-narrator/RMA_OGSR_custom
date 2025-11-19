@@ -416,7 +416,7 @@ function get_trade_cost(item)
 end
 
 function tradable(item)
-	return read_if_exists(sys_ini, "bool", item:section(), "can_trade", true) and not read_if_exists(sys_ini, "bool", item:section(), "quest_item", false) and get_trade_cost(item) > 0
+	return read_if_exists(sys_ini, "bool", item:section(), "can_trade", true) and not read_if_exists(sys_ini, "bool", item:section(), "quest_item", false) and get_trade_cost(item) > 0 and not alife():object(item:id()).is_activated
 end
 
 function fill_conditions(tt, config, section, for_buy)

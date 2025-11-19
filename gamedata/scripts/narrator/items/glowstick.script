@@ -1,0 +1,151 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_slot",   			fun = this.on_slot})
+	sm:subscribe({signal = "on_drop",   			fun = this.on_drop})
+	sm:subscribe({signal = "on_belt",   			fun = this.on_belt})
+	sm:subscribe({signal = "on_ruck",   			fun = this.on_ruck})
+	sm:subscribe({signal = "on_place_item_to_box", 	fun = this.on_move_to_other})
+	sm:subscribe({signal = "on_ruck_npc", 			fun = this.on_move_to_other})
+	sm:subscribe({signal = "on_slot_npc", 			fun = this.on_move_to_other})
+	sm:subscribe({signal = "on_ruck_trader", 		fun = this.on_move_to_other})
+	sm:subscribe({signal = "on_key_press",   		fun = this.on_key_press})
+	sm:subscribe({signal = "on_hud_state_switch",   fun = this.on_state_switch})
+end
+
+function tip_text(item)
+	return read_if_exists(sys_ini, "string", item:section(), "activate_tip", "st_activate")
+end
+
+function can_be_enabled(item)
+	if not is_glowstick(item) then
+	return false end
+	local se_obj = alife():object(item:id())
+	local has_power = not is_power_device(item) or item:binded_object():get_power_level() > 0
+	local parent_allowed = se_obj.parent_id == 0 or se_obj.parent_id == 65535
+	return se_obj.is_activated and has_power and parent_allowed
+end
+
+function can_be_activated(item)
+	if not is_glowstick(item) then
+	return false end
+	if not parent_is_actor(item) then
+	return false end	
+	local se_obj = alife():object(item:id())
+	local has_power = not is_power_device(item) or item:binded_object():get_power_level() > 0
+	return se_obj.is_activated == false and has_power
+end
+
+function activate(item)
+	local need_unblock = false
+	block_non_move_action(true)
+	local snd_name = read_if_exists(sys_ini, "string", item:section(), "snd_activate", nil)
+	local snd = xr_sound.get_safe_sound_object(snd_name)
+	snd:play(actor, 0, sound_object.s2d)	
+	level.add_call(
+		function()
+			if not actor.inventory:is_active_slot_blocked() then
+				need_unblock = true
+				actor:hide_weapon(true)
+			end			
+			return not snd or not snd:playing()
+		end,
+		function()
+			local se_obj = alife():object(item:id())
+			se_obj.is_activated = true
+			local cell_item = actor_menu:GetCellItem(item)
+			if cell_item then
+				cell_item:ForceUpdate()
+			end				
+			if actor:is_in_slot(item) or actor:is_on_belt(item) then
+				try_enable_light(item)
+			end
+			block_non_move_action(false)
+			if need_unblock then
+				actor:restore_weapon(true)
+			end			
+		end
+	)
+end
+
+function try_enable_light(item)
+	if not is_glowstick(item) then
+	return end
+	item:switch_power(can_be_enabled(item))
+end
+
+function update_brightness(item)
+	if not is_power_device(item) then
+	return end
+	local brightness = item:binded_object():get_power_level()
+	local light_sect = read_if_exists(sys_ini, "string", item:section(), "light_definition", nil)
+	local brightness_min_k = read_if_exists(sys_ini, "float", light_sect, "brightness_min_k", 0.3)
+	item:get_flashlight():set_brightness(math.clamp(brightness, brightness_min_k, 1))	
+end
+
+function on_key_press(key, game_action)
+	local device = actor:active_device()
+	if level.main_input_receiver() or
+		game_action ~= key_bindings.kWPN_FUNC or
+		not actor_hands_free() or
+		not device or
+		not is_glowstick(device) or
+		not can_be_activated(device)
+		then
+	return end
+
+	actor:hide_weapon(true)
+	block_non_move_action(true)
+	
+	level.add_call(
+		function() 
+			return not actor:active_item() and not actor:active_device()
+		end,
+		function()
+			local snd_name = read_if_exists(sys_ini, "string", device:section(), "snd_activate", nil)
+			local snd = xr_sound.get_safe_sound_object(snd_name)
+			snd:play(actor, 0, sound_object.s2d)	
+			level.add_call(
+				function()	
+					return not snd or not snd:playing()
+				end,
+				function()
+					local se_obj = alife():object(device:id())
+					se_obj.is_activated = true
+					try_enable_light(device)
+					block_non_move_action(false)
+					actor:restore_weapon(true)
+				end
+			)
+		end
+	)
+end
+
+function on_state_switch(item, state, old_state)
+	if state == global_flags.eShowing and is_glowstick(item) and can_be_activated(item) then
+		hud_add_info_message("item_usage", "st_tip_activate_glowstick_hud", 3)
+	end
+end
+
+function on_slot(obj)
+	try_enable_light(obj)
+end
+
+function on_belt(obj)
+	try_enable_light(obj)
+end
+
+function on_drop(obj)
+	try_enable_light(obj)
+end
+
+function on_ruck(obj)
+	if not is_glowstick(obj) then
+	return end
+	obj:switch_power(false)
+end
+
+function on_move_to_other(partner, item)
+	if not is_glowstick(item) then
+	return end
+	item:switch_power(false)
+end
