@@ -174,9 +174,9 @@ function QuickAddonOverlay:CheckBelt(check_item)
 	local base_size = vector2():set(self.central:GetWidth(), self.central:GetHeight())
 	local pos_down = vector2():set(base_pos.x, base_pos.y + base_size.y + self.items_indent)
 	
-	for i = 0, actor:belt_count() - 1 do
+	function fill_list(dummy, item)
+		local id = item:id()
 		local can_set = false
-		local item = actor:item_on_belt(i)
 		local slots = item:get_inventory_item().slots
 		for k,v in pairs(slots) do
 			if v == check_item:get_slot() then
@@ -187,7 +187,7 @@ function QuickAddonOverlay:CheckBelt(check_item)
 		if can_set then
 			self.target_item_id = check_item:id()
 				
-			local name = "belt_"..i
+			local name = "belt_"..id
 			
 			local item_back = CUIStatic()
 			item_back:Init(pos_down.x, pos_down.y, base_size.x, base_size.y)
@@ -209,7 +209,7 @@ function QuickAddonOverlay:CheckBelt(check_item)
 			local offset = ui_inv_utils.GetOffset("center", item_icon, item_back)
 			item_icon:SetWndPos(pos_down.x + offset.x, pos_down.y + offset.y)
 
-			self.belt_items[i] = {back = item_back, icon = item_icon}
+			self.belt_items[id] = {back = item_back, icon = item_icon}
 			
 			pos_down.y = pos_down.y + item_back:GetHeight() + self.items_indent
 			
@@ -218,11 +218,13 @@ function QuickAddonOverlay:CheckBelt(check_item)
 			
 			self:Register(item_back, name)
 			
-			self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnBeltFocusReceived(i) end)
-			self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnBeltFocusLost(i) end)
-			self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnBeltClick(i) end)
+			self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnBeltFocusReceived(id) end)
+			self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnBeltFocusLost(id) end)
+			self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnBeltClick(id) end)
 		end			
 	end
+	
+	actor:iterate_belt(fill_list, nil)
 end
 
 function QuickAddonOverlay:CheckLoadout(check_item)
@@ -1124,9 +1126,9 @@ function QuickAddonOverlay:SetTip(text, static)
 	self.tip:Show(true)
 end
 
-function QuickAddonOverlay:OnBeltFocusReceived(idx)
-	local item = actor:item_on_belt(idx)
-	local static = self.belt_items[idx].back
+function QuickAddonOverlay:OnBeltFocusReceived(id)
+	local item = level.object_by_id(id)
+	local static = self.belt_items[id].back
 	self:HighlightStatic(static, color_focused)
 	sm:call("on_cell_item_focus", item)
 	
@@ -1134,17 +1136,17 @@ function QuickAddonOverlay:OnBeltFocusReceived(idx)
 	self:SetTip(text, static)
 end
 
-function QuickAddonOverlay:OnBeltFocusLost(idx)
-	local item = actor:item_on_belt(idx)
-	local static = self.belt_items[idx].back
+function QuickAddonOverlay:OnBeltFocusLost(id)
+	local item = level.object_by_id(id)
+	local static = self.belt_items[id].back
 	self:HighlightStatic(static, color_none)
 	sm:call("on_cell_item_focus_lost", item)
 	
 	self:SetTip()
 end
 
-function QuickAddonOverlay:OnBeltClick(idx)
-	local desired_item = actor:item_on_belt(idx)
+function QuickAddonOverlay:OnBeltClick(id)
+	local desired_item = level.object_by_id(id)
 	if not desired_item then
 	return end
 	local slot_item = level.object_by_id(self.target_item_id)

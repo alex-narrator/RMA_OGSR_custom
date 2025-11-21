@@ -32,33 +32,28 @@ function can_be_activated(item)
 end
 
 function activate(item)
-	local need_unblock = false
+	actor:hide_weapon(true)
 	block_non_move_action(true)
-	local snd_name = read_if_exists(sys_ini, "string", item:section(), "snd_activate", nil)
-	local snd = xr_sound.get_safe_sound_object(snd_name)
-	snd:play(actor, 0, sound_object.s2d)	
 	level.add_call(
-		function()
-			if not actor.inventory:is_active_slot_blocked() then
-				need_unblock = true
-				actor:hide_weapon(true)
-			end			
-			return not snd or not snd:playing()
+		function() 
+			return not actor:active_item() and not actor:active_device()
 		end,
 		function()
-			local se_obj = alife():object(item:id())
-			se_obj.is_activated = true
-			local cell_item = actor_menu:GetCellItem(item)
-			if cell_item then
-				cell_item:ForceUpdate()
-			end				
-			if actor:is_in_slot(item) or actor:is_on_belt(item) then
-				try_enable_light(item)
-			end
-			block_non_move_action(false)
-			if need_unblock then
-				actor:restore_weapon(true)
-			end			
+			local snd_name = read_if_exists(sys_ini, "string", item:section(), "snd_activate", nil)
+			local snd = xr_sound.get_safe_sound_object(snd_name)
+			snd:play(actor, 0, sound_object.s2d)	
+			level.add_call(
+				function()	
+					return not snd or not snd:playing()
+				end,
+				function()
+					local se_obj = alife():object(item:id())
+					se_obj.is_activated = true
+					try_enable_light(item)
+					block_non_move_action(false)
+					actor:restore_weapon(true)
+				end
+			)
 		end
 	)
 end
@@ -88,37 +83,16 @@ function on_key_press(key, game_action)
 		not can_be_activated(device)
 		then
 	return end
-
-	actor:hide_weapon(true)
-	block_non_move_action(true)
-	
-	level.add_call(
-		function() 
-			return not actor:active_item() and not actor:active_device()
-		end,
-		function()
-			local snd_name = read_if_exists(sys_ini, "string", device:section(), "snd_activate", nil)
-			local snd = xr_sound.get_safe_sound_object(snd_name)
-			snd:play(actor, 0, sound_object.s2d)	
-			level.add_call(
-				function()	
-					return not snd or not snd:playing()
-				end,
-				function()
-					local se_obj = alife():object(device:id())
-					se_obj.is_activated = true
-					try_enable_light(device)
-					block_non_move_action(false)
-					actor:restore_weapon(true)
-				end
-			)
-		end
-	)
+	activate(device)
 end
 
 function on_state_switch(item, state, old_state)
-	if state == global_flags.eShowing and is_glowstick(item) and can_be_activated(item) then
-		hud_add_info_message("item_usage", "st_tip_activate_glowstick_hud", 3)
+	if state == global_flags.eShowing then 
+		if is_glowstick(item) and can_be_activated(item) then
+			hud_add_info_message("item_usage", "st_tip_activate_glowstick_hud", 3)
+		else
+			hud_remove_info_message("item_usage")
+		end
 	end
 end
 
