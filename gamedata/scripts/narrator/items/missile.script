@@ -116,7 +116,7 @@ function on_key_press(key, game_action)
 		actor:activate_slot(NO_ACTIVE_SLOT)
 		level.add_call(
 			function() 
-				return not actor:active_item() and not actor:active_device()
+				return not actor:active_item()
 			end,
 			function()
 				block_non_move_action(false)
@@ -160,25 +160,31 @@ function get_same_missile(item)
 end
 
 function get_other_missile(item)
-	local missile
 	local for_grenade = item:is_grenade()
 	local tbl = for_grenade and grenades or bolts
-	local sects = { [1] = {sect = item:section(), missile = item} }
+	local sects = {}
+	table.insert(sects, {sect = item:section(), missile = item})
 	
 	local function find_sect(section)
 		for k,v in pairs(sects) do
 			if v.sect == section then
-				return true
+				return k
 			end
 		end
 		return false
 	end
 	
 	for k,v in pairs(tbl) do
-		missile = level.object_by_id(k)
+		local missile = level.object_by_id(k)
 		if (not for_grenade or loadout.can_remove(missile)) and not find_sect(missile:section()) then
 			table.insert(sects, {sect = missile:section(), missile = missile})
 		end
 	end
-	return sects[2] and sects[2].missile or nil--sects[1].missile
+	
+	table.sort( sects, function(a, b) return a.sect < b.sect end )
+	
+	local current_idx = find_sect(item:section())
+	local next_idx = current_idx == #sects and 1 or current_idx + 1
+	
+	return sects[next_idx] and sects[next_idx].missile or nil
 end

@@ -60,10 +60,6 @@ function destroy_window()
 	end
 end
 
-function get_slot_selector()
-	return overlay.slot_selector
-end
-
 class "MainIngameOverlay" (CUIScriptWnd)
 
 function MainIngameOverlay:__init(owner) super()
@@ -351,7 +347,7 @@ function MainIngameOverlay:InitControls()
 	self.slot_selector = ui_slot_selector.SlotSelectorOverlay()
 	
 	--//quick addon
-	self.quick_addon = ui_quick_addon.QuickAddonOverlay()
+	self.quick_addon = ui_quick_addon.QuickAddonOverlay()	
 	
 	--//target tip
 	self.target_tip = xml:InitStatic("target_tip", self)
@@ -1153,10 +1149,7 @@ end
 
 function MainIngameOverlay:OnKeyPress(key, game_action)
 	if game_action == key_bindings.kSCORES then
-	
-		self.slot_selector:ShowHideSelector()
-
-		--self:ShowActiveTask(true)
+		self.slot_selector:ShowHide()
 	end
 	
 	if game_action == key_bindings.kQUICK_ADDON then
@@ -1483,9 +1476,6 @@ function MainIngameOverlay:Update()
 	self:UpdateCompass()
 	self:UpdateNVDInfo()
 	self:UpdateCrosshair()
-	
-	self.slot_selector:TrySignalHide()
-	self.quick_addon:TrySignalHide()
 	
 	self:UpdateTargetTip()
 	

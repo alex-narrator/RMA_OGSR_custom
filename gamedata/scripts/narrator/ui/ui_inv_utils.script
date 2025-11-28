@@ -1,5 +1,6 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
-function GetOffset(offset_type, icon, parent_icon)
+function GetOffset(offset_type, icon, parent_icon, indent)
+	indent = indent or 0
 	local offset = vector2():set(0,0)
 	if string.find(offset_type, "left_down") then
 		offset:set(0, parent_icon:GetHeight() - icon:GetHeight())
@@ -7,20 +8,25 @@ function GetOffset(offset_type, icon, parent_icon)
 			offset.x = offset.x - icon:GetWidth()
 			offset.y = offset.y + icon:GetHeight()
 		end
+		offset.x = offset.x - indent
+		offset.y = offset.y + indent	
 		return offset
 	end
 	if string.find(offset_type, "left_top") then
 		if string.find(offset_type, "_out") then
 			offset.x = offset.x - icon:GetWidth()
 			offset.y = offset.y - icon:GetHeight()
-		end	
+		end
+		offset.x = offset.x - indent
+		offset.y = offset.y - indent
 		return offset
 	end
 	if string.find(offset_type, "left_center") then
 		offset:set(0, (parent_icon:GetHeight() / 2) - (icon:GetHeight() / 2))
 		if string.find(offset_type, "_out") then
 			offset.x = offset.x - icon:GetWidth()
-		end		
+		end
+		offset.x = offset.x - indent
 		return offset
 	end
 	if string.find(offset_type, "right_top") then
@@ -28,7 +34,9 @@ function GetOffset(offset_type, icon, parent_icon)
 		if string.find(offset_type, "_out") then
 			offset.x = offset.x + icon:GetWidth()
 			offset.y = offset.y - icon:GetHeight()
-		end		
+		end
+		offset.x = offset.x + indent
+		offset.y = offset.y - indent
 		return offset
 	end
 	if string.find(offset_type, "right_down") then
@@ -36,28 +44,33 @@ function GetOffset(offset_type, icon, parent_icon)
 		if string.find(offset_type, "_out") then
 			offset.x = offset.x + icon:GetWidth()
 			offset.y = offset.y + icon:GetHeight()
-		end		
+		end
+		offset.x = offset.x + indent
+		offset.y = offset.y + indent
 		return offset
 	end
 	if string.find(offset_type, "right_center") then
 		offset:set(parent_icon:GetWidth() - icon:GetWidth(), (parent_icon:GetHeight() / 2) - (icon:GetHeight() / 2))
 		if string.find(offset_type, "_out") then
 			offset.x = offset.x + icon:GetWidth()
-		end		
+		end
+		offset.x = offset.x + indent
 		return offset
 	end
 	if string.find(offset_type, "center_top") then
 		offset:set((parent_icon:GetWidth() / 2) - (icon:GetWidth() / 2), 0)
 		if string.find(offset_type, "_out") then
-			offset.y = offset.y - icon:GetHeight()		
-		end		
+			offset.y = offset.y - icon:GetHeight()
+		end
+		offset.y = offset.y - indent
 		return offset
 	end
 	if string.find(offset_type, "center_down") then
 		offset:set((parent_icon:GetWidth() / 2) - (icon:GetWidth() / 2), parent_icon:GetHeight() - icon:GetHeight())
 		if string.find(offset_type, "_out") then
 			offset.y = offset.y + icon:GetHeight()
-		end		
+		end
+		offset.y = offset.y + indent
 		return offset
 	end
 	if string.find(offset_type, "center") then

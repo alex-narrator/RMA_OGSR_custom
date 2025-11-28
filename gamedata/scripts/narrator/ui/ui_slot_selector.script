@@ -4,27 +4,20 @@ local OVERLAY_XML = "script_overlays\\slot_selector_overlay.xml"
 local subscribed = false
 local sm = ogse_signals.get_mgr()
 
-local color_default = GetARGB(255, 255, 255, 255)
-local color_focused = GetARGB(255, 0, 128, 0)
+local color_default = GetARGB(0, 255, 255, 255)
+local color_focused = GetARGB(255, 255, 255, 0)
+local color_defaul_compat = GetARGB(255, 255, 255, 255)
 
 class "SlotSelectorOverlay" (CUIScriptWnd)
 
 function SlotSelectorOverlay:__init() super()
 	self:InitControls()
-	--self:Subscribe()
 end
 
 function SlotSelectorOverlay:Subscribe()
 	self.subscribed = false
 	if not self.subscribed then
 		self.subscribed = {
-			--{signal = "on_key_release", self = self, fun = self.OnKeyRelease},
-			{signal = "on_slot_selector_show", self = self, fun = self.OnShow},
-			{signal = "on_slot_selector_hide", self = self, fun = self.OnHide},
-			{signal = "on_drop", self = self, fun = self.UpdateSlots},
-			{signal = "on_use", self = self, fun = self.UpdateSlots},
-			{signal = "on_ruck", self = self, fun = self.UpdateSlots},
-			{signal = "on_hud_state_switch", self = self, fun = self.UpdateSlots},
 		}
 		for _, s in ipairs( self.subscribed ) do
 			sm:subscribe( s )
@@ -43,6 +36,8 @@ end
 
 function SlotSelectorOverlay:InitControls()
 	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
+
+	self:DetachAll()
 	
 	local xml = CScriptXmlInit()
 	xml:ParseFile(OVERLAY_XML)
@@ -56,7 +51,15 @@ function SlotSelectorOverlay:InitControls()
 	local pos = ui_inv_utils.GetOffset(self.offset, self.back, self)
 	self.back:SetWndPos(pos.x, pos.y)
 	
+	self.service_back = CUIStatic()
+	self.service_back:Init(0, 0, self.back:GetWidth(), self.back:GetHeight())
+	self.back:AttachChild(self.service_back)
+	
 	self.menu_time_factor = xml:ReadAttribFlt("background", "menu_time_factor", 1)
+	self.slot_icon_scale = xml:ReadAttribFlt("background", "icon_scale", 1)
+	self.slot_icon_indent = xml:ReadAttribFlt("background", "icon_indent", 10)
+
+	self.slot_back_texture = xml:ReadAttrib("background", "back_texture", "ui_inv_back_gray")
 
 	local slot_list = split_string(xml:ReadAttrib("background", "slots", ""), ",", true)
 	
@@ -75,15 +78,20 @@ function SlotSelectorOverlay:InitControls()
 		self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnSlotFocusLost(i) end)
 		self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnSlotClick(i) end)
 		
-		path = path..":icon"
-		local icon = xml:InitStatic(path, static)
-		self.slots[i].icon = icon
-		
-		self.slots[i].icon_scale = xml:ReadAttribFlt(path, "scale", 1)
-		self.slots[i].icon_offset = xml:ReadAttrib(path, "offset", "center")
+		local back = CUIStatic()
+		local size = vector2():set(static:GetWidth() * self.slot_icon_scale, static:GetHeight() * self.slot_icon_scale)
+		back:Init(0, 0, size.x, size.y)
+		local offset = ui_inv_utils.GetOffset("center", back, static)
+		back:SetWndPos(offset.x, offset.y)
+		self.slots[i].static.back = back
+		static:AttachChild(back)
+		back:InitTexture(self.slot_back_texture)
+		back:SetStretchTexture(true)
 	end
 	
 	self.quick_slots_back = xml:InitStatic(root.."quick_slots", self.back)
+	self.quick_slots_back_texture = xml:ReadAttrib(root.."quick_slots", "back_texture", "ui_inv_back_gray")
+	self.quick_slot_icon_scale = xml:ReadAttribFlt(root.."quick_slots", "icon_scale", 1)
 	
 	self.quick_slots = {}
 	for i=0,3 do
@@ -99,33 +107,16 @@ function SlotSelectorOverlay:InitControls()
 		self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnQuickFocusLost(i) end)
 		self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnQuickClick(i) end)
 		
-		path = path..":icon"
-		local icon = xml:InitStatic(path, static)
-		self.quick_slots[i].icon = icon
-		
-		self.quick_slots[i].icon_scale = xml:ReadAttribFlt(path, "scale", 1)
-		self.quick_slots[i].icon_offset = xml:ReadAttrib(path, "offset", "center")
+		local back = CUIStatic()
+		local size = vector2():set(static:GetWidth() * self.quick_slot_icon_scale, static:GetHeight() * self.quick_slot_icon_scale)
+		back:Init(0, 0, size.x, size.y)
+		local offset = ui_inv_utils.GetOffset("center", back, static)
+		back:SetWndPos(offset.x, offset.y)
+		self.quick_slots[i].static.back = back
+		static:AttachChild(back)
+		back:InitTexture(self.quick_slots_back_texture)
+		back:SetStretchTexture(true)
 	end
-	
-	path = root..":belt_items"
-	self.belt_items_back = xml:InitStatic(path, self)
-	self.belt_items_back:Show(false)
-	path = path..":icon"
-	self.belt_items_icon = {}
-	self.belt_items_icon.scale = xml:ReadAttribFlt(path, "scale", 1)
-	self.belt_items_icon.indent = xml:ReadAttribFlt(path, "indent", 1)
-	self.belt_items_icon.size = vector2():set(xml:ReadAttribFlt(path, "width", 1), xml:ReadAttribFlt(path, "height", 1))
-	self.belt_items_icon.pos = vector2():set(xml:ReadAttribFlt(path, "x", 0), xml:ReadAttribFlt(path, "y", 0))
-	
-	path = root..":weapon_items"
-	self.weapon_items_back = xml:InitStatic(path, self)
-	self.weapon_items_back:Show(false)
-	path = path..":icon"
-	self.weapon_items_icon = {}
-	self.weapon_items_icon.scale = xml:ReadAttribFlt(path, "scale", 1)
-	self.weapon_items_icon.indent = xml:ReadAttribFlt(path, "indent", 1)
-	self.weapon_items_icon.size = vector2():set(xml:ReadAttribFlt(path, "width", 1), xml:ReadAttribFlt(path, "height", 1))
-	self.weapon_items_icon.pos = vector2():set(xml:ReadAttribFlt(path, "x", 0), xml:ReadAttribFlt(path, "y", 0))
 	
 	path = root..":center_tip"
 	self.center_tip = xml:InitStatic(path, self.back)
@@ -134,91 +125,92 @@ end
 
 function SlotSelectorOverlay:Update()
 	CUIScriptWnd.Update(self)
+	if not actor_hands_free() then
+		self:ShowHide()
+	end
 end
 
 function SlotSelectorOverlay:UpdateSlots()
 	if level.is_removing_objects() then
 	return end
 	
+	self.center_tip:Show(false)
+	
+	self.service_back:DetachAll()
+	self.compatible_items = {}
+	
 	for i,v in pairs(self.slots) do
 		local item = actor:item_in_slot(i)
-		v.static:Show(item)
-		if v.static:IsShown() then
+		v.static.back:DetachAll()
+		v.static.back:SetColor(color_default)
+		if item then
 			local params = CIconParams(item:section())
-			--params:set_shader(self.slots[i].icon)
-			SetCellIcon(self.slots[i].icon, params)
+			local icon_size = vector2():set(params.grid_width * CELL_W * get_current_kx(), params.grid_height * CELL_H)
 			
-			if self.slots[i].icon_scale ~= 1 then
-				local icon_size = vector2():set(params.grid_width * CELL_W * get_current_kx() * self.slots[i].icon_scale, params.grid_height * CELL_H * self.slots[i].icon_scale)
-				self.slots[i].icon:SetWidth(icon_size.x)
-				self.slots[i].icon:SetHeight(icon_size.y)
-			else
-				ui_inv_utils.CellItemFitToSize(params, self.slots[i].icon, self.slots[i].static)
-			end
+			local icon = CUIStatic()
+			icon:Init(0, 0, icon_size.x, icon_size.y)			
 			
-			local offset = ui_inv_utils.GetOffset(self.slots[i].icon_offset, self.slots[i].icon, self.slots[i].static)
-			self.slots[i].icon:SetWndPos(offset.x, offset.y)
-			self.slots[i].icon:SetColor(color_default)
-			ui_inv_utils.AttachPanelIcons(item, self.slots[i].icon)
+			SetCellIcon(icon, params)
+			
+			ui_inv_utils.CellItemFitToSize(params, icon, v.static)
+			
+			local offset = ui_inv_utils.GetOffset("center", icon, v.static.back)
+			icon:SetWndPos(offset.x, offset.y)
+			ui_inv_utils.AttachPanelIcons(item, icon)
+			
+			v.static.back:AttachChild(icon)
 		end
 	end
 	
 	for i,v in pairs(self.quick_slots) do
 		local sect = quick_slots.get_item_sect(i)
 		local count = quick_slots.get_item_count(i)
-		v.icon:Show(sect ~= "" and count > 0)
-		if v.icon:IsShown() then
+		v.static.back:DetachAll()
+		v.static.back:SetColor(color_default)
+		local show_icon = sect ~= "" and count > 0
+		if show_icon then
 			local params = CIconParams(sect)
-			--params:set_shader(self.quick_slots[i].icon)
-			SetCellIcon(self.quick_slots[i].icon, params)
+			local icon_size = vector2():set(params.grid_width * CELL_W * get_current_kx(), params.grid_height * CELL_H)
+
+			local icon = CUIStatic()
+			icon:Init(0, 0, icon_size.x, icon_size.y)
+
+			SetCellIcon(icon, params)
 			
-			if self.quick_slots[i].icon_scale ~= 1 then
-				local icon_size = vector2():set(params.grid_width * CELL_W * get_current_kx() * self.quick_slots[i].icon_scale, params.grid_height * CELL_H * self.quick_slots[i].icon_scale)
-				self.quick_slots[i].icon:SetWidth(icon_size.x)
-				self.quick_slots[i].icon:SetHeight(icon_size.y)
-			else
-				ui_inv_utils.CellItemFitToSize(params, self.quick_slots[i].icon, self.quick_slots[i].static)
-			end
+			ui_inv_utils.CellItemFitToSize(params, icon, v.static.back)
+			ui_inv_utils.UpdateLayerIcons(sect, icon)
 			
-			local offset = ui_inv_utils.GetOffset(self.quick_slots[i].icon_offset, self.quick_slots[i].icon, self.quick_slots[i].static)
-			self.quick_slots[i].icon:SetWndPos(offset.x, offset.y)
-			self.quick_slots[i].icon:SetColor(color_default)
+			local offset = ui_inv_utils.GetOffset("center", icon, v.static.back)
+			icon:SetWndPos(offset.x, offset.y)
 			
 			local text = ""
 			local count = quick_slots.get_item_count(i)
 			--if count > 1 then
 				text = string.format("x%s", count)
 			--end
-			self.quick_slots[i].icon:SetText(text)
+			icon:SetText(text)
+			
+			v.static.back:AttachChild(icon)			
 		end
 	end
-	
-	self.center_tip:Show(false)
-	
-	self.belt_items_back:DetachAll()
-	self.belt_items_back:Show(false)
-	
-	self.weapon_items_back:DetachAll()
-	self.weapon_items_back:Show(false)	
-	
-	--add_update_delayed_action(1, function() self.quick_slots_back:Show(true) end)
 end
 
 function SlotSelectorOverlay:OnSlotFocusReceived(slot_num)
 	--log3("~OnSlotFocusReceived %s", slot_num)
-	sm:call("on_cell_item_focus", actor:item_in_slot(slot_num))
+	local item = actor:item_in_slot(slot_num)
+	if not item then
+	return end
+	
+	sm:call("on_cell_item_focus", item)
 	
 	for i,v in pairs(self.slots) do
-		self.slots[i].icon:SetColor((i == slot_num) and color_focused or color_default)
+		v.static.back:SetColor((i == slot_num) and color_focused or color_default)
 	end
 	
+	self.service_back:DetachAll()
+	self.compatible_items = {}	
+	
 	self:ShowCompatible(slot_num)
-	local has_compat = table.size(self.belt_items) > 0 or table.size(self.loadout_items) > 0
-	self.belt_items_back:Show(has_compat)
-	self:ShowWeapon(slot_num)
-	local has_weapon = table.size(self.weapon_items) > 0
-	self.weapon_items_back:Show(has_weapon)
-	--self.quick_slots_back:Show(not has_compat and not has_weapon)
 	
 	self.center_tip:Show(true)
 	local action = (slot_num == actor:active_slot()) and "ui_st_hide" or "ui_st_show"
@@ -229,17 +221,14 @@ function SlotSelectorOverlay:OnSlotFocusReceived(slot_num)
 		action = actor:active_device() and "ui_st_hide" or "ui_st_show"
 	end
 	action = game.translate_string(action)
-	local name = get_inv_name_short(actor:item_in_slot(slot_num):section())
+	local name = get_inv_name_short(item:section())
 	local text = string.format("%s\\n%s", action, name)
 	self.center_tip:SetText(text)
 end
 
 function SlotSelectorOverlay:OnSlotFocusLost(slot_num)
 	sm:call("on_cell_item_focus_lost", actor:item_in_slot(slot_num))
-	
-	if not self.belt_items_back:IsShown() then
-		self.slots[slot_num].icon:SetColor(color_default)
-	end
+	self.slots[slot_num].static.back:SetColor(color_default)
 	self.center_tip:Show(false)
 end
 
@@ -274,7 +263,7 @@ function SlotSelectorOverlay:OnQuickFocusReceived(quick_slot_num)
 	return end
 	
 	sm:call("on_quick_item_focus", item)
-	self.quick_slots[quick_slot_num].icon:SetColor(color_focused)
+	self.quick_slots[quick_slot_num].static.back:SetColor(color_focused)
 	
 	self.center_tip:Show(true)
 	local action = "ui_st_quick_use"
@@ -290,7 +279,7 @@ function SlotSelectorOverlay:OnQuickFocusLost(quick_slot_num)
 	return end
 	
 	sm:call("on_quick_item_focus_lost", item)
-	self.quick_slots[quick_slot_num].icon:SetColor(color_default)
+	self.quick_slots[quick_slot_num].static.back:SetColor(color_default)
 	self.center_tip:Show(false)
 end
 
@@ -298,7 +287,6 @@ function SlotSelectorOverlay:OnQuickClick(quick_slot_num)
 	local sect = quick_slots.get_item_sect(quick_slot_num)
 	if sect ~= "" then
 		quick_slots.use_quick_item(quick_slot_num)
-		self:UpdateSlots()
 	end
 end
 
@@ -306,18 +294,17 @@ function SlotSelectorOverlay:ShowCompatible(slot_num)
 	--log3("~ShowCompatible %s", slot_num)
 	
 	self.selected_slot = slot_num
-
-	local item, params, back_st, item_st, text
 	
-	self.belt_items_back:DetachAll()
-	self.belt_items = {}
+	local slot_static = self.slots[slot_num].static
+	local base_size = vector2():set(slot_static:GetWidth(), slot_static:GetHeight())
+	local pos = slot_static:GetWndPos()
 	
-	local orig_pos = self.belt_items_icon.pos
-	local pos = vector2():set(orig_pos.x, orig_pos.y)
-	for i = 0, actor:belt_count() - 1 do
+	local prev_static
+	
+	function perform_action(dummy, item)
 		local can_set = false
-		item = actor:item_on_belt(i)
 		local slots = item:get_inventory_item().slots
+		local id = item:id()
 		for k,v in pairs(slots) do
 			if v == slot_num then
 				can_set = true
@@ -327,35 +314,47 @@ function SlotSelectorOverlay:ShowCompatible(slot_num)
 		--log3("~check item %s | slots %s", item:name(), slots)
 		if can_set then
 			--log3("~item %s | slot %s", item:name(), slot_num)
-			local name = "belt_"..i
+			local name = item:name()..id
+			
+			local back = CUIStatic()
+			local size = vector2():set(slot_static:GetWidth() * self.slot_icon_scale, slot_static:GetHeight() * self.slot_icon_scale)
+			back:Init(0, 0, size.x, size.y)
+			self.service_back:AttachChild(back)
+			back:InitTexture(self.slot_back_texture)
+			back:SetStretchTexture(true)
+			local table_end = self.compatible_items[#self.compatible_items]
+			prev_static = table_end and table_end.static or slot_static			
+			local offset = ui_inv_utils.GetOffset("center_down_out", back, prev_static, self.slot_icon_indent)
+			pos.x = pos.x + offset.x
+			pos.y = pos.y + offset.y
+			back:SetWndPos(pos.x, pos.y)
 			
 			params = CIconParams(item:section())
-			local icon_size = vector2():set(params.grid_width * CELL_W * self.belt_items_icon.scale * get_current_kx(), params.grid_height * CELL_H * self.belt_items_icon.scale)
+			local icon_size = vector2():set(params.grid_width * CELL_W * get_current_kx(), params.grid_height * CELL_H)		
 			
-			item_st = CUIStatic()
-			item_st:Init(pos.x, pos.y, icon_size.x, icon_size.y)
+			local icon = CUIStatic()
+			icon:Init(0, 0, icon_size.x, icon_size.y)
 			
-			if self.belt_items_icon.scale == 1 then
-				ui_inv_utils.CellItemFitToSize(params, item_st, nil, self.belt_items_icon.size)
-			end			
+			ui_inv_utils.CellItemFitToSize(params, icon, back)
 			
-			--params:set_shader(item_st)
-			SetCellIcon(item_st, params)
-			ui_inv_utils.AttachPanelIcons(item, item_st)
+			SetCellIcon(icon, params)
+			ui_inv_utils.AttachPanelIcons(item, icon)
 
-			self.belt_items_back:AttachChild(item_st)
-
-			self.belt_items[i] = item_st
+			back:AttachChild(icon)
 			
-			pos.x = pos.x + item_st:GetWidth() + self.belt_items_icon.indent
+			table.insert(self.compatible_items, {back = back})
 			
-			self:Register(item_st, name)
+			local idx = #self.compatible_items
 			
-			self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnBeltFocusReceived(i) end)
-			self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnBeltFocusLost(i) end)
-			self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnBeltClick(i) end)		
+			self:Register(back, name)
+			
+			self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnBeltFocusReceived(id, idx) end)
+			self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnBeltFocusLost(id, idx) end)
+			self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnBeltClick(id) end)		
 		end
 	end
+	
+	actor:iterate_belt(perform_action, nil)
 	
 	self.loadout_items = {}
 	local items = {}
@@ -381,77 +380,87 @@ function SlotSelectorOverlay:ShowCompatible(slot_num)
 		--log3("~item %s | can_set %s", item:name(), can_set)
 		
 		if can_set then
-			local name = "loadout_"..id
+			local name = item:name()..id
+			
+			local back = CUIStatic()
+			local size = vector2():set(slot_static:GetWidth() * self.slot_icon_scale, slot_static:GetHeight() * self.slot_icon_scale)
+			back:Init(0, 0, size.x, size.y)
+			self.service_back:AttachChild(back)
+			back:InitTexture(self.slot_back_texture)
+			back:SetStretchTexture(true)
+			local table_end = self.compatible_items[#self.compatible_items]
+			prev_static = table_end and table_end.static or slot_static			
+			local offset = ui_inv_utils.GetOffset("center_down_out", back, prev_static, self.slot_icon_indent)
+			pos.x = pos.x + offset.x
+			pos.y = pos.y + offset.y
+			back:SetWndPos(pos.x, pos.y)			
 			
 			params = CIconParams(item:section())
-			local icon_size = vector2():set(params.grid_width * CELL_W * self.belt_items_icon.scale * get_current_kx(), params.grid_height * CELL_H * self.belt_items_icon.scale)
+			local icon_size = vector2():set(params.grid_width * CELL_W * get_current_kx(), params.grid_height * CELL_H)
 			
-			item_st = CUIStatic()
-			item_st:Init(pos.x, pos.y, icon_size.x, icon_size.y)
+			local icon = CUIStatic()
+			icon:Init(0, 0, icon_size.x, icon_size.y)
 			
-			if self.belt_items_icon.scale == 1 then
-				ui_inv_utils.CellItemFitToSize(params, item_st, nil, self.belt_items_icon.size)
-			end			
+			ui_inv_utils.CellItemFitToSize(params, icon, back)
 			
-			--params:set_shader(item_st)
-			SetCellIcon(item_st, params)
-			ui_inv_utils.AttachPanelIcons(item, item_st)
+			SetCellIcon(icon, params)
+			ui_inv_utils.AttachPanelIcons(item, icon)
 
-			self.belt_items_back:AttachChild(item_st)
-
-			self.loadout_items[id] = item_st
+			back:AttachChild(icon)
 			
-			pos.x = pos.x + item_st:GetWidth() + self.belt_items_icon.indent
-			self:Register(item_st, name)
-				
-			self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnLoadoutFocusReceived(id) end)
-			self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnLoadoutFocusLost(id) end)
+			table.insert(self.compatible_items, {back = back})
+			
+			local idx = #self.compatible_items
+			
+			self:Register(back, name)
+
+			self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnLoadoutFocusReceived(id, idx) end)
+			self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnLoadoutFocusLost(id, idx) end)
 			self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnLoadoutClick(id) end)			
 		end
 	end
-	
-	self.belt_items_back:SetWidth(pos.x)
-	self.belt_items_back:SetWndPos(ui_inv_utils.GetOffset("center", self.belt_items_back, self).x, self.belt_items_back:GetWndPos().y)
 end
 
-function SlotSelectorOverlay:OnBeltFocusReceived(idx)
-	sm:call("on_cell_item_focus", actor:item_on_belt(idx))
-	self.belt_items[idx]:SetColor(color_focused)
+function SlotSelectorOverlay:OnBeltFocusReceived(id, idx)
+	sm:call("on_cell_item_focus", level.object_by_id(id))
+	self.compatible_items[idx].back:SetColor(color_focused)
 	
 	self.center_tip:Show(true)
 	local action = "ui_st_compat_to_slot"
 	action = game.translate_string(action)
-	local name = get_inv_name_short(actor:item_on_belt(idx):section())
+	local name = get_inv_name_short(level.object_by_id(id):section())
 	local text = string.format("%s\\n%s", action, name)
 	self.center_tip:SetText(text)	
 end
 
-function SlotSelectorOverlay:OnBeltFocusLost(idx)
-	sm:call("on_cell_item_focus_lost", actor:item_on_belt(idx))
-	self.belt_items[idx]:SetColor(color_default)
+function SlotSelectorOverlay:OnBeltFocusLost(id, idx)
+	sm:call("on_cell_item_focus_lost", level.object_by_id(id))
+	self.compatible_items[idx].back:SetColor(color_defaul_compat)
 	self.center_tip:Show(false)
 end
 
-function SlotSelectorOverlay:OnBeltClick(idx)
-	local desired_item = actor:item_on_belt(idx)
+function SlotSelectorOverlay:OnBeltClick(id)
+	local desired_item = level.object_by_id(id)
 	if not desired_item then
 	return end
 	local slot_item = actor:item_in_slot(self.selected_slot)
 	if not slot_item then
 	return end
 	
-	actor:move_to_ruck(slot_item)
-	actor:move_to_slot(desired_item)
-	actor:activate_slot(self.selected_slot, false)
-	actor:move_to_belt(slot_item)
-	
-	self:UpdateSlots()
+	add_update_delayed_action(1,
+		function()
+			actor:move_to_ruck(slot_item)
+			actor:move_to_slot(desired_item)
+			actor:activate_slot(self.selected_slot, false)
+			actor:move_to_belt(slot_item)		
+		end
+	)
 end
 
-function SlotSelectorOverlay:OnLoadoutFocusReceived(id)
+function SlotSelectorOverlay:OnLoadoutFocusReceived(id, idx)
 	local item = level.object_by_id(id)
 	sm:call("on_cell_item_focus", item)
-	self.loadout_items[id]:SetColor(color_focused)
+	self.compatible_items[idx].back:SetColor(color_focused)
 	
 	self.center_tip:Show(true)
 	local action = "ui_st_compat_to_slot"
@@ -461,10 +470,10 @@ function SlotSelectorOverlay:OnLoadoutFocusReceived(id)
 	self.center_tip:SetText(text)	
 end
 
-function SlotSelectorOverlay:OnLoadoutFocusLost(id)
+function SlotSelectorOverlay:OnLoadoutFocusLost(id, idx)
 	local item = level.object_by_id(id)
 	sm:call("on_cell_item_focus_lost", item)
-	self.loadout_items[id]:SetColor(color_default)
+	self.compatible_items[idx].back:SetColor(color_defaul_compat)
 	self.center_tip:Show(false)
 end
 
@@ -476,328 +485,52 @@ function SlotSelectorOverlay:OnLoadoutClick(id)
 	if not slot_item then
 	return end
 	
-	actor:move_to_ruck(slot_item)
-	actor:move_to_slot(desired_item)
-	actor:activate_slot(self.selected_slot, false)
-	sm:call("on_grenade_type_switch", slot_item, desired_item)
-	
-	self:UpdateSlots()
-end
-
-function SlotSelectorOverlay:ShowWeapon(slot_num)
-	--log3("~ShowCompatible %s", slot_num)
-	
-	self.selected_slot = slot_num
-
-	local params, back_st, item_st, text
-	
-	self.weapon_items_back:DetachAll()
-	self.weapon_items = {}
-	
-	local slot_item = actor:item_in_slot(slot_num)
-	
-	local weapon = slot_item:get_weapon()
-	
-	if not weapon then
-	return end
-	
-	local weapon_m = slot_item:get_weapon_m()
-	
-	if not weapon_m then
-	return end
-	
-	local items = {}
-	for id,v in pairs(loadout.get_loaded_items()) do
-		local item = level.object_by_id(id)
-		ui_inv_utils.try_add_to_list(item, items, true)
-	end
-	
-	for k, addon in pairs(ADDON_TYPES) do
-		local addons = read_if_exists(sys_ini, "string", slot_item:section(), addon.."_name", nil)
-		local addons_list = split_string(addons, ",")
-		if addons_list then
-			for k,addon_sect in pairs(addons_list) do
-				local item = actor:object(addon_sect)
-				if item then
-					ui_inv_utils.try_add_to_list(item, items, true)
-				end
-			end		
-		end
-	end
-	
-	local orig_pos = self.weapon_items_icon.pos
-	local pos = vector2():set(orig_pos.x, orig_pos.y)
-	for k,v in pairs(items) do
-		local can_set = false
-		local item = v.item
-		local id = item:id()
-		
-		local ammo_sects = get_ammo_sects(slot_item)
-		for k,v in pairs(ammo_sects) do
-			if v == item:section() then
-				can_set = true
-				break
-			end
-		end
-		
-		if weapon:addon_attachable(addon.magazine) then
-			local magazine_sect = get_magazine_sects(slot_item)
-			for k,v in pairs(magazine_sect) do
-				if v == item:section() then
-					can_set = true
-					break
-				end
-			end
-		end	
-		
-		if weapon:is_addon_attached(addon.launcher) then
-			local ammo_sects2 = get_ammo_sects(slot_item)
-			for k,v in pairs(ammo_sects2) do
-				if v == item:section() then
-					can_set = true
-					break
-				end
-			end
-		end
-		
-		local ammo = item:get_weapon_ammo()
-		if ammo then
-			can_set = can_set and ammo.box_curr > 0 and ( (item:section() ~= get_cur_ammo_sect(slot_item) and (item:get_weapon_ammo():is_magazine() or slot_item:get_ammo_in_magazine() < slot_item:get_magazine_size()) ) or slot_item:get_ammo_in_magazine() == 0)
-		end
-		
-		if slot_item:get_inventory_item():can_attach_addon(item:get_inventory_item()) then
-			can_set = true
-		end
-		
-		--log3("~check item %s | slots %s", item:name(), slots)
-		if can_set then
-			--log3("~item %s | slot %s", item:name(), slot_num)
-			local name = "weapon_"..id
-			
-			params = CIconParams(item:section())
-			local icon_size = vector2():set(params.grid_width * CELL_W * self.weapon_items_icon.scale * get_current_kx(), params.grid_height * CELL_H * self.weapon_items_icon.scale)
-			
-			item_st = CUIStatic()
-			item_st:Init(pos.x, pos.y, icon_size.x, icon_size.y)
-			
-			if self.weapon_items_icon.scale == 1 then
-				ui_inv_utils.CellItemFitToSize(params, item_st, nil, self.weapon_items_icon.size)
-			end
-			
-			--params:set_shader(item_st)
-			SetCellIcon(item_st, params)
-			ui_inv_utils.AttachPanelIcons(item, item_st)
-			
-			if slot_item:get_inventory_item():can_attach_addon(item:get_inventory_item()) then
-				ui_inv_utils.UpdateAttachAddonIcon(item_st)
-			end			
-
-			if v.count > 1 then
-				local text = string.format("%s", v.count)
-				item_st:SetText(text)
-			end
-
-			self.weapon_items_back:AttachChild(item_st)
-
-			self.weapon_items[id] = item_st
-			
-			pos.x = pos.x + item_st:GetWidth() + self.weapon_items_icon.indent
-			self:Register(item_st, name)
-				
-			self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnWeaponFocusReceived(id) end)
-			self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnWeaponFocusLost(id) end)
-			self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnWeaponClick(id) end)		
-		end
-	end
-	
-	for k,v in pairs(ADDON_TYPES) do
-		local addon_type = k - 1
-		if weapon:is_addon_attached(addon_type) and weapon:addon_attachable(addon_type) then
-			
-			local addon_sect = weapon:get_addon_name(addon_type)
-			
-			local name = "weapon_"..addon_sect
-				
-			params = CIconParams(addon_sect)
-			local icon_size = vector2():set(params.grid_width * CELL_W * self.weapon_items_icon.scale * get_current_kx(), params.grid_height * CELL_H * self.weapon_items_icon.scale)
-				
-			item_st = CUIStatic()
-			item_st:Init(pos.x, pos.y, icon_size.x, icon_size.y)
-				
-			if self.weapon_items_icon.scale == 1 then
-				ui_inv_utils.CellItemFitToSize(params, item_st, nil, self.weapon_items_icon.size)
-			end
-				
-			--params:set_shader(item_st)
-			SetCellIcon(item_st, params)
-			--ui_inv_utils.AttachPanelIcons(item, item_st)
-				
-			ui_inv_utils.UpdateAdditionalText(addon_sect, item_st)
-			ui_inv_utils.UpdateDetachAddonIcon(item_st)
-				
-			self.weapon_items_back:AttachChild(item_st)
-				
-			self.weapon_items[addon_sect] = item_st
-				
-			pos.x = pos.x + item_st:GetWidth() + self.weapon_items_icon.indent
-			self:Register(item_st, name)
-				
-			self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnDetachFocusReceived(addon_sect) end)
-			self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnDetachFocusLost(addon_sect) end)
-			self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnDetachClick(addon_sect) end)
-		end
-	end
-	
-	self.weapon_items_back:SetWidth(pos.x)
-	self.weapon_items_back:SetWndPos(ui_inv_utils.GetOffset("center", self.weapon_items_back, self).x, self.weapon_items_back:GetWndPos().y)
-end
-
-function SlotSelectorOverlay:OnWeaponFocusReceived(id)
-	local item = level.object_by_id(id)
-	sm:call("on_cell_item_focus", item)
-	self.weapon_items[id]:SetColor(color_focused)
-	
-	self.center_tip:Show(true)
-	local action = item:get_weapon_ammo() and "ui_st_reload" or "ui_st_attach"
-	action = game.translate_string(action)
-	local name = get_inv_name_short(item:section())
-	local text = string.format("%s\\n%s", action, name)
-	self.center_tip:SetText(text)	
-end
-
-function SlotSelectorOverlay:OnWeaponFocusLost(id)
-	local item = level.object_by_id(id)
-	sm:call("on_cell_item_focus_lost", item)
-	self.weapon_items[id]:SetColor(color_default)
-	self.center_tip:Show(false)
-end
-
-function SlotSelectorOverlay:OnWeaponClick(id)
-	local item = level.object_by_id(id)
-	local slot_item = actor:item_in_slot(self.selected_slot)
-	
-	local iitem = item:get_inventory_item()
-	local slot_iitem = slot_item:get_inventory_item()
-	
-	if actor:active_slot() ~= self.selected_slot then
-		if slot_iitem:can_attach_addon(iitem) then
-			--slot_iitem:attach_addon(iitem, true)
-			attach_addon(slot_item, item)
-			xr_sound.get_safe_sound_object([[interface\inv_attach_addon]]):play(actor, 0, sound_object.s2d)
+	add_update_delayed_action(1,
+		function()
+			actor:move_to_ruck(slot_item)
+			actor:move_to_slot(desired_item)
 			actor:activate_slot(self.selected_slot, false)
-			return
+			sm:call("on_grenade_type_switch", slot_item, desired_item)		
 		end
-		actor:activate_slot(self.selected_slot, false)
-		level.add_call(
-			function()
-				return actor:active_slot() == self.selected_slot
-			end,
-			function()
-				slot_item:is_direct_reload(item)
-			end
-		)
-	else
-		if slot_iitem:can_attach_addon(iitem) then
-			actor:hide_weapon()
-			level.add_call(
-				function()
-					return not actor:active_item()
-				end,
-				function()
-					--slot_iitem:attach_addon(iitem, true)
-					attach_addon(slot_item, item)
-					xr_sound.get_safe_sound_object([[interface\inv_attach_addon]]):play(actor, 0, sound_object.s2d)
-					actor:restore_weapon()
-				end
-			)
-			return
-		end
-		slot_item:is_direct_reload(item)
-	end
+	)
 end
 
-function SlotSelectorOverlay:OnDetachFocusReceived(sect)
-	self.weapon_items[sect]:SetColor(color_focused)
-	
-	self.center_tip:Show(true)
-	local action = "ui_st_detach"
-	action = game.translate_string(action)
-	local name = get_inv_name_short(sect)
-	local text = string.format("%s\\n%s", action, name)
-	self.center_tip:SetText(text)	
-end
-
-function SlotSelectorOverlay:OnDetachFocusLost(sect)
-	self.weapon_items[sect]:SetColor(color_default)
-	self.center_tip:Show(false)
-end
-
-function SlotSelectorOverlay:OnDetachClick(sect)
-	local slot_item = actor:item_in_slot(self.selected_slot)
-	local slot_wpn = slot_item:get_weapon_m()
-	
-	if actor:active_slot() ~= self.selected_slot then
-		--slot_wpn:detach_addon(sect, true)
-		detach_addon(slot_item, sect)
-		xr_sound.get_safe_sound_object([[interface\inv_detach_addon]]):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
-		actor:activate_slot(self.selected_slot, false)
-	else
-		actor:hide_weapon()
-		level.add_call(
-			function()
-				return not actor:active_item()
-			end,
-			function()
-				--slot_wpn:detach_addon(sect, true)
-				detach_addon(slot_item, sect)
-				xr_sound.get_safe_sound_object([[interface\inv_detach_addon]]):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
-				actor:restore_weapon()
-			end
-		)		
-	end
-end
-
-function SlotSelectorOverlay:TrySignalHide()
-	if self.was_shown and not self:IsShown() then
-		self.was_shown = false
-		sm:call("on_slot_selector_hide")
-		self:Unsubscribe()
-	end
-end
-
-function SlotSelectorOverlay:ShowHideSelector()
+function SlotSelectorOverlay:ShowHide()
 	if not level.main_input_receiver() or self:IsShown() then
 		level.start_stop_menu(self,false)
-		self.was_shown = self:IsShown()
-		if self.was_shown then
-			self:UpdateSlots()
-			self:Subscribe()
-			sm:call("on_slot_selector_show")
+		if self:IsShown() then
+			self:OnShow()
 		else
-			sm:call("on_slot_selector_hide")
-			self:Unsubscribe()
+			self:OnHide()
 		end
 	end
 end
 
-function SlotSelectorOverlay:ProcessSlowMotion()
+function SlotSelectorOverlay:ProcessSlowMotion(enable)
 	local console = get_console()
-	local timefactor = self:IsShown() and self.menu_time_factor or 1
+	local timefactor = enable and self.menu_time_factor or 1
 	console:execute("time_factor "..timefactor)
 end
 
 function SlotSelectorOverlay:OnShow()
+	self:InitControls()
+	self:Subscribe()
+	self:UpdateSlots()
 	local cursor_pos = vector2():set(UI_BASE_WIDTH * 0.5, UI_BASE_HEIGHT * 0.45)
 	level.set_cursor_pos(cursor_pos)
 	local act_item = actor:active_item()
 	if act_item then		
 		act_item:zoom_out()
 	end
-	self:ProcessSlowMotion()
+	self:ProcessSlowMotion(true)
+	sm:call("on_slot_selector_show")
 end
 
 function SlotSelectorOverlay:OnHide()
-	self:ProcessSlowMotion()
+	sm:call("on_slot_selector_hide")
+	self:Unsubscribe()
+	self:ClearCallbacks()
+	self:ProcessSlowMotion(false)
 end
 
 function SlotSelectorOverlay:StopAnyMove()
@@ -814,6 +547,10 @@ function SlotSelectorOverlay:OnKeyboard(dik, keyboard_action)
 	CUIScriptWnd.OnKeyboard(self, dik, keyboard_action)
 	
 	local game_action = dik_to_bind(dik)
+	
+	if dik_to_bind(dik) == key_bindings.kQUIT then
+		self:OnHide()
+	end	
 	
 	if keyboard_action == ui_events.WINDOW_KEY_PRESSED then
 		if restricted_actions[game_action] then

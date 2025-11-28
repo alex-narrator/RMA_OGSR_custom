@@ -19,6 +19,10 @@ local DEBUG_DISABLE = false
 local ZOOM_SOMNOLENCE_K = read_if_exists(sys_ini, "float", "actor_condition", "somnolence_zoom_effector_k", 10)
 local CROUCH_K = 0.25
 
+local EFF_VOL = 0.5
+local EFF_FREQ = 2
+local effect_sound
+
 function can_set_hard_hold(game_action)
 	return not level.main_input_receiver() and game_action == key_bindings.kADDITIONAL_ACTION and ezi and not actor_obj:is_actor_creep() and not force_disable_hard_hold()
 end
@@ -41,8 +45,29 @@ function is_hard_hold()
 	return hard_hold or actor_obj:is_actor_creep()
 end
 
-function set_hard_hold(on)
+function set_hard_hold(on, sound_mode)
 	hard_hold = on
+	play_effect_sound(sound_mode)
+end
+
+function play_effect_sound(sound_mode)
+	if not sound_mode then
+	return end
+	if effect_sound then
+		effect_sound:stop()
+	end
+	local sound_param = sound_mode == 1 and "breath_out_sound" or "breath_in_sound"
+	local snd_name = read_if_exists(sys_ini, "string", "actor", sound_param, nil)
+	if snd_name then
+		--//random sounds in format hud_sound = path_to_sound, n (count of sound files)
+		--//sound expected as sound_1, sound_2, ... sound_n
+		snd_name = split_string(snd_name, ",")
+		snd_name = snd_name[math.random(1, #snd_name)]
+		effect_sound = xr_sound.get_safe_sound_object(snd_name,sound_object.s2d)
+		effect_sound:play(actor, 0, sound_object.s2d)
+		effect_sound.volume = EFF_VOL or 1
+		effect_sound.frequency = EFF_FREQ or 1
+	end	
 end
 
 function apply_aim_params(hard_hold, delta)
@@ -72,13 +97,13 @@ end
 function on_key_press(key, game_action)
 	if not can_set_hard_hold(game_action) then
 	return end
-	set_hard_hold(true)
+	set_hard_hold(true, 1)
 end
 
 function on_key_release(key, game_action)
 	if not can_set_hard_hold(game_action) then
 	return end	
-	set_hard_hold(false)
+	set_hard_hold(false, get_hard_hold() and 2 or nil)
 end
 
 function on_zoom_in(weapon)
@@ -160,7 +185,7 @@ function on_update(delta)
 	ezi.pause_effect = not ui_scope_texture.has_scope_static() or DEBUG_DISABLE or is_hard_hold()
 	
 	if ezi.pause_effect and (force_disable_hard_hold() or actor_obj:is_actor_creep()) then
-		set_hard_hold(false)
+		set_hard_hold(false, force_disable_hard_hold() and 2 or nil)
 	end
 	
 	apply_aim_params(is_hard_hold(), delta)

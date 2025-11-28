@@ -3,12 +3,14 @@ function attach(sm)
 	sm:subscribe({signal = "on_actor_menu_show", fun = this.on_actor_menu_show})
 	sm:subscribe({signal = "on_slot_selector_show", fun = this.start_dof})
 	sm:subscribe({signal = "on_dialog_show", 	fun = this.start_dof})
-	sm:subscribe({signal = "on_talk_show", 		fun = this.start_dof})	
+	sm:subscribe({signal = "on_talk_show", 		fun = this.start_dof})
+	sm:subscribe({signal = "on_quick_addon_show", fun = this.start_dof})
 	
 	sm:subscribe({signal = "on_actor_menu_hide",	fun = this.on_actor_menu_hide})	
 	sm:subscribe({signal = "on_slot_selector_hide",	fun = this.stop_dof})
 	sm:subscribe({signal = "on_dialog_hide", 	fun = this.stop_dof})
 	sm:subscribe({signal = "on_talk_hide", 		fun = this.stop_dof})
+	sm:subscribe({signal = "on_quick_addon_hide",	fun = this.stop_dof})
 end
 
 local sm = ogse_signals.get_mgr()
