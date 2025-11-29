@@ -184,7 +184,7 @@ function on_update(delta)
 	ezi.zoom_aim_disp_k = base_k * get_zoom_effector_k()
 	ezi.pause_effect = not ui_scope_texture.has_scope_static() or DEBUG_DISABLE or is_hard_hold()
 	
-	if ezi.pause_effect and (force_disable_hard_hold() or actor_obj:is_actor_creep()) then
+	if ezi.pause_effect and is_hard_hold() and (force_disable_hard_hold() or actor_obj:is_actor_creep()) then
 		set_hard_hold(false, force_disable_hard_hold() and 2 or nil)
 	end
 	

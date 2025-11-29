@@ -1,0 +1,30 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_key_press",   		fun = this.on_key_press})
+end
+
+function on_key_press(key, game_action)
+	if level.main_input_receiver() then
+	return end
+	if not actor_hands_free() then
+	return end
+	local act_item = actor:active_item()
+	if not act_item then
+	return end
+	local act_wpn = act_item:get_weapon_m()
+	if not act_wpn then
+	return end
+	if game_action ~= key_bindings.kWPN_NEXT then
+	return end
+	
+	local next_ammo_type = act_wpn:get_next_ammo_type()
+	if next_ammo_type ~= NEG_U32 and act_wpn.next_ammo_type ~= next_ammo_type then
+		act_wpn.next_ammo_type = next_ammo_type
+		--log_news("~ammo type %s | next ammo type %s", act_item:get_ammo_type(), next_ammo_type)
+		local ammo_types = act_item:get_gl_mode() and get_ammo2_sects(act_item) or get_ammo_sects(act_item)
+		local ammo_sect = ammo_types[act_wpn.next_ammo_type + 1]
+		main_window:ShowAmmoSwitchInfo(ammo_sect)
+		-- local tip = string.format("%s: %s", game.translate_string("st_next_ammo_type"), get_inv_name_short(ammo_sect))
+		-- hud_add_info_message("item_usage", tip, 2)
+	end
+end

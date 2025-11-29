@@ -1,6 +1,5 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 local OVERLAY_XML = "script_overlays\\mainingame_overlay.xml"
-local overlay = nil
 local subscribed = false
 local DYNAMIC_SHOW = true
 local DEBUG_WARNING_SHOW = false
@@ -41,10 +40,6 @@ end
 function attach(sm)
 	sm:subscribe({signal = "on_spawn",   			fun = this.create_window})
 	sm:subscribe({signal = "on_destroy",   			fun = this.destroy_window})
-end
-
-function get_overlay()
-	return overlay
 end
 
 function create_window()
@@ -365,9 +360,15 @@ function MainIngameOverlay:InitControls()
 	self.flashing_icon = xml:InitStatic("flashing_icon", self)
 	self.flashing_icon:Show(false)
 	
+	--//NVD info
 	self.nvd_info = xml:InitStatic("nvd_info", self)
 	self.nvd_info.default_offset = {xml:ReadAttribInt("nvd_info", "x", 0), xml:ReadAttribInt("nvd_info", "y", 0)}
 	self.nvd_info:Show(false)
+	
+	self.ammo_switch_info = xml:InitStatic("ammo_switch_info", self)
+	self.ammo_switch_info.icon = xml:InitStatic("ammo_switch_info:icon", self.ammo_switch_info)
+	self.ammo_switch_info.show_time = xml:ReadAttribFlt("ammo_switch_info:icon", "show_time", 2)
+	self.ammo_switch_info:Show(false)
 	
 	--//crosshair
 	self.crosshair = xml:InitStatic("crosshair", self)
@@ -1454,6 +1455,26 @@ function MainIngameOverlay:OnCustomOptionsSave()
 	self:SetCrosshairColor()
 end
 
+function MainIngameOverlay:ShowAmmoSwitchInfo(ammo_sect)
+	local params = CIconParams(ammo_sect)
+	SetCellIcon(self.ammo_switch_info.icon, params)
+	self.ammo_switch_info.icon:DetachAll()
+	ui_inv_utils.UpdateLayerIcons(ammo_sect, self.ammo_switch_info.icon)
+	local tip = string.format("%s:\\n%s", game.translate_string("st_next_ammo_type"), get_inv_name_short(ammo_sect))
+	self.ammo_switch_info:SetText(tip)
+	self.ammo_switch_info.hide_time = time_global() + self.ammo_switch_info.show_time * 1000
+	self.ammo_switch_info:Show(true)
+end
+
+function MainIngameOverlay:UpdateAmmoSwitchInfo()
+	if self.ammo_switch_info:IsShown() then
+		if self.ammo_switch_info.hide_time and time_global() >= self.ammo_switch_info.hide_time then
+			self.ammo_switch_info:Show(false)
+			self.ammo_switch_info.hide_time = nil
+		end		
+	end
+end
+
 function MainIngameOverlay:Update()
 	CUIScriptWnd.Update(self)
 	local alive = actor:alive()
@@ -1481,4 +1502,5 @@ function MainIngameOverlay:Update()
 	
 	self:UpdateActiveItemInfo()
 	self:UpdateGearInfo()
+	self:UpdateAmmoSwitchInfo()
 end

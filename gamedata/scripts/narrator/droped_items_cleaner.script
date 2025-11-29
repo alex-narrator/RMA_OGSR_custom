@@ -51,7 +51,7 @@ function add_to_list(item)
 	local restricted = not read_if_exists(sys_ini, "bool", sect, "can_trade", true) or 
 		read_if_exists(sys_ini, "bool", sect, "quest_item", false) or 
 		read_if_exists(sys_ini, "bool", sect, "unique_item", false) or
-		item:story_id() ~= NO_STORY_ID
+		item:story_id() ~= NEG_U32
 	if restricted then
 		--log_news("~%s : item %s | id %s restricted to clean", script_name(), item:name(), item:id())
 	return end
