@@ -945,6 +945,14 @@ function UpdateQuestIcon(item, icon)
 	--params:set_shader(quest_icon)
 	SetCellIcon(quest_icon, params)
 	
+	local color = read_if_exists(sys_ini, "string", quest_icon_sect, "icon_color", nil)
+	if color then
+		color = split_string(color, ",")
+		quest_icon:SetColor(GetARGB(color[1], color[2], color[3], color[4]))
+	end
+	
+	quest_icon:SetLightAnim("ui_slow_blinking", true, true, false, true)
+	
 	update(quest_icon)
 	
 	quest_icon:SetWindowName("quest_icon")

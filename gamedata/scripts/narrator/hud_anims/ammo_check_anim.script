@@ -7,6 +7,9 @@ function try_play_anim(item)
 	if not hud_sect then
 	return end
 	
+	if not actor_hands_free() then
+	return end
+	
 	if actor:active_device() then
 	return end
 	

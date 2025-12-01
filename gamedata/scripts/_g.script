@@ -1522,6 +1522,13 @@ IT_NONE, IT_NV, IT_THERMAL, IT_THERMAL_COLOR = 0, 1, 2, 3
 --//S3DS reticle type
 RT_NONE, RT_LED, RT_LED_MASKED, RT_ACOG, RT_SPECTER, RT_GIPERON, RT_SCREEN, RT_ADDITIVE = 0, 1, 2, 3, 4, 5, 6, 7
 
+function reload_sys_ini()
+	device():pause(true)
+	reload_system_ini()
+	_G.sys_ini = system_ini()
+	device():pause(false)
+end
+
 function get_current_kx()
     return (device().height / device().width) / (UI_BASE_HEIGHT / UI_BASE_WIDTH)
 end

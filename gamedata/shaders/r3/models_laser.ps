@@ -12,5 +12,6 @@ struct v2p
 float4 main(v2p I) : SV_Target
 {
     float4 t_base = s_base.Sample(smp_base, I.tc0);
-    return float4(t_base.r, t_base.g, t_base.b, laser_params.x > laser_params.y ? 0.f : t_base.a * I.c0.a);
+    //return float4(t_base.r, t_base.g, t_base.b, laser_params.x > laser_params.y ? 0.f : t_base.a * I.c0.a);
+	return float4(laser_params.x * t_base.r, laser_params.y * t_base.g, laser_params.z * t_base.b, laser_params.w * t_base.a * I.c0.a);
 }

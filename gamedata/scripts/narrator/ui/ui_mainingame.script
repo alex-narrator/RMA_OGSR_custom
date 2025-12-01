@@ -145,7 +145,8 @@ function MainIngameOverlay:InitControls()
 	
 	self.fps_counter = xml:InitStatic("fps_counter", self)
 	
-	self.blood_overlay = xml:InitStatic("blood_overlay", self)	
+	self.blood_overlay = xml:InitStatic("blood_overlay", self)
+	self.blood_overlay.fade_time = xml:ReadAttribFlt("blood_overlay", "fade_time", 0)
 	
 	self.actor_params = xml:InitStatic("actor_params", self)
 	self.conditions = {
@@ -408,7 +409,40 @@ function MainIngameOverlay:UpdateConditions()
 		v.progress_shape:Show(v.condition() <= v.show_val or not DYNAMIC_SHOW)
 	end
 	
-	self.blood_overlay:SetColor(GetARGB(255 * (1 - actor.health), 255, 255, 255))
+	self:UpdateBloodOverlay()
+end
+
+function MainIngameOverlay:UpdateBloodOverlay()
+	local max_alpha = 1 - actor.health
+	local target_val = max_alpha
+	if self.blood_overlay.fade_time > 0 then
+		if self.blood_cur_alpha == nil then
+			self.blood_cur_alpha = 0
+		end	
+		local change_part = target_val / self.blood_overlay.fade_time * level.get_time_factor()
+		local conds = actor_obj.condition
+		local f_dt = conds:fdelta_time() * 0.01
+		--log3("~f_dt %s", f_dt)
+		
+		if self.dec_alpha then
+			change_part = -change_part
+		end
+		
+		--log3("~change_part %s", change_part)
+		
+		self.blood_cur_alpha = self.blood_cur_alpha + f_dt * change_part
+		
+		if self.blood_cur_alpha <= 0 then
+			self.dec_alpha = false
+		elseif self.blood_cur_alpha >= target_val then
+			self.dec_alpha = true
+		end
+		self.blood_cur_alpha = math.clamp(self.blood_cur_alpha, 0, target_val)
+	else
+		self.blood_cur_alpha = max_alpha
+	end
+	--log3("~alpha %s", self.blood_cur_alpha)
+	self.blood_overlay:SetColor(GetARGB(255 * self.blood_cur_alpha, 255, 255, 255))
 end
 
 function MainIngameOverlay:UpdateMotionIcon()

@@ -140,7 +140,12 @@ function UIDebugMenu:InitControls()
 	name = "run_personal_test_button"
 	self.run_personal_test_button = xml:Init3tButton(prefix..":"..name, self.background)
 	self:Register(self.run_personal_test_button, name)
-	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.RunPersonalTest, self)	
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.RunPersonalTest, self)
+
+	name = "reload_system_ini_button"
+	self.reload_system_ini_button = xml:Init3tButton(prefix..":"..name, self.background)
+	self:Register(self.reload_system_ini_button, name)
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.ReloadSystemIni, self)	
 	
 	name = "exit_button"
 	self.exit_button = xml:Init3tButton(prefix..":"..name, self.background)
@@ -396,4 +401,8 @@ end
 
 function UIDebugMenu:RunPersonalTest()
 	xpcall(function() dofile(getFS():update_path("$game_scripts$", "personal_test.lua")) end, log1)
+end
+
+function UIDebugMenu:ReloadSystemIni()
+	reload_sys_ini()
 end
