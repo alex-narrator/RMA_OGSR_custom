@@ -79,7 +79,7 @@ function on_drag_drop(obj, drop_on_obj)
 				end		
 			end
 		end
-		if detach_addon_type and drop_on_obj:get_weapon() then
+		if detach_addon_type and drop_on_obj:get_weapon() and drop_on_obj:get_weapon():addon_attachable(detach_addon_type) then
 			detach_addon(drop_on_obj, drop_on_obj:get_weapon():get_addon_name(detach_addon_type))
 			--if drop_on_iitem:attach_addon(iitem, true) then
 			if attach_addon(drop_on_obj, obj) then

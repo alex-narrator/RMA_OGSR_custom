@@ -14,6 +14,7 @@ function attach(sm)
 	--sm:subscribe({signal = "update_items_effect", fun = this.update_items_effect})
 	--sm:subscribe({signal = "on_update", fun = this.on_update})
 	--sm:subscribe({signal = "on_weapon_fire", fun = this.on_weapon_fire})
+	--sm:subscribe({signal = "on_weapon_shell_drop",  fun = this.on_shell_drop})
 end
 
 function on_update(dt)
@@ -112,6 +113,17 @@ end
 
 function on_weapon_fire(wpn)
 	log_news("~item %s | ammo sect %s", wpn:name(), get_cur_ammo_sect(wpn))
+end
+
+local shell_particle_name = "weapons\\9x18"
+function on_shell_drop(wpn, pos, vel)
+	log_news("~on shell drop %s", wpn:name())
+	local shell_particle = particles_object(shell_particle_name)
+	shell_particle:play_at_pos(pos, true)
+	shell_particle:set_direction(vel)
+	local h, p, b
+	local orientation = wpn:get_weapon():get_particles_xform():getHPB()
+	shell_particle:set_orientation(orientation.x, orientation.y, orientation.z)
 end
 
 class "p_timer"

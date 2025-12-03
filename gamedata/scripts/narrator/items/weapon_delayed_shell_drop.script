@@ -1,6 +1,7 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
-	sm:subscribe({signal = "on_weapon_shell_drop", fun = this.on_shell_drop})
+	sm:subscribe({signal = "on_weapon_fire", 	fun = this.on_weapon_fire})
+	sm:subscribe({signal = "on_hud_state_switch", 	fun = this.on_state_switch})
 end
 
 local tactical_light_actions = {
@@ -8,19 +9,37 @@ local tactical_light_actions = {
 	[key_bindings.kWPN_FLASHLIGHT] = true,
 }
 
-function on_shell_drop(wpn, pos, vel)
-	local shell_drop_delay = read_if_exists(sys_ini, "float", wpn:section(), "shell_drop_delay", nil)
+function on_weapon_fire(wpn)
+	play_shell_particle(wpn, "shell_drop_delay")
+end
+
+function on_state_switch(item, state, old_state)
+	if state ~= global_flags.eShutter then
+	return end
+	if not item:get_weapon() then
+	return end
+	if item:get_ammo_in_magazine() == 0 then
+	return end
+	play_shell_particle(item, "shell_drop_delay_shutter")
+end
+
+function play_shell_particle(item, delay_param_name)
+	local sect = item:section()
+	local shell_particle_name = read_if_exists(sys_ini, "string", sect, "shell_drop_delay_particle", nil)
+	if not shell_particle_name then
+	return end	
+	local shell_drop_delay = read_if_exists(sys_ini, "float", sect, delay_param_name, nil)
 	if not shell_drop_delay then
 	return end
-	local shell_particle = read_if_exists(sys_ini, "string", wpn:section(), "shell_drop_delay_particle", nil)
-	if not shell_particle then
-	return end
-	local dir = read_if_exists(sys_ini, "vector", wpn:section(), "shell_dir", vector())
+	local dir = read_if_exists(sys_ini, "vector", sect, "shell_dir", vector())
+	local pos = item:get_weapon():get_shell_point()
 	add_time_delayed_action(
 		shell_drop_delay,
 		function()
-			shell_particle = particles_object(shell_particle)
+			local shell_particle = particles_object(shell_particle_name)
 			shell_particle:set_direction(dir)
+			local orient = item:get_weapon():get_particles_xform():getHPB()
+			shell_particle:set_orientation(orient.x, orient.y, orient.z)			
 			shell_particle:play_at_pos(pos, true)
 		end
 	)
