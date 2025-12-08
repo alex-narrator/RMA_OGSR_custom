@@ -30,7 +30,7 @@ end
 
 function medkit_model_spawn()
 	local sobj = alife():object("esc_medkit")
-	if sobj and sobj.parent_id == 65535 then
+	if sobj and sobj.parent_id == MAX_U16 then
 		local pos = sobj.position
 		pos.y = pos.y + 0.1
 		sobj:set_position(pos)

@@ -1145,7 +1145,7 @@ end
 --		local obj     = sim:object( obj_id )
 --		local strn_id = obj:smart_terrain_id()
 
---		if strn_id ~= 65535 then
+--		if strn_id ~= MAX_U16 then
 --			sim:object( strn_id ).gulag:clear_dead(obj_id)
 --		end
 --	end
@@ -1155,7 +1155,7 @@ function prot_smt_td(obj)
 	if IsStalker(obj) or IsMonster(obj) then
 		return obj:smart_terrain_id()
 	else	
-		return 65535
+		return MAX_U16
 	end
 end
 
@@ -1165,7 +1165,7 @@ function on_death( obj_id )
 	if sim then
 		local obj = sim:object( obj_id )
 		if obj then
-			local strn_id = 65535  --- предварительно проинитим переменную, на 
+			local strn_id = MAX_U16  --- предварительно проинитим переменную, на 
 						--- случай если у нас prot_smt_td выдаст ошибку
 			local result, smt_id = pcall(prot_smt_td,obj)	--- вызываем prot_smt_td в защищённом режиме 
 									--- и сразу присваиваем его вывод переменным
@@ -1173,7 +1173,7 @@ function on_death( obj_id )
 				strn_id = smt_id  --- тогда применяем полученное значение
 			end
 			--- если же обработка выдаст ошибку, то strn_id останется неизменным...
-			if strn_id ~= 65535 then
+			if strn_id ~= MAX_U16 then
 				sim:object(strn_id).gulag:clear_dead(obj_id)
 			end
 		end
@@ -1189,7 +1189,7 @@ function unregister_npc(npc)
 		local obj     = sim:object(npc.id)
 		local strn_id = obj:smart_terrain_id()
 
-		if strn_id ~= 65535 then
+		if strn_id ~= MAX_U16 then
 			if sim:object(strn_id) then
 				sim:object(strn_id):unregister_npc(obj)
 			end

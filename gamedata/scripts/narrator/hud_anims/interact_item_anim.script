@@ -2,8 +2,6 @@
 local hud_sect = "pickup_hud"
 local hud_effector_id = 5559
 
-local pull_dist = read_if_exists(sys_ini, "float", "actor_capture", "pull_distance", 1.4)
-
 function is_quick_info_shown()
 	return actor_obj:get_default_action_for_obj() or main_window.pickup_item
 end
@@ -80,7 +78,7 @@ function play()
 					elseif tgt:get_eatable_item() then
 						actor:transfer_item(tgt, actor)
 						script_actions.eat(tgt)
-					elseif tgt:get_physics_shell() and level.get_target_dist() <= pull_dist then
+					elseif tgt:actor_can_capture() and level.get_target_dist() <= PULL_DISTANCE then
 						local rq = level.get_current_ray_query()
 						local bone_id = rq and rq.element or 0
 						actor:ph_capture_object(tgt, bone_id)

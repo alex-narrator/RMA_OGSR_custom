@@ -929,10 +929,10 @@ local _r_squad = function(pk,ver)
 	tbl.assigned_target_smart_id = pk:r_u16()
 	tbl.sim_combat_id            = pk:r_u16()
 	tbl.delayed_attack_task      = pk:r_u16()
-	if tbl.smart_id == 65535 then tbl.smart_id = nil end
-	if tbl.assigned_target_smart_id == 65535 then tbl.assigned_target_smart_id = nil end
-	if tbl.sim_combat_id == 65535 then tbl.sim_combat_id = nil end
-	if tbl.delayed_attack_task == 65535 then tbl.delayed_attack_task = nil end
+	if tbl.smart_id == MAX_U16 then tbl.smart_id = nil end
+	if tbl.assigned_target_smart_id == MAX_U16 then tbl.assigned_target_smart_id = nil end
+	if tbl.sim_combat_id == MAX_U16 then tbl.sim_combat_id = nil end
+	if tbl.delayed_attack_task == MAX_U16 then tbl.delayed_attack_task = nil end
 	--/ random_tasks
 	tbl.random_tasks = {} --/ l8u16u16v
 	local cnt = pk:r_u8()
@@ -965,11 +965,11 @@ local _r_squad = function(pk,ver)
 		if tbl.is_attack_point == true then --/ flag: class sim_attack_point
 			tbl.major = pk:r_bool()
 			tbl.target_power_value = pk:r_u16()
-			if tbl.target_power_value == 65535 then tbl.target_power_value = nil end
+			if tbl.target_power_value == MAX_U16 then tbl.target_power_value = nil end
 		else --/ flag: class sim_stay_point
 			tbl.stay_defended = pk:r_bool()
 			tbl.next_point_id = pk:r_u16()
-			if tbl.next_point_id == 65535 then tbl.next_point_id = nil end
+			if tbl.next_point_id == MAX_U16 then tbl.next_point_id = nil end
 			tbl.begin_time = _r_bCTime(pk)
 		end
 		tbl.current_action__marker = pk:r_u16()
@@ -1546,7 +1546,7 @@ function net_cse_abstract:__init(obj, mode, packet, net_class)
 		{ name = 'cse_abstract__unk1', type = 'h16',    default = -1, ver = 6 }, --/ CS&SCoP
 		{ name = 'script_version',     type = 'u16',    default = script_version }, --/ SHoC:6/7|CS:8|SCoP:12
 		{ name = 'cobj_data',          type = 'l16u8v', default = {}          }, --/ game_object params & dynamic data (unused_pad)
-		{ name = 'spawn_id',           type = 'u16',    default = 65535       }, --/ index section from all.spawn
+		{ name = 'spawn_id',           type = 'u16',    default = MAX_U16       }, --/ index section from all.spawn
 		{ name = 'extended_size',      type = 'u16',    default = 0           }
 	}
 	self.co_props = { --/ может в ~> 'net_cse_alife_dynamic_object_visual'?
@@ -2301,12 +2301,12 @@ function net_cse_alife_monster_abstract:__init(obj,mode)
 	self.st_props = {
 		{ name = 'base_out_restrictors',      type = 'sz',  default = ''    },
 		{ name = 'base_in_restrictors',       type = 'sz',  default = ''    },
-		{ name = 'smart_terrain_id',          type = 'u16', default = 65535 },
+		{ name = 'smart_terrain_id',          type = 'u16', default = MAX_U16 },
 		{ name = 'smart_terrain_task_active', type = 'u8',  default = 0     }
 	}
 	self.up_props = {
-		{ name = 'next_game_vertex_id', type = 'u16', default = 65535 },
-		{ name = 'prev_game_vertex_id', type = 'u16', default = 65535 },
+		{ name = 'next_game_vertex_id', type = 'u16', default = MAX_U16 },
+		{ name = 'prev_game_vertex_id', type = 'u16', default = MAX_U16 },
 		{ name = 'distance_from_point', type = 'f32', default = 0 },
 		{ name = 'distance_to_point',   type = 'f32', default = 0 }
 	}
@@ -2469,7 +2469,7 @@ function net_cse_alife_monster_base:__init(obj,mode)
 		net_cse_ph_skeleton           (nil, mode)
 	}
 	self.st_props = {
-		{ name = 'spec_object_id', type = 'u16', default = 65535 }
+		{ name = 'spec_object_id', type = 'u16', default = MAX_U16 }
 	}
 	self.up_props = {}
 end
@@ -2563,7 +2563,7 @@ function net_se_anom_zone:__init(obj,mode)
 		net_cse_alife_space_restrictor(nil, mode)
 	}
 	self.st_props = {
-		{ name = 'af_spawn_id',   type = 'u16',    default = 65535 },
+		{ name = 'af_spawn_id',   type = 'u16',    default = MAX_U16 },
 		{ name = 'af_spawn_time', type = 'uCTime', default = 0 }
 	}
 	self.up_props = {}

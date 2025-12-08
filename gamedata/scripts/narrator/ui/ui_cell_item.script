@@ -1,6 +1,6 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 local highlight_texture = "square_light_grey"
-local color_default 	= GetARGB(0, 255, 255, 255)
+local color_default 	= GetARGB(255, 255, 255, 255)
 local color_compatible 	= GetARGB(150, 0, 128, 0)
 local color_restricted 	= GetARGB(150, 124, 0, 0)
 
@@ -83,6 +83,8 @@ function UICellItem:InitControls(cell_pos)
 	self.highlight:SetStretchTexture(true)
 	self.highlight:InitTexture(highlight_texture)
 	self.highlight:SetColor(color_default)
+	self.highlight:SetLightAnim("ui_slow_blinking", true, true, false, true)
+	self.highlight:Show(false)
 
 	self.back = CUIStatic()
 	self:AttachChild(self.back)	
@@ -307,18 +309,27 @@ function UICellItem:GetSelected()
 end
 
 function UICellItem:ClearColorize()
-	--self.icon:SetColor(color_default)
+	self.highlight:Show(false)
 	self.highlight:SetColor(color_default)
 end
 
 function UICellItem:ColorizeCompatible()
-	--self.icon:SetColor(color_compatible)
+	self.highlight:Show(true)
 	self.highlight:SetColor(color_compatible)
 end
 
 function UICellItem:ColorizeRestricted()
-	--self.icon:SetColor(color_restricted)
+	self.highlight:Show(true)
 	self.highlight:SetColor(color_restricted)
+end
+
+function UICellItem:SetBlinking(val)
+	if val then
+		self.icon:SetLightAnim("ui_slow_blinking", true, true, false, true)
+	else
+		self.icon:SetLightAnim()
+		self.icon:SetColor(color_default)
+	end
 end
 
 function UICellItem:ForceUpdate()

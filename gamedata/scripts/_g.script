@@ -1507,6 +1507,7 @@ BACKPACK_SLOT 		= 12
 SLOTS_TOTAL 		= 13
 NO_ACTIVE_SLOT 		= 255
 
+MAX_U16 			= 65535
 NEG_U32 			= 4294967295
 
 sys_ini = system_ini()
@@ -2583,6 +2584,7 @@ BOOST_PARAMS = {
 -- ACTIVE_ITEM_INFO_TTL 	= read_if_exists(sys_ini, "u32", "actor", "active_item_info_ttl", 3)
 -- GEAR_INFO_TTL 			= read_if_exists(sys_ini, "u32", "actor", "gear_info_ttl", 3)
 LIMITED_BOLTS 			= read_if_exists(sys_ini, "bool", "features", "limited_bolts", false)
+PULL_DISTANCE 			= read_if_exists(sys_ini, "float", "actor_capture", "pull_distance", 1.4)
 
 function start_game_callback()
 	--

@@ -17,7 +17,7 @@ function can_be_enabled(item)
 	return false end
 	local se_obj = alife():object(item:id())
 	local has_power = not is_power_device(item) or item:binded_object():get_power_level() > 0
-	local parent_allowed = se_obj.parent_id == 0 or se_obj.parent_id == 65535
+	local parent_allowed = se_obj.parent_id == 0 or se_obj.parent_id == MAX_U16
 	return se_obj.is_activated and has_power and parent_allowed
 end
 

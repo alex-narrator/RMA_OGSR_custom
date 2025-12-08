@@ -13,9 +13,11 @@ function attach(sm)
 	sm:subscribe({signal = "on_spawn",   			fun = this.create_window})
 	sm:subscribe({signal = "on_destroy",   			fun = this.destroy_window})
 	sm:subscribe({signal = "on_update",   			fun = this.on_update})
+	sm:subscribe({signal = "on_take",   			fun = this.on_take})
 end
 
 local subscribed = false
+local new_items = {}
 
 function create_window()
 	if actor_menu then
@@ -48,6 +50,12 @@ function on_update()
 		end
 		actor_menu:OnHide()
 	end	
+end
+
+function on_take(item)
+	if not actor_menu or actor_menu:IsShown() or xr_conditions.black_screen() then
+	return end
+	new_items[item:id()] = true
 end
 
 function get_menu()
@@ -321,6 +329,7 @@ function ActorMenuOverlay:InitControls()
 		end
 		s.highlight = xml:InitStatic("quick_slots:slot:highlight", s)
 		s.highlight:Show(false)
+		s.highlight:SetLightAnim("ui_slow_blinking", true, true, false, true)
 		s.icon = xml:InitStatic("quick_slots:slot:icon", s)
 		s.icon.image = CUIStatic()
 		s.icon.image:SetStretchTexture(true)
@@ -559,13 +568,13 @@ end
 
 function ActorMenuOverlay:QuickOnFocusReceived(slot_num)
 	quick_slots.set_selected(slot_num)
-	self.slots[slot_num].highlight:Show(true)--SetColor(self.quick_color_highlight)
+	self.slots[slot_num].highlight:Show(true)
 	self.sm:call("on_quick_item_focus", quick_slots.get_item(slot_num))
 end
 
 function ActorMenuOverlay:QuickOnFocusLost(slot_num)
 	quick_slots.set_selected(nil)
-	self.slots[slot_num].highlight:Show(false)--SetColor(self.quick_color_default)
+	self.slots[slot_num].highlight:Show(false)
 	self.sm:call("on_quick_item_focus_lost", quick_slots.get_item(slot_num))
 end
 
@@ -574,7 +583,7 @@ function ActorMenuOverlay:OnCellItemFocus(obj, cell_item)
 	local highlight_quick_slots = read_if_exists(sys_ini, "bool", sect, "quick_slot", false)
 	if highlight_quick_slots then
 		for i=0,3 do
-			self.slots[i].highlight:Show(true)--.back:SetColor(self.quick_color_highlight)
+			self.slots[i].highlight:Show(true)
 		end
 	end
 	local slot_type = loadout.get_slot_type(obj)
@@ -596,6 +605,10 @@ function ActorMenuOverlay:OnCellItemFocus(obj, cell_item)
 	--//dragdrop
 	if cell_item then
 		self.cell_item_focused = cell_item
+		cell_item:SetBlinking(false)
+		if new_items[obj:id()] then
+			new_items[obj:id()] = nil
+		end
 	end
 	if read_if_exists(sys_ini, "bool", sect, "belt", false) and not actor:is_on_belt(obj) then
 		self.belt_list:Highlight(true)
@@ -1183,6 +1196,8 @@ function ActorMenuOverlay:OnHide()
 	self.repair = nil
 	
 	self:PlayActionSound("close")
+	
+	new_items = {}
 end
 
 function ActorMenuOverlay:Exit()
@@ -1513,6 +1528,16 @@ function ActorMenuOverlay:ReinitLists(show_type)
 	self.sell_list:Reinit()
 	self.sell_buy_back:SetText("")
 	self:UpdatePrices()
+	
+	for id, v in pairs(new_items) do
+		local item = level.object_by_id(id)
+		if item then
+			local ci = self:GetCellItem(item)
+			if ci then
+				ci:SetBlinking(true)
+			end
+		end
+	end
 end
 
 function ActorMenuOverlay:UpdateCustomDraw()

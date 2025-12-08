@@ -45,7 +45,7 @@ function add_to_list(item)
 	if item:is_artefact() then
 	return end
 	local sobj = alife():object(item:id())
-	if not sobj or sobj.parent_id ~= 65535 then
+	if not sobj or sobj.parent_id ~= MAX_U16 then
 	return end
 	local sect = item:section()
 	local restricted = not read_if_exists(sys_ini, "bool", sect, "can_trade", true) or 
@@ -75,7 +75,7 @@ function on_location_change()
 		local drop_ctime = table_to_ctime(drop_time)
 		if game_time:diffSec(drop_ctime) >= stay_after_drop_time_interval then
 			local sobj = sim:object(id)
-			if sobj and sobj.parent_id == 65535 then
+			if sobj and sobj.parent_id == MAX_U16 then
 				sim:release(sobj, true)
 				log_news("~%s : item id %s removed", script_name(), id)
 			end

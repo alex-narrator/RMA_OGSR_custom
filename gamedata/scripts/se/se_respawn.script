@@ -360,7 +360,7 @@ function se_respawn:create(prob)
 				obj:brain():update()
 				local smart_terrain_id = obj:smart_terrain_id()
 	--			printf("SPAWN [%s] move_offline [%s], interactive [%s], smart_terrain_id [%s]", tostring(self:name()), tostring(self:move_offline()), tostring(self:interactive()), smart_terrain_id)
-				if smart_terrain_id ~= 65535 then		
+				if smart_terrain_id ~= MAX_U16 then		
 					table.insert(self.spawned_obj ,obj.id)
 					local pos = obj.position
 --					printf("SPAWNING [%s] -> [%s], position [%s][%s][%s]", tostring(self:name()), spawn_section, pos.x, pos.y, pos.z)

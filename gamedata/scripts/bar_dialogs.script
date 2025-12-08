@@ -1046,7 +1046,7 @@ function try_find_person(person_name)
 		news_manager.custom_news("st_map_location_added", news, "ui_new_map_location")		
 		return
 	end
-	for i=0, 65535 do
+	for i=0, MAX_U16 do
 		local sobj = alife():object(i)
 		if sobj and find_person_clsids[sobj:clsid()] then
 			if sobj.character_name == person_name then

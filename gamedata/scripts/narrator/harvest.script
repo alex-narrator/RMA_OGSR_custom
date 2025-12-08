@@ -9,7 +9,7 @@ local HARVEST_DEBUG = false
 function on_monster_update(monster, delta)
 	if monster:alive() then
 	return end
-	local tip_text = has_loot(monster) and (get_good_knife() and "monster_use_or_drag" or "monster_use_or_drag_no_knife") or "game_object_drag"
+	local tip_text = has_loot(monster) and (get_good_knife() and "monster_use" or "monster_use_no_knife") or "game_object_drag"
 	monster:set_tip_text(tip_text)
 end
 

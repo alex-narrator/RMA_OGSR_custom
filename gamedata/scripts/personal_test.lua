@@ -180,8 +180,8 @@ end
 	-- log3("in table id %s | %s", k, level.object_by_id(k):name())
 -- end
 
---actor:hide_weapon(true)
---actor:restore_weapon(true)
+--actor_hide_weapon(true)
+--actor_restore_weapon(true)
 
 	-- function perform_action(dummy, item)
 		-- log3("item %s | id %s | condition %.4f", item:section(), item:id(), item:condition())
@@ -227,7 +227,7 @@ end
 	-- ["dar_document4"] = true,
 	-- ["dar_document5"] = true,
 -- }
--- for i = 1, 65535 do
+-- for i = 1, MAX_U16 do
 	-- sobj = sim:object(i)
 	-- if sobj and sects[sobj:section_name()] then
 		-- level.map_add_object_spot_ser(i, "personal_location", sobj:section_name())
@@ -343,7 +343,7 @@ end
 --actor:give_info_portion("non_existed_info")
 
 
-local tgt = level.get_target_obj()
+local tgt --= level.get_target_obj()
 if tgt then
 	--tgt:get_physics_shell():get_element_by_order(0):fix()
 	--tgt:get_physics_shell():get_element_by_bone_name("link"):fix()
@@ -409,7 +409,7 @@ end
 -- end
 
 body_health.try_upper_limbs_injure(0.3)
---body_health.try_lower_limbs_injure(0.3)
+body_health.try_lower_limbs_injure(0.3)
 
 -- local flist = getFS():file_list_open_ex( "$game_saves$", FS.FS_ListFiles + FS.FS_ClampExt + FS.FS_RootOnly + FS.FS_NoLower, "*.sav" )
 -- flist:Sort(FS.FS_sort_by_modif_down)
@@ -633,10 +633,6 @@ if item then
 		--wpn.scope_lense_fov_factor = 1.6
 		--log3("~second VP fov %s", wpn.scope_lense_fov_factor)		
 	end
-	local wpn_m = item:get_weapon_m()
-	if wpn_m then
-		wpn_m.laserdot_attach_aim_rotation = vector():set(0,0,0)
-	end
 end
 
 --set_markswitch_count(0)
@@ -785,7 +781,7 @@ end
 --outfit_effects.set_breath_max(0.75)
 --outfit_effects.set_breath_k(3)
 
---actor:hide_weapon(false)
+--actor_hide_weapon(false)
 
 -- log3("~force disable %s", weapon_hardhold.force_disable_hard_hold())
 -- log3("~stamina %s", stamina.get_val())
@@ -853,3 +849,55 @@ end
 -- for k,v in pairs(info) do
 	-- actor:give_info_portion(v)
 -- end
+
+	-- local function get_pos_dir()
+		-- local dir = device().cam_dir
+		-- local pos = device().cam_pos
+		-- pos.y = pos.y - 0.35 + 0.3*dir.y
+		-- pos.x = pos.x + 0.3*dir.x
+		-- pos.z = pos.z + 0.3*dir.z
+		
+		-- return pos, dir
+	-- end
+
+-- local smoke_particle_name = "vehiclefx\\exhaust_3"
+-- particle = particles_object(smoke_particle_name)
+-- particle:play_at_pos(get_pos_dir())
+				
+				-- level.add_call(
+					-- function()
+						-- local pos, dir = get_pos_dir()
+						-- if particle and particle:playing() then
+							-- particle:set_direction(dir)
+							-- particle:move_to(pos, dir)
+						-- end
+						-- return not particle or not particle:playing()
+					-- end,
+					-- function()
+						-- if particle then
+							-- particle = nil
+						-- end
+						-- log_news("~end particle %s", smoke_particle_name)
+					-- end
+				-- )
+				
+--main_window:SetCrosshair("crosshair_debug")
+
+-- local item = actor:item_in_slot(DETECTOR_SLOT)
+-- local angle = 180
+-- local range = 5
+-- local color = vector():set(0,1,0)
+-- if item then
+	-- local flashlight_obj = item:get_flashlight()
+	-- if flashlight_obj then
+		-- flashlight_obj:set_range(range)
+		-- flashlight_obj:set_angle(math.rad(angle))
+		-- flashlight_obj:set_rgb(color.x, color.y, color.z)
+		
+		-- --flashlight_obj:set_range(0, 1)
+	-- end
+-- end
+
+--actor:activate_slot(DETECTOR_SLOT, false)
+
+get_console():execute("main_menu off")

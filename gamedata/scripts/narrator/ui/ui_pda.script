@@ -474,7 +474,7 @@ function PDAOverlay:OnShow()
 	self.prev_active_slot = actor:active_slot()
 	local cursor_pos = vector2():set(UI_BASE_WIDTH * 0.5, UI_BASE_HEIGHT * 0.7)
 	level.set_cursor_pos(cursor_pos)
-	if level.get_active_pda_tab_idx() == 65535 then
+	if level.get_active_pda_tab_idx() == MAX_U16 then
 		level.set_active_pda_tab_idx(self.last_active_tab)
 	end
 end

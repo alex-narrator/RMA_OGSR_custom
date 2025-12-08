@@ -30,7 +30,7 @@ function get_target_tip_point(tgt)
 	if tgt:is_stalker() then
 		bone_name = tgt:alive() and "bip01_neck" or "bip01_spine1"
 	end
-	return tgt:get_bone_id(bone_name) ~= 65535 and tgt:bone_position(bone_name) or tgt:center()
+	return tgt:get_bone_id(bone_name) ~= MAX_U16 and tgt:bone_position(bone_name) or tgt:center()
 end
 
 function visibility()
@@ -1119,9 +1119,22 @@ function MainIngameOverlay:UpdateTargetTip()
 	self.target_tip:Show(tip and tip ~= "" and (actor_hands_free() or actor:ph_capture()))
 	if self.target_tip:IsShown() then
 		local tgt = level.get_target_obj() or self.pickup_item
+			
+		--//eat object
 		if tgt and tgt:get_eatable_item() then
-			tip = "eatable_item_take_or_use"
+			tip = string.format("%s\\n%s", game.translate_string(tip), game.translate_string("eatable_item_use"))
 		end
+		
+		--//drag object
+		if tgt and tgt:actor_can_capture() then
+			local can_drag = not tgt:get_inventory_item() and level.get_target_dist() <= PULL_DISTANCE
+			if tip == "game_object_drag" or tip == game.translate_string("game_object_drag") then
+				tip = can_drag and tip or ""
+			elseif can_drag then
+				tip = string.format("%s\\n%s", game.translate_string(tip), game.translate_string("game_object_drag"))
+			end
+		end
+		
 		local text = ""
 		if get_script_option_value("hud_target_info") then
 			if tgt:get_inventory_item() then
