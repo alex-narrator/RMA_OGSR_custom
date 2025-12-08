@@ -65,7 +65,7 @@ function check_items_to_show(inv_owner, show_mode)
 				check_by_mode(item, "device")
 				)
 		else
-			log3("!check_items_to_show - try to check item %s for non-descripted show_mode %s", item:section(), show_mode)
+			log_news("!check_items_to_show - try to check item %s for non-descripted show_mode %s", item:section(), show_mode)
 			return false
 		end
 	end
@@ -183,13 +183,13 @@ function repack_ammo(owner)
 	
 	while(table.size(_ammo) > 0) do
 		local asect = _ammo[1]:section()
-		local box_size = _ammo[1]:get_ammo_box_size()--get_weapon_ammo().box_size
+		local box_size = _ammo[1]:get_ammo_box_size()
 		local cnt = 0
 		local cart_cnt = 0
 		
 		for k, item in pairs(_ammo) do
 			if asect == item:section() then
-				cnt = cnt + item:get_current_ammo()--item:get_weapon_ammo().box_curr
+				cnt = cnt + item:get_current_ammo()
 				cart_cnt = cart_cnt + 1
 			end
 		end
