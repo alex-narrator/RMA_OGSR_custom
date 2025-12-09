@@ -188,7 +188,7 @@ function set_scheme (obj, ini, scheme, section, gulag_name)
 
 	local st 			= xr_logic.assign_storage_and_bind (obj, ini, scheme, section)
 	st.logic 			= xr_logic.cfg_get_switch_conditions (ini, section, obj)
-	st.snd_name 		= read_if_exists(ini, "snd", section, "theme", nil)
+	st.snd_name 		= read_if_exists(ini, "string", section, "snd", nil)
 	st.snd_theme 		= read_if_exists(ini, "string", section, "theme", nil)
 	st.is_music 		= read_if_exists(ini, "bool", section, "is_music", false)
 	
