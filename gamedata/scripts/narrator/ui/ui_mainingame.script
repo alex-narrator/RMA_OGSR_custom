@@ -1137,13 +1137,13 @@ function MainIngameOverlay:UpdateTargetTip()
 		
 		local text = ""
 		if get_script_option_value("hud_target_info") then
-			if tgt:get_inventory_item() then
+			if tgt and tgt:get_inventory_item() then
 				text = get_inv_name(tgt:section())
 			end
-			if tgt:is_stalker() or tgt:is_trader() then
+			if tgt and (tgt:is_stalker() or tgt:is_trader()) then
 				text = string.format("%s%s%s", color_by_relation[tgt:relation(actor)], tgt:character_name(), "%c[default] ")
 			end
-			if tgt:is_monster() then
+			if tgt and tgt:is_monster() then
 				local props, sect = xr_statistic.getNpcType(tgt)
 				text = game.translate_string(sect)
 			end
