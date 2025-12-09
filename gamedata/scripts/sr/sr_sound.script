@@ -275,7 +275,7 @@ function set_scheme( obj, ini, scheme, section, gulag_name )
 	st.delay   	= read_if_exists(ini, "float", section, "delay", 0)
 	st.idle    	= read_if_exists(ini, "float", section, "idle", 0) * 1000 -- секунды->мс
 	st.rnd     	= read_if_exists(ini, "float", section, "rnd", 100)
-	local path 	= read_if_exists(ini, "string", section, "position", "")
+	local path 	= read_if_exists(ini, "string", section, "position", nil)
 
 	if path == "random" then
 		st.pos_type = pos_random
