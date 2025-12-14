@@ -1127,7 +1127,7 @@ function MainIngameOverlay:UpdateTargetTip()
 		
 		--//drag object
 		if tgt and tgt:actor_can_capture() then
-			local can_drag = not tgt:get_inventory_item() and level.get_target_dist() <= PULL_DISTANCE
+			local can_drag = not tgt:get_inventory_item() and level.get_target_dist() <= PULL_DISTANCE and not actor:ph_capture()
 			if tip == "game_object_drag" or tip == game.translate_string("game_object_drag") then
 				tip = can_drag and tip or ""
 			elseif can_drag then

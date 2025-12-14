@@ -192,11 +192,16 @@ function on_take(item)
 		if ammo.box_curr == 0 and has_drop_pouch() then
 		return end
 		
-		if can_add(item) then
-			add(item)
-		elseif not has_drop_pouch() then
-			drop_item_to_angle(actor, item, 90)
-		end
+		add_update_delayed_action(1,
+			function()
+				if can_add(item) then
+					add(item)
+				elseif not has_drop_pouch() then
+					drop_item_to_angle(actor, item, 90)
+				end
+			end
+		)
+		
 	elseif loaded_items[item:id()] then
 		add(item)
 	end

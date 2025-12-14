@@ -175,6 +175,8 @@ function CKampManager:__init(path)
 	self.kamp_name = path
 	self.patrol = patrol(path)
 	self.center = self.patrol:level_vertex_id(0)
+	
+	self.campfire = campfire_manager.get_nearest_campfire_usable(level.vertex_position(self.center), CAMPFIRE_DIST)
 		
 	if DBG_CENTER_SHOW then
 		--level.disable_vertex(self.center)
@@ -664,22 +666,20 @@ end
 
 function CKampManager:increasePops(npc)
 	self.population = self.population + 1
-	local campfire = campfire_manager.get_nearest_campfire_usable(level.vertex_position(self.center), CAMPFIRE_DIST)
-	if campfire then
+	if self.campfire then
 		--log3("~increasePops found campfire %s for kamp %s", campfire:name(), self.kamp_name)
 		if self.population == 1 then
-			campfire:binded_object().has_user = true
+			self.campfire:binded_object().has_user = true
 			--log3("~increasePops has user campfire %s for kamp %s", campfire:name(), self.kamp_name)
 		end
 	end
 end
 function CKampManager:decreasePops(npc)
 	self.population = self.population - 1
-	local campfire = campfire_manager.get_nearest_campfire_usable(level.vertex_position(self.center), CAMPFIRE_DIST)
-	if campfire then
+	if self.campfire then
 		--log3("~decreasePops found campfire %s for kamp %s", campfire:name(), self.kamp_name)
 		if self.population == 0 then
-			campfire:binded_object().has_user = false
+			self.campfire:binded_object().has_user = false
 			--log3("~increasePops has no user campfire %s for kamp %s", campfire:name(), self.kamp_name)
 		end
 	end	

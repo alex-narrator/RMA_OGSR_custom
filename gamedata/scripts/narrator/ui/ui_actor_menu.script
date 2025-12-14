@@ -1953,6 +1953,7 @@ function ActorMenuOverlay:UpdatePrices()
 		text = "-"..text
 	end
 	self.buy_cost:SetText(text)
+	self.buy_cost:Show(total_price ~= 0)
 	
 	total_price = 0
 	item = nil
@@ -1971,6 +1972,7 @@ function ActorMenuOverlay:UpdatePrices()
 		text = "+"..text
 	end	
 	self.sell_cost:SetText(text)
+	self.sell_cost:Show(total_price ~= 0)
 
 	color = (self.money_from_actor > actor:money() + self.money_to_actor) and GetARGB(255, 255, 0, 0) or self.buy_cost.base_color
 	self.buy_cost:SetTextColor(color)

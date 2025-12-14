@@ -17,7 +17,7 @@ function anm_snd_speed()
 end
 
 function play(_type)
-	if xr_conditions.black_screen() then
+	if xr_conditions.black_screen() or not actor or not actor:alive() then
 	return end
 	local community_hud_sect = DEF_HUD_SECT[_type].."_"..actor:character_community()
 	local hud_sect = sys_ini:section_exist(community_hud_sect) and community_hud_sect or DEF_HUD_SECT[_type]

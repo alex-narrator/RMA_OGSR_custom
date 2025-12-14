@@ -11,7 +11,6 @@ local actor_cond 				= actor_obj.condition--actor.conditions
 local cond_sect 				= read_if_exists(sys_ini, "string", "actor", "condition_sect", "actor_condition")
 
 local def_walk_accel 			= read_if_exists(sys_ini, "float", "actor", "walk_accel", 17)
-local def_walk_accel 			= read_if_exists(sys_ini, "float", "actor", "walk_accel", 17)
 local def_sprint_koef 			= read_if_exists(sys_ini, "float", "actor", "sprint_koef", 2.6)
 local def_jump_speed 			= read_if_exists(sys_ini, "float", "actor", "jump_speed", 6)
 local def_max_weight 			= read_if_exists(sys_ini, "float", "inventory", "max_weight", 50)
@@ -37,10 +36,10 @@ local satiety_to_alcohol_effector_intensity = read_if_exists(sys_ini, "float", c
 
 local protection_index 			= 12 --//порядковий номер з якого починаються секції захисту від різновидів ушкоджень (відлік починається з 1)
 
-local alcohol_effector_name 	= read_if_exists(sys_ini, "sring", cond_sect, "alcohol_effector", "effector_alcohol")
+local alcohol_effector_name 	= read_if_exists(sys_ini, "string", cond_sect, "alcohol_effector", "effector_alcohol")
 local alcohol_effector_id 		= 1000
 
-local psy_health_effector_name 	= read_if_exists(sys_ini, "sring", cond_sect, "psy_health_effector", "effector_psy_health")
+local psy_health_effector_name 	= read_if_exists(sys_ini, "string", cond_sect, "psy_health_effector", "effector_psy_health")
 local psy_health_effector_id 	= 1001
 
 --//tutorial thresholds
@@ -120,14 +119,15 @@ function update_alcohol_effector()
 	local has_effector = level.check_complex_effector(alcohol_effector_id)
 	
 	if actor.alcohol > 0 then
+		local intensity = alcohol_satiety()
 		if not has_effector then
-			level.add_complex_effector(alcohol_effector_name, alcohol_effector_id, alcohol_satiety())
+			level.add_complex_effector(alcohol_effector_name, alcohol_effector_id, intensity)
 		else
-			level.set_complex_effector_factor(alcohol_effector_id, alcohol_satiety())
+			level.set_complex_effector_factor(alcohol_effector_id, intensity)
 		end
 	else
 		if has_effector then
-			level.remove_complex_effector(alcohol_effector_id)
+			level.remove_complex_effector(alcohol_effector_id)	
 		end
 	end
 end
@@ -139,21 +139,22 @@ function update_psy_health_effector()
 	local has_effector = level.check_complex_effector(psy_health_effector_id)
 	
 	if actor.psy_health < 1 then
+		local intensity = psy_damage()
 		if not has_effector then
-			local level_psy_effector = read_if_exists(sys_ini, "sring", cond_sect, "psy_health_effector_"..level.name(), nil)
-			level.add_complex_effector(level_psy_effector or psy_health_effector_name, psy_health_effector_id, psy_damage())
+			local level_psy_effector = read_if_exists(sys_ini, "string", cond_sect, "psy_health_effector_"..level.name(), nil)
+			level.add_complex_effector(level_psy_effector or psy_health_effector_name, psy_health_effector_id, intensity)
 		else
-			level.set_complex_effector_factor(psy_health_effector_id, psy_damage())
+			level.set_complex_effector_factor(psy_health_effector_id, intensity)
 		end
 	else
 		if has_effector then
-			level.remove_complex_effector(psy_health_effector_id)
+			level.remove_complex_effector(psy_health_effector_id)		
 		end
 	end
 end
 
 function overweight_koef()
-	local power_k = actor.power >= power_slowdown_threshold and 1 or  math.clamp(actor.power / power_slowdown_threshold, min_power_walk_jump, 1)
+	local power_k = actor.power >= power_slowdown_threshold and 1 or math.clamp(actor.power / power_slowdown_threshold, 1, min_power_walk_jump)
 	local weight = actor:get_inventory_weight()
 	local max_weight = actor:get_max_weight()	
 	local overweight_k = weight > max_weight and (max_weight / weight) or 1
