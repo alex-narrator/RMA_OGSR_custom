@@ -1,7 +1,7 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
 	--sm:subscribe({signal = "on_hit", fun = this.on_hit})
-	--sm:subscribe({signal = "on_hit_actor", fun = this.on_hit})
+	--sm:subscribe({signal = "on_hit_actor", fun = this.on_hit_actor})
 	--sm:subscribe({signal = "on_actor_before_hit", fun = this.on_before_hit})
 	--sm:subscribe({signal = "on_death",   fun = this.on_death})
 	--sm:subscribe({signal = "on_npc_before_hit", fun = this.on_before_hit})
@@ -35,8 +35,13 @@ function on_hit(victim, health_lost, direction, draftsman, bone_id, hit_type)
 	log_news("~%s current health %.2f | bleeding %.2f", victim:name(), victim.health, victim:get_bleeding())
 end
 
+function on_hit_actor(victim, health_lost, direction, draftsman, bone_id, hit_type)
+	log_news("~on_hit: victim %s | health_lost %s | draftsman %s | bone %s | hit_type %s",	victim:name(),  health_lost, draftsman:name(), victim:get_bone_name(bone_id), get_hit_type_name(hit_type))
+	log_news("~%s current health %.2f | bleeding %.2f", victim:name(), victim.health, victim:get_bleeding())
+end
+
 function on_before_hit(object, hit)
-	log_news("~%s on_before_hit: power %s | full power %s | type %s | draftsman %s | bone %s | ap %s", object:name(), hit.power, hit.full_power, get_hit_type_name(hit.hit_type), hit.who:name(), object:get_bone_name(hit.bone_id), hit.ap)
+	log_news("~%s on_before_hit: power %s | full power %s | type %s | draftsman %s | bone %s | ap %s", object:name(), hit.power, hit.full_power, get_hit_type_name(hit.hit_type), hit.who:name(), object:get_bone_name(hit.bone_id) or "NONE", hit.ap)
 end
 
 function on_death(victim, killer)

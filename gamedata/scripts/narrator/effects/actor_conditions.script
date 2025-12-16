@@ -49,6 +49,7 @@ local psy_phantoms_threshold 		= read_if_exists(sys_ini, "float", cond_sect, "ps
 local psy_phantoms_interval 		= read_if_exists(sys_ini, "float", cond_sect, "psy_phantoms_interval", 30) * 1000
 local psy_phantoms_spawn_radius 	= read_if_exists(sys_ini, "float", cond_sect, "psy_phantoms_spawn_radius", 30)
 local psy_phantoms_spawn_fov 		= read_if_exists(sys_ini, "float", cond_sect, "psy_phantoms_spawn_fov", 45)
+local psy_phantom_section 			= read_if_exists(sys_ini, "string", cond_sect, "psy_phantom_section", "m_phantom")
 
 --//tutorial thresholds
 local thresholds_sect 			= "tutorial_conditions_thresholds"
@@ -105,6 +106,10 @@ local hallucinations_sounds = {
 	get_snd([[monsters\tushkano\tushkano_aggressive_0]]),
 	get_snd([[monsters\tushkano\tushkano_threaten_1]]),
 	get_snd([[monsters\zombie\zombie_attack_3]]),
+	
+	-- get_snd([[monsters\burer\burer_idle_0]]),
+	-- get_snd([[monsters\burer\burer_idle_1]]),
+	-- get_snd([[monsters\burer\burer_idle_2]]),
 }
 
 function on_update_effects(delta)
@@ -249,7 +254,8 @@ function update_psy_health_effects()
 			local ang = psy_phantoms_spawn_fov * math.random() - psy_phantoms_spawn_fov * 0.5
 			local dir = vector_rotate_y( actor:direction(), ang )
 			local pos = actor:position():add( dir:mul(radius) )
-			level.spawn_phantom(pos)
+			--level.spawn_phantom(pos)
+			spawn_to_level(psy_phantom_section, pos, level.name())
 			fantoms_play_time = nil
 		end
 	else
