@@ -7,40 +7,48 @@ function attach(sm)
 	sm:subscribe({signal = "on_before_use_item",   	fun = this.on_before_use})
 end
 
-local actor_cond 				= actor_obj.condition--actor.conditions
-local cond_sect 				= read_if_exists(sys_ini, "string", "actor", "condition_sect", "actor_condition")
+local actor_cond 					= actor_obj.condition--actor.conditions
+local cond_sect 					= read_if_exists(sys_ini, "string", "actor", "condition_sect", "actor_condition")
 
-local def_walk_accel 			= read_if_exists(sys_ini, "float", "actor", "walk_accel", 17)
-local def_sprint_koef 			= read_if_exists(sys_ini, "float", "actor", "sprint_koef", 2.6)
-local def_jump_speed 			= read_if_exists(sys_ini, "float", "actor", "jump_speed", 6)
-local def_max_weight 			= read_if_exists(sys_ini, "float", "inventory", "max_weight", 50)
+local def_walk_accel 				= read_if_exists(sys_ini, "float", "actor", "walk_accel", 17)
+local def_sprint_koef 				= read_if_exists(sys_ini, "float", "actor", "sprint_koef", 2.6)
+local def_jump_speed 				= read_if_exists(sys_ini, "float", "actor", "jump_speed", 6)
+local def_max_weight 				= read_if_exists(sys_ini, "float", "inventory", "max_weight", 50)
 
-local def_bleeding_v 			= read_if_exists(sys_ini, "float", cond_sect, "bleeding_v", 0)
-local def_satiety_v 			= read_if_exists(sys_ini, "float", cond_sect, "satiety_v", 0)
-local def_alcohol_v 			= read_if_exists(sys_ini, "float", cond_sect, "alcohol_v", 0)
+local def_bleeding_v 				= read_if_exists(sys_ini, "float", cond_sect, "bleeding_v", 0)
+local def_satiety_v 				= read_if_exists(sys_ini, "float", cond_sect, "satiety_v", 0)
+local def_alcohol_v 				= read_if_exists(sys_ini, "float", cond_sect, "alcohol_v", 0)
 
-local def_wound_incarnation_v 	= read_if_exists(sys_ini, "float", cond_sect, "wound_incarnation_v", 0)
-local def_health_restore_v 		= read_if_exists(sys_ini, "float", cond_sect, "health_restore_v", 0)
-local def_psy_health_v 			= read_if_exists(sys_ini, "float", cond_sect, "psy_health_v", 0)
-local def_power_v 				= read_if_exists(sys_ini, "float", cond_sect, "power_v", 0)
+local def_wound_incarnation_v 		= read_if_exists(sys_ini, "float", cond_sect, "wound_incarnation_v", 0)
+local def_health_restore_v 			= read_if_exists(sys_ini, "float", cond_sect, "health_restore_v", 0)
+local def_psy_health_v 				= read_if_exists(sys_ini, "float", cond_sect, "psy_health_v", 0)
+local def_power_v 					= read_if_exists(sys_ini, "float", cond_sect, "power_v", 0)
 
-local min_power_walk_jump 		= read_if_exists(sys_ini, "float", cond_sect, "min_power_walk_jump", 0.1)
-local stress_factor 			= read_if_exists(sys_ini, "float", cond_sect, "stress_factor", 1)
-local min_regen_k 				= read_if_exists(sys_ini, "float", cond_sect, "min_regen_k", 0)
-local bleeding_power_dec 		= read_if_exists(sys_ini, "float", cond_sect, "bleeding_power_dec", 0)
-local bleeding_stress_inc 		= read_if_exists(sys_ini, "float", cond_sect, "bleeding_stress_inc", 0.01)
+local min_power_walk_jump 			= read_if_exists(sys_ini, "float", cond_sect, "min_power_walk_jump", 0.1)
+local stress_factor 				= read_if_exists(sys_ini, "float", cond_sect, "stress_factor", 1)
+local min_regen_k 					= read_if_exists(sys_ini, "float", cond_sect, "min_regen_k", 0)
+local bleeding_power_dec 			= read_if_exists(sys_ini, "float", cond_sect, "bleeding_power_dec", 0)
+local bleeding_stress_inc 			= read_if_exists(sys_ini, "float", cond_sect, "bleeding_stress_inc", 0.01)
 
-local power_slowdown_threshold 	= read_if_exists(sys_ini, "float", cond_sect, "power_slowdown_threshold", 1)
+local power_slowdown_threshold 		= read_if_exists(sys_ini, "float", cond_sect, "power_slowdown_threshold", 1)
 
 local satiety_to_alcohol_effector_intensity = read_if_exists(sys_ini, "float", cond_sect, "satiety_to_alcohol_effector_intensity", 1)
 
-local protection_index 			= 12 --//порядковий номер з якого починаються секції захисту від різновидів ушкоджень (відлік починається з 1)
+local protection_index 				= 12 --//порядковий номер з якого починаються секції захисту від різновидів ушкоджень (відлік починається з 1)
 
-local alcohol_effector_name 	= read_if_exists(sys_ini, "string", cond_sect, "alcohol_effector", "effector_alcohol")
-local alcohol_effector_id 		= 1000
+local alcohol_effector_name 		= read_if_exists(sys_ini, "string", cond_sect, "alcohol_effector", "effector_alcohol")
+local alcohol_effector_id 			= 1000
 
-local psy_health_effector_name 	= read_if_exists(sys_ini, "string", cond_sect, "psy_health_effector", "effector_psy_health")
-local psy_health_effector_id 	= 1001
+local psy_health_effector_name 		= read_if_exists(sys_ini, "string", cond_sect, "psy_health_effector", "effector_psy_health")
+local psy_health_effector_id 		= 1001
+
+local psy_hallucinations_threshold 	= read_if_exists(sys_ini, "float", cond_sect, "psy_hallucinations_threshold", 0)
+local psy_hallucinations_interval 	= read_if_exists(sys_ini, "float", cond_sect, "psy_hallucinations_interval", 45) * 1000
+
+local psy_phantoms_threshold 		= read_if_exists(sys_ini, "float", cond_sect, "psy_phantoms_threshold", 0)
+local psy_phantoms_interval 		= read_if_exists(sys_ini, "float", cond_sect, "psy_phantoms_interval", 30) * 1000
+local psy_phantoms_spawn_radius 	= read_if_exists(sys_ini, "float", cond_sect, "psy_phantoms_spawn_radius", 30)
+local psy_phantoms_spawn_fov 		= read_if_exists(sys_ini, "float", cond_sect, "psy_phantoms_spawn_fov", 45)
 
 --//tutorial thresholds
 local thresholds_sect 			= "tutorial_conditions_thresholds"
@@ -66,7 +74,45 @@ local update_boost_func = {
 	["boost_somnolence"] 	= function(val) somnolence.change_val(val) end,
 }
 
+local get_snd = xr_sound.get_safe_sound_object
+local hallucinations_sounds = {
+	get_snd([[monsters\bloodsucker\sucker_growl_0]]),
+	get_snd([[monsters\bloodsucker\vampire_grasp]]),
+	get_snd([[monsters\boar\boar_aggressive_1]]),
+	get_snd([[monsters\boar\boar_aggressive_2]]),
+	get_snd([[monsters\burer\burer_attack_0]]),
+	get_snd([[monsters\burer\burer_attacking_0]]),
+	get_snd([[monsters\controller\controller_attack_hit_0]]),
+	get_snd([[monsters\crow\idle_0]]),
+	get_snd([[monsters\dog\attack_hit_0]]),
+	get_snd([[monsters\dog\bdog_attack_0]]),
+	get_snd([[monsters\dog\bdog_groan_0]]),
+	get_snd([[monsters\dog\threaten_0]]),
+	get_snd([[monsters\flesh\flesh_aggressive_0]]),
+	get_snd([[monsters\flesh\flesh_panic_0]]),
+	get_snd([[monsters\giant\giant_aggressive_0]]),
+	get_snd([[monsters\giant\giant_hurt_0]]),
+	get_snd([[monsters\poltergeist\attack_0]]),
+	get_snd([[monsters\poltergeist\attack_2]]),
+	get_snd([[monsters\poltergeist\attack_hit_0]]),
+	get_snd([[monsters\poltergeist\attack_hit_0]]),
+	get_snd([[monsters\pseudodog\pdog_aggression_0]]),
+	get_snd([[monsters\pseudodog\psy_attack_0]]),
+	get_snd([[monsters\rat\voice_2]]),
+	get_snd([[monsters\snork\snork_attack_0]]),
+	get_snd([[monsters\snork\snork_attack_hit_0]]),
+	get_snd([[monsters\snork\snork_idle_0]]),
+	get_snd([[monsters\tushkano\tushkano_aggressive_0]]),
+	get_snd([[monsters\tushkano\tushkano_threaten_1]]),
+	get_snd([[monsters\zombie\zombie_attack_3]]),
+}
+
 function on_update_effects(delta)
+	if not actor:alive() then
+		update_alcohol_effector(true)
+		update_psy_health_effector(true)	
+	return end
+	
 	--//custom conditions
 	actor_obj.walk_accel 			= def_walk_accel * overweight_koef()
 	
@@ -110,11 +156,16 @@ function on_update_effects(delta)
 	
 	update_alcohol_effector()
 	update_psy_health_effector()
+	update_psy_health_effects()
 end
 
-function update_alcohol_effector()
+function update_alcohol_effector(force_stop)
 	if not alcohol_effector_name then
 	return end
+	
+	if force_stop then
+		level.remove_complex_effector(alcohol_effector_id)
+	return end	
 	
 	local has_effector = level.check_complex_effector(alcohol_effector_id)
 	
@@ -127,16 +178,20 @@ function update_alcohol_effector()
 		end
 	else
 		if has_effector then
-			level.remove_complex_effector(alcohol_effector_id)	
+			level.remove_complex_effector(alcohol_effector_id)
 		end
 	end
 end
 
-function update_psy_health_effector()
+function update_psy_health_effector(force_stop)
 	if not psy_health_effector_name then
 	return end
 	
-	local has_effector = level.check_complex_effector(psy_health_effector_id)
+	if force_stop then
+		level.remove_complex_effector(psy_health_effector_id)
+	return end	
+	
+	local has_effector = level.check_complex_effector(psy_health_effector_id)	
 	
 	if actor.psy_health < 1 then
 		local intensity = psy_damage()
@@ -151,6 +206,55 @@ function update_psy_health_effector()
 			level.remove_complex_effector(psy_health_effector_id)		
 		end
 	end
+end
+
+function update_psy_health_effects()
+	local time_current = device():time_global()
+	
+	if actor.psy_health < psy_hallucinations_threshold then
+		if not hallucinations_play_time then
+			hallucinations_play_time = time_current + (psy_hallucinations_interval * 0.5 + psy_hallucinations_interval * 0.5 * actor.psy_health / psy_hallucinations_threshold)--psy_hallucinations_interval * math.random(8, 12) * 0.1
+		end
+		if time_current >= hallucinations_play_time then
+			--log_news("~play psy hallucinations sound")
+			local snd = hallucinations_sounds[math.random(1, #hallucinations_sounds)]
+			snd:play(actor, 0, sound_object.s2d)
+			snd.volume = 0
+			local start_time = time_current
+			local length = snd:length()
+			level.add_call(
+				function()
+					if snd then
+						snd.volume = (device():time_global() - start_time) / length
+						--log_news("~snd volume %s", snd.volume)
+					end
+					return not snd or not snd:playing()
+				end,
+				function()
+				end
+			)
+			hallucinations_play_time = nil
+		end
+	else
+		hallucinations_play_time = nil
+	end
+	
+	if actor.psy_health < psy_phantoms_threshold then
+		if not fantoms_play_time then
+			fantoms_play_time = time_current + (psy_phantoms_interval * 0.5 + psy_phantoms_interval * 0.5 * actor.psy_health / psy_phantoms_threshold)--psy_phantoms_interval * math.random(8, 12) * 0.1
+		end
+		if time_current >= fantoms_play_time then
+			--log_news("~play psy fantoms")
+			local radius = psy_phantoms_spawn_radius * ( math.random()/2.0+0.5 )
+			local ang = psy_phantoms_spawn_fov * math.random() - psy_phantoms_spawn_fov * 0.5
+			local dir = vector_rotate_y( actor:direction(), ang )
+			local pos = actor:position():add( dir:mul(radius) )
+			level.spawn_phantom(pos)
+			fantoms_play_time = nil
+		end
+	else
+		fantoms_play_time = nil
+	end	
 end
 
 function overweight_koef()

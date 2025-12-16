@@ -668,7 +668,7 @@ function CKampManager:increasePops(npc)
 	self.population = self.population + 1
 	if self.campfire then
 		--log3("~increasePops found campfire %s for kamp %s", campfire:name(), self.kamp_name)
-		if self.population == 1 then
+		if self.population > 0 then
 			self.campfire:binded_object().has_user = true
 			--log3("~increasePops has user campfire %s for kamp %s", campfire:name(), self.kamp_name)
 		end

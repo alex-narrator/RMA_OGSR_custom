@@ -149,9 +149,15 @@ function change_time()
 	if sleep_h <= 0 and sleep_m <= 0 then
 		log_news("!can`t perform sleep because sleep timer is %s:%s", sleep_h, sleep_m)
 	return end
-	change_game_time(0, sleep_h, sleep_m)
-	local sleep_time = ((sleep_h * 3600) + (sleep_m * 60))
-	sleep_conditions(sleep_time)
+	-- change_game_time(0, sleep_h, sleep_m)
+	-- local sleep_time = ((sleep_h * 3600) + (sleep_m * 60))
+	-- sleep_conditions(sleep_time)
+	local iter_minutes = 15
+	local iter_count = math.ceil(sleep_h * 60 / iter_minutes)
+	for i = 1, iter_count do
+		change_game_time(0, 0, iter_minutes)
+		sleep_conditions(iter_minutes * 60)
+	end	
 	sleep_h, sleep_m = 0, 0	
 	play_awake_effects()
 end
