@@ -20,20 +20,20 @@ function campfire_zone_binder:__init(obj) super(obj)
 end
 
 function campfire_zone_binder:net_spawn(data)
-	--log3("%s net_spawn for object %s", script_name(), self.object:name())
+	--log_news("%s net_spawn for object %s", script_name(), self.object:name())
 	--self.object:disable_anomaly()
 	self.sm:call("on_campfire_zone_spawn", self.object)
 	if not self.se_object.enabled then
 		-- self.object:disable_anomaly()
 		add_update_delayed_action(1, function() self.object:disable_anomaly() end)
 	end
-	--log3("~%s net_spawn for campfire anomaly %s | id %s | enabled %s", script_name(), self.object:name(), self.object:id(), self.se_object.enabled)
+	--log_news("~%s net_spawn for campfire anomaly %s | id %s | enabled %s", script_name(), self.object:name(), self.object:id(), self.se_object.enabled)
     local spawned = object_binder.net_spawn(self, data)	
 	return spawned
 end
 
 function campfire_zone_binder:net_destroy()
-	--log3("%s net_destroy for object %s", script_name(), self.object:name())
+	--log_news("%s net_destroy for object %s", script_name(), self.object:name())
 	self.sm:call("on_campfire_zone_destroy", self.object)	
 	object_binder.net_destroy(self)
 end
@@ -58,7 +58,7 @@ function campfire_usable_binder:__init(obj) super(obj)
 end
 
 function campfire_usable_binder:net_spawn(data)
-	--log3("%s net_spawn for object %s", script_name(), self.object:name())
+	--log_news("%s net_spawn for object %s", script_name(), self.object:name())
 	--self.object:disable_anomaly()
 	self.sm:call("on_campfire_usable_spawn", self.object)	
 	self.object:set_callback(callback.use_object, campfire_usable_binder.on_use, self)
@@ -69,7 +69,7 @@ end
 function campfire_usable_binder:net_destroy()
 	self.object:set_callback(callback.use_object, nil)
 	self.se_campfire_zone = nil
-	--log3("%s net_destroy for object %s", script_name(), self.object:name())
+	--log_news("%s net_destroy for object %s", script_name(), self.object:name())
 	self.sm:call("on_campfire_usable_destroy", self.object)	
 	object_binder.net_destroy(self)
 end
@@ -101,7 +101,7 @@ function campfire_usable_binder:update(delta)
 		local c_campfire_zone = level.object_by_id(self.se_campfire_zone.id)
 		if c_campfire_zone then
 			c_campfire_zone:enable_anomaly()
-			log3("~campfire_usable_binder ignite campfire %s", c_campfire_zone:name())
+			--log_news("~campfire_usable_binder ignite campfire %s", c_campfire_zone:name())
 		end		
 	end
 	
@@ -111,7 +111,7 @@ function campfire_usable_binder:update(delta)
 		local c_campfire_zone = level.object_by_id(self.se_campfire_zone.id)
 		if c_campfire_zone then
 			c_campfire_zone:disable_anomaly()
-			log3("~campfire_usable_binder disable campfire %s", c_campfire_zone:name())
+			--log_news("~campfire_usable_binder disable campfire %s", c_campfire_zone:name())
 		end
 	end
 	

@@ -176,13 +176,11 @@ function CKampManager:__init(path)
 	self.patrol = patrol(path)
 	self.center = self.patrol:level_vertex_id(0)
 	
-	self.campfire = campfire_manager.get_nearest_campfire_usable(level.vertex_position(self.center), CAMPFIRE_DIST)
-		
 	if DBG_CENTER_SHOW then
 		--level.disable_vertex(self.center)
 		--game_graph():accessible(self.center, false)
 		local center_pos = level.vertex_position(self.center)
-		log3("~ self.center %s for camp %s, center pos %s %s %s", self.center, self.kamp_name, center_pos.x, center_pos.y, center_pos.z)
+		log_news("~ self.center %s for camp %s, center pos %s %s %s", self.center, self.kamp_name, center_pos.x, center_pos.y, center_pos.z)
 		local dbg_particle = particles_object("anomaly2\\plasma_generator_death")
 		level.add_call(
 			function()
@@ -264,19 +262,19 @@ function CKampManager:selectPosition(npc_id)
 		self.position[free[rr]].used = npc_id
 		self.npc[npc_id].position = free[rr]
 	end
-	--printf("KAMP [%s] npc table", npc_id)
+	--log_news("KAMP [%s] npc table", npc_id)
 	--print_table(self.npc)
-	--printf("KAMP [%s] position table", npc_id)
+	--log_news("KAMP [%s] position table", npc_id)
 	--print_table(self.position)
 end
 function CKampManager:getDestVertex(npc_id, radius)
 	--printf("get dest Vertex called [%s]", npc_id)
 	if self.npc[npc_id].position == nil then
-		printf("-------debug_info-------------")
+		log_news("-------debug_info-------------")
 		print_table(self.npc)
-		printf("-------debug_info-------------")
+		log_news("-------debug_info-------------")
 		print_table(self.position)
-		printf("-------debug_info-------------")
+		log_news("-------debug_info-------------")
 		abort("get dest Vertex: nil [%s]", npc_id)
 		return nil
 	end
@@ -289,7 +287,7 @@ function CKampManager:getDestVertex(npc_id, radius)
 	-- высчитываем вертех по направлению
    	local pp = level.vertex_in_direction(self.center, self.position[self.npc[npc_id].position].dir, radius)
    	pp = level.vertex_in_direction(pp, vector():set(math.random(-1,1), 0, math.random(-1,1)), math.random(0,0.5))
-	--printf("vertex selected [%s]", npc_id)   	
+	--log_news("vertex selected [%s]", npc_id)   	
 	return pp		
 end
 function CKampManager:proceedState(npc)
@@ -314,7 +312,7 @@ function CKampManager:proceedState(npc)
 		return
 	end
 
-	--printf("Proceed state for [%s]", npc_id)
+	--log_news("Proceed state for [%s]", npc_id)
 	-- В случае с историей переход обрабатывается отдельно
 	if self.kamp_state == "post_story" then
 		if self.story_last < self.story_max - 1 then
@@ -382,7 +380,7 @@ function CKampManager:proceedState(npc)
 	end
 end
 function CKampManager:proceedRole(npc, director)
-	--printf("Proceed Role for [%s]", npc:id())
+	--log_news("Proceed Role for [%s]", npc:id())
 	-- Определить список доступных анимаций по состоянию лагеря.
 	-- определить список доступных анимаций по наличию предметов
 	-- выбрать одну из них (то же самое со звуком).
@@ -571,7 +569,7 @@ function CKampManager:updateNpc(npc)
 		sound = ""
 	end
 
-	--printf("Proceed Update Npc [%s] sound [%s]", state, sound)	
+	--log_news("Proceed Update Npc [%s] sound [%s]", state, sound)	
 	return state, sound, substate
 end
 function CKampManager:checkNpcAbility(npc)
@@ -618,9 +616,9 @@ function CKampManager:checkNpcAbility(npc)
 	self.kamp_states["post_story"] = allowed
 end
 function CKampManager:addNpc(npc)
-	printf("KAMP [%s] add npc", npc:name())
+	--log_news("KAMP [%s] add npc [%s]", self.kamp_name, npc:name())
 	if self.npc[npc:id()] ~= nil then
-		printf("NPC is already exist")
+		log_news("NPC is already exist")
 		return
 	end
 	
@@ -642,7 +640,7 @@ function CKampManager:addNpc(npc)
 	self.npc[npc:id()].can_eat = not helmet_visuals[npc:get_visual_name()]
 end
 function CKampManager:removeNpc(npc)
-	printf("KAMP [%s] remove npc", npc:name())
+	--log_news("KAMP [%s] remove npc [%s]", self.kamp_name, npc:name())
 	local npc_id = npc:id()
 	if self.npc[npc_id] ~= nil then
 		-- Если удаляем режиссера - необходимо форсированно перевести лагерь в идловое состояние.
@@ -661,26 +659,28 @@ function CKampManager:removeNpc(npc)
 	
 		self.position[self.npc[npc_id].position].used = nil
 		self.npc[npc_id] = nil
-	end
+	end		
 end
 
 function CKampManager:increasePops(npc)
 	self.population = self.population + 1
-	if self.campfire then
-		--log3("~increasePops found campfire %s for kamp %s", campfire:name(), self.kamp_name)
+	--log_news("~KAMP [%s] increasePops to [%s]", self.kamp_name, self.population)
+	local campfire = campfire_manager.get_nearest_campfire_usable(level.vertex_position(self.center), CAMPFIRE_DIST)
+	if campfire then
 		if self.population > 0 then
-			self.campfire:binded_object().has_user = true
-			--log3("~increasePops has user campfire %s for kamp %s", campfire:name(), self.kamp_name)
+			campfire:binded_object().has_user = true
+			--log_news("~increasePops has user campfire %s for kamp %s", campfire:name(), self.kamp_name)
 		end
-	end
+	end		
 end
 function CKampManager:decreasePops(npc)
 	self.population = self.population - 1
-	if self.campfire then
-		--log3("~decreasePops found campfire %s for kamp %s", campfire:name(), self.kamp_name)
+	--log_news("~KAMP [%s] decreasePops to [%s]", self.kamp_name, self.population)
+	local campfire = campfire_manager.get_nearest_campfire_usable(level.vertex_position(self.center), CAMPFIRE_DIST)
+	if campfire then
 		if self.population == 0 then
-			self.campfire:binded_object().has_user = false
-			--log3("~increasePops has no user campfire %s for kamp %s", campfire:name(), self.kamp_name)
+			campfire:binded_object().has_user = false
+			--log_news("~decreasePops has no user campfire %s for kamp %s", campfire:name(), self.kamp_name)
 		end
 	end	
 end
@@ -698,7 +698,7 @@ function CKampManager:select_story(npc)
     end
   end
   self.selected_story = t[ math.random(table.getn(t))]
-  --log3("~give info %s to npc %s", self.selected_story, npc:character_name())
+  --log_news("~give info %s to npc %s", self.selected_story, npc:character_name())
   npc:give_info_portion( self.selected_story )
 end
 ----------------------------------------------------------------------------------------------------------------------
