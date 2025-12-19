@@ -363,7 +363,7 @@ function buy_supplies(npc)
 	local suppl_sect = tt.current_buy_supplies
 	local n = tt.config:line_count(suppl_sect)
 	local sect, value = "", ""
-	local tmp_tbl, count, prob, sobj
+	local tmp_tbl, count, prob
 	for i=0,n-1 do
 		result, sect, value = tt.config:r_line(suppl_sect,i,"","")
 		tmp_tbl = split_string(value, ",")
@@ -372,6 +372,7 @@ function buy_supplies(npc)
 		
 		local spawned = 0
 		for ii=1, count do
+			local sobj
 			if math.random(0,1) <= prob then
 				if read_if_exists(sys_ini, "string", sect, "ammo_types", nil) then
 					sobj = spawn_ammo_to_owner(sect, npc_id, 0)
@@ -379,7 +380,13 @@ function buy_supplies(npc)
 					sobj = spawn_to_owner(sect, npc_id)
 				end
 				spawned = spawned + 1
-				sm:call("on_trade_purchase_item_process", npc, sobj)
+				if type(sobj) == "table" then
+					for _, s_obj in pairs (sobj) do
+						sm:call("on_trade_purchase_item_process", npc, s_obj)
+					end
+				else
+					sm:call("on_trade_purchase_item_process", npc, sobj)
+				end
 			end
 		end
 		

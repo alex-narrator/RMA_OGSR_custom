@@ -2135,16 +2135,22 @@ function spawn_ammo_to_level(section, spawn_pos, level_name, count, ammo_type, s
 	local sim = alife()	
 	local gvid = get_any_gvid_by_level(level_name)
 	local count_in_box = read_if_exists(sys_ini, "s32", section, "box_size", 1)
+	
+	local spawned = {}
 	local s_obj
+	
 	while count > count_in_box do
 		s_obj = sim:create_ammo(section, spawn_pos, -1,	gvid, -1, count_in_box, ammo_type)
 		s_obj.angle = spawn_dir
 		sim:object(s_obj.id):used_ai_locations(false)
+		table.insert(spawned, sobj)
 		count = count - count_in_box
 	end
 	s_obj = sim:create_ammo(section, spawn_pos, -1,	gvid, -1, count, ammo_type)	
 	s_obj.angle = spawn_dir
 	sim:object(s_obj.id):used_ai_locations(false)
+	table.insert(spawned, sobj)
+	return spawned
 end
 
 --//спавн до inventory_owner'a
