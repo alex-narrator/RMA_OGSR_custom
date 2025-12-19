@@ -2197,6 +2197,15 @@ function give_ammo_box_to_actor(section, count, loaded_box, ammo_type)
 	end
 end
 
+function get_translated_character_name(character_name)
+	local name = split_string(character_name, " ")
+	local translated_name = game.translate_string(name[1])
+	if name[2] then
+		translated_name = translated_name.." "..game.translate_string(name[2])
+	end
+	return translated_name
+end
+
 function ctime_to_table(time_struct)
 	if not time_struct then
 	return nil end

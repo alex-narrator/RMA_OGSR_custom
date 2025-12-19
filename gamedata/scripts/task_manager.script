@@ -777,11 +777,7 @@ function GetPersonalText(task_info)
 	if task_info.selected_target and task_info.type == "kill_stalker" then
 		local sim = alife()
 		local target = sim:object(task_info.selected_target)
-		local name = split_string(target.character_name, " ")
-		local target_name = game.translate_string(name[1])
-		if name[2] then
-			target_name = target_name.." "..game.translate_string(name[2])
-		end
+		local target_name = get_translated_character_name(target.character_name)
 		local name_community = string.format("%s%s (%s, %s)\\n",list_prefix, target_name, game.translate_string(target:community()), game.translate_string(ranks.get_obj_rank_name(target)))
 		local personal_header = string.format("%s%s\\n", "%c[white]", game.translate_string("ui_st_task_personal"))		
 		personal_text = string.format("%s%s%s", personal_text, personal_header, name_community)
