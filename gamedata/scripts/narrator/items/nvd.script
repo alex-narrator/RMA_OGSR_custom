@@ -392,7 +392,7 @@ function try_block_aim(key, game_action)
 		if not wpn then
 		return end
 		if wpn:is_addon_attached(addon.scope) and not wpn_scope_allow_nvd(actor:active_item()) then
-			hud_add_info_message("item_usage", game.translate_string("st_nvd_block_scope_aim"), 2)
+			hud_add_info_message("hud_info", game.translate_string("st_nvd_block_scope_aim"), 2)
 			actor_obj:block_action(game_action)
 			add_update_delayed_action(1, function() actor_obj:unblock_action(game_action) end)
 			return
@@ -406,7 +406,7 @@ function on_scope_mode_change(weapon)
 		if not wpn then
 		return end
 		if wpn:is_addon_attached(addon.scope) and not wpn_scope_allow_nvd(actor:active_item()) then
-			hud_add_info_message("item_usage", game.translate_string("st_nvd_block_scope_aim"), 2)
+			hud_add_info_message("hud_info", game.translate_string("st_nvd_block_scope_aim"), 2)
 			weapon:zoom_out()
 			return
 		end

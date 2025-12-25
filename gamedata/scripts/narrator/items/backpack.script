@@ -92,7 +92,7 @@ end
 function set_map_spot(backpack)
 	local name_short = read_if_exists(sys_ini, "string", backpack:section(), "inv_name_short", read_if_exists(sys_ini, "string", backpack:section(), "inv_name", nil))
 	local text = string.format("%s: %s", game.translate_string("ui_st_dropped_backpack"), game.translate_string(name_short))
-	hud_add_info_message("item_usage", text)
+	hud_add_info_message("hud_info", text)
 	level.map_add_object_spot_ser(backpack:id(), backpack_spot, text)
 end
 

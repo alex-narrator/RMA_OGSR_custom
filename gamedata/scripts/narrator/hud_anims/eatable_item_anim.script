@@ -81,7 +81,7 @@ function play(item)
 				)
 			end
 			
-			hud_add_info_message("item_usage", game.translate_string("st_key_to_stop_anim"), 10)
+			hud_add_info_message("hud_info", game.translate_string("st_key_to_stop_anim"), 10)
 			
 			_G.SCRIPT_ANIM_PLAYING = true
 			anim_sound = play_hud_sound(hud_sect)
@@ -114,7 +114,7 @@ function play(item)
 					unsubscribe()
 					block_non_move_action(false)
 					level.remove_complex_effector(hud_effector_id)
-					hud_remove_info_message("item_usage")
+					hud_remove_info_message("hud_info")
 					if anim_sound then
 						anim_sound:stop()
 					end					
@@ -164,7 +164,7 @@ function set_use_delay(sect, item, anm_length)
 		read_if_exists(sys_ini, "float", sect, "use_delay", anm_length * 0.001) * 1 / anm_snd_speed(), 
 		function()
 			--unsubscribe()
-			hud_remove_info_message("item_usage")
+			hud_remove_info_message("hud_info")
 			--log_news("~use delay function called for item %s", sect)
 			if FORCE_STOP then
 				FORCE_STOP = false				

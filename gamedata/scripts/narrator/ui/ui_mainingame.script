@@ -1228,7 +1228,7 @@ function MainIngameOverlay:OnKeyPress(key, game_action)
 		if act_device and dosimeter.is_dosimeter(act_device) and act_device:is_power_on() then
 			dosimeter.show_actor_radiation()
 			local str = string.format("%s: %.2f %s ", game.translate_string("st_actor_radiation"), actor.radiation * 100, game.translate_string("st_percent"))--actor.radiation, game.translate_string("st_rad"))
-			hud_add_info_message("item_usage", str, ACTIVE_ITEM_INFO_TTL)
+			hud_add_info_message("hud_info", str, ACTIVE_ITEM_INFO_TTL)
 		end
 		_G.SHOW_ACTIVE_ITEM_INFO = true
 		self.active_item_info_hide_time = time_global() + ACTIVE_ITEM_INFO_TTL * 1000

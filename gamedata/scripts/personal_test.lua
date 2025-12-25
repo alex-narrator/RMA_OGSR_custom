@@ -40,11 +40,13 @@
 
 --db.actor.power = -10
 
-local tgt --= level.get_target_obj()
+local tgt = level.get_target_obj()
 if tgt then
+	-- local dbg_particle = particles_object("anomaly2\\plasma_generator_death")
+	-- dbg_particle:play_at_pos(tgt:center())
 	--tgt:change_goodwill(-1000, actor)
 	--actor:change_character_reputation(-1000)
-	log3("~tgt name %s", tgt:name())
+	--log3("~tgt name %s", tgt:name())
 	--log3("~personal goodwill %s", tgt:goodwill(actor))
 	--log3("~community_goodwill %s", relation_registry.community_goodwill(tgt:character_community(), actor:id()))
 	--alife():release(alife():object(tgt:id()), true)
@@ -408,8 +410,8 @@ end
 	-- log3("~%s is wounded %s | health %s", tgt:profile_name(), tgt:wounded(), tgt.health)
 -- end
 
-body_health.try_upper_limbs_injure(0.3)
-body_health.try_lower_limbs_injure(0.3)
+-- body_health.try_upper_limbs_injure(0.3)
+-- body_health.try_lower_limbs_injure(0.3)
 
 -- local flist = getFS():file_list_open_ex( "$game_saves$", FS.FS_ListFiles + FS.FS_ClampExt + FS.FS_RootOnly + FS.FS_NoLower, "*.sav" )
 -- flist:Sort(FS.FS_sort_by_modif_down)
@@ -900,4 +902,51 @@ end
 
 --actor:activate_slot(DETECTOR_SLOT, false)
 
-get_console():execute("main_menu off")
+--get_console():execute("main_menu off")
+
+--local eff_name = "old_psi.ppe"--"effector_psy_health_alt"
+--local eff_id = 12345678
+--local eff_val = 0.1
+-- level.add_complex_effector(eff_name, eff_id, eff_val)
+--level.add_pp_effector(eff_name, eff_id, true)
+
+--level.set_pp_effector_factor(eff_id, eff_val)
+
+-- local has_effector = level.check_complex_effector(eff_id)
+
+-- if has_effector then
+	-- level.set_complex_effector_factor(eff_id, eff_val)
+-- end
+
+actor:give_info_portion("encyclopedy")
+--log3("~kx %s", get_current_kx())
+
+-- local sim = alife()
+-- for id = 1, 65534 do
+	-- local obj = sim:object(id)
+	-- if obj and obj:clsid() == clsid.script_stalker then
+		-- sim:release(obj, true)
+	-- end
+-- end
+
+-- local sect = "af_medusa"
+-- local pos = vector():set(30.2, -10.804938316345, -271.8)
+-- --local pos = vector():set(24.958492279053, -10.804761886597, -271.72744750977)
+-- spawn_to_level(sect, pos, level.name())
+
+-- function perform_action(obj)
+	-- log_news("obj name %s, section %s, visual %s", obj:name(), obj:section(), obj:get_visual_name() or "NO VISUAL")
+-- end
+-- level.iterate_nearest(actor:position(), 2, perform_action)
+
+-- local sects = {
+	-- ["zone_ameba"] = true,
+	-- ["zone_ameba1"] = true,
+-- }
+-- for i = 1, MAX_U16 do
+	-- local sobj = alife():object(i)
+	-- if sobj and IsZone(sobj) then--sects[sobj:section_name()] then
+		-- log_news("~found object %s", sobj:section_name())
+		-- level.map_add_object_spot_ser(i, "personal_location", sobj:section_name())
+	-- end
+-- end

@@ -121,7 +121,7 @@ function on_zoom_in(weapon)
 		end
 	end
 	
-	--hud_add_info_message("item_usage", game.translate_string("st_hold_key_to_hard_hold"), 3)
+	--hud_add_info_message("hud_info", game.translate_string("st_hold_key_to_hard_hold"), 3)
 	add_time_delayed_action(1,
 	function()
 		if not actor_obj:is_zoom_aiming_mode() then
@@ -154,7 +154,7 @@ function on_zoom_in(weapon)
 		if alt_aim then
 			tip = tip.."\\n"..game.translate_string("st_press_key_to_switch_aim")
 		end		
-		hud_add_info_message("item_usage", tip, 2)
+		hud_add_info_message("hud_info", tip, 2)
 	end
 	)
 end

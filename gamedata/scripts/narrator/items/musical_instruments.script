@@ -52,7 +52,7 @@ function play(item)
 					subscribed = { signal = "on_key_press", fun = this.on_key_press }
 					sm:subscribe( subscribed )
 				end
-				hud_add_info_message("item_usage", game.translate_string("st_key_to_stop_anim"), 99)
+				hud_add_info_message("hud_info", game.translate_string("st_key_to_stop_anim"), 99)
 				game.play_hud_motion(2, data.hud, "anm_play", false, 1, true)
 				sound = xr_sound.get_safe_sound_object(data.sound_prefix..math.random(1, data.max_rnd))
 				sound:play(actor, 0, sound_object.s2d)

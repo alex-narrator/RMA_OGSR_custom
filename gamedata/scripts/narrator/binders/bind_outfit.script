@@ -200,7 +200,7 @@ function outfit_binder:hit(victim, health_lost, direction, draftsman, bone_id, h
 	--log3("~plate cond dec %s | hit power %s | hit type %s | immunity %s", val, health_lost, immunity_type[hit_type+1], immunity)
 	self:change_plate_condition(val)
 	if self:get_plate_condition() <= 0 then
-		hud_add_info_message("item_usage", game.translate_string("st_plate_was_destroyed"))
+		hud_add_info_message("hud_anim_info", game.translate_string("st_plate_was_destroyed"))
 		self.se_obj.cur_plate_num = 0
 		self:init_plate()
 	end

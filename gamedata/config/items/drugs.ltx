@@ -177,17 +177,44 @@ animation_slot		= 4
 ;hud item
 hud 				= bandage_hud;bandage_packed_hud
 
-[tourniquet]:drugs_base
-$spawn 				= "food and drugs\bandage"
+[tourniquet_esmarch]:drugs_base
+$spawn 				= "food and drugs\tourniquet_esmarch"
 
 class				= II_BANDG
-visual				= equipments\item_bandage
+visual				= efp\itm_tourniquete
 
-inv_name			= st_tourniquet_name
-inv_name_short		= st_tourniquet_short
-description			= st_tourniquet_descr
+inv_name			= st_tourniquet_esmarch_name
+inv_name_short		= st_tourniquet_esmarch_short
+description			= st_tourniquet_esmarch_descr
 
-;icon_text 			= st_tourniquet_short
+;icon_text 			= st_tourniquet_esmarch_short
+
+inv_weight			= 0.03
+
+inv_grid_x			= 2
+inv_grid_y			= 3
+cost				= 100
+; eatable item
+eat_wounds_heal 	= 0.5
+eat_portions_num 	= 1
+; food item
+animation_slot		= 4
+;hud item
+hud 				= tourniquet_esmarch_hud
+
+[tourniquet_cat]:drugs_base
+$spawn 				= "food and drugs\tourniquet_cat"
+
+class				= II_BANDG
+visual				= efp\itm_tourniquete
+
+inv_name			= st_tourniquet_cat_name
+inv_name_short		= st_tourniquet_cat_short
+description			= st_tourniquet_cat_descr
+
+;icon_text 			= st_tourniquet_cat_short
+
+inv_weight			= 0.08
 
 inv_grid_x			= 9
 inv_grid_y			= 3
@@ -198,7 +225,7 @@ eat_portions_num 	= 1
 ; food item
 animation_slot		= 4
 ;hud item
-hud 				= bandage_hud
+hud 				= tourniquet_esmarch_hud
 
 [afak]:drugs_base
 $spawn 				= "food and drugs\afak"
