@@ -20,11 +20,14 @@ class "artefact_binder" (object_binder)
 function artefact_binder:__init(obj) super(obj)
 	--log3("%s __init for object %s", script_name(), self.object:name())
 	self.se_obj = alife():object(self.object:id())
+	
+	self.non_taken_particles = read_if_exists(sys_ini, "string", self.object:section(), "non_taken_particles", nil)
 end
  
 function artefact_binder:net_spawn(data)
 	--log3("%s net_spawn for object %s", script_name(), self.object:name())
     local spawned = object_binder.net_spawn(self, data)
+	
 	--//затичка від випадків коли на момент ініціалізації біндера серверний об'єкт артефакту не існує (трапляється в Прип'яті)
 	level.add_call(
 		function()
@@ -37,8 +40,13 @@ function artefact_binder:net_spawn(data)
 		function()
 			self:fill_random_k()
 		end
-	)
+	)	
 	return spawned
+end
+
+function artefact_binder:update(delta)
+	object_binder.update(self, delta)
+	self:update_particles()
 end
 
 function artefact_binder:fill_random_k()
@@ -61,5 +69,27 @@ function artefact_binder:fill_random_k()
 			iitem:hit_type_protection(i, iitem:hit_type_protection(i) * self.se_obj.random_k)
 		end
 		--log3("~artefact %s | random_k %s", self.object:name(), self.se_obj.random_k)
+	end
+end
+
+function artefact_binder:update_particles()
+	if self.non_taken_particles then
+		if not self.se_obj or not self.se_obj.is_taken then
+			if not self.particle then
+				self.particle = particles_object(self.non_taken_particles)
+			end
+			if not self.particle:playing() then
+				self.particle:play_at_pos(self.object:center())
+			else
+				self.particle:move_to(self.object:center(), vector())
+			end
+		elseif self.se_obj and self.se_obj.is_taken then
+			if self.particle then
+				if self.particle:playing() then
+					self.particle:stop()
+				end
+				self.particle = nil
+			end
+		end
 	end
 end
