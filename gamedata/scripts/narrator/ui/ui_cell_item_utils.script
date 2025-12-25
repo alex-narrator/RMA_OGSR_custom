@@ -1,4 +1,12 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
+function add_debug_action(pbox, item)
+	local name, precondition, action
+	name = debug_info.item_action_text
+	precondition = debug_info.item_action_enabled
+	action = debug_info.item_action
+	pbox:AddItem(name, precondition, action, item)
+end
+
 function move_cell_item(cell_item, parent, target, for_all)
 	local item
 	if for_all then

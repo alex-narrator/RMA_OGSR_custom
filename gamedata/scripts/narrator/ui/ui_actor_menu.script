@@ -1892,7 +1892,9 @@ function ActorMenuOverlay:ShowPropertiesBox(item, cell_item)
 	--//weapon addon info
 	ui_cell_item_utils.add_wpn_addon_info(pbox, item)
 	--//drop item
-	ui_cell_item_utils.add_drop(pbox, cell_item)	
+	ui_cell_item_utils.add_drop(pbox, cell_item)
+	--//debug item action
+	ui_cell_item_utils.add_debug_action(pbox, item)	
 	
 	--pbox:AddCustomAction(item)
 	if pbox:Activate() then

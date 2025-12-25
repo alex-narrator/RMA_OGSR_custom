@@ -131,6 +131,24 @@ function on_shell_drop(wpn, pos, vel)
 	shell_particle:set_orientation(orientation.x, orientation.y, orientation.z)
 end
 
+
+function item_action_enabled()
+	return true
+end
+function item_action_text()
+	return "debug_action"
+end
+function item_action(item)
+	log_news("~item %s", item:name())
+	-- local pos = device().cam_pos
+	-- local dist = 1--level.get_target_dist()
+	-- pos:add(device().cam_dir:set_length(dist))
+	
+	local pos = vector():set(30.2, -10.804938316345, -271.8)
+	item:parent():drop_item_and_teleport(item, pos)
+	--alife():teleport_object(item:id(), pos, item:level_vertex_id(), item:game_vertex_id())
+end
+
 class "p_timer"
 function p_timer:__init(timer_name)
 	self.p_timer = profile_timer()
