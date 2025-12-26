@@ -12,7 +12,7 @@ local DEBUG_SPOT = false
 local ADD_SPOT = false
 
 local sleep_h, sleep_m = 0, 0
-local dream_name = nil
+local dream_name, dream_type
 local is_sleeping = false
 
 local params_sect 			= "sleep_params"
@@ -139,9 +139,9 @@ function play_start_sleep()
 end
 
 function perform_sleep()
-	dream_name = dream.sleep_video_name_callback()
-	local dream = dream_name ~= "" and dream_name or "without_dream"
-	game.start_tutorial(dream)
+	dream_name, dream_type = dream.sleep_video_name_callback()
+	--local dream = dream_name ~= "" and dream_name or "without_dream"
+	game.start_tutorial(dream_name)
 end
 
 function change_time()
@@ -204,21 +204,16 @@ function sleep_conditions(sleep_time)
 	--log3("~change somnolence %s", -delta)
 end
 
-local nightmare = {
-	["aes_sky_red"] = true,
-	["dream_4"] 	= true,
-	["dream_5"] 	= true,
-}
 function play_awake_effects()
 	level.add_cam_effector("camera_effects\\prison_1.anm", 25, false, "sleep_manager.restore_control")
 	level.add_pp_effector("yantar_underground_psi.ppe", 2007, false)
 	level.add_pp_effector("total_recall.ppe", 2008, false)
-	if nightmare[dream_name] then
+	if dream_type == "nightmare" then
 		somnolence.play_heavy_breath_nightmare()
 	else
 		somnolence.play_wake_up()
 	end
-	dream_name = nil
+	dream_name, dream_type = nil, nil
 end
 
 function restore_control()

@@ -59,7 +59,7 @@ function dream_mgr:__init()
                             end
 
                             if ini:line_exist(rd_sect, "type") then
-                                local t = ini:r_float(rd_sect, "type")
+                                local t = ini:r_string(rd_sect, "type")
                                 if dream_types[t] == 1 then
                                     tp = t
                                 end
@@ -171,7 +171,7 @@ function dream_mgr:get_dream()
                 for k, v in pairs(self.regular) do
                     if type == "all" or type == v[3] then
                         if rval <  cur_prob + v[2] then
-                            return v[1]
+                            return v[1], v[3]
                         else
                             cur_prob = cur_prob + v[2]
                         end
@@ -185,10 +185,10 @@ function dream_mgr:get_dream()
             self.regular[dream] = {v[1], v[3][1], v[3][2]}
             self.scenario[dream] = nil
         end
-        return v[1]
+        return v[1], v[3]
     end
 
-    return "" -- no dreams
+    return "without_dream", "normal" -- no dreams
 end
 
 ----------------------------------------------------------------------------------------------------
