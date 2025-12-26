@@ -32,7 +32,7 @@ function artefact_binder:net_spawn(data)
 	level.add_call(
 		function()
 			if not self.se_obj then
-				log3("!%s : artefact %s | id %s has no server object", script_name(), self.object:name(), self.object:id())
+				log_news("!%s : artefact %s | id %s has no server object", script_name(), self.object:name(), self.object:id())
 				self.se_obj = alife():object(self.object:id())
 			end
 			return not not self.se_obj
@@ -74,7 +74,14 @@ end
 
 function artefact_binder:update_particles()
 	if self.non_taken_particles then
-		if not self.se_obj or not self.se_obj.is_taken then
+		if self.object:parent() or (self.se_obj and self.se_obj.is_taken) then
+			if self.particle then
+				if self.particle:playing() then
+					self.particle:stop()
+				end
+				self.particle = nil
+			end
+		else
 			if not self.particle then
 				self.particle = particles_object(self.non_taken_particles)
 			end
@@ -82,14 +89,7 @@ function artefact_binder:update_particles()
 				self.particle:play_at_pos(self.object:center())
 			else
 				self.particle:move_to(self.object:center(), vector())
-			end
-		elseif self.se_obj and self.se_obj.is_taken then
-			if self.particle then
-				if self.particle:playing() then
-					self.particle:stop()
-				end
-				self.particle = nil
-			end
+			end		
 		end
 	end
 end
