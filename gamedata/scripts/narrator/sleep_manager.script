@@ -139,7 +139,7 @@ function play_start_sleep()
 end
 
 function perform_sleep()
-	dream_name, dream_type = dream.sleep_video_name_callback()
+	dream_name, dream_type = get_dream()--dream.sleep_video_name_callback()
 	--local dream = dream_name ~= "" and dream_name or "without_dream"
 	game.start_tutorial(dream_name)
 end
@@ -249,4 +249,78 @@ function make_sleep_savegame()
 	--local save_cmd = string.format("save %s - %s", user_name(), game.translate_string("ui_st_after_sleep"))
 	local save_cmd = string.format("save %s", game.translate_string("ui_st_after_sleep"))
 	get_console():execute(save_cmd)
+end
+
+local sleep_data = {}
+local dreams_ini = ini_file_cached("misc\\dream.ltx")
+local dream_probability
+
+function fill_sleep_data()
+	local dreams_list = read_if_exists(dreams_ini, "string", "dreams", "regular", nil)
+	sleep_data = split_string(dreams_list, ",", false, true)
+	
+	dream_probability = read_if_exists(dreams_ini, "float", "dreams", "regular_probability", 80)
+	
+	for sect, v in pairs(sleep_data) do
+		local tbl = {}
+		tbl[1] = read_if_exists(dreams_ini, "string", sect, "dream", "without_dream")
+		tbl[2] = read_if_exists(dreams_ini, "float", sect, "probability", 50)
+		tbl[3] = read_if_exists(dreams_ini, "string", sect, "type", "normal")
+		tbl[4] = read_if_exists(dreams_ini, "string", sect, "cond", nil)
+		if tbl[4] then
+			tbl[4] = xr_logic.parse_condlist(actor, sect, "cond", tbl[4])
+		end
+		
+		sleep_data[sect] = tbl
+	end
+	
+	--log3("~sleep_data %s", sleep_data)
+end
+
+function get_dream()
+	if table.size(sleep_data) == 0 then
+		fill_sleep_data()
+	end
+	
+	local global_prob = math.random(100)
+	
+	if dream_probability < global_prob then
+	
+		local prob_power = 0
+
+		for k, v in pairs(sleep_data) do
+			prob_power = prob_power + v[2]
+		end
+	
+		if prob_power > 0 then
+			local cur_prob = 0
+			local prob_val = math.random(prob_power)
+			
+			for k,v in pairs(sleep_data) do
+				local dream_prob = v[2]
+				
+				local cond_fulfilled = not v[4] or xr_logic.pick_section_from_condlist(actor, actor, v[4])
+				
+				local level_name = level.name()
+				local level_specific_prob = read_if_exists(dreams_ini, "float", level_name, "probability", 0)
+				local level_specific_types = split_string(read_if_exists(dreams_ini, "string", level_name, "types", nil), ",", false, true)
+				if level_specific_types then
+					local keep_specific_prob = level_specific_types[v[3]]
+					if not keep_specific_prob then
+						level_specific_prob = 0
+					end
+					--log_news("~level_specific_prob %s for type %s on level %s", level_specific_prob, v[3], level_name)
+				end
+				
+				if cond_fulfilled and prob_val < cur_prob + dream_prob + level_specific_prob then
+					return v[1], v[3]
+                else
+					cur_prob = cur_prob + dream_prob
+				end				
+			end
+		end
+	
+	end
+	
+	return "without_dream", "normal"
 end

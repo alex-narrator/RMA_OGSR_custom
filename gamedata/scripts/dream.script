@@ -3,7 +3,9 @@
 ----------------------------------------------------------------------------------------------------
 -- Author: Oleg Kreptul (Haron) haronk@ukr.net 2005
 ----------------------------------------------------------------------------------------------------
- function printf() end
+function printf() end
+
+local ini = ini_file_cached("misc\\dream.ltx")
 
 can_sleep   = false
 dream_prob  = -1
@@ -19,7 +21,6 @@ class "dream_mgr"
 function dream_mgr:__init()
     printf("dream <init>: START INITIALIZATION")
 
-	local ini = ini_file_cached("misc\\dream.ltx")
     self.regular = nil
     self.scenario = {}
 
@@ -67,15 +68,15 @@ function dream_mgr:__init()
 
                             self.regular[rd_sect] = {dream_path, prob, tp}
                         else
-                            printf("dream <error>: can't find field <dream> in section [%s].", rd_sect)
+                            log_news("!dream <error>: can't find field <dream> in section [%s].", rd_sect)
                         end
                     else
-                        printf("dream <error>: can't find section [%s] defined in the field <regular> in section [dreams].", rd_sect)
+                        log_news("!dream <error>: can't find section [%s] defined in the field <regular> in section [dreams].", rd_sect)
                     end
                 end
             end
         else
-            printf("dream <error>: can't find field <regular> in section [dreams].")
+            log_news("!dream <error>: can't find field <regular> in section [dreams].")
         end
 
         if ini:line_exist("dreams", "scenario") then
@@ -112,18 +113,18 @@ function dream_mgr:__init()
                                 printf("dream <error>: can't find field <cond> in section [%s].", sd_sect)
                             end
                         else
-                            printf("dream <error>: can't find field <dream> in section [%s].", sd_sect)
+                            log_news("!dream <error>: can't find field <dream> in section [%s].", sd_sect)
                         end
                     else
-                        printf("dream <error>: can't find section [%s] defined in the field <scenario> in section [dreams].", sd_sect)
+                        log_news("!dream <error>: can't find section [%s] defined in the field <scenario> in section [dreams].", sd_sect)
                     end
                 end
             end
         else
-            printf("dream <error>: can't find field <scenario> in section [dreams].")
+            log_news("!dream <error>: can't find field <scenario> in section [dreams].")
         end
     else
-        printf("dream <error>: can't find section [dreams].")
+        log_news("!dream <error>: can't find section [dreams].")
     end
 
     printf("dream <init>: END INITIALIZATION")
