@@ -98,6 +98,19 @@ function addKillCount(victim, killer)
 	actor:change_character_rank(killCountProps[sect_name])
 end
 
+function name_to_show(npc)
+	local _, sect = getNpcType(npc)
+	if not sect then
+	return end
+
+	local sect_name
+	if sect_alias[sect] ~= nil then
+		sect_name = sect_alias[sect]
+	else
+		sect_name = sect
+	end
+	return sect_name
+end
 
 function getNpcType(npc)
 	local rank = ranks.get_obj_rank_name(npc)

@@ -886,7 +886,7 @@ function MainIngameOverlay:OnPickUpItemSet(item)
 end
 
 function MainIngameOverlay:UpdatePickupItem()
-	if not self.pickup_item or level.main_input_receiver() then
+	if not self.pickup_item or level.main_input_receiver() or not actor_hands_free() then
 		if self.pickup_item_icon:IsShown() then
 			self.pickup_item_icon:Show(false)
 		end
@@ -1141,22 +1141,22 @@ function MainIngameOverlay:UpdateTargetTip()
 				text = get_inv_name(tgt:section())
 			end
 			if tgt and (tgt:is_stalker() or tgt:is_trader()) then
-				text = string.format("%s%s%s", color_by_relation[tgt:relation(actor)], tgt:character_name(), "%c[default] ")
+				text = string.format("%s%s%s", color_by_relation[tgt:relation(actor)], tgt:character_name(), "%c[default]")
 			end
 			if tgt and tgt:is_monster() then
-				local props, sect = xr_statistic.getNpcType(tgt)
-				text = game.translate_string(sect)
+				local name = xr_statistic.name_to_show(tgt)
+				text = game.translate_string(name)
 			end
 		end
-		text = string.format("%s\\n%s", text, game.translate_string(tip))
+		text = string.format("%s \\n%s", text, game.translate_string(tip))
 		self.target_tip:SetText(text)
 		self.target_tip:AdjustWidthToText()
-		self.target_tip:AdjustHeightToText()		
+		self.target_tip:AdjustHeightToText()	
 		
 		self.target_tip:SetWidth(self.target_tip:GetWidth() + self.target_tip.border)
 		self.target_tip:SetHeight(self.target_tip:GetHeight() + self.target_tip.border)
 		
-		local offset = vector2()
+		local offset = ui_inv_utils.GetOffset(self.target_tip.offset, self.target_tip, self.owner)
 		if self.target_tip.show_on_object then
 			local point = get_target_tip_point(tgt)
 			local pos = tgt and point_on_screen.point_projection(point) or nil
@@ -1164,8 +1164,6 @@ function MainIngameOverlay:UpdateTargetTip()
 				offset.x = pos.x - self.target_tip:GetWidth() * 0.5
 				offset.y = pos.y - self.target_tip:GetHeight() * 0.5
 			end
-		else
-			ui_inv_utils.GetOffset(self.target_tip.offset, self.target_tip, self.owner)
 		end
 		offset.x = offset.x + self.target_tip.offset_shift[1]
 		offset.y = offset.y + self.target_tip.offset_shift[2]

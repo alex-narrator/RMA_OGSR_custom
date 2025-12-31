@@ -2,6 +2,7 @@
 function attach(sm)
 	sm:subscribe({signal = "on_first_update",   fun = this.on_first_update})
 	sm:subscribe({signal = "on_slot", 			fun = this.on_slot})
+	sm:subscribe({signal = "on_take", 			fun = this.on_take})
 end
 
 function on_first_update()
@@ -36,6 +37,28 @@ function set_max_belt(item)
 	return end
 	drop_belt_to_ruck()
 	ogse_signals.get_mgr():call("on_max_belt_set", actor.inventory.max_belt)	
+end
+
+function on_take(item)
+	if xr_conditions.black_screen() then
+	return end
+	if actor_menu:IsShown() then
+	return end
+	if actor:is_in_slot(item) then
+	return end
+	local slots = read_if_exists(sys_ini, "string", item:section(), "slot", nil)
+	if slots then
+		slots = split_string(slots, ",", true)
+		for k,i in pairs(slots) do
+			--if not slot_item then
+			--log_news("~item %s | slot %s | can_put_in_slot %s | is_in_slot %s", item:name(), i, actor:can_put_in_slot(item, i), actor:is_in_slot(item))
+			if actor:can_put_in_slot(item, i) then
+				item:set_slot(i)
+				actor:move_to_slot(item)
+				break
+			end
+		end
+	end
 end
 
 function check_items_to_show(inv_owner, show_mode)
