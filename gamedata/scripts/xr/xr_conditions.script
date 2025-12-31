@@ -1048,6 +1048,32 @@ function esc_bandits_die(sctor,npc)
 	return false
 end
 
+function escape_patrol_combat_ignore(actor,npc)
+	local enemy = db.storage[npc:id()].enemy
+	local res = enemy and ((enemy:id() == actor:id() and not has_alife_info("esc_bridge_pass_fire")) or (enemy:is_stalker() and enemy:character_community() == "stalker"))
+	--log3("~res %s for stalker %s enemy %s", res, npc:name(), enemy and enemy:name() or "no enemy")
+	return res
+end
+
+function escape_bridge_combat_ignore(actor,npc)
+	local enemy = db.storage[npc:id()].enemy
+	local res = enemy and ((enemy:id() == actor:id() and not has_alife_info("esc_bridge_pass_fire")) or (enemy:is_stalker() and enemy:character_community() == "stalker"))
+	return res
+end
+
+function escape_village_combat_ignore(actor,npc)
+	local enemy = db.storage[npc:id()].enemy
+	local res = enemy and enemy:is_stalker() and enemy:character_community() == "military"
+	return res
+end
+
+function escape_fabrika_assault_combat_ignore(actor,npc)
+	local enemy = db.storage[npc:id()].enemy
+	local res = (enemy and enemy:is_stalker() and enemy:character_community() == "military") or not has_alife_info("esc_assault_start")
+	--log3("~res %s for stalker %s enemy %s", res, npc:name(), enemy and enemy:name() or "no enemy")
+	return res
+end
+
 ------------------------------------------------------------------------------------
 -- Special functions for LabX18
 ------------------------------------------------------------------------------------
@@ -1058,7 +1084,6 @@ end
 function dar_actor_has_a_key2(actor,npc)
 	return xr_conditions_impl.actor_has_object(actor,"krot_flash")
 end
-
 
 ------------------------------------------------------------------------------------
 -- Special functions for BAR - ROSTOK

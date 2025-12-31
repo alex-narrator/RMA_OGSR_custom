@@ -71,13 +71,13 @@ function on_key_press(key, game_action)
 	local show_tgt_info = (game_action == key_bindings.kCHECKACTIVEITEM) and key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION))
 	local tgt = level.get_target_obj()
 	if show_tgt_info and tgt then
-		local tgt_info = string.format("section: %s\\n id: %s\\n story_id: %s\\n name: %s\\n profile: %s\\n community: %s\\n species: %s\\n nonscript usable: %s\\n position: (%s, %s, %s) lvid: %s gvid: %s\\n direction: (%s, %s, %s)\\n visual: %s\\n gulag: %s\\n mesh count: %s\\n bone_protection: %s\\n immunities: %s",
+		local tgt_info = string.format("section: %s\\n id: %s\\n story_id: %s\\n name: %s\\n profile: %s\\n community: %s\\n species: %s\\n nonscript usable: %s\\n position: (%s, %s, %s) lvid: %s gvid: %s\\n direction: (%s, %s, %s)\\n visual: %s\\n gulag: %s\\n active logic section: %s\\n mesh count: %s\\n bone_protection: %s\\n immunities: %s",
 				tgt:section(), 
 				tgt:id(), 
 				tgt:story_id() == NEG_U32 and "NO STORY ID" or tgt:story_id(), 
 				tgt:name(), 
 				tgt:profile_name() and tgt:profile_name() or "NO PROFILE", 
-				check_obj_has_method(tgt, character_community) and tgt:character_community() or "NO COMMUNITY",
+				tgt:is_stalker() and tgt:character_community() or "NO COMMUNITY",
 				get_species(tgt),
 				tgt:get_nonscript_usable(),
 				tgt:position().x, tgt:position().y, tgt:position().z,
@@ -86,6 +86,7 @@ function on_key_press(key, game_action)
 				tgt:direction().x, tgt:direction().y, tgt:direction().z,
 				tgt:get_visual_name() or "NO VISUAL",
 				(tgt:is_stalker() or tgt:is_monster() or tgt:is_trader()) and xr_gulag.get_npc_gulag(tgt) and xr_gulag.get_npc_gulag(tgt).name or "NONE",
+				db.storage[tgt:id()] and db.storage[tgt:id()].active_section or "NONE",
 				tgt:get_mesh_count(),
 				read_if_exists(tgt:get_visual_ini(), "string", "bone_protection", "bones_protection_sect", "NONE"),
 				read_if_exists(tgt:get_visual_ini(), "string", "immunities", "immunities_sect", "NONE")

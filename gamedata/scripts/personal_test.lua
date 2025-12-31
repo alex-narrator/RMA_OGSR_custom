@@ -918,7 +918,7 @@ end
 	-- level.set_complex_effector_factor(eff_id, eff_val)
 -- end
 
-actor:give_info_portion("encyclopedy")
+--actor:give_info_portion("encyclopedy")
 --log3("~kx %s", get_current_kx())
 
 -- local sim = alife()
@@ -950,3 +950,9 @@ actor:give_info_portion("encyclopedy")
 		-- level.map_add_object_spot_ser(i, "personal_location", sobj:section_name())
 	-- end
 -- end
+
+--actor:give_info_portion("dar_x18_dream")
+-- local dream_name, dream_type = sleep_manager.get_dream()
+-- log_news("~dream %s | %s", dream_name, dream_type)
+--game.start_tutorial(dream_name)
+log_news("~has_alife_info(esc_bridge_pass_fire) %s", has_alife_info("esc_bridge_pass_fire"))

@@ -74,7 +74,7 @@ function attach(sm)
 end
 
 function addKillCount(victim, killer)
-	if not killer:is_actor() or	
+	if not killer or not killer:is_actor() or	
 		victim:id() == killer:id()
 	then
 	return end
