@@ -46,6 +46,8 @@ function on_take(item)
 	return end
 	if actor:is_in_slot(item) then
 	return end
+	if read_if_exists(sys_ini, "bool", item:section(), "default_to_ruck", false) then
+	return end
 	local slots = read_if_exists(sys_ini, "string", item:section(), "slot", nil)
 	if slots then
 		slots = split_string(slots, ",", true)

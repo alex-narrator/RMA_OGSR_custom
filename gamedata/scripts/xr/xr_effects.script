@@ -706,6 +706,10 @@ function trader_go_help_tolik()
 	news_manager.send_tip(db.actor, "tutorial_trader_look_vagon", 1.5, "trader", 10000, nil)
 end
 
+function trader_serious_talk()
+	news_manager.send_tip(db.actor, "trader_serious_talk", 1.5, "trader", 10000, nil)
+end
+
 function play_snd_from_radio(actor, npc)
 	local snd_obj	= xr_sound.get_safe_sound_object([[characters_voice\scenario\escape\wolf_to_rangers_1]])
 	local obj		= npc:object("hand_radio")

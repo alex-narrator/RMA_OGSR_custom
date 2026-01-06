@@ -507,12 +507,14 @@ path_look  = guard_look1
 meet = meet@zoneguard_novice_lager1_access_no_arrive
 on_actor_dist_le = 20| {+tutorial_wounded_die} remark@esc_lager_tramp_zoneguard1
 on_info = {+esc_wounded_arrive} walker@esc_lager_zoneguard1_access, {+tutorial_wounded_death} walker@esc_lager_zoneguard1_access, {+esc_trader_actor_normal_man} walker@esc_lager_zoneguard1_access
+combat_ignore_cond = {=escape_village_combat_ignore}
 
 [walker@esc_lager_zoneguard1_access]
 path_walk  = guard_walk1
 path_look  = guard_look1
 meet = meet@zoneguard_novice_lager1_access
 on_actor_dist_le = 20| {+tutorial_wounded_die} remark@esc_lager_tramp_zoneguard1
+combat_ignore_cond = {=escape_village_combat_ignore}
 
 [meet@zoneguard_novice_lager1]
 meet_state 		= 10| wait@wait
@@ -568,12 +570,14 @@ path_look  = guard_look2
 meet = meet@zoneguard_novice_lager2_access_no_arrive
 on_actor_dist_le = 20| {+tutorial_wounded_die} remark@esc_lager_tramp_zoneguard2
 on_info = {+esc_wounded_arrive} walker@esc_lager_zoneguard2_access, {+tutorial_wounded_death} walker@esc_lager_zoneguard2_access, {+esc_trader_actor_normal_man} walker@esc_lager_zoneguard2_access
+combat_ignore_cond = {=escape_village_combat_ignore}
 
 [walker@esc_lager_zoneguard2_access]
 path_walk  = guard_walk2
 path_look  = guard_look2
 meet = meet@zoneguard_novice_lager2_access
 on_actor_dist_le = 20| {+tutorial_wounded_die} remark@esc_lager_tramp_zoneguard2
+combat_ignore_cond = {=escape_village_combat_ignore}
 
 [meet@zoneguard_novice_lager2]
 meet_state 		= 10| wait@wait

@@ -498,13 +498,17 @@ end
 --//постановка м≥ток на м≥сц€ ≥нтересу
 local places = {
 	["99911"] = {name = "esc_blokpost", text = "esc_blokpost_tip"},
-	["99922"] = {name = "escape_bridge_zone", text = "escape_bridge_tip"},
-	["99933"] = {name = "esc_fabrika_bandit", text = "esc_fabrika_tip"},
-	["99944"] = {name = "esc_farm_lager", text = "esc_farm_tip"},
+	["99922"] = {name = "esc_fabrika_bandit", text = "esc_fabrika_tip"},
+	["99933"] = {name = "escape_bridge_zone", text = "escape_bridge_tip"},
+	["99955"] = {name = "esc_farm_lager", text = "esc_farm_tip"},
+	
+	["2"] = {name = "esc_blokpost", text = "esc_blokpost_tip"},
+	["3"] = {name = "esc_fabrika_bandit", text = "esc_fabrika_tip"},
+	["4"] = {name = "escape_bridge_zone", text = "escape_bridge_tip"},
+	["6"] = {name = "esc_farm_lager", text = "esc_farm_tip"},	
 }
 local poi_spot = "crlc_mdl"
 function set_poi_map_mark(sp1, sp2, dlg_id, phr_id)
-	--log3("~phrase id %s", phr_id)
 	local poi = places[phr_id]
 	if not poi then
 	return end
