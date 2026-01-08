@@ -4,7 +4,6 @@ active = sr_idle
 [sr_idle]
 on_actor_inside = {+esc_heli_can_attack_actor} nil, {+esc_heli_go +esc_heli_attack -esc_heli_attack_end} sr_idle@wait %+esc_heli_can_attack_actor%
 on_info = {+esc_heli_attack_end} nil
-on_info2 = {=is_dead(87)} nil
 
 [sr_idle@wait]
 on_info = {+esc_heli_direct} sr_sound_act@attack

@@ -19,9 +19,9 @@ path_move = heli_fly_atc
 combat_enemy = 87
 combat_use_rocket = false
 combat_use_mgun = true
-on_signal = attack_end| {-esc_heli_attack_end} %+esc_heli_attack_end%
+on_signal = attack_end| {-esc_heli_attack_end} %+esc_heli_attack_end =play_snd(characters_voice\scenario\darkscape\heli_spot_lost)%
 on_signal2 = fly_atc_end| heli_move@patrol
-on_info = {+esc_heli_can_attack_actor -esc_heli_killed_actor -esc_heli_actor_res =is_alive(87)} heli_move@heli_attack_actor %=heli_set_enemy_actor%
+on_info = {+esc_heli_can_attack_actor -esc_heli_killed_actor -esc_heli_actor_res} heli_move@heli_attack_actor %=heli_set_enemy_actor%
 mute = true
 combat_safe_altitude = -50
 
