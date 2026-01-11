@@ -102,7 +102,6 @@ function on_campfire_use(campfire_usable, campfire_zone)
 				end
 			)
 		else
-		
 			local sound = xr_sound.get_safe_sound_object(read_if_exists(sys_ini, "string", matches:section(), "use_sound", nil))
 			if sound then
 				sound:play(actor, 0, sound_object.s2d)
@@ -132,17 +131,38 @@ function on_campfire_use(campfire_usable, campfire_zone)
 end
 
 function try_ignit(campfire_zone)
-	local prob = LIGHT_UP_PROB
-	--if not actor:is_ActorHide() then
-	if not is_pos_under_roof(campfire_zone:position()) then
-		prob = prob + level.rain_factor()
-		--log3("~rain factor %s", level.rain_factor())
-	end
-	--log3("~light up prob %s", prob)
-	if math.random(0, 10) > prob then
-		campfire_zone:enable_anomaly()
-		alife():object(campfire_zone:id()).enabled = true
-	end
+	local light = script_light()
+	local dir = campfire_zone:direction()
+	local pos = campfire_zone:position()
+	light:set_position(pos)
+	light:set_direction(dir)
+	light:set_rgb(0.93,0.6,0.1)
+	light:set_shadow(true)
+	
+	local delay_time = 1
+	
+	add_time_delayed_action(
+		delay_time,
+		function()
+			local prob = LIGHT_UP_PROB
+			--if not actor:is_ActorHide() then
+			if not is_pos_under_roof(campfire_zone:position()) then
+				prob = prob + level.rain_factor()
+				--log3("~rain factor %s", level.rain_factor())
+			end
+			--log3("~light up prob %s", prob)
+			if math.random(0, 10) > prob then
+				campfire_zone:enable_anomaly()
+				alife():object(campfire_zone:id()).enabled = true
+			end
+			light = nil
+		end,
+		nil,
+		function()
+			light:set_range(math.random(7) * 0.1)
+			--light:update()
+		end
+	)
 end
 
 function play_hud_sound(sect)

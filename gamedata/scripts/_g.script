@@ -1808,16 +1808,22 @@ function split_string(inputstr, sep, tonum, tokeys)
 	return t
 end
 
-function add_time_delayed_action(delay_time, func, forced_stop_func)
+function add_time_delayed_action(delay_time, func, forced_stop_func, func_on_update)
 	local delay = time_global() + delay_time * 1000
 	function time_check()
+		if func_on_update then
+			func_on_update()
+		end
 		return (forced_stop_func and forced_stop_func()) or time_global() >= delay
 	end
 	level.add_call(time_check, func)
 end
 
-function add_update_delayed_action(updates_count, func, forced_stop_func)
+function add_update_delayed_action(updates_count, func, forced_stop_func, func_on_update)
 	function update_count_check()
+		if func_on_update then
+			func_on_update()
+		end	
 		updates_count = updates_count-1 
 		return (forced_stop_func and forced_stop_func()) or updates_count == 0
 	end

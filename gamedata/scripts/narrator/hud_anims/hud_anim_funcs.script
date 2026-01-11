@@ -4,6 +4,10 @@ local smokes = {
 	["smoke_1"] = {smoke = particles_object(smoke_particle_name), start_delay = 7},
 	["smoke_2"] = {smoke = particles_object(smoke_particle_name), start_delay = 9.5},
 }
+local lights = {
+	{start_delay = 4},
+	{start_delay = 4.5},
+}
 local FORCE_STOP
 local dir_mul = 0.6
 local pos_offset_y = 0.15
@@ -44,7 +48,28 @@ function cigarettes_smoke_start()
 			function()
 				return FORCE_STOP
 			end
-		)		
+		)
+	end
+	
+	for k,v in pairs(lights) do
+		add_time_delayed_action(
+			v.start_delay,
+			function()
+				if FORCE_STOP then
+				return end
+				local light = script_light()
+				local dir = device().cam_dir
+				local pos = device().cam_pos
+				pos.y = pos.y - 0.5
+				light:set_position(pos)
+				light:set_direction(dir)
+				light:set_hud_mode(true)
+				light:set_rgb(0.93,0.6,0.1)
+			end,
+			function()
+				return FORCE_STOP
+			end
+		)
 	end
 end
 function cigarettes_smoke_stop()
