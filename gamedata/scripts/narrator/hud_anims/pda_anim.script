@@ -5,8 +5,7 @@ function attach(sm)
 	sm:subscribe({signal = "on_pda_hide",   	fun = this.on_pda_hide})
 end
 
-local hud_sect = "pda_hud"
-local hud_aim_sect = "pda_aim_hud"
+local def_hud_sect = "pda_hud"
 local ANIM_FAST = true
 
 local subscribed = false
@@ -37,11 +36,13 @@ function on_key_press(key, game_action)
 	if _G.SCRIPT_ANIM_PLAYING then
 	return end
 	actor_obj:block_action(game_action)
+	--level.set_actor_allow_pda(false)
 	local already_blocked = actor.inventory:is_active_slot_blocked()
 	if not already_blocked then
 		actor:hide_weapon(ANIM_FAST)
 	end
 	local pda = actor_get_pda()
+	local hud_sect = get_hud_sect(pda) or def_hud_sect
 	level.add_call(
 		function() 
 			return not actor:active_item() and not actor:active_device()
@@ -65,6 +66,7 @@ function on_key_press(key, game_action)
 									length * 0.001,
 									function()
 										actor_obj:unblock_action(game_action)
+										--level.set_actor_allow_pda(true)
 										_G.SCRIPT_ANIM_PLAYING = false
 									end
 								)
@@ -72,6 +74,7 @@ function on_key_press(key, game_action)
 						)
 					else
 						actor_obj:unblock_action(game_action)
+						--level.set_actor_allow_pda(true)
 						level.send_event_key_press(bind_to_dik(game_action))
 						_G.SCRIPT_ANIM_PLAYING = false
 					end
