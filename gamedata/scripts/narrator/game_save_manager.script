@@ -4,8 +4,6 @@ function attach(sm)
 	sm:subscribe({signal = "on_task_stage",   	fun = this.on_task})
 end
 
-local ON_TASK_SAVE_UPDATE_DELAY = 50
-
 local quick_save_keys = {
 	[key_bindings.kQUICK_SAVE] = true,
 	[key_bindings.kQUICK_LOAD] = true,
@@ -80,6 +78,8 @@ function can_save_game()
 	return result
 end
 
+local ON_TASK_SAVE_UPDATE_DELAY = 50
+
 local save_state = {
 	["new"] 		= true,
 	--["update"] 		= true,
@@ -88,6 +88,8 @@ local save_state = {
 }
 
 function on_task(task, objective, stage)
+	if not get_script_option_value("task_autosave") then
+	return end
 	if not save_state[stage] then
 	return end
 	add_update_delayed_action(ON_TASK_SAVE_UPDATE_DELAY,

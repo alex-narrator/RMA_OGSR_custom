@@ -11,7 +11,7 @@ local DEBUG_DISABLED = false
 
 function init(obj)
 	if not is_power_device(obj) then
-		log3("![%s]:init failed to bind object name:[%s] section:[%s] - not a power device\nsee se_item.script for power devices (must have a self.power_level and self.cur_power_sect field)", script_name(), obj:name(), obj:section())
+		log_news("![%s]:init failed to bind object name:[%s] section:[%s] - not a power device\nsee se_item.script for power devices (must have a self.power_level and self.cur_power_sect field)", script_name(), obj:name(), obj:section())
 	return end
     local new_binder = device_binder(obj)
     obj:bind_object(new_binder)
@@ -192,7 +192,7 @@ end
 
 function device_binder:set_power_sect(num)
 	if num > #self.t_power_sources then
-		log3("![%s]: wrong cur_power_sect [%s/%s] for device [%s] - set default battery section", script_name(), num, #self.t_power_sources, self.object:section())
+		log_news("![%s]: wrong cur_power_sect [%s/%s] for device [%s] - set default battery section", script_name(), num, #self.t_power_sources, self.object:section())
 		num = 1
 	end
 	self.se_obj.cur_power_sect = num

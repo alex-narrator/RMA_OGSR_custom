@@ -2,7 +2,10 @@
 --*********************************************************************************************************
 --==============================================================================================
 log1("--LUA version: ["..(jit.version or _VERSION).."]")
-log1("--debug mode: ["..tostring(not not string.find(command_line(), "-debug")).."]")
+function is_debug_mode()
+	return not not string.find(command_line(), "-debug")
+end
+log1("--debug mode: ["..tostring(is_debug_mode()).."]")
 --==============================================================================================
 FFI = require('ffi') --Делать только здесь и только один раз!
 --==============================================================================================
@@ -1560,9 +1563,9 @@ function read_if_exists(ltx, val_type, section, val_name, default)
 	end
 end
 
-function write_if_exists(ltx, val_type, section, val_name, value)
+function write_to_cfg(ltx, val_type, section, val_name, value)
 	if not ltx then
-		log3("!write_if_exists - ini file not existed - trying to write value [%s][%s] to section [%s]", val_name, val_type, section)
+		log3("!write_to_cfg - ini file not existed - trying to write value [%s][%s] to section [%s]", val_name, val_type, section)
 	return end
 	ltx.readonly = false
 	if val_type == "string" then
@@ -1584,7 +1587,7 @@ function write_if_exists(ltx, val_type, section, val_name, value)
 		ltx:w_vector(section,val_name,value)
 		return
 	end
-	log3("!write_if_exists - value type [%s] undefined", val_type)
+	log3("!write_to_cfg - value type [%s] undefined", val_type)
 end
 
 function get_section_keys_and_values(section, ini_file)
@@ -2223,6 +2226,21 @@ end
 function table_to_ctime(time_table)
 	if not time_table then
 	return nil end
+	local time_struct = game.CTime()
+	time_struct:set(time_table[1], time_table[2], time_table[3], time_table[4], time_table[5], time_table[5], time_table[7])
+	return time_struct
+end
+
+function ctime_to_string(time_struct)
+	if not time_struct then
+	return nil end
+	table.concat({time_struct:get()}, ',')
+end
+
+function string_to_ctime(time_string)
+	if not time_string then
+	return nil end
+	local time_table = split_string(time_string, ",", true)
 	local time_struct = game.CTime()
 	time_struct:set(time_table[1], time_table[2], time_table[3], time_table[4], time_table[5], time_table[5], time_table[7])
 	return time_struct

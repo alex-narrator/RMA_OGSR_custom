@@ -27,7 +27,7 @@ local script_options = {
 	["crosshair_color_g"] 			= { 255, 	"u32" },
 	["crosshair_color_b"] 			= { 255, 	"u32" },
 
-	["hud_crosshair"] 				= { true, 	"bool" },	
+	["hud_crosshair"] 				= { true, 	"bool" },
 	["hud_target_dist"] 			= { false, 	"bool" },
 	["hud_target_info"] 			= { false, 	"bool" },
 	["hud_target_mode"] 			= { 1, 		"u32" },
@@ -73,7 +73,7 @@ end
 
 function cfg_save()
 	for k,v in pairs (script_options) do
-		write_if_exists(CFG, v[2], CFG_SECT, k, v[1])
+		write_to_cfg(CFG, v[2], CFG_SECT, k, v[1])
 	end
 	CFG:save()
 	log3("- saving custom options config file [%s]", CFG_NAME)
