@@ -225,6 +225,7 @@ end
 
 function activate_bolt(actor, npc)
 	db.actor:activate_slot(BOLT_SLOT)
+	show_device()
 end
 
 --[[
@@ -795,6 +796,17 @@ function esc_vagon_scene_to_offline()
 	end
 end
 
+function esc_play_game_start_fade()
+	level.hide_indicators()
+	level.add_pp_effector("agr_u_fade.ppe", 11, false)
+	add_time_delayed_action(
+		8,
+		function()
+			level.show_indicators()
+		end
+	)
+end
+
 --' garbage
 
 function gar_mapspot_blockpost (actor, npc)
@@ -1313,13 +1325,6 @@ function bar_psih_come(actor, npc)
 	if not has_alife_info("bar_psih_come") then
 		db.actor:give_info_portion("bar_psih_come")
 		news_manager.send_tip(actor, "bar_psih_come", 20, "barman", 7000)
-	end
-end
-
-function bar_suicide_kill_self(actor, npc)
-	local snd_obj = sound_object([[weapons\walther\walther_shoot]])
-	if snd_obj ~= nil then
-		snd_obj:play_at_pos(db.actor, npc:position(), sound_object.s3d)
 	end
 end
 
@@ -2541,4 +2546,16 @@ end
 
 function cut_out_switch_on(actor, npc, p)
 	light_manager.switch_lamp(npc, true)
+end
+
+function play_active_wpn_shot_snd(npc)
+    local wpn = npc:active_item()
+	if not wpn then
+	return end
+	local sect = wpn:section()
+    local snd_name = read_if_exists(sys_ini, "string", sect, "snd_shoot", nil)
+	if not snd_name then
+	return end
+    local snd_obj = xr_sound.get_safe_sound_object(snd_name)
+	snd_obj:play_no_feedback(npc, sound_object.s3d, 0, npc:position(), 1.0)
 end
