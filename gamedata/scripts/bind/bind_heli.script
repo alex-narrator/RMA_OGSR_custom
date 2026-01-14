@@ -115,7 +115,7 @@ function heli_binder:save( packet )
 
 	printf( "heli_binder: save")
 
-	xr_logic.save_obj( self.object, packet )
+	xr_logic.save_obj( self.object, packet, not self.initialized )
 
 	self.st.combat:save( packet )
 end

@@ -91,7 +91,7 @@ end
 function restrictor_binder:save(packet)
 	object_binder.save(self, packet)
 
-	xr_logic.save_obj(self.object, packet)
+	xr_logic.save_obj(self.object, packet, not self.initialized)
 end
 
 function restrictor_binder:load(reader)
