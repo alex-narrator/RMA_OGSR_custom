@@ -133,6 +133,9 @@ function trade_init(npc, cfg)
 	tt.resuply_interval = split_string(read_if_exists(tt.config, "string", "trader", "resuply_interval", RESUPPLY_INTERVAL), ",", true)
 	-- tt.min_resuply_h = read_if_exists(tt.config, "float", "trader", "min_resuply_h", MIN_H)
 	-- tt.max_resuply_h = read_if_exists(tt.config, "float", "trader", "max_resuply_h", MAX_H)
+	
+	--//умови за яких дозволено торгівлю
+	tt.trade_enabled_condlist = xr_logic.parse_condlist(actor, "trader", "trade_enabled_condition", read_if_exists(tt.config, "string", "trader", "trade_enabled_condition", "true"))
 end
 
 function update(npc)
@@ -551,4 +554,15 @@ function calculate_item_price(trader, item, b_buying)
 	
 	local result = base_cost * condition_factor * action_factor * get_deficit_factor(trader, sect)
 	return math.round(result)
+end
+
+function is_trade_enabled(npc)
+	if npc:wounded() then
+	return false end
+	local tt = trade_manager[npc:id()]
+	if not tt then 
+	return false end
+	local res = not not xr_logic.pick_section_from_condlist(actor, npc, tt.trade_enabled_condlist)
+	--log_news("~trader [%s], is_trade_enabled [%s]", npc:name(), res)
+	return res
 end

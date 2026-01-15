@@ -63,7 +63,6 @@ function action_wounded:initialize ()
 		self.object:set_start_dialog(self.a.help_start_dialog)
 	end
 	self.object:wounded(true)
-	self.object:disable_trade()
 	
 	ogse_signals.get_mgr():call("on_npc_wounded", self.object)
 end
@@ -160,7 +159,6 @@ function action_wounded:finalize ()
     self.object:disable_talk()
     xr_sound.set_sound(self.object, nil)
     self.object:wounded(false)
-	self.object:enable_trade()
 	ogse_signals.get_mgr():call("on_npc_not_wounded", self.object, self.a.wound_manager.healed_by_actor)
 end    
 
