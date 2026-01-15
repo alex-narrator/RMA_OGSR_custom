@@ -69,14 +69,7 @@ function actor_binder:net_spawn(data)
 	self.actor_detector.init_time = -1
 
 	self.sm:call("on_spawn", data)
-	
-	local cfg_time_factor = read_if_exists(sys_ini, "float", "alife", "time_factor", 10)
-	local current_time_factor = level.get_time_factor()
-	if current_time_factor ~= cfg_time_factor then
-		log3("~Time factor in the configuration files [%s] does not match the time factor in the game save [%s]. Time factor has been updated.", cfg_time_factor, current_time_factor)
-		level.set_time_factor(cfg_time_factor)
-	end
-	
+		
 	return true
 end
 ----------------------------------------------------------------------------------------------------------------------
