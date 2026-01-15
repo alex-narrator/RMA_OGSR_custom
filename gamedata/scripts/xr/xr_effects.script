@@ -1745,6 +1745,14 @@ function kill(actor, npc)
 	npc:kill( npc )
 end
 
+function kill_victim(actor, npc, p)
+	local victim = level_object_by_sid( p[1] )
+	if victim and victim:alive() then
+		--log_news("~kill_victim: npc [%s], victim [%s]", npc:name(), victim:name())
+		victim:kill( npc )
+	end
+end
+
 
 -------------------------------------------------------------------------------------
 -- Функции для Агропрома
