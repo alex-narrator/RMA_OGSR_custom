@@ -396,14 +396,15 @@ function UIDebugMenu:OnChangeTime()
 	if not val_h and not val_m or val_h == 0 and val_m == 0 then
 	return end
 	local total_minutes = val_h * 60 + val_m
-	local iter_minutes = 15
-	--//рахуємо цілу частину від ділення - промотаємо час на фіксовані проміжки
-	local iter_count = math.floor(total_minutes / iter_minutes)
+	local time_quant_minutes = 15
+	--//рахуємо цілу частину та залишок від ділення
+	local iter_count, remainder = math.modf(total_minutes / time_quant_minutes)
+	--log_news("~iter_count %s, remainder %s", iter_count, remainder)
+	--//промотаємо час на фіксовані проміжки
 	for i = 1, iter_count do
-		change_game_time(0, 0, iter_minutes)
+		change_game_time(0, 0, time_quant_minutes)
 	end
-	--//рахуємо залишок від ділення - промотаємо час на залишок хвилин
-	local remainder = total_minutes % iter_minutes
+	--//промотаємо час на залишок хвилин
 	if remainder > 0 then
 		change_game_time(0, 0, remainder)
 	end

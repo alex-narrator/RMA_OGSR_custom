@@ -1443,12 +1443,19 @@ end
 function ActorMenuOverlay:SkipTime()
 	local function wait_time(skeep_h)
 		level.add_pp_effector("blink.ppe", 999, false)
-		local iter_minutes = 15
-		local iter_count = math.ceil(skeep_h * 60 / iter_minutes)
+		local total_minutes = skeep_h * 60
+		local time_quant_minutes = 15
+		--//рахуємо цілу частину та залишок від ділення
+		local iter_count, remainder = math.modf(total_minutes / time_quant_minutes)
+		--log_news("~iter_count %s, remainder %s", iter_count, remainder)
+		--//промотаємо час на фіксовані проміжки
 		for i = 1, iter_count do
-			change_game_time(0, 0, iter_minutes)
+			change_game_time(0, 0, time_quant_minutes)
 		end
-		--change_game_time(0, skeep_h, 0)
+		--//промотаємо час на залишок хвилин
+		if remainder > 0 then
+			change_game_time(0, 0, remainder)
+		end		
 	end
 	ui_skip_time.show_skip_time_window("wait", wait_time)
 end

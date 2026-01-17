@@ -145,9 +145,11 @@ function item_action(item)
 	-- local dist = 1--level.get_target_dist()
 	-- pos:add(device().cam_dir:set_length(dist))
 	
-	local pos = vector():set(30.2, -10.804938316345, -271.8)
-	item:parent():drop_item_and_teleport(item, pos)
+	--local pos = vector():set(30.2, -10.804938316345, -271.8)
+	--item:parent():drop_item_and_teleport(item, pos)
 	--alife():teleport_object(item:id(), pos, item:level_vertex_id(), item:game_vertex_id())
+	item:set_condition(math.random(1, 50) * 0.01)
+	log3("~item condition", item:condition())
 end
 
 class "p_timer"

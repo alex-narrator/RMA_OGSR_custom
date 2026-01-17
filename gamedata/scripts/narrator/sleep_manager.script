@@ -149,14 +149,20 @@ function change_time()
 	if sleep_h <= 0 and sleep_m <= 0 then
 		log_news("!can`t perform sleep because sleep timer is %s:%s", sleep_h, sleep_m)
 	return end
-	-- change_game_time(0, sleep_h, sleep_m)
-	-- local sleep_time = ((sleep_h * 3600) + (sleep_m * 60))
-	-- sleep_conditions(sleep_time)
-	local iter_minutes = 15
-	local iter_count = math.ceil(sleep_h * 60 / iter_minutes)
+	local total_minutes = sleep_h * 60 + sleep_m
+	local time_quant_minutes = 15
+	--//рахуємо цілу частину та залишок від ділення
+	local iter_count, remainder = math.modf(total_minutes / time_quant_minutes)
+	--log_news("~iter_count %s, remainder %s", iter_count, remainder)
+	--//промотаємо час на фіксовані проміжки
 	for i = 1, iter_count do
-		change_game_time(0, 0, iter_minutes)
-		sleep_conditions(iter_minutes * 60)
+		change_game_time(0, 0, time_quant_minutes)
+		sleep_conditions(time_quant_minutes * 60)
+	end
+	--//промотаємо час на залишок хвилин
+	if remainder > 0 then
+		change_game_time(0, 0, remainder)
+		sleep_conditions(remainder * 60)
 	end	
 	sleep_h, sleep_m = 0, 0	
 	play_awake_effects()
