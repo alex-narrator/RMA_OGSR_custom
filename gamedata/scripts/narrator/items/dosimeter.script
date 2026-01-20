@@ -148,9 +148,8 @@ function can_detect_radiation()
 		
 		local detect_radzone = false
 		
-		local zone_sect
 		for i = 1, 255 do
-			zone_sect = read_if_exists(sys_ini, "string", sect, "zone_class_"..i, nil)
+			local zone_sect = read_if_exists(sys_ini, "string", sect, "zone_class_"..i, nil)
 			if zone_sect and string.find(zone_sect, "zone_radioactive") then
 				detect_radzone = true
 				break

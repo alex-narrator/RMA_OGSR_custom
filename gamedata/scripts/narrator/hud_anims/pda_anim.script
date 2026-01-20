@@ -92,7 +92,9 @@ function on_pda_hide()
 	-- local already_blocked = actor.inventory:is_active_slot_blocked()
 	-- if not already_blocked then
 		-- actor:hide_weapon(ANIM_FAST)
-	-- end	
+	-- end
+	local pda = actor_get_pda()
+	local hud_sect = get_hud_sect(pda) or def_hud_sect	
 	level.add_call(
 		function() 
 			return not actor:active_item() and not actor:active_device()

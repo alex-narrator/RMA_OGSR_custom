@@ -5,6 +5,27 @@
 
 local RND_MULT = 100 --//щоб коректно генерувати рандом для значень з десятковими дробами
 
+function can_detect_artefact(artefact)
+	if not actor_obj:IsDetectorActive() then
+	return false end
+
+	local device_sect = actor:active_device():section()
+	if distance_between_safe(actor, artefact) > read_if_exists(sys_ini, "float", device_sect, "af_vis_radius", 2) then
+	return false end
+	
+	local function can_detect_af_sect(af_section, detector_section)
+		for i = 1, 255 do
+			local af_sect = read_if_exists(sys_ini, "string", detector_section, "af_class_"..i, nil)
+			if af_sect and string.find(af_sect, af_section) then
+				return true
+			end
+		end
+		return false
+	end
+	
+	return can_detect_af_sect(artefact:section(), device_sect)
+end
+
 function init(obj)
     local new_binder = artefact_binder(obj)
     obj:bind_object(new_binder)
@@ -85,7 +106,9 @@ function artefact_binder:update_particles()
 			if not self.particle then
 				self.particle = particles_object(self.non_taken_particles)
 			end
-			if not self.particle:playing() then
+			if not can_detect_artefact(self.object) then
+				self.particle:stop()
+			elseif not self.particle:playing() then
 				self.particle:play_at_pos(self.object:center())
 			else
 				self.particle:move_to(self.object:center(), vector())
