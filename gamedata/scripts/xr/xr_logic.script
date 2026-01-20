@@ -1546,7 +1546,7 @@ function load_logic_online( obj )
 		[ "sec"        ] = "section_logic",
 	}
 	for ini_k, st_k in pairs( t ) do
-		local v = get_string( "xr_logic", ini_k, nil, ini )
+		local v = read_if_exists(ini, "string", "xr_logic", ini_k, nil)
 		if v and v ~= "" then
 			st[ st_k ] = v
 		end
