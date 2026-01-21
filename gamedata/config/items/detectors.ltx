@@ -194,13 +194,12 @@ attach_position_offset	= 0.110,-0.019,0.000
 attach_bone_name		= bip01_l_hand
 auto_attach				= false
 
-snd_draw				= device\pda\pda_draw
-snd_holster				= device\pda\pda_holster
+snd_draw				= weapons\detector\detector_draw
+snd_holster				= weapons\detector\detector_holster
 
 power_source 			= battery
 script_binding      	= bind_device.init
 use_sound 				= interface\inv_detach_addon
-;highlight_item 			= battery
 
 [detector_geiger_cop]:detector_cop_base
 $spawn 					= "devices\detector_simple"
@@ -260,8 +259,9 @@ description				= st_detector_gilka_cop_descr
 inv_grid_x				= 4
 inv_grid_y				= 1
 
-detect_radius 			= 20
-af_radius				= 35
+detect_radius 			= 40
+af_radius				= 40
+af_vis_radius			= 20
 
 cost					= 20000
 
@@ -269,6 +269,31 @@ inv_weight				= 0.5
 
 snd_draw				= device\glowstick\glowstick_draw
 snd_holster				= device\glowstick\glowstick_holster
+
+[detector_diy_cop]:detector_cop_base,detect_non_radiation,detect_af_simple
+
+$spawn 					= "devices\detector_diy"
+class					= S_DET_SIMP
+visual					= dynamics\devices\dev_detector_0\dev_detector_0
+hud						= detector_diy_hud
+
+inv_name				= st_detector_diy_cop_name
+inv_name_short			= st_detector_diy_cop_short
+description				= st_detector_diy_cop_descr
+;icon_text				= st_detector_diy_cop_text
+
+inv_grid_x				= 4
+inv_grid_y				= 2
+cost					= 1000
+
+snd_draw        		= weapons\detector\detector_8_draw
+snd_holster     		= weapons\detector\detector_8_holster
+
+detect_radius 			= 10
+af_radius				= 10
+af_vis_radius			= 5
+
+;repair_icon_sect 		= detector_simple_repair
 
 [detector_simple_cop]:detector_cop_base,detect_non_radiation,detect_af_simple
 
@@ -286,10 +311,9 @@ inv_grid_x				= 0
 inv_grid_y				= 1
 cost					= 3000
 
-detect_radius 			= 15
-
-af_radius				= 30
-af_vis_radius			= 3
+detect_radius 			= 20
+af_radius				= 20
+af_vis_radius			= 5
 
 repair_icon_sect 		= detector_simple_repair
 
@@ -309,10 +333,9 @@ cost					= 5000
 
 hud						= detector_advanced_hud
 
-detect_radius 			= 20
-
-af_radius				= 40
-af_vis_radius			= 4
+detect_radius 			= 30
+af_radius				= 30
+af_vis_radius			= 5
 
 repair_icon_sect 		= detector_advanced_repair
 
@@ -332,9 +355,9 @@ inv_grid_x				= 2
 inv_grid_y				= 1
 cost					= 10000
 
-af_vis_radius			= 5
-
-af_radius				= 50
+detect_radius 			= 40
+af_radius				= 40
+af_vis_radius			= 10
 
 repair_icon_sect 		= detector_elite_repair
 
