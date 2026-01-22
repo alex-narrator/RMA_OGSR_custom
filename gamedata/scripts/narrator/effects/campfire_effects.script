@@ -80,7 +80,7 @@ function on_campfire_use(campfire_usable, campfire_zone)
 				function()
 					local pos = campfire_zone:center()
 					pos.y = pos.y + 0.75
-					aim_camera_to_pos(pos)				
+					aim_camera_to_pos(pos, 1)				
 					return not actor:active_item() and not actor:active_device()
 				end,
 				function()
@@ -155,6 +155,7 @@ function try_ignit(campfire_zone)
 				campfire_zone:enable_anomaly()
 				alife():object(campfire_zone:id()).enabled = true
 			end
+			light.enabled = false
 			light = nil
 		end,
 		nil,

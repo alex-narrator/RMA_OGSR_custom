@@ -2317,10 +2317,13 @@ function get_zoom_data(item)
 	return split_string(read_if_exists(sys_ini, "string", zoom_sect, "scope_zoom_factor", nil), ",", true)
 end
 
-function aim_camera_to_pos(pos)
+function aim_camera_to_pos(pos, speed)
 	if is_actor_looking_to_pos(pos, 0.01) then
 	return end
-	local dir = vector():sub(pos, device().cam_pos)
+	speed = speed or 0.1
+	speed = math.clamp(speed, 0.01, 1)
+	local tgt_dir = vector():sub(pos, device().cam_pos)
+	local dir = vector():lerp(device().cam_dir, tgt_dir, speed)
 	local h = -dir:getH()
 	local p = -dir:getP()
 	local cam = actor_camera( 0 )
@@ -2330,12 +2333,15 @@ function aim_camera_to_pos(pos)
 	end
 end
 
-function aim_camera_to_target(obj)
+function aim_camera_to_target(obj, speed)
 	local pos = obj:center()
 	pos.y = pos.y + obj:radius() * 0.5
-	if is_actor_looking_to_pos(pos, 0.5) then
+	if is_actor_looking_to_pos(pos, 0.01) then
 	return end
-	local dir = vector():sub(pos, device().cam_pos)
+	speed = speed or 0.1
+	speed = math.clamp(speed, 0.01, 1)	
+	local tgt_dir = vector():sub(pos, device().cam_pos)
+	local dir = vector():lerp(device().cam_dir, tgt_dir, speed)
 	local h = -dir:getH()
 	local p = -dir:getP()
 	local cam = actor_camera( 0 )
@@ -2351,12 +2357,6 @@ function teleport_actor(position, level_name)
 	else
 		level.change_level(get_any_gvid_by_level(level_name), -1, position, actor:direction())
 	end
-end
-
---//перевірка наявності метода у об'єкту
---//by Zander_driver (amk-team форум)
-function check_obj_has_method(obj, method_name)
-	return not not (obj and obj[method_name] and type(obj[method_name]) == 'function')
 end
 
 function change_game_time(days, hours, minutes)
