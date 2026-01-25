@@ -2335,7 +2335,7 @@ end
 
 function aim_camera_to_target(obj, speed)
 	local pos = obj:center()
-	pos.y = pos.y + obj:radius() * 0.5
+	pos.y = pos.y + obj:radius() * 0.25
 	if is_actor_looking_to_pos(pos, 0.01) then
 	return end
 	speed = speed or 0.1
