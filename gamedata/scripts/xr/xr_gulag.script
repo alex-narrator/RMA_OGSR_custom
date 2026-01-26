@@ -1233,18 +1233,16 @@ end
 -- obj=game_object
 function get_npc_gulag( obj )
 	local sim = alife()
-
-	obj = sim:object( obj:id() )
-
-	if obj:smart_terrain_id() ~= MAX_U16 then
-		local strn = sim:object( obj:smart_terrain_id() )
-
-		strn:initialize_if_needed()
-
-		return strn.gulag
-	else
-		return nil
+	local sobj = sim:object( obj:id() )
+	if sobj then
+		local smtrn_id = sobj:smart_terrain_id()
+		if smtrn_id ~= MAX_U16 then
+			local strn = sim:object( smtrn_id )
+			strn:initialize_if_needed()
+			return strn.gulag
+		end
 	end
+	return nil
 end
 
 -- получить кол-во населения смарта по имени

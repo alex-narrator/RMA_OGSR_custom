@@ -87,7 +87,7 @@ function motivator_binder:net_spawn(sobject)
 	db.add_obj(self.object)
 	
 	if not self.loaded then
-		self.loaded = xr_logic.load_logic_online( self.object )
+		self.loaded = xr_logic.load_logic_online(self.object)
 		for _, k in ipairs({"active_section", "ini_filename", "section_logic", "gulag_name"}) do
 			self.st[ "loaded_" .. k ] = self.st[ k ]
 		end
@@ -137,7 +137,7 @@ end
 
 function motivator_binder:net_destroy()
 	--printf("motivator_binder:net_destroy(): self.object:name()='%s'", self.object:name())
-	xr_logic.save_logic_online( self.object )
+	xr_logic.save_logic_online(self.object)
 	
 	local st = db.storage[self.object:id()]
 	if st.active_scheme then
