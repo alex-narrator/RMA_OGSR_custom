@@ -38,8 +38,8 @@ function visibility()
 end
 
 function attach(sm)
-	sm:subscribe({signal = "on_spawn",   			fun = this.create_window})
-	sm:subscribe({signal = "on_destroy",   			fun = this.destroy_window})
+	sm:subscribe({signal = "on_spawn", 		fun = this.create_window})
+	sm:subscribe({signal = "on_destroy", 	fun = this.destroy_window})
 end
 
 function create_window()
@@ -292,6 +292,25 @@ function MainIngameOverlay:InitControls()
 	local offset = ui_inv_utils.GetOffset("center", self.missile_text, self.owner)
 	self.missile_text:SetWndPos(offset.x, offset.y)
 	
+	--//projectile trajectory
+	local style 		= xml:ReadAttrib("projectile_trajectory", "style", "glow") 			--// dim/glow
+	local size 			= xml:ReadAttrib("projectile_trajectory", "size", "medium") 		--// small/medium/large
+	local brightness 	= xml:ReadAttrib("projectile_trajectory", "brightness", "medium") 	--// bright/medium/dark
+	local color 		= xml:ReadAttrib("projectile_trajectory", "color", "green") 		--// red/green/blue/white/yellow/cyan
+	self.projectile_particle = string.format([[_samples_particles_\gt_%s_%s_%s_%s]], style, size, brightness, color)--xml:ReadAttrib("projectile_trajectory", "particle", "_samples_particles_\\gt_glow_small_bright_yellow")
+	self.projectile_step_count = xml:ReadAttribInt("projectile_trajectory", "step_count", 10)
+	self.projectile_step_interval = xml:ReadAttribFlt("projectile_trajectory", "step_interval", 0.1)
+	self.projectile_particles = {}
+	for i=0, self.projectile_step_count do
+		self.projectile_particles[i] = particles_object(self.projectile_particle)
+	end
+	local impact_size 			= xml:ReadAttribInt("projectile_trajectory", "impact_size", "1") 			--// 1/2/3/4/5
+	local impact_brightness 	= xml:ReadAttrib("projectile_trajectory", "impact_brightness", brightness) 	--// bright/medium/dark
+	local impact_color 			= xml:ReadAttrib("projectile_trajectory", "impact_color", color) 			--// red/green/blue/white/yellow	
+	local impact_particle = string.format([[_samples_particles_\gt_impact_%sx_%s_%s]], impact_size, impact_brightness, impact_color)
+	self.projectile_particle_impact = particles_object(impact_particle)
+	self.projectile_show_bolt 	= xml:ReadAttribInt("projectile_trajectory", "show_bolt", 0) > 0 and true or false
+	
 	--//pickup item icon
 	self.pickup_item_icon = xml:InitStatic("pick_up_item", self)
 	self.pickup_item_icon.size = vector2():set(self.pickup_item_icon:GetWidth(), self.pickup_item_icon:GetHeight())
@@ -358,6 +377,7 @@ function MainIngameOverlay:InitControls()
 	local offset = ui_inv_utils.GetOffset("center", self.tip_cursor, self.owner)
 	self.tip_cursor:SetWndPos(offset.x, offset.y)
 	
+	--//flashing icon
 	self.flashing_icon = xml:InitStatic("flashing_icon", self)
 	self.flashing_icon:Show(false)
 	
@@ -470,6 +490,9 @@ end
 function MainIngameOverlay:TryUpdatePanelItems(item, prev_place)
 	if prev_place == item_place.belt or quick_slots.is_in_quick_slot(item) then 
 		self:SetPanelItemsNeedUpdate()
+	end
+	if self.projectile_item and self.projectile_item:id() == item:id() then
+		self:SetProjectileParams()
 	end
 end
 
@@ -867,6 +890,11 @@ local crosshair_set_states = {
 	-- [global_flags.eHidden] = true,
 	-- [global_flags.eHiding] = true,	
 }
+local missile_states = {
+	[global_flags.eThrowStart] = true,
+	[global_flags.eThrowEnd] = true,
+	[global_flags.eHidden] = true,
+}
 function MainIngameOverlay:OnHudStateSwitch(item, state, old_state)
 	if update_states[old_state] then
 		self:SetPanelItemsNeedUpdate()
@@ -874,6 +902,10 @@ function MainIngameOverlay:OnHudStateSwitch(item, state, old_state)
 	if crosshair_set_states[state] and not item:get_device() then
 		self:SetCrosshair(read_if_exists(sys_ini, "string", item:section(), "crosshair", nil))
 		self:UpdateCrosshair(true)
+	end
+	if missile_states[state] and not item:get_device() then
+		local enabled = get_script_option_value("projectile_trajectory") and state == global_flags.eThrowStart and (self.projectile_show_bolt or get_clsid(item) ~= clsid.obj_bolt)
+		self:SetProjectileParams(enabled and item or nil)
 	end
 end
 
@@ -1236,6 +1268,10 @@ function MainIngameOverlay:OnKeyPress(key, game_action)
 		_G.SHOW_GEAR_INFO = true
 		self.gear_info_hide_time = time_global() + get_script_option_value("gear_info_ttl") * 1000
 	end
+	
+	if game_action == key_bindings.kHIDEHUD then
+		self:SetProjectileParams()
+	end	
 end
 
 function MainIngameOverlay:OnKeyRelease(key, game_action)
@@ -1520,6 +1556,62 @@ function MainIngameOverlay:UpdateAmmoSwitchInfo()
 	end
 end
 
+function MainIngameOverlay:SetProjectileParams(item)
+	for k,particle in pairs(self.projectile_particles) do
+		particle:stop()
+	end
+	self.projectile_particle_impact:stop()
+	self.projectile_item = item
+	self.projectile_missile = item and item:get_missile()
+end
+
+function MainIngameOverlay:UpdateProjectileTrajectory()
+	if not self.projectile_item or not self.projectile_missile then
+	return end
+	
+	local throw_pos = projectile_trajectory.get_start_pos(self.projectile_item)
+	local missile = self.projectile_missile
+	local throw_force = missile.const_power and missile.const_force or missile.throw_force
+	
+	local ground_idx
+	local impact_pos
+	
+	for i, particle in pairs(self.projectile_particles) do
+		local t = self.projectile_step_interval * i
+		local play_pos = projectile_trajectory.pos_on_trajectory(throw_pos, throw_force, t)
+		
+		if not ground_idx then
+			local ground_pos = projectile_trajectory.get_ground_pos(play_pos)
+			if ground_pos and ground_pos:distance_to(play_pos) <= 0.5 and play_pos.y <= ground_pos.y + 0.3 then
+				impact_pos = vector():set(play_pos.x, ground_pos.y + 0.05, play_pos.z)
+				ground_idx = i
+			end
+		end
+		
+		if ground_idx and i >= ground_idx then
+			if particle:playing() then
+				particle:stop()
+			end		
+		else
+			particle:set_position(play_pos)
+			if not particle:playing() then
+				particle:play()
+			end
+		end
+	end
+	
+	if impact_pos then
+		self.projectile_particle_impact:set_position(impact_pos)
+		if not self.projectile_particle_impact:playing() then
+			self.projectile_particle_impact:play()
+		end
+	else
+		if self.projectile_particle_impact:playing() then
+			self.projectile_particle_impact:stop()
+		end
+	end	
+end
+
 function MainIngameOverlay:Update()
 	CUIScriptWnd.Update(self)
 	local alive = actor:alive()
@@ -1548,4 +1640,5 @@ function MainIngameOverlay:Update()
 	self:UpdateActiveItemInfo()
 	self:UpdateGearInfo()
 	self:UpdateAmmoSwitchInfo()
+	self:UpdateProjectileTrajectory()
 end

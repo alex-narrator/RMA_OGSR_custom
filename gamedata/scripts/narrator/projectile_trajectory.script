@@ -1,0 +1,58 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+
+local gravity = level.physics_world():gravity()
+
+function get_start_pos(item, owner)
+	-- local throw_pos = read_if_exists(sys_ini, "vector", "actor", "missile_throw_offset", vector():set(0.3, 0.5, 0.5))
+	-- local dir = device().cam_dir
+	-- local h = dir:getH() + throw_pos:getH()
+	-- local p = dir:getP() + throw_pos:getP()
+	-- local throw_vec = vector():setHP(h, p):normalize()--:mul(throw_pos:magnitude())
+	-- local res = vector():set(device().cam_pos):add(throw_vec)
+	-- log3("~res: %s %s %s", res.x, res.y, res.z)
+	
+	owner = owner or actor
+	local res = vector()
+	owner:g_fireParams(item, res, vector())
+	return res
+end
+
+function pos_on_trajectory(pos, speed, duration)
+    --[[
+        Projectile motion:
+        x = v.x * t
+        z = v.z * t
+        y = (v.y * t) - (g * t^2 / 2)
+    --]]
+	local velocity = vector():set(device().cam_dir):mul(speed)	
+    local t2_half = duration * duration * 0.5    
+	local res = vector():set(
+		pos.x + velocity.x * duration,
+		pos.y + velocity.y * duration - gravity * t2_half,
+		pos.z + velocity.z * duration
+	)
+    -- res.x = pos.x + velocity.x * duration
+    -- res.y = pos.y + velocity.y * duration - gravity * t2_half
+    -- res.z = pos.z + velocity.z * duration
+	
+    return res
+end
+
+function get_ground_y(pos)
+    local vid = level.vertex_id(pos)
+    if vid and vid < NEG_U32 then  -- valid vertex id
+        local ground_pos = level.vertex_position(vid)
+        if ground_pos then
+            return ground_pos.y
+        end
+    end
+    return nil
+end
+
+function get_ground_pos(pos)
+    local vid = level.vertex_id(pos)
+    if vid and vid < NEG_U32 then  -- valid vertex id
+        return level.vertex_position(vid)
+    end
+    return nil
+end
