@@ -159,7 +159,7 @@ end
 
 function on_state_switch(item, state, old_state)
 	local wpn = item:get_weapon_m()
-	if wpn and wpn:is_misfire() and not actor:has_info("encyclopedy_tutorial_weapon_misfire") then
+	if wpn and wpn.misfire and not actor:has_info("encyclopedy_tutorial_weapon_misfire") then
 		on_actor_weapon_jammed()
 	end
 	if wpn and not actor:has_info("encyclopedy_tutorial_weapon_condition") and item:condition() < read_if_exists(sys_ini, "float", thresholds_sect, "weapon_condition", 0.9) then

@@ -15,6 +15,7 @@ function attach(sm)
 	--sm:subscribe({signal = "on_update", fun = this.on_update})
 	--sm:subscribe({signal = "on_weapon_fire", fun = this.on_weapon_fire})
 	--sm:subscribe({signal = "on_weapon_shell_drop",  fun = this.on_shell_drop})
+	--sm:subscribe({signal = "on_hud_state_switch",  fun = this.on_hud_state_switch})
 end
 
 function on_update(dt)
@@ -132,6 +133,13 @@ function on_shell_drop(wpn, pos, vel)
 	shell_particle:set_orientation(orientation.x, orientation.y, orientation.z)
 end
 
+function on_hud_state_switch(item, state, old_state)
+	log_news("~item [%s] state [%s] old_state [%s]", item:name(), HUD_STATE_NAME[state], HUD_STATE_NAME[old_state])
+	local wpn = item:get_weapon()
+	if wpn then
+		log_news("~item [%s] direct reload [%s]", item:name(), wpn.direct_reload)
+	end	
+end
 
 function item_action_enabled()
 	return is_debug_mode()
@@ -148,8 +156,12 @@ function item_action(item)
 	--local pos = vector():set(30.2, -10.804938316345, -271.8)
 	--item:parent():drop_item_and_teleport(item, pos)
 	--alife():teleport_object(item:id(), pos, item:level_vertex_id(), item:game_vertex_id())
-	item:set_condition(math.random(1, 50) * 0.01)
-	log3("~item condition", item:condition())
+	-- item:set_condition(math.random(1, 50) * 0.01)
+	-- log3("~item condition", item:condition())
+	local wpn = item:get_weapon()
+	if wpn then
+		log_news("~item [%s] direct reload [%s]", item:name(), wpn.direct_reload)
+	end
 end
 
 class "p_timer"
