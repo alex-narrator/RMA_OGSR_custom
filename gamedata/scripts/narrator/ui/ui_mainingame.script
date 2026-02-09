@@ -301,7 +301,7 @@ function MainIngameOverlay:InitControls()
 	self.projectile_step_count = xml:ReadAttribInt("projectile_trajectory", "step_count", 10)
 	self.projectile_step_interval = xml:ReadAttribFlt("projectile_trajectory", "step_interval", 0.1)
 	self.projectile_particles = {}
-	for i=0, self.projectile_step_count do
+	for i=1, self.projectile_step_count do
 		self.projectile_particles[i] = particles_object(self.projectile_particle)
 	end
 	local impact_size 			= xml:ReadAttribInt("projectile_trajectory", "impact_size", "1") 			--// 1/2/3/4/5
@@ -1023,7 +1023,7 @@ function MainIngameOverlay:ShowFrontViewMarks()
 	local params = self.compass_modern.params
 	local pda = actor_get_pda()
 	local pda_radius = pda and read_if_exists(sys_ini, "float", pda:section(), "radius", 50) or 50
-	local objective = actor:get_active_objective()
+	local objective = gametask.active_objective()
 	local tgt_id = objective and objective:get_object_id() or nil
 	--//nearest objects
 	function perform_action(obj)
@@ -1314,7 +1314,7 @@ local task_stage_color = {
 }
 function MainIngameOverlay:ShowTask(b_show, _task, _objective, _stage)
 	if b_show then
-		local task = _task or actor:get_active_task()
+		local task = _task or gametask.active_task()
 		self.active_task:Show(task)
 		self.task_state_icon:Show(_task)
 		self.task_header:SetTextColor(self.task_header.base_color)
@@ -1339,7 +1339,7 @@ function MainIngameOverlay:ShowTask(b_show, _task, _objective, _stage)
 				self.task_header:SetTextColor(task_stage_color[_stage])
 				self.objective_header:SetTextColor(task_stage_color[_stage])
 			else
-				objective_description = actor:get_active_objective():get_description()
+				objective_description = gametask.active_objective():get_description()
 			end
 			text = string.format("%s %s", game.translate_string("st_list_mark"), game.translate_string(objective_description))
 			self.objective_header:SetText(text)
