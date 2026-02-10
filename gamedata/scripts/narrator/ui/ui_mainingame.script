@@ -672,7 +672,7 @@ function MainIngameOverlay:UpdateActiveItem()
 
 	if not self.active_item:IsShown() then
 	return end
-		
+
 	local params, params_2, params_3
 	local show_sect, show_sect_2, show_sect_3
 	local scale = self.active_item_icon.scale
@@ -691,9 +691,12 @@ function MainIngameOverlay:UpdateActiveItem()
 	
 	local text, val = "", ""
 	
+	local pos_x = self.active_item:GetWidth()
+	local need_indent = false
+	
 	if wpn and get_clsid(act_item) ~= clsid.wpn_binocular_s then
 		self.active_item_icon:Show(act_item:get_ammo_in_magazine() > 0)
-		self.active_item_icon_2:Show(wpn:is_addon_attached(addon.magazine))
+		self.active_item_icon_2:Show(wpn:is_addon_attached(addon.magazine) and not act_item:get_gl_mode())
 		
 		show_sect = get_cur_ammo_sect(act_item)
 		show_sect_2 = wpn:is_addon_attached(addon.magazine) and wpn:get_addon_name(addon.magazine) or nil
@@ -758,8 +761,15 @@ function MainIngameOverlay:UpdateActiveItem()
 		self.active_item:SetText(get_inv_name_short(show_sect))
 	end
 	
+	self.ammo_counter:Show(self.ammo_counter:GetText() ~= "")
+	
+	if self.ammo_counter:IsShown() then
+		self.ammo_counter:SetWndPos(pos_x - self.ammo_counter:GetWidth(), self.ammo_counter:GetWndPos().y)
+		pos_x = self.ammo_counter:GetWndPos().x 
+		need_indent = true
+	end
+	
 	if self.active_item_icon:IsShown() then
-		--params:set_shader(self.active_item_icon)
 		SetCellIcon(self.active_item_icon, params)
 		if params.grid_height > 1 or params.grid_width > 2 then
 			scale = scale * 0.75
@@ -769,23 +779,31 @@ function MainIngameOverlay:UpdateActiveItem()
 		
 		self.active_item_icon:DetachAll()
 		ui_inv_utils.UpdateLayerIcons(show_sect, self.active_item_icon)
+
+		if need_indent then
+			pos_x = pos_x - indent
+		else
+			need_indent = true
+		end
+		self.active_item_icon:SetWndPos(pos_x - self.active_item_icon:GetWidth(), self.active_item_icon:GetWndPos().y)
+		pos_x = self.active_item_icon:GetWndPos().x
 	end
-	self.ammo_counter:SetWndPos(self.active_item_icon:GetWidth() + indent, self.ammo_counter:GetWndPos().y)
 	
 	if self.active_item_icon_2:IsShown() then
-		--params_2:set_shader(self.active_item_icon_2)
 		SetCellIcon(self.active_item_icon_2, params_2)
 		if params_2.grid_height > 1 or params_2.grid_width > 2 then
 			scale_2 = scale_2 * 0.75
 		end
 		self.active_item_icon_2:SetWidth(params_2.grid_width * scale_2 * CELL_W * get_current_kx())
 		self.active_item_icon_2:SetHeight(params_2.grid_height * scale_2 * CELL_H)
-		local pos = self.ammo_counter:GetWndPos()
-		if self.active_item_icon:IsShown() then
-			pos = self.active_item_icon:GetWndPos()
+
+		if need_indent then
+			pos_x = pos_x - indent
+		else
+			need_indent = true
 		end
-		pos.x = pos.x - self.active_item_icon_2:GetWidth() - indent
-		self.active_item_icon_2:SetWndPos(pos.x, pos.y)
+		self.active_item_icon_2:SetWndPos(pos_x - self.active_item_icon_2:GetWidth(), self.active_item_icon_2:GetWndPos().y)
+		pos_x = self.active_item_icon_2:GetWndPos().x
 		
 		self.active_item_icon_2:DetachAll()
 		ui_inv_utils.UpdateLayerIcons(show_sect_2, self.active_item_icon_2)
@@ -795,22 +813,21 @@ function MainIngameOverlay:UpdateActiveItem()
 	if self.active_item_icon_3:IsShown() then
 		show_sect_3 = act_device:section()
 		params_3 = CIconParams(show_sect_3)
-		--params_3:set_shader(self.active_item_icon_3)
 		SetCellIcon(self.active_item_icon_3, params_3)
 		if params_3.grid_height > 1 or params_3.grid_width > 2 then
 			scale_3 = scale * 0.75
 		end		
 		self.active_item_icon_3:SetWidth(params_3.grid_width * scale_3 * CELL_W * get_current_kx())
 		self.active_item_icon_3:SetHeight(params_3.grid_height * scale_3 * CELL_H)
-		local pos = self.ammo_counter:GetWndPos()
-		if self.active_item_icon:IsShown() then
-			pos = self.active_item_icon:GetWndPos()
+
+		if need_indent then
+			pos_x = pos_x - indent
+		else
+			need_indent = true
 		end
-		if self.active_item_icon_2:IsShown() then
-			pos = self.active_item_icon_2:GetWndPos()
-		end
-		pos.x = pos.x - self.active_item_icon_3:GetWidth() - indent
-		self.active_item_icon_3:SetWndPos(pos.x, pos.y)
+		self.active_item_icon_3:SetWndPos(pos_x - self.active_item_icon_3:GetWidth(), self.active_item_icon_3:GetWndPos().y)
+		pos_x = self.active_item_icon_3:GetWndPos().x
+
 		local text = ""
 		if is_power_device(act_device) then
 			self.active_item_icon_3:SetText(string.format("%.f%s", act_device:binded_object():get_power_level() * 100, "%"))
@@ -825,12 +842,9 @@ function MainIngameOverlay:UpdateActiveItem()
 	
 	self.zoom_counter:Show(wpn and wpn:is_addon_attached(addon.scope) and wpn.zoom_mode and wpn.zoom_rotation_factor == 1)
 	if self.zoom_counter:IsShown() then
-		local zoom = wpn.zoom_factor--wpn:second_vp_enabled() and wpn:second_vp_zoom() or wpn.zoom_factor
-		-- if zoom > 2 then
-			-- zoom = math.floor(zoom+0.1)
-		-- end
+		local zoom = wpn.zoom_factor
 		self.zoom_counter:Show(zoom > 1)
-		text = string.format("%s %.1fx", game.translate_string("st_zoom"), zoom)--string.format(zoom > 2 and "%s %.0fx" or "%s %.1fx", game.translate_string("st_zoom"), zoom)
+		text = string.format("%s %.1fx", game.translate_string("st_zoom"), zoom)
 		self.zoom_counter:SetText(text)
 		local zoom_params = get_wpn_scope_zoom_params(act_item)
 		self.zoom_progress:Show(zoom_params and #zoom_params>1)
