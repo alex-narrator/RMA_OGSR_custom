@@ -125,7 +125,7 @@ end
 
 function SlotSelectorOverlay:Update()
 	CUIScriptWnd.Update(self)
-	if not actor_hands_free() then
+	if not actor_hands_free() or not actor:alive() then
 		self:ShowHide()
 	end
 end

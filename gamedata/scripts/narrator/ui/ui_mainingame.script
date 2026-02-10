@@ -1614,8 +1614,7 @@ end
 
 function MainIngameOverlay:Update()
 	CUIScriptWnd.Update(self)
-	local alive = actor:alive()
-	if not alive then
+	if not actor:alive() then
 		self:Show(false)
 	return end
 	self:UpdateConditions()

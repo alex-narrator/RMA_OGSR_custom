@@ -48,7 +48,8 @@ function on_key_press(key, game_action)
 	if level.main_input_receiver() or
 		game_action ~= key_bindings.kINVENTORY or
 		_G.SCRIPT_ANIM_PLAYING or
-		ANIM_PLAYING
+		ANIM_PLAYING or
+		not actor:alive()
 	then return end
 	
 	-- if level.main_input_receiver() then

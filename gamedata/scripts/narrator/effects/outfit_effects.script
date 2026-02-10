@@ -4,7 +4,7 @@ local mask_texture = [[ui\dinamic_hud\hud_]]
 local breath_texture = [[ui\dinamic_hud\breath]]
 local brake_sound = xr_sound.get_safe_sound_object([[material\glass\glass_fall01hl]])
 
-local mask_static, breath_val, breath_angle
+local mask_static, breath_val, breath_angle, subscribed
 
 local texture = false
 
@@ -22,46 +22,14 @@ function set_breath_k(val)
 	breath_k = val
 end
 
-function get_cond_idx()
-	local cond = hud_obj:condition()
-	--log3("hud_obj %s | cond %s", hud_obj:name(), cond)
-	if cond <= 0.1 then
-		return 6
-	elseif cond <= 0.3 then
-		return 5
-	elseif cond <= 0.5 then
-		return 4
-	elseif cond <= 0.7 then
-		return 3
-	elseif cond <= 0.9 then
-		return 2
-	else 
-		return 1
-	end
-end
-
-function get_power_idx()
-	local power = actor.power
-	if power <= 0.2 then
-		return 5
-	elseif power <= 0.4 then
-		return 4
-	elseif power <= 0.6 then
-		return 3
-	elseif power <= 0.8 then
-		return 2
-	else 
-		return 1
-	end
-end
-
 function attach(sm)
-	sm:subscribe({signal = "on_drop",   fun = this.on_non_slot})
-	sm:subscribe({signal = "on_ruck",   fun = this.on_non_slot})
-	sm:subscribe({signal = "on_belt",   fun = this.on_non_slot})
-	sm:subscribe({signal = "on_slot",   fun = this.on_slot})
-	sm:subscribe({signal = "on_save",   fun = this.on_save})
-	sm:subscribe({signal = "on_load",   fun = this.on_load})	
+	sm:subscribe({signal = "on_drop",   		fun = this.on_non_slot})
+	sm:subscribe({signal = "on_ruck",   		fun = this.on_non_slot})
+	sm:subscribe({signal = "on_belt",   		fun = this.on_non_slot})
+	sm:subscribe({signal = "on_slot",   		fun = this.on_slot})
+	sm:subscribe({signal = "on_save",   		fun = this.on_save})
+	sm:subscribe({signal = "on_load",   		fun = this.on_load})
+	sm:subscribe({signal = "on_death_actor",   	fun = this.on_death_actor})
 end
 
 local known_outfits = {}
@@ -117,13 +85,24 @@ function on_non_slot(obj, prev_place)
 	
 	disable_effects(obj)
 	
-	if get_hud_sect(obj) and not xr_conditions.black_screen() and not level.is_removing_objects() then
+	if get_hud_sect(obj) and actor:alive() and not xr_conditions.black_screen() and not level.is_removing_objects() then
 		outfit_anim.play_gasmask(obj, false)
 	end	
 
 	local mode = actor_menu:GetMode()
 	if obj:is_outfit() and actor:alive() and (mode == "inventory" or mode == "carbody") then
 		add_update_delayed_action(1, function() backpack.play_anim(3) end)
+	end
+end
+
+function on_death_actor()
+	local helmet = actor_get_helmet()
+	if helmet then
+		on_non_slot(helmet, item_place.slot)
+	end
+	local outfit = actor_get_outfit()
+	if outfit then
+		on_non_slot(outfit, item_place.slot)
 	end
 end
 
@@ -200,11 +179,22 @@ function switch_breath(val)
 	breath_val = 0
 	breath_angle = 0
 	dec_breath = false
-	local subscribe = {signal = "update_items_effect", fun = this.on_update_mask}
 	if val then
-		sm:subscribe(subscribe)
+		if not subscribed then
+			subscribed = {
+				{signal = "update_items_effect", fun = this.on_update_mask}
+			}
+		end
+		for k,v in pairs(subscribed) do
+			sm:subscribe(v)
+		end
 	else
-		sm:unsubscribe(subscribe)
+		if subscribed then
+			for k,v in pairs(subscribed) do
+				sm:unsubscribe(v)
+			end
+		end
+		subscribed = false
 	end	
 end
 
