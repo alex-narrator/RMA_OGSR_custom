@@ -38,6 +38,11 @@ float4 main(p_screen I) : SV_Target
     texcoord = applyInertia(texcoord);
 
     float3 breathNoise = s_breath_noise.Sample(smp_rtlinear, texcoord).xyz;
+	
+	//spin around center to randomise texture appearance
+	float angle = breath_size.y;
+	breathNoise.xy = float2(breathNoise.x * cos(angle) - breathNoise.y * sin(angle), breathNoise.x * sin(angle) + breathNoise.y * cos(angle));
+	
     float2 seed = breathNoise.xy;
     seed = frac(seed + float2(breath_idx.x, breath_idx.x) * 0.38196601125); // disable to stop generating new versions
 
