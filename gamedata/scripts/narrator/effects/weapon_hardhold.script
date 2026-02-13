@@ -97,7 +97,11 @@ end
 function on_key_press(key, game_action)
 	if not can_set_hard_hold(game_action) then
 	return end
-	set_hard_hold(true, 1)
+	if get_hard_hold() then
+		set_hard_hold(false, 2)
+	else
+		set_hard_hold(true, 1)
+	end
 end
 
 function on_key_release(key, game_action)
@@ -112,7 +116,7 @@ function on_zoom_in(weapon)
 		subscribed = {
 			{ signal = "on_update", 				fun = this.on_update },
 			{ signal = "on_key_press", 				fun = this.on_key_press },
-			{ signal = "on_key_release", 			fun = this.on_key_release },
+			--{ signal = "on_key_release", 			fun = this.on_key_release },
 			{ signal = "on_actor_weapon_zoom_out", 	fun = this.on_zoom_out},
 		}
 		local sm = ogse_signals.get_mgr()
@@ -168,7 +172,9 @@ function on_zoom_out(weapon)
 		subscribed = false
 	end
 	ezi = false
-	hard_hold = false
+	-- hard_hold = false
+	local play_sound = is_hard_hold() and not actor_obj:is_actor_creep()
+	set_hard_hold(false, play_sound and 2 or nil)
 	base_k = false
 	zoom_factor = 1
 	hud_remove_info_message("item_usage")
