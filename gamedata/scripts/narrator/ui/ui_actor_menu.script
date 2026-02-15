@@ -141,6 +141,10 @@ function ActorMenuOverlay:Subscribe()
 			
 			{signal = "on_warning_icon_focus", self = self, fun = self.OnWarningIconFocus},
 			{signal = "on_warning_icon_focus_lost", self = self, fun = self.OnWarningIconFocusLost},
+			
+			{signal = "on_use_animation_start", self = self, fun = self.SetUseAnimProgres},
+			{signal = "on_use_animation_use", self = self, fun = self.SetUseAnimProgres},	
+			{signal = "on_use_animation_stop", self = self, fun = self.SetUseAnimProgres},
 		}
 		for _, s in ipairs( self.subscribed ) do
 			self.sm:subscribe( s )
@@ -412,7 +416,13 @@ function ActorMenuOverlay:InitControls()
 	self.tooltip = xml:InitStatic("tooltip_frame:tooltip", self.tooltip_frame)
 	local tmp_tbl = split_string(xml:ReadAttrib("tooltip_frame", "offset", "0,0"), ",")
 	self.tooltip_frame.offset = {x = tmp_tbl[1], y = tmp_tbl[2]}
-	self.tooltip_frame_base_height = self.tooltip_frame:GetHeight()	
+	self.tooltip_frame_base_height = self.tooltip_frame:GetHeight()
+	
+	--//use anim progress
+	self.use_anim = xml:InitStatic("use_anim", self)
+	self.use_anim.progress = xml:InitProgressShape("use_anim:progress", self.use_anim)
+	self.use_anim.offset = split_string(xml:ReadAttrib("use_anim", "offset", "0,0"), ",", true)
+	self.use_anim:Show(false)
 	
 	--//character info
 	self.char_info_back = xml:InitStatic("char_info_back", self)
@@ -1172,6 +1182,8 @@ function ActorMenuOverlay:OnShow()
 	self:SetCharacterTextNPC()
 	self:UpdatePrices()
 	self:UpdateSlots()
+	
+	self.use_anim:Show(false)
 	
 	self:PlayActionSound("open")
 end
@@ -2154,4 +2166,38 @@ function ActorMenuOverlay:ShowRepairRequest()
 		game.translate_string("ui_st_money_regional")
 		)
 	repair_msg_box:InitAction(msg_text, function() self:PerformRepair() end)
+end
+
+function ActorMenuOverlay:SetUseAnimProgres(item, use_delay, anm_length)
+	if not use_delay then
+		self.use_anim:Show(false)
+		self.selected_item_tip:SetText("")
+	else
+		self.use_anim:Show(true)
+		self.selected_item_tip:SetText(game.translate_string("st_key_to_stop_anim"))
+		
+		local cell_item = self:GetCellItem(item)
+		if cell_item then
+			local rect = Frect()
+			cell_item:GetAbsoluteRect(rect)
+			local pos = vector2():set(rect.x1, rect.y1)
+			pos.x = pos.x + (cell_item:GetWidth() - self.use_anim:GetWidth()) * 0.5
+			pos.y = pos.y + (cell_item:GetHeight() - self.use_anim:GetHeight()) * 0.5
+			self.use_anim:SetWndPos(pos.x, pos.y)
+		end
+		
+		local end_time = time_global() + use_delay
+		level.add_call(
+			function()
+				local val = math.clamp((end_time - time_global()) / use_delay, 0, 1)
+				val = 1 - val
+				self.use_anim.progress:SetPos(val)
+				-- local pos = level.get_cursor_pos()
+				-- self.use_anim:SetWndPos(pos.x + offset[1], pos.y + offset[2])
+				return val >= 1 or not self.use_anim:IsShown()
+			end,
+			function()
+			end		
+		)
+	end
 end

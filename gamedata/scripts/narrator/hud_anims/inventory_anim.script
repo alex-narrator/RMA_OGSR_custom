@@ -52,16 +52,9 @@ function on_key_press(key, game_action)
 		not actor:alive()
 	then return end
 	
-	-- if level.main_input_receiver() then
-		-- if actor_menu:IsShown() then
-			-- ui_actor_menu.ShowHideMenu()
-		-- end
-	-- return end
-	
 	block_non_move_action(true)
 	
 	actor:hide_weapon(backpack.play_fast())
-	--_G.SCRIPT_ANIM_PLAYING = true
 	ANIM_PLAYING = true
 	
 	level.add_call(
@@ -75,7 +68,6 @@ function on_key_press(key, game_action)
 					return game.hud_motion_allowed()
 				end,
 				function()
-					--level.start_stop_menu(inv_wnd, true)
 					ui_actor_menu.ShowHideMenu("inventory")
 				end
 			)
@@ -88,7 +80,6 @@ function on_show(mode)
 	return end
 	block_non_move_action(false)
 	backpack.play_anim(3)
-	--_G.SCRIPT_ANIM_PLAYING = false
 	ANIM_PLAYING = false
 	subscribe()
 end

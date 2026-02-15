@@ -8,13 +8,14 @@ local ITEM_USED = false
 local anm_name = "anm_use"
 local forced_stop_func
 
+local sm = ogse_signals.get_mgr()
+
 local subscribed = false
 function subscribe()
 	if not subscribed then
 		subscribed = {
 			{ signal = "on_key_press", fun = this.on_key_press },
 		}
-		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( subscribed ) do
 			sm:subscribe( s )
 		end
@@ -23,7 +24,6 @@ end
 
 function unsubscribe()
 	if subscribed then
-		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( subscribed ) do
 			sm:unsubscribe( s )
 		end
@@ -66,8 +66,6 @@ function play(item)
 			anm_stop_k = math.clamp(anm_stop_k, 0.001, 1)
 			if anm_stop_k < 1 then
 				anm_length = anm_length * anm_stop_k
-				--log_news("~anm_stop_k %s", anm_stop_k)
-				--log_news("~anm_length new %s", anm_length * 0.001)
 				add_time_delayed_action(
 					anm_length * anm_stop_k * 0.001,
 					function()
@@ -81,12 +79,14 @@ function play(item)
 				)
 			end
 			
-			hud_add_info_message("hud_info", game.translate_string("st_key_to_stop_anim"), 10)
+			local use_delay = read_if_exists(sys_ini, "float", hud_sect, "use_delay", anm_length * 0.001) / anm_snd_speed()
+			-- hud_add_info_message("hud_info", game.translate_string("st_key_to_stop_anim"), 10)
+			sm:call("on_use_animation_start", item, use_delay * 1000, anm_length)
 			
 			_G.SCRIPT_ANIM_PLAYING = true
 			anim_sound = play_hud_sound(hud_sect)
 			play_hud_effector(hud_sect)
-			set_use_delay(hud_sect, item, anm_length)
+			set_use_delay(item, use_delay)
 			block_non_move_action(true)
 			
 			local anim_start_func = read_if_exists(sys_ini, "string", hud_sect, "function_on_start", nil)
@@ -114,7 +114,8 @@ function play(item)
 					unsubscribe()
 					block_non_move_action(false)
 					level.remove_complex_effector(hud_effector_id)
-					hud_remove_info_message("hud_info")
+					-- hud_remove_info_message("hud_info")
+					sm:call("on_use_animation_stop")
 					if anim_sound then
 						anim_sound:stop()
 					end					
@@ -159,16 +160,14 @@ function play_hud_effector(sect)
 	end
 end
 
-function set_use_delay(sect, item, anm_length)
+function set_use_delay(item, use_delay)
 	add_time_delayed_action(
-		read_if_exists(sys_ini, "float", sect, "use_delay", anm_length * 0.001) * 1 / anm_snd_speed(), 
+		use_delay, 
 		function()
-			--unsubscribe()
-			hud_remove_info_message("hud_info")
-			--log_news("~use delay function called for item %s", sect)
+			-- hud_remove_info_message("hud_info")
+			sm:call("on_use_animation_use", FORCE_STOP)
 			if FORCE_STOP then
-				FORCE_STOP = false				
-				--log_news("~ues delay function force stopped for item %s", sect)
+				FORCE_STOP = false
 			return end
 			actor:eat(item)
 			ITEM_USED = true
@@ -187,8 +186,8 @@ local force_stop_action = {
 function on_key_press(key, game_action)
 	if not SCRIPT_ANIM_PLAYING then
 	return end
-	if level.main_input_receiver() then
-	return end
+	-- if level.main_input_receiver() then
+	-- return end
 	if not force_stop_action[game_action] then
 	return end
 	if not ITEM_USED then
