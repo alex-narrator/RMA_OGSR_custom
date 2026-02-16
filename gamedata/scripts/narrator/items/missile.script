@@ -18,6 +18,8 @@ local PREV_ACTIVE_SLOT = 255
 
 local POWER_DEC_K = 0.1
 
+local SWITCH_ANIM_FAST = false
+
 function on_spawn()
 	bolts = {}
 	grenades = {}
@@ -105,29 +107,31 @@ function on_key_press(key, game_action)
 	
 	local new_missile = get_other_missile(act_item)
 	if new_missile then
-		-- actor:move_to_ruck(act_item)
-		-- actor:move_to_slot(new_missile)
-		-- if new_missile:is_grenade() then
-			-- ogse_signals.get_mgr():call("on_grenade_type_switch", act_item, new_missile)
-		-- end
-		-- --log3("get_other_missile %s",new_missile:section())
-		block_non_move_action(true)
-		--//щоб спочатку анімка hide відігралася і було плавно і красиво
-		actor:activate_slot(NO_ACTIVE_SLOT)
-		level.add_call(
-			function() 
-				return not actor:active_item()
-			end,
-			function()
-				block_non_move_action(false)
-				actor:move_to_ruck(act_item)
-				actor:move_to_slot(new_missile)
-				if new_missile:is_grenade() then
-					ogse_signals.get_mgr():call("on_grenade_type_switch", act_item, new_missile)
-				end
-				--log3("get_other_missile %s",new_missile:section())			
+		if SWITCH_ANIM_FAST then
+			actor:move_to_ruck(act_item)
+			actor:move_to_slot(new_missile)
+			if new_missile:is_grenade() then
+				ogse_signals.get_mgr():call("on_grenade_type_switch", act_item, new_missile)
 			end
-		)		
+		else
+			block_non_move_action(true)
+			--//щоб спочатку анімка hide відігралася і було плавно і красиво
+			actor:activate_slot(NO_ACTIVE_SLOT)
+			level.add_call(
+				function() 
+					return not actor:active_item()
+				end,
+				function()
+					block_non_move_action(false)
+					actor:move_to_ruck(act_item)
+					actor:move_to_slot(new_missile)
+					if new_missile:is_grenade() then
+						ogse_signals.get_mgr():call("on_grenade_type_switch", act_item, new_missile)
+					end
+					--log3("get_other_missile %s",new_missile:section())			
+				end
+			)
+		end
 	end
 end
 
@@ -186,5 +190,5 @@ function get_other_missile(item)
 	local current_idx = find_sect(item:section())
 	local next_idx = current_idx == #sects and 1 or current_idx + 1
 	
-	return sects[next_idx] and sects[next_idx].missile or nil
+	return (sects[next_idx] and sects[next_idx].sect ~= item:section()) and sects[next_idx].missile or nil
 end

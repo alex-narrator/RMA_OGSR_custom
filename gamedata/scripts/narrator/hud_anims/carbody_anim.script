@@ -57,8 +57,7 @@ function on_show(mode)
 			return not actor:active_item() and not actor:active_device()
 		end,
 		function()
-			--local tgt_height_diff = device().cam_pos.y - actor_menu:GetTarget():center().y
-			backpack.play_effects(true)--, tgt_height_diff > height_diff)
+			backpack.play_effects(true)
 			block_non_move_action(false)
 			
 			level.add_call(

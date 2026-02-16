@@ -5,7 +5,7 @@ function attach(sm)
 	sm:subscribe({signal = "on_key_press",   	fun = this.on_key_press})
 end
 
-local ANIM_PLAYING = false
+local OPEN_ANIM_STARTED = false
 
 local subscribed = false
 
@@ -48,55 +48,60 @@ function on_key_press(key, game_action)
 	if level.main_input_receiver() or
 		game_action ~= key_bindings.kINVENTORY or
 		_G.SCRIPT_ANIM_PLAYING or
-		ANIM_PLAYING or
 		not actor:alive()
 	then return end
 	
-	block_non_move_action(true)
-	
-	actor:hide_weapon(backpack.play_fast())
-	ANIM_PLAYING = true
-	
-	level.add_call(
-		function() 
-			return not actor:active_item() and not actor:active_device()
-		end,
-		function() 
-			backpack.play_effects(true)
-			level.add_call(
-				function()
-					return game.hud_motion_allowed()
-				end,
-				function()
-					ui_actor_menu.ShowHideMenu("inventory")
-				end
-			)
-		end
-	)
+	add_update_delayed_action(1, function() ui_actor_menu.ShowHideMenu("inventory") end)
 end
 
 function on_show(mode)
 	if mode ~= "inventory" then
 	return end
-	block_non_move_action(false)
-	backpack.play_anim(3)
-	ANIM_PLAYING = false
+
+	block_non_move_action(true)
+	actor:hide_weapon(backpack.play_fast())
+	OPEN_ANIM_STARTED = true
 	subscribe()
+	
+	level.add_call(
+		function() 
+			return not actor:active_item() and not actor:active_device()
+		end,
+		function()
+			backpack.play_effects(true)
+			block_non_move_action(false)
+			
+			level.add_call(
+				function()
+					return game.hud_motion_allowed()
+				end,
+				function()
+					if OPEN_ANIM_STARTED then
+						backpack.play_anim(3)
+						OPEN_ANIM_STARTED = false
+					end
+				end
+			)
+		end
+	)	
 end
 
 function on_hide(mode)
 	if mode ~= "inventory" then
 	return end
+	
+	OPEN_ANIM_STARTED = false
 	backpack.play_effects(false)
 	block_non_move_action(true)
 	unsubscribe()
+	
 	level.add_call(
 		function()
 			return game.hud_motion_allowed()
 		end,
 		function()
-			block_non_move_action(false)
 			actor:restore_weapon(backpack.play_fast())
+			block_non_move_action(false)
 		end
-	)
+	)	
 end
