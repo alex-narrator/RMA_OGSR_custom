@@ -145,6 +145,14 @@ function ActorMenuOverlay:Subscribe()
 			{signal = "on_use_animation_start", self = self, fun = self.SetUseAnimProgres},
 			{signal = "on_use_animation_use", self = self, fun = self.SetUseAnimProgres},	
 			{signal = "on_use_animation_stop", self = self, fun = self.SetUseAnimProgres},
+			{signal = "on_attach_addon_start", self = self, fun = self.SetUseAnimProgres},
+			{signal = "on_attach_addon_stop", self = self, fun = self.SetUseAnimProgres},
+			{signal = "on_detach_addon_start", self = self, fun = self.SetUseAnimProgres},
+			{signal = "on_detach_addon_stop", self = self, fun = self.SetUseAnimProgres},
+			{signal = "on_loot_box_unpack_start", self = self, fun = self.SetUseAnimProgres},
+			{signal = "on_loot_box_unpack_stop", self = self, fun = self.SetUseAnimProgres},
+			
+			{signal = "on_hud_state_switch", self = self, fun = self.OnHudStateSwitch},
 		}
 		for _, s in ipairs( self.subscribed ) do
 			self.sm:subscribe( s )
@@ -2192,12 +2200,18 @@ function ActorMenuOverlay:SetUseAnimProgres(item, use_delay, anm_length)
 				local val = math.clamp((end_time - time_global()) / use_delay, 0, 1)
 				val = 1 - val
 				self.use_anim.progress:SetPos(val)
-				-- local pos = level.get_cursor_pos()
-				-- self.use_anim:SetWndPos(pos.x + offset[1], pos.y + offset[2])
 				return val >= 1 or not self.use_anim:IsShown()
 			end,
 			function()
 			end		
 		)
+	end
+end
+
+function ActorMenuOverlay:OnHudStateSwitch(item, state, old_state)
+	if state == global_flags.eReload then
+		--log_news("~%s start reloading", item:name())
+	elseif old_state == global_flags.eReload then
+		--log_news("~%s finish reloading", item:name())
 	end
 end

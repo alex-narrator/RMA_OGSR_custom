@@ -1,4 +1,6 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
+local sm = ogse_signals.get_mgr()
+
 function action_allowed(item)
 	return parent_is_actor(item) or actor_menu:GetMode() == "inventory" or actor_menu:GetMode() == "carbody"
 end
@@ -39,23 +41,31 @@ function spawn_loot(item)
 	end
 	
 	block_non_move_action(true)
+	sm:call("on_loot_box_unpack_start", item, snd and snd:length() or 0)
 	
 	level.add_call(
 		function()
-			return not snd or not snd:playing()
+			return not snd or not snd:playing() or key_state(bind_to_dik(key_bindings.kSPRINT))
 		end,
 		function()
-			if get_spawn_items(sect) then
-				spawn_defined_loot(sect)
+			if key_state(bind_to_dik(key_bindings.kSPRINT)) then
+				if snd and snd:playing() then
+					snd:stop()
+				end
 			else
-				spawn_random_loot(sect)
+				if get_spawn_items(sect) then
+					spawn_defined_loot(sect)
+				else
+					spawn_random_loot(sect)
+				end
+		
+				local parent = item:parent()	
+				parent:drop_item(item)
+				alife():release(alife():object(item:id()), true)
 			end
-	
-			local parent = item:parent()	
-			parent:drop_item(item)
-			alife():release(alife():object(item:id()), true)
 			
 			block_non_move_action(false)
+			sm:call("on_loot_box_unpack_stop")
 		end
 	)
 end

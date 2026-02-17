@@ -111,6 +111,8 @@ function RepairOverlay:InitControls()
 	
 	name = "repair_progress"
 	self.repair_progress = xml:InitProgressBar(prefix..":"..name, self.repair_back)
+	name = "repair_progress_tip"
+	self.repair_progress_tip = xml:InitStatic(prefix..":"..name, self.repair_back)	
 	
 	self.list_item_icon_scale = xml:ReadAttribFlt(prefix, "list_item_icon_scale", 1)
 
@@ -156,6 +158,7 @@ function RepairOverlay:InitItemsList()
 	self.repair_donors:Reinit()
 	self.repair_tools:Reinit()
 	self.repair_progress:Show(false)
+	self.repair_progress_tip:Show(false)
 	self.donors, self.tools = {}, {}
 	function fill_list(dummy, item)
 		if item:id() ~= self.item:id() then
@@ -305,33 +308,7 @@ function RepairOverlay:PerformRepair()
 	snd:play_at_pos(actor, actor:position())
 	
 	self.repair_progress:Show(true)
-	
-	if self.donor_item then
-		service_kit.prepair(self.donor_item)
-		local use_count = read_if_exists(sys_ini, "u32", self.donor_item:section(), "use_count", 1)
-		if use_count > 0 then
-			self.donor_item:change_condition(-1/use_count)
-			if self.donor_item:condition() == 0 then
-				if self.donor_item:parent() then
-					self.donor_item:parent():drop_item(self.donor_item)
-				end			
-				alife():release(alife():object(self.donor_item:id()), true)
-			end
-		end		
-	end
-	
-	if self.tool_item then
-		local use_count = read_if_exists(sys_ini, "u32", self.tool_item:section(), "use_count", 0)
-		if use_count > 0 then
-			self.tool_item:change_condition(-1/use_count)
-			if self.tool_item:condition() == 0 then
-				if self.tool_item:parent() then
-					self.tool_item:parent():drop_item(self.tool_item)
-				end			
-				alife():release(alife():object(self.tool_item:id()), true)
-			end
-		end
-	end	
+	self.repair_progress_tip:Show(true)
 	
 	level.disable_input()
 	
@@ -340,21 +317,49 @@ function RepairOverlay:PerformRepair()
 			local val = math.clamp((snd_end_time - time_global()) / length, 0, 1)
 			val = 1 - val
 			self.repair_progress:SetProgressPos(val)
-			return not snd or not snd:playing()
+			return not snd or not snd:playing() or key_state(bind_to_dik(key_bindings.kSPRINT))
 		end,
 		function()
 			level.enable_input()
-			self.item:change_condition(self.res_cond_gain)
-			-- local cell_item = actor_menu:GetCellItem(self.item)
-			-- if cell_item then
-				-- cell_item:ForceUpdate()
-			-- end
+			if key_state(bind_to_dik(key_bindings.kSPRINT)) then
+				if snd and snd:playing() then
+					snd:stop()
+				end
+			else
+				if self.donor_item then
+					service_kit.prepair(self.donor_item)
+					local use_count = read_if_exists(sys_ini, "u32", self.donor_item:section(), "use_count", 1)
+					if use_count > 0 then
+						self.donor_item:change_condition(-1/use_count)
+						if self.donor_item:condition() == 0 then
+							if self.donor_item:parent() then
+								self.donor_item:parent():drop_item(self.donor_item)
+							end			
+							alife():release(alife():object(self.donor_item:id()), true)
+						end
+					end		
+				end
+				
+				if self.tool_item then
+					local use_count = read_if_exists(sys_ini, "u32", self.tool_item:section(), "use_count", 0)
+					if use_count > 0 then
+						self.tool_item:change_condition(-1/use_count)
+						if self.tool_item:condition() == 0 then
+							if self.tool_item:parent() then
+								self.tool_item:parent():drop_item(self.tool_item)
+							end			
+							alife():release(alife():object(self.tool_item:id()), true)
+						end
+					end
+				end
+				
+				self.item:change_condition(self.res_cond_gain)
+			end
 			if can_repair(self.item) then
 				self:Reinit(self.item)
 			else
 				self:DetachWnd()
 			end
-			--actor_menu:ReinitLists()
 		end		
 	)
 end

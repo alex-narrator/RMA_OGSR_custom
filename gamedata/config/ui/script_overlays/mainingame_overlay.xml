@@ -6,26 +6,32 @@
 	
 	<actor_params x="30" y="735">
 		<health_circle x="0" y="0" width="24" height="32" stretch="1" show_val="1">
-			<texture a="30">ui_hud_circle_red_medium</texture>
+			<!-- <texture a="30">ui_hud_circle_red_medium</texture> -->
 			<icon x="3" y="5" width="18" height="24" stretch="1">
 				<texture>ui_hud_icon_health_warning_alt</texture>
 			</icon>
-			<progress_shape x="0" y="0" width="24" height="32" sector_count="100" clockwise="0">
+			<progress_shape x="0" y="0" width="24" height="32" sector_count="100" clockwise="1">
 				<front x="0" y="0" width="24" height="32">
 					<texture>ui_hud_circle_red_medium</texture>			
 				</front>
+				<back x="0" y="0" width="24" height="32" stretch="1">
+					<texture a="30">ui_hud_circle_red_medium</texture>			
+				</back>				
 			</progress_shape>
 		</health_circle>
 		
 		<power_circle x="25" y="0" width="24" height="32" stretch="1" show_val="1">
-			<texture  a="30">ui_hud_circle_orange_medium</texture>
+			<!-- <texture a="30">ui_hud_circle_orange_medium</texture> -->
 			<icon x="4" y="5" width="16" height="22" stretch="1">
 				<texture>ui_hud_icon_stamina</texture>
 			</icon>
-			<progress_shape x="0" y="0" width="24" height="32" sector_count="100" clockwise="0">
+			<progress_shape x="0" y="0" width="24" height="32" sector_count="100" clockwise="1">
 				<front x="0" y="0" width="24" height="32">
 					<texture>ui_hud_circle_orange_medium</texture>			
 				</front>
+				<back x="0" y="0" width="24" height="32" stretch="1">
+					<texture a="30">ui_hud_circle_orange_medium</texture>			
+				</back>				
 			</progress_shape>
 		</power_circle>
 
@@ -34,12 +40,39 @@
 			<icon x="2" y="3" width="19" height="25" stretch="1">
 				<!-- <texture a="90">ui_inGame2_Detector_icon_electro_big</texture> -->
 			</icon>
-			<progress_shape x="0" y="0" width="20" height="27" sector_count="100" clockwise="0">
+			<progress_shape x="0" y="0" width="20" height="27" sector_count="100" clockwise="1">
 				<front x="0" y="0" width="20" height="27">
 					<texture>ui_hud_circle_green_medium</texture>			
 				</front>
 			</progress_shape>
 		</stamina_circle>
+		
+		<!-- <visibility_circle x="27" y="-20" width="11" height="15" stretch="1" show_val="-3"> -->
+			<!-- <texture a="30">ui_hud_circle_grey_medium</texture> -->
+			<!-- <icon x="2" y="3" width="11" height="15" stretch="1"> -->
+				<!-- <!-- <texture a="90">ui_inGame2_Detector_icon_electro_big</texture> --> -->
+			<!-- </icon> -->
+			<!-- <progress_shape x="0" y="0" width="11" height="15" sector_count="100" clockwise="1"> -->
+				<!-- <front x="0" y="0" width="11" height="15"> -->
+					<!-- <texture>ui_hud_circle_grey_medium</texture>			 -->
+				<!-- </front> -->
+			<!-- </progress_shape> -->
+		<!-- </visibility_circle> -->
+		
+		<!-- <noise_circle x="47" y="-20" width="11" height="15" stretch="1" show_val="-3"> -->
+			<!-- <!-- <texture a="30">ui_hud_circle_grey_medium</texture> --> -->
+			<!-- <icon x="2" y="3" width="11" height="15" stretch="1"> -->
+				<!-- <!-- <texture a="90">ui_inGame2_Detector_icon_electro_big</texture> --> -->
+			<!-- </icon> -->
+			<!-- <progress_shape x="0" y="0" width="11" height="15" sector_count="100" clockwise="1"> -->
+				<!-- <front x="0" y="0" width="11" height="15"> -->
+					<!-- <texture>ui_hud_circle_grey_medium</texture>			 -->
+				<!-- </front> -->
+				<!-- <back x="0" y="0" width="11" height="15" stretch="1"> -->
+					<!-- <texture a="30">ui_hud_circle_grey_medium</texture>			 -->
+				<!-- </back>				 -->
+			<!-- </progress_shape> -->
+		<!-- </noise_circle>		 -->
 	
 		<health x="0" y="10" width="82" height="12" stretch="1" show_val="-1">
 			<static width="8" height="10" stretch="1">
@@ -160,29 +193,29 @@
 		</visibility>
 		
 		<!-- horizontal from center - under modern compass -->
-		<noise x="377" y="-707" width="210" height="4" show_val="3">
-			<static width="8" height="10" stretch="1"/>
-			<progress_bar width="210" height="4" mode="from_center" min="0" max="1.3" pos="0">
-				<progress>
-					<texture r="209" g="161" b="203">inv_progress_long</texture>
-				</progress>
-				<!-- <background> -->
-					<!-- <texture a="100" r="255" g="255" b="255">ui_hud_shk_noise_horz</texture> -->
-				<!-- </background>				 -->
-			</progress_bar>	
-		</noise>		
-		
-		<!-- <noise x="-30" y="29" width="30" height="3" show_val="3"> -->
+		<!-- <noise x="377" y="-707" width="210" height="4" show_val="3"> -->
 			<!-- <static width="8" height="10" stretch="1"/> -->
-			<!-- <progress_bar width="30" height="3" mode="from_center" min="0" max="1.3" pos="0"> -->
+			<!-- <progress_bar width="210" height="4" mode="from_center" min="0" max="1.3" pos="0"> -->
 				<!-- <progress> -->
-					<!-- <texture>ui_hud_shk_noise_horz</texture> -->
+					<!-- <texture r="209" g="161" b="203">inv_progress_long</texture> -->
 				<!-- </progress> -->
-				<!-- <background> -->
-					<!-- <texture a="100" r="255" g="255" b="255">ui_hud_shk_noise_horz</texture> -->
-				<!-- </background>				 -->
+				<!-- <!-- <background> --> -->
+					<!-- <!-- <texture a="100" r="255" g="255" b="255">ui_hud_shk_noise_horz</texture> --> -->
+				<!-- <!-- </background>				 --> -->
 			<!-- </progress_bar>	 -->
-		<!-- </noise> -->
+		<!-- </noise>		 -->
+		
+		<noise x="-30" y="30" width="30" height="3" show_val="3">
+			<static width="8" height="10" stretch="1"/>
+			<progress_bar width="30" height="3" mode="from_center" min="0" max="1.3" pos="0">
+				<progress>
+					<texture>ui_hud_shk_noise_horz</texture>
+				</progress>
+				<background>
+					<texture a="100" r="255" g="255" b="255">ui_hud_shk_noise_horz</texture>
+				</background>				
+			</progress_bar>	
+		</noise>
 		
 		<noise_icon x="-30" y="-10" width="8" height="10" stretch="1" texture_name="noise_" thresholds="0, 0.01, 0.75, 0.9">
 			<texture a="150" r="255" g="255" b="255"></texture>

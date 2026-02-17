@@ -1,4 +1,6 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
+local sm = ogse_signals.get_mgr()
+
 function add_debug_action(pbox, item)
 	local name, precondition, action
 	name = debug_info.item_action_text
@@ -222,30 +224,35 @@ function add_attach_addon(pbox, cell_item)
 				return slot_iitem:can_attach_addon(iitem)
 			end
 			action = function(iitem, slot_iitem)
-				--slot_iitem:attach_addon(iitem, true)
 				local need_unblock = false
 				block_non_move_action(true)
 				local snd_name = read_if_exists(sys_ini, "string", item:section(), "attach_addon_sound", "interface\\inv_attach_addon")
 				local snd = xr_sound.get_safe_sound_object(snd_name)
 				snd:play(actor, 0, sound_object.s2d)
+				sm:call("on_attach_addon_start", slot_item, snd:length())
 				level.add_call(
 					function()
 						if not actor.inventory:is_active_slot_blocked() then
 							need_unblock = true
 							actor:hide_weapon(true)
 						end
-						return not snd or not snd:playing()
+						return not snd or not snd:playing() or key_state(bind_to_dik(key_bindings.kSPRINT))
 					end,
 					function()
-						attach_addon(slot_item, item)
+						if key_state(bind_to_dik(key_bindings.kSPRINT)) then
+							if snd and snd:playing() then
+								snd:stop()
+							end
+						else					
+							attach_addon(slot_item, item)
+						end
 						block_non_move_action(false)
 						if need_unblock then
 							actor:restore_weapon(true)
 						end
+						sm:call("on_attach_addon_stop")
 					end
 				)
-				-- attach_addon(slot_item, item)
-				-- xr_sound.get_safe_sound_object([[interface\inv_attach_addon]]):play(actor, 0, sound_object.s2d)
 			end
 			pbox:AddItem(name, precondition, action, iitem, slot_iitem)
 		end
@@ -266,36 +273,37 @@ function add_detach_addon(pbox, cell_item)
 					return parent_is_actor(item) or actor_menu:GetMode() ~= "trade"
 				end
 				action = function(item, cell_item)
-					--wpn:detach_addon(addon_sect, true)
-					-- detach_addon(item, addon_sect)
-					-- xr_sound.get_safe_sound_object([[interface\inv_detach_addon]]):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
-					-- cell_item:ForceUpdate()
-					-- if actor_menu:GetMode() == "trade" then
-						-- actor_menu:UpdatePrices()
-					-- end
 					local need_unblock = false
 					block_non_move_action(true)
 					local snd_name = read_if_exists(sys_ini, "string", addon_sect, "detach_addon_sound", "interface\\inv_detach_addon")
 					local snd = xr_sound.get_safe_sound_object(snd_name)
 					snd:play(actor, 0, sound_object.s2d)
+					sm:call("on_detach_addon_start", item, snd:length())
 					level.add_call(
 						function()
 							if not actor.inventory:is_active_slot_blocked() then
 								need_unblock = true
 								actor:hide_weapon(true)
 							end						
-							return not snd or not snd:playing()
+							return not snd or not snd:playing() or key_state(bind_to_dik(key_bindings.kSPRINT))
 						end,
 						function()
-							detach_addon(item, addon_sect)
-							cell_item:ForceUpdate()
-							if actor_menu:GetMode() == "trade" then
-								actor_menu:UpdatePrices()
+							if key_state(bind_to_dik(key_bindings.kSPRINT)) then
+								if snd and snd:playing() then
+									snd:stop()
+								end
+							else						
+								detach_addon(item, addon_sect)
+								cell_item:ForceUpdate()
+								if actor_menu:GetMode() == "trade" then
+									actor_menu:UpdatePrices()
+								end
 							end
 							block_non_move_action(false)
 							if need_unblock then
 								actor:restore_weapon(true)
 							end
+							sm:call("on_detach_addon_stop")
 						end
 					)
 				end

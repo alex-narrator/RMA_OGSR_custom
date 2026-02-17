@@ -278,17 +278,25 @@ function QuickAddonOverlay:OnDetachClick(sect)
 		end,
 		function()	
 			block_non_move_action(true)
-			local snd_name = read_if_exists(sys_ini, "string", sect, "attach_addon_sound", "interface\\inv_detach_addon")
+			local snd_name = read_if_exists(sys_ini, "string", sect, "detach_addon_sound", "interface\\inv_detach_addon")
 			local snd = xr_sound.get_safe_sound_object(snd_name)
 			snd:play(actor, 0, sound_object.s2d)
+			sm:call("on_detach_addon_start", slot_item, snd:length())
 			level.add_call(
 				function()
-					return not snd or not snd:playing()
+					return not snd or not snd:playing() or key_state(bind_to_dik(key_bindings.kSPRINT))
 				end,
 				function()
-					detach_addon(slot_item, sect)
+					if key_state(bind_to_dik(key_bindings.kSPRINT)) then
+						if snd and snd:playing() then
+							snd:stop()
+						end
+					else
+						detach_addon(slot_item, sect)
+					end
 					block_non_move_action(false)
-					actor:restore_weapon()				
+					actor:restore_weapon()
+					sm:call("on_detach_addon_stop")
 				end
 			)
 		end
@@ -356,14 +364,22 @@ function QuickAddonOverlay:OnAttachClick(id)
 			local snd_name = read_if_exists(sys_ini, "string", desired_item:section(), "attach_addon_sound", "interface\\inv_attach_addon")
 			local snd = xr_sound.get_safe_sound_object(snd_name)
 			snd:play(actor, 0, sound_object.s2d)
+			sm:call("on_attach_addon_start", slot_item, snd:length())
 			level.add_call(
 				function()
-					return not snd or not snd:playing()
+					return not snd or not snd:playing() or key_state(bind_to_dik(key_bindings.kSPRINT))
 				end,
 				function()
-					attach_addon(slot_item, desired_item)
+					if key_state(bind_to_dik(key_bindings.kSPRINT)) then
+						if snd and snd:playing() then
+							snd:stop()
+						end
+					else
+						attach_addon(slot_item, desired_item)
+					end
 					block_non_move_action(false)
-					actor:restore_weapon()				
+					actor:restore_weapon()
+					sm:call("on_attach_addon_stop")
 				end
 			)
 		end
@@ -435,7 +451,7 @@ function QuickAddonOverlay:OnKeyboard(dik, keyboard_action)
 	
 	local game_action = dik_to_bind(dik)
 	
-	if dik_to_bind(dik) == key_bindings.kQUIT then
+	if game_action == key_bindings.kQUIT then
 		self:OnHide()
 	end		
 	

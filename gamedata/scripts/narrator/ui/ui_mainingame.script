@@ -91,6 +91,10 @@ function MainIngameOverlay:Subscribe()
 			{signal = "on_use_animation_start", self = self, fun = self.SetUseAnimProgres},
 			{signal = "on_use_animation_use", self = self, fun = self.SetUseAnimProgres},
 			{signal = "on_use_animation_stop", self = self, fun = self.SetUseAnimProgres},
+			{signal = "on_attach_addon_start", self = self, fun = self.SetUseAnimProgres},
+			{signal = "on_attach_addon_stop", self = self, fun = self.SetUseAnimProgres},
+			{signal = "on_detach_addon_start", self = self, fun = self.SetUseAnimProgres},
+			{signal = "on_detach_addon_stop", self = self, fun = self.SetUseAnimProgres},
 		}
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
@@ -164,6 +168,8 @@ function MainIngameOverlay:InitControls()
 		["health_circle"] 		= { condition = function() return actor.health end},
 		["power_circle"] 		= { condition = function() return actor.power end},
 		["stamina_circle"] 		= { condition = function() return stamina.get_val() end},
+		-- ["visibility_circle"] 	= { condition = function() return visibility() end },
+		-- ["noise_circle"] 		= { condition = function() return actor_obj.sound_noise end },		
 	}
 	for k,v in pairs(self.conditions_circles) do
 		v.back = xml:InitStatic("actor_params:"..k, self.actor_params)
@@ -1473,7 +1479,7 @@ function MainIngameOverlay:SetUseAnimProgres(item, use_delay, anm_length)
 		self.use_anim:Show(false)
 		hud_remove_info_message("hud_info")
 	else
-		hud_add_info_message("hud_info", game.translate_string("st_key_to_stop_anim"), use_delay)
+		hud_add_info_message("hud_info", game.translate_string("st_key_to_stop_anim"), use_delay * 0.001)
 		self.use_anim:Show(true)
 		
 		local end_time = time_global() + use_delay
