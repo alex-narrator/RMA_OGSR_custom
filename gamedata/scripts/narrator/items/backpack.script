@@ -7,6 +7,8 @@ function attach(sm)
 	sm:subscribe({signal = "on_take",   fun = this.on_take})
 end
 
+local sm = ogse_signals.get_mgr()
+
 local backpack_spot = "personal_location"
 local idle_playing = false
 
@@ -77,14 +79,20 @@ function drop()
 		set_map_spot(backpack)
 	return end
 	
-	backpack_anim.play("unequip")
+	local anm_length = backpack_anim.play("unequip")
+	sm:call("on_backpack_quick_drop_start", backpack, anm_length)
 	level.add_call(
 		function()
-			return not actor.inventory:is_active_slot_blocked() or (menu_shown and actor_hands_free())
+			return not actor.inventory:is_active_slot_blocked() or (menu_shown and actor_hands_free()) or key_state(bind_to_dik(key_bindings.kSPRINT))
 		end,
 		function()
-			actor:drop_item(backpack)
-			set_map_spot(backpack)
+			if key_state(bind_to_dik(key_bindings.kSPRINT)) then
+				backpack_anim.stop()
+			else
+				actor:drop_item(backpack)
+				set_map_spot(backpack)
+			end
+			sm:call("on_backpack_quick_drop_stop")
 		end
 	)
 end

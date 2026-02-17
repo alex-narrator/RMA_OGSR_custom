@@ -8,6 +8,17 @@ local relation_color = {
 }
 local dead_color = GetARGB(255, 168, 168, 168)
 
+local directions = {
+	[0] = "N",
+	[45] = "NE",
+	[90] = "E",
+	[135] = "ES",
+	[180] = "S",
+	[225] = "SW",
+	[270] = "W",
+	[315] = "NW",
+}
+
 local map_spot_to_texture = {
 	["crlc_big"] = "ui_icons_newPDA_SmallBlue",
 	["crlc_mdl"] = "ui_icons_newPDA_SmallBlue",
@@ -80,15 +91,7 @@ end
 
 function CompassOverlay:Update()
 	CUIScriptWnd.Update(self)
-	
-	local dist = main_window.minimap:GetActivePointDist()
-	local dist_show = dist >= 0.5
-	local target_dist_text = ""
-	if dist_show then
-		target_dist_text = string.format("%.f %s", dist, game.translate_string("st_m"))
-	end
-	self.compass_modern_line:SetText(target_dist_text)	
-	
+
 	local h = device().cam_dir:getH()
 	--//front view compass
 	local params = self.compass_modern.params
@@ -99,7 +102,15 @@ function CompassOverlay:Update()
     local width = params.scale_texture_w 	--//Frect x2
     local height = params.scale_texture_h 	--//Frect y2
     self.compass_modern_scale:SetOriginalRect(x, y, width, height)
-	self:ShowFrontViewMarks()	
+	self:ShowFrontViewMarks()
+	
+	local dist = main_window.minimap:GetActivePointDist()
+	local dist_show = dist >= 0.5
+	local text = dist_show and string.format("%.f %s", dist, game.translate_string("st_m")) or ""
+	self.compass_modern_line:SetText(text)
+	local show_angle = math.round(angle)
+	text = string.format("[%s]", directions[show_angle] or show_angle)
+	self.compass_modern_line_2:SetText(text)
 end
 
 function CompassOverlay:ShowFrontViewMarks()

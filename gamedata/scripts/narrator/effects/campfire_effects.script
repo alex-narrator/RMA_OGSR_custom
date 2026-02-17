@@ -5,6 +5,8 @@ function attach(sm)
 	sm:subscribe({signal = "on_load", 			fun = this.on_load})	
 end
 
+local sm = ogse_signals.get_mgr()
+
 local hud_effector_id = 6666
 
 local CAMPFIRE_EFFECT_DIST = actor.inventory.take_dist
@@ -84,7 +86,7 @@ function on_campfire_use(campfire_usable, campfire_zone)
 					return not actor:active_item() and not actor:active_device()
 				end,
 				function()
-					game.play_hud_motion(2, hud_sect, "anm_use", false, 1, true)
+					local anm_length = game.play_hud_motion(2, hud_sect, "anm_use", false, 1, true)
 					_G.SCRIPT_ANIM_PLAYING = true
 					play_hud_sound(hud_sect)
 					play_hud_effector(hud_sect)

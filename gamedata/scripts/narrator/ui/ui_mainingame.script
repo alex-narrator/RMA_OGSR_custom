@@ -95,6 +95,8 @@ function MainIngameOverlay:Subscribe()
 			{signal = "on_attach_addon_stop", self = self, fun = self.SetUseAnimProgres},
 			{signal = "on_detach_addon_start", self = self, fun = self.SetUseAnimProgres},
 			{signal = "on_detach_addon_stop", self = self, fun = self.SetUseAnimProgres},
+			{signal = "on_backpack_quick_drop_start", self = self, fun = self.SetUseAnimProgres},
+			{signal = "on_backpack_quick_drop_stop", self = self, fun = self.SetUseAnimProgres},			
 		}
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
