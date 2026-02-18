@@ -2,34 +2,9 @@
 local hud_effector_id = 5555
 local ANIM_FAST = true
 local ANM_SND_SLOWDOWN = 1.1
-local anim_sound = nil
-local FORCE_STOP = false
-local ITEM_USED = false
 local anm_name = "anm_use"
-local forced_stop_func
 
 local sm = ogse_signals.get_mgr()
-
-local subscribed = false
-function subscribe()
-	if not subscribed then
-		subscribed = {
-			{ signal = "on_key_press", fun = this.on_key_press },
-		}
-		for _, s in ipairs( subscribed ) do
-			sm:subscribe( s )
-		end
-	end
-end
-
-function unsubscribe()
-	if subscribed then
-		for _, s in ipairs( subscribed ) do
-			sm:unsubscribe( s )
-		end
-		subscribed = false
-	end
-end
 
 function anm_snd_speed()
 	local inj_limb = body_health.get_injured_limb()
@@ -42,7 +17,6 @@ function play(item)
 	local hud_sect = get_hud_sect(item)
 	if not hud_sect then
 	return end
-	ITEM_USED = false
 
 	local already_blocked = actor.inventory:is_active_slot_blocked()
 	
@@ -55,8 +29,6 @@ function play(item)
 			return not actor:active_item() and not actor:active_device()
 		end,
 		function()
-			subscribe()
-
 			local anm_speed = read_if_exists(sys_ini, "float", hud_sect, anm_name.."_speed_k", 1)
 			
 			local anm_length = game.play_hud_motion(2, hud_sect, anm_name, false, anm_speed * anm_snd_speed(), true)
@@ -69,12 +41,12 @@ function play(item)
 				add_time_delayed_action(
 					anm_length * anm_stop_k * 0.001,
 					function()
-						if not FORCE_STOP then
+						if not key_state(bind_to_dik(key_bindings.kSPRINT)) then
 							game.stop_hud_motion()
 						end
 					end,
 					function()
-						return FORCE_STOP
+						return key_state(bind_to_dik(key_bindings.kSPRINT))
 					end					
 				)
 			end
@@ -84,7 +56,7 @@ function play(item)
 			sm:call("on_use_animation_start", item, use_delay * 1000, anm_length)
 			
 			_G.SCRIPT_ANIM_PLAYING = true
-			anim_sound = play_hud_sound(hud_sect)
+			local anim_sound = play_hud_sound(hud_sect)
 			play_hud_effector(hud_sect)
 			set_use_delay(item, use_delay)
 			block_non_move_action(true)
@@ -95,23 +67,27 @@ function play(item)
 				func(item)
 			end
 			
-			local anim_forced_stop_func = read_if_exists(sys_ini, "string", hud_sect, "function_on_forced_stop", nil)
-			if anim_forced_stop_func then
-				forced_stop_func = loadstring( anim_forced_stop_func .. "(...)" )
-			end			
-			
 			local anim_stop_func = read_if_exists(sys_ini, "string", hud_sect, "function_on_stop", nil)
+			
+			local anim_forced_stop_func = read_if_exists(sys_ini, "string", hud_sect, "function_on_forced_stop", nil)
 			
 			level.add_call(
 				function()
-					return game.hud_motion_allowed()
+					return game.hud_motion_allowed() or key_state(bind_to_dik(key_bindings.kSPRINT))
 				end,
 				function()
-					if anim_stop_func then
-						local stop_func = loadstring( anim_stop_func .. "(...)" )
-						stop_func(item, FORCE_STOP)
+					if key_state(bind_to_dik(key_bindings.kSPRINT)) then
+						if anim_forced_stop_func then
+							local func = loadstring( anim_forced_stop_func .. "(...)" )
+							func(item)
+						end
+						game.stop_hud_motion()
+					else
+						if anim_stop_func then
+							local func = loadstring( anim_stop_func .. "(...)" )
+							func(item)
+						end
 					end
-					unsubscribe()
 					block_non_move_action(false)
 					level.remove_complex_effector(hud_effector_id)
 					-- hud_remove_info_message("hud_info")
@@ -165,37 +141,13 @@ function set_use_delay(item, use_delay)
 		use_delay, 
 		function()
 			-- hud_remove_info_message("hud_info")
-			sm:call("on_use_animation_use", FORCE_STOP)
-			if FORCE_STOP then
-				FORCE_STOP = false
-			return end
-			actor:eat(item)
-			ITEM_USED = true
+			if not key_state(bind_to_dik(key_bindings.kSPRINT)) then
+				actor:eat(item)
+				sm:call("on_use_animation_use")
+			end
 		end,
 		function()
-			return FORCE_STOP
+			return key_state(bind_to_dik(key_bindings.kSPRINT))
 		end
 	)
-end
-
-local force_stop_action = {
-	--[key_bindings.kACCEL] = true,
-	[key_bindings.kSPRINT] = true,
-	--[key_bindings.kCROUCH] = true,	
-}
-function on_key_press(key, game_action)
-	if not SCRIPT_ANIM_PLAYING then
-	return end
-	-- if level.main_input_receiver() then
-	-- return end
-	if not force_stop_action[game_action] then
-	return end
-	if not ITEM_USED then
-		FORCE_STOP = true
-		if forced_stop_func then
-			forced_stop_func()
-			forced_stop_func = nil
-		end		
-	end
-	game.stop_hud_motion()
 end
