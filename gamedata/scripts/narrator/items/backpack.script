@@ -116,13 +116,6 @@ local anims = {
 	"anm_idle",
 }
 
-function anm_snd_speed()
-	local inj_limb = body_health.get_injured_limb()
-	local has_injure_pain = (inj_limb == "hand" or inj_limb == "leg_hand") and body_health.get_pain_effect() >= 0
-	local speed = has_injure_pain and ANM_SND_SLOWDOWN or 1
-	return 1 / speed
-end
-
 function play_anim(state)
 	if not actor_get_backpack() or SCRIPT_ANIM_PLAYING then
 		idle_playing = false
@@ -130,7 +123,7 @@ function play_anim(state)
 	local community_hud_sect = DEF_HUD_SECT.."_"..actor:character_community()
 	local hud_sect = sys_ini:section_exist(community_hud_sect) and community_hud_sect or DEF_HUD_SECT
 		
-	game.play_hud_motion(2, hud_sect, anims[state], true, anm_snd_speed(), false)
+	game.play_hud_motion(2, hud_sect, anims[state], true, 1, false)
 	idle_playing = (state == 3)
 end
 
@@ -166,7 +159,6 @@ function play_effects(enable)
 		local snd_name = enable and "interface\\item_usage\\backpack_open" or "interface\\item_usage\\backpack_close"
 		local snd_obj = xr_sound.get_safe_sound_object(snd_name)
 		snd_obj:play(actor, 0, sound_object.s2d)
-		snd_obj.frequency = anm_snd_speed()
 		--snd_obj:play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 		
 		if not level.check_complex_effector(effect.id) then 

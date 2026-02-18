@@ -1,17 +1,9 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 local hud_effector_id = 5555
 local ANIM_FAST = true
-local ANM_SND_SLOWDOWN = 1.1
 local anm_name = "anm_use"
 
 local sm = ogse_signals.get_mgr()
-
-function anm_snd_speed()
-	local inj_limb = body_health.get_injured_limb()
-	local has_injure_pain = (inj_limb == "hand" or inj_limb == "leg_hand") and body_health.get_pain_effect() >= 0
-	local speed = has_injure_pain and ANM_SND_SLOWDOWN or 1
-	return 1 / speed
-end
 
 function play(item)
 	local hud_sect = get_hud_sect(item)
@@ -31,7 +23,7 @@ function play(item)
 		function()
 			local anm_speed = read_if_exists(sys_ini, "float", hud_sect, anm_name.."_speed_k", 1)
 			
-			local anm_length = game.play_hud_motion(2, hud_sect, anm_name, false, anm_speed * anm_snd_speed(), true)
+			local anm_length = game.play_hud_motion(2, hud_sect, anm_name, false, anm_speed, true)
 			--log_news("~anm_length %s", anm_length * 0.001)
 			
 			local anm_stop_k = read_if_exists(sys_ini, "float", hud_sect, anm_name.."_stop_k", 1)
@@ -51,7 +43,7 @@ function play(item)
 				)
 			end
 			
-			local use_delay = read_if_exists(sys_ini, "float", hud_sect, "use_delay", anm_length * 0.001) / anm_snd_speed()
+			local use_delay = read_if_exists(sys_ini, "float", hud_sect, "use_delay", anm_length * 0.001)
 			-- hud_add_info_message("hud_info", game.translate_string("st_key_to_stop_anim"), 10)
 			sm:call("on_use_animation_start", item, use_delay * 1000, anm_length)
 			
@@ -123,7 +115,6 @@ function play_hud_sound(sect)
 		end
 		sound = xr_sound.get_safe_sound_object(snd_name,sound_object.s2d)
 		sound:play(actor, 0, sound_object.s2d)
-		sound.frequency = anm_snd_speed()
 	end
 	return sound
 end
@@ -143,7 +134,6 @@ function set_use_delay(item, use_delay)
 			-- hud_remove_info_message("hud_info")
 			if not key_state(bind_to_dik(key_bindings.kSPRINT)) then
 				actor:eat(item)
-				sm:call("on_use_animation_use")
 			end
 		end,
 		function()

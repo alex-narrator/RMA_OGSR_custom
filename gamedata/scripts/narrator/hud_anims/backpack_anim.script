@@ -9,13 +9,6 @@ local DEF_HUD_SECT = {
 	["unequip"] = "backpack_unequip_hud",
 }
 
-function anm_snd_speed()
-	local inj_limb = body_health.get_injured_limb()
-	local has_injure_pain = (inj_limb == "hand" or inj_limb == "leg_hand") and body_health.get_pain_effect() >= 0
-	local speed = has_injure_pain and ANM_SND_SLOWDOWN or 1
-	return 1 / speed
-end
-
 function play(_type)
 	if xr_conditions.black_screen() or not actor or not actor:alive() then
 	return end
@@ -32,14 +25,14 @@ function play(_type)
 		actor:hide_weapon(ANIM_FAST)
 	end
 	
-	local anm_length = game.get_motion_length(hud_sect, "anm_use", anm_snd_speed())
+	local anm_length = game.get_motion_length(hud_sect, "anm_use", 1)
 	
 	level.add_call(
 		function() 
 			return not actor:active_item() and not actor:active_device()
 		end,
 		function()			
-			anm_length = game.play_hud_motion(2, hud_sect, "anm_use", false, anm_snd_speed(), true)
+			anm_length = game.play_hud_motion(2, hud_sect, "anm_use", false, 1, true)
 			_G.SCRIPT_ANIM_PLAYING = true
 			play_hud_sound(hud_sect)
 			play_hud_effector(hud_sect)
@@ -71,7 +64,6 @@ function play_hud_sound(sect)
 	local snd_name = read_if_exists(sys_ini, "string", sect, "hud_sound", nil)
 	if snd_name then
 		sound = xr_sound.get_safe_sound_object(snd_name)
-		sound.frequency = anm_snd_speed()
 		sound:play(actor, 0, sound_object.s2d)
 	end
 end
