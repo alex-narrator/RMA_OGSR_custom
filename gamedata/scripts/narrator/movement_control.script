@@ -1,0 +1,46 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_mouse_wheel", 	fun = this.on_mouse_wheel})
+end
+
+local LOOKOUT_ANGLE_STEP = 5
+local MIN_ANGLE = 45
+local MAX_ANGLE = 90
+
+local PH_BOX_ID_STEP = 2
+
+function get_ph_box_min_max_id()
+	if actor_obj:is_actor_creep() and not actor_obj:is_actor_creeping() then
+		return 2, 4
+	end
+	if actor_obj:is_actor_crouch() and not actor_obj:is_actor_crouching() then
+		return 1, 3
+	end
+	return nil
+end
+
+function on_mouse_wheel(forward)
+	if not (IsMoveState(move_command.mcLLookout) or IsMoveState(move_command.mcRLookout) or IsMoveState(move_command.mcCrouch)) then
+	return end
+	local active_item = actor:active_item()
+	if active_item and active_item:is_zoomed() and has_dynamic_zoom(active_item) then
+	return end
+	
+	if IsMoveState(move_command.mcLLookout) or IsMoveState(move_command.mcRLookout) then
+		local step = forward and LOOKOUT_ANGLE_STEP or -LOOKOUT_ANGLE_STEP
+		local current_angle = actor_obj.lookout_angle
+		local desired_angle = math.clamp(actor_obj.lookout_angle + step, MIN_ANGLE, MAX_ANGLE)
+		actor_obj.lookout_angle = desired_angle
+	return end
+	
+	if IsMoveState(move_command.mcCrouch) then
+		--log_news("~ph_box id [%s]", actor_obj.ph_box_id)
+		local step = forward and PH_BOX_ID_STEP or -PH_BOX_ID_STEP
+		local MIN_BOX_ID, MAX_BOX_ID = get_ph_box_min_max_id()
+		if not MIN_BOX_ID then
+		return end
+		local desired_id = math.clamp(actor_obj.ph_box_id + step, MIN_BOX_ID, MAX_BOX_ID)
+		actor_obj.ph_box_id = desired_id
+		--log_news("~new ph_box id [%s]", actor_obj.ph_box_id)
+	return end
+end

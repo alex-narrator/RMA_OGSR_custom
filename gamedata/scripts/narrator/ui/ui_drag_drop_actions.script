@@ -3,6 +3,8 @@ function attach(sm)
 	sm:subscribe({signal = "inv_drag_drop", fun = this.on_drag_drop})
 end
 
+local sm = ogse_signals.get_mgr()
+
 function on_drag_drop(obj, drop_on_obj)
 	if obj:id() == drop_on_obj:id() then
 	return end
@@ -61,10 +63,35 @@ function on_drag_drop(obj, drop_on_obj)
 	local drop_on_iitem = drop_on_obj:get_inventory_item()
 	
 	if drop_on_iitem:can_attach_addon(iitem) then
-		--if drop_on_iitem:attach_addon(iitem, true) then
-		if attach_addon(drop_on_obj, obj) then
-			xr_sound.get_safe_sound_object([[interface\inv_attach_addon]]):play(actor, 0, sound_object.s2d)
-		end
+		local need_unblock = false
+		block_non_move_action(true)
+		local snd_name = read_if_exists(sys_ini, "string", obj:section(), "attach_addon_sound", "interface\\inv_attach_addon")
+		local snd = xr_sound.get_safe_sound_object(snd_name)
+		snd:play(actor, 0, sound_object.s2d)
+		sm:call("on_attach_addon_start", drop_on_obj, snd:length())
+		level.add_call(
+			function()
+				if not actor.inventory:is_active_slot_blocked() then
+					need_unblock = true
+					actor:hide_weapon(true)
+				end
+				return not snd or not snd:playing() or need_force_stop_anim()
+			end,
+			function()
+				if need_force_stop_anim() then
+					if snd and snd:playing() then
+						snd:stop()
+					end
+				else					
+					attach_addon(drop_on_obj, obj)
+				end
+				block_non_move_action(false)
+				if need_unblock then
+					actor:restore_weapon(true)
+				end
+				sm:call("on_attach_addon_stop")
+			end
+		)		
 	else
 		detach_addon_type = nil
 		for k, addon in pairs(ADDON_TYPES) do
@@ -80,11 +107,75 @@ function on_drag_drop(obj, drop_on_obj)
 			end
 		end
 		if detach_addon_type and drop_on_obj:get_weapon() and drop_on_obj:get_weapon():addon_attachable(detach_addon_type) then
-			detach_addon(drop_on_obj, drop_on_obj:get_weapon():get_addon_name(detach_addon_type))
-			--if drop_on_iitem:attach_addon(iitem, true) then
-			if attach_addon(drop_on_obj, obj) then
-				xr_sound.get_safe_sound_object([[interface\inv_attach_addon]]):play(actor, 0, sound_object.s2d)
-			end			
+			-- detach_addon(drop_on_obj, drop_on_obj:get_weapon():get_addon_name(detach_addon_type))
+			-- --if drop_on_iitem:attach_addon(iitem, true) then
+			-- if attach_addon(drop_on_obj, obj) then
+				-- xr_sound.get_safe_sound_object([[interface\inv_attach_addon]]):play(actor, 0, sound_object.s2d)
+			-- end
+			local addon_sect = drop_on_obj:get_weapon():get_addon_name(detach_addon_type)
+			local need_unblock = false
+			block_non_move_action(true)
+			local snd_name = read_if_exists(sys_ini, "string", addon_sect, "detach_addon_sound", "interface\\inv_detach_addon")
+			local snd = xr_sound.get_safe_sound_object(snd_name)
+			snd:play(actor, 0, sound_object.s2d)
+			sm:call("on_detach_addon_start", drop_on_obj, snd:length())
+			level.add_call(
+				function()
+					if not actor.inventory:is_active_slot_blocked() then
+						need_unblock = true
+						actor:hide_weapon(true)
+					end						
+					return not snd or not snd:playing() or need_force_stop_anim()
+				end,
+				function()
+					if need_force_stop_anim() then
+						if snd and snd:playing() then
+							snd:stop()
+						end
+					else
+						detach_addon(drop_on_obj, addon_sect)
+						if actor_menu:GetMode() == "trade" then
+							actor_menu:UpdatePrices()
+						end
+					end
+					block_non_move_action(false)
+					if need_unblock then
+						actor:restore_weapon(true)
+					end
+					sm:call("on_detach_addon_stop")
+					--//
+					need_unblock = false
+					block_non_move_action(true)
+					snd_name = read_if_exists(sys_ini, "string", obj:section(), "attach_addon_sound", "interface\\inv_attach_addon")
+					snd = xr_sound.get_safe_sound_object(snd_name)
+					snd:play(actor, 0, sound_object.s2d)
+					sm:call("on_attach_addon_start", drop_on_obj, snd:length())
+					level.add_call(
+						function()
+							if not actor.inventory:is_active_slot_blocked() then
+								need_unblock = true
+								actor:hide_weapon(true)
+							end
+							return not snd or not snd:playing() or need_force_stop_anim()
+						end,
+						function()
+							if need_force_stop_anim() then
+								if snd and snd:playing() then
+									snd:stop()
+								end
+							else					
+								attach_addon(drop_on_obj, obj)
+							end
+							block_non_move_action(false)
+							if need_unblock then
+								actor:restore_weapon(true)
+							end
+							sm:call("on_attach_addon_stop")
+						end
+					)					
+					--//
+				end
+			)			
 		end
 	end
 	

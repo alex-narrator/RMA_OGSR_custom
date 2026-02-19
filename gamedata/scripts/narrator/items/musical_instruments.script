@@ -21,8 +21,6 @@ local instruments = {
 }
 
 local sm = ogse_signals.get_mgr()
-local subscribed = false
-local play_anim = false
 local sound = false
 local instrument = false
 
@@ -47,27 +45,22 @@ function play(item)
 			
 			add_time_delayed_action(data.draw_anm_delay or 1,
 				function()
-
-				if not subscribed then
-					subscribed = { signal = "on_key_press", fun = this.on_key_press }
-					sm:subscribe( subscribed )
-				end
-				hud_add_info_message("hud_info", game.translate_string("st_key_to_stop_anim"), 99)
-				game.play_hud_motion(2, data.hud, "anm_play", false, 1, true)
-				sound = xr_sound.get_safe_sound_object(data.sound_prefix..math.random(1, data.max_rnd))
-				sound:play(actor, 0, sound_object.s2d)
-				level.add_call(
-					function()
-						local conds = actor_obj.condition
-						local f_dt = conds:fdelta_time()
-						actor.psy_health = conds.psy_health_v * data.psy_restore_k * f_dt
-						return not sound or not sound:playing()
-					end,
-					function()
-						stop_music()
-					end
-				)			
-			
+					game.play_hud_motion(2, data.hud, "anm_play", false, 1, true)
+					sound = xr_sound.get_safe_sound_object(data.sound_prefix..math.random(1, data.max_rnd))
+					sound:play(actor, 0, sound_object.s2d)
+					sm:call("on_musical_instrument_play_start", item, sound:length())
+					level.add_call(
+						function()
+							local conds = actor_obj.condition
+							local f_dt = conds:fdelta_time()
+							actor.psy_health = conds.psy_health_v * data.psy_restore_k * f_dt
+							return not sound or not sound:playing() or need_force_stop_anim()
+						end,
+						function()
+							stop_music()
+							sm:call("on_musical_instrument_play_stop")
+						end
+					)
 				end
 			)
 		end
@@ -77,7 +70,6 @@ end
 function stop_music()
 	if not sound then
 	return end
-	hud_remove_info_message("item_usage")
 	game.stop_hud_motion()
 	sound:stop()
 	sound = false
@@ -96,22 +88,6 @@ end
 function restore_control()
 	actor:restore_weapon()
 	block_non_move_action(false)
-	if subscribed then
-		subscribed = { signal = "on_key_press", fun = this.on_key_press }
-		sm:unsubscribe( subscribed )
-		subscribed = false
-	end
-end
-
-local force_stop_action = {
-	--[key_bindings.kACCEL] = true,
-	[key_bindings.kSPRINT] = true,
-	--[key_bindings.kCROUCH] = true,	
-}
-function on_key_press(key, game_action)
-	if force_stop_action[game_action] then
-		stop_music()
-	end
 end
 
 --//context menu

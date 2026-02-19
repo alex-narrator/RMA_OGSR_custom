@@ -257,7 +257,7 @@ function on_zoom_out(weapon)
 		function()
 			--log3("~zoom_dec called for weapon %s", weapon:section())
 			local zrt = weapon:get_weapon().zoom_rotation_factor
-			if level.main_input_receiver() then
+			if level.main_input_receiver() or actor.inventory:is_active_slot_blocked() then
 				zrt = 0
 			end			
 			set_dof_params(0, 0, dof_aim_intensity*zrt, 0)

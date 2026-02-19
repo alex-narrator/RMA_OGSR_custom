@@ -112,6 +112,8 @@ function actor_binder:net_destroy()
 	self.object:set_callback(callback.on_actor_weapon_zoom_out, nil)
 	self.object:set_callback(callback.on_actor_weapon_zoom_change, nil)
 	self.object:set_callback(callback.on_actor_weapon_scope_mode_change, nil)
+	self.object:set_callback(callback.on_actor_weapon_fire_mode_change, nil)
+	self.object:set_callback(callback.on_actor_weapon_grenade_mode_change, nil)
 	self.object:set_callback(callback.on_weapon_shell_drop, nil)
 	--
 	self.object:set_callback(callback.update_items_effect, nil)
@@ -181,6 +183,8 @@ function actor_binder:reinit()
 	self.object:set_callback(callback.on_actor_weapon_zoom_out, self.on_actor_weapon_zoom_out, self)
 	self.object:set_callback(callback.on_actor_weapon_zoom_change, self.on_actor_weapon_zoom_change, self)
 	self.object:set_callback(callback.on_actor_weapon_scope_mode_change, self.on_actor_weapon_scope_mode_change, self)
+	self.object:set_callback(callback.on_actor_weapon_fire_mode_change, self.on_actor_weapon_fire_mode_change, self)
+	self.object:set_callback(callback.on_actor_weapon_grenade_mode_change, self.on_actor_weapon_grenade_mode_change, self)	
 	self.object:set_callback(callback.on_weapon_shell_drop, self.on_weapon_shell_drop, self)
 	--
 	self.object:set_callback(callback.update_items_effect, self.update_items_effect, self)
@@ -560,6 +564,14 @@ end
 
 function actor_binder:on_actor_weapon_scope_mode_change(weapon)
 	self.sm:call("on_actor_weapon_scope_mode_change", weapon)
+end
+
+function actor_binder:on_actor_weapon_fire_mode_change(weapon, fire_mode)
+	self.sm:call("on_actor_weapon_fire_mode_change", weapon, fire_mode)
+end
+
+function actor_binder:on_actor_weapon_grenade_mode_change(weapon, grenade_mode)
+	self.sm:call("on_actor_weapon_grenade_mode_change", weapon, grenade_mode)
 end
 
 function actor_binder:on_weapon_shell_drop(wpn, pos, vel)

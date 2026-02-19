@@ -1666,6 +1666,10 @@ function hud_anim_exists(item, anim_name)
 	return read_if_exists(sys_ini, "string", get_hud_sect(item), anim_name, nil)
 end
 
+function need_force_stop_anim()
+	return key_state(bind_to_dik(key_bindings.kSPRINT)) or not actor or not actor:alive()
+end
+
 function get_hud_sect(item)
 	if type(item) == "userdata" then
 		return item:is_hud_item() and item:get_hud_sect() or read_if_exists(sys_ini, "string", item:section(), "hud", nil)
@@ -2339,6 +2343,11 @@ function get_zoom_data(item)
 	end
 	local zoom_sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or item:section()
 	return split_string(read_if_exists(sys_ini, "string", zoom_sect, "scope_zoom_factor", nil), ",", true)
+end
+
+function has_dynamic_zoom(item)
+	local zoom_params = get_zoom_data(item)
+	return zoom_params and zoom_params[2]
 end
 
 function aim_camera_to_pos(pos, speed)

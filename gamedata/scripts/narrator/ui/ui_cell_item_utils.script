@@ -236,10 +236,10 @@ function add_attach_addon(pbox, cell_item)
 							need_unblock = true
 							actor:hide_weapon(true)
 						end
-						return not snd or not snd:playing() or key_state(bind_to_dik(key_bindings.kSPRINT))
+						return not snd or not snd:playing() or need_force_stop_anim()
 					end,
 					function()
-						if key_state(bind_to_dik(key_bindings.kSPRINT)) then
+						if need_force_stop_anim() then
 							if snd and snd:playing() then
 								snd:stop()
 							end
@@ -285,10 +285,10 @@ function add_detach_addon(pbox, cell_item)
 								need_unblock = true
 								actor:hide_weapon(true)
 							end						
-							return not snd or not snd:playing() or key_state(bind_to_dik(key_bindings.kSPRINT))
+							return not snd or not snd:playing() or need_force_stop_anim()
 						end,
 						function()
-							if key_state(bind_to_dik(key_bindings.kSPRINT)) then
+							if need_force_stop_anim() then
 								if snd and snd:playing() then
 									snd:stop()
 								end

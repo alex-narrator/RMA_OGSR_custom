@@ -45,10 +45,10 @@ function spawn_loot(item)
 	
 	level.add_call(
 		function()
-			return not snd or not snd:playing() or key_state(bind_to_dik(key_bindings.kSPRINT))
+			return not snd or not snd:playing() or need_force_stop_anim()
 		end,
 		function()
-			if key_state(bind_to_dik(key_bindings.kSPRINT)) then
+			if need_force_stop_anim() then
 				if snd and snd:playing() then
 					snd:stop()
 				end

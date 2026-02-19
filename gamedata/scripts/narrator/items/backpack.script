@@ -83,10 +83,10 @@ function drop()
 	sm:call("on_backpack_quick_drop_start", backpack, anm_length)
 	level.add_call(
 		function()
-			return not actor.inventory:is_active_slot_blocked() or (menu_shown and actor_hands_free()) or key_state(bind_to_dik(key_bindings.kSPRINT))
+			return not actor.inventory:is_active_slot_blocked() or (menu_shown and actor_hands_free()) or need_force_stop_anim()
 		end,
 		function()
-			if key_state(bind_to_dik(key_bindings.kSPRINT)) then
+			if need_force_stop_anim() then
 				backpack_anim.stop()
 			else
 				actor:drop_item(backpack)

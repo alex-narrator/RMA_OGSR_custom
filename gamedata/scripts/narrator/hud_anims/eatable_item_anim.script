@@ -33,12 +33,12 @@ function play(item)
 				add_time_delayed_action(
 					anm_length * anm_stop_k * 0.001,
 					function()
-						if not key_state(bind_to_dik(key_bindings.kSPRINT)) then
+						if not need_force_stop_anim() then
 							game.stop_hud_motion()
 						end
 					end,
 					function()
-						return key_state(bind_to_dik(key_bindings.kSPRINT))
+						return need_force_stop_anim()
 					end					
 				)
 			end
@@ -65,10 +65,10 @@ function play(item)
 			
 			level.add_call(
 				function()
-					return game.hud_motion_allowed() or key_state(bind_to_dik(key_bindings.kSPRINT))
+					return game.hud_motion_allowed() or need_force_stop_anim()
 				end,
 				function()
-					if key_state(bind_to_dik(key_bindings.kSPRINT)) then
+					if need_force_stop_anim() then
 						if anim_forced_stop_func then
 							local func = loadstring( anim_forced_stop_func .. "(...)" )
 							func(item)
@@ -132,12 +132,12 @@ function set_use_delay(item, use_delay)
 		use_delay, 
 		function()
 			-- hud_remove_info_message("hud_info")
-			if not key_state(bind_to_dik(key_bindings.kSPRINT)) then
+			if not need_force_stop_anim() then
 				actor:eat(item)
 			end
 		end,
 		function()
-			return key_state(bind_to_dik(key_bindings.kSPRINT))
+			return need_force_stop_anim()
 		end
 	)
 end

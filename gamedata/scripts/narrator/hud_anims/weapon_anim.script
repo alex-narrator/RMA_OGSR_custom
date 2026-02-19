@@ -1,7 +1,7 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
-	sm:subscribe({signal = "on_key_press",   				fun = this.on_key_press})
-	sm:subscribe({signal = "on_mouse_wheel",   				fun = this.on_mouse_wheel})
+	-- sm:subscribe({signal = "on_key_press",   				fun = this.on_key_press})
+	-- sm:subscribe({signal = "on_mouse_wheel",   				fun = this.on_mouse_wheel})
 	sm:subscribe({signal = "on_actor_weapon_zoom_in",   	fun = this.on_zoom_in})
 	sm:subscribe({signal = "on_actor_weapon_zoom_out", 		fun = this.on_zoom_out})
 	sm:subscribe({signal = "on_update",   					fun = this.on_update})
@@ -11,6 +11,8 @@ function attach(sm)
 	sm:subscribe({signal = "on_spawn",   					fun = this.on_spawn})
 	sm:subscribe({signal = "on_hud_state_switch", 			fun = this.on_state_switch})
 	sm:subscribe({signal = "on_actor_weapon_zoom_change", 	fun = this.on_zoom_change})
+	sm:subscribe({signal = "on_actor_weapon_fire_mode_change", 	fun = this.play_switch_anim})
+	sm:subscribe({signal = "on_actor_weapon_grenade_mode_change", 	fun = this.play_switch_anim})
 end
 
 local firemode_switch = {
@@ -53,50 +55,6 @@ function on_zoom_out(weapon)
 	xr_sound.get_safe_sound_object(sound_name):play_no_feedback(actor, sound_object.s2d, 0, vector(), 10.0)
 	game.play_hud_anm(aim, 2, 1, 1, false, true)
 	level.add_cam_effector(aim, 1907, false, "")
-end
-
-function on_mouse_wheel(forward)
-	if is_switch_slot() or not actor_hands_free() then
-	return end
-	
-	local act_item = actor:active_item()
-	local act_wpn = act_item and act_item:get_weapon_m() or nil
-	
-	local zoom_params = get_zoom_data(act_item)
-	local can_switch_zoom = zoom_params and zoom_params[2]
-	
-	if not act_wpn or not has_fire_modes(act_item) or act_item:get_gl_mode() or (act_item:is_zoomed() and can_switch_zoom) then
-	return end
-	
-	local fire_modes = get_fire_modes(act_item)
-	local cur_f_mode = act_wpn.cur_fire_mode
-
-	if (cur_f_mode == 0 and not forward) or (cur_f_mode + 1 == table.size(fire_modes) and forward) then
-	return end
-	
-	play_switch_anim(act_item)
-end
-
-function on_key_press(key, game_action)	
-	if not actor_hands_free() then
-	return end
-	
-	local act_item = actor:active_item()
-	local act_wpn = act_item and act_item:get_weapon_m() or nil
-	
-	if not act_wpn then
-	return end
-	
-	if key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) then
-	return end
-		
-	if firemode_switch[game_action] and has_fire_modes(act_item) then
-		play_switch_anim(act_item)
-	end
-	
-	if gl_switch[game_action] and act_wpn:is_addon_attached(addon.launcher) then
-		play_switch_anim(act_item)
-	end
 end
 
 function on_zoom_change(weapon)

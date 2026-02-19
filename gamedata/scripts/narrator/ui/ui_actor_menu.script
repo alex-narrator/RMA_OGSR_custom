@@ -1669,6 +1669,7 @@ function ActorMenuOverlay:OnDrop(item)
 		ci:GetOwnerList():RemoveItem(item)
 	end
 	self:UpdateCustomDraw()
+	self:SetUseAnimProgres()
 	-- self:PlayActionSound("drop")
 	-- self:PlayOperateSound(item)
 end
@@ -1797,7 +1798,17 @@ function ActorMenuOverlay:OnKeyboard(dik, keyboard_action)
 					glowstick.activate(item)
 					self:ResetCellItemSelected()
 					return true
-				end				
+				end
+				if musical_instruments.can_play_guitar(item) then
+					musical_instruments.play_guitar(item)
+					self:ResetCellItemSelected()
+					return true
+				end
+				if musical_instruments.can_play_harmonica(item) then
+					musical_instruments.play_harmonica(item)
+					self:ResetCellItemSelected()
+					return true
+				end
 			end
 		elseif game_action == key_bindings.kDROP then
 			if mode == "inventory" then
@@ -2062,7 +2073,10 @@ function ActorMenuOverlay:UpdateInvTip(cell_item)
 		end
 		if glowstick.can_be_activated(item) then
 			text = text.."\\n"..game.translate_string("st_tip_activate_glowstick")
-		end		
+		end
+		if musical_instruments.can_play_guitar(item) or musical_instruments.can_play_harmonica(item) then
+			text = text.."\\n"..game.translate_string("st_tip_play_musical_instrument")
+		end
 	end
 	self.selected_item_tip:SetText(text)
 end

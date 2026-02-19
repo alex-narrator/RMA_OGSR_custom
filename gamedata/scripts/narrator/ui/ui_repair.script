@@ -317,11 +317,11 @@ function RepairOverlay:PerformRepair()
 			local val = math.clamp((snd_end_time - time_global()) / length, 0, 1)
 			val = 1 - val
 			self.repair_progress:SetProgressPos(val)
-			return not snd or not snd:playing() or key_state(bind_to_dik(key_bindings.kSPRINT))
+			return not snd or not snd:playing() or need_force_stop_anim()
 		end,
 		function()
 			level.enable_input()
-			if key_state(bind_to_dik(key_bindings.kSPRINT)) then
+			if need_force_stop_anim() then
 				if snd and snd:playing() then
 					snd:stop()
 				end
