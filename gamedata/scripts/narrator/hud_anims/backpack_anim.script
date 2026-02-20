@@ -37,10 +37,8 @@ function play(_type)
 			play_hud_sound(hud_sect)
 			play_hud_effector(hud_sect)
 			block_non_move_action(true)
-			level.add_call(
-				function()
-					return game.hud_motion_allowed()
-				end,
+			add_time_delayed_action(
+				anm_length * 0.001,
 				function()
 					block_non_move_action(false)
 					_G.SCRIPT_ANIM_PLAYING = false

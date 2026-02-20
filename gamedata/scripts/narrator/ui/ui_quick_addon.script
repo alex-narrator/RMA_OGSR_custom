@@ -281,7 +281,7 @@ function QuickAddonOverlay:OnDetachClick(sect)
 			local snd_name = read_if_exists(sys_ini, "string", sect, "detach_addon_sound", "interface\\inv_detach_addon")
 			local snd = xr_sound.get_safe_sound_object(snd_name)
 			snd:play(actor, 0, sound_object.s2d)
-			sm:call("on_detach_addon_start", slot_item, snd:length())
+			sm:call("on_timed_action_start", slot_item, snd:length())
 			level.add_call(
 				function()
 					return not snd or not snd:playing() or need_force_stop_anim()
@@ -296,7 +296,7 @@ function QuickAddonOverlay:OnDetachClick(sect)
 					end
 					block_non_move_action(false)
 					actor:restore_weapon()
-					sm:call("on_detach_addon_stop")
+					sm:call("on_timed_action_stop")
 				end
 			)
 		end
@@ -364,7 +364,7 @@ function QuickAddonOverlay:OnAttachClick(id)
 				local snd_name = read_if_exists(sys_ini, "string", sect, "detach_addon_sound", "interface\\inv_detach_addon")
 				local snd = xr_sound.get_safe_sound_object(snd_name)
 				snd:play(actor, 0, sound_object.s2d)
-				sm:call("on_detach_addon_start", slot_item, snd:length())
+				sm:call("on_timed_action_start", slot_item, snd:length())
 				level.add_call(
 					function()
 						return not snd or not snd:playing() or need_force_stop_anim()
@@ -376,14 +376,14 @@ function QuickAddonOverlay:OnAttachClick(id)
 							end
 							block_non_move_action(false)
 							actor:restore_weapon()
-							sm:call("on_detach_addon_stop")
+							sm:call("on_timed_action_stop")
 						else
 							detach_addon(slot_item, sect)
 							-- block_non_move_action(true)
 							local snd_name = read_if_exists(sys_ini, "string", desired_item:section(), "attach_addon_sound", "interface\\inv_attach_addon")
 							local snd = xr_sound.get_safe_sound_object(snd_name)
 							snd:play(actor, 0, sound_object.s2d)
-							sm:call("on_attach_addon_start", slot_item, snd:length())
+							sm:call("on_timed_action_start", slot_item, snd:length())
 							level.add_call(
 								function()
 									return not snd or not snd:playing() or need_force_stop_anim()
@@ -398,7 +398,7 @@ function QuickAddonOverlay:OnAttachClick(id)
 									end
 									block_non_move_action(false)
 									actor:restore_weapon()
-									sm:call("on_attach_addon_stop")
+									sm:call("on_timed_action_stop")
 								end
 							)
 						end
@@ -409,7 +409,7 @@ function QuickAddonOverlay:OnAttachClick(id)
 				local snd_name = read_if_exists(sys_ini, "string", desired_item:section(), "attach_addon_sound", "interface\\inv_attach_addon")
 				local snd = xr_sound.get_safe_sound_object(snd_name)
 				snd:play(actor, 0, sound_object.s2d)
-				sm:call("on_attach_addon_start", slot_item, snd:length())
+				sm:call("on_timed_action_start", slot_item, snd:length())
 				level.add_call(
 					function()
 						return not snd or not snd:playing() or need_force_stop_anim()
@@ -424,7 +424,7 @@ function QuickAddonOverlay:OnAttachClick(id)
 						end
 						block_non_move_action(false)
 						actor:restore_weapon()
-						sm:call("on_attach_addon_stop")
+						sm:call("on_timed_action_stop")
 					end
 				)
 			end

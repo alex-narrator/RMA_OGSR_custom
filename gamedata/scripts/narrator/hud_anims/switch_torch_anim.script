@@ -53,7 +53,7 @@ function on_key_press(key, game_action)
 	
 	local hud_sect = get_hud_sect(actor_get_torch())
 	
-	game.play_hud_motion(1, hud_sect, "anm_use", false, 1, false)
+	local anim_length = game.play_hud_motion(1, hud_sect, "anm_use", false, 1, false)
 	_G.SCRIPT_ANIM_PLAYING = true
 	local eff_name = read_if_exists(sys_ini, "string", hud_sect, "hud_effector", nil)
 	level.add_complex_effector(eff_name, hud_effector_id)
@@ -72,11 +72,8 @@ function on_key_press(key, game_action)
 			end
 		end
 	)
-	
-	level.add_call(
-		function()
-			return game.hud_motion_allowed()
-		end,
+	add_time_delayed_action(
+		anim_length * 0.001,
 		function()
 			_G.SCRIPT_ANIM_PLAYING = false
 		end

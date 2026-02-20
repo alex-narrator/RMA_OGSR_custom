@@ -90,17 +90,15 @@ function on_campfire_use(campfire_usable, campfire_zone)
 					_G.SCRIPT_ANIM_PLAYING = true
 					play_hud_sound(hud_sect)
 					play_hud_effector(hud_sect)
-					level.add_call(
-						function()
-							return game.hud_motion_allowed()
-						end,
+					add_time_delayed_action(
+						anm_length * 0.001,
 						function()
 							_G.SCRIPT_ANIM_PLAYING = false
 							actor:restore_weapon(true)
 							level.enable_input()
-							try_ignit(campfire_zone)
+							try_ignit(campfire_zone)						
 						end
-					)				
+					)
 				end
 			)
 		else

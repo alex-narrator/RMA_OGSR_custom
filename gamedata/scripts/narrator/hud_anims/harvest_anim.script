@@ -1,21 +1,22 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
+local sm = ogse_signals.get_mgr()
+
 local cut_snd = [[interface\item_usage\harvest_use]]
 local take_snd = [[interface\item_usage\harvest_use_success]]
 
 local common = [[camera_effects\harvest\harvest_]]
-local ext = ".anm"
 local effects = {
 	["loot"] = {
-		effect = common.."loot"..ext,
+		effect = common.."loot.anm",
 		id = 8997,
 	},
 	["skin"] = {
-		effect = common.."skin_use"..ext,
+		effect = common.."skin_use.anm",
 		id = 8998,
 	},
 	["lean"] = {
 		--//lean_down_main
-		effect = common.."cam_down"..ext,
+		effect = common.."cam_down.anm",
 		id = 8999,
 	},
 }
@@ -43,26 +44,36 @@ local height_diff = 0.5
 
 local blood_fx_delay = 1
 local blood_particle = {
-	"hit_fx\\hit_flesh_01",
-	"hit_fx\\hit_flesh_02a",
-	"hit_fx\\hit_knife_flesh_00",
+	particles_object("hit_fx\\hit_flesh_01"),
+	particles_object("hit_fx\\hit_flesh_02a"),
+	particles_object("hit_fx\\hit_knife_flesh_00"),
 }
 
 function play_blood_fx()
 	add_time_delayed_action(
 		blood_fx_delay,
 		function()
-			local pos = device().cam_pos
-			pos:add(device().cam_dir:set_length(0.3))
-			--pos.y = pos.y - 0.05
-			local dir = vector():set(0,1,0)
-			for k,v in pairs(blood_particle) do
-				local particle = particles_object(v)
-				particle:set_direction(dir)
-				particle:play_at_pos(pos)
+			if not need_force_stop_anim() then
+				local pos = device().cam_pos
+				pos:add(device().cam_dir:set_length(0.3))
+				--pos.y = pos.y - 0.05
+				local dir = vector():set(0,1,0)
+				for k,particle in pairs(blood_particle) do
+					particle:set_direction(dir)
+					particle:play_at_pos(pos)
+				end
 			end
+		end,
+		function()
+			return need_force_stop_anim()
 		end
 	)
+end
+
+function stop_blood_fx()
+	for k,particle in pairs(blood_particle) do
+		particle:stop()
+	end
 end
 
 function play_harvest(monster)
@@ -82,6 +93,11 @@ function play_harvest(monster)
 		end,
 		function()
 			--backpack.force_crouch(true)
+			
+			local anm_length_knife = game.get_motion_length("harv_"..get_hud_sect(knife), "anm_show", 1)
+			local anm_length_meat = game.get_motion_length(meat_hud, "anm_show", 1)
+			sm:call("on_timed_action_start", knife, anm_length_knife + anm_length_meat)
+			
 			game.play_hud_motion(2, "harv_"..get_hud_sect(knife), "anm_show", true, 1, true)
 			_G.SCRIPT_ANIM_PLAYING = true
 			for k,v in pairs(effects) do
@@ -89,28 +105,61 @@ function play_harvest(monster)
 					level.add_cam_effector(v.effect, v.id, false, "")
 				end
 			end
-			xr_sound.get_safe_sound_object(cut_snd):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+			local sound_cut = xr_sound.get_safe_sound_object(cut_snd, sound_object.s2d)
+			sound_cut:play(actor, 0, sound_object.s2d)
+			
+			local sound_take = xr_sound.get_safe_sound_object(take_snd, sound_object.s2d)
+			
 			play_blood_fx()
-			level.add_call(
+			
+			--//cut anim
+			add_time_delayed_action(
+				anm_length_knife * 0.001,
 				function()
-					return game.hud_motion_allowed()
+					if need_force_stop_anim() then
+						sm:call("on_timed_action_stop")
+						game.stop_hud_motion()
+						if sound_cut then
+							sound_cut:stop()
+						end
+						for k,v in pairs(effects) do
+							level.remove_cam_effector(v.id)
+						end
+						stop_blood_fx()
+						_G.SCRIPT_ANIM_PLAYING = false
+						level.enable_input()
+						actor:restore_weapon(backpack.play_fast())							
+					else
+						game.play_hud_motion(2, meat_hud, "anm_show", true, 1, true)
+						level.add_cam_effector(effects["loot"].effect, effects["loot"].id, false, "")
+						sound_take:play(actor, 0, sound_object.s2d)
+						--//meat take anim
+						add_time_delayed_action(
+							anm_length_meat * 0.001,
+							function()
+								if need_force_stop_anim() then
+									sm:call("on_timed_action_stop")
+									game.stop_hud_motion()
+									if sound_take then
+										sound_take:stop()
+									end
+									level.remove_cam_effector(effects["loot"].id)
+								else
+									harvest.take_loot(monster, knife)
+								end
+								_G.SCRIPT_ANIM_PLAYING = false
+								--backpack.force_crouch(false)
+								level.enable_input()
+								actor:restore_weapon(backpack.play_fast())						
+							end,
+							function()
+								return need_force_stop_anim()
+							end
+						)
+					end
 				end,
 				function()
-					game.play_hud_motion(2, meat_hud, "anm_show", true, 1, true)
-					level.add_cam_effector(effects["loot"].effect, effects["loot"].id, false, "")
-					xr_sound.get_safe_sound_object(take_snd):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
-					level.add_call(
-						function()
-							return game.hud_motion_allowed()
-						end,
-						function()
-							harvest.take_loot(monster, knife)
-							_G.SCRIPT_ANIM_PLAYING = false
-							--backpack.force_crouch(false)
-							level.enable_input()
-							actor:restore_weapon(backpack.play_fast())
-						end
-					)
+					return need_force_stop_anim()
 				end
 			)
 		end

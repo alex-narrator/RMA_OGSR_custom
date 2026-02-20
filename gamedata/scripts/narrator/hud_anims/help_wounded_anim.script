@@ -26,28 +26,24 @@ function play(npc)
 			return not actor:active_item() and not actor:active_device()
 		end,
 		function()
-			game.play_hud_motion(2, hud_sect, "anm_use", false, 1, true)
+			local anim_length = game.play_hud_motion(2, hud_sect, "anm_use", false, 1, true)
 			_G.SCRIPT_ANIM_PLAYING = true
 			play_hud_sound(hud_sect)
 			if device().cam_pos.y - npc:center().y > height_diff then
 				play_hud_effector(hud_sect)
 			end
-			
 			add_time_delayed_action(
 				read_if_exists(sys_ini, "float", hud_sect, "use_delay", 2.5),
 				function() healing_wounded.heal(npc) end
 			)
-			
-			level.add_call(
-				function()
-					return game.hud_motion_allowed()
-				end,
+			add_time_delayed_action(
+				anim_length * 0.001,
 				function()
 					_G.SCRIPT_ANIM_PLAYING = false
 					actor:restore_weapon(true)
-					level.enable_input()
+					level.enable_input()				
 				end
-			)				
+			)
 		end
 	)	
 end

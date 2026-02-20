@@ -80,7 +80,7 @@ function drop()
 	return end
 	
 	local anm_length = backpack_anim.play("unequip")
-	sm:call("on_backpack_quick_drop_start", backpack, anm_length)
+	sm:call("on_timed_action_start", backpack, anm_length)
 	level.add_call(
 		function()
 			return not actor.inventory:is_active_slot_blocked() or (menu_shown and actor_hands_free()) or need_force_stop_anim()
@@ -92,7 +92,7 @@ function drop()
 				actor:drop_item(backpack)
 				set_map_spot(backpack)
 			end
-			sm:call("on_backpack_quick_drop_stop")
+			sm:call("on_timed_action_stop")
 		end
 	)
 end
@@ -122,7 +122,7 @@ function play_anim(state)
 	return end
 	local community_hud_sect = DEF_HUD_SECT.."_"..actor:character_community()
 	local hud_sect = sys_ini:section_exist(community_hud_sect) and community_hud_sect or DEF_HUD_SECT
-		
+
 	game.play_hud_motion(2, hud_sect, anims[state], true, 1, false)
 	idle_playing = (state == 3)
 end
@@ -159,15 +159,11 @@ function play_effects(enable)
 		local snd_name = enable and "interface\\item_usage\\backpack_open" or "interface\\item_usage\\backpack_close"
 		local snd_obj = xr_sound.get_safe_sound_object(snd_name)
 		snd_obj:play(actor, 0, sound_object.s2d)
-		--snd_obj:play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 		
 		if not level.check_complex_effector(effect.id) then 
 			level.add_complex_effector(effect.name, effect.id)
-		end		
+		end
 	end
-	-- if not level.check_complex_effector(effect.id) then 
-		-- level.add_complex_effector(effect.name, effect.id)
-	-- end
 end
 
 function play_fast()

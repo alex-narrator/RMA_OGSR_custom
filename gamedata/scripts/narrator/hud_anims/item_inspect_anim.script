@@ -1,45 +1,12 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
+local sm = ogse_signals.get_mgr()
+
 local hud_effector_id = 5555
-local ANIM_FAST = false
+local ANIM_FAST = true
 local anim_sound = nil
 
 local hud_sect_name = "inspect_hud"
 local hud_sect
-
-local subscribed = false
-function subscribe()
-	if not subscribed then
-		subscribed = {
-			{ signal = "on_key_press", fun = this.on_key_press },
-		}
-		local sm = ogse_signals.get_mgr()
-		for _, s in ipairs( subscribed ) do
-			sm:subscribe( s )
-		end
-	end
-end
-
-function subscribe_simple()
-	if not subscribed then
-		subscribed = {
-			{ signal = "on_key_press", fun = this.on_key_press_simple },
-		}
-		local sm = ogse_signals.get_mgr()
-		for _, s in ipairs( subscribed ) do
-			sm:subscribe( s )
-		end
-	end
-end
-
-function unsubscribe()
-	if subscribed then
-		local sm = ogse_signals.get_mgr()
-		for _, s in ipairs( subscribed ) do
-			sm:unsubscribe( s )
-		end
-		subscribed = false
-	end
-end
 
 function start_inspect(item)
 	play(item)
@@ -73,29 +40,33 @@ function play(item)
 				return not actor:active_item() and not actor:active_device()
 			end,
 			function()
-				subscribe_simple()
 				local anim_length = game.play_hud_motion(2, hud_sect, "anm_show", false, 1, true)
-				hud_add_info_message("hud_info", game.translate_string("st_key_to_stop_inspect"), 10)
 				_G.SCRIPT_ANIM_PLAYING = true
 				anim_sound = play_hud_sound(hud_sect, "snd_show")
 				play_hud_effector(hud_sect, "eff_show")
 				block_non_move_action(true)
-				
-				level.add_call(
+				sm:call("on_timed_action_start", item, 0)
+				add_time_delayed_action(
+					anim_length * 0.001,
 					function()
-						return game.hud_motion_allowed()
-					end,
-					function()
-						unsubscribe()
-						hud_remove_info_message("hud_info")
+						if need_force_stop_anim() then
+							game.stop_hud_motion()
+							if anim_sound then
+								anim_sound:stop()
+							end
+						end
 						block_non_move_action(false)
 						level.remove_complex_effector(hud_effector_id)
 						_G.SCRIPT_ANIM_PLAYING = false
 						if not already_blocked then
 							actor:restore_weapon(ANIM_FAST)
 						end
+						sm:call("on_timed_action_stop")
+					end,
+					function()
+						return need_force_stop_anim()
 					end
-				)				
+				)
 			end
 		)		
 	else
@@ -104,20 +75,33 @@ function play(item)
 				return not actor:active_item() and not actor:active_device()
 			end,
 			function()
-				subscribe()
 				local anim_length = game.play_hud_motion(2, hud_sect, "anm_show", false, 1, true)
-				hud_add_info_message("hud_info", game.translate_string("st_key_to_stop_inspect"), 99)
 				_G.SCRIPT_ANIM_PLAYING = true
 				anim_sound = play_hud_sound(hud_sect, "snd_show")
 				play_hud_effector(hud_sect, "eff_show")
 				block_non_move_action(true)
-			
+				sm:call("on_timed_action_start", item, 0)
 				add_time_delayed_action(
 					anim_length * 0.001,
 					function()
-						game.play_hud_motion(2, hud_sect, "anm_idle", false, 1, true)
-						anim_sound = play_hud_sound(hud_sect, "snd_idle")
-						play_hud_effector(hud_sect, "eff_idle")
+						if need_force_stop_anim() then
+							stop_anim()
+						else
+							game.play_hud_motion(2, hud_sect, "anm_idle", false, 1, true)
+							anim_sound = play_hud_sound(hud_sect, "snd_idle")
+							play_hud_effector(hud_sect, "eff_idle")
+							level.add_call(
+								function()
+									return need_force_stop_anim()
+								end,
+								function()
+									stop_anim()
+								end
+							)
+						end
+					end,
+					function()
+						return need_force_stop_anim()
 					end
 				)
 			end
@@ -152,7 +136,7 @@ function play_hud_effector(sect, eff_name)
 end
 
 function stop_anim()
-	hud_remove_info_message("item_usage")
+	sm:call("on_timed_action_stop")
 	if anim_sound then
 		anim_sound:stop()
 	end
@@ -178,38 +162,6 @@ function stop_anim()
 			end
 		end
 	)
-end
-
-local force_stop_action = {
-	--[key_bindings.kACCEL] = true,
-	[key_bindings.kSPRINT] = true,
-	--[key_bindings.kCROUCH] = true,	
-}
-function on_key_press(key, game_action)
-	if not SCRIPT_ANIM_PLAYING then
-	return end
-	if level.main_input_receiver() then
-	return end
-	if not force_stop_action[game_action] then
-	return end
-	level.remove_complex_effector(hud_effector_id)
-	game.stop_hud_motion()
-	stop_anim()	
-end
-
-function on_key_press_simple(key, game_action)
-	if not SCRIPT_ANIM_PLAYING then
-	return end
-	if level.main_input_receiver() then
-	return end
-	if not force_stop_action[game_action] then
-	return end
-	level.remove_complex_effector(hud_effector_id)
-	game.stop_hud_motion()
-	hud_remove_info_message("item_usage")
-	if anim_sound then
-		anim_sound:stop()
-	end	
 end
 
 function anim_allowed(item)

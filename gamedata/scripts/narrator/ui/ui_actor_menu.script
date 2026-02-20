@@ -142,14 +142,8 @@ function ActorMenuOverlay:Subscribe()
 			{signal = "on_warning_icon_focus", self = self, fun = self.OnWarningIconFocus},
 			{signal = "on_warning_icon_focus_lost", self = self, fun = self.OnWarningIconFocusLost},
 			
-			{signal = "on_use_animation_start", self = self, fun = self.SetUseAnimProgres},
-			{signal = "on_use_animation_stop", self = self, fun = self.SetUseAnimProgres},
-			{signal = "on_attach_addon_start", self = self, fun = self.SetUseAnimProgres},
-			{signal = "on_attach_addon_stop", self = self, fun = self.SetUseAnimProgres},
-			{signal = "on_detach_addon_start", self = self, fun = self.SetUseAnimProgres},
-			{signal = "on_detach_addon_stop", self = self, fun = self.SetUseAnimProgres},
-			{signal = "on_loot_box_unpack_start", self = self, fun = self.SetUseAnimProgres},
-			{signal = "on_loot_box_unpack_stop", self = self, fun = self.SetUseAnimProgres},
+			{signal = "on_timed_action_start", self = self, fun = self.SetTimedActionProgress},
+			{signal = "on_timed_action_stop", self = self, fun = self.SetTimedActionProgress},
 			
 			{signal = "on_hud_state_switch", self = self, fun = self.OnHudStateSwitch},
 		}
@@ -1669,7 +1663,6 @@ function ActorMenuOverlay:OnDrop(item)
 		ci:GetOwnerList():RemoveItem(item)
 	end
 	self:UpdateCustomDraw()
-	self:SetUseAnimProgres()
 	-- self:PlayActionSound("drop")
 	-- self:PlayOperateSound(item)
 end
@@ -1799,13 +1792,8 @@ function ActorMenuOverlay:OnKeyboard(dik, keyboard_action)
 					self:ResetCellItemSelected()
 					return true
 				end
-				if musical_instruments.can_play_guitar(item) then
-					musical_instruments.play_guitar(item)
-					self:ResetCellItemSelected()
-					return true
-				end
-				if musical_instruments.can_play_harmonica(item) then
-					musical_instruments.play_harmonica(item)
+				if musical_instruments.can_play_instrument(item) then
+					musical_instruments.play_instrument(item)
 					self:ResetCellItemSelected()
 					return true
 				end
@@ -2074,7 +2062,7 @@ function ActorMenuOverlay:UpdateInvTip(cell_item)
 		if glowstick.can_be_activated(item) then
 			text = text.."\\n"..game.translate_string("st_tip_activate_glowstick")
 		end
-		if musical_instruments.can_play_guitar(item) or musical_instruments.can_play_harmonica(item) then
+		if musical_instruments.can_play_instrument(item) then
 			text = text.."\\n"..game.translate_string("st_tip_play_musical_instrument")
 		end
 	end
@@ -2189,8 +2177,8 @@ function ActorMenuOverlay:ShowRepairRequest()
 	repair_msg_box:InitAction(msg_text, function() self:PerformRepair() end)
 end
 
-function ActorMenuOverlay:SetUseAnimProgres(item, use_delay, anm_length)
-	if not use_delay then
+function ActorMenuOverlay:SetTimedActionProgress(item, action_time)
+	if not item then
 		self.use_anim:Show(false)
 		self.selected_item_tip:SetText("")
 	else
@@ -2207,12 +2195,13 @@ function ActorMenuOverlay:SetUseAnimProgres(item, use_delay, anm_length)
 			self.use_anim:SetWndPos(pos.x, pos.y)
 		end
 		
-		local end_time = time_global() + use_delay
+		local end_time = time_global() + action_time
 		level.add_call(
 			function()
-				local val = math.clamp((end_time - time_global()) / use_delay, 0, 1)
+				local val = math.clamp((end_time - time_global()) / action_time, 0, 1)
 				val = 1 - val
 				self.use_anim.progress:SetPos(val)
+				self.use_anim.progress:Show(val < 1)
 				return val >= 1 or not self.use_anim:IsShown()
 			end,
 			function()

@@ -68,7 +68,7 @@ function on_drag_drop(obj, drop_on_obj)
 		local snd_name = read_if_exists(sys_ini, "string", obj:section(), "attach_addon_sound", "interface\\inv_attach_addon")
 		local snd = xr_sound.get_safe_sound_object(snd_name)
 		snd:play(actor, 0, sound_object.s2d)
-		sm:call("on_attach_addon_start", drop_on_obj, snd:length())
+		sm:call("on_timed_action_start", drop_on_obj, snd:length())
 		level.add_call(
 			function()
 				if not actor.inventory:is_active_slot_blocked() then
@@ -89,7 +89,7 @@ function on_drag_drop(obj, drop_on_obj)
 				if need_unblock then
 					actor:restore_weapon(true)
 				end
-				sm:call("on_attach_addon_stop")
+				sm:call("on_timed_action_stop")
 			end
 		)		
 	else
@@ -118,7 +118,7 @@ function on_drag_drop(obj, drop_on_obj)
 			local snd_name = read_if_exists(sys_ini, "string", addon_sect, "detach_addon_sound", "interface\\inv_detach_addon")
 			local snd = xr_sound.get_safe_sound_object(snd_name)
 			snd:play(actor, 0, sound_object.s2d)
-			sm:call("on_detach_addon_start", drop_on_obj, snd:length())
+			sm:call("on_timed_action_start", drop_on_obj, snd:length())
 			level.add_call(
 				function()
 					if not actor.inventory:is_active_slot_blocked() then
@@ -142,14 +142,14 @@ function on_drag_drop(obj, drop_on_obj)
 					if need_unblock then
 						actor:restore_weapon(true)
 					end
-					sm:call("on_detach_addon_stop")
+					sm:call("on_timed_action_stop")
 					--//
 					need_unblock = false
 					block_non_move_action(true)
 					snd_name = read_if_exists(sys_ini, "string", obj:section(), "attach_addon_sound", "interface\\inv_attach_addon")
 					snd = xr_sound.get_safe_sound_object(snd_name)
 					snd:play(actor, 0, sound_object.s2d)
-					sm:call("on_attach_addon_start", drop_on_obj, snd:length())
+					sm:call("on_timed_action_start", drop_on_obj, snd:length())
 					level.add_call(
 						function()
 							if not actor.inventory:is_active_slot_blocked() then
@@ -170,7 +170,7 @@ function on_drag_drop(obj, drop_on_obj)
 							if need_unblock then
 								actor:restore_weapon(true)
 							end
-							sm:call("on_attach_addon_stop")
+							sm:call("on_timed_action_stop")
 						end
 					)					
 					--//

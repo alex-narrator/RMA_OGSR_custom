@@ -88,16 +88,8 @@ function MainIngameOverlay:Subscribe()
 			
 			{signal = "on_custom_options_save", self = self, fun = self.OnCustomOptionsSave},
 			
-			{signal = "on_use_animation_start", self = self, fun = self.SetUseAnimProgres},
-			{signal = "on_use_animation_stop", self = self, fun = self.SetUseAnimProgres},
-			{signal = "on_attach_addon_start", self = self, fun = self.SetUseAnimProgres},
-			{signal = "on_attach_addon_stop", self = self, fun = self.SetUseAnimProgres},
-			{signal = "on_detach_addon_start", self = self, fun = self.SetUseAnimProgres},
-			{signal = "on_detach_addon_stop", self = self, fun = self.SetUseAnimProgres},
-			{signal = "on_backpack_quick_drop_start", self = self, fun = self.SetUseAnimProgres},
-			{signal = "on_backpack_quick_drop_stop", self = self, fun = self.SetUseAnimProgres},
-			{signal = "on_musical_instrument_play_start", self = self, fun = self.SetUseAnimProgres},
-			{signal = "on_musical_instrument_play_stop", self = self, fun = self.SetUseAnimProgres},
+			{signal = "on_timed_action_start", self = self, fun = self.SetTimedActionProgress},
+			{signal = "on_timed_action_stop", self = self, fun = self.SetTimedActionProgress},
 		}
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
@@ -1076,7 +1068,7 @@ function MainIngameOverlay:UpdateTargetTip()
 	elseif hud_target_mode == 2 then
 		show = not is_zoom and not self.crosshair:IsShown() and actor_hands_free()
 	elseif hud_target_mode == 1 then
-		show = not is_zoom and tip and tip ~= ""
+		show = not is_zoom and tip and tip ~= "" and actor_hands_free()
 	end
 	self.tip_cursor:Show(show)
 	local target_dist = ""
@@ -1477,20 +1469,21 @@ function MainIngameOverlay:UpdateProjectileTrajectory()
 	end	
 end
 
-function MainIngameOverlay:SetUseAnimProgres(item, use_delay, anm_length)
-	if not use_delay then
+function MainIngameOverlay:SetTimedActionProgress(item, action_time)
+	if not item then
 		self.use_anim:Show(false)
 		hud_remove_info_message("hud_info")
 	else
-		hud_add_info_message("hud_info", game.translate_string("st_key_to_stop_anim"), use_delay * 0.001)
+		hud_add_info_message("hud_info", game.translate_string("st_key_to_stop_anim"), action_time > 0 and action_time * 0.001 or 999)
 		self.use_anim:Show(true)
 		
-		local end_time = time_global() + use_delay
+		local end_time = time_global() + action_time
 		level.add_call(
 			function()
-				local val = math.clamp((end_time - time_global()) / use_delay, 0, 1)
+				local val = math.clamp((end_time - time_global()) / action_time, 0, 1)
 				val = 1 - val
 				self.use_anim.progress:SetPos(val)
+				self.use_anim.progress:Show(val < 1)
 				return val >= 1 or not self.use_anim:IsShown()
 			end,
 			function()

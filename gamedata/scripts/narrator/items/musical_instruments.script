@@ -48,7 +48,7 @@ function play(item)
 					game.play_hud_motion(2, data.hud, "anm_play", false, 1, true)
 					sound = xr_sound.get_safe_sound_object(data.sound_prefix..math.random(1, data.max_rnd))
 					sound:play(actor, 0, sound_object.s2d)
-					sm:call("on_musical_instrument_play_start", item, sound:length())
+					sm:call("on_timed_action_start", item, sound:length())
 					level.add_call(
 						function()
 							local conds = actor_obj.condition
@@ -58,7 +58,7 @@ function play(item)
 						end,
 						function()
 							stop_music()
-							sm:call("on_musical_instrument_play_stop")
+							sm:call("on_timed_action_stop")
 						end
 					)
 				end
@@ -107,19 +107,4 @@ function play_instrument(item)
 			return
 		end
 	end	
-end
-
-function can_play_guitar(item)
-	return string.find(item:section(), "guitar")
-end
-function play_guitar(item)
-	play("guitar")
-end
-
-function can_play_harmonica(item)
-	--log3("~item %s - res %s", item:section(), string.find(item:section(), "harmonica"))
-	return string.find(item:section(), "harmonica")
-end
-function play_harmonica(item)
-	play("harmonica")
 end

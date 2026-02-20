@@ -19,15 +19,13 @@ function play(item)
 			return not actor:active_item() and not actor:active_device()
 		end,
 		function()
-			game.play_hud_motion(2, hud_sect, "anm_use", false, 1, true)
+			local anm_length = game.play_hud_motion(2, hud_sect, "anm_use", false, 1, true)
 			_G.SCRIPT_ANIM_PLAYING = true
 			play_hud_sound(hud_sect)
 			play_hud_effector(hud_sect)
 			block_non_move_action(true)
-			level.add_call(
-				function()
-					return game.hud_motion_allowed()
-				end,
+			add_time_delayed_action(
+				anm_length * 0.001,
 				function()
 					block_non_move_action(false)
 					_G.SCRIPT_ANIM_PLAYING = false
@@ -37,7 +35,7 @@ function play(item)
 					local mode = actor_menu:GetMode()
 					if mode == "inventory" or mode == "carbody"	then					
 						backpack.play_anim(3)
-					end
+					end				
 				end
 			)
 		end
