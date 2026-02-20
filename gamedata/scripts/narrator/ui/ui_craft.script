@@ -91,6 +91,10 @@ function CraftOverlay:InitControls()
 	name = "craft_progress"
 	self.craft_progress = xml:InitProgressBar(prefix..":"..name, self.craft_back)
 	self.craft_progress:Show(false)
+	
+	name = "craft_progress_tip"
+	self.craft_progress_tip = xml:InitStatic(prefix..":"..name, self.craft_back)
+	self.craft_progress_tip:Show(false)	
 
 	name = "craft_button"
 	self.craft_button = xml:Init3tButton(prefix..":"..name, self.craft_back)
@@ -186,6 +190,7 @@ end
 
 function CraftOverlay:ShowReceiptInfo()
 	self.craft_progress:Show(false)
+	self.craft_progress_tip:Show(false)
 	self.craft_result:Show(true)
 	self.craft_components:Show(true)
 	self.receipt_info:Show(true)
@@ -313,44 +318,50 @@ function CraftOverlay:PerformCraft()
 	local receipt = self.craft_receipts[self.selected_receipt]
 	
 	local sound = receipt.craft_cound or default_craft_sounds[self.craft_sect]
-	local snd = xr_sound.get_safe_sound_object(sound)
+	local snd = xr_sound.get_safe_sound_object(sound, sound_object.s2d)
 	local length = snd:length()
 	local snd_end_time = time_global() + length
-	snd:play_at_pos(actor, actor:position())
+	snd:play(actor, 0, sound_object.s2d)
 	
 	self.craft_progress:Show(true)
+	self.craft_progress_tip:Show(true)
 	
 	local sim = alife()
-		
+
 	level.disable_input()
-	
-	for sect,count in pairs(receipt.components) do
-		local cnt = count
-		local item_num = 1
-		while cnt > 0 do
-			local item_id = self.current_components[sect][item_num]
-			local item = level.object_by_id(item_id)
-			if item then
-				if item:parent() then
-					item:parent():drop_item(item)
-				end
-				sim:release(sim:object(item_id), true)
-			end
-			item_num = item_num + 1
-			cnt = cnt - 1
-		end
-	end
 	
 	level.add_call(
 		function()
 			local val = math.clamp((snd_end_time - time_global()) / length, 0, 1)
 			val = 1 - val
 			self.craft_progress:SetProgressPos(val)
-			return not snd or not snd:playing()
+			return not snd or not snd:playing() or need_force_stop_anim()
 		end,
 		function()
+			if need_force_stop_anim() then
+				if snd then
+					snd:stop()
+				end
+			else
+				for sect,count in pairs(receipt.components) do
+					local cnt = count
+					local item_num = 1
+					while cnt > 0 do
+						local item_id = self.current_components[sect][item_num]
+						local item = level.object_by_id(item_id)
+						if item then
+							if item:parent() then
+								item:parent():drop_item(item)
+							end
+							sim:release(sim:object(item_id), true)
+						end
+						item_num = item_num + 1
+						cnt = cnt - 1
+					end
+				end
+				spawn_to_owner(receipt.result)
+			end
 			level.enable_input()
-			spawn_to_owner(receipt.result)
 			self:ShowReceiptInfo()
 		end		
 	)
