@@ -41,7 +41,7 @@ function spawn_loot(item)
 	end
 	
 	block_non_move_action(true)
-	sm:call("on_loot_box_unpack_start", item, snd and snd:length() or 0)
+	sm:call("on_timed_action_start", item, snd and snd:length() or 0)
 	
 	level.add_call(
 		function()
@@ -65,7 +65,7 @@ function spawn_loot(item)
 			end
 			
 			block_non_move_action(false)
-			sm:call("on_loot_box_unpack_stop")
+			sm:call("on_timed_action_stop")
 		end
 	)
 end

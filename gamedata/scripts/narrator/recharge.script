@@ -3,6 +3,8 @@ function attach(sm)
 	sm:subscribe({signal = "inv_drag_drop", fun = this.try_recharge})
 end
 
+local sm = ogse_signals.get_mgr()
+
 function try_recharge(obj, drop_on_obj)
 	if not can_recharge(obj, drop_on_obj) then 
 	return end
@@ -27,25 +29,42 @@ end
 recharge_effector_id = 20001
 
 function recharge(obj, drop_on_obj)
-	drop_on_obj:binded_object():recharge(obj)
 	local battery_sect = obj:section()	
-	local recharge_sound = read_if_exists(sys_ini, "string", battery_sect, "use_sound", nil)
-	if recharge_sound then
-		xr_sound.get_safe_sound_object(recharge_sound):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+	local recharge_sound = read_if_exists(sys_ini, "string", battery_sect, "use_sound", "interface\\inv_detach_addon")
+	local snd = xr_sound.get_safe_sound_object(recharge_sound, sound_object.s2d)
+	if snd then
+		snd:play(actor, 0, sound_object.s2d)
 	end
+	sm:call("on_timed_action_start", drop_on_obj, snd and snd:length() or 0)
 	local recharge_effector = read_if_exists(sys_ini, "string", battery_sect, "use_effector", nil)
 	if recharge_effector then
 		level.remove_complex_effector(recharge_effector_id)
 		level.add_complex_effector(recharge_effector, recharge_effector_id)
 	end
-	local cell_item = actor_menu:GetCellItem(obj)
-	if cell_item then
-		cell_item:ForceUpdate()
-	end
-	cell_item = actor_menu:GetCellItem(drop_on_obj)
-	if cell_item then
-		cell_item:ForceUpdate()
-	end	
+	level.add_call(
+		function()
+			return not snd or not snd:playing() or need_force_stop_anim()
+		end,
+		function()
+			if need_force_stop_anim() then
+				if snd and snd:playing() then
+					snd:stop()
+				end
+				level.remove_complex_effector(recharge_effector_id)
+			else
+				drop_on_obj:binded_object():recharge(obj)
+				local cell_item = actor_menu:GetCellItem(obj)
+				if cell_item then
+					cell_item:ForceUpdate()
+				end
+				cell_item = actor_menu:GetCellItem(drop_on_obj)
+				if cell_item then
+					cell_item:ForceUpdate()
+				end
+			end
+			sm:call("on_timed_action_stop")
+		end
+	)
 end
 
 function action_allowed(item)
@@ -60,39 +79,29 @@ function can_detach_power_source(obj)
 	return is_power_device(obj) and obj:binded_object():can_detach_power_source() and action_allowed(obj)
 end
 function detach_power_source(obj)
-	obj:binded_object():detach_power_source()
-	local cell_item = actor_menu:GetCellItem(obj)
-	if cell_item then
-		cell_item:ForceUpdate()
+	local recharge_sound = read_if_exists(sys_ini, "string", obj:section(), "use_sound", "interface\\inv_detach_addon")
+	local snd = xr_sound.get_safe_sound_object(recharge_sound, sound_object.s2d)
+	if snd then
+		snd:play(actor, 0, sound_object.s2d)
 	end
-end
-
-function pda_tip(obj)
-	return string.format("%s %s", game.translate_string("st_attach_to"), get_inv_name_short(actor_get_pda():section()))
-end
-function can_recharge_pda(obj)
-	return can_recharge(obj, actor_get_pda())
-end
-function recharge_pda(obj)
-	recharge(obj, actor_get_pda())
-end
-
-function torch_tip(obj)
-	return string.format("%s %s", game.translate_string("st_attach_to"), get_inv_name_short(actor_get_torch():section()))
-end
-function can_recharge_torch(obj)
-	return can_recharge(obj, actor_get_torch())
-end
-function recharge_torch(obj)
-	recharge(obj, actor_get_torch())
-end
-
-function detector_tip(obj)
-	return string.format("%s %s", game.translate_string("st_attach_to"), get_inv_name_short(actor_get_device():section()))
-end
-function can_recharge_detector(obj)
-	return can_recharge(obj, actor_get_device())
-end
-function recharge_detector(obj)
-	recharge(obj, actor_get_device())
+	sm:call("on_timed_action_start", obj, snd and snd:length() or 0)
+	level.add_call(
+		function()
+			return not snd or not snd:playing() or need_force_stop_anim()
+		end,
+		function()
+			if need_force_stop_anim() then
+				if snd and snd:playing() then
+					snd:stop()
+				end
+			else
+				obj:binded_object():detach_power_source()
+				local cell_item = actor_menu:GetCellItem(obj)
+				if cell_item then
+					cell_item:ForceUpdate()
+				end			
+			end
+			sm:call("on_timed_action_stop")
+		end
+	)	
 end
