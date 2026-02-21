@@ -361,37 +361,42 @@ function QuickAddonOverlay:OnAttachClick(id)
 				local sect = slot_item:get_weapon():get_addon_name(detach_addon_type)
 				--//detach
 				block_non_move_action(true)
-				local snd_name = read_if_exists(sys_ini, "string", sect, "detach_addon_sound", "interface\\inv_detach_addon")
-				local snd = xr_sound.get_safe_sound_object(snd_name)
-				snd:play(actor, 0, sound_object.s2d)
-				sm:call("on_timed_action_start", slot_item, snd:length())
+				local snd_detach_name = read_if_exists(sys_ini, "string", sect, "detach_addon_sound", "interface\\inv_detach_addon")
+				local snd_detach = xr_sound.get_safe_sound_object(snd_detach_name)
+				snd_detach:play(actor, 0, sound_object.s2d)
+				
+				local snd_attach_name = read_if_exists(sys_ini, "string", desired_item:section(), "attach_addon_sound", "interface\\inv_attach_addon")
+				local snd_attach = xr_sound.get_safe_sound_object(snd_attach_name)				
+				
+				sm:call("on_timed_action_start", slot_item, snd_detach:length() + snd_attach:length())
 				level.add_call(
 					function()
-						return not snd or not snd:playing() or need_force_stop_anim()
+						return not snd_detach or not snd_detach:playing() or need_force_stop_anim()
 					end,
 					function()
 						if need_force_stop_anim() then
-							if snd and snd:playing() then
-								snd:stop()
+							if snd_detach and snd_detach:playing() then
+								snd_detach:stop()
+								sm:call("on_timed_action_stop")
 							end
 							block_non_move_action(false)
 							actor:restore_weapon()
-							sm:call("on_timed_action_stop")
+							-- sm:call("on_timed_action_stop")
 						else
 							detach_addon(slot_item, sect)
 							-- block_non_move_action(true)
-							local snd_name = read_if_exists(sys_ini, "string", desired_item:section(), "attach_addon_sound", "interface\\inv_attach_addon")
-							local snd = xr_sound.get_safe_sound_object(snd_name)
-							snd:play(actor, 0, sound_object.s2d)
-							sm:call("on_timed_action_start", slot_item, snd:length())
+							-- local snd_attach_name = read_if_exists(sys_ini, "string", desired_item:section(), "attach_addon_sound", "interface\\inv_attach_addon")
+							-- local snd_attach = xr_sound.get_safe_sound_object(snd_attach_name)
+							snd_attach:play(actor, 0, sound_object.s2d)
+							-- sm:call("on_timed_action_start", slot_item, snd_attach:length())
 							level.add_call(
 								function()
-									return not snd or not snd:playing() or need_force_stop_anim()
+									return not snd_attach or not snd_attach:playing() or need_force_stop_anim()
 								end,
 								function()
 									if need_force_stop_anim() then
-										if snd and snd:playing() then
-											snd:stop()
+										if snd_attach and snd_attach:playing() then
+											snd_attach:stop()
 										end
 									else
 										attach_addon(slot_item, desired_item)

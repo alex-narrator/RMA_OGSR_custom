@@ -115,22 +115,27 @@ function on_drag_drop(obj, drop_on_obj)
 			local addon_sect = drop_on_obj:get_weapon():get_addon_name(detach_addon_type)
 			local need_unblock = false
 			block_non_move_action(true)
-			local snd_name = read_if_exists(sys_ini, "string", addon_sect, "detach_addon_sound", "interface\\inv_detach_addon")
-			local snd = xr_sound.get_safe_sound_object(snd_name)
-			snd:play(actor, 0, sound_object.s2d)
-			sm:call("on_timed_action_start", drop_on_obj, snd:length())
+			local snd_detach_name = read_if_exists(sys_ini, "string", addon_sect, "detach_addon_sound", "interface\\inv_detach_addon")
+			local snd_detach = xr_sound.get_safe_sound_object(snd_detach_name)
+			snd_detach:play(actor, 0, sound_object.s2d)
+			
+			local snd_attach_name = read_if_exists(sys_ini, "string", obj:section(), "attach_addon_sound", "interface\\inv_attach_addon")
+			local snd_attach = xr_sound.get_safe_sound_object(snd_attach_name)			
+			
+			sm:call("on_timed_action_start", drop_on_obj, snd_detach:length() + snd_attach:length())
 			level.add_call(
 				function()
 					if not actor.inventory:is_active_slot_blocked() then
 						need_unblock = true
 						actor:hide_weapon(true)
 					end						
-					return not snd or not snd:playing() or need_force_stop_anim()
+					return not snd_detach or not snd_detach:playing() or need_force_stop_anim()
 				end,
 				function()
 					if need_force_stop_anim() then
-						if snd and snd:playing() then
-							snd:stop()
+						if snd_detach and snd_detach:playing() then
+							snd_detach:stop()
+							sm:call("on_timed_action_stop")
 						end
 					else
 						detach_addon(drop_on_obj, addon_sect)
@@ -142,26 +147,26 @@ function on_drag_drop(obj, drop_on_obj)
 					if need_unblock then
 						actor:restore_weapon(true)
 					end
-					sm:call("on_timed_action_stop")
+					-- sm:call("on_timed_action_stop")
 					--//
 					need_unblock = false
 					block_non_move_action(true)
-					snd_name = read_if_exists(sys_ini, "string", obj:section(), "attach_addon_sound", "interface\\inv_attach_addon")
-					snd = xr_sound.get_safe_sound_object(snd_name)
-					snd:play(actor, 0, sound_object.s2d)
-					sm:call("on_timed_action_start", drop_on_obj, snd:length())
+					-- local snd_attach_name = read_if_exists(sys_ini, "string", obj:section(), "attach_addon_sound", "interface\\inv_attach_addon")
+					-- local snd_attach = xr_sound.get_safe_sound_object(snd_attach_name)
+					snd_attach:play(actor, 0, sound_object.s2d)
+					-- sm:call("on_timed_action_start", drop_on_obj, snd_attach:length())
 					level.add_call(
 						function()
 							if not actor.inventory:is_active_slot_blocked() then
 								need_unblock = true
 								actor:hide_weapon(true)
 							end
-							return not snd or not snd:playing() or need_force_stop_anim()
+							return not snd_attach or not snd_attach:playing() or need_force_stop_anim()
 						end,
 						function()
 							if need_force_stop_anim() then
-								if snd and snd:playing() then
-									snd:stop()
+								if snd_attach and snd_attach:playing() then
+									snd_attach:stop()
 								end
 							else					
 								attach_addon(drop_on_obj, obj)
