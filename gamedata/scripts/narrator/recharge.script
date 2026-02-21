@@ -29,8 +29,8 @@ end
 recharge_effector_id = 20001
 
 function recharge(obj, drop_on_obj)
-	local battery_sect = obj:section()	
-	local recharge_sound = read_if_exists(sys_ini, "string", battery_sect, "use_sound", "interface\\inv_detach_addon")
+	local battery_sect = obj:section()
+	local recharge_sound = read_if_exists(sys_ini, "string", drop_on_obj:section(), "recharge_sound", "interface\\inv_detach_addon")
 	local snd = xr_sound.get_safe_sound_object(recharge_sound, sound_object.s2d)
 	if snd then
 		snd:play(actor, 0, sound_object.s2d)
@@ -79,7 +79,7 @@ function can_detach_power_source(obj)
 	return is_power_device(obj) and obj:binded_object():can_detach_power_source() and action_allowed(obj)
 end
 function detach_power_source(obj)
-	local recharge_sound = read_if_exists(sys_ini, "string", obj:section(), "use_sound", "interface\\inv_detach_addon")
+	local recharge_sound = read_if_exists(sys_ini, "string", obj:section(), "recharge_sound", "interface\\inv_detach_addon")
 	local snd = xr_sound.get_safe_sound_object(recharge_sound, sound_object.s2d)
 	if snd then
 		snd:play(actor, 0, sound_object.s2d)

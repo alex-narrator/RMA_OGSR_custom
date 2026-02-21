@@ -14,6 +14,7 @@ class "RepairOverlay" (CUIScriptWnd)
 local overlay = nil
 local repair_sound_weapon = [[interface\item_usage\inv_repair_kit_use_fast]]
 local repair_sound_armor = [[interface\item_usage\inv_repair_sewing_kit_fast]]
+local repair_sound_knife = [[interface\item_usage\inv_repair_knife]]
 
 function create_overlay(item)
 	if not condition_limit then
@@ -301,7 +302,7 @@ function RepairOverlay:UpdateRepairInfo()
 end
 
 function RepairOverlay:PerformRepair()
-	local sound = read_if_exists(sys_ini, "string", self.donor_item:section(), "use_sound", self.item:is_weapon() and repair_sound_weapon or repair_sound_armor)
+	local sound = read_if_exists(sys_ini, "string", self.donor_item:section(), "repair_sound", self.item:is_weapon() and self.item:is_knife() and repair_sound_knife or repair_sound_weapon or repair_sound_armor)
 	local snd = xr_sound.get_safe_sound_object(sound)
 	local length = snd:length()
 	local snd_end_time = time_global() + length

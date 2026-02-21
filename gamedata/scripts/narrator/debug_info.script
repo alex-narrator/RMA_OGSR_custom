@@ -149,19 +149,7 @@ function item_action_text()
 end
 function item_action(item)
 	log_news("~item %s", item:name())
-	-- local pos = device().cam_pos
-	-- local dist = 1--level.get_target_dist()
-	-- pos:add(device().cam_dir:set_length(dist))
-	
-	--local pos = vector():set(30.2, -10.804938316345, -271.8)
-	--item:parent():drop_item_and_teleport(item, pos)
-	--alife():teleport_object(item:id(), pos, item:level_vertex_id(), item:game_vertex_id())
-	-- item:set_condition(math.random(1, 50) * 0.01)
-	-- log3("~item condition", item:condition())
-	local wpn = item:get_weapon()
-	if wpn then
-		log_news("~item [%s] direct reload [%s]", item:name(), wpn.direct_reload)
-	end
+	log_news("~item [%s] can_detach_power_source [%s]", item:name(), recharge.can_detach_power_source(item))
 end
 
 class "p_timer"
