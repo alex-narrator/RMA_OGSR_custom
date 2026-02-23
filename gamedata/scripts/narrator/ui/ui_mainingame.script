@@ -139,7 +139,11 @@ function MainIngameOverlay:InitControls()
 	local xml = CScriptXmlInit()
 	xml:ParseFile(OVERLAY_XML)
 	
-	self.fps_counter = xml:InitStatic("fps_counter", self)
+	self.outfit_mask = CUIStatic()
+	self.outfit_mask:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
+	self.outfit_mask:SetStretchTexture(true)
+	self:AttachChild(self.outfit_mask)
+	self.outfit_mask:Show(false)
 	
 	self.blood_overlay = xml:InitStatic("blood_overlay", self)
 	self.blood_overlay.fade_time = xml:ReadAttribFlt("blood_overlay", "fade_time", 0)
@@ -416,6 +420,20 @@ function MainIngameOverlay:InitControls()
 	
 	self:SetCrosshair()
 	self:SetCrosshairColor()
+	
+	--//hud info messages
+	local info_messages_ids = {
+		"hud_info",
+		"item_usage",
+		"actor_state",
+		"debug_msg",
+	}
+	self.info_message = {}
+	for k, v in pairs(info_messages_ids) do
+		self.info_message[v] = {}
+		self.info_message[v].static = xml:InitStatic(v, self)
+		self.info_message[v].static:Show(false)
+	end
 end
 
 function MainIngameOverlay:UpdateConditions()
@@ -1474,7 +1492,7 @@ function MainIngameOverlay:SetTimedActionProgress(item, action_time)
 		self.use_anim:Show(false)
 		hud_remove_info_message("hud_info")
 	else
-		hud_add_info_message("hud_info", game.translate_string("st_key_to_stop_anim"), action_time > 0 and action_time * 0.001 or 999)
+		hud_add_info_message("hud_info", game.translate_string("st_key_to_stop_anim"), action_time * 0.001)
 		self.use_anim:Show(true)
 		
 		local end_time = time_global() + action_time
@@ -1489,6 +1507,43 @@ function MainIngameOverlay:SetTimedActionProgress(item, action_time)
 			function()
 			end		
 		)
+	end
+end
+
+function MainIngameOverlay:SetOutfitMask(texture_name)
+	self.outfit_mask:Show(not not texture_name)
+	self.outfit_mask:InitTexture(texture_name or "")
+end
+
+function MainIngameOverlay:AddInfoMessage(static_id, text, ttl)
+	local info_message = self.info_message[static_id]
+	if not info_message then
+		log_news("~%s AddInfoMessage : static id [%s] are not described in %s", script_name(), static_id, OVERLAY_XML)
+	return end	
+	local static = info_message.static
+	static:SetText(game.translate_string(text))
+	static:Show(true)
+	if (not ttl or ttl <= 0) then ttl = 999 end
+	self.info_message[static_id].hide_time = time_global() + ttl * 1000
+end
+
+function MainIngameOverlay:RemoveInfoMessage(static_id)
+	local info_message = self.info_message[static_id]
+	if not info_message then
+		log_news("~%s AddInfoMessage : static id [%s] are not described in %s", script_name(), static_id, OVERLAY_XML)
+	return end	
+	local static = info_message.static
+	static:Show(false)
+	self.info_message[static_id].hide_time = nil
+end
+
+function MainIngameOverlay:UpdateInfoMessages()
+	local current_time = time_global()
+	for k, v in pairs(self.info_message) do
+		if v.static:IsShown() and (not v.hide_time or current_time >= v.hide_time) then
+			v.static:Show(false)
+			v.hide_time = nil
+		end
 	end
 end
 
@@ -1520,4 +1575,5 @@ function MainIngameOverlay:Update()
 	self:UpdateGearInfo()
 	self:UpdateAmmoSwitchInfo()
 	self:UpdateProjectileTrajectory()
+	self:UpdateInfoMessages()
 end

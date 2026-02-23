@@ -1,12 +1,7 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
-local main_wnd = get_main_window()
-local mask_texture = [[ui\dinamic_hud\hud_]]
-local breath_texture = [[ui\dinamic_hud\breath]]
 local brake_sound = xr_sound.get_safe_sound_object([[material\glass\glass_fall01hl]])
 
-local mask_static, breath_val, breath_angle, subscribed
-
-local texture = false
+local breath_val, breath_angle, subscribed
 
 local breath_speed, breath_max, breath_k = 0.1, 1, 1
 
@@ -121,19 +116,40 @@ function enable_effects(obj)
 		-- sm:subscribe({signal = "on_update", fun = this.on_update_minimap})
 	-- end
 	
-	if read_if_exists(sys_ini, "bool", sect, "hud_shader", false) then
-		switch_shader_effects(true)
-	end
+	-- if read_if_exists(sys_ini, "bool", sect, "hud_shader", false) then
+		-- switch_shader_effects(true)
+	-- end
 	
-	if read_if_exists(sys_ini, "bool", sect, "hud_breath", false) then
-		breath_max = read_if_exists(sys_ini, "float", sect, "hud_breath_size", 0.6)
+	--//shader effects
+	local console = get_console()
+	--//breakable glass
+	local visor_glass = read_if_exists(sys_ini, "bool", sect, "visor_glass", false)
+	local bool_number = visor_glass and 1 or 0
+	console:execute("r2_mask_control "..bool_number)
+	--//reflections
+	local visor_refl = read_if_exists(sys_ini, "bool", sect, "visor_refl", false)
+	bool_number = visor_refl and 1 or 0
+	local visor_refl_intens = read_if_exists(sys_ini, "float", sect, "visor_refl_intens", 0.4) --// 0 - 1	
+	local visor_refl_radius = read_if_exists(sys_ini, "float", sect, "visor_refl_radius", 0.4) --// 0.3 - 0.6
+	console:execute("r2_visor_refl_control "..bool_number)
+	console:execute("r2_visor_refl_intensity "..visor_refl_intens)	
+	console:execute("r2_visor_refl_radius "..visor_refl_radius)
+	--//raindrops
+	local visor_rain_drops = read_if_exists(sys_ini, "bool", sect, "visor_rain_drops", false)
+	bool_number = visor_rain_drops and 1 or 0
+	local visor_rain_drops_intens = read_if_exists(sys_ini, "float", sect, "visor_rain_drops_intens", 0.3) * 0.0001 --// 0 - 0.0001
+	local visor_rain_drops_speed = read_if_exists(sys_ini, "float", sect, "visor_rain_drops_speed", 1.25) --/ 5 - 0.8
+	console:execute("r2_rain_drops_control "..bool_number)
+	console:execute("r2_rain_drops_intensity "..visor_rain_drops_intens)	
+	console:execute("r2_rain_drops_speed "..visor_rain_drops_speed)
+	
+	if read_if_exists(sys_ini, "bool", sect, "visor_breath", false) then
+		breath_max = read_if_exists(sys_ini, "float", sect, "visor_breath_size", 0.6)
 		switch_breath(true)
 	end
 	
-	if read_if_exists(sys_ini, "string", sect, "hud_texture", nil) then
-		texture = mask_texture..read_if_exists(sys_ini, "string", sect, "hud_texture", nil)
-		switch_hud_texture(true)
-	end
+	local visor_texture = read_if_exists(sys_ini, "string", sect, "visor_texture", nil)
+	main_window:SetOutfitMask(visor_texture)
 end
 
 function disable_effects(obj, prev_place)
@@ -152,25 +168,18 @@ function disable_effects(obj, prev_place)
 		-- sm:unsubscribe({signal = "on_update", fun = this.on_update_minimap})
 	end
 	
-	if read_if_exists(sys_ini, "bool", sect, "hud_shader", false) then
-		switch_shader_effects(false)
-	end
-	if read_if_exists(sys_ini, "bool", sect, "hud_breath", false) then
+	disable_shader_effects()
+	if read_if_exists(sys_ini, "bool", sect, "visor_breath", false) then
 		switch_breath(false)
 	end
-	
-	if read_if_exists(sys_ini, "string", sect, "hud_texture", nil) then
-		texture = nil
-		switch_hud_texture(false)
-	end	
+	main_window:SetOutfitMask()
 end
 
-function switch_shader_effects(val)
+function disable_shader_effects()
 	local console = get_console()
-	val = val and 1 or 0
-	console:execute("r2_rain_drops_control "..val)
-	console:execute("r2_visor_refl_control "..val)
-	console:execute("r2_mask_control "..val)
+	console:execute("r2_rain_drops_control 0")
+	console:execute("r2_visor_refl_control 0")
+	console:execute("r2_mask_control 0")
 	console:execute("breath_size 0")
 end
 
@@ -196,27 +205,6 @@ function switch_breath(val)
 		end
 		subscribed = false
 	end	
-end
-
-function switch_hud_texture(val)
-	local sm = ogse_signals.get_mgr()
-	if val then
-		mask_static = create_mask_static()
-		main_wnd:AttachChild(mask_static)
-		main_wnd:BringToBottom(mask_static)
-	else
-		main_wnd:DetachChild(mask_static)
-		mask_static = nil
-	end
-end
-
-function create_mask_static()
-	local texture_name = texture
-	local static = CUIStatic()
-	static:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
-	static:InitTexture(texture_name)
-	static:SetStretchTexture(true)
-	return static
 end
 
 function on_update_mask(delta)

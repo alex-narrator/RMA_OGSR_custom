@@ -1802,24 +1802,27 @@ end
 function is_glowstick(item)
 	return get_clsid(item) == clsid.device_glowstick_s
 end
+
 --//інфоповідомлення на худі, у рушійному стилі
 function hud_add_info_message(static_id, text, ttl)
-	local hud = get_hud()
-	local static = hud:GetCustomStatic(static_id)
-	if not static then
-		static = hud:AddCustomStatic(static_id, true)
-		if ttl then
-			hud:GetCustomStatic(static_id).m_endTime = time_global()/1000 + ttl
-		end
-	end
-	static:wnd():SetTextST(text)
+	-- local hud = get_hud()
+	-- local static = hud:GetCustomStatic(static_id)
+	-- if not static then
+		-- static = hud:AddCustomStatic(static_id, true)
+		-- if ttl then
+			-- hud:GetCustomStatic(static_id).m_endTime = time_global()/1000 + ttl
+		-- end
+	-- end
+	-- static:wnd():SetTextST(text)
+	main_window:AddInfoMessage(static_id, text, ttl)
 end
 function hud_remove_info_message(static_id)
-	local hud = get_hud()
-	local static = hud:GetCustomStatic(static_id)
-	if static then
-		hud:RemoveCustomStatic(static_id)
-	end
+	-- local hud = get_hud()
+	-- local static = hud:GetCustomStatic(static_id)
+	-- if static then
+		-- hud:RemoveCustomStatic(static_id)
+	-- end
+	main_window:RemoveInfoMessage(static_id)
 end
 
 function split_string(inputstr, sep, tonum, tokeys)
