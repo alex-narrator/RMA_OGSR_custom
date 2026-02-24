@@ -23,6 +23,9 @@ function get_target_tip_point(tgt)
 	if tgt:is_stalker() then
 		bone_name = tgt:alive() and "bip01_neck" or "bip01_spine1"
 	end
+	if IsMountedWeapon(tgt) then
+		bone_name = "wpn_body"
+	end
 	return tgt:get_bone_id(bone_name) ~= MAX_U16 and tgt:bone_position(bone_name) or tgt:center()
 end
 
@@ -900,7 +903,7 @@ end
 
 function MainIngameOverlay:UpdateMountedWpnPanel()
 	local mgun = nil
-	if actor:get_holder() and (get_clsid(actor:get_holder()) == clsid.wpn_mounted or get_clsid(actor:get_holder()) == clsid.wpn_stat_mgun) then
+	if handling_mounted_weapon() then
 		mgun = actor:get_holder()
 	end
 	local binded_mgun = mgun and mgun:binded_object() or nil
@@ -1295,10 +1298,11 @@ local crosshair_hide_states = {
 }
 
 function MainIngameOverlay:UpdateCrosshair(forced)
-	self.crosshair:Show(not actor_obj:is_zoom_aiming_mode() and get_script_option_value("hud_crosshair"))
+	self.crosshair:Show(not actor_obj:is_zoom_aiming_mode() and get_script_option_value("hud_crosshair") and not self.slot_selector:IsShown())
 	if not self.crosshair:IsShown() then
 	return end
-	local act_item = actor:active_item()
+
+	local act_item = actor:active_item() or handling_mounted_weapon() and actor:get_holder()
 	if not act_item or act_item:get_pda() then
 		self.crosshair:Show(false)
 	return end

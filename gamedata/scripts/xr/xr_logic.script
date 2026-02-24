@@ -345,6 +345,10 @@ function activate_by_section(npc, ini, section, loading)
 		return
 	end
 
+	if (not section) or section == nil or not ini:section_exist(section) then
+		section = "nil"
+	end
+
 	if ini:section_exist(section) then
 		local scheme = utils.get_scheme_by_section(section)
 		if scheme == nil then

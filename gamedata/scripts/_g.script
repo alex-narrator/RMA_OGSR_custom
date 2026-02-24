@@ -1310,6 +1310,7 @@ local stalker_clsids = {}
 local heli_clsids = {}
 local car_clsids = {}
 local zone_clsids = {}
+local mounted_wpn_clsids = {}
 
 function init_clsid_tables()
 	trader_clsids = {
@@ -1363,6 +1364,11 @@ function init_clsid_tables()
 	car_clsids = {
 		[clsid.car_s] 				= true,
 	}
+	--
+	mounted_wpn_clsids = {
+		[clsid.wpn_mounted] 		= true,
+		[clsid.wpn_stat_mgun] 		= true,
+	}
 end
 
 -------------------------------------------------------------------------------------------
@@ -1394,6 +1400,11 @@ end
 function IsZone (object, class_id)
     local id = class_id or get_clsid (object)
 	return zone_clsids[id]
+end
+-------------------------------------------------------------------------------------------
+function IsMountedWeapon (object, class_id)
+    local id = class_id or get_clsid (object)
+	return mounted_wpn_clsids[id]
 end
 -------------------------------------------------------------------------------------------
 function level_object_by_sid( sid )
@@ -1716,6 +1727,10 @@ function actor_hands_free()
 	local act_item = actor:active_item()
 	local act_device = actor:active_device()
 	return (not act_item or not act_item:is_pending()) and (not act_device or not act_device:is_pending()) and game.hud_motion_allowed() and not actor:ph_capture()
+end
+function handling_mounted_weapon()
+	local holder = actor:get_holder()
+	return holder and IsMountedWeapon(holder)
 end
 function actor_cant_walk()
 	return actor_obj.condition.cant_walk

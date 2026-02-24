@@ -1,7 +1,7 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
 	sm:subscribe({signal = "on_use_mounted_weapon", fun = this.on_use})
-	sm:subscribe({signal = "on_weapon_shell_drop",   	fun = this.on_shell_drop})
+	sm:subscribe({signal = "on_weapon_shell_drop", 	fun = this.on_shell_drop})
 	--sm:subscribe({signal = "on_spawn_mounted_weapon", fun = this.on_spawn})
 end
 
@@ -16,6 +16,8 @@ function on_use(mounted_wpn)
 
 	current_mgun = mounted_wpn
 	binded_mgun = current_mgun:binded_object()
+	
+	main_window:SetCrosshair(read_if_exists(sys_ini, "string", mounted_wpn:section(), "crosshair", nil))
 
 	if not subscribed then
 		subscribed = {
@@ -63,10 +65,11 @@ function on_key_press(key, game_action)
 end
 
 function try_block_fire()
-	if not binded_mgun or not binded_mgun:is_overheated() then
+	local need_block = binded_mgun and binded_mgun:is_overheated() or level.main_input_receiver()
+	if not need_block then
 	return end
 	level.send_event_key_release(bind_to_dik(key_bindings.kWPN_FIRE))
 	actor_obj:block_action(key_bindings.kWPN_FIRE)
 	add_update_delayed_action(1, function() actor_obj:unblock_action(key_bindings.kWPN_FIRE) end)
-	hud_add_info_message("item_usage", game.translate_string("st_machinegun_overheated"))
+	hud_add_info_message("item_usage", game.translate_string("st_machinegun_overheated"), 2)
 end

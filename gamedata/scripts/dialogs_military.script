@@ -307,20 +307,19 @@ function give_vodka_to_actor()
 	dialogs.relocate_item_section(actor, "vodka", "in")
 end
 
-function give_barrier_defense_ammo()
-	give_ammo_box_to_actor("mag_m14", 4, true, 1)
-	local defense_rifle = alife():story_object(story_ids.mil_barrier_rifle)
-	if not defense_rifle then
+function add_defense_tower_spot()
+	local mounted_weapon = alife():story_object(story_ids.mil_barrier_mounted_weapon)
+	if not mounted_weapon then
 	return end
-	level.map_add_object_spot(defense_rifle.id, "crlc_small", "mil_barrier_defense_tower")
-	level.add_call(
-		function()
-			return defense_rifle.parent_id == actor:id()
-		end,
-		function()
-			if level.map_has_object_spot(defense_rifle.id, "crlc_small") ~= 0 then
-				level.map_remove_object_spot(defense_rifle.id, "crlc_small")
-			end
-		end
-	)
+	level.map_add_object_spot(mounted_weapon.id, "crlc_small", "mil_barrier_defense_tower")
+	news_manager.custom_news("st_map_location_added", "mil_barrier_defense_tower", "ui_new_map_location")
+end
+
+function remove_defense_tower_spot()
+	local mounted_weapon = alife():story_object(story_ids.mil_barrier_mounted_weapon)
+	if not mounted_weapon then
+	return end
+	if level.map_has_object_spot(mounted_weapon.id, "crlc_small") ~= 0 then
+		level.map_remove_object_spot(mounted_weapon.id, "crlc_small")
+	end
 end
