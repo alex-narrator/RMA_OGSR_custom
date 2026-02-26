@@ -124,45 +124,6 @@ function CompassOverlay:ShowFrontViewMarks()
 	local pda_radius = pda and read_if_exists(sys_ini, "float", pda:section(), "radius", 50) or 50
 	local objective = gametask.active_objective()
 	local tgt_id = objective and objective:get_object_id() or nil
-	--//nearest objects
-	function perform_action(obj)
-		if obj:is_stalker() or obj:is_trader() then
-			local pos = point_on_screen.compass_ui_projection(obj:center(), self.compass_modern_scale:GetWidth(), self.compass_modern_scale:GetHeight() + params.vertical_mark_add, params.hide_point_off_bound)
-			if pos then
-				local marker_data = {
-					pos = pos,
-					dist = distance_between(actor, obj),
-					color = relation_color[obj:relation(actor)],
-				}
-				if not obj:alive() then
-					marker_data.color = dead_color
-					--marker_data.texture = "ui_PDA_checker_t"
-				end
-				local hidden = (obj:is_relation_enemy(actor) and obj:alive() and not actor:see(obj)) or not alife():object(obj:id()):visible_for_map()
-				if not hidden then
-					table.insert(compass_targets, marker_data)
-				end
-			end
-		end
-		for spot, texture in pairs(map_spot_to_texture) do
-			if level.map_has_object_spot(obj:id(), spot) ~= 0 and obj:id() ~= tgt_id then
-				local pos = point_on_screen.compass_ui_projection(obj:center(), self.compass_modern_scale:GetWidth(), self.compass_modern_scale:GetHeight() + params.vertical_mark_add, params.hide_point_off_bound)
-				if pos then
-					local marker_data = {
-						pos = pos,
-						dist = distance_between(actor, obj),
-						texture = texture,
-						size = params.other_marker_size,
-					}
-					if spot == "general_wounded_location" then
-						marker_data.color = relation_color[2]
-					end
-					table.insert(compass_targets, marker_data)
-				end
-			end
-		end
-	end		
-	level.iterate_nearest(actor:position(), pda_radius, perform_action)
 	--//selected quest target
 	if objective then
 		local dist = main_window.minimap:GetActivePointDist()
@@ -223,7 +184,46 @@ function CompassOverlay:ShowFrontViewMarks()
 				table.insert(compass_targets, marker_data)
 			end
 		end
+	end	
+	--//nearest objects
+	function perform_action(obj)
+		if (obj:is_stalker() or obj:is_trader()) and obj:id() ~= tgt_id then
+			local pos = point_on_screen.compass_ui_projection(obj:center(), self.compass_modern_scale:GetWidth(), self.compass_modern_scale:GetHeight() + params.vertical_mark_add, params.hide_point_off_bound)
+			if pos then
+				local marker_data = {
+					pos = pos,
+					dist = distance_between(actor, obj),
+					color = relation_color[obj:relation(actor)],
+				}
+				if not obj:alive() then
+					marker_data.color = dead_color
+					--marker_data.texture = "ui_PDA_checker_t"
+				end
+				local hidden = (obj:is_relation_enemy(actor) and obj:alive() and not actor:see(obj)) or not alife():object(obj:id()):visible_for_map()
+				if not hidden then
+					table.insert(compass_targets, marker_data)
+				end
+			end
+		end
+		for spot, texture in pairs(map_spot_to_texture) do
+			if level.map_has_object_spot(obj:id(), spot) ~= 0 and obj:id() ~= tgt_id then
+				local pos = point_on_screen.compass_ui_projection(obj:center(), self.compass_modern_scale:GetWidth(), self.compass_modern_scale:GetHeight() + params.vertical_mark_add, params.hide_point_off_bound)
+				if pos then
+					local marker_data = {
+						pos = pos,
+						dist = distance_between(actor, obj),
+						texture = texture,
+						size = params.other_marker_size,
+					}
+					if spot == "general_wounded_location" then
+						marker_data.color = relation_color[2]
+					end
+					table.insert(compass_targets, marker_data)
+				end
+			end
+		end
 	end
+	level.iterate_nearest(actor:position(), pda_radius, perform_action)
 	table.sort( compass_targets, function(a,b) return a.dist > b.dist end )
 	local marker_size = params.marker_size
 	for k, v in ipairs(compass_targets) do
@@ -237,7 +237,6 @@ function CompassOverlay:ShowFrontViewMarks()
 		if v.color then
 			obj_point:SetColor(v.color)
 		end
-		local offset = ui_inv_utils.GetOffset("center", obj_point, self.compass_modern_scale)
 		obj_point:SetWndPos(v.pos.x - obj_point:GetWidth() / 2, v.pos.y - obj_point:GetHeight() / 2)
 	end
 end

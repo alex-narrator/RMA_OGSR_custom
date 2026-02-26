@@ -42,6 +42,11 @@ function on_update(mounted_wpn)
 		binded_mgun = false
 		actor_obj:unblock_action(key_bindings.kWPN_FIRE)
 		actor:restore_weapon(true)
+		add_update_delayed_action(3,
+			function()
+				actor:set_actor_direction(-mounted_wpn:direction():getH())
+			end
+		)
 		return
 	end
 end
