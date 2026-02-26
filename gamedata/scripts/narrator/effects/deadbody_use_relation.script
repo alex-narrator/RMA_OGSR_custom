@@ -33,14 +33,16 @@ function on_npc_use(npc)
 	if disabled_comms[target_comm] then return end
 	local nearest_comm_members = get_nearest_comm_members(npc)
 	
+	local done = false
 	for k, nearest_comm_member in pairs(nearest_comm_members) do
-		if nearest_comm_member:see(actor) and nearest_comm_member:relation(actor) ~= game_object.enemy then
+		if not done and nearest_comm_member:see(actor) and nearest_comm_member:relation(actor) ~= game_object.enemy then
 			--log3("~community member %s see actor searching corpse of %s", nearest_comm_member:character_name(), npc:character_name())
 			local header = string.format("%s [%s]", nearest_comm_member:character_name(), game.translate_string(target_comm))
 			local text = string.format("%s\\n%s: %s%+.0f", game.translate_string("st_"..target_comm.."_deadbody_use_relation_tip"), game.translate_string("st_community_goodwill"), "%c[red]" ,GOODWILL_DOWN)
 			news_manager.custom_news(header, text, community.get_news_icon(target_comm))
 			
 			relation_registry.change_community_goodwill(target_comm, actor:id(), GOODWILL_DOWN)
+			done = true
 		end	
 	end
 end

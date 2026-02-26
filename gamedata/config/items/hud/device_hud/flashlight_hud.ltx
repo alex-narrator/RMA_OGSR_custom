@@ -1,4 +1,6 @@
 [device_tactical_torch_hud]:detector_base_hud
+item_visual                     = dynamics\devices\dev_tactical_torch\dev_tactical_torch_hud
+
 item_position 					= -0.053000,0.027000,0.015000
 item_orientation 				= -13.406107,-7.286826,49.768974
 
@@ -8,38 +10,40 @@ hands_orientation_16x9 			= 6.38205,11.7502,2.85
 aim_hud_offset_pos_16x9 		= -0.1434,0.170901,-0.0208026
 aim_hud_offset_rot_16x9 		= 0.1035,0.128699,-0.239499
 
-;aim_hud_offset_pos_16x9 		= -0.1142,0.079501,-0.0974037
-;aim_hud_offset_rot_16x9 		= -0.0435002,0.0541993,-0.239499
-
-item_visual                     = dynamics\devices\dev_tactical_torch\dev_tactical_torch_hud
 fire_point                      = 0,0,-0.25
 fire_direction					= 0,0,1			;Note: engine default is 0,0,1
 fire_bone                       = light_bone_2
 fire_point2                     = 0,0,0
 fire_bone2                      = wpn_body
 
-anm_show_16x9                   = tactical_torch_draw, idle_tactical_torch
-anm_show_fast_16x9              = tactical_torch_draw, idle_tactical_torch
-anm_hide_16x9                   = tactical_torch_holster, idle_tactical_torch
-anm_hide_fast_16x9              = tactical_torch_holster_fast, idle_tactical_torch
-anm_idle_16x9                   = tactical_torch_idle, idle_tactical_torch
-anm_idle_moving_16x9            = tactical_torch_moving, idle_tactical_torch
-anm_idle_sprint_16x9            = tactical_torch_sprint, idle_tactical_torch
-anm_idle_zoom_16x9				= tactical_torch_zoom, idle_tactical_torch
-anm_zoom_in_16x9				= tactical_torch_zoom_in, idle_tactical_torch
-anm_zoom_out_16x9				= tactical_torch_zoom_out, idle_tactical_torch
-anm_zoom_show_16x9				= tactical_torch_zoom_draw, idle_tactical_torch
-anm_zoom_hide_16x9				= tactical_torch_zoom_holster, idle_tactical_torch
-anm_zoom_hide_fast_16x9			= tactical_torch_zoom_holster_fast, idle_tactical_torch
+anm_show 						= tactical_torch_draw, idle_tactical_torch
+anm_show_fast 					= tactical_torch_draw, idle_tactical_torch
+anm_hide 						= tactical_torch_holster, idle_tactical_torch
+anm_hide_fast 					= tactical_torch_holster_fast, idle_tactical_torch
+anm_idle 						= tactical_torch_idle, idle_tactical_torch
+anm_idle_moving 				= tactical_torch_moving, idle_tactical_torch
+anm_idle_sprint 				= tactical_torch_sprint, idle_tactical_torch
+anm_idle_zoom 					= tactical_torch_zoom, idle_tactical_torch
+anm_zoom_in 					= tactical_torch_zoom_in, idle_tactical_torch
+anm_zoom_out 					= tactical_torch_zoom_out, idle_tactical_torch
+anm_zoom_show 					= tactical_torch_zoom_draw, idle_tactical_torch
+anm_zoom_hide 					= tactical_torch_zoom_holster, idle_tactical_torch
+anm_zoom_hide_fast 				= tactical_torch_zoom_holster_fast, idle_tactical_torch
 
-anm_throw_start_16x9			= tactical_torch_throw_start, idle_tactical_torch
-anm_throw_16x9					= tactical_torch_throw_idle, idle_tactical_torch
-anm_throw_end_16x9				= tactical_torch_throw_end, idle_tactical_torch
+anm_throw_start 				= tactical_torch_throw_start, idle_tactical_torch
+anm_throw 						= tactical_torch_throw_idle, idle_tactical_torch
+anm_throw_end 					= tactical_torch_throw_end, idle_tactical_torch
 
 anm_switch 						= tactical_torch_switch
 
-anm_zoom_in_16x9_speed_k 		= 1
-anm_zoom_out_16x9_speed_k 		= 1
+anm_zoom_in_speed_k 			= 1
+anm_zoom_out_speed_k 			= 1
+
+[device_flashlight_hud]:device_tactical_torch_hud
+item_visual                     = dynamics\devices\dev_flashlight\dev_flashlight_hud
+
+item_position 					= -0.0493013,0.0269233,0.0159401
+item_orientation 				= -13.0387,-7.27135,1.09513
 
 [device_anpeq_16_hud]:device_tactical_torch_hud
 item_visual                     = anomaly_weapons\wpn_addon\wpn_light_anpeq_16_hud
@@ -54,64 +58,21 @@ hands_orientation_16x9 			= 5.67203,12.4102,2.85
 aim_hud_offset_pos_16x9 		= -0.1546,0.161401,-0.00270251
 aim_hud_offset_rot_16x9 		= 0.118,0.117,-0.162
 
-;aim_hud_offset_pos_16x9 		= -0.1242,0.0805009,-0.0974037
-;aim_hud_offset_rot_16x9 		= -0.0480002,0.064,-0.162
+anm_show 						= tactical_torch_draw
+anm_show_fast 					= tactical_torch_draw
+anm_hide 						= tactical_torch_holster
 
-anm_show_16x9                   = tactical_torch_draw
-anm_show_fast_16x9              = tactical_torch_draw
-anm_hide_16x9                   = tactical_torch_holster
+anm_hide_fast 					= tactical_torch_holster_fast
+anm_idle 						= tactical_torch_idle
+anm_idle_moving 				= tactical_torch_moving
+anm_idle_sprint 				= tactical_torch_sprint
+anm_idle_zoom 					= tactical_torch_zoom
+anm_zoom_in 					= tactical_torch_zoom_in
+anm_zoom_out 					= tactical_torch_zoom_out
+anm_zoom_show 					= tactical_torch_zoom_draw
+anm_zoom_hide 					= tactical_torch_zoom_holster
+anm_zoom_hide_fast 				= tactical_torch_zoom_holster_fast
 
-anm_hide_fast_16x9              = tactical_torch_holster_fast
-anm_idle_16x9                   = tactical_torch_idle
-anm_idle_moving_16x9            = tactical_torch_moving
-anm_idle_sprint_16x9            = tactical_torch_sprint
-anm_idle_zoom_16x9				= tactical_torch_zoom
-anm_zoom_in_16x9				= tactical_torch_zoom_in
-anm_zoom_out_16x9				= tactical_torch_zoom_out
-anm_zoom_show_16x9				= tactical_torch_zoom_draw
-anm_zoom_hide_16x9				= tactical_torch_zoom_holster
-anm_zoom_hide_fast_16x9			= tactical_torch_zoom_holster_fast
-
-anm_throw_start_16x9			= tactical_torch_throw_start
-anm_throw_16x9					= tactical_torch_throw_idle
-anm_throw_end_16x9				= tactical_torch_throw_end
-
-[device_flashlight_hud]:detector_base_hud
-item_position 					= -0.0493013,0.0269233,0.0159401
-item_orientation 				= -13.0387,-7.27135,1.09513
-
-hands_position_16x9 			= 0.0844002,-0.283099,0.039
-hands_orientation_16x9 			= 6.38205,11.7502,2.85
-
-aim_hud_offset_pos_16x9 		= -0.1434,0.170901,-0.0208026
-aim_hud_offset_rot_16x9 		= 0.1035,0.128699,-0.239499
-
-item_visual                     = dynamics\devices\dev_flashlight\dev_flashlight_hud
-fire_point                      = 0,0,0
-fire_direction					= 0,0,1			;Note: engine default is 0,0,1
-fire_bone                       = light_bone_2
-fire_point2                     = 0,0,0
-fire_bone2                      = wpn_body
-
-anm_show_16x9                   = tactical_torch_draw, idle_tactical_torch
-anm_show_fast_16x9              = tactical_torch_draw, idle_tactical_torch
-anm_hide_16x9                   = tactical_torch_holster, idle_tactical_torch
-anm_hide_fast_16x9              = tactical_torch_holster_fast, idle_tactical_torch
-anm_idle_16x9                   = tactical_torch_idle, idle_tactical_torch
-anm_idle_moving_16x9            = tactical_torch_moving, idle_tactical_torch
-anm_idle_sprint_16x9            = tactical_torch_sprint, idle_tactical_torch
-anm_idle_zoom_16x9				= tactical_torch_zoom, idle_tactical_torch
-anm_zoom_in_16x9				= tactical_torch_zoom_in, idle_tactical_torch
-anm_zoom_out_16x9				= tactical_torch_zoom_out, idle_tactical_torch
-anm_zoom_show_16x9				= tactical_torch_zoom_draw, idle_tactical_torch
-anm_zoom_hide_16x9				= tactical_torch_zoom_holster, idle_tactical_torch
-anm_zoom_hide_fast_16x9			= tactical_torch_zoom_holster_fast, idle_tactical_torch
-
-anm_throw_start_16x9			= tactical_torch_throw_start, idle_tactical_torch
-anm_throw_16x9					= tactical_torch_throw_idle, idle_tactical_torch
-anm_throw_end_16x9				= tactical_torch_throw_end, idle_tactical_torch
-
-anm_switch 						= tactical_torch_switch
-
-anm_zoom_in_16x9_speed_k 		= 1
-anm_zoom_out_16x9_speed_k 		= 1
+anm_throw_start 				= tactical_torch_throw_start
+anm_throw 						= tactical_torch_throw_idle
+anm_throw_end 					= tactical_torch_throw_end
