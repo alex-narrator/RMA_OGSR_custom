@@ -149,7 +149,9 @@ function enable_effects(obj)
 	end
 	
 	local visor_texture = read_if_exists(sys_ini, "string", sect, "visor_texture", nil)
-	main_window:SetOutfitMask(visor_texture)
+	if visor_texture then
+		main_window:SetOutfitMask(visor_texture)
+	end
 end
 
 function disable_effects(obj, prev_place)
@@ -172,7 +174,11 @@ function disable_effects(obj, prev_place)
 	if read_if_exists(sys_ini, "bool", sect, "visor_breath", false) then
 		switch_breath(false)
 	end
-	main_window:SetOutfitMask()
+
+	local visor_texture = read_if_exists(sys_ini, "string", sect, "visor_texture", nil)
+	if visor_texture then
+		main_window:SetOutfitMask(nil)
+	end
 end
 
 function disable_shader_effects()
