@@ -318,6 +318,7 @@ end
 
 function activate_by_section(npc, ini, section, loading)
 	printf("DEBUG: object '%s': activate_by_section: looking for section '%s'", npc:name(), section)
+	--log_news("~activate_by_section: npc %s, ini %s, section %s, loading %s", npc:name(), ini:name() or "NONE", section or "NONE", loading)
 
 	if loading == nil then
 		abort("xr_logic: activate_by_section: loading field is nil, true or false expected")
@@ -1378,7 +1379,7 @@ function load_obj(obj, reader)
 	if ini_filename == "" then
 		config = get_object_logic_file_name( npc_id )
 		if config ~= "" and config ~= "nil" then
-			log3("!!WARNING! object [%s] can't load logic properly, using alternate way. File=[%s]", obj:name(), tostring( config ))
+			log_news("!!WARNING! object [%s] can't load logic properly, using alternate way. File=[%s]", obj:name(), tostring( config ))
 			emergency_reload[ obj:name() ] = true
 		end	
 		ini_filename = nil
@@ -1432,19 +1433,19 @@ function validate_loaded_logic( obj, st )
 	local strn_id = sobj:smart_terrain_id()
 	local clean = false
 	if strn_id == MAX_U16 then
-		log3("[%s]: %s: invalid saved logic: smart_terrain_id() == %s", script_name(), obj:name(), strn_id)
+		log_news("[%s]: %s: invalid saved logic: smart_terrain_id() == %s", script_name(), obj:name(), strn_id)
 		clean = true
 	else
 		local strn = alife():object( strn_id )
 		if ( not strn ) or strn:name() ~= st.loaded_gulag_name then
-			log3("[%s]: %s: invalid saved logic: smart_terrain_id() == %s", script_name(), obj:name(), ( strn and strn:name() or "nil" ))
+			log_news("[%s]: %s: invalid saved logic: smart_terrain_id() == %s", script_name(), obj:name(), ( strn and strn:name() or "nil" ))
 			clean = true
 		end
 	end
 	if clean then
 		for _, k in ipairs({"active_section", "gulag_name", "ini_filename", "section_logic"}) do
 			local loaded_k = "loaded_" .. k
-			log3( "[%s]:   %s = %s", script_name(), k, st[ loaded_k ] )
+			log_news( "[%s]:   %s = %s", script_name(), k, st[ loaded_k ] )
 			st[ loaded_k ] = nil
 		end
 	end
@@ -1479,13 +1480,14 @@ function initialize_obj(obj, st, loaded, actor, stype)
 		local ini = get_customdata_or_ini_file(obj, ini_filename)
 		ini = xr_logic.configure_schemes(obj, ini, ini_filename, stype, "logic", nil)
 		local sect = xr_logic.determine_section_to_activate(obj, ini, "logic", actor)
+		--log_news("~initialize_obj: npc %s, ini %s, section %s, loaded %s", obj:name(), ini:name() or "NONE", sect or "NONE", false)
 		xr_logic.activate_by_section(obj, ini, sect, false)
 	else
 		local ini_filename = st.loaded_ini_filename
 		if ini_filename then
 			local ini = get_customdata_or_ini_file(obj, ini_filename)
 			ini = xr_logic.configure_schemes(obj, ini, ini_filename, stype, st.loaded_section_logic, st.loaded_gulag_name)
-			printf( "initialize_obj: loaded" )
+			--log_news("~initialize_obj: npc %s, ini %s, section %s, loaded %s, ini_filename %s", obj:name(), ini:name() or "NONE", st.loaded_active_section or "NONE", true, ini_filename)
 			xr_logic.activate_by_section(obj, ini, st.loaded_active_section, true)
 		end
 
@@ -1514,8 +1516,8 @@ function save_logic_online( obj )
 		[ "sec" ] = "section_logic",
 	}
 	for ini_k, st_k in pairs( t ) do
-		if st[ st_k ] then
-			ini:w_string( "xr_logic", ini_k, st[ st_k ] )
+		if st[ st_k ] or ini_k == "act" then
+			ini:w_string( "xr_logic", ini_k, st[ st_k ] or "nil" )
 		else
 			ini:remove_line( "xr_logic", ini_k )
 		end
