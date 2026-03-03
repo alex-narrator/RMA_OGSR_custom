@@ -51,6 +51,11 @@ local psy_phantoms_spawn_radius 	= read_if_exists(sys_ini, "float", cond_sect, "
 local psy_phantoms_spawn_fov 		= read_if_exists(sys_ini, "float", cond_sect, "psy_phantoms_spawn_fov", 45)
 local psy_phantom_section 			= read_if_exists(sys_ini, "string", cond_sect, "psy_phantom_section", "m_phantom")
 
+local heavy_breath_snd_name 		= read_if_exists(sys_ini, "string", "actor", "heavy_breath_snd", [[actor\breath_1]])
+local heavy_breath_snd 				= xr_sound.get_safe_sound_object(heavy_breath_snd_name)
+local heavy_blood_snd_name 			= read_if_exists(sys_ini, "string", "actor", "heavy_blood_snd", [[affects\heartbeat]])
+local heavy_blood_snd 				= xr_sound.get_safe_sound_object(heavy_blood_snd_name)
+
 --//tutorial thresholds
 local thresholds_sect 			= "tutorial_conditions_thresholds"
 local tutorial_data 			= {
@@ -115,7 +120,8 @@ local hallucinations_sounds = {
 function on_update_effects(delta)
 	if not actor:alive() then
 		update_alcohol_effector(true)
-		update_psy_health_effector(true)	
+		update_psy_health_effector(true)
+		update_sounds(true)
 	return end
 	
 	--//custom conditions
@@ -162,6 +168,7 @@ function on_update_effects(delta)
 	update_alcohol_effector()
 	update_psy_health_effector()
 	update_psy_health_effects()
+	update_sounds()
 end
 
 function update_alcohol_effector(force_stop)
@@ -346,4 +353,37 @@ function on_before_use(item)
 			end
 		end
 	)
+end
+
+function update_sounds(force_stop)
+	if force_stop then
+		if heavy_breath_snd:playing() then
+			heavy_breath_snd:stop()
+		end
+		if heavy_blood_snd:playing() then
+			heavy_blood_snd:stop()
+		end		
+	return end
+	
+	local snd_playing = heavy_breath_snd:playing()
+	if actor_limping() then
+		if not snd_playing then
+			heavy_breath_snd:play(actor, 0, sound_object.s2d + sound_object.looped)
+		end
+	elseif snd_playing then
+		heavy_breath_snd:stop()
+	end
+	
+	snd_playing = heavy_blood_snd:playing()
+	local bleeding = actor:get_bleeding()
+	if bleeding > 0.6 then
+		if not snd_playing then
+			heavy_blood_snd:play(actor, 0, sound_object.s2d + sound_object.looped)
+			
+			local vol = bleeding + 0.25
+			heavy_blood_snd.volume = vol
+		end
+	elseif snd_playing then
+		heavy_blood_snd:stop()
+	end
 end
