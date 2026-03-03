@@ -63,7 +63,7 @@ function play_effect_sound(sound_mode)
 		--//sound expected as sound_1, sound_2, ... sound_n
 		snd_name = split_string(snd_name, ",")
 		snd_name = snd_name[math.random(1, #snd_name)]
-		effect_sound = xr_sound.get_safe_sound_object(snd_name,sound_object.s2d)
+		effect_sound = xr_sound.get_safe_sound_object(snd_name)
 		effect_sound:play(actor, 0, sound_object.s2d)
 		effect_sound.volume = EFF_VOL or 1
 		effect_sound.frequency = EFF_FREQ or 1
