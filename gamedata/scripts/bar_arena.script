@@ -1,4 +1,7 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_info_portion", fun = this.on_info_portion})
+end
 
 --//загальні правила для видачі спорядження:
 --//спершу варто видавати костюм, бо в ньому можуть бути слоти під медицину/магазини/набої
@@ -14,15 +17,26 @@
 -- {sect="medkit", 				count=2},
 --//бо в цьому випадку два бинта займуть два місця в розгрузці а на аптечки вже може місця не стати
 
-local fight_infoportions = {
-	bar_arena_fight_1 = true,
-	bar_arena_fight_2 = true,
-	bar_arena_fight_3 = true,
-	bar_arena_fight_4 = true,
-	bar_arena_fight_5 = true,
-	bar_arena_fight_6 = true,
-	bar_arena_fight_7 = true,
-	bar_arena_fight_8 = true,
+local fight_start_infoportions = {
+	["bar_arena_fight_1"] = "bar_arena_fight_1",
+	["bar_arena_fight_2"] = "bar_arena_fight_2",
+	["bar_arena_fight_3"] = "bar_arena_fight_3",
+	["bar_arena_fight_4"] = "bar_arena_fight_4",
+	["bar_arena_fight_5"] = "bar_arena_fight_5",
+	["bar_arena_fight_6"] = "bar_arena_fight_6",
+	["bar_arena_fight_7"] = "bar_arena_fight_7",
+	["bar_arena_fight_8"] = "bar_arena_fight_8",
+}
+
+local fight_end_infoportions = {
+	["bar_arena_fight_1_done"] = "bar_arena_fight_1_end",
+	["bar_arena_fight_2_done"] = "bar_arena_fight_2_end",
+	["bar_arena_fight_3_done"] = "bar_arena_fight_3_end",
+	["bar_arena_fight_4_done"] = "bar_arena_fight_4_end",
+	["bar_arena_fight_5_done"] = "bar_arena_fight_5_end",
+	["bar_arena_fight_6_done"] = "bar_arena_fight_6_end",
+	["bar_arena_fight_7_done"] = "bar_arena_fight_7_end",
+	["bar_arena_fight_8_done"] = "bar_arena_fight_8_end",
 }
 
 local equipment_sets = {
@@ -81,7 +95,7 @@ local equipment_sets = {
 }
 
 function get_arena_eq_set()
-	for k,v in pairs(fight_infoportions) do
+	for k,v in pairs(fight_start_infoportions) do
 		if has_alife_info(k) then
 			return equipment_sets[k]
 		end
@@ -129,12 +143,42 @@ function try_place(id, obj)
 	)
 end
 
+function play_fight_start_sound()
+	local theme
+	for k,v in pairs(fight_start_infoportions) do
+		if has_alife_info(k) then
+			theme = v
+			break
+		end
+	end
+	if theme then
+		log_news("~fight_start_infoportions theme %s", theme)
+		local sound = xr_sound.get_sound_object(theme)
+		if sound then
+			log_news("~sound!")
+			sound:play(actor, 0, sound_object.s2d)
+		end
+	end
+end
+
+function on_info_portion(npc, info_id)
+	local theme = fight_end_infoportions[info_id]
+	if not theme then
+	return end
+	log_news("~fight_end_infoportions theme %s", theme)
+	local sound = xr_sound.get_sound_object(theme)
+	if sound then
+		log_news("~sound!")
+		sound:play(actor, 0, sound_object.s2d)
+	end
+end
+
 local monster_names = {
-	bar_arena_pseudodog = true,
-	bar_arena_snork = true,
-	bar_arena_bloodsucker = true,
-	bar_arena_burer = true,
-	bar_arena_savage = true,
+	["bar_arena_pseudodog"] 	= true,
+	["bar_arena_snork"] 		= true,
+	["bar_arena_bloodsucker"] 	= true,
+	["bar_arena_burer"] 		= true,
+	["bar_arena_savage"] 		= true,
 }
 
 function clear_monster_bodies()
