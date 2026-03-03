@@ -80,7 +80,7 @@ function on_non_slot(obj, prev_place)
 	
 	disable_effects(obj)
 	
-	if get_hud_sect(obj) and actor:alive() and not xr_conditions.black_screen() and not level.is_removing_objects() then
+	if get_hud_sect(obj) and actor:alive() and not xr_conditions.black_screen() and not level.is_removing_objects() and not has_alife_info("bar_arena_fight") then
 		outfit_anim.play_gasmask(obj, false)
 	end	
 
