@@ -39,10 +39,12 @@ end
 function on_hit_actor(victim, health_lost, direction, draftsman, bone_id, hit_type)
 	log_news("~on_hit: victim %s | health_lost %s | draftsman %s | bone %s | hit_type %s",	victim:name(),  health_lost, draftsman:name(), victim:get_bone_name(bone_id), get_hit_type_name(hit_type))
 	log_news("~%s current health %.2f | bleeding %.2f", victim:name(), victim.health, victim:get_bleeding())
+	log_news("~on hit dir H %s", direction:getH())
 end
 
 function on_before_hit(object, hit)
 	log_news("~%s on_before_hit: power %s | full power %s | type %s | draftsman %s | bone %s | ap %s", object:name(), hit.power, hit.full_power, get_hit_type_name(hit.hit_type), hit.who:name(), object:get_bone_name(hit.bone_id) or "NONE", hit.ap)
+	log_news("~on before hit dir H %s", hit.dir:getH())
 end
 
 function on_death(victim, killer)
@@ -72,7 +74,7 @@ function on_key_press(key, game_action)
 	local show_tgt_info = (game_action == key_bindings.kCHECKACTIVEITEM) and key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION))
 	local tgt = level.get_target_obj()
 	if show_tgt_info and tgt then
-		local tgt_info = string.format("section: %s\\n id: %s\\n story_id: %s\\n name: %s\\n profile: %s\\n community: %s\\n species: %s\\n nonscript usable: %s\\n position: (%s, %s, %s) lvid: %s gvid: %s\\n direction: (%s, %s, %s)\\n visual: %s\\n gulag: %s\\n active logic section: %s\\n mesh count: %s\\n bone_protection: %s\\n immunities: %s",
+		local tgt_info = string.format("section: %s\\n id: %s\\n story_id: %s\\n name: %s\\n profile: %s\\n community: %s\\n species: %s\\n nonscript usable: %s\\n position: (%s, %s, %s) lvid: %s gvid: %s\\n direction: (%s, %s, %s)\\n visual: %s\\n gulag: %s\\n active logic section: %s\\n mesh count: %s\\n bone_protection: %s\\n immunities: %s\\n active item: %s\\n ammo in active item: %s",
 				tgt:section(), 
 				tgt:id(), 
 				tgt:story_id() == NEG_U32 and "NO STORY ID" or tgt:story_id(), 
@@ -90,7 +92,9 @@ function on_key_press(key, game_action)
 				db.storage[tgt:id()] and db.storage[tgt:id()].active_section or "NONE",
 				tgt:get_mesh_count(),
 				read_if_exists(tgt:get_visual_ini(), "string", "bone_protection", "bones_protection_sect", "NONE"),
-				read_if_exists(tgt:get_visual_ini(), "string", "immunities", "immunities_sect", "NONE")
+				read_if_exists(tgt:get_visual_ini(), "string", "immunities", "immunities_sect", "NONE"),
+				tgt:active_item() and tgt:active_item():name() or "NONE",
+				tgt:active_item() and tgt:active_item():get_ammo_in_magazine() or "NONE"
 			)
 		log_news("~%s", tgt_info)
 		hud_add_info_message("debug_msg", tgt_info, 10)

@@ -93,6 +93,8 @@ function MainIngameOverlay:Subscribe()
 			
 			{signal = "on_timed_action_start", self = self, fun = self.SetTimedActionProgress},
 			{signal = "on_timed_action_stop", self = self, fun = self.SetTimedActionProgress},
+			
+			{signal = "on_actor_before_hit", self = self, fun = self.SetHitMarker},
 		}
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
@@ -140,7 +142,17 @@ function MainIngameOverlay:InitControls()
 	self.outfit_mask:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
 	self.outfit_mask:SetStretchTexture(true)
 	self:AttachChild(self.outfit_mask)
-	self.outfit_mask:Show(false)
+	
+	self.hitmarker = CUIStatic()
+	self.hitmarker:Init(0, 0, UI_BASE_HEIGHT * get_current_kx(), UI_BASE_HEIGHT)
+	self.hitmarker:SetStretchTexture(true)
+	self:AttachChild(self.hitmarker)
+	local offset = ui_inv_utils.GetOffset("center", self.hitmarker, self)
+	self.hitmarker:SetWndPos(offset.x, offset.y)
+	self.hitmarker.texture = xml:ReadAttrib("hitmarker", "hit_mark_texture", "")
+	self.hitmarker.hit_types = split_string(xml:ReadAttrib("hitmarker", "hit_types", ""), ",", false, true)
+	self.hitmarker.ttl = xml:ReadAttribFlt("hitmarker", "ttl", 3)
+	self.hitmarker.alpha = xml:ReadAttribFlt("hitmarker", "alpha", 255)
 	
 	self.blood_overlay = xml:InitStatic("blood_overlay", self)
 	self.blood_overlay.fade_time = xml:ReadAttribFlt("blood_overlay", "fade_time", 0)
@@ -1521,6 +1533,7 @@ function MainIngameOverlay:AddInfoMessage(static_id, text, ttl)
 	local static = info_message.static
 	static:SetText(game.translate_string(text))
 	static:Show(true)
+	self:BringToTop(static)
 	if (not ttl or ttl <= 0) then ttl = 999 end
 	self.info_message[static_id].hide_time = time_global() + ttl * 1000
 end
@@ -1543,6 +1556,40 @@ function MainIngameOverlay:UpdateInfoMessages()
 			v.hide_time = nil
 		end
 	end
+end
+
+function MainIngameOverlay:SetHitMarker(object, hit)
+	if not self.hitmarker.hit_types[get_hit_type_name(hit.hit_type)] then
+	return end
+	local hit_dir = hit.dir
+	local hit_h = hit_dir:mul(-1):getH()
+	local cam_h = device().cam_dir:getH()
+	local heading = -cam_h + hit_h
+	local static = CUIStatic()
+	static:Init(0, 0, self.hitmarker:GetWidth(), self.hitmarker:GetHeight())
+	static:SetStretchTexture(true)
+	static:EnableHeading(true)
+	static:SetHeading(heading)
+	static:InitTexture(self.hitmarker.texture)
+	static:SetColorA(self.hitmarker.alpha)
+	self.hitmarker:AttachChild(static)
+	
+	local action_time = self.hitmarker.ttl * 1000
+	local end_time = time_global() + action_time
+	level.add_call(
+		function()
+			local tg = time_global()
+			local val = math.clamp((end_time - tg) / action_time, 0, 1)
+			static:SetColorA(self.hitmarker.alpha * val)
+			local cam_h = device().cam_dir:getH()
+			local heading = -cam_h + hit_h
+			static:SetHeading(heading)			
+			return tg >= end_time
+		end,
+		function()
+			self.hitmarker:DetachChild(static)
+		end		
+	)	
 end
 
 function MainIngameOverlay:Update()
