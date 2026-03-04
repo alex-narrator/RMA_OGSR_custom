@@ -2337,7 +2337,7 @@ function get_species(npc)
 	return read_if_exists(sys_ini, "string", npc:section(), "species", "NO SPECIES")
 end
 
-local immunity_type = {
+local hit_types = {
 	"burn",
 	"shock",
 	"strike",
@@ -2351,7 +2351,11 @@ local immunity_type = {
 	"physic_strike",
 }
 function get_hit_type_name(hit_type)
-	return immunity_type[hit_type+1]
+	return hit_types[hit_type+1]
+end
+
+function get_hit_types()
+	return hit_types
 end
 
 function get_zoom_data(item)

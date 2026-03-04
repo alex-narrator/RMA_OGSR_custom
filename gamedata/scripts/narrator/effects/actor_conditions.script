@@ -5,7 +5,11 @@ function attach(sm)
 	sm:subscribe({signal = "on_booster_disable",   	fun = this.on_booster_disable})
 	sm:subscribe({signal = "on_actor_jump",   		fun = this.on_jump})
 	sm:subscribe({signal = "on_before_use_item",   	fun = this.on_before_use})
+	sm:subscribe({signal = "on_hit_actor", 			fun = this.on_hit_actor})
+	sm:subscribe({signal = "on_death_actor",   		fun = this.on_death_actor})
 end
+
+local get_snd 						= xr_sound.get_safe_sound_object
 
 local actor_cond 					= actor_obj.condition--actor.conditions
 local cond_sect 					= read_if_exists(sys_ini, "string", "actor", "condition_sect", "actor_condition")
@@ -52,9 +56,34 @@ local psy_phantoms_spawn_fov 		= read_if_exists(sys_ini, "float", cond_sect, "ps
 local psy_phantom_section 			= read_if_exists(sys_ini, "string", cond_sect, "psy_phantom_section", "m_phantom")
 
 local heavy_breath_snd_name 		= read_if_exists(sys_ini, "string", "actor", "heavy_breath_snd", [[actor\breath_1]])
-local heavy_breath_snd 				= xr_sound.get_safe_sound_object(heavy_breath_snd_name)
+local heavy_breath_snd 				= get_snd(heavy_breath_snd_name)
 local heavy_blood_snd_name 			= read_if_exists(sys_ini, "string", "actor", "heavy_blood_snd", [[affects\heartbeat]])
-local heavy_blood_snd 				= xr_sound.get_safe_sound_object(heavy_blood_snd_name)
+local heavy_blood_snd 				= get_snd(heavy_blood_snd_name)
+
+local def_die_snd_names 			= read_if_exists(sys_ini, "string", "actor_die_snds", "default", [[actor\die0, actor\die1, actor\die2, actor\die3]])
+local def_die_snds 					= split_string(def_die_snd_names, ",")
+
+local hit_sounds_sect 				= read_if_exists(sys_ini, "string", cond_sect, "hit_sounds", "actor_hit_snds")
+
+local groggy_eff_sect 				= read_if_exists(sys_ini, "string", cond_sect, "groggy_effector_sect", "effector_groggy")
+local groggy_eff_id 				= 1002
+local groggy_eff_disable_time 		= nil
+
+local hit_sound
+local hit_sounds = {}
+for k, hit_type_name in pairs(get_hit_types()) do
+	hit_sounds[hit_type_name] 		= split_string(read_if_exists(sys_ini, "string", hit_sounds_sect, hit_type_name, nil), ",")
+end
+for k, hit_type in pairs(hit_sounds) do
+	for kk, sound in pairs(hit_type) do
+		local sound_obj = get_snd(sound)
+		if sound_obj then
+			hit_type[kk] = sound_obj
+		else
+			log_news("!can`t find sound [%s] fot [%s] hit sounds type", sound, hit_type)
+		end
+	end
+end
 
 --//tutorial thresholds
 local thresholds_sect 			= "tutorial_conditions_thresholds"
@@ -80,7 +109,6 @@ local update_boost_func = {
 	["boost_somnolence"] 	= function(val) somnolence.change_val(val) end,
 }
 
-local get_snd = xr_sound.get_safe_sound_object
 local hallucinations_sounds = {
 	get_snd([[monsters\bloodsucker\sucker_growl_0]]),
 	get_snd([[monsters\bloodsucker\vampire_grasp]]),
@@ -119,9 +147,6 @@ local hallucinations_sounds = {
 
 function on_update_effects(delta)
 	if not actor:alive() then
-		update_alcohol_effector(true)
-		update_psy_health_effector(true)
-		update_sounds(true)
 	return end
 	
 	--//custom conditions
@@ -169,6 +194,7 @@ function on_update_effects(delta)
 	update_psy_health_effector()
 	update_psy_health_effects()
 	update_sounds()
+	update_groggy_effect()
 end
 
 function update_alcohol_effector(force_stop)
@@ -215,7 +241,7 @@ function update_psy_health_effector(force_stop)
 		end
 	else
 		if has_effector then
-			level.remove_complex_effector(psy_health_effector_id)		
+			level.remove_complex_effector(psy_health_effector_id)
 		end
 	end
 end
@@ -386,4 +412,65 @@ function update_sounds(force_stop)
 	elseif snd_playing then
 		heavy_blood_snd:stop()
 	end
+end
+
+function on_hit_actor(victim, health_lost, direction, draftsman, bone_id, hit_type)
+	if not actor:alive() then
+	return end
+	local sounds = hit_sounds[get_hit_type_name(hit_type)]
+	if not sounds then
+	return end
+	if hit_sound and hit_sound:playing() then
+	return end
+	hit_sound = sounds[math.random(1, table.size(sounds))]
+	hit_sound:play(actor, 0, sound_object.s2d)
+	if get_hit_type_name(hit_type) == "explosion" then
+		set_groggy_effector(hit_sound:length(), health_lost)
+	end
+end
+
+function set_groggy_effector(ttl, power)
+	if not ttl then
+		groggy_eff_disable_time = ttl
+		level.remove_complex_effector(groggy_eff_id)
+	return end
+	groggy_eff_ttl = ttl
+	groggy_eff_disable_time = time_global() + ttl
+	level.add_complex_effector(groggy_eff_sect, groggy_eff_id, power)
+	level.add_call(
+		function()
+			if groggy_eff_disable_time then
+				local val = math.clamp((groggy_eff_disable_time - time_global()) / ttl, 0, 1)
+				level.set_complex_effector_factor(groggy_eff_id, power * val)
+			end
+			return not groggy_eff_disable_time			
+		end,
+		function()
+		end
+	)
+end
+
+function update_groggy_effect()
+	if not groggy_eff_disable_time then
+	return end
+	
+	if time_global() >= groggy_eff_disable_time then
+		groggy_eff_disable_time = ttl
+		level.remove_complex_effector(groggy_eff_id)
+	end
+end
+
+function on_death_actor()
+	update_alcohol_effector(true)
+	update_psy_health_effector(true)
+	update_sounds(true)
+	set_groggy_effector()
+	
+	if hit_sound and hit_sound:playing() then
+		hit_sound:stop()
+	end
+	
+	local die_snd_name = def_die_snds[math.random(1, table.size(def_die_snds))]
+	-- log_news("~die_snd_name %s", die_snd_name)
+	get_snd(die_snd_name):play(actor, 0, sound_object.s2d)
 end

@@ -46,9 +46,9 @@ local gd_injure_prob = {
 	0.8, 	--//master	
 }
 
-local groggy_treshold, groggy_snd, groggy_eff, groggy_cam_eff, groggy_ppe_eff
-local groggy_cam_eff_id, groggy_ppe_eff_id = 5596, 5597
-local EFF_DEC = 0.01
+local sect = "actor_groggy"
+local groggy_treshold = read_if_exists(sys_ini, "float", sect, "treshold", nil)
+local groggy_snd = read_if_exists(sys_ini, "string", sect, "snd", [[affects\tinnitus3a]])
 
 local UPPER_LIMBS_HIT_AMOUNT = 0.3
 local LOWER_LIMBS_HIT_AMOUNT = 0.3
@@ -120,7 +120,6 @@ function random_prob()
 end
 
 function on_spawn()
-	load_groggy_params()
 	subscribe_hands()
 	subscribe_legs()
 end
@@ -168,17 +167,6 @@ function unsubscribe_hands()
 	end
 end
 
-function load_groggy_params()
-	local sect = "actor_groggy"
-	groggy_treshold = read_if_exists(sys_ini, "float", sect, "treshold", nil)
-	groggy_snd = read_if_exists(sys_ini, "string", sect, "snd", nil)
-	groggy_eff = read_if_exists(sys_ini, "string", sect, "effector", nil)
-	if groggy_eff then
-		groggy_cam_eff = read_if_exists(sys_ini, "string", groggy_eff, "cam_eff_name", nil)
-		groggy_ppe_eff = read_if_exists(sys_ini, "string", groggy_eff, "pp_eff_name", nil)
-	end
-end
-
 function on_save(packet)
 	xr_vars.save_var("hand_injured", hand_injured)
 	xr_vars.save_var("leg_injured", leg_injured)
@@ -194,37 +182,11 @@ function try_groggy_effect(health_lost)
 	return end
 	
 	--log3("~groggy effect on hit amount %s", health_lost)
-	
-	level.remove_cam_effector(groggy_cam_eff_id)
-	level.remove_pp_effector(groggy_ppe_eff)
-
-	local eff_power = 10
-
-	if groggy_cam_eff then
-		level.add_cam_effector(groggy_cam_eff, groggy_cam_eff_id, true)
-	end
-	if groggy_ppe_eff then
-		level.add_pp_effector(groggy_ppe_eff, groggy_ppe_eff_id, true)
-		eff_power = eff_power * health_lost
-		level.set_pp_effector_factor(groggy_ppe_eff_id, eff_power)
-	end			
 
 	local snd = xr_sound.get_safe_sound_object(groggy_snd)
-	snd:play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
-
-	level.add_call(
-		function()
-			eff_power = actor:alive() and eff_power - EFF_DEC or 0
-			if groggy_ppe_eff then
-				level.set_pp_effector_factor(groggy_ppe_eff_id, eff_power)
-			end
-			return eff_power <= 0
-		end,
-		function()
-			level.remove_cam_effector(groggy_cam_eff_id)
-			level.remove_pp_effector(groggy_ppe_eff)
-		end				
-	)	
+	snd:play(actor, 0, sound_object.s2d)
+	
+	actor_conditions.set_groggy_effector(snd:length(), health_lost * 5)
 end
 
 function try_upper_limbs_injure(health_lost)

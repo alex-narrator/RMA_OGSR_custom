@@ -193,11 +193,11 @@ function outfit_binder:hit(victim, health_lost, direction, draftsman, bone_id, h
 	if not self:is_plate_attached() or not self:is_plate_bone(bone_id) then
 	return end
 	
-	--log3("~hit outfit %s to plate %s | hitted bone %s protection type %s", self.object:section(), self:get_plate_sect(), actor:get_bone_name(bone_id), immunity_type[hit_type+1])
+	--log3("~hit outfit %s to plate %s | hitted bone %s protection type %s", self.object:section(), self:get_plate_sect(), actor:get_bone_name(bone_id), get_hit_type_name(hit_type))
 	
 	local immunity = read_if_exists(sys_ini, "float", get_immunities_sect(self:get_plate_sect()), get_hit_type_name(hit_type).."_immunity", 1)
 	local val = -health_lost * immunity
-	--log3("~plate cond dec %s | hit power %s | hit type %s | immunity %s", val, health_lost, immunity_type[hit_type+1], immunity)
+	--log3("~plate cond dec %s | hit power %s | hit type %s | immunity %s", val, health_lost, get_hit_type_name(hit_type), immunity)
 	self:change_plate_condition(val)
 	if self:get_plate_condition() <= 0 then
 		hud_add_info_message("hud_info", game.translate_string("st_plate_was_destroyed"))
