@@ -49,11 +49,11 @@ function artefact_binder:net_spawn(data)
 	--log3("%s net_spawn for object %s", script_name(), self.object:name())
     local spawned = object_binder.net_spawn(self, data)
 	
-	--//затичка від випадків коли на момент ініціалізації біндера серверний об'єкт артефакту не існує (трапляється в Прип'яті)
+	--//затичка від випадків коли на момент ініціалізації біндера серверний об'єкт артефакту не існує (трапляється в Прип'яті та при спавні артів від розриву тіл в аномаліях)
 	level.add_call(
 		function()
 			if not self.se_obj then
-				log_news("!%s : artefact %s | id %s has no server object", script_name(), self.object:name(), self.object:id())
+				log3("%s : artefact %s | id %s server object does not exist - waiting for it to appear", script_name(), self.object:name(), self.object:id())
 				self.se_obj = alife():object(self.object:id())
 			end
 			return not not self.se_obj
