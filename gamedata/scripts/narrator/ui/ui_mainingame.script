@@ -26,6 +26,9 @@ function get_target_tip_point(tgt)
 	if IsMountedWeapon(tgt) then
 		bone_name = "wpn_body"
 	end
+	if tgt:get_car() then
+		bone_name = "seat_left"
+	end	
 	return tgt:get_bone_id(bone_name) ~= MAX_U16 and tgt:bone_position(bone_name) or tgt:center()
 end
 
@@ -163,7 +166,7 @@ function MainIngameOverlay:InitControls()
 		["power"] 		= { condition = function() return actor.power end },
 		["stamina"] 	= { condition = function() return actor_obj:is_zoom_aiming_mode() and stamina.get_val() or 1 end },
 		["visibility"] 	= { condition = function() return visibility() end },
-		["noise"] 		= { condition = function() return actor_obj.sound_noise end },
+		["noise"] 		= { condition = function() return actor:get_holder() and 4 or actor_obj.sound_noise end },
 	}
 	for k,v in pairs(self.conditions) do
 		v.back = xml:InitStatic("actor_params:"..k, self.actor_params)
@@ -200,9 +203,10 @@ function MainIngameOverlay:InitControls()
 	--//car condition bar
 	self.car = xml:InitStatic("actor_params:car", self.actor_params)
 	self.car_static = xml:InitStatic("actor_params:car:static", self.car)
-	self.car_bar = xml:InitProgressBar("actor_params:car:progress_bar", self.car)
+	-- self.car_bar = xml:InitProgressBar("actor_params:car:progress_bar", self.car)
+	self.car_bar = xml:InitProgressShape("actor_params:car:progress_shape", self.car)
 	self.car_color_def = self.car_static:GetColor()
-	self.car_color_engine_on = GetARGB(255, 0, 255, 0)
+	self.car_color_engine_on = GetARGB(255, 0, 255, 33)
 	
 	--//stationary machinegun overheat bar
 	self.mgun = xml:InitStatic("actor_params:mgun", self.actor_params)
@@ -503,7 +507,7 @@ function MainIngameOverlay:UpdateBloodOverlay()
 		self.blood_cur_alpha = max_alpha
 	end
 	--log3("~alpha %s", self.blood_cur_alpha)
-	self.blood_overlay:SetColor(GetARGB(255 * self.blood_cur_alpha, 255, 255, 255))
+	self.blood_overlay:SetColorA(255 * self.blood_cur_alpha)
 end
 
 function MainIngameOverlay:UpdateMotionIcon()
@@ -899,10 +903,11 @@ function MainIngameOverlay:UpdateActiveItem()
 end
 
 function MainIngameOverlay:UpdateCarPanel()
-	local car = actor:get_holder() and actor:get_holder():get_car()
+	local car = actor_get_car()
 	self.car:Show(car)
 	if car then
-		self.car_bar:SetProgressPos(car:GetfHealth())
+		-- self.car_bar:SetProgressPos(car:GetfHealth())
+		self.car_bar:SetPos(car:GetfHealth())
 		self.car_static:SetColor(car:IsEngineOn() and self.car_color_engine_on or self.car_color_def)
 	end
 end

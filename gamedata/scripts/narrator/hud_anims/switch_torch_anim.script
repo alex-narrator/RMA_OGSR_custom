@@ -1,7 +1,6 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
 	sm:subscribe({signal = "on_key_press",   		fun = this.on_key_press})
-	sm:subscribe({signal = "on_spawn",   			fun = this.on_spawn})
 end
 
 local torch_action = {
@@ -10,19 +9,16 @@ local torch_action = {
 
 local hud_effector_id = 5557
 
-function on_spawn()
-	for action,_ in pairs(torch_action) do
-		actor_obj:block_action(action)
-	end
-end
-
 function on_key_press(key, game_action)
 	local curr_torch = actor_get_torch()
+	if not curr_torch then
+	return end
+	
 	if not torch_action[game_action] or
+		actor_get_car() or
 		not actor_hands_free() or
-		SCRIPT_ANIM_PLAYING or actor:get_holder() or
-		level.main_input_receiver() or
-		not curr_torch
+		SCRIPT_ANIM_PLAYING or
+		level.main_input_receiver()
 	then
 	return end
 	

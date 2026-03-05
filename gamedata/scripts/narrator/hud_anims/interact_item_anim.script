@@ -62,7 +62,7 @@ function play()
 	local eff_name = read_if_exists(sys_ini, "string", hud_sect, "hud_effector", nil)
 	level.add_complex_effector(eff_name, hud_effector_id)
 	
-	xr_sound.get_safe_sound_object("interface\\item_usage\\pickup"):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+	xr_sound.get_safe_sound_object("interface\\item_usage\\pickup"):play(actor, 0, sound_object.s2d)
 	
 	add_time_delayed_action(
 		read_if_exists(sys_ini, "float", hud_sect, "use_delay", 0.7),

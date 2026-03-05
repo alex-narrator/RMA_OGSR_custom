@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <w>
-	<blood_overlay x="0" y="0" width="1024" height="768" stretch="1" fade_time="0.5">
+	<blood_overlay x="0" y="0" width="1024" height="768" stretch="1" fade_time="0.25">
 		<texture>ui_blood_overlay</texture>
 	</blood_overlay>
 	
@@ -13,7 +13,6 @@
 	
 	<actor_params x="30" y="735">
 		<health_circle x="0" y="0" width="24" height="32" stretch="1" show_val="1">
-			<!-- <texture a="30">ui_hud_circle_red_medium</texture> -->
 			<icon x="3" y="5" width="18" height="24" stretch="1">
 				<texture>ui_hud_icon_health_warning_alt</texture>
 			</icon>
@@ -28,7 +27,6 @@
 		</health_circle>
 		
 		<power_circle x="25" y="0" width="24" height="32" stretch="1" show_val="1">
-			<!-- <texture a="30">ui_hud_circle_orange_medium</texture> -->
 			<icon x="4" y="5" width="16" height="22" stretch="1">
 				<texture>ui_hud_icon_stamina</texture>
 			</icon>
@@ -43,7 +41,6 @@
 		</power_circle>
 
 		<stamina_circle x="27" y="2" width="20" height="27" stretch="1" show_val="-0.95">
-			<!-- <texture  a="30">ui_hud_circle_orange_medium</texture> -->
 			<icon x="2" y="3" width="19" height="25" stretch="1">
 				<!-- <texture a="90">ui_inGame2_Detector_icon_electro_big</texture> -->
 			</icon>
@@ -231,21 +228,29 @@
 			<texture a="150" r="255" g="255" b="255"></texture>
 		</visibility_icon>		
 	
-		<car x="0" y="-15" width="82" height="12" stretch="1" show_val="1">
-			<static x="0" y="2" width="12" height="12" stretch="1">
+		<car x="-26" y="0" width="24" height="32" stretch="1" show_val="1">
+			<static x="6" y="10" width="12" height="12" stretch="1">
 				<texture>ui_hud_icon_car</texture>
 			</static>
-			<progress_bar x="10" y="0" width="82" height="12" horz="1" min="0" max="1">
-				<min_color r="255" g="0" b="0"/>
-				<middle_color r="255" g="255" b="0"/>
-				<max_color r="0" g="255" b="0"/>
-				<progress>
-					<texture>inv_progress_long</texture>
-				</progress>
-				<background>
-					<texture a="50" r="255" g="255" b="255">inv_progress_long</texture>
-				</background>
-			</progress_bar>
+			<!-- <progress_bar x="10" y="0" width="82" height="12" horz="1" min="0" max="1"> -->
+				<!-- <min_color r="255" g="0" b="0"/> -->
+				<!-- <middle_color r="255" g="255" b="0"/> -->
+				<!-- <max_color r="0" g="255" b="0"/> -->
+				<!-- <progress> -->
+					<!-- <texture>inv_progress_long</texture> -->
+				<!-- </progress> -->
+				<!-- <background> -->
+					<!-- <texture a="50" r="255" g="255" b="255">inv_progress_long</texture> -->
+				<!-- </background> -->
+			<!-- </progress_bar> -->
+			<progress_shape x="0" y="0" width="24" height="32" sector_count="100" clockwise="1">
+				<front x="0" y="0" width="24" height="32">
+					<texture>ui_hud_circle_green_medium</texture>			
+				</front>
+				<back x="0" y="0" width="24" height="32" stretch="1">
+					<texture a="30">ui_hud_circle_green_medium</texture>			
+				</back>				
+			</progress_shape>			
 		</car>
 		
 		<mgun x="440" y="20" width="82" height="12" show_val="0.99">
