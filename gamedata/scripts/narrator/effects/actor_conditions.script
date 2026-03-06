@@ -5,7 +5,8 @@ function attach(sm)
 	sm:subscribe({signal = "on_booster_disable",   	fun = this.on_booster_disable})
 	sm:subscribe({signal = "on_actor_jump",   		fun = this.on_jump})
 	sm:subscribe({signal = "on_before_use_item",   	fun = this.on_before_use})
-	sm:subscribe({signal = "on_hit_actor", 			fun = this.on_hit_actor})
+	--sm:subscribe({signal = "on_hit_actor", 			fun = this.on_hit_actor})
+	sm:subscribe({signal = "on_actor_before_hit", 	fun = this.on_actor_before_hit})
 	sm:subscribe({signal = "on_death_actor",   		fun = this.on_death_actor})
 end
 
@@ -415,17 +416,20 @@ function update_sounds(force_stop)
 end
 
 function on_hit_actor(victim, health_lost, direction, draftsman, bone_id, hit_type)
+end
+
+function on_actor_before_hit(object, hit)
 	if not actor:alive() then
 	return end
-	local sounds = hit_sounds[get_hit_type_name(hit_type)]
+	local sounds = hit_sounds[get_hit_type_name(hit.hit_type)]
 	if not sounds then
 	return end
 	if hit_sound and hit_sound:playing() then
 	return end
 	hit_sound = sounds[math.random(1, table.size(sounds))]
 	hit_sound:play(actor, 0, sound_object.s2d)
-	if get_hit_type_name(hit_type) == "explosion" then
-		set_groggy_effector(hit_sound:length(), health_lost)
+	if get_hit_type_name(hit.hit_type) == "explosion" then
+		set_groggy_effector(hit_sound:length(), hit.power)
 	end
 end
 
