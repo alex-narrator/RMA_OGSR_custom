@@ -29,7 +29,10 @@ function can_be_activated(item)
 end
 
 function activate(item)
-	actor:hide_weapon(true)
+	local already_blocked = actor.inventory:is_active_slot_blocked()
+	if not already_blocked then
+		actor:hide_weapon(true)
+	end
 	block_non_move_action(true)
 	level.add_call(
 		function() 
@@ -48,7 +51,9 @@ function activate(item)
 					se_obj.is_activated = true
 					enable_script_light(item, true)
 					block_non_move_action(false)
-					actor:restore_weapon(true)
+					if not already_blocked then
+						actor:restore_weapon()
+					end
 				end
 			)
 		end

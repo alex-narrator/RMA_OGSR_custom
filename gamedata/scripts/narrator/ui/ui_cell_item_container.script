@@ -334,7 +334,7 @@ function UICellItemContainer:FindFreeCell(item, check_only)
 	
 	local row_s = self.group_by_type and self.last_type_row or 1
 	local rows = table.size(self.grid)
-	local cols = self.cols + 1 - w--params.grid_width
+	local cols = self.cols + 1 - w
 	for r=row_s, rows do
 		for c=1,cols do
 			if self:IsFreeRoom(r, c, w, h) then

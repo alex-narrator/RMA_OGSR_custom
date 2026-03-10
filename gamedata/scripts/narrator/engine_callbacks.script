@@ -32,7 +32,24 @@ function on_pda_custom_tab(idx)
 end
 
 function can_put_in_belt(item)
-	local res = actor_menu.belt_list:FindFreeCell(item, true)
+	local res = true
+	if actor_menu:IsShown() then
+		res = actor_menu.belt_list:FindFreeCell(item, true)
+	else
+		local item_params = CIconParams(item:section())
+		local total_w = 0
+		for i=0, actor:belt_count()-1 do
+			local _item = actor:item_on_belt(i)
+			if _item then
+				local params = CIconParams(_item:section())
+				total_w = total_w + params.grid_width
+			end
+			if total_w + item_params.grid_width > actor.inventory.max_belt then
+				res = false
+				break
+			end
+		end
+	end
 	--log_news("~item %s - can_put_in_belt %s", item:name(), res)
 	return res
 end
