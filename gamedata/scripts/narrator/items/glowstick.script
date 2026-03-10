@@ -16,9 +16,7 @@ function can_be_enabled(item)
 	if not is_glowstick(item) then
 	return false end
 	local se_obj = alife():object(item:id())
-	local has_power = not is_power_device(item) or item:binded_object():get_power_level() > 0
-	local parent_allowed = se_obj.parent_id == 0 or se_obj.parent_id == MAX_U16
-	return se_obj.is_activated and has_power and parent_allowed
+	return se_obj.is_activated and item:condition() > 0
 end
 
 function can_be_activated(item)
@@ -27,8 +25,7 @@ function can_be_activated(item)
 	if not parent_is_actor(item) then
 	return false end	
 	local se_obj = alife():object(item:id())
-	local has_power = not is_power_device(item) or item:binded_object():get_power_level() > 0
-	return se_obj.is_activated == false and has_power
+	return se_obj.is_activated == false and item:condition() > 0
 end
 
 function activate(item)
@@ -49,7 +46,7 @@ function activate(item)
 				function()
 					local se_obj = alife():object(item:id())
 					se_obj.is_activated = true
-					try_enable_light(item)
+					enable_script_light(item, true)
 					block_non_move_action(false)
 					actor:restore_weapon(true)
 				end
@@ -61,16 +58,16 @@ end
 function try_enable_light(item)
 	if not is_glowstick(item) then
 	return end
-	item:switch_power(can_be_enabled(item))
+	item:enable_attachable_item(can_be_enabled(item))
 end
 
-function update_brightness(item)
-	if not is_power_device(item) then
+function enable_script_light(item, enabled)
+	if not is_glowstick(item) then
 	return end
-	local brightness = item:binded_object():get_power_level()
-	local light_sect = read_if_exists(sys_ini, "string", item:section(), "light_definition", nil)
-	local brightness_min_k = read_if_exists(sys_ini, "float", light_sect, "brightness_min_k", 0.3)
-	item:get_flashlight():set_brightness(math.clamp(brightness, brightness_min_k, 1))	
+	local b_obj = item:binded_object()
+	if b_obj then
+		b_obj:enable_light(enabled)
+	end	
 end
 
 function on_key_press(key, game_action)
@@ -87,29 +84,40 @@ function on_key_press(key, game_action)
 end
 
 function on_state_switch(item, state, old_state)
-	if state == global_flags.eShowing then 
-		if is_glowstick(item) and can_be_activated(item) then
-			hud_add_info_message("hud_info", "st_tip_activate_glowstick_hud", 3)
-		else
-			hud_remove_info_message("hud_info")
+	if is_glowstick(item) then
+		if state == global_flags.eShowing then
+			if can_be_activated(item) then
+				hud_add_info_message("hud_info", "st_tip_activate_glowstick_hud", 3)
+			end
+			item:switch_power(can_be_enabled(item))
+			enable_script_light(item, false)
+		elseif state == global_flags.eHidden then
+			item:switch_power(false)
+			enable_script_light(item, not actor:is_in_ruck(item))
 		end
-	end
+	end	
 end
 
-function on_slot(obj)
-	try_enable_light(obj)
-end
-
-function on_belt(obj)
-	try_enable_light(obj)
-end
-
-function on_drop(obj)
-	try_enable_light(obj)
-end
-
-function on_ruck(obj)
-	if not is_glowstick(obj) then
+function on_place_change(item, attach, enable_light)
+	if not is_glowstick(item) then
 	return end
-	obj:switch_power(false)
+	item:enable_attachable_item(attach)
+	enable_script_light(item, enable_light)
+end
+
+function on_slot(item)
+	on_place_change(item, true, true)
+end
+
+function on_belt(item)
+	on_place_change(item, true, true)
+end
+
+function on_drop(item)
+	on_place_change(item, false, true)
+end
+
+function on_ruck(item)
+	on_place_change(item, false, false)
+	item:switch_power(false)
 end

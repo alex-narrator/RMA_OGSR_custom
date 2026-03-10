@@ -1589,7 +1589,11 @@ function read_if_exists(ltx, val_type, section, val_name, default)
 		elseif val_type == "s32" then
 			return ltx:r_s32(section,val_name)			
 		elseif val_type == "vector" then
-			return ltx:r_vector(section,val_name)			
+			return ltx:r_vector(section,val_name)
+		elseif val_type == "vector4" then
+			return ltx:r_vector4(section,val_name)
+		elseif val_type == "fcolor" then
+			return ltx:r_fcolor(section,val_name)			
 		end
 		log3("!read_if_exists - value type [%s] undefined", val_type)
 		return default
@@ -1621,6 +1625,12 @@ function write_to_cfg(ltx, val_type, section, val_name, value)
 	elseif val_type == "vector" then
 		ltx:w_vector(section,val_name,value)
 		return
+	elseif val_type == "vector4" then
+		ltx:w_vector4(section,val_name,value)
+		return
+	elseif val_type == "fcolor" then
+		ltx:w_fcolor(section,val_name,value)
+		return		
 	end
 	log3("!write_to_cfg - value type [%s] undefined", val_type)
 end

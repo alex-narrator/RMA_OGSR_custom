@@ -479,16 +479,21 @@ snd_holster 			= device\glowstick\glowstick_holster
 snd_activate 			= device\glowstick\glowstick_crack
 light_definition 		= glowstick_definition_green
 
-script_binding 			= bind_device.init
+script_binding 			= bind_glowstick.init
 
-work_independent 		= true
 light_direction 		= 0,0,0
 
 breakable 				= true
 use_condition 			= true
-condition_as_power 		= true
 
 power_source 			= device_glowstick_green, 12
+
+attach_position_offset 	= 0.00049994, -0.1425, 0.127
+attach_angle_offset 	= 1.433187, -0.093004, 2.149999
+attach_bone_name		= bip01_pelvis
+
+non_hud_light_offset_pos = 0, 0, 0
+non_hud_light_offset_rot = 0, 0, 0
 
 [glowstick_definition_common]
 type 					= 1 ; type  0-Direct 1-Point 2-Spot 3-OMNIPART 4-Reflected

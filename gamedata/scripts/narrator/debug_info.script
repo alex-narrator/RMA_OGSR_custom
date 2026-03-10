@@ -153,7 +153,7 @@ function item_action_text()
 end
 function item_action(item)
 	log_news("~item %s", item:name())
-	log_news("~item [%s] can_detach_power_source [%s]", item:name(), recharge.can_detach_power_source(item))
+	item:set_condition(0.001)
 end
 
 class "p_timer"

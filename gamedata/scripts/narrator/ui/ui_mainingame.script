@@ -875,6 +875,8 @@ function MainIngameOverlay:UpdateActiveItem()
 		local text = ""
 		if is_power_device(act_device) then
 			self.active_item_icon_3:SetText(string.format("%.f%s", act_device:binded_object():get_power_level() * 100, "%"))
+		elseif is_glowstick(act_device) then
+			self.active_item_icon_3:SetText(string.format("%.f%s", act_device:condition() * 100, "%"))
 		end
 		if self.active_item:GetText() == "" then
 			self.active_item:SetText(get_inv_name_short(show_sect_3))
@@ -907,7 +909,9 @@ function MainIngameOverlay:UpdateCarPanel()
 	self.car:Show(car)
 	if car then
 		-- self.car_bar:SetProgressPos(car:GetfHealth())
-		self.car_bar:SetPos(car:GetfHealth())
+		--local val = car:GetFuel() / car:GetFuelTank()
+		local val = car:GetfHealth()
+		self.car_bar:SetPos(val)
 		self.car_static:SetColor(car:IsEngineOn() and self.car_color_engine_on or self.car_color_def)
 	end
 end

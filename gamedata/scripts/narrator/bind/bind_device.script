@@ -11,7 +11,15 @@ local DEBUG_DISABLED = false
 
 function init(obj)
 	if not is_power_device(obj) then
-		log_news("![%s]:init failed to bind object name:[%s] section:[%s] - not a power device\nsee se_item.script for power devices (must have a self.power_level and self.cur_power_sect field)", script_name(), obj:name(), obj:section())
+		-- log_news("![%s]:init failed to bind object name:[%s] section:[%s] - not a power device\nsee se_item.script for power devices (must have a self.power_level and self.cur_power_sect field)", script_name(), obj:name(), obj:section())
+		level.add_call(
+			function()
+				return not xr_conditions.black_screen()
+			end,
+			function()
+				log_news("![%s]:init failed to bind object name:[%s] section:[%s] - not a power device\nsee se_item.script for power devices (must have a self.power_level and self.cur_power_sect field)", script_name(), obj:name(), obj:section())
+			end
+		)		
 	return end
     local new_binder = device_binder(obj)
     obj:bind_object(new_binder)
@@ -38,10 +46,10 @@ function device_binder:reload(section)
 	--log3("%s reload for object %s", script_name(), self.object:name())
     object_binder.reload(self, section)
 	
-	local power_str = read_if_exists(sys_ini, "string", self.object:section(), "power_source", self.object:section())
+	local power_str = read_if_exists(sys_ini, "string", section, "power_source", section)
 	self.t_power_sources = self:parse_sorces(power_str)
 	
-	self.b_condition_as_power = read_if_exists(sys_ini, "bool", self.object:section(), "condition_as_power", false)
+	self.b_condition_as_power = read_if_exists(sys_ini, "bool", section, "condition_as_power", false)
 	
 	-- for k,v in pairs(self.t_power_sources) do
 		-- log3("device %s power section %s, work_time %s", self.object:section(), v.section, v.work_time )

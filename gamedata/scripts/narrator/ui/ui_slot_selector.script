@@ -447,14 +447,18 @@ function SlotSelectorOverlay:OnBeltClick(id)
 	if not slot_item then
 	return end
 	
-	add_update_delayed_action(1,
-		function()
-			actor:move_to_ruck(slot_item)
-			actor:move_to_slot(desired_item)
-			actor:activate_slot(self.selected_slot, false)
-			actor:move_to_belt(slot_item)		
-		end
-	)
+	-- add_update_delayed_action(1,
+		-- function()
+			-- actor:move_to_ruck(slot_item)
+			-- actor:move_to_slot(desired_item)
+			-- actor:activate_slot(self.selected_slot, false)
+			-- actor:move_to_belt(slot_item)		
+		-- end
+	-- )
+	actor:move_to_ruck(slot_item)
+	actor:move_to_slot(desired_item)
+	actor:activate_slot(self.selected_slot, false)
+	actor:move_to_belt(slot_item)
 end
 
 function SlotSelectorOverlay:OnLoadoutFocusReceived(id, idx)

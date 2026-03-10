@@ -1,0 +1,199 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+------------------------------------------------------------------------------------------
+--біндер приладів що використовують джерела живлення
+------------------------------------------------------------------------------------------
+
+local POWER_CONSUMING_UPDATE_TIME 	= 10 --//час оновлення декременту у ігрових секундах
+local DEF_WORK_TIME 				= 8
+
+local DEBUG_DISABLED = false
+
+function init(obj)
+	if not is_glowstick(obj) then
+		-- log_news("![%s]:init failed to bind object name:[%s] section:[%s] - not a glowstick)", script_name(), obj:name(), obj:section())
+		level.add_call(
+			function()
+				return not xr_conditions.black_screen()
+			end,
+			function()
+				log_news("![%s]:init failed to bind object name:[%s] section:[%s] - not a glowstick)", script_name(), obj:name(), obj:section())
+			end
+		)
+	return end
+    local new_binder = glowstick_binder(obj)
+    obj:bind_object(new_binder)
+end
+
+--послідовність викликів:
+--__init
+--reload
+--load (if save was called before)
+--net_spawn
+
+class "glowstick_binder" (object_binder)
+function glowstick_binder:__init(obj) super(obj)
+	--log3("%s __init for object %s", script_name(), self.object:name())
+	self.work_time = 0
+	self.power_consumption = 0
+	self.last_update_time = false
+	self.se_obj = alife():object(self.object:id())
+	--self.b_was_sended = false
+end
+ 
+function glowstick_binder:reload(section)
+	--log3("%s reload for object %s", script_name(), self.object:name())
+    object_binder.reload(self, section)
+	
+	-- for k,v in pairs(self.t_power_sources) do
+		-- log3("device %s power section %s, work_time %s", self.object:section(), v.section, v.work_time )
+	-- end
+	self:init_params(section)
+end
+ 
+function glowstick_binder:net_spawn(data)
+	--log3("%s net_spawn for object %s", script_name(), self.object:name())
+    local spawned = object_binder.net_spawn(self, data)
+
+	return spawned
+end
+
+function glowstick_binder:net_destroy()
+	object_binder.net_destroy(self)
+	-- log_news("~net destroy object [%s]", self.object:name())
+end
+
+function glowstick_binder:update(delta)
+    object_binder.update(self, delta)
+	
+	if DEBUG_DISABLED then
+	return end
+	
+	if self.se_obj.is_activated then
+		self:decrease_condition()
+	elseif self.last_update_time then
+		self.last_update_time = false
+	end
+end
+ 
+function glowstick_binder:init_params(section)
+	self.work_time = read_if_exists(sys_ini, "float", section, "work_time", DEF_WORK_TIME)
+	self.power_consumption = 1 / (self.work_time * 3600)
+	self.last_update_time = false
+	
+	local light_sect = read_if_exists(sys_ini, "string", section, "light_definition", nil)
+	self.brightness_min_k = read_if_exists(sys_ini, "float", light_sect, "brightness_min_k", 0.3)
+	
+	self.light = script_light()
+	self.light_omni = script_light()
+	
+	self.light:set_range(read_if_exists(sys_ini, "float", light_sect, "range_r2", 0))
+	self.light:set_color(read_if_exists(sys_ini, "fcolor", light_sect, "color_r2", nil))
+	self.light:set_type(read_if_exists(sys_ini, "u32", light_sect, "type", 0))
+	self.light:set_angle(read_if_exists(sys_ini, "float", light_sect, "spot_angle", 0))
+	self.light:set_animation(read_if_exists(sys_ini, "string", light_sect, "color_animator", ""))
+	self.light:set_texture(read_if_exists(sys_ini, "string", light_sect, "spot_texture", nil))
+	self.light:set_shadow(true)
+	self.light:set_volumetric(read_if_exists(sys_ini, "bool", light_sect, "volumetric_enabled", false))
+	self.light:set_volumetric_intensity(read_if_exists(sys_ini, "float", light_sect, "volumetric_intensity", 0.2))
+	self.light:set_volumetric_distance(read_if_exists(sys_ini, "float", light_sect, "volumetric_distance", 1))	
+	
+	self.light_omni:set_range(read_if_exists(sys_ini, "float", light_sect, "omni_range_r2", 0))
+	self.light_omni:set_color(read_if_exists(sys_ini, "fcolor", light_sect, "omni_color_r2", nil))
+	self.light_omni:set_type(read_if_exists(sys_ini, "u32", light_sect, "omni_type", 1))
+	self.light_omni:set_shadow(true)
+	
+	self.non_hud_offset = {}
+	self.non_hud_offset.pos = read_if_exists(sys_ini, "vector", section, "non_hud_light_offset_pos", vector())
+	self.non_hud_offset.rot = read_if_exists(sys_ini, "vector", section, "non_hud_light_offset_rot", vector())
+	
+	self.non_parent_offset = {}
+	self.non_parent_offset.pos = read_if_exists(sys_ini, "vector", section, "non_parent_light_offset_pos", vector())
+	self.non_parent_offset.rot = read_if_exists(sys_ini, "vector", section, "non_parent_light_offset_rot", vector())
+end
+
+function glowstick_binder:decrease_condition()
+	if self.object:condition() <= 0 then
+		if self.object:is_power_on() then
+			self.object:switch_power(false)
+		end
+		local parent = self.object:parent()
+		if parent then
+			parent:drop_item(self.object)
+			if parent_is_actor(self.object) then
+				news_manager.item_tip(self.object, "destroyed_corrupted")
+			end			
+		end
+		self:enable_light(false)
+		
+		self.light = nil
+		self.light_omni = nil
+		
+		local sobj = alife():object(self.object:id())
+		if sobj then
+			alife():release(sobj, true)
+		end
+	return end
+	
+	self:update_brightness()
+	self:update_light()
+	
+	local game_time = game.get_game_time()
+	
+	if not self.last_update_time then
+		self.last_update_time = game_time
+	end
+	
+	--log3("~decrease_condition for item %s", self.object:name())
+	
+	--log3("%s:decrease_condition self.last_update_time %s : %s for item %s", script_name(), self.last_update_time:dateToString(game.CTime.DateToDay), self.last_update_time:timeToString(game.CTime.TimeToMilisecs), self.object:name())
+	--log3("%s:decrease_condition game_time %s : %s for item %s",script_name(), game_time:dateToString(game.CTime.DateToDay), game_time:timeToString(game.CTime.TimeToMilisecs), self.object:name())
+	
+	local delta_time = game_time:diffSec(self.last_update_time)
+	--log3("%s delta_time %s for %s", script_name(), delta_time, self.object:name())
+	
+	
+	if delta_time < POWER_CONSUMING_UPDATE_TIME then
+	return end
+	
+	self.last_update_time = game_time
+	
+	self.object:change_condition(-self.power_consumption * delta_time)
+end
+
+function glowstick_binder:get_work_time()
+	return self.work_time
+end
+
+function glowstick_binder:enable_light(enable)
+	if not self.light then
+	return end
+	self.light.enabled = self.se_obj.is_activated and enable
+	self.light_omni.enabled = self.se_obj.is_activated and enable
+	--log_news("~glowstick [%s] enable_light [%s] light enabled [%s]", self.object:name(), enable, self.se_obj.is_activated and enable)
+end
+
+function glowstick_binder:update_brightness()
+	local brightness = math.clamp(self.object:condition(), self.brightness_min_k, 1)
+	self.light:set_brightness(brightness)	
+	self.object:get_flashlight():set_brightness(brightness)
+end
+
+function glowstick_binder:update_light()
+	if not self.light or not self.light.enabled then
+	return end
+	
+	local parent = self.object:parent()
+	local pos = parent and actor:center() or self.object:position()
+	local dir = parent and actor:direction() or self.object:direction()
+	local offset = parent and self.non_hud_offset or self.non_parent_offset
+	pos:add(dir)
+	pos:add(offset.pos)
+	dir:add(offset.rot)
+	self.light:set_position(pos)
+	self.light:set_direction(dir)
+	self.light_omni:set_position(pos)
+	self.light_omni:set_direction(dir)
+	
+	self.light:update()
+	self.light_omni:update()
+end
