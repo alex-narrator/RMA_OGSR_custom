@@ -1,8 +1,6 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 local hud_effector_id = 5555
 
-local ANIM_FAST = false
-
 local anim_types = {
 	["full"] = "outfit_equip_hud",
 	["fast"] = "outfit_equip_fast_hud",
@@ -15,7 +13,7 @@ function play_outfit(anim_type)
 	local already_blocked = actor.inventory:is_active_slot_blocked()
 	
 	if not already_blocked then
-		actor:hide_weapon(ANIM_FAST)
+		actor:hide_weapon(HIDE_WPN_ANIM_FAST)
 	end
 	
 	level.add_call(
@@ -34,7 +32,7 @@ function play_outfit(anim_type)
 					block_non_move_action(false)
 					_G.SCRIPT_ANIM_PLAYING = false
 					if not already_blocked then
-						actor:restore_weapon(ANIM_FAST)
+						actor:restore_weapon(HIDE_WPN_ANIM_FAST)
 					end
 					local mode = actor_menu:GetMode()
 					if mode == "inventory" or mode == "carbody"	then

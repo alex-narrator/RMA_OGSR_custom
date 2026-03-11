@@ -2,7 +2,6 @@
 local sm = ogse_signals.get_mgr()
 
 local hud_effector_id = 5555
-local ANIM_FAST = true
 local anim_sound = nil
 
 local hud_sect_name = "inspect_hud"
@@ -31,7 +30,7 @@ function play(item)
 	local already_blocked = actor.inventory:is_active_slot_blocked()
 	
 	if not already_blocked then
-		actor:hide_weapon(ANIM_FAST)
+		actor:hide_weapon(HIDE_WPN_ANIM_FAST)
 	end
 	
 	if not read_if_exists(sys_ini, "string", hud_sect, "anm_idle", nil) then --//simple variant without draw-idle-hide sequence
@@ -59,7 +58,7 @@ function play(item)
 						level.remove_complex_effector(hud_effector_id)
 						_G.SCRIPT_ANIM_PLAYING = false
 						if not already_blocked then
-							actor:restore_weapon(ANIM_FAST)
+							actor:restore_weapon(HIDE_WPN_ANIM_FAST)
 						end
 						sm:call("on_timed_action_stop")
 					end,
@@ -152,10 +151,10 @@ function stop_anim()
 			local already_blocked = actor.inventory:is_active_slot_blocked()
 	
 			if already_blocked then
-				actor:hide_weapon(ANIM_FAST)
+				actor:hide_weapon(HIDE_WPN_ANIM_FAST)
 			end			
 			
-			--actor:restore_weapon(ANIM_FAST)
+			--actor:restore_weapon(HIDE_WPN_ANIM_FAST)
 			local mode = actor_menu:GetMode()
 			if mode == "inventory" or mode == "carbody"	then					
 				backpack.play_anim(3)

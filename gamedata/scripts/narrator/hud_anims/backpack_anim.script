@@ -1,9 +1,6 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 local hud_effector_id = 5555
 
-local ANIM_FAST = true
-local ANM_SND_SLOWDOWN = 1.5
-
 local DEF_HUD_SECT = {
 	["equip"] 	= "backpack_equip_hud",
 	["unequip"] = "backpack_unequip_hud",
@@ -22,7 +19,7 @@ function play(_type)
 	local already_blocked = actor.inventory:is_active_slot_blocked()
 	
 	if not already_blocked then
-		actor:hide_weapon(ANIM_FAST)
+		actor:hide_weapon(HIDE_WPN_ANIM_FAST)
 	end
 	
 	local anm_length = game.get_motion_length(hud_sect, "anm_use", 1)
@@ -43,7 +40,7 @@ function play(_type)
 					block_non_move_action(false)
 					_G.SCRIPT_ANIM_PLAYING = false
 					if not already_blocked then
-						actor:restore_weapon(ANIM_FAST)
+						actor:restore_weapon(HIDE_WPN_ANIM_FAST)
 					end
 					local mode = actor_menu:GetMode()
 					if mode == "inventory" or mode == "carbody"	then

@@ -1,6 +1,5 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 local hud_effector_id = 5555
-local ANIM_FAST = true
 local anm_name = "anm_use"
 
 local sm = ogse_signals.get_mgr()
@@ -13,7 +12,7 @@ function play(item)
 	local already_blocked = actor.inventory:is_active_slot_blocked()
 	
 	if not already_blocked then
-		actor:hide_weapon(ANIM_FAST)
+		actor:hide_weapon(HIDE_WPN_ANIM_FAST)
 	end
 	
 	level.add_call(
@@ -77,7 +76,7 @@ function play(item)
 					end					
 					_G.SCRIPT_ANIM_PLAYING = false
 					if not already_blocked then
-						actor:restore_weapon(ANIM_FAST)
+						actor:restore_weapon(HIDE_WPN_ANIM_FAST)
 					end
 					local mode = actor_menu:GetMode()
 					if mode == "inventory" or mode == "carbody"	then					

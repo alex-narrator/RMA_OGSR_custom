@@ -6,7 +6,6 @@ function attach(sm)
 end
 
 local def_hud_sect = "pda_hud"
-local ANIM_FAST = true
 
 local subscribed = false
 
@@ -39,7 +38,7 @@ function on_key_press(key, game_action)
 	--level.set_actor_allow_pda(false)
 	local already_blocked = actor.inventory:is_active_slot_blocked()
 	if not already_blocked then
-		actor:hide_weapon(ANIM_FAST)
+		actor:hide_weapon(HIDE_WPN_ANIM_FAST)
 	end
 	local pda = actor_get_pda()
 	local hud_sect = get_hud_sect(pda) or def_hud_sect
@@ -91,7 +90,7 @@ function on_pda_hide()
 	dof_mir.stop_dof()
 	-- local already_blocked = actor.inventory:is_active_slot_blocked()
 	-- if not already_blocked then
-		-- actor:hide_weapon(ANIM_FAST)
+		-- actor:hide_weapon(HIDE_WPN_ANIM_FAST)
 	-- end
 	local pda = actor_get_pda()
 	local hud_sect = get_hud_sect(pda) or def_hud_sect	
@@ -106,7 +105,7 @@ function on_pda_hide()
 				length * 0.001,
 				function()
 					block_non_move_action(false)
-					actor:restore_weapon(ANIM_FAST)
+					actor:restore_weapon(HIDE_WPN_ANIM_FAST)
 				end
 			)			
 		end
