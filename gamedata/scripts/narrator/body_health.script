@@ -46,9 +46,20 @@ local gd_injure_prob = {
 	0.8, 	--//master	
 }
 
-local sect = "actor_groggy"
-local groggy_treshold = read_if_exists(sys_ini, "float", sect, "treshold", nil)
-local groggy_snd = read_if_exists(sys_ini, "string", sect, "snd", [[affects\tinnitus3a]])
+local get_snd = xr_sound.get_safe_sound_object
+
+local sect = "body_health"
+local groggy_treshold = read_if_exists(sys_ini, "float", sect, "groggy_treshold", nil)
+local groggy_snd = get_snd(read_if_exists(sys_ini, "string", sect, "groggy_snd", [[affects\tinnitus3a]]))
+local limb_injure_sounds = split_string(read_if_exists(sys_ini, "string", sect, "limb_injure_snds", nil), ",")
+for k, sound_name in pairs(limb_injure_sounds) do
+	local sound_obj = get_snd(sound_name)
+	if sound_obj then
+		limb_injure_sounds[k] = sound_obj
+	else
+		log_news("![%s] can`t find sound [%s] fot limb injure", script_name(), sound_name)
+	end	
+end
 
 local UPPER_LIMBS_HIT_AMOUNT = 0.3
 local LOWER_LIMBS_HIT_AMOUNT = 0.3
@@ -110,6 +121,11 @@ function get_injured_limb()
 	else
 		return "none"
 	end
+end
+
+function play_injure_sound()
+	local sound = limb_injure_sounds[math.random(1, table.size(limb_injure_sounds))]
+	sound:play(actor, 0, sound_object.s2d)
 end
 
 function random_prob()
@@ -183,10 +199,10 @@ function try_groggy_effect(health_lost)
 	
 	--log3("~groggy effect on hit amount %s", health_lost)
 
-	local snd = xr_sound.get_safe_sound_object(groggy_snd)
-	snd:play(actor, 0, sound_object.s2d)
+	groggy_snd:play(actor, 0, sound_object.s2d)
+	groggy_snd.volume = 2
 	
-	actor_conditions.set_groggy_effector(snd:length(), health_lost * 5)
+	actor_conditions.set_groggy_effector(groggy_snd:length(), health_lost * 5)
 end
 
 function try_upper_limbs_injure(health_lost)
@@ -201,6 +217,7 @@ function try_upper_limbs_injure(health_lost)
 	
 	subscribe_hands()
 	--log3("~upper limbs injure on hit amount %s", health_lost)
+	play_injure_sound()
 end
 
 function try_lower_limbs_injure(health_lost)
@@ -215,6 +232,7 @@ function try_lower_limbs_injure(health_lost)
 	
 	subscribe_legs()
 	--log3("~lower limbs injure on hit amount %s", health_lost)
+	play_injure_sound()
 end
 
 function on_hit(victim, health_lost, direction, draftsman, bone_id, hit_type)
