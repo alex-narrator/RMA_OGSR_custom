@@ -78,7 +78,7 @@ function corruptible_binder:decrease_condition()
 	
 	if self.object:condition() <= 0 and self.destroy_corrupted then
 		local sobj = alife():object(self.object:id())
-		if sobj then
+		if not sobj then
 			log_news("~%s : can't destroy item [%s] - it`s alreday released", script_name(), self.object:name())
 		return end
 		if self.object:parent() then

@@ -973,6 +973,9 @@ function MainIngameOverlay:OnHudStateSwitch(item, state, old_state)
 end
 
 function MainIngameOverlay:OnPickUpItemSet(item)
+	if item and item:getDestroy() then
+		item = nil
+	end
 	if not item or not self.pickup_item or item:id() ~= self.pickup_item:id() then
 		self.pickup_item = item
 		self.pickup_item_icon:Show(false)
@@ -981,7 +984,7 @@ function MainIngameOverlay:OnPickUpItemSet(item)
 end
 
 function MainIngameOverlay:UpdatePickupItem()
-	if not self.pickup_item or level.main_input_receiver() or not actor_hands_free() then
+	if not self.pickup_item or self.pickup_item:getDestroy() or level.main_input_receiver() or not actor_hands_free() then
 		if self.pickup_item_icon:IsShown() then
 			self.pickup_item_icon:Show(false)
 		end
@@ -1059,7 +1062,7 @@ function MainIngameOverlay:UpdateTargetTip()
 		
 		local text = ""
 		if get_script_option_value("hud_target_info") then
-			if tgt and tgt:get_inventory_item() then
+			if tgt and tgt:get_inventory_item() and tgt:actor_can_take() then
 				text = get_inv_name(tgt:section())
 			end
 			if tgt and (tgt:is_stalker() or tgt:is_trader()) then

@@ -1,0 +1,70 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+------------------------------------------------------------------------------------------
+--біндер предметів що псуються з часом
+------------------------------------------------------------------------------------------
+
+
+function init(obj)
+    local new_binder = breakable_binder(obj)
+    obj:bind_object(new_binder)
+end
+
+--послідовність викликів:
+--__init
+--reload
+--load (if save was called before)
+--net_spawn
+
+class "breakable_binder" (object_binder)
+function breakable_binder:__init(obj) super(obj)
+end
+
+function breakable_binder:reinit()
+	object_binder.reinit(self)
+	self.object:set_callback(callback.hit, self.hit, self)
+end
+ 
+function breakable_binder:reload(section)
+	self.break_sound = read_if_exists(sys_ini, "string", section, "break_sound", nil)
+	if self.break_sound then
+		self.break_sound = xr_sound.get_safe_sound_object(self.break_sound)
+	end
+	self.break_particle = read_if_exists(sys_ini, "string", section, "break_particles", nil)
+	if self.break_particle then
+		self.break_particle = particles_object(self.break_particle)
+	end
+end
+ 
+function breakable_binder:net_spawn(data)
+    local spawned = object_binder.net_spawn(self, data)
+	return spawned
+end
+
+function breakable_binder:net_destroy()
+	self.object:set_callback(callback.hit, nil)
+	object_binder.net_destroy(self)
+end
+
+function breakable_binder:update(delta)
+    object_binder.update(self, delta)
+end
+
+function breakable_binder:hit(victim, health_lost, direction, draftsman, bone_id, hit_type)
+	if self.object:condition() <= 0 then
+		if self.break_sound then
+			self.break_sound:play(self.object, 0, sound_object.s3d)
+		end
+		if self.break_particle then
+			self.break_particle:play_at_pos(self.object:center())
+		end
+		local sobj = alife():object(self.object:id())
+		if not sobj then
+			log_news("~%s : can't destroy item [%s] - it`s alreday released", script_name(), self.object:name())
+		return end
+		if self.object:parent() then
+			self.object:parent():drop_item(self.object)
+		end
+		alife():release(sobj, true)
+		--log_news("~object [%s] breaked", self.object:name())
+	end
+end
