@@ -106,6 +106,7 @@ end
 
 local saved_state = nil
 local DEF_HUD_SECT = "backpack_hud"
+local HANDS_HUD_SECT = "carbody_hud"
 local effect = {
 	name = "effector_backpack",
 	id = 66677,
@@ -117,11 +118,16 @@ local anims = {
 }
 
 function play_anim(state)
-	if not actor_get_backpack() or SCRIPT_ANIM_PLAYING then
+	local no_anim = not actor_get_backpack() and actor_menu:GetMode() ~= "carbody"
+	
+	if no_anim or SCRIPT_ANIM_PLAYING then
 		idle_playing = false
 	return end
-	local community_hud_sect = DEF_HUD_SECT.."_"..actor:character_community()
-	local hud_sect = sys_ini:section_exist(community_hud_sect) and community_hud_sect or DEF_HUD_SECT
+	local hud_sect = HANDS_HUD_SECT
+	if actor_get_backpack() then
+		local community_hud_sect = DEF_HUD_SECT.."_"..actor:character_community()
+		hud_sect = sys_ini:section_exist(community_hud_sect) and community_hud_sect or DEF_HUD_SECT
+	end
 
 	game.play_hud_motion(2, hud_sect, anims[state], true, 1, false)
 	idle_playing = (state == 3)

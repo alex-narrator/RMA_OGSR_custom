@@ -40,79 +40,10 @@
 
 --db.actor.power = -10
 
-local tgt = level.get_target_obj()
-if tgt then
-	-- local dbg_particle = particles_object("anomaly2\\plasma_generator_death")
-	-- dbg_particle:play_at_pos(tgt:center())
-	--tgt:change_goodwill(-1000, actor)
-	--actor:change_character_reputation(-1000)
-	--log3("~tgt name %s", tgt:name())
-	--log3("~personal goodwill %s", tgt:goodwill(actor))
-	--log3("~community_goodwill %s", relation_registry.community_goodwill(tgt:character_community(), actor:id()))
-	--alife():release(alife():object(tgt:id()), true)
-	-- interact_item_anim.action_use()
-	-- return
-	-- tgt:set_tip_text("test_tip")
-	-- local text = tgt:get_tip_text() or "NONE"
-	-- log3("~tip %s", text)
-	-- local text = actor_obj:get_default_action_for_obj() or "NO TIP"
-	-- log3("~obj tip text: %s", text)
-	-- local rq = level.get_current_ray_query()
-	-- local bone_id = rq and rq.element or 0	
-	--actor:ph_capture_object(tgt)
-	--actor:transfer_item(tgt, actor)
-	-- return
-	-- local store_box_spot = "spot_storebox_cop"
-	-- if level.map_has_object_spot(tgt:id(), store_box_spot) ~= 0 then
-		-- level.map_remove_object_spot(tgt:id(), store_box_spot)
-	-- end
-	--tgt:play_cycle("work")
-	-- log3("~ target section: %s | id %s| story_id %s | name: %s | profile: %s | species %s | nonscript usable %s | position (%s, %s, %s) | lvid %s | gvid %s | visual %s | gulag %s", 
-		-- tgt:section(), 
-		-- tgt:id(), 
-		-- tgt:story_id(), 
-		-- tgt:name(), 
-		-- tgt:profile_name() and tgt:profile_name() or "NO PROFILE", 
-		-- get_species(tgt),
-		-- tgt:get_nonscript_usable(),
-		-- tgt:position().x, tgt:position().y, tgt:position().z,
-		-- tgt:level_vertex_id(),
-		-- tgt:game_vertex_id(),
-		-- tgt:get_visual_name() or "NO VISUAL",
-		-- xr_gulag.get_npc_gulag(tgt) and xr_gulag.get_npc_gulag(tgt).name or "NONE"
-		-- )
-		
-		--log3("~get_addon_flags %s", tgt:get_addon_flags())
-		
-		-- pos = tgt:position()
-		-- log3("{level = %s, pos = {%.2f, %.2f, %.2f}},", level.name(), pos.x, pos.y, pos.z)
-		
-		--tgt:switch_power(true)
-		
-	-- if tgt:is_stalker() or tgt:is_inventory_box() then
-		-- actor:start_carbody(tgt)
-	-- end
-	
-	-- if tgt:get_custom_monster() then
-		-- local anomaly_detector = tgt:get_custom_monster():anomaly_detector()
-		-- log3( "~Anomaly_Detect_Radius = %s", anomaly_detector.Anomaly_Detect_Radius )
-		-- log3( "~Anomaly_Detect_Time_Remember = %s", anomaly_detector.Anomaly_Detect_Time_Remember )
-		-- log3( "~is_active = %s", anomaly_detector.is_active )
-		-- anomaly_detector:activate()
-	-- end
-	
-	-- local particle_name = "vehiclefx\\exhaust_1"
-	-- --local particle_name = "anomaly2\\plasma_generator_death"
-	-- local particle = particles_object(particle_name)
-	-- local obj = tgt
-	-- local pos = obj:position()--tgt:bone_position("l_rotor")--obj:position()
-	-- -- local dir = obj:direction()
-	-- -- pos:sub(dir:normalize())
-	-- local particle_pos = vector():set(0.7,0.2,1.1)
-	-- pos:add(particle_pos)
-	-- particle:play_at_pos(pos
-	
-end
+-- local tgt = level.get_target_obj()
+-- if tgt then
+	-- tgt:switch_power(true)
+-- end
 
 -- local torch = actor_get_torch()
 -- if torch and torch:is_torch() then
@@ -292,11 +223,14 @@ end
 -- local obj = alife():object(17950)
 -- log3("obj name %s, section %s , parent id %s has id 17950", obj:name(), obj:section_name(), obj.parent_id)
 
--- local act_item = actor:active_item()
--- if act_item then
+local act_item = actor:active_item()
+if act_item then
 	-- local se_item = alife():object(act_item:id())
 	-- log3("~visual %s", se_item.visual_name)
--- end
+	--log_news("~item [%s] - direct reload [%s]", act_item:name(), act_item:get_weapon().direct_reload)
+	--act_item:get_weapon().direct_reload = false
+	--actor:move_to_ruck(act_item)
+end
 
 -- local fov = get_console():get_float("fov")
 -- local cur_fov = device().fov
@@ -410,6 +344,7 @@ end
 	-- log3("~%s is wounded %s | health %s", tgt:profile_name(), tgt:wounded(), tgt.health)
 -- end
 
+-- body_health.try_groggy_effect(0.3)
 -- body_health.try_upper_limbs_injure(0.3)
 -- body_health.try_lower_limbs_injure(0.3)
 
@@ -729,17 +664,17 @@ end
 
 --log3("~device().is_paused() %s", device():is_paused())
 -- log3("~active random tasks %s", task_manager.get_active_tasks())
--- log3("~active task %s", actor:get_active_task() and actor:get_active_task():get_title() or "NO_TASK_TITLE")
--- log3("~active task id %s", actor:get_active_task() and actor:get_active_task():get_id() or "NO_TASK_ID")
+-- log3("~active task %s", gametask.active_task() and gametask.active_task():get_title() or "NO_TASK_TITLE")
+-- log3("~active task id %s", gametask.active_task() and gametask.active_task():get_id() or "NO_TASK_ID")
 
 -- for k,v in pairs(task_manager.get_active_tasks()) do
 	-- log3("~task info %s %s", k, task_manager.get_task_info(v))
 -- end
 
--- local give_task_time = actor:get_active_task() and task_manager.get_task_info(actor:get_active_task():get_id()) and task_manager.get_task_info(actor:get_active_task():get_id()).give_task_time or "NONE"
+-- local give_task_time = gametask.active_task() and task_manager.get_task_info(gametask.active_task():get_id()) and task_manager.get_task_info(gametask.active_task():get_id()).give_task_time or "NONE"
 -- log3("~give_task_time %s", give_task_time)
 
-local act_task --= actor:get_active_task()
+local act_task --= gametask.active_task()
 if act_task then
 	log3("~act_task")
 	local task_info = task_manager.get_task_info(task_manager.get_active_tasks()[act_task:get_id()])
@@ -955,4 +890,109 @@ end
 -- local dream_name, dream_type = sleep_manager.get_dream()
 -- log_news("~dream %s | %s", dream_name, dream_type)
 --game.start_tutorial(dream_name)
-log_news("~has_alife_info(esc_bridge_pass_fire) %s", has_alife_info("esc_bridge_pass_fire"))
+--log_news("~has_alife_info(esc_bridge_pass_fire) %s", has_alife_info("esc_bridge_pass_fire"))
+
+-- local tgt = level.get_target_obj()
+-- local light = script_light()
+-- local dir = tgt and tgt:direction() or device().cam_dir
+-- local pos = tgt and tgt:position() or device().cam_pos
+-- light:set_hud_mode(not tgt)
+-- light:set_shadow(true)
+-- --pos.z = pos.z + 1
+-- --pos.y = pos.y + 1
+-- light:set_position(pos)
+-- light:set_direction(dir)
+-- light:set_range(10)
+-- --light:set_brightness(1)
+-- light:set_angle(90)
+-- light:set_rgb(3,0,0)
+-- --light.enabled = false
+-- log3("~light enabled %s | tgt %s", light.enabled, not not tgt)
+
+-- add_time_delayed_action(
+	-- 3,
+	-- function()
+		-- level.send_event_key_press(bind_to_dik(key_bindings.kJOURNAL))
+	-- end
+-- )
+
+--log_news("~time factor %s", level.get_time_factor())
+--log_news("~ph_gravity %s", level.physics_world():gravity())
+
+--actor_obj.lookout_angle = 180
+
+-- body_health.try_upper_limbs_injure(0.3)
+-- body_health.try_lower_limbs_injure(0.3)
+
+-- local pos = actor:position()
+-- local bone_pos = actor:bone_position("eye_right")
+-- local bone_diff = bone_pos.y - pos.y
+-- local cam_diff = device().cam_pos.y - pos.y
+-- log_news("~box id %s | bone_diff %s [%s] | cam_diff %s [%s]",actor_obj.ph_box_id, bone_diff, bone_diff * 0.5, cam_diff, cam_diff*0.5)
+-- --actor_obj.ph_box_id = 3
+-- local pos = actor:position()
+-- log_news("~actor pos %s, %s, %s", pos.x, pos.y, pos.z)
+-- local dir = actor:direction()
+-- log_news("~actor dir %s, %s, %s", dir.x, dir.y, dir.z)
+
+-- local spawn_pos = pos
+-- local spawn_dir = vector():set(0, 0, 0)--dir
+--//кулетем на вишці
+--//pos 41.887199401855, -8.1327610015869, 385.69760131836
+--//dir 0, -1.57, 0
+--//кулемет за мішками з піском
+--//pos 48.258922576904, -16.977752685547, 354.86318969727
+--//dr 0, 0, 0
+-- spawn_to_level("mounted_weapon", spawn_pos, level.name(), spawn_dir)
+
+-- local mgun = level_object_by_sid(776)
+-- if mgun then
+	-- actor:use_holder(mgun)
+-- end
+
+-- local gulag_name = "mil_lager"
+-- log_news("~gulag %s population %s", gulag_name, xr_gulag.getGulagPopulation(gulag_name))
+
+-- local actor_dir = actor:direction()
+-- actor:set_actor_direction(actor_dir)
+
+-- local sobj = sobj_by_name("bar_stalker_0001")
+-- if sobj then
+	-- level.map_add_object_spot_ser(sobj.id, "personal_location", sobj:section_name())
+-- end
+
+-- local act_item = actor:active_item()
+-- if act_item then
+	-- check_item_anim.play(act_item)
+-- end
+
+-- local to_release = {
+	-- "bar_arena_comment_1",
+	-- "bar_arena_comment_1_0000",
+	-- "bar_arena_comment_1_0001",
+-- }
+-- for k,v in pairs(to_release) do
+	-- alife():release(sobj_by_name(v), true)
+-- end
+-- actor:kill(actor)
+
+-- local h = hit()
+-- h.draftsman = actor 
+-- h.type = hit.radiation 
+-- h.direction = vector():set(0,0,0) 
+-- h:bone("bip01_head")
+-- h.power = 0.3
+-- h.impulse = 0.0 
+-- --h.ap = 1
+-- actor:hit(h)
+-- if actor:get_holder() then
+	-- log_news("~holder")
+	-- actor:use_holder(actor:get_holder())
+-- end
+-- local car = actor_get_car()
+-- if car then
+	-- --car:SetFuel(40)
+	-- log_news("~tank size [%s], current fuel [%s], fullness [%s]", car:GetFuelTank(), car:GetFuel(), car:GetFuel() / car:GetFuelTank())
+-- end
+
+game.play_hud_motion(2, "carbody_hud", "anm_idle", false, 1, false)
