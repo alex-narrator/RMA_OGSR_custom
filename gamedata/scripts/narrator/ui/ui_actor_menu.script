@@ -18,6 +18,7 @@ end
 
 local subscribed = false
 local new_items = {}
+local show_iter = 0
 
 function create_window()
 	if actor_menu then
@@ -220,6 +221,11 @@ function ActorMenuOverlay:InitControls()
 	self.buy_cost.base_color = self.buy_cost:GetTextColor()
 	self.sell_cost = xml:InitStatic("sell_cost", self.sell_buy_back)
 	self.sell_cost.base_color = self.sell_cost:GetTextColor()
+	
+	--//dragdrop_options
+	name = "dragdrop_options"
+	self.highlight_new_item = (xml:ReadAttribInt(name, "highlight_new_item", 1) > 0) and true or false
+	self.show_items_iteratively = (xml:ReadAttribInt(name, "show_items_iteratively", 1) > 0) and true or false
 
 	self.properties_box = ui_properties_box.UIPropertiesBox(self)
 
@@ -1216,6 +1222,7 @@ function ActorMenuOverlay:OnHide()
 	self:PlayActionSound("close")
 	
 	new_items = {}
+	show_iter = 0
 end
 
 function ActorMenuOverlay:Exit()
@@ -1504,37 +1511,30 @@ function ActorMenuOverlay:ReinitLists(show_type)
 		return not get_inv_item_hidden(item) and (not show_type or show_type == ui_inv_utils.get_type(item) or ui_inv_utils.get_type(item) == 0) and (mode ~= "trade" or trade_manager.tradable(item)) and (mode ~= "repair" or (self.repair:RepairAllowed(item) or self.repair:HackAllowed(item)))
 	end
 	
-	local ruck_items, belt_items, loadout_items = {}, {}, {}
+	local slot_items, ruck_items, belt_items, loadout_items = {}, {}, {}, {}
 	
-	function fill_list(dummy, item)
-		if loadout.can_remove(item) then
-			table.insert(loadout_items, item)
-		elseif actor:is_in_ruck(item) then
-			if show_item(item) then
-				table.insert(ruck_items, item)
-			end
-		elseif actor:is_on_belt(item) then
-			table.insert(belt_items, item)
+	local i = 1
+	show_iter = show_iter + 1
+	local iter = show_iter
+	local function add_to_container(item, container)
+		if not self.show_items_iteratively or container:FindSimilar(item) then
+			container:AddItem(item)
 		else
-			self.slot_list[item:get_slot()]:AddItem(item)
+			add_update_delayed_action(i,
+				function()
+					if iter ~= show_iter then
+						-- log_news("~show_iter [%s] iter [%s]", show_iter, iter)
+					return end
+					container:AddItem(item)
+					self:TrySetBlinking(item)
+				end,
+				function()
+					return iter ~= show_iter
+				end
+			)
+			i = i + 1
 		end
 	end
-	actor:iterate_inventory(fill_list, nil)
-	
-	table.sort(ruck_items, ui_inv_utils.sort_by_size_type)
-	for k, item in pairs(ruck_items) do
-		self.ruck_list:AddItem(item)
-	end
-	
-	table.sort(belt_items, ui_inv_utils.sort_by_size)
-	for k, item in pairs(belt_items) do
-		self.belt_list:AddItem(item)
-	end
-	
-	table.sort(loadout_items, ui_inv_utils.sort_by_size)
-	for k, item in pairs(loadout_items) do
-		self.loadout_list:AddItem(item)
-	end	
 	
 	self.target_list:Reinit()
 	self.target_list:Show(mode == "carbody" or mode == "trade")
@@ -1548,8 +1548,42 @@ function ActorMenuOverlay:ReinitLists(show_type)
 		self.target:iterate_inventory(fill_target_list, nil)
 		table.sort(target_items, ui_inv_utils.sort_by_size_type)
 		for k, item in pairs(target_items) do
-			self.target_list:AddItem(item)
+			add_to_container(item, self.target_list)
 		end
+	end	
+	
+	function fill_list(dummy, item)
+		if loadout.can_remove(item) then
+			table.insert(loadout_items, item)
+		elseif actor:is_in_ruck(item) then
+			if show_item(item) then
+				table.insert(ruck_items, item)
+			end
+		elseif actor:is_on_belt(item) then
+			table.insert(belt_items, item)
+		else
+			table.insert(slot_items, item)
+		end
+	end
+	actor:iterate_inventory(fill_list, nil)
+	
+	for k, item in pairs(slot_items) do
+		add_to_container(item, self.slot_list[item:get_slot()])
+	end
+	
+	table.sort(belt_items, ui_inv_utils.sort_by_size)
+	for k, item in pairs(belt_items) do
+		add_to_container(item, self.belt_list)
+	end
+	
+	table.sort(loadout_items, ui_inv_utils.sort_by_size)
+	for k, item in pairs(loadout_items) do
+		add_to_container(item, self.loadout_list)
+	end
+
+	table.sort(ruck_items, ui_inv_utils.sort_by_size_type)
+	for k, item in pairs(ruck_items) do
+		add_to_container(item, self.ruck_list)
 	end
 	
 	self:UpdateCustomDraw()
@@ -1559,12 +1593,14 @@ function ActorMenuOverlay:ReinitLists(show_type)
 	self.sell_buy_back:SetText("")
 	self:UpdatePrices()
 	
-	for id, v in pairs(new_items) do
-		local item = level.object_by_id(id)
-		if item then
-			local ci = self:GetCellItem(item)
-			if ci then
-				ci:SetBlinking(true)
+	if self.highlight_new_item and not self.show_items_iteratively then
+		for id, v in pairs(new_items) do
+			local item = level.object_by_id(id)
+			if item then
+				local ci = self:GetCellItem(item)
+				if ci then
+					ci:SetBlinking(true)
+				end
 			end
 		end
 	end
@@ -1575,6 +1611,17 @@ function ActorMenuOverlay:UpdateCustomDraw()
 		list:SetLocked(not actor.inventory:is_slot_allowed(i))
 	end
 	self:OnMaxBeltSet(actor.inventory.max_belt)
+end
+
+function ActorMenuOverlay:TrySetBlinking(item)
+	if not self.highlight_new_item then
+	return end
+	if new_items[item:id()] then 
+		local ci = self:GetCellItem(item)
+		if ci then
+			ci:SetBlinking(true)
+		end
+	end
 end
 
 function ActorMenuOverlay:OnCellItemRBClick(item, cell_item)
