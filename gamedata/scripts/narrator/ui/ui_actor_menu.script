@@ -225,7 +225,7 @@ function ActorMenuOverlay:InitControls()
 	--//dragdrop_options
 	name = "dragdrop_options"
 	self.highlight_new_item = (xml:ReadAttribInt(name, "highlight_new_item", 1) > 0) and true or false
-	self.show_items_iteratively = (xml:ReadAttribInt(name, "show_items_iteratively", 1) > 0) and true or false
+	self.icons_per_update = xml:ReadAttribInt(name, "icons_per_update", 0)
 
 	self.properties_box = ui_properties_box.UIPropertiesBox(self)
 
@@ -1514,10 +1514,11 @@ function ActorMenuOverlay:ReinitLists(show_type)
 	local slot_items, ruck_items, belt_items, loadout_items = {}, {}, {}, {}
 	
 	local i = 1
+	local icons_count = 0
 	show_iter = show_iter + 1
 	local iter = show_iter
 	local function add_to_container(item, container)
-		if not self.show_items_iteratively or container:FindSimilar(item) then
+		if self.icons_per_update == 0 or container:FindSimilar(item) then
 			container:AddItem(item)
 		else
 			add_update_delayed_action(i,
@@ -1532,7 +1533,12 @@ function ActorMenuOverlay:ReinitLists(show_type)
 					return iter ~= show_iter
 				end
 			)
-			i = i + 1
+			if icons_count <= self.icons_per_update then
+				icons_count = icons_count + 1
+			else
+				icons_count = 0
+				i = i + 1
+			end
 		end
 	end
 	
@@ -1593,7 +1599,7 @@ function ActorMenuOverlay:ReinitLists(show_type)
 	self.sell_buy_back:SetText("")
 	self:UpdatePrices()
 	
-	if self.highlight_new_item and not self.show_items_iteratively then
+	if self.highlight_new_item and self.icons_per_update == 0 then
 		for id, v in pairs(new_items) do
 			local item = level.object_by_id(id)
 			if item then
