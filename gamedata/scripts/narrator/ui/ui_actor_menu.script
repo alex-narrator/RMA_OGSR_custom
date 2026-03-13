@@ -222,11 +222,6 @@ function ActorMenuOverlay:InitControls()
 	self.sell_cost = xml:InitStatic("sell_cost", self.sell_buy_back)
 	self.sell_cost.base_color = self.sell_cost:GetTextColor()
 	
-	--//dragdrop_options
-	name = "dragdrop_options"
-	self.highlight_new_item = (xml:ReadAttribInt(name, "highlight_new_item", 1) > 0) and true or false
-	self.icons_per_update = xml:ReadAttribInt(name, "icons_per_update", 0)
-
 	self.properties_box = ui_properties_box.UIPropertiesBox(self)
 
 	self.conditions_background = xml:InitStatic("conditions_background", self)
@@ -1171,6 +1166,9 @@ function ActorMenuOverlay:OnShow()
 		self.repair = repair_manager.RepairManager(self.target)
 	end
 	
+	self.highlight_new_item = get_script_option_value("inv_highlight_new_item")
+	self.icons_per_frame = get_script_option_value("inv_icons_per_frame")
+	
 	self.craft_button:Show(mode == "inventory" and campfire_effects.actor_used_campfire())
 	self.skip_time_button:Show(mode == "inventory" and campfire_effects.actor_used_campfire())
 	self.take_all_button:Show(mode == "carbody")
@@ -1518,7 +1516,7 @@ function ActorMenuOverlay:ReinitLists(show_type)
 	show_iter = show_iter + 1
 	local iter = show_iter
 	local function add_to_container(item, container)
-		if self.icons_per_update == 0 or container:FindSimilar(item) then
+		if self.icons_per_frame == 0 or container:FindSimilar(item) then
 			container:AddItem(item)
 		else
 			add_update_delayed_action(i,
@@ -1533,7 +1531,7 @@ function ActorMenuOverlay:ReinitLists(show_type)
 					return iter ~= show_iter
 				end
 			)
-			if icons_count <= self.icons_per_update then
+			if icons_count <= self.icons_per_frame then
 				icons_count = icons_count + 1
 			else
 				icons_count = 0
@@ -1541,22 +1539,6 @@ function ActorMenuOverlay:ReinitLists(show_type)
 			end
 		end
 	end
-	
-	self.target_list:Reinit()
-	self.target_list:Show(mode == "carbody" or mode == "trade")
-	if self.target_list:IsShown() then
-		local target_items = {}
-		function fill_target_list(dummy, item)
-			if show_item(item) then
-				table.insert(target_items, item)
-			end
-		end		
-		self.target:iterate_inventory(fill_target_list, nil)
-		table.sort(target_items, ui_inv_utils.sort_by_size_type)
-		for k, item in pairs(target_items) do
-			add_to_container(item, self.target_list)
-		end
-	end	
 	
 	function fill_list(dummy, item)
 		if loadout.can_remove(item) then
@@ -1591,6 +1573,22 @@ function ActorMenuOverlay:ReinitLists(show_type)
 	for k, item in pairs(ruck_items) do
 		add_to_container(item, self.ruck_list)
 	end
+
+	self.target_list:Reinit()
+	self.target_list:Show(mode == "carbody" or mode == "trade")
+	if self.target_list:IsShown() then
+		local target_items = {}
+		function fill_target_list(dummy, item)
+			if show_item(item) then
+				table.insert(target_items, item)
+			end
+		end		
+		self.target:iterate_inventory(fill_target_list, nil)
+		table.sort(target_items, ui_inv_utils.sort_by_size_type)
+		for k, item in pairs(target_items) do
+			add_to_container(item, self.target_list)
+		end
+	end
 	
 	self:UpdateCustomDraw()
 	
@@ -1599,7 +1597,7 @@ function ActorMenuOverlay:ReinitLists(show_type)
 	self.sell_buy_back:SetText("")
 	self:UpdatePrices()
 	
-	if self.highlight_new_item and self.icons_per_update == 0 then
+	if self.highlight_new_item and self.icons_per_frame == 0 then
 		for id, v in pairs(new_items) do
 			local item = level.object_by_id(id)
 			if item then
