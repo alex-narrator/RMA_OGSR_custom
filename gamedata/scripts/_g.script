@@ -1740,6 +1740,9 @@ function actor_hands_free()
 	local act_device = actor:active_device()
 	return (not act_item or not act_item:is_pending()) and (not act_device or not act_device:is_pending()) and game.hud_motion_allowed() and not actor:ph_capture()
 end
+function no_active_items()
+	return not actor:active_item() and not actor:active_device()
+end
 function handling_mounted_weapon()
 	local holder = actor:get_holder()
 	return holder and IsMountedWeapon(holder)

@@ -18,7 +18,7 @@ function play_outfit(anim_type)
 	
 	level.add_call(
 		function() 
-			return not actor:active_item() and not actor:active_device()
+			return no_active_items()
 		end,
 		function()
 			local anm_length = game.play_hud_motion(2, hud_sect, "anm_use", false, 1, true)
@@ -74,7 +74,7 @@ function play_gasmask(item, is_on)
 	
 	level.add_call(
 		function() 
-			return not actor:active_item() and not actor:active_device()
+			return no_active_items()
 		end,
 		function()
 			local anm_length = game.play_hud_motion(2, hud_sect, is_on and "anm_equip" or "anm_unequip", false, 1, true)

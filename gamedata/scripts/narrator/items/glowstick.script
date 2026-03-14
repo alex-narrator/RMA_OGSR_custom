@@ -36,7 +36,7 @@ function activate(item)
 	block_non_move_action(true)
 	level.add_call(
 		function() 
-			return not actor:active_item() and not actor:active_device()
+			return no_active_items()
 		end,
 		function()
 			local snd_name = read_if_exists(sys_ini, "string", item:section(), "snd_activate", nil)

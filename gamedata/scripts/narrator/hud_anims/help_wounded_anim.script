@@ -22,7 +22,7 @@ function play(npc)
 	
 	level.add_call(
 		function()
-			return not actor:active_item() and not actor:active_device()
+			return no_active_items()
 		end,
 		function()
 			local anim_length = game.play_hud_motion(2, hud_sect, "anm_use", false, 1, true)

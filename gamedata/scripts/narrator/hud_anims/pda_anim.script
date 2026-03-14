@@ -44,7 +44,7 @@ function on_key_press(key, game_action)
 	local hud_sect = get_hud_sect(pda) or def_hud_sect
 	level.add_call(
 		function() 
-			return not actor:active_item() and not actor:active_device()
+			return no_active_items()
 		end,
 		function()
 			_G.SCRIPT_ANIM_PLAYING = true
@@ -96,7 +96,7 @@ function on_pda_hide()
 	local hud_sect = get_hud_sect(pda) or def_hud_sect	
 	level.add_call(
 		function() 
-			return not actor:active_item() and not actor:active_device()
+			return no_active_items()
 		end,
 		function()
 			local length = game.play_hud_motion(2, hud_sect, "anm_hide", true, 1, false)

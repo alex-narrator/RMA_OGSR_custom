@@ -89,7 +89,7 @@ function play_harvest(monster)
 	
 	level.add_call(
 		function() 
-			return not actor:active_item() and not actor:active_device()
+			return no_active_items()
 		end,
 		function()
 			--backpack.force_crouch(true)

@@ -17,7 +17,7 @@ function play(item)
 	
 	level.add_call(
 		function() 
-			return not actor:active_item() and not actor:active_device()
+			return no_active_items()
 		end,
 		function()
 			local anm_speed = read_if_exists(sys_ini, "float", hud_sect, anm_name.."_speed_k", 1)

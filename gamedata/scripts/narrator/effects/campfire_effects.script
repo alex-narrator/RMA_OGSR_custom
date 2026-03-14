@@ -65,16 +65,23 @@ function on_campfire_use(campfire_usable, campfire_zone)
 		if not matches then
 		return end
 		
-		local cond_dec = 1 / read_if_exists(sys_ini, "u32", matches:section(), "use_count", 10)
-		matches:change_condition(-cond_dec)
-		
-		if matches:condition() <= 0 then
-			actor:drop_item(matches)
-			alife():release(alife():object(matches:id()), true)
+		local function use_matches()
+			local cond_dec = 1 / read_if_exists(sys_ini, "u32", matches:section(), "use_count", 10)
+			matches:change_condition(-cond_dec)
+			
+			if matches:condition() <= 0 then
+				actor:drop_item(matches)
+				alife():release(alife():object(matches:id()), true)
+			end
 		end
 		
-		actor:hide_weapon(true)
-		level.disable_input()
+		local function need_force_stop() 
+			return need_force_stop_anim() or not is_actor_looking_to_pos(campfire_zone:center(), 1) or distance_between_safe(actor, campfire_zone) > CAMPFIRE_EFFECT_DIST
+		end
+		
+		actor:hide_weapon(HIDE_WPN_ANIM_FAST)
+		block_non_move_action(true)
+		-- level.disable_input()
 		
 		local hud_sect = get_hud_sect(matches)
 		if hud_sect then
@@ -82,21 +89,33 @@ function on_campfire_use(campfire_usable, campfire_zone)
 				function()
 					local pos = campfire_zone:center()
 					pos.y = pos.y + 0.75
-					aim_camera_to_pos(pos, 1)				
-					return not actor:active_item() and not actor:active_device()
+					aim_camera_to_pos(pos, 1)
+					return no_active_items()
 				end,
 				function()
 					local anm_length = game.play_hud_motion(2, hud_sect, "anm_use", false, 1, true)
+					sm:call("on_timed_action_start", campfire_zone, anm_length)
 					_G.SCRIPT_ANIM_PLAYING = true
-					play_hud_sound(hud_sect)
+					local sound = play_hud_sound(hud_sect)
 					play_hud_effector(hud_sect)
 					add_time_delayed_action(
 						anm_length * 0.001,
 						function()
 							_G.SCRIPT_ANIM_PLAYING = false
-							actor:restore_weapon(true)
-							level.enable_input()
+							sm:call("on_timed_action_stop")
+							actor:restore_weapon(HIDE_WPN_ANIM_FAST)
+							block_non_move_action(false)
+							-- level.enable_input()
+							if need_force_stop() then
+								game.stop_hud_motion()
+								sound:stop()
+								level.remove_complex_effector(hud_effector_id)
+							return end							
+							use_matches()
 							try_ignit(campfire_zone)						
+						end,
+						function()
+							return need_force_stop()
 						end
 					)
 				end
@@ -105,14 +124,20 @@ function on_campfire_use(campfire_usable, campfire_zone)
 			local sound = xr_sound.get_safe_sound_object(read_if_exists(sys_ini, "string", matches:section(), "use_sound", nil))
 			if sound then
 				sound:play(actor, 0, sound_object.s2d)
+				sm:call("on_timed_action_start", campfire_zone, sound:length())
 			end
 			level.add_call(
 				function()
-					return not sound or not sound:playing()
+					return not sound or not sound:playing() or need_force_stop()
 				end,
 				function()
-					actor:restore_weapon(true)
-					level.enable_input()
+					actor:restore_weapon(HIDE_WPN_ANIM_FAST)
+					block_non_move_action(false)
+					sm:call("on_timed_action_stop")
+					-- level.enable_input()
+					if need_force_stop() then
+					return end					
+					use_matches()
 					try_ignit(campfire_zone)
 				end
 			)

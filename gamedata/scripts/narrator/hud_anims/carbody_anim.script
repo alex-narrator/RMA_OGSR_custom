@@ -54,7 +54,7 @@ function on_show(mode)
 	
 	level.add_call(
 		function() 
-			return not actor:active_item() and not actor:active_device()
+			return no_active_items()
 		end,
 		function()
 			backpack.play_effects(true)
