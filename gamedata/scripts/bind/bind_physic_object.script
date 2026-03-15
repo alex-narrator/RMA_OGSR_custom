@@ -196,4 +196,7 @@ function generic_physics_binder:death_callback(victim, who)
 	end
 	--log3("~generic_physics_binder killed physics object %s with visual %s - killer is %s", victim:name(), victim:get_visual_name(), who and who:name() or "NONE")
     self.sm:call("on_death_physics", victim, who)
+	if victim:is_car() then
+		self.sm:call("on_death_car", victim, who)
+	end
 end

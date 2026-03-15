@@ -69,7 +69,8 @@ function attach(sm)
 	sm:subscribe({signal = "on_death", 			fun = this.addKillCount})
 	sm:subscribe({signal = "on_heal_wounded", 	fun = this.add_npc_healed})
 	sm:subscribe({signal = "on_give_treasure", 	fun = this.add_treasure})
-	sm:subscribe({signal = "on_death_physics", 	fun = this.add_killed_obj})
+	sm:subscribe({signal = "on_death_car", 		fun = this.add_killed_transport})
+	sm:subscribe({signal = "on_death_heli", 	fun = this.add_killed_transport})
 	sm:subscribe({signal = "on_pda_hack", 		fun = this.add_pda_hack})
 end
 
@@ -193,10 +194,32 @@ function add_treasure(id, name)
 	actor_stats.add_points(stat_sect, sect, 1, 1)	
 end
 
-function add_killed_obj(victim, killer)
+local transport_name_by_visual = {
+	["btr"] = "btr-70",
+	["kamaz"] = "Kamaz",
+	["mi24"] = "mi-24",
+	["moskvitch"] = "moskvitch",
+	["niva"] = "Niva",
+	["tr13"] = "tractor",
+	["uaz"] = "Uaz",
+	["zaz"] = "Zaporozh",
+}
+
+function add_killed_transport(victim, killer)
 	if killer and not killer:is_actor() then
 	return end
-	if not victim:is_car() then
+	--log3("~killed object %s with visual %s", victim:name(), victim:get_visual_name())
+	local stat_sect = "transportkills"
+	local visual_name = victim:get_visual_name()
+	local transport_name
+	for k,v in pairs(transport_name_by_visual) do
+		if string.find(visual_name, k) then
+			transport_name = v
+			break
+		end
+	end
+	if not transport_name then
+		log_news("~%s: name for transport visual [%s] section [%s] not found in transport_name_by_visual table", script_name(), visual_name, victim:section())
 	return end
-	--log3("~killed physics object %s with visual %s", victim:name(), victim:get_visual_name())
+	actor_stats.add_points(stat_sect, game.translate_string(transport_name), 1, 1)
 end

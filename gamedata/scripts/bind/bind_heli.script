@@ -29,6 +29,7 @@ function heli_binder:__init( obj, ini ) super( obj )
 	self.ini         = ini
 	self.initialized = false
 	self.loaded      = false
+	self.sm = ogse_signals.get_mgr()
 end
 
 function heli_binder:reload( section )
@@ -178,6 +179,8 @@ function heli_binder:on_hit( power, impulse, hit_type, enemy_id )
 		heli_snd.play_snd( self.st, heli_snd.snd_hit, 2 )
 		self.last_hit_snd_timeout = time_global() + math.random( 4000, 8000 )
 	end
+	
+	self.last_hit_draftsman = enemy
 end
 
 function heli_binder:on_point( distance, position, path_idx )
@@ -225,4 +228,6 @@ function heli_die( obj )
 
 	st.last_alt       = heli:GetRealAltitude()
 	st.alt_check_time = time_global() + 1000
+	
+	self.sm:call("on_death_heli", obj, self.last_hit_draftsman)
 end
