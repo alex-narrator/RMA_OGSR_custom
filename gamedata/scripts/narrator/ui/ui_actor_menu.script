@@ -1451,12 +1451,48 @@ function ActorMenuOverlay:Organize()
 end
 
 function ActorMenuOverlay:TakeAll()
+	self:Exit()
 	inventory.take_all(self.target)
-	add_update_delayed_action(1, function() self:Exit() end)
---	self:Exit()
 end
 function ActorMenuOverlay:MoveAllRuck()
-	inventory.move_all_ruck(self.target)
+	if self.icons_per_frame == 0 then
+		inventory.move_all_ruck(self.target)
+	return end
+	
+	local items = inventory.move_all_ruck(self.target, true)
+	if not items then return end
+	local i = 1
+	local icons_count = 0
+	show_iter = show_iter + 1
+	local iter = show_iter
+	local container = self.target_list
+	local inv_owner = self.target	
+	local function transfer_item(item)
+		if container:FindSimilar(item) then
+			actor:transfer_item(item, inv_owner)
+		else
+			add_update_delayed_action(i,
+				function()
+					if iter ~= show_iter then
+					return end
+					actor:transfer_item(item, inv_owner)
+				end,
+				function()
+					return iter ~= show_iter
+				end
+			)
+			if icons_count <= self.icons_per_frame then
+				icons_count = icons_count + 1
+			else
+				icons_count = 0
+				i = i + 1
+			end
+		end
+	end
+	for k, item in pairs(items) do
+		transfer_item(item)
+	end
+	self.ruck_list:Reinit()	
 end
 
 function ActorMenuOverlay:Craft()

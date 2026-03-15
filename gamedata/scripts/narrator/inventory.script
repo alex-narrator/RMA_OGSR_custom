@@ -146,7 +146,7 @@ function take_all(inv_owner)
 	end	
 end
 
-function move_all_ruck(inv_owner)
+function move_all_ruck(inv_owner, get_items)
 	if not inv_owner then return end
 	local items = {}
 	function perform_action(dummy, item)
@@ -158,6 +158,11 @@ function move_all_ruck(inv_owner)
 	actor:iterate_ruck(perform_action, nil)
 	
 	table.sort(items, ui_inv_utils.sort_by_size_type)
+	
+	if get_items then
+		return items
+	end
+	
 	for k, item in pairs(items) do
 		actor:transfer_item(item, inv_owner)
 	end	
