@@ -2104,7 +2104,7 @@ function drop_item_to_angle(owner, item, angle)
     local dir = vector_rotate_y(owner:is_actor() and device().cam_dir or owner:direction(), angle)
     if (dir.y < 0) then dir.y = -dir.y end
     dir:normalize():mul(2)
-    owner:drop_item_and_throw(item, dir)	
+    owner:drop_item_and_throw(item, dir)
 end
 
 function is_actor_looking_to_pos(pos, radius)
