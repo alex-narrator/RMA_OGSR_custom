@@ -1138,9 +1138,8 @@ function MainIngameOverlay:OnKeyPress(key, game_action)
 			local hud_sect = get_hud_sect(item_to_drop)
 			local throw_anim = "anm_throw_stick"
 			if hud_sect and read_if_exists(sys_ini, "string", hud_sect, throw_anim, nil) then
-				local idx = act_device and 1 or 0
 				local anm_speed = read_if_exists(sys_ini, "float", hud_sect, throw_anim.."_speed_k", 1)
-				local anm_length = game.play_hud_motion(idx, hud_sect, throw_anim, false, anm_speed, false)
+				local anm_length = item_to_drop:play_hud_motion(throw_anim, true, -1, anm_speed)
 				local throw_delay = read_if_exists(sys_ini, "float", hud_sect, "throw_delay", anm_length * 0.001)
 				block_non_move_action(true)
 				add_time_delayed_action(
@@ -1150,7 +1149,6 @@ function MainIngameOverlay:OnKeyPress(key, game_action)
 						local pos = device().cam_pos
 						pos:add(device().cam_dir)
 						actor:drop_item_and_teleport(item_to_drop, pos)
-						game.stop_hud_motion()
 					end
 				)
 			else

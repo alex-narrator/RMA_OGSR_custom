@@ -1,47 +1,50 @@
 [device_glowstick_hud_base]:detector_base_hud
-item_position					= -0.092,0.032,-0.04
-item_orientation				= 155,14.25,10
-hands_position					= 0.1,-0.19,-0.04
-hands_orientation				= 2,2,0
-
-hands_position_16x9 			= -0.086400,-0.542695,0.102000
-hands_orientation_16x9 			= -1.800001,49.199821,55.877525
-
-aim_hud_offset_pos 				= -0.275, 0.07, -0.05
-aim_hud_offset_rot 				= 0.0005, 0.09, -0.015
-
-aim_hud_offset_pos_16x9 		= -0.153803,0.065801,-0.00680092
-aim_hud_offset_rot_16x9 		= 0.0005,0.09,0.665
-
 fire_point						= 0,0,0.05
 fire_point2						= 0,0,0
 fire_bone						= lid
 fire_bone2						= lid
 
-anm_show 						= glowstick_draw_fake, draw
-anm_show_fast 					= glowstick_draw_fake, draw
-anm_show_real 					= glowstick_draw, draw
-anm_hide 						= glowstick_holster, holster
-anm_hide_fast 					= glowstick_holster, holster
-anm_idle 						= glowstick_idle, idle_f
-anm_idle_moving 				= glowstick_move, moving
-anm_idle_sprint 				= glowstick_sprint, sprint
-anm_zoom_show 					= glowstick_draw_fake, draw
-anm_zoom_show_fast 				= glowstick_draw_fake, draw
-anm_zoom_show_real 				= glowstick_zoom_draw, draw
-anm_zoom_hide 					= glowstick_zoom_holster, holster
-anm_zoom_hide_fast 				= glowstick_zoom_holster, holster
-anm_idle_zoom 					= glowstick_zoom, idle_f
-anm_zoom_in 					= glowstick_zoom_in, idle_f
-;anm_zoom_out 					= glowstick_zoom_in, idle_f
-anm_throw_start 				= glowstick_throw_start, idle_f
-anm_throw 						= glowstick_throw_idle, idle_f
-anm_throw_end 					= glowstick_throw_end, idle_f
-anm_throw_stick 				= glowstick_throw, idle_f
-anm_throw_stick_speed_k 		= 2
-throw_delay 					= 0.4
+item_position 					= -0.082952, 0.03034, -0.039455
+item_orientation 				= -28.401958, 173.8723, 134.2854
+hands_position 					= 0, 0, 0
+hands_orientation 				= 0, 0, 0
+hands_position_16x9 			= 0, 0, 0
+hands_orientation_16x9 			= 0, 0, 0
 
-anm_throw_hide 					= glowstick_throw_hide
+aim_hud_offset_pos 				= 0, 0, 0
+aim_hud_offset_rot 				= 0, 0, 0
+aim_hud_offset_pos_16x9 		= 0, 0, 0
+aim_hud_offset_rot_16x9 		= 0, 0, 0
+
+anm_show 						= liz_glowstick_hands_draw, idle_f
+anm_show_fast 					= liz_glowstick_hands_draw, idle_f
+anm_show_fast_speed_k 			= 1.5
+
+anm_show_real 					= liz_glowstick_hands_draw, idle_f
+anm_hide 						= liz_glowstick_hands_holster, holster
+anm_hide_fast 					= liz_glowstick_hands_holster, holster
+anm_idle 						= liz_glowstick_hands_idle, idle_f
+anm_idle_speed_k 				= 1.5
+anm_idle_moving 				= liz_glowstick_hands_walk, idle_f
+anm_idle_sprint 				= liz_glowstick_hands_run, idle_f
+
+anm_zoom_show 					= liz_glowstick_hands_zoom_draw, draw
+anm_zoom_fast 					= liz_glowstick_hands_zoom_draw, draw
+anm_zoom_fast_speed_k 			= 1.25
+
+anm_zoom_show_real 				= liz_glowstick_hands_zoom_draw, idle_f
+anm_zoom_hide 					= liz_glowstick_hands_zoom_holster, holster
+anm_zoom_hide_fast 				= liz_glowstick_hands_zoom_holster, holster
+anm_idle_zoom 					= liz_glowstick_hands_zoom_idle, idle_f
+;anm_zoom 						= liz_glowstick_hands_zoom_in, idle_f
+anm_zoom_in 					= liz_glowstick_hands_zoom_in, idle_f
+anm_zoom_out 					= liz_glowstick_hands_zoom_out, idle_f
+anm_throw_start 				= liz_glowstick_hands_bolt_throw_begin, idle_f
+anm_throw 						= liz_glowstick_hands_bolt_throw_idle, idle_f
+anm_throw_end 					= liz_glowstick_hands_bolt_throw_end, idle_f
+anm_throw_stick 				= liz_glowstick_hands_throw_begin, idle_f
+
+anm_throw_hide 					= liz_glowstick_hands_throw_end
 
 [device_glowstick_hud]:device_glowstick_hud_base
 item_visual						= dynamics\devices\dev_glowstick\dev_glowstick_hud
