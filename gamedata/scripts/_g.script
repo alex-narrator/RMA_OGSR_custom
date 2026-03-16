@@ -2500,7 +2500,8 @@ function attach_addon(item, item_to_attach)
 	return false end
 	local mgr = ogse_signals.get_mgr()
 	local iitem_to_attach = item_to_attach:get_inventory_item()
-	mgr:call("on_before_addon_attach", item, item_to_attach)	
+	mgr:call("on_before_addon_attach", item, item_to_attach)
+	handle_addon_conflict(item, item_to_attach)
 	local res = item:get_weapon_m():attach_addon(iitem_to_attach, true)
 	if is_in_addon_list(item, item_to_attach:section(), addon.silencer) then
 		local sobj = alife():object(item:id())
@@ -2539,6 +2540,54 @@ function is_in_addon_list(item, section, addon_type)
 		return true end
 	end
 	return false
+end
+
+function handle_addon_conflict(item, addon)
+	if not item or not addon then
+	return end
+	local wpn = item:get_weapon()
+	if not wpn then
+	return end
+	local conflict_sect = item:section().."_addon_conflict"
+	if not sys_ini:section_exist(conflict_sect) then
+	return end
+	local addon_sect = addon:section()
+	local n = sys_ini:line_count(conflict_sect)
+	local sect, value = "", ""
+	for i=0,n-1 do
+		result, name, value = sys_ini:r_line(conflict_sect,i,"","")
+		local values_tbl = split_string(value, ",")
+		
+		if addon_sect == name then
+			for k,addon_name in pairs (values_tbl) do
+				for kk,vv in pairs(ADDON_TYPES) do
+					local i = kk-1
+					if wpn:is_addon_attached(i) and wpn:addon_attachable(i) then
+						if wpn:get_addon_name(i) == addon_name then
+							detach_addon(item, addon_name)
+							--log_news("~attaching addon [%s] has conflicts - detaching addon [%s]", addon_sect, addon_name)
+							return
+						end
+					end
+				end
+			end
+		end
+		
+		for k,addon_name in pairs (values_tbl) do
+			if addon_name == addon_sect then
+				for kk,vv in pairs(ADDON_TYPES) do
+					local i = kk-1
+					if wpn:is_addon_attached(i) and wpn:addon_attachable(i) then
+						if wpn:get_addon_name(i) == name then
+							detach_addon(item, name)
+							--log_news("~attaching addon [%s] has conflicts - detaching addon [%s]", addon_name, name)
+							return
+						end
+					end
+				end
+			end
+		end
+	end
 end
 
 function is_unlimited_ammo()
