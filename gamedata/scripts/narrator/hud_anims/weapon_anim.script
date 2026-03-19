@@ -27,6 +27,9 @@ local gl_switch = {
 
 local aim = "camera_effects\\actor_actions\\zoom_crp.anm"
 local fire_mode = "camera_effects\\actor_actions\\fmode_crp.anm"
+local ZOOM_SWITCH_POWER = 0.25
+local FIREMODE_SWITCH_POWER = 0.25
+local AIM_SWITCH_POWER = 1
 
 function is_switch_slot()
 	return get_console():get_bool("g_mouse_wheel_switch_slot")
@@ -45,7 +48,8 @@ function on_zoom_in(weapon)
 	xr_sound.get_safe_sound_object(sound_name):play_no_feedback(actor, sound_object.s2d, 0, vector(), 10.0)
 	-- if weapon:get_weapon():second_vp_enabled() then
 	-- return end
-	game.play_hud_anm(aim, 2, 1, 1, false, true)
+	local switch_power = read_if_exists(sys_ini, "float", weapon:section(), "control_inertion_factor", 1)
+	game.play_hud_anm(aim, 2, 1, AIM_SWITCH_POWER * switch_power, false, false)
 	level.add_cam_effector(aim, 1908, false, "")
 end
 
@@ -53,7 +57,8 @@ function on_zoom_out(weapon)
 	--level.add_complex_effector("aim", 1907)
 	local sound_name = aim_out_prefix..math.random(1,10)
 	xr_sound.get_safe_sound_object(sound_name):play_no_feedback(actor, sound_object.s2d, 0, vector(), 10.0)
-	game.play_hud_anm(aim, 2, 1, 1, false, true)
+	local switch_power = read_if_exists(sys_ini, "float", weapon:section(), "control_inertion_factor", 1)
+	game.play_hud_anm(aim, 2, 1, AIM_SWITCH_POWER * switch_power, false, false)
 	level.add_cam_effector(aim, 1907, false, "")
 end
 
@@ -66,8 +71,8 @@ function play_switch_anim(item)
 
 	local switch_snd = read_if_exists(sys_ini, "string", item:section(), "snd_firemode", "")
 	xr_sound.get_safe_sound_object(switch_snd):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
-	level.add_cam_effector(fire_mode, 1912, false, "")
-	game.play_hud_anm(fire_mode, 2, 1, 0.25, false, false)	
+	--level.add_cam_effector(fire_mode, 1912, false, "")
+	game.play_hud_anm(fire_mode, 2, 1, FIREMODE_SWITCH_POWER, false, false)	
 	--ui_hud_info.try_show_active_item_info()
 	-- if hud_anim_exists(item, "anm_switch") then
 		-- game.play_hud_motion(2, get_hud_sect(item), "anm_switch", false, 1, false)
@@ -77,8 +82,8 @@ end
 function play_zoom_switch_anim(item)
 	--level.add_complex_effector("fire_mode", 1912)
 
-	level.add_cam_effector(fire_mode, 1912, false, "")
-	game.play_hud_anm(fire_mode, 2, 1, 0.1, false, false)	
+	--level.add_cam_effector(fire_mode, 1912, false, "")
+	game.play_hud_anm(fire_mode, 2, 1, ZOOM_SWITCH_POWER, false, false)	
 	--ui_hud_info.try_show_active_item_info()
 	-- if hud_anim_exists(item, "anm_switch") then
 		-- game.play_hud_motion(2, get_hud_sect(item), "anm_switch", false, 1, false)
