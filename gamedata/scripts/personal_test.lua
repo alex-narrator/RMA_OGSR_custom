@@ -995,4 +995,8 @@ end
 	-- log_news("~tank size [%s], current fuel [%s], fullness [%s]", car:GetFuelTank(), car:GetFuel(), car:GetFuel() / car:GetFuelTank())
 -- end
 
-game.play_hud_motion(2, "carbody_hud", "anm_idle", false, 1, false)
+-- game.play_hud_motion(2, "carbody_hud", "anm_idle", false, 1, false)
+local act_device = actor:active_device()
+if act_device then
+	act_device:show_item_hud(false)
+end
