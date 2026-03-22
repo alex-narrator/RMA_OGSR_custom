@@ -45,20 +45,24 @@ end
 function on_zoom_in(weapon)
 	--level.add_complex_effector("aim", 1908)
 	local sound_name = aim_in_prefix..math.random(1,10)
-	xr_sound.get_safe_sound_object(sound_name):play_no_feedback(actor, sound_object.s2d, 0, vector(), 10.0)
+	local snd = xr_sound.get_safe_sound_object(sound_name)
+	if snd then
+		snd:play(actor, 0, sound_object.s2d)
+	end
 	-- if weapon:get_weapon():second_vp_enabled() then
 	-- return end
-	local switch_power = read_if_exists(sys_ini, "float", weapon:section(), "control_inertion_factor", 1)
-	game.play_hud_anm(aim, 2, 1, AIM_SWITCH_POWER * switch_power, false, false)
+	game.play_hud_anm(aim, 2, 1, AIM_SWITCH_POWER, false, false)
 	level.add_cam_effector(aim, 1908, false, "")
 end
 
 function on_zoom_out(weapon)
 	--level.add_complex_effector("aim", 1907)
 	local sound_name = aim_out_prefix..math.random(1,10)
-	xr_sound.get_safe_sound_object(sound_name):play_no_feedback(actor, sound_object.s2d, 0, vector(), 10.0)
-	local switch_power = read_if_exists(sys_ini, "float", weapon:section(), "control_inertion_factor", 1)
-	game.play_hud_anm(aim, 2, 1, AIM_SWITCH_POWER * switch_power, false, false)
+	local snd = xr_sound.get_safe_sound_object(sound_name)
+	if snd then
+		snd:play(actor, 0, sound_object.s2d)
+	end
+	game.play_hud_anm(aim, 2, 1, AIM_SWITCH_POWER, false, false)
 	level.add_cam_effector(aim, 1907, false, "")
 end
 
@@ -69,8 +73,11 @@ end
 function play_switch_anim(item)
 	--level.add_complex_effector("fire_mode", 1912)
 
-	local switch_snd = read_if_exists(sys_ini, "string", item:section(), "snd_firemode", "")
-	xr_sound.get_safe_sound_object(switch_snd):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+	local sound_name = read_if_exists(sys_ini, "string", item:section(), "snd_firemode", "")
+	local snd = xr_sound.get_safe_sound_object(sound_name)
+	if snd then
+		snd:play(actor, 0, sound_object.s2d)
+	end
 	--level.add_cam_effector(fire_mode, 1912, false, "")
 	game.play_hud_anm(fire_mode, 2, 1, FIREMODE_SWITCH_POWER, false, false)	
 	--ui_hud_info.try_show_active_item_info()

@@ -26,19 +26,28 @@ function on_weapon_fire(item)
 	sobj.attached_silencer_condition = math.clamp(sobj.attached_silencer_condition - cond_dec, 0, 1)
 	if sobj.attached_silencer_condition == 0 then
 		detach_addon(item, silencer_sect, true)
-		play_explode_fx(wpn)
+		play_explode_fx(item)
 		news_manager.item_tip(silencer_sect, "destroyed_corrupted")
 		item:change_condition(-silencer_explode_cond_dec)
+		wpn:stop_fire()
 	end
 	--t:stop()
 end
 
-function play_explode_fx(wpn)
+function play_explode_fx(item)
+	local wpn = item:get_weapon()
 	local pos = wpn:get_fire_point()
 	local dir = wpn:get_fire_direction()
 	local particle = particles_object(silencer_explode_particle)
 	particle:set_direction(dir)
 	particle:play_at_pos(pos, true)
-	xr_sound.get_safe_sound_object(silencer_explode_sound):play_no_feedback(actor, sound_object.s2d, 0, vector(), 0.5)
+	xr_sound.get_safe_sound_object(silencer_explode_sound):play(actor, 0, sound_object.s2d)
 	level.add_complex_effector(silencer_explode_effector, silencer_explode_effector_id)
+	local h = hit()
+	h.draftsman = item
+	h.type = hit.explosion
+	h.direction = vector():set(0,0,0) 
+	h.power = 0
+	h.impulse = 0
+	actor:hit(h)
 end
