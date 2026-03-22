@@ -149,7 +149,7 @@ function heli_binder:check_health()
 		end
 
 		if health <= 0.005 and not self.st.immortal then
-			heli_die( self.object )
+			heli_die( self.object, self.last_hit_draftsman )
 
 			heli_snd.play_snd( self.st, heli_snd.snd_down, 4 )
 		end
@@ -218,7 +218,7 @@ function heli_start_flame( obj )
 	db.storage[obj:id()].flame_start_snd:play( obj )
 end
 
-function heli_die( obj )
+function heli_die( obj, draftsman )
 	local heli = obj:get_helicopter()
 	local st   = db.storage[obj:id()]
 
@@ -229,5 +229,5 @@ function heli_die( obj )
 	st.last_alt       = heli:GetRealAltitude()
 	st.alt_check_time = time_global() + 1000
 	
-	self.sm:call("on_death_heli", obj, self.last_hit_draftsman)
+	self.sm:call("on_death_heli", obj, draftsman)
 end
