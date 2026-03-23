@@ -44,6 +44,9 @@ function on_take(item)
 	return end
 	if actor_menu:IsShown() then
 	return end
+	local act_item = actor:active_item()
+	if act_item and not read_if_exists(sys_ini, "bool", act_item:section(), "single_handed", true) then
+	return end
 	if actor:is_in_slot(item) then
 		if item:get_slot() == DETECTOR_SLOT then
 			actor:activate_slot(DETECTOR_SLOT)

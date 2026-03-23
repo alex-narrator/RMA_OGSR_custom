@@ -12,19 +12,19 @@ local mm = ui_mm_opt_main
 
 local debug_opt_params = {
 	--"option name", "option control type", "option tip name", "option tip text"
-	--{ "crosshair_dbg", 				"check", "gameplay_settings_name_crosshair_dbg", 				"gameplay_settings_desc_crosshair_dbg" 			},
-	{ "god_mode", 					"check", "gameplay_settings_name_god_mode", 					"gameplay_settings_desc_god_mode" 				},
-	{ "unlimited_ammo", 			"check", "gameplay_settings_name_unlimited_ammo", 				"gameplay_settings_desc_unlimited_ammo" 		},
-	{ "zones_dbg", 					"check", "gameplay_settings_name_zones_dbg", 					"gameplay_settings_desc_zones_dbg" 				},
-	{ "vertex_dbg", 				"check", "gameplay_settings_name_vertex_dbg", 					"gameplay_settings_desc_vertex_dbg" 			},
-	{ "console_show_always", 		"check", "gameplay_settings_name_console_show_always", 			"gameplay_settings_desc_console_show_always" 	},
-	{ "show_wnd_rect", 				"check", "gameplay_settings_name_show_wnd_rect", 				"gameplay_settings_desc_show_wnd_rect" 			},
-	{ "show_wnd_rect_all", 			"check", "gameplay_settings_name_show_wnd_rect_all", 			"gameplay_settings_desc_show_wnd_rect_all" 		},
-	{ "show_wnd_rect_names", 		"check", "gameplay_settings_name_show_wnd_rect_names", 			"gameplay_settings_desc_show_wnd_rect_names" 	},
+	--{ "crosshair_dbg", 				"check", "debug_settings_name_crosshair_dbg", 				"debug_settings_desc_crosshair_dbg" 			},
+	{ "god_mode", 					"check", "debug_settings_name_god_mode", 					"debug_settings_desc_god_mode" 				},
+	{ "unlimited_ammo", 			"check", "debug_settings_name_unlimited_ammo", 				"debug_settings_desc_unlimited_ammo" 		},
+	{ "zones_dbg", 					"check", "debug_settings_name_zones_dbg", 					"debug_settings_desc_zones_dbg" 			},
+	{ "vertex_dbg", 				"check", "debug_settings_name_vertex_dbg", 					"debug_settings_desc_vertex_dbg" 			},
+	{ "console_show_always", 		"check", "debug_settings_name_console_show_always", 		"debug_settings_desc_console_show_always" 	},
+	{ "show_wnd_rect", 				"check", "debug_settings_name_show_wnd_rect", 				"debug_settings_desc_show_wnd_rect" 		},
+	{ "show_wnd_rect_all", 			"check", "debug_settings_name_show_wnd_rect_all", 			"debug_settings_desc_show_wnd_rect_all" 	},
+	{ "show_wnd_rect_names", 		"check", "debug_settings_name_show_wnd_rect_names", 		"debug_settings_desc_show_wnd_rect_names" 	},
 	
-	{ "hud_adjust_mode", 			"track", "gameplay_settings_name_hud_adjust_mode", 				"gameplay_settings_desc_hud_adjust_mode" 		},
-	-- { "hud_adjust_delta_pos", 		"track", "gameplay_settings_name_hud_adjust_delta_pos", 		"gameplay_settings_desc_hud_adjust_delta_pos" 	},
-	-- { "hud_adjust_delta_rot", 		"track", "gameplay_settings_name_hud_adjust_delta_rot", 		"gameplay_settings_desc_hud_adjust_delta_rot" 	},
+	{ "hud_adjust_mode", 			"track", "debug_settings_name_hud_adjust_mode", 			"debug_settings_desc_hud_adjust_mode" 		},
+	-- { "hud_adjust_delta_pos", 		"track", "debug_settings_name_hud_adjust_delta_pos", 		"debug_settings_desc_hud_adjust_delta_pos" 	},
+	-- { "hud_adjust_delta_rot", 		"track", "debug_settings_name_hud_adjust_delta_rot", 		"debug_settings_desc_hud_adjust_delta_rot" 	},
 }
 
 function opt_debug:InitControls(x, y, w, h, xml, handler)
@@ -38,7 +38,7 @@ function opt_debug:InitControls(x, y, w, h, xml, handler)
 	
 	--//additional options menu
 	self.menu_button = xml:Init3tButton("tab_"..tab..":btn_debug_menu", self)
-	mm.init_hint(handler, self.menu_button, "debug_menu", "gameplay_settings_name_debug_menu", "gameplay_settings_desc_debug_menu")
+	mm.init_hint(handler, self.menu_button, "debug_menu", "debug_settings_name_debug_menu", "debug_settings_desc_debug_menu")
 	handler:AddCallback("debug_menu", ui_events.BUTTON_CLICKED, function() self:OnMenuButtonClicked() end, self)	
 
 	for i=1,#debug_opt_params do

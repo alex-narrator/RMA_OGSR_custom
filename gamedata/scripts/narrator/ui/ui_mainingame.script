@@ -439,6 +439,7 @@ function MainIngameOverlay:InitControls()
 		"hud_info",
 		"item_usage",
 		"actor_state",
+		"game_save",
 		"debug_msg",
 	}
 	self.info_message = {}
@@ -446,6 +447,7 @@ function MainIngameOverlay:InitControls()
 		self.info_message[v] = {}
 		self.info_message[v].static = xml:InitStatic(v, self)
 		self.info_message[v].static:Show(false)
+		xml:InitAutoStaticGroup(v..":auto_static", self.info_message[v].static)
 	end
 end
 

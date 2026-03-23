@@ -68,18 +68,6 @@
 	</string>	
 	<string id="gameplay_settings_desc_ambient">
 		<text>Вмикає програвання фонової музики на локаціях (якщо така описана у файлах конфігурації). \nДля застосування опції після зміни треба перезайти на локацію.</text>
-	</string>
-	<string id="gameplay_settings_name_god_mode">
-		<text>Невразливість (режим бога) - g_god</text>
-	</string>
-	<string id="gameplay_settings_desc_god_mode">
-		<text>Вмикає невразливість (режим бога).\nУ цьому режимі актор не отримує пошкоджень, не обробляється hit_callback актора, а також "заморожено" зміни параметрів здоров'я.</text>
-	</string>
-	<string id="gameplay_settings_name_unlimited_ammo">
-		<text>Нескінченні набої - g_unlimitedammo</text>
-	</string>
-	<string id="gameplay_settings_desc_unlimited_ammo">
-		<text>Вмикає нескінченність набоїв у зброї актора.\nУ цьому режимі після закінчення набоїв можна перезарядити зброю поточним типом боєприпасу навіть за його відсутності в інвентарі. Коли режим увімкнено неможливо змінити тип боєприпасів, також при розряджанні зброї розряджені набої не створюються у інвентарі.</text>
 	</string>	
 	<string id="gameplay_settings_name_difficulty">
 		<text>Складність - g_game_difficulty</text>
@@ -107,6 +95,15 @@
 	</string>
 	<string id="gameplay_settings_desc_font_shadows">
 		<text>Вмикає відображення тіні під текстом.\nЗастосовується до усіх шрифтів у грі.</text>
+	</string>
+	
+	<string id="gameplay_settings_name_3d_scopes">
+		<text>Використання 3D прицілів - g_3d_scopes</text>
+	</string>
+	<string id="gameplay_settings_desc_3d_scopes">
+		<text>Вмикає 3D прицілі на тій зброї, що має відповідні моделі.
+		\nПоточна реалізаціє відрізняється від технології "картинка в картинці" тому майже не впливає на рподуктивність.
+		</text>
 	</string>	
 	
 <!-- опции управления -->	
@@ -270,9 +267,6 @@
 	<string id="video_settings_name_hud_fov">
 		<text>Кут огляду ГГ - hud_fov</text>
 	</string>
-	<string id="video_settings_name_3d_scopes">
-		<text>Використання 3D прицілів - g_3d_scopes</text>
-	</string>	
 	<string id="video_settings_name_3d_scopes_fps_factor">
 		<text>FPS у 3D прицілах - g_3d_scopes_fps_factor</text>
 	</string>
@@ -358,12 +352,6 @@
 		<text>Кут огляду гравця. 
 		\nЯкщо значення, наприклад 0.45 і меньше (меньш ніж середина повзунка), то зброя буде ближче, якщо значення 0.65 та більше (більш ніж середина повзунка), то зброя у руках в грі буде здаватися більш віддаленою. 
 		\nМає сенс індивідуально налаштовувати для широких мониторів та в залежності від FOV.</text>
-	</string>
-	<string id="video_settings_desc_3d_scopes">
-		<text>Вмикає 3D прицілі на тій зброї, що має відповідні моделі.
-		\nУ таких прицілах збільшення відбувається тільки у отворі прицілу, не наближуючи все зображення на екрані.
-		\nЗважаючи на те, що збільшення в прицілі потребую подвійного рендерингу кадру - може мати суттєвий вплив на продуктивність.
-		</text>
 	</string>	
 	<string id="video_settings_desc_3d_scopes_fps_factor">
 		<text>Налаштування регулює який за чергою кадр будет відрендерено у 3D прицілі. За замовчуванням - кожен другий. Якщо його збільшити - FPS у грі збільшиться, але буде знижено FPS у 3D прицілі.</text>
@@ -447,40 +435,40 @@
 	<string id="ui_mm_floating_show_delay">
 		<text>Затримка появи спливаючого вікна</text>
 	</string>	
-	<string id="gameplay_settings_name_floating_show_delay">
+	<string id="custom_settings_name_floating_show_delay">
 		<text>Затримка появи спливаючого вікна із інформацією про предмет</text>
 	</string>
-	<string id="gameplay_settings_desc_floating_show_delay">
+	<string id="custom_settings_desc_floating_show_delay">
 		<text>Затримка (у секундах) між наведенням курсору на предмет в інвентарі і появою спливаючого вікна з інформацією.</text>
 	</string>
 	
 	<string id="ui_mm_inv_icons_per_frame">
 		<text>Кількість іконок інвентарних предметів за кадр</text>
 	</string>	
-	<string id="gameplay_settings_name_inv_icons_per_frame">
+	<string id="custom_settings_name_inv_icons_per_frame">
 		<text>Кількість іконок предметів що буде відмальовано при показі інвентарного вікна за один кадр</text>
 	</string>
-	<string id="gameplay_settings_desc_inv_icons_per_frame">
+	<string id="custom_settings_desc_inv_icons_per_frame">
 		<text>Опція керує розподілом по кадрам відмальовування іконок предметів у інвентарі.\nЧим вище число тим більше іконок буде намальовано за кадр і тим відчутнішим може бути лаг при відкритті інвентарного вікна з великою кількістю предметів.\nЯкщо виставити повзунок в нуль то всі іконки будуть відмальовані одночасно.</text>
 	</string>	
 
 	<string id="ui_mm_quick_save_max">
 		<text>Максимум унікальних швидких збережень</text>
 	</string>	
-	<string id="gameplay_settings_name_quick_save_max">
+	<string id="custom_settings_name_quick_save_max">
 		<text>Максимум унікальних швидких збережень</text>
 	</string>
-	<string id="gameplay_settings_desc_quick_save_max">
+	<string id="custom_settings_desc_quick_save_max">
 		<text>Максимальна кількість унікальних швидких збережень, у форматі quick_save_1, quick_save_2 ... quick_save_max, після досягнення якої швидкі зереження почнуть перезаписуватись з quick_save_1.</text>
 	</string>
 	
 	<string id="ui_mm_check_enemy_radius">
 		<text>Радіус перевірки ворогів поруч</text>
 	</string>	
-	<string id="gameplay_settings_name_check_enemy_radius">
+	<string id="custom_settings_name_check_enemy_radius">
 		<text>Радіус перевірки ворогів поруч</text>
 	</string>
-	<string id="gameplay_settings_desc_check_enemy_radius">
+	<string id="custom_settings_desc_check_enemy_radius">
 		<text>Радіус зони навколо гравця, у якому буде проводитись перевірка на наявних ворогів.
 		\nВикористовується при перевірці можливості заснути для персонажа, а також при при спробі збереження в режимі збереження "Без ворогів поруч".</text>
 	</string>	
@@ -488,30 +476,30 @@
 	<string id="ui_mm_active_item_info_ttl">
 		<text>Час відображення інфо про предмет в руках</text>
 	</string>	
-	<string id="gameplay_settings_name_active_item_info_ttl">
+	<string id="custom_settings_name_active_item_info_ttl">
 		<text>Час відображення інформації про предмет в руках</text>
 	</string>
-	<string id="gameplay_settings_desc_active_item_info_ttl">
+	<string id="custom_settings_desc_active_item_info_ttl">
 		<text>Скільки секунд після натискання кнопки %c[UI_orange][$$ACTION_CHECK_ACTIVE_ITEM$$]%c[default] буде відображено інформацію про предмет в руках</text>
 	</string>
 	
 	<string id="ui_mm_gear_info_ttl">
 		<text>Час відображення інфо про спорядження</text>
 	</string>	
-	<string id="gameplay_settings_name_gear_info_ttl">
+	<string id="custom_settings_name_gear_info_ttl">
 		<text>Час відображення інформації про спорядження</text>
 	</string>
-	<string id="gameplay_settings_desc_gear_info_ttl">
+	<string id="custom_settings_desc_gear_info_ttl">
 		<text>Скільки секунд після натискання кнопки %c[UI_orange][$$ACTION_CHECK_GEAR$$]%c[default] буде відображено інформацію про предмети у розгрузці, на поясі та мінікарту</text>
 	</string>
 
 	<string id="ui_mm_crosshair_color">
 		<text>Колір перехрестя прицілу:</text>
 	</string>
-	<string id="gameplay_settings_name_crosshair_color">
+	<string id="custom_settings_name_crosshair_color">
 		<text>Колір перехрестя прицілу</text>
 	</string>
-	<string id="gameplay_settings_desc_crosshair_color">
+	<string id="custom_settings_desc_crosshair_color">
 		<text>
 			Налаштування кольору та прозорості перехрестя прицілу, що відображається коли в руках персонажа є зброя
 			\n
@@ -535,47 +523,47 @@
 	<string id="ui_mm_crosshair_color_a">
 		<text>прозорість</text>
 	</string>	
-	<string id="gameplay_settings_name_crosshair_color_a">
+	<string id="custom_settings_name_crosshair_color_a">
 		<text>Прозорість перехрестя прицілу</text>
 	</string>
-	<string id="gameplay_settings_desc_crosshair_color_a">
+	<string id="custom_settings_desc_crosshair_color_a">
 		<text>Визначає прозорість перехрестя від 0 (абсолюдно прозорий) до 255 (абсолюдно непрозорий)</text>
 	</string>
 	<string id="ui_mm_crosshair_color_r">
 		<text>червоний</text>
 	</string>	
-	<string id="gameplay_settings_name_crosshair_color_r">
+	<string id="custom_settings_name_crosshair_color_r">
 		<text>Червона компонента кольору перехрестя прицілу</text>
 	</string>
-	<string id="gameplay_settings_desc_crosshair_color_r">
+	<string id="custom_settings_desc_crosshair_color_r">
 		<text>Визначає долю червоної компоненти у кольорі перехрестя</text>
 	</string>
 	<string id="ui_mm_crosshair_color_g">
 		<text>зелений</text>
 	</string>	
-	<string id="gameplay_settings_name_crosshair_color_g">
+	<string id="custom_settings_name_crosshair_color_g">
 		<text>Зелена компонента кольору перехрестя прицілу</text>
 	</string>
-	<string id="gameplay_settings_desc_crosshair_color_g">
+	<string id="custom_settings_desc_crosshair_color_g">
 		<text>Визначає долю зеленої компоненти у кольорі перехрестя</text>
 	</string>
 	<string id="ui_mm_crosshair_color_b">
 		<text>синій</text>
 	</string>	
-	<string id="gameplay_settings_name_crosshair_color_b">
+	<string id="custom_settings_name_crosshair_color_b">
 		<text>Синя компонента кольору перехрестя прицілу</text>
 	</string>
-	<string id="gameplay_settings_desc_crosshair_color_b">
+	<string id="custom_settings_desc_crosshair_color_b">
 		<text>Визначає долю синьої компоненти у кольорі перехрестя</text>
 	</string>	
 	
 	<string id="ui_mm_floating_info">
 		<text>Інформація про предмет у спливаючому вікні</text>
 	</string>	
-	<string id="gameplay_settings_name_floating_info">
+	<string id="custom_settings_name_floating_info">
 		<text>Інформація про предмет у спливаючому вікні</text>
 	</string>
-	<string id="gameplay_settings_desc_floating_info">
+	<string id="custom_settings_desc_floating_info">
 		<text>Якщо опцію увімкнено - інформацію про предмет у інвентарі буде відображено у спливаючому вікні.
 		\nВ іншому випадку для перегляду інформації буде потрібно обрати пункт "детально" у контекстному меню предмету.</text>
 	</string>
@@ -583,30 +571,30 @@
 	<string id="ui_mm_inv_item_condition">
 		<text>Інформація про стан предмету на його іконці</text>
 	</string>	
-	<string id="gameplay_settings_name_inv_item_condition">
+	<string id="custom_settings_name_inv_item_condition">
 		<text>Інформація про стан предмету на його іконці у інвентарі</text>
 	</string>
-	<string id="gameplay_settings_desc_inv_item_condition">
+	<string id="custom_settings_desc_inv_item_condition">
 		<text>Чи потрібно відображати інформацію про стан предмету на його іконці в інвентарі (для предметів що підтримують зміну стану).</text>
 	</string>
 	
 	<string id="ui_mm_inv_highlight_new_item">
 		<text>Виділяти нові предмети в інвентарі</text>
 	</string>	
-	<string id="gameplay_settings_name_inv_highlight_new_item">
+	<string id="custom_settings_name_inv_highlight_new_item">
 		<text>Виділяти нові предмети блиманням іконки в інвентарі</text>
 	</string>
-	<string id="gameplay_settings_desc_inv_highlight_new_item">
+	<string id="custom_settings_desc_inv_highlight_new_item">
 		<text>Якщо опцію увімкнено, то усі предмети, отримані при закритому вікні інвентаря будуть виділені блиманням іконки.</text>
 	</string>	
 	
 	<string id="ui_mm_wpn_addon_ammo_wnd_separate">
 		<text>Інформація про сумісні набої/модулі у окремому вікні</text>
 	</string>	
-	<string id="gameplay_settings_name_wpn_addon_ammo_wnd_separate">
+	<string id="custom_settings_name_wpn_addon_ammo_wnd_separate">
 		<text>Інформація про сумісні набої/модулі у окремому вікні</text>
 	</string>
-	<string id="gameplay_settings_desc_wpn_addon_ammo_wnd_separate">
+	<string id="custom_settings_desc_wpn_addon_ammo_wnd_separate">
 		<text>Чи потрібно відображати інформацію про сумісні набої/модулі для зброї у окремому вікні, що викликається з контекстного меню.
 		\nІноді перелік може бути завеликим для комфортного сприйняття у вікні інформації про предмет.
 		\nСумісні збройові аддони та набої/магазини в будь якому разі буде підсвічено в інвентарі при кліку на предмет.</text>
@@ -615,70 +603,70 @@
 	<string id="ui_mm_front_view_compass">
 		<text>Плаский компас замість мінікарти</text>
 	</string>	
-	<string id="gameplay_settings_name_front_view_compass">
+	<string id="custom_settings_name_front_view_compass">
 		<text>Плаский компас замість мінікарти</text>
 	</string>
-	<string id="gameplay_settings_desc_front_view_compass">
+	<string id="custom_settings_desc_front_view_compass">
 		<text>Відображати плаский компас у стилі сучасних ігор замість традиційної мінікарти.</text>
 	</string>
 	
 	<string id="ui_mm_compass_on_demand">
 		<text>Тимчасово відображати компас/мінікарту</text>
 	</string>	
-	<string id="gameplay_settings_name_compass_on_demand">
+	<string id="custom_settings_name_compass_on_demand">
 		<text>Тимчасово відображати компас/мінікарту</text>
 	</string>
-	<string id="gameplay_settings_desc_compass_on_demand">
+	<string id="custom_settings_desc_compass_on_demand">
 		<text>Відображати компас/мінікарту деякий час після натискання кнопки %c[UI_orange][$$ACTION_CHECK_GEAR$$]%c[default].</text>
 	</string>
 
 	<string id="ui_mm_select_new_task">
 		<text>Обирати активною ціллю нове завдання при отриманні</text>
 	</string>	
-	<string id="gameplay_settings_name_select_new_task">
+	<string id="custom_settings_name_select_new_task">
 		<text>Обирати активною ціллю нове завдання при отриманні</text>
 	</string>
-	<string id="gameplay_settings_desc_select_new_task">
+	<string id="custom_settings_desc_select_new_task">
 		<text>При отриманні нового завдання воно буде автоматично встановлено обраною поточною ціллю</text>
 	</string>
 	
 	<string id="ui_mm_task_autosave">
 		<text>Збереження при отриманні та виконанні завдання</text>
 	</string>	
-	<string id="gameplay_settings_name_task_autosave">
+	<string id="custom_settings_name_task_autosave">
 		<text>Збереження при отриманні та виконанні завдання</text>
 	</string>
-	<string id="gameplay_settings_desc_task_autosave">
+	<string id="custom_settings_desc_task_autosave">
 		<text>При отриманні та виконанні завдання буде створення збереження із статусом та назвою завдання</text>
 	</string>
 
 	<string id="ui_mm_breath_shader_effect">
 		<text>Шейдерний ефект дихання у протигазі</text>
 	</string>	
-	<string id="gameplay_settings_name_breath_shader_effect">
+	<string id="custom_settings_name_breath_shader_effect">
 		<text>Шейдерний ефект дихання у протигазі</text>
 	</string>
-	<string id="gameplay_settings_desc_breath_shader_effect">
+	<string id="custom_settings_desc_breath_shader_effect">
 		<text>Якщо опцію увімкнено - то ефект дихання у протигазі/масці костюму буде відстворено за допомогою шейдеру, а не текстур</text>
 	</string>
 
 	<string id="ui_mm_hud_target_dist">
 		<text>Дистанція до цілі</text>
 	</string>	
-	<string id="gameplay_settings_name_hud_target_dist">
+	<string id="custom_settings_name_hud_target_dist">
 		<text>Дистанція до цілі</text>
 	</string>
-	<string id="gameplay_settings_desc_hud_target_dist">
+	<string id="custom_settings_desc_hud_target_dist">
 		<text>Відображувати дистанцію до цілі, на яку направлено курсор</text>
 	</string>
 	
 	<string id="ui_mm_hud_target_info">
 		<text>Іформація про ціль</text>
 	</string>	
-	<string id="gameplay_settings_name_hud_target_info">
+	<string id="custom_settings_name_hud_target_info">
 		<text>Іформація про ціль</text>
 	</string>
-	<string id="gameplay_settings_desc_hud_target_info">
+	<string id="custom_settings_desc_hud_target_info">
 		<text>
 			Відображувати інформацію про ціль, на яку направлено курсор.
 			\nДля інвентарних предметів буде показано їх назву.
@@ -690,20 +678,20 @@
 	<string id="ui_mm_hud_crosshair">
 		<text>Перехрестя прицілу</text>
 	</string>	
-	<string id="gameplay_settings_name_hud_crosshair">
+	<string id="custom_settings_name_hud_crosshair">
 		<text>Показувати перехрестя прицілу</text>
 	</string>
-	<string id="gameplay_settings_desc_hud_crosshair">
+	<string id="custom_settings_desc_hud_crosshair">
 		<text>Показувати перехрестя прицілу коли в руках персонажа є зброя</text>
 	</string>
 	
 	<string id="ui_mm_projectile_trajectory">
 		<text>Траєкторія снаряду</text>
 	</string>	
-	<string id="gameplay_settings_name_projectile_trajectory">
+	<string id="custom_settings_name_projectile_trajectory">
 		<text>Показувати траєкторію польоту гранати/болта</text>
 	</string>
-	<string id="gameplay_settings_desc_projectile_trajectory">
+	<string id="custom_settings_desc_projectile_trajectory">
 		<text>Показувати на екрані траєкторію польоту гранати/болта підчас кидку.\nНалаштувати стиль та параметри показу траєкторії можна у файлі "mainingame_overlay.xml" у тегу "projectile_trajectory"</text>
 	</string>	
 	
@@ -721,10 +709,10 @@
 	<string id="ui_mm_game_save_mode">
 		<text>Режим збереження гри</text>
 	</string>
-	<string id="gameplay_settings_name_game_save_mode">
+	<string id="custom_settings_name_game_save_mode">
 		<text>Режим збереження гри</text>
 	</string>
-	<string id="gameplay_settings_desc_game_save_mode">
+	<string id="custom_settings_desc_game_save_mode">
 		<text>Вибір режиму збереження гри гри.
 		\n
 		\nБез обмежень - збереження з оригінальної гри
@@ -753,10 +741,10 @@
 	<string id="ui_mm_hud_target_mode">
 		<text>Відображати курсор</text>
 	</string>
-	<string id="gameplay_settings_name_hud_target_mode">
+	<string id="custom_settings_name_hud_target_mode">
 		<text>Режими відображення курсора</text>
 	</string>
-	<string id="gameplay_settings_desc_hud_target_mode">
+	<string id="custom_settings_desc_hud_target_mode">
 		<text>Вибір режиму відображення курсора
 		\n
 		\nКурсор допомагає орієнтуватися при взаємодії з об'єктами, відображуючись по центру екрану. Також під ним виводиться показник дистанції до цілі, якщо обрано відповідну опцію.
@@ -778,10 +766,10 @@
 	<string id="ui_mm_debug_menu">
 		<text>Меню налагодження</text>
 	</string>
-	<string id="gameplay_settings_name_debug_menu">
+	<string id="debug_settings_name_debug_menu">
 		<text>Меню налагодження</text>
 	</string>
-	<string id="gameplay_settings_desc_debug_menu">
+	<string id="debug_settings_desc_debug_menu">
 		<text>Меню додаткових параметрів налагодження:\n
 		-Створення (спавн) предметів в інвентар персонажа. Перелік предметів заповнюється вручну у секції [spawn_items_list]\n
 		-Переміщення персонажа на обрану локацію\n
@@ -794,10 +782,10 @@
 	<string id="ui_mm_hud_adjust_mode">
 		<text>Режим налаштування HUD предметів</text>
 	</string>	
-	<string id="gameplay_settings_name_hud_adjust_mode">
+	<string id="debug_settings_name_hud_adjust_mode">
 		<text>Режим налаштування HUD предметів - hud_adjust_mode</text>
 	</string>
-	<string id="gameplay_settings_desc_hud_adjust_mode">
+	<string id="debug_settings_desc_hud_adjust_mode">
 		<text>Допустимі значення:\n
 		0 - вимкнено\n
 		1 - позиція рук з предметом\n
@@ -822,90 +810,103 @@
 	<string id="ui_mm_hud_adjust_delta_pos">
 		<text>Крок зміни позиції HUD предметів</text>
 	</string>	
-	<string id="gameplay_settings_name_hud_adjust_delta_pos">
+	<string id="debug_settings_name_hud_adjust_delta_pos">
 		<text>Крок зміни позиції HUD предметів - hud_adjust_delta_pos</text>
 	</string>
-	<string id="gameplay_settings_desc_hud_adjust_delta_pos">
+	<string id="debug_settings_desc_hud_adjust_delta_pos">
 		<text>На яке значення буде змінено позицію предмету при натисканні відповідної клавіші.</text>
 	</string>
 
 	<string id="ui_mm_hud_adjust_delta_rot">
 		<text>Крок зміни обертання HUD предметів</text>
 	</string>	
-	<string id="gameplay_settings_name_hud_adjust_delta_rot">
+	<string id="debug_settings_name_hud_adjust_delta_rot">
 		<text>Крок зміни обертання HUD предметів - hud_adjust_delta_rot</text>
 	</string>
-	<string id="gameplay_settings_desc_hud_adjust_delta_rot">
+	<string id="debug_settings_desc_hud_adjust_delta_rot">
 		<text>На яке значення буде змінено обертання предмету при натисканні відповідної клавіші.</text>
 	</string>	
+
+	<string id="debug_settings_name_god_mode">
+		<text>Невразливість (режим бога) - g_god</text>
+	</string>
+	<string id="debug_settings_desc_god_mode">
+		<text>Вмикає невразливість (режим бога).\nУ цьому режимі актор не отримує пошкоджень, не обробляється hit_callback актора, а також "заморожено" зміни параметрів здоров'я.</text>
+	</string>
+	<string id="debug_settings_name_unlimited_ammo">
+		<text>Нескінченні набої - g_unlimitedammo</text>
+	</string>
+	<string id="debug_settings_desc_unlimited_ammo">
+		<text>Вмикає нескінченність набоїв у зброї актора.\nУ цьому режимі після закінчення набоїв можна перезарядити зброю поточним типом боєприпасу навіть за його відсутності в інвентарі. Коли режим увімкнено неможливо змінити тип боєприпасів, також при розряджанні зброї розряджені набої не створюються у інвентарі.</text>
+	</string>
 
 	<string id="ui_mm_crosshair_dbg">
 		<text>Налагоджувальний режим курсора</text>
 	</string>	
-	<string id="gameplay_settings_name_crosshair_dbg">
+	<string id="debug_settings_name_crosshair_dbg">
 		<text>Налагоджувальний режим курсора - g_crosshair_dbg</text>
 	</string>
-	<string id="gameplay_settings_desc_crosshair_dbg">
+	<string id="debug_settings_desc_crosshair_dbg">
 		<text>В цьому режимі курсор не буде приховано при прицілюванні зі зброї.</text>
 	</string>
 	
 	<string id="ui_mm_zones_dbg">
 		<text>Відображення зон</text>
 	</string>	
-	<string id="gameplay_settings_name_zones_dbg">
+	<string id="debug_settings_name_zones_dbg">
 		<text>Відображення зон - g_zones_dbg</text>
 	</string>
-	<string id="gameplay_settings_desc_zones_dbg">
+	<string id="debug_settings_desc_zones_dbg">
 		<text>Візуальне відображення зон - рестрикторів, аномалій, левел-чейнджерів.</text>
 	</string>
 
 	<string id="ui_mm_vertex_dbg">
 		<text>Відображення вертексів</text>
 	</string>	
-	<string id="gameplay_settings_name_vertex_dbg">
+	<string id="debug_settings_name_vertex_dbg">
 		<text>Відображення вертексів - g_vertex_dbg</text>
 	</string>
-	<string id="gameplay_settings_desc_vertex_dbg">
+	<string id="debug_settings_desc_vertex_dbg">
 		<text>Візуальне відображення вертексів - елементів ШІ-сітки.</text>
 	</string>
 
 	<string id="ui_mm_console_show_always">
 		<text>Завжди відображати консоль</text>
 	</string>	
-	<string id="gameplay_settings_name_console_show_always">
+	<string id="debug_settings_name_console_show_always">
 		<text>Завжди відображати консоль - g_console_show_always</text>
 	</string>
-	<string id="gameplay_settings_desc_console_show_always">
+	<string id="debug_settings_desc_console_show_always">
 		<text>Консоль буде постійно відображено під час гри.</text>
 	</string>
 
 	<string id="ui_mm_show_wnd_rect">
 		<text>Відображати межі елементів UI</text>
 	</string>	
-	<string id="gameplay_settings_name_show_wnd_rect">
+	<string id="debug_settings_name_show_wnd_rect">
 		<text>Відображати межі елементів UI - show_wnd_rect</text>
 	</string>
-	<string id="gameplay_settings_desc_show_wnd_rect">
+	<string id="debug_settings_desc_show_wnd_rect">
 		<text>При наведенні курсору на елемент інтерфейсу буде відображено його межі.</text>
 	</string>
 	
 	<string id="ui_mm_show_wnd_rect_all">
 		<text>Постіно відображати межі елементів UI</text>
 	</string>	
-	<string id="gameplay_settings_name_show_wnd_rect_all">
+	<string id="debug_settings_name_show_wnd_rect_all">
 		<text>Постіно відображати межі елементів UI - show_wnd_rect_all</text>
 	</string>
-	<string id="gameplay_settings_desc_show_wnd_rect_all">
+	<string id="debug_settings_desc_show_wnd_rect_all">
 		<text>Для усіх елементів UI на екрані будуть відображені їх межі.</text>
 	</string>
 	
 	<string id="ui_mm_show_wnd_rect_names">
 		<text>Відображати імена елементів UI</text>
 	</string>	
-	<string id="gameplay_settings_name_show_wnd_rect_names">
+	<string id="debug_settings_name_show_wnd_rect_names">
 		<text>Відображати імена елементів UI - show_wnd_rect_names</text>
 	</string>
-	<string id="gameplay_settings_desc_show_wnd_rect_names">
+	<string id="debug_settings_desc_show_wnd_rect_names">
 		<text>Для елементів UI, межі яких відображено на екрані буде виведено їх імена (wnd_name).</text>
 	</string>	
 </string_table>

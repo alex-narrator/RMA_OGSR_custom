@@ -1451,8 +1451,8 @@ function ActorMenuOverlay:Organize()
 end
 
 function ActorMenuOverlay:TakeAll()
-	self:Exit()
 	inventory.take_all(self.target)
+	self:Exit()
 end
 function ActorMenuOverlay:MoveAllRuck()
 	if self.icons_per_frame == 0 then

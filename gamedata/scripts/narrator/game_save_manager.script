@@ -2,6 +2,7 @@
 function attach(sm)
 	sm:subscribe({signal = "on_key_press",   	fun = this.on_key_press})
 	sm:subscribe({signal = "on_task_stage",   	fun = this.on_task})
+	sm:subscribe({signal = "on_game_save",   	fun = this.on_game_save})
 end
 
 local quick_save_keys = {
@@ -98,4 +99,15 @@ function on_task(task, objective, stage)
 			get_console():execute(save_cmd)	
 		end
 	)
+end
+
+local show_save_name = false
+local game_save_sound = [[interface\game_save]]
+function on_game_save(save_name)
+	local msg = show_save_name and string.format("%s:\\n%s", game.translate_string("st_game_saved"), save_name) or game.translate_string("st_game_saved")
+	hud_add_info_message("game_save", msg)
+	local snd = xr_sound.get_safe_sound_object(game_save_sound)
+	if snd then
+		snd:play(actor, 0, sound_object.s2d)
+	end
 end

@@ -53,3 +53,8 @@ function can_put_in_belt(item)
 	--log_news("~item %s - can_put_in_belt %s", item:name(), res)
 	return res
 end
+
+function on_game_save(save_name)
+	--log_news("~save_name %s", save_name)
+	sm:call("on_game_save", save_name)
+end
