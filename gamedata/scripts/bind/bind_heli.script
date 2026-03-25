@@ -229,5 +229,5 @@ function heli_die( obj, draftsman )
 	st.last_alt       = heli:GetRealAltitude()
 	st.alt_check_time = time_global() + 1000
 	
-	self.sm:call("on_death_heli", obj, draftsman)
+	ogse_signals.get_mgr():call("on_death_heli", obj, draftsman)
 end
