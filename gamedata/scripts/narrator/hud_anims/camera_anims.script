@@ -18,6 +18,10 @@ function is_hold_to_crouch()
 	return get_console():get_bool("g_hold_to_crouch")
 end
 
+function is_hold_to_lookout()
+	return get_console():get_bool("g_hold_to_lookout")
+end
+
 local lean_anims = {
 	[key_bindings.kR_LOOKOUT] = function() level.add_complex_effector(LEAN_RIGHT_NAME, LEAN_RIGHT_ID) end,
 	[key_bindings.kL_LOOKOUT] = function() level.add_complex_effector(LEAN_LEFT_NAME, LEAN_LEFT_ID) end,
@@ -39,7 +43,7 @@ end
 function on_key_release(key, game_action)
 	if level.main_input_receiver() then
 	return end
-	if lean_anims[game_action] then
+	if lean_anims[game_action] and is_hold_to_lookout() then
 		lean_anims[game_action]()
 	end
 	if is_hold_to_crouch() then 
