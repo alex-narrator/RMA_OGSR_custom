@@ -1798,9 +1798,8 @@ function is_actors_pda(item)
 end
 
 function actor_break_sprint()
-	if actor_obj:is_actor_sprinting() then
-		actor_obj:set_state_wishful(move_command.mcAccel)
-	end
+	local ws = actor_obj:get_state_wishful()
+	actor_obj:set_state_wishful(ws - move_command.mcSprint)
 end
 
 function block_non_move_action(block)
