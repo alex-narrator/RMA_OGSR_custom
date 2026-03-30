@@ -32,6 +32,10 @@ function eat(item)
 	sm:call("on_before_use_item_script", item)
 	if not use_item_effects.is_use_enabled(item) then
 	return end
+	local parent = item:parent()
+	if parent and parent:id() ~= 0 then
+		parent:transfer_item(item, actor)
+	end
 	if get_hud_sect(item) then
 		eatable_item_anim.play(item)
 		return

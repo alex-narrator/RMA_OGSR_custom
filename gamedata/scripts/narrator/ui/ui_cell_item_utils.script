@@ -165,12 +165,12 @@ function add_reload_weapon(pbox, cell_item)
 	if not best_ammo then
 	return end
 	
-	for k,_item in pairs(get_best_ammo(item)) do
+	for _sect,_item in pairs(best_ammo) do
 		name = function(item, _item)
-			local str = string.format("%s %s", game.translate_string("st_reload_magazine"), get_inv_name_short(_item:section()))
+			local str = string.format("%s %s", game.translate_string("st_reload_magazine"), get_inv_name_short(_sect))
 			local ammo = _item:get_weapon_ammo()
 			if ammo and ammo:is_magazine() then
-				str = string.format("%s %s (%s)", game.translate_string("st_reload_magazine"), get_inv_name_short(_item:section()), get_inv_icon_text(ammo:ammo_sect()))
+				str = string.format("%s %s (%s)", game.translate_string("st_reload_magazine"), get_inv_name_short(_sect), get_inv_icon_text(ammo:ammo_sect()))
 			end
 			return str
 		end
@@ -178,10 +178,32 @@ function add_reload_weapon(pbox, cell_item)
 			return can_be_reloaded_by(item, _item)
 		end
 		action = function(item, _item)
-			item:is_direct_reload(_item)
-			local snd_name = read_if_exists(sys_ini, "string", item:section(), "load_sound", nil)
-			if snd_name then
-				xr_sound.get_safe_sound_object(snd_name):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
+			local wpn = item:get_weapon_m()
+			if wpn and not wpn:addon_attachable(addon.magazine) then
+				local next_ammo_type = 0
+				local ammo_types = get_ammo_sects(item)
+				for i, sect in pairs(ammo_types) do
+					if sect == _sect then
+						next_ammo_type = i - 1
+						break
+					end
+				end
+				wpn.next_ammo_type = next_ammo_type
+				wpn:reload()
+			else
+				item:is_direct_reload(_item)
+				local snd_name = read_if_exists(sys_ini, "string", item:section(), "load_sound", nil)
+				if snd_name then
+					xr_sound.get_safe_sound_object(snd_name):play(actor, 0, sound_object.s2d)
+				end
+
+				local ammo = item:get_weapon_ammo()
+				local function get_ammo()
+					return ammo and ammo.box_curr < ammo.box_size and get_best_ammo(item) and get_best_ammo(item)[_sect]
+				end
+				while get_ammo() do
+					item:is_direct_reload(get_ammo())
+				end
 			end
 			cell_item:ForceUpdate()
 		end

@@ -2055,8 +2055,9 @@ function get_best_ammo(item)
 				limit = box_curr
 			end
 		end
-		if best_ammo  then
-			table.insert(best_ammos, best_ammo)
+		if best_ammo then
+			-- table.insert(best_ammos, best_ammo:section(), best_ammo)
+			best_ammos[best_ammo:section()] = best_ammo
 		end
 	end
 	
