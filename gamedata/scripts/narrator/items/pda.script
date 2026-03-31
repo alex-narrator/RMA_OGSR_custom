@@ -15,7 +15,7 @@ local sound_mode = 0
 local sound_volume = 0.5
 
 --//tokens for listbox option
-local script_options_tokens = {
+local options_tokens = {
 	["message_sound_mode"] = {
 		"pda_sound_on",
 		"pda_sound_vibro",
@@ -23,8 +23,8 @@ local script_options_tokens = {
 	},
 }
 
-function get_script_option_tokens(option)
-	return script_options_tokens[option]
+function get_option_tokens(option)
+	return options_tokens[option]
 end
 
 function on_save(packet)

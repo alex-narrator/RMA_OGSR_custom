@@ -2660,15 +2660,19 @@ function IsMoveState(state, compare_state)
 end
 
 function get_script_option_value(opt, get_default)
-	return mm_custom_options.get_script_option(opt, get_default)
+	return addon_options.get_option(opt, get_default)
 end
 
 function set_script_option_value(opt, val)
-	mm_custom_options.set_script_option(opt, val)
+	addon_options.set_option(opt, val)
 end
 
 function is_script_option(opt)
-	return mm_custom_options.is_script_option(opt)
+	return addon_options.is_option(opt)
+end
+
+function get_script_option_tokens(opt)
+	return addon_options.get_option_tokens(opt)
 end
 
 function get_find_person_spot()

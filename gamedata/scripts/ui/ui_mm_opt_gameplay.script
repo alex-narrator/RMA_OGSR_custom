@@ -53,7 +53,7 @@ function opt_gameplay:InitControls(x, y, w, h, xml, handler)
 			
 				if ctrl == "list" then
 					handler:AddCallback(opt, ui_events.LIST_ITEM_SELECT, function() self:OnListItemSelect(opt) end)
-					local tokens = mm_custom_options.get_script_option_tokens(opt)
+					local tokens = get_script_option_tokens(opt)
 					if tokens then
 						for k,v in pairs(tokens) do
 							mm.script_opt_controls[opt]:AddItem(v)

@@ -1,9 +1,10 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 
 --//option config
-local CFG_NAME = "custom_options.ltx"
-local CFG_SECT = "custom_options"
-local CFG = ini_file(CFG_NAME)
+local CFG_NAME = "user_addon.ltx"
+local CFG_SECT = "addon_options"
+local CFG_NAME_FULL = getFS():update_path("$app_data_root$", CFG_NAME)
+local CFG = ini_file(CFG_NAME_FULL, false) --//false треба щоб файл конфігурації шукався бьез прив'язки до каталогу config
 
 --// [option name (used also in main mebu options scripts)] = option default value, option data type
 local script_options = {
@@ -32,7 +33,7 @@ local script_options = {
 }
 
 --//tokens for listbox option
-local script_options_tokens = {
+local options_tokens = {
 	["game_save_mode"] = {
 		"sg_default",
 		"sg_no_enemies",
@@ -48,11 +49,11 @@ local script_options_tokens = {
 
 function init_options()
 	for k,v in pairs (script_options) do
-		v[1] = get_script_option(k)
+		v[1] = get_option(k)
 	end
 end
 
-function get_script_option(name)
+function get_option(name)
 	local v = script_options[name]
 	if not v then
 		log3("! can`t find custom option [%s]", name)
@@ -61,16 +62,16 @@ function get_script_option(name)
 	return read_if_exists(CFG, v[2], CFG_SECT, name, v[1])
 end
 
-function set_script_option(name, val)
+function set_option(name, val)
 	script_options[name][1] = val
 end
 
-function is_script_option(name)
+function is_option(name)
 	return not not script_options[name]
 end
 
-function get_script_option_tokens(option)
-	return script_options_tokens[option]
+function get_option_tokens(option)
+	return options_tokens[option]
 end
 
 function cfg_save()
@@ -78,7 +79,7 @@ function cfg_save()
 		write_to_cfg(CFG, v[2], CFG_SECT, k, v[1])
 	end
 	CFG:save()
-	log3("- saving custom options config file [%s]", CFG_NAME)
+	log3("Config-file [%s] saved successfully", CFG_NAME_FULL)
 	if level.present() then
 		ogse_signals.get_mgr():call("on_custom_options_save")
 	end

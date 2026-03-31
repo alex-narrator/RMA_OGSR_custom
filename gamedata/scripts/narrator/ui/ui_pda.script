@@ -586,7 +586,7 @@ function UICustomTab7:InitControls(idx)
 	self.sound_mode_combobox = xml:InitComboBox("background_frame:sound_mode:list_sound_mode", self.sound_mode)
 	self:Register(self.sound_mode_combobox, name)
 	self:AddCallback(name, ui_events.LIST_ITEM_SELECT, self.ChangeSoundMode, self)
-	local tokens = pda.get_script_option_tokens("message_sound_mode")
+	local tokens = pda.get_option_tokens("message_sound_mode")
 	if tokens then
 		for k,v in pairs(tokens) do
 			self.sound_mode_combobox:AddItem(v)
