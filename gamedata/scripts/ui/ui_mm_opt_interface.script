@@ -1,0 +1,142 @@
+--Меню налаштувань інтерфейсу. Используется скриптом ui_mm_opt_main.script
+
+class "opt_interface" (CUIWindow)
+function opt_interface:__init() super()
+end
+
+function opt_interface:__finalize()
+end
+
+local tab = "interface"
+local mm = ui_mm_opt_main
+
+local interface_opt_params = {
+	--"option name", "option control type", "option tip name", "option tip text"
+	{ "hud_target_mode", 			"list", "interface_settings_name_hud_target_mode", 					"interface_settings_desc_hud_target_mode" 				},
+
+	{ "floating_info", 				"check", "interface_settings_name_floating_info", 					"interface_settings_desc_floating_info" 				},
+	{ "inv_item_condition", 		"check", "interface_settings_name_inv_item_condition", 				"interface_settings_desc_inv_item_condition" 			},
+	{ "inv_highlight_new_item", 	"check", "interface_settings_name_inv_highlight_new_item", 			"interface_settings_desc_inv_highlight_new_item" 		},
+	{ "wpn_addon_ammo_wnd_separate","check", "interface_settings_name_wpn_addon_ammo_wnd_separate", 	"interface_settings_desc_wpn_addon_ammo_wnd_separate" 	},
+	
+	{ "projectile_trajectory", 		"check", "interface_settings_name_projectile_trajectory", 			"interface_settings_desc_projectile_trajectory" 		},
+	{ "hud_target_dist", 			"check", "interface_settings_name_hud_target_dist", 				"interface_settings_desc_hud_target_dist" 				},
+	{ "hud_target_info", 			"check", "interface_settings_name_hud_target_info", 				"interface_settings_desc_hud_target_info" 				},
+	{ "hud_crosshair", 				"check", "interface_settings_name_hud_crosshair", 					"interface_settings_desc_hud_crosshair" 				},
+	
+	{ "font_shadows", 				"check", "interface_settings_name_font_shadows", 					"interface_settings_desc_font_shadows"					},
+	
+	{ "font_scale_x", 				"track", "interface_settings_name_font_scale_x", 					"interface_settings_desc_font_scale_x" 					},
+	{ "font_scale_y", 				"track", "interface_settings_name_font_scale_y", 					"interface_settings_desc_font_scale_y" 					},	
+	{ "floating_show_delay", 		"track", "interface_settings_name_floating_show_delay", 			"interface_settings_desc_floating_show_delay" 			},
+	{ "inv_icons_per_frame", 		"track", "interface_settings_name_inv_icons_per_frame", 			"interface_settings_desc_inv_icons_per_frame" 			},
+	{ "active_item_info_ttl", 		"track", "interface_settings_name_active_item_info_ttl", 			"interface_settings_desc_active_item_info_ttl" 			},
+	{ "gear_info_ttl", 				"track", "interface_settings_name_gear_info_ttl", 					"interface_settings_desc_gear_info_ttl" 				},
+	
+	{ "crosshair_color_a", 			"track", "interface_settings_name_crosshair_color_a", 				"interface_settings_desc_crosshair_color_a" 			},
+	{ "crosshair_color_r", 			"track", "interface_settings_name_crosshair_color_r", 				"interface_settings_desc_crosshair_color_r" 			},
+	{ "crosshair_color_g", 			"track", "interface_settings_name_crosshair_color_g", 				"interface_settings_desc_crosshair_color_g" 			},
+	{ "crosshair_color_b", 			"track", "interface_settings_name_crosshair_color_b", 				"interface_settings_desc_crosshair_color_b" 			},
+}
+
+function opt_interface:InitControls(x, y, w, h, xml, handler)
+	self:Init(x, y, w, h)
+	self:SetAutoDelete(true)
+
+	xml:InitFrame("frame", self)
+	xml:InitFrame("frame_"..tab, self)
+	self.scroll_view = xml:InitScrollView("tab_"..tab..":scroll_view", self)
+	
+	local static = xml:InitStatic("tab_"..tab..":crosshair_color_header", self)
+	self.crosshair_color_example = xml:InitStatic("tab_"..tab..":crosshair_color_header:color_example", static)
+	mm.init_hint(handler, static, "crosshair_color", "interface_settings_name_crosshair_color", "interface_settings_desc_crosshair_color")
+
+	for i = #interface_opt_params, 1, -1 do
+		local opt, ctrl, tip_name, tip_text = unpack(interface_opt_params[i])
+		
+		local static
+		
+		if ctrl == "list" or ctrl == "track" then --окремий випадок для комбобоксів
+			static = xml:InitStatic("tab_"..tab..":cap_"..opt, self) 				--статик з описом оції у меню
+			
+			if is_script_option(opt) then
+				mm.script_opt_controls[opt] = xml[mm.get_control(ctrl)](xml, "tab_"..tab..":"..ctrl.."_"..opt, self)	--сам комбобокс
+				handler:Register(mm.script_opt_controls[opt], opt)
+			
+				if ctrl == "track" then
+					handler:AddCallback(opt, ui_events.TRACKBAR_CHANGED, function() self:OnTrackChange(opt) end)
+				end
+			
+				if ctrl == "list" then
+					handler:AddCallback(opt, ui_events.LIST_ITEM_SELECT, function() self:OnListItemSelect(opt) end)
+					local tokens = mm_custom_options.get_script_option_tokens(opt)
+					if tokens then
+						for k,v in pairs(tokens) do
+							mm.script_opt_controls[opt]:AddItem(v)
+						end
+					end
+				end
+			else
+				xml[mm.get_control(ctrl)](xml, "tab_"..tab..":"..ctrl.."_"..opt, self)	--сам комбобокс
+			end
+		else
+			static = xml[mm.get_control(ctrl)](xml, "tab_"..tab..":"..ctrl.."_"..opt, self.scroll_view)
+			if is_script_option(opt) then
+				mm.script_opt_controls[opt] = static
+				handler:AddCallback(opt, ui_events.BUTTON_CLICKED, function() self:OnButtonClick(opt) end)
+			end
+		end
+		
+		mm.init_hint(handler, static, opt, tip_name, tip_text)
+	end
+end
+
+function opt_interface:OnButtonClick(opt)
+	set_script_option_value(opt, mm.script_opt_controls[opt]:GetCheck())
+end
+
+function opt_interface:OnTrackChange(opt)
+	set_script_option_value(opt, mm.script_opt_controls[opt]:GetTrackValue())
+	
+	if string.find(opt, "crosshair_color_") then
+		--log3("~opt %s", opt)
+		self.crosshair_color_example:SetColor(
+			GetARGB(
+				mm.script_opt_controls["crosshair_color_a"]:GetTrackValue(),
+				mm.script_opt_controls["crosshair_color_r"]:GetTrackValue(),
+				mm.script_opt_controls["crosshair_color_g"]:GetTrackValue(),
+				mm.script_opt_controls["crosshair_color_b"]:GetTrackValue()
+			)
+		)
+	end
+end
+
+function opt_interface:OnListItemSelect(opt)
+	set_script_option_value(opt, mm.script_opt_controls[opt]:CurrentID())
+end
+
+function opt_interface:SetScriptVals()
+	for opt,control in pairs(mm.script_opt_controls) do
+		local val = get_script_option_value(opt)
+		for _,v in pairs(interface_opt_params) do
+			if v[1] == opt then
+				if v[2] == "check" then
+					control:SetCheck(val)
+				elseif v[2] == "track" then
+					control:SetTrackValue(val)
+				elseif v[2] == "list" then
+					control:SetCurrentID(val)
+				end
+			end
+		end
+	end
+	
+	self.crosshair_color_example:SetColor(
+		GetARGB(
+			get_script_option_value("crosshair_color_a"),
+			get_script_option_value("crosshair_color_r"),
+			get_script_option_value("crosshair_color_g"),
+			get_script_option_value("crosshair_color_b")
+		)
+	)
+end

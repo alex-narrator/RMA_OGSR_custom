@@ -5,37 +5,29 @@ local CFG_NAME = "custom_options.ltx"
 local CFG_SECT = "custom_options"
 local CFG = ini_file(CFG_NAME)
 
---// [option name (used also in ui_mm_opt_custom.script)] = option default value, option data type
+--// [option name (used also in main mebu options scripts)] = option default value, option data type
 local script_options = {
 	["floating_info"] 				= { true, 	"bool" },
 	["floating_show_delay"] 		= { 1, 		"float" },
 	["quick_save_max"] 				= { 10, 	"u32" },
-	
 	["inv_item_condition"] 			= { true, 	"bool" },
 	["inv_highlight_new_item"] 		= { true, 	"bool" },
 	["inv_icons_per_frame"]			= { 10, 	"u32" },	
 	["wpn_addon_ammo_wnd_separate"] = { true, 	"bool" },	
-	
 	["game_save_mode"] 				= { 0, 		"u32" },
 	["check_enemy_radius"] 			= { 50, 	"float" },
-	-- ["front_view_compass"] 			= { true, 	"bool" },
-	-- ["compass_on_demand"] 			= { false, 	"bool" },
 	["select_new_task"] 			= { true, 	"bool" },
 	["task_autosave"] 				= { true, 	"bool" },
 	["active_item_info_ttl"] 		= { 3, 		"float" },
 	["gear_info_ttl"] 				= { 3, 		"float" },
-	--["breath_shader_effect"] 		= { true, 	"bool" },
-	
 	["crosshair_color_a"] 			= { 255, 	"u32" },
 	["crosshair_color_r"] 			= { 255, 	"u32" },
 	["crosshair_color_g"] 			= { 255, 	"u32" },
 	["crosshair_color_b"] 			= { 255, 	"u32" },
-
 	["hud_crosshair"] 				= { true, 	"bool" },
 	["hud_target_dist"] 			= { false, 	"bool" },
 	["hud_target_info"] 			= { false, 	"bool" },
 	["hud_target_mode"] 			= { 1, 		"u32" },
-	
 	["projectile_trajectory"] 		= { true, 	"bool" },
 }
 
@@ -71,6 +63,10 @@ end
 
 function set_script_option(name, val)
 	script_options[name][1] = val
+end
+
+function is_script_option(name)
+	return not not script_options[name]
 end
 
 function get_script_option_tokens(option)

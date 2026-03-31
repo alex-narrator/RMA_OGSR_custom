@@ -4,6 +4,7 @@
 -- Сделано специально для использования с движком OGSR.
 
 local tab_x, tab_y, tab_w, tab_h = 55, 74, 738, 616
+script_opt_controls = {}
 
 class "options_dialog" (CUIScriptWnd)
 function options_dialog:__init() super()
@@ -16,6 +17,7 @@ function options_dialog:__init() super()
 	self:InitControls()
 	self:InitCallBacks()
 	self:UpdateOptValues()
+	mm_custom_options.init_options()
 end
 
 function options_dialog:__finalize()
@@ -56,15 +58,15 @@ function options_dialog:InitControls()
 	self.dlg_gameplay:Show(false)
 	self.dialog:AttachChild(self.dlg_gameplay)
 
+	self.dlg_interface = ui_mm_opt_interface.opt_interface()
+	self.dlg_interface:InitControls(tab_x, tab_y, tab_w, tab_h, xml, self)
+	self.dlg_interface:Show(false)
+	self.dialog:AttachChild(self.dlg_interface)
+
 	self.dlg_controls = ui_mm_opt_controls.opt_controls()
 	self.dlg_controls:InitControls(tab_x, tab_y, tab_w, tab_h, xml, self)
 	self.dlg_controls:Show(false)
 	self.dialog:AttachChild(self.dlg_controls)
-	
-	self.dlg_custom = ui_mm_opt_custom.opt_custom()
-	self.dlg_custom:InitControls(tab_x, tab_y, tab_w, tab_h, xml, self)
-	self.dlg_custom:Show(false)
-	self.dialog:AttachChild(self.dlg_custom)	
 	
 	self.dlg_debug = ui_mm_opt_debug.opt_debug()
 	self.dlg_debug:InitControls(tab_x, tab_y, tab_w, tab_h, xml, self)
@@ -138,11 +140,11 @@ function options_dialog:HintRefresh()
 		hint_name = "hint_name_gameplay_text"
 		hint_caption = "hint_caption_gameplay_text"
 	elseif i == 3 then
-		hint_name = "hint_name_controls_text"
-		hint_caption = "hint_caption_controls_text"	
+		hint_name = "hint_name_interface_text"
+		hint_caption = "hint_caption_interface_text"
 	elseif i == 4 then
-		hint_name = "hint_name_custom_text"
-		hint_caption = "hint_caption_custom_text"			
+		hint_name = "hint_name_controls_text"
+		hint_caption = "hint_caption_controls_text"
 	elseif i == 5 then
 		hint_name = "hint_name_debug_text"
 		hint_caption = "hint_caption_debug_text"	
@@ -192,8 +194,8 @@ function options_dialog:OnTabChange()
 	self.dlg_video:Show(false)
 	self.dlg_sound:Show(false)
 	self.dlg_gameplay:Show(false)
+	self.dlg_interface:Show(false)	
 	self.dlg_controls:Show(false)
-	self.dlg_custom:Show(false)
 	self.dlg_debug:Show(false)
 	self.dlg_video_adv:Show(false)
 	self.current_view = 1
@@ -207,11 +209,12 @@ function options_dialog:OnTabChange()
 		self.dlg_sound:Show(true)
 	elseif i == 2 then
 		self.dlg_gameplay:Show(true)
+		self.dlg_gameplay:SetScriptVals()
 	elseif i == 3 then
-		self.dlg_controls:Show(true)
+		self.dlg_interface:Show(true)
+		self.dlg_interface:SetScriptVals()
 	elseif i == 4 then
-		self.dlg_custom:Show(true)
-		self.dlg_custom:SetVals()
+		self.dlg_controls:Show(true)
 	elseif i == 5 then
 		self.dlg_debug:Show(true)		
 	end
