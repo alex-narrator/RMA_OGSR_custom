@@ -445,19 +445,9 @@ function task_fail(p1, p2)
 		
 		ASSERT(sel_task, "WRONG RANDOM TASK %s %s", p1, p2)
 
-		--' Проверяем что жив, выдавший квест.
-		local parent = alife():story_object(story_by_parent[sel_task.parent])
-		local parent_alive = parent and (parent:get_trader() or parent:alive())
-		if not parent_alive then
-			task_info[active_task_by_type[p1]].status = "failed"
+		if sel_task.status == "failed" then
 			task_info[active_task_by_type[p1]].last_task_time = game.get_game_time()
-			--log3("~task failed by vendor death: task %s has last_task_time %s", task_info[active_task_by_type[p1]].name, task_info[active_task_by_type[p1]].last_task_time)
-			return true		
-		end
-
-		if sel_task.status == "refused" or sel_task.status == "failed" then
-			task_info[active_task_by_type[p1]].last_task_time = game.get_game_time()
-			--log3("~task failed or refused: task %s has last_task_time %s", task_info[active_task_by_type[p1]].name, task_info[active_task_by_type[p1]].last_task_time)
+			--log3("~task failed: task %s has last_task_time %s", task_info[active_task_by_type[p1]].name, task_info[active_task_by_type[p1]].last_task_time)
 			return true
 		end
 		if string.find(p1, "defend_lager") ~= nil then
@@ -467,6 +457,31 @@ function task_fail(p1, p2)
 				--log3("~defend lager are all dead: task %s has last_task_time %s", task_info[active_task_by_type[p1]].name, task_info[active_task_by_type[p1]].last_task_time)
 				return true
 			end
+		end
+	end
+	return false
+end
+
+function task_skipped(p1, p2)
+	if p2 == 0 then
+		local sel_task = task_info[active_task_by_type[p1]]
+		
+		ASSERT(sel_task, "WRONG RANDOM TASK %s %s", p1, p2)
+
+		--' Проверяем что жив, выдавший квест.
+		local parent = alife():story_object(story_by_parent[sel_task.parent])
+		local parent_alive = parent and (parent:get_trader() or parent:alive())
+		if not parent_alive then
+			task_info[active_task_by_type[p1]].status = "refused"
+			--task_info[active_task_by_type[p1]].last_task_time = game.get_game_time()
+			--log3("~task refused by vendor death: task %s has last_task_time %s", task_info[active_task_by_type[p1]].name, task_info[active_task_by_type[p1]].last_task_time)
+			return true		
+		end
+
+		if sel_task.status == "refused" then
+			--task_info[active_task_by_type[p1]].last_task_time = game.get_game_time()
+			--log3("~task refused: task %s has last_task_time %s", task_info[active_task_by_type[p1]].name, task_info[active_task_by_type[p1]].last_task_time)
+			return true
 		end
 	end
 	return false
@@ -490,17 +505,19 @@ function task_callback(p1, p2, state)
 				v.enabled = true
 			end
 		end
-		active_task_by_type[p1] = nil	
-
-	elseif state == task.fail then
+		active_task_by_type[p1] = nil
+	elseif state == task.fail or state == task.skipped then
 		local task_data = task_info[active_task_by_type[p1]]
 		
-		--' Проверяем что жив, выдавший квест (хтонічний Сидорович-trader живий завжди).
-		local parent = alife():story_object(story_by_parent[task_data.parent])
-		local parent_alive = parent and (parent:get_trader() or parent:alive())
-		if task_data.status ~= "refused" and parent_alive then
-			task_penalty(task_data)
+		if state == task.fail then
+			--' Проверяем что жив, выдавший квест (хтонічний Сидорович-trader живий завжди).
+			local parent = alife():story_object(story_by_parent[task_data.parent])
+			local parent_alive = parent and (parent:get_trader() or parent:alive())
+			if parent_alive then
+				task_penalty(task_data)
+			end
 		end
+		
 		task_info[active_task_by_type[p1]].status = "normal"
 		task_info[active_task_by_type[p1]].give_task_time = nil
 		--' восстановление других заданий данного типа
@@ -997,7 +1014,7 @@ function init_reward_dialog(dlg, parent)
 		phr = dlg:AddPhrase("tm_job_refuse", tostring(task_info[v].yes_phrase_id), tostring(task_info[v].desc_phrase_id), -10000)
 		phrase_script = phr:GetPhraseScript()
 		phrase_script:AddAction("task_manager.action_refuse_task")
-			
+
 		phr = dlg:AddPhrase("tm_job_nothing", tostring(task_info[v].no_phrase_id), tostring(task_info[v].desc_phrase_id),-10000)
 	end
 
@@ -1256,7 +1273,7 @@ function check_vendor_dead(npc)
 	return end
 	for k,v in pairs(task_id_by_parent[parent]) do
 		if task_info[v].status == "selected" or task_info[v].status == "completed" then
-			task_info[v].status = "failed"
+			task_info[v].status = "refused"
 		end
 	end	
 end

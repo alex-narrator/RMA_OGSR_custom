@@ -61,6 +61,8 @@ function update_task (id_task, subtask, id_state, actor)
 			state = "fail"
 		elseif id_state == task.completed then
 			state = "complete"
+		elseif id_state == task.skipped then
+			state = "cancel"			
 		else
 			state = "new"
 		end

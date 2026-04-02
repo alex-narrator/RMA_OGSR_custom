@@ -286,18 +286,16 @@ function actor_binder:on_item_drop(obj, prev_place)
 	self.sm:call("on_drop", obj, prev_place)
 end
 ----------------------------------------------------------------------------------------------------------------------
-
 function actor_binder:task_callback(_task, _objective, _state)
 	local _stage
 	if _objective:get_idx() == 0 then
 		if _state == task.fail then
-			--news_manager.send_task("fail", _task, _objective)
 			_stage = "fail"
 		elseif _state == task.completed then
-			--news_manager.send_task("complete", _task, _objective)
 			_stage = "complete"
+		elseif _state == task.skipped then
+			_stage = "cancel"			
 		else
-			--news_manager.send_task("new", _task, _objective)
 			_stage = "new"
 			--при отриманні нової таски робимо активним першу підзадачу і на неї ставим таргет на мапі
 			if get_script_option_value("select_new_task") then
@@ -306,7 +304,6 @@ function actor_binder:task_callback(_task, _objective, _state)
 		end
 	else
 		if _task:get_objective(0):get_state() == task.in_progress then
-			--news_manager.send_task("update", _task, _objective)
 			_stage = "update"
 		end
 	end

@@ -686,6 +686,7 @@ function MainIngameOverlay:UpdatePanelBoosters()
 		item_st:SetWidth(params.grid_width * CELL_W * self.booster_panel.scale * get_current_kx())
 		item_st:SetHeight(params.grid_height * CELL_H * self.booster_panel.scale)
 		--ui_inv_utils.AttachPanelIcons(item, item_st)
+		ui_inv_utils.UpdateLayerIcons(b_sect, item_st)
 		item_st:SetWndPos(pos.x, pos.y)
 		text = string.format("%.f %s", b_time, game.translate_string("st_time_minute"))
 		item_st:SetText(game.translate_string(text))
@@ -1223,10 +1224,11 @@ function MainIngameOverlay:HideActiveTask()
 end
 
 local task_stage_color = {
-	["new"] 		= GetARGB(255, 255, 255, 0),--GetARGB(255, 0, 255, 0),
-	["update"] 		= GetARGB(255, 255, 255, 0),--GetARGB(255, 238, 153, 26),
+	["new"] 		= GetARGB(255, 238, 135, 0),
+	["update"] 		= GetARGB(255, 238, 135, 0),
 	["complete"] 	= GetARGB(255, 0, 255, 0),
 	["fail"] 		= GetARGB(255, 255, 0, 0),
+	["cancel"] 		= GetARGB(255, 238, 135, 0),
 }
 function MainIngameOverlay:ShowTask(b_show, _task, _objective, _stage)
 	if b_show then
