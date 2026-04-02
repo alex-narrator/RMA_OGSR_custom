@@ -1798,8 +1798,7 @@ function is_actors_pda(item)
 end
 
 function actor_break_sprint()
-	local ws = actor_obj:get_state_wishful()
-	actor_obj:set_state_wishful(ws - move_command.mcSprint)
+	SetMoveState(move_command.mcSprint, false)
 end
 
 function block_non_move_action(block)
@@ -2657,6 +2656,12 @@ function IsMoveState(state, compare_state)
 	end
 	
 	return (bit_and(compare_state, state) ~= 0)
+end
+
+function SetMoveState(state, enable)
+	local ws = actor_obj:get_state_wishful()
+	local desired_state = enable and state or bit_not(state)
+	actor_obj:set_state_wishful(bit_and(ws, desired_state))	
 end
 
 function get_script_option_value(opt, get_default)
