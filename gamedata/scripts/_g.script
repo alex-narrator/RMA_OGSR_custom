@@ -1528,6 +1528,8 @@ HUD_STATE_NAME = {
 	[global_flags.eIdleZoomOut] = "eIdleZoomOut",
 }
 
+KEY_BIND_STOP_SCRIPT_ANIM = key_bindings.kSPRINT
+
 --рушійно-подібні константи
 KNIFE_SLOT 			= 0
 FIRST_WEAPON_SLOT	= 1
@@ -1690,7 +1692,7 @@ function hud_anim_exists(item, anim_name)
 end
 
 function need_force_stop_anim()
-	return key_state(bind_to_dik(key_bindings.kSPRINT)) or not actor or not actor:alive()
+	return key_state(bind_to_dik(KEY_BIND_STOP_SCRIPT_ANIM)) or not actor or not actor:alive()
 end
 
 function get_hud_sect(item)
