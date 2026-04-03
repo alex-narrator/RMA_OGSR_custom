@@ -196,7 +196,6 @@ function on_update_effects(delta)
 	update_psy_health_effects()
 	update_sounds()
 	update_groggy_effect()
-	update_break_sprint()
 end
 
 function update_alcohol_effector(force_stop)
@@ -462,19 +461,6 @@ function update_groggy_effect()
 	if time_global() >= groggy_eff_disable_time then
 		groggy_eff_disable_time = ttl
 		level.remove_complex_effector(groggy_eff_id)
-	end
-end
-
-local break_sprint_states = {
-	[global_flags.eReload] = true,
-	[global_flags.eShutter] = true,	
-}
-function update_break_sprint()
-	local act_item = actor:active_item()
-	if not act_item then
-	return end
-	if break_sprint_states[act_item:get_hud_item_state()] then
-		actor_break_sprint()
 	end
 end
 

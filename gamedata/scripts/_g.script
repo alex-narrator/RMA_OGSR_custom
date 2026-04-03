@@ -1797,7 +1797,9 @@ function is_actors_pda(item)
 	return item:get_pda() and se_obj.owner_data and se_obj.owner_data.name == actor:character_name()
 end
 
-function actor_break_sprint()
+function action_break_sprint()
+	if not get_script_option_value("actions_break_sprint") then
+	return end
 	SetMoveState(move_command.mcSprint, false)
 end
 
