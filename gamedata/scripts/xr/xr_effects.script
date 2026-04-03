@@ -2504,7 +2504,12 @@ function on_tutor_gameover_stop()
 	local c = get_console()
 --	c:execute("disconnect")
 	printf("main_menu on console command is executed")
-	c:execute("main_menu on")
+	-- c:execute("main_menu on")
+	if get_script_option_value("permanent_death") then
+		c:execute("disconnect")
+	else
+		c:execute("main_menu on")
+	end
 end
 
 

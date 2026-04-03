@@ -509,6 +509,9 @@ end
 function actor_binder:on_death(victim, killer)
 	self.sm:call("on_death", victim, killer)
 	self.sm:call("on_death_actor", victim, killer)
+	if get_script_option_value("permanent_death") then
+		delete_all_game_saves()
+	end
 end
 
 function actor_binder:on_ruck(obj, prev_place)

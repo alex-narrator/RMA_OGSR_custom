@@ -43,18 +43,6 @@ local function delete_save_game(filename)
 	end
 end
 
-function delete_all_game_saves()
-	local f = getFS()
-	local flist = f:file_list_open_ex( "$game_saves$", FS.FS_ListFiles + FS.FS_ClampExt + FS.FS_RootOnly + FS.FS_NoLower, "*.sav" )
-	for file in flist:GetAll() do
-		f:file_delete("$game_saves$", file:NameFull()..".sav")
-		local dds = file:NameFull()..".dds"
-		if f:exist("$game_saves$", dds) then
-			f:file_delete("$game_saves$", dds)
-		end
-	end
-end
-
 local function AddTimeDigit(dig)
 	return dig > 9 and dig or "0"..dig
 end
