@@ -1050,7 +1050,9 @@ function MainIngameOverlay:UpdateTargetTip()
 			
 		--//eat object
 		if tgt and tgt:get_eatable_item() then
-			tip = string.format("%s\\n%s", game.translate_string(tip), game.translate_string("eatable_item_use"))
+			local use_tip = game.translate_string(script_actions.eat_item_tip(tgt))
+			use_tip = use_tip:match("^(%S+)")
+			tip = string.format("%s\\n%s %s", game.translate_string(tip), game.translate_string("eatable_item_use"), use_tip)
 		end
 		
 		--//drag object
@@ -1224,8 +1226,8 @@ function MainIngameOverlay:HideActiveTask()
 end
 
 local task_stage_color = {
-	["new"] 		= GetARGB(255, 238, 135, 0),
-	["update"] 		= GetARGB(255, 238, 135, 0),
+	["new"] 		= GetARGB(255, 0, 255, 0),
+	["update"] 		= GetARGB(255, 238, 153, 26),
 	["complete"] 	= GetARGB(255, 0, 255, 0),
 	["fail"] 		= GetARGB(255, 255, 0, 0),
 	["cancel"] 		= GetARGB(255, 238, 135, 0),
@@ -1254,7 +1256,7 @@ function MainIngameOverlay:ShowTask(b_show, _task, _objective, _stage)
 				self.task_state_icon:SetColor(task_stage_color[_stage])
 				self.task_state_icon:InitTexture(_stage.."_task_icon")
 				
-				self.task_header:SetTextColor(task_stage_color[_stage])
+				--self.task_header:SetTextColor(task_stage_color[_stage])
 				self.objective_header:SetTextColor(task_stage_color[_stage])
 			else
 				objective_description = gametask.active_objective():get_description()
