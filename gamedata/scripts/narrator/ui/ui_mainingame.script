@@ -1048,6 +1048,10 @@ function MainIngameOverlay:UpdateTargetTip()
 	if self.target_tip:IsShown() then
 		local tgt = level.get_target_obj() or self.pickup_item
 			
+		if tgt and IsFakeRocket(tgt) then
+			tip = ""
+		end
+			
 		--//eat object
 		if tgt and tgt:get_eatable_item() then
 			local use_tip = game.translate_string(script_actions.eat_item_tip(tgt))
