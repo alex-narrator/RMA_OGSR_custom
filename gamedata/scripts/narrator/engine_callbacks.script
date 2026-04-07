@@ -11,10 +11,6 @@ function is_ammo_for_reload(item)
 	return res
 end
 
-function on_pickup_item_set(item)
-	sm:call("on_pickup_item_set", item)
-end
-
 function can_artefact_affect(item)
 	local res = item:condition() > 0 and (actor:is_on_belt(item) or actor:is_in_slot(item))
 	return res

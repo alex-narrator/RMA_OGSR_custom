@@ -268,3 +268,29 @@ function repack_ammo(owner)
 		end
 	end
 end
+
+function has_item_to_pickup()
+	local res = false
+	function perform_action(obj)
+		if obj:actor_can_take() and not res then
+			local pos = point_on_screen.point_projection(obj:center())
+			if pos and actor_can_see_item(obj, actor.inventory.take_dist) then
+				res = true
+			end
+		end
+	end
+	level.iterate_nearest(device().cam_pos, actor.inventory.take_dist, perform_action)
+	return res
+end
+
+function pickup_all()
+	function perform_action(obj)
+		if obj:actor_can_take() then
+			local pos = point_on_screen.point_projection(obj:center())
+			if pos and actor_can_see_item(obj, actor.inventory.take_dist) then
+				actor:transfer_item(obj, actor)
+			end
+		end
+	end
+	level.iterate_nearest(device().cam_pos, actor.inventory.take_dist, perform_action)
+end

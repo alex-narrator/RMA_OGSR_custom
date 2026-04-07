@@ -2,15 +2,10 @@
 local hud_sect = "pickup_hud"
 local hud_effector_id = 5559
 
-function is_quick_info_shown()
-	return actor_obj:get_default_action_for_obj() or main_window.pickup_item
-end
-
 function get_carbody_target()
-	local tgt = level.get_target_obj() or main_window.pickup_item
+	local tgt = level.get_target_obj()
 	if not tgt or 
 		not tgt:get_nonscript_usable() or
-		not is_quick_info_shown() or 
 		actor:ph_capture()
 	then return false end
 	
@@ -28,14 +23,20 @@ function get_carbody_target()
 end
 
 function action_use(tgt)
-	if tgt and (tgt:get_inventory_box() or ((tgt:is_monster() or tgt:is_stalker()) and not tgt:alive())) then
+	if tgt and tgt:actor_can_take() then
+		actor:transfer_item(tgt, actor)
+	elseif tgt and (tgt:get_inventory_box() or tgt:is_monster() or tgt:is_stalker()) then
 		local go = tgt:get_game_object()
 		if go then
 			go:use(actor:get_game_object())
 		end
 	else
-		level.send_event_key_press(bind_to_dik(key_bindings.kUSE))
-		level.send_event_key_release(bind_to_dik(key_bindings.kUSE))
+		if inventory.has_item_to_pickup() then
+			inventory.pickup_all()
+		else
+			level.send_event_key_press(bind_to_dik(key_bindings.kUSE))
+			level.send_event_key_release(bind_to_dik(key_bindings.kUSE))
+		end
 	end
 end
 
@@ -70,32 +71,36 @@ function play()
 			block_non_move_action(false)
 			actor_obj:unblock_action(key_bindings.kUSE)
 
-			local tgt = level.get_target_obj() or main_window.pickup_item
-			if tgt then
-				if add_act then
-					if tgt:get_container() then
-						actor:transfer_item(tgt, actor)
-					elseif tgt:get_eatable_item() then
-						actor:transfer_item(tgt, actor)
-						script_actions.eat(tgt)
-					elseif tgt:actor_can_capture() and level.get_target_dist() <= PULL_DISTANCE then
-						local rq = level.get_current_ray_query()
-						local bone_id = rq and rq.element or 0
-						actor:ph_capture_object(tgt, bone_id)
-						if tgt:is_stalker() then
-							deadbody_use_relation.on_npc_use(tgt)
+			local can_interact_by_dist = level.get_target_dist() < actor.inventory.take_dist
+			
+			if can_interact_by_dist then
+				local tgt = level.get_target_obj()
+				if tgt then
+					if add_act then
+						if tgt:get_container() then
+							actor:transfer_item(tgt, actor)
+						elseif tgt:get_eatable_item() then
+							actor:transfer_item(tgt, actor)
+							script_actions.eat(tgt)
+						elseif tgt:actor_can_capture() and level.get_target_dist() <= PULL_DISTANCE then
+							local rq = level.get_current_ray_query()
+							local bone_id = rq and rq.element or 0
+							actor:ph_capture_object(tgt, bone_id)
+							if tgt:is_stalker() then
+								deadbody_use_relation.on_npc_use(tgt)
+							end
+						end
+					else
+						if not tgt:get_container() then --//без цього інвентарний контейнер буде одразу підібраний у інвентар
+							action_use(tgt) 			--//це важливо робити ДО імовірного відкриття вікна actor_menu щоб спрацював колбек on_use
+						end
+						if (tgt:is_stalker() and not tgt:alive()) or (tgt:get_inventory_box() and tgt:get_nonscript_usable()) then
+							ui_actor_menu.ShowHideMenu("carbody", tgt)
 						end
 					end
 				else
-					if not tgt:get_container() then --//без цього інвентарний контейнер буде одразу підібраний у інвентар
-						action_use(tgt) 			--//це важливо робити ДО імовірного відкриття вікна actor_menu щоб спрацював колбек on_use
-					end
-					if (tgt:is_stalker() and not tgt:alive()) or (tgt:get_inventory_box() and tgt:get_nonscript_usable()) then
-						ui_actor_menu.ShowHideMenu("carbody", tgt)
-					end
+					action_use()
 				end
-			else
-				action_use()
 			end
 			_G.SCRIPT_ANIM_PLAYING = false
 		end

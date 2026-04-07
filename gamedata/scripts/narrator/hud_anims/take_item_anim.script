@@ -1,34 +1,15 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
 	sm:subscribe({signal = "on_key_press", 				fun = this.on_key_press})
-	sm:subscribe({signal = "on_pickup_item_showing", 	fun = this.on_pickup_item_showing})
-end
-
-local item_icon = false
-local pickup_item = false
-
-function on_pickup_item_showing(item, icon)
-	item_icon = icon
-	pickup_item = item
-end
-
-function is_quick_info_shown()
-	return get_main_window() and get_main_window():FindChild("quick_info") and get_main_window():FindChild("quick_info"):IsShown()
-end
-
-function can_play_for_container()
-	return not pickup_item:get_container() or 
-		not is_quick_info_shown() or
-		key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) or
-		(not level.get_target_obj() or level.get_target_obj():id() ~= pickup_item:id())
 end
 
 function check_target_item()
-	return not level.get_target_obj() or level.get_target_obj():is_inventory_item()
+	local tgt = level.get_target_obj()
+	return (tgt and tgt:actor_can_take() and level.get_target_dist() < actor.inventory.take_dist) or inventory.has_item_to_pickup()
 end
 
 function can_play_anim()
-	return item_icon and item_icon:IsShown() and actor_hands_free() and check_target_item() and can_play_for_container() and not level.main_input_receiver()
+	return actor_hands_free() and check_target_item() and not level.main_input_receiver()
 end
 
 function on_key_press(key, game_action)
