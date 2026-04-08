@@ -1,6 +1,7 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
 	sm:subscribe({signal = "on_hit_actor", 					fun = this.on_hit})
+	sm:subscribe({signal = "on_death_actor",   				fun = this.on_death_actor})
 	sm:subscribe({signal = "on_save", 						fun = this.on_save})
 	sm:subscribe({signal = "on_load", 						fun = this.on_load})
 	sm:subscribe({signal = "on_spawn", 						fun = this.on_spawn})
@@ -297,6 +298,10 @@ function on_actor_kick(target, power, power_dec)
 	local hit_power = DEFAULT_HIT_POWER + DEFAULT_HIT_POWER * power_dec
 	--log3("~hit power %s - on_weapon_fire", on_actor_kick)	
 	injure_hit(hit_power)
+end
+
+function on_death_actor()
+	groggy_snd:stop()
 end
 
 local painkiller_sect = {}
