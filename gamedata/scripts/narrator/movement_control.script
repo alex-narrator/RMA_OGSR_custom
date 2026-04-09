@@ -1,11 +1,12 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
 	sm:subscribe({signal = "on_mouse_wheel", 	fun = this.on_mouse_wheel})
+	sm:subscribe({signal = "on_key_press",   	fun = this.on_key_press})
 end
 
 local LOOKOUT_ANGLE_STEP = 5
-local MIN_ANGLE = 15
-local MAX_ANGLE = 45
+local MIN_ANGLE = 30
+local MAX_ANGLE = 60
 
 local PH_BOX_ID_STEP = 2
 
@@ -20,13 +21,13 @@ function get_ph_box_min_max_id()
 end
 
 function on_mouse_wheel(forward)
-	if not (IsMoveState(move_command.mcLLookout) or IsMoveState(move_command.mcRLookout) or IsMoveState(move_command.mcCrouch)) then
+	if not (IsMoveState(move_command.mcLookout) or IsMoveState(move_command.mcCrouch)) then
 	return end
 	local active_item = actor:active_item()
 	if active_item and active_item:is_zoomed() and has_dynamic_zoom(active_item) then
 	return end
 	
-	if IsMoveState(move_command.mcLLookout) or IsMoveState(move_command.mcRLookout) then
+	if IsMoveState(move_command.mcLookout) then
 		local step = forward and LOOKOUT_ANGLE_STEP or -LOOKOUT_ANGLE_STEP
 		local current_angle = actor_obj.lookout_angle
 		local desired_angle = math.clamp(actor_obj.lookout_angle + step, MIN_ANGLE, MAX_ANGLE)
@@ -43,4 +44,29 @@ function on_mouse_wheel(forward)
 		actor_obj.ph_box_id = desired_id
 		--log_news("~new ph_box id [%s]", actor_obj.ph_box_id)
 	return end
+end
+
+local lookout_check = {
+	[key_bindings.kL_LOOKOUT] = function() return IsMoveState(move_command.mcRLookout) end,
+	[key_bindings.kR_LOOKOUT] = function() return IsMoveState(move_command.mcLLookout) end,
+}
+local wait_for_action
+function on_key_press(key, game_action)
+	if get_console():get_bool("g_hold_to_lookout") then
+	return end
+	if not lookout_check[game_action] or not lookout_check[game_action]() then
+	return end
+	if wait_for_action then
+	return end
+	wait_for_action = true
+	level.add_call(
+		function()
+			return not IsMoveState(move_command.mcLookout)
+		end,
+		function()
+			wait_for_action = false
+			level.send_event_key_press(bind_to_dik(game_action))
+			level.send_event_key_release(bind_to_dik(game_action))
+		end
+	)
 end
