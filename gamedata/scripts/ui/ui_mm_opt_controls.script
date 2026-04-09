@@ -39,15 +39,71 @@ function opt_controls:InitControls(x, y, w, h, xml, handler)
 	for i =1, #controls_opt_params do
 		local opt, ctrl, tip_name, tip_text = unpack(controls_opt_params[i])
 
-		local static = xml[mm.get_control(ctrl)](xml, "tab_"..tab..":"..ctrl.."_"..opt, self)
-		if ctrl == "track" then
-			static = xml:InitStatic("tab_"..tab..":cap_"..opt, self)
+		local static
+		
+		if ctrl == "list" or ctrl == "track" then --окремий випадок для комбобоксів
+			static = xml:InitStatic("tab_"..tab..":cap_"..opt, self) 				--статик з описом оції у меню
+			
+			if is_script_option(opt) then
+				mm.script_opt_controls[opt] = xml[mm.get_control(ctrl)](xml, "tab_"..tab..":"..ctrl.."_"..opt, self)	--сам комбобокс
+				handler:Register(mm.script_opt_controls[opt], opt)
+			
+				if ctrl == "track" then
+					handler:AddCallback(opt, ui_events.TRACKBAR_CHANGED, function() self:OnTrackChange(opt) end)
+				end
+			
+				if ctrl == "list" then
+					handler:AddCallback(opt, ui_events.LIST_ITEM_SELECT, function() self:OnListItemSelect(opt) end)
+					local tokens = get_script_option_tokens(opt)
+					if tokens then
+						for k,v in pairs(tokens) do
+							mm.script_opt_controls[opt]:AddItem(v)
+						end
+					end
+				end
+			else
+				xml[mm.get_control(ctrl)](xml, "tab_"..tab..":"..ctrl.."_"..opt, self)	--сам комбобокс
+			end
+		else
+			static = xml[mm.get_control(ctrl)](xml, "tab_"..tab..":"..ctrl.."_"..opt, self)
+			if is_script_option(opt) then
+				mm.script_opt_controls[opt] = static
+				handler:AddCallback(opt, ui_events.BUTTON_CLICKED, function() self:OnButtonClick(opt) end)
+			end
 		end
 			
 		mm.init_hint(handler, static, opt, tip_name, tip_text)
-
 	end
 
 	local btn = xml:Init3tButton("tab_"..tab..":btn_default", self)
 	handler:Register(btn, "btn_keyb_default")
+end
+
+function opt_controls:OnButtonClick(opt)
+	set_script_option_value(opt, mm.script_opt_controls[opt]:GetCheck())
+end
+
+function opt_controls:OnTrackChange(opt)
+	set_script_option_value(opt, mm.script_opt_controls[opt]:GetTrackValue())
+end
+
+function opt_controls:OnListItemSelect(opt)
+	set_script_option_value(opt, mm.script_opt_controls[opt]:CurrentID())
+end
+
+function opt_controls:SetScriptVals()
+	for opt,control in pairs(mm.script_opt_controls) do
+		local val = get_script_option_value(opt)
+		for _,v in pairs(controls_opt_params) do
+			if v[1] == opt then
+				if v[2] == "check" then
+					control:SetCheck(val)
+				elseif v[2] == "track" then
+					control:SetTrackValue(val)
+				elseif v[2] == "list" then
+					control:SetCurrentID(val)
+				end
+			end
+		end
+	end
 end
