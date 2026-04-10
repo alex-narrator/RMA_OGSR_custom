@@ -104,6 +104,7 @@ function kick(forward_dir)
 	-- end
 	
 	dir:mul(impulse * mass)
+	--log_news("kick ph force %s %s %s", dir.x,dir.y,dir.z)
 	local ph = target:get_physics_shell()
 	if ph then 
 		ph_bone = ph:get_element_by_bone_id(h.bone) 

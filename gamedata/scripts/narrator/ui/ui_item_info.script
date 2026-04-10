@@ -103,7 +103,6 @@ function UIItemInfo:OnCellItemFocus(item)
 	if not get_script_option_value("floating_info") then
 	return end
 	self.item = item
-	--add_time_delayed_action(get_script_option_value("floating_show_delay"), function() self:InitItemInfo() end)
 	self.show_time = time_global() + get_script_option_value("floating_show_delay") * 1000
 	level.add_call(
 		function()
