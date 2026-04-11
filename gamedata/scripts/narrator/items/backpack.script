@@ -144,12 +144,10 @@ function force_crouch(enable)
 		saved_state = not skip_state() and actor_obj:get_state_wishful() or nil
 		if saved_state then
 			actor_obj:set_state_wishful(move_command.mcCrouch)
-			actor_obj.clear_crouch = false
 		end
 	else
 		if saved_state then
 			actor_obj:set_state_wishful(saved_state)
-			actor_obj.clear_crouch = true
 		end
 	end
 end

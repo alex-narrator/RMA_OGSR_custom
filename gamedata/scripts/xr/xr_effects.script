@@ -1420,8 +1420,8 @@ function bar_arena_teleport_2 ( actor, npc)
 		db.actor:heal_wounds(3)
 		--log3("~heal actor after fight - bleeding")
 	end
-	actor_obj.clear_crouch = false
-	actor_obj.clear_accel = false
+	SetMoveState(move_command.mcCrouch, false)
+	SetMoveState(move_command.mcAccel, false)
 	
 	out_object = actor
     in_object  = inv_box_2
