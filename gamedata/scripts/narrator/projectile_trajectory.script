@@ -20,6 +20,38 @@ function get_start_pos(item, owner)
 	return res
 end
 
+local missile_states = {
+	[global_flags.eThrowStart] = true,
+	[global_flags.eReady] = true,
+	[global_flags.eThrow] = true,
+}
+local weapon_states = {
+	[global_flags.eFire] = true,
+	[global_flags.eIdle] = true,
+}
+function get_speed(item)
+	if not item then
+	return end
+	if item:is_zoomed() then
+	return end
+	local missile = item:get_missile()
+	local wpn = item:get_weapon_mwg()
+	local rg6 = get_clsid(item) == clsid.wpn_rg6_s
+	
+	local function show_for_weapon(item)
+		return (rg6 or item:get_gl_mode()) and item:get_ammo_in_magazine() > 0 and weapon_states[item:get_hud_item_state()] and not actor_obj:is_actor_sprinting()
+	end
+	
+	if missile and missile_states[item:get_hud_item_state()] then
+		return missile.const_power and missile.const_force or missile.throw_force
+	elseif wpn and show_for_weapon(item) then
+		local param_sect = (wpn:addon_attachable(addon.launcher) and wpn:is_addon_attached(addon.launcher)) and wpn:get_addon_name(addon.launcher) or item:section()
+		return sys_ini:r_float(param_sect, "grenade_vel")
+	elseif rg6 and show_for_weapon(item) then
+		return sys_ini:r_float(item:section(), "launch_speed")		
+	end
+end
+
 function pos_on_trajectory(pos, speed, duration)
     --[[
         Projectile motion:

@@ -98,6 +98,7 @@ function MainIngameOverlay:Subscribe()
 			{signal = "on_timed_action_stop", self = self, fun = self.SetTimedActionProgress},
 			
 			{signal = "on_actor_before_hit", self = self, fun = self.SetHitMarker},
+			{signal = "on_death_actor", self = self, fun = self.OnActorDeath},
 		}
 		local sm = ogse_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
@@ -335,7 +336,6 @@ function MainIngameOverlay:InitControls()
 	local impact_color 			= xml:ReadAttrib("projectile_trajectory", "impact_color", color) 			--// red/green/blue/white/yellow	
 	local impact_particle = string.format([[_samples_particles_\gt_impact_%sx_%s_%s]], impact_size, impact_brightness, impact_color)
 	self.projectile_particle_impact = particles_object(impact_particle)
-	self.projectile_show_bolt 	= xml:ReadAttribInt("projectile_trajectory", "show_bolt", 0) > 0 and true or false
 	
 	--//warning icons
 	self.warning_icons = ui_warning_icons.WarningIcons(xml, self)
@@ -531,9 +531,6 @@ end
 function MainIngameOverlay:TryUpdatePanelItems(item, prev_place)
 	if prev_place == item_place.belt or quick_slots.is_in_quick_slot(item) then 
 		self:SetPanelItemsNeedUpdate()
-	end
-	if self.projectile_item and self.projectile_item:id() == item:id() then
-		self:SetProjectileParams()
 	end
 end
 
@@ -950,22 +947,14 @@ local crosshair_set_states = {
 	-- [global_flags.eHidden] = true,
 	-- [global_flags.eHiding] = true,	
 }
-local missile_states = {
-	[global_flags.eThrowStart] = true,
-	[global_flags.eThrowEnd] = true,
-	[global_flags.eHidden] = true,
-}
 function MainIngameOverlay:OnHudStateSwitch(item, state, old_state)
 	if update_states[old_state] then
 		self:SetPanelItemsNeedUpdate()
 	end
-	if crosshair_set_states[state] and not item:get_device() then
+	local device = item:get_device()
+	if crosshair_set_states[state] and not device then
 		self:SetCrosshair(read_if_exists(sys_ini, "string", item:section(), "crosshair", nil))
 		self:UpdateCrosshair(true)
-	end
-	if missile_states[state] and not item:get_device() then
-		local enabled = get_script_option_value("projectile_trajectory") and state == global_flags.eThrowStart and (self.projectile_show_bolt or get_clsid(item) ~= clsid.obj_bolt)
-		self:SetProjectileParams(enabled and item or nil)
 	end
 end
 
@@ -1150,7 +1139,7 @@ function MainIngameOverlay:OnKeyPress(key, game_action)
 	end
 	
 	if game_action == key_bindings.kHIDEHUD then
-		self:SetProjectileParams()
+		self:StopProjectileParticles()
 	end	
 end
 
@@ -1441,29 +1430,53 @@ function MainIngameOverlay:UpdateAmmoSwitchInfo()
 	end
 end
 
-function MainIngameOverlay:SetProjectileParams(item)
+function MainIngameOverlay:StopProjectileParticles()
 	for k,particle in pairs(self.projectile_particles) do
 		particle:stop()
 	end
 	self.projectile_particle_impact:stop()
-	self.projectile_item = item
-	self.projectile_missile = item and item:get_missile()
 end
 
 function MainIngameOverlay:UpdateProjectileTrajectory()
-	if not self.projectile_item or not self.projectile_missile then
+	local item = actor:active_item()
+	if not item or item:is_zoomed() then
+		if self.projectile_shown then
+			self.projectile_shown = false
+			self:StopProjectileParticles()
+		end
 	return end
 	
-	local throw_pos = projectile_trajectory.get_start_pos(self.projectile_item)
-	local missile = self.projectile_missile
-	local throw_force = missile.const_power and missile.const_force or missile.throw_force
+	local show = (get_script_option_value("projectile_trajectory") and item:get_weapon_m()) or (get_script_option_value("grenade_trajectory") and item:is_grenade()) or (get_script_option_value("bolt_trajectory") and get_clsid(item) == clsid.obj_bolt)
+	
+	if not show then
+		if self.projectile_shown then
+			self.projectile_shown = false
+			self:StopProjectileParticles()
+		end
+	return end
+	
+	local throw_speed = projectile_trajectory.get_speed(item)
+	if not throw_speed then
+		if self.projectile_shown then
+			self.projectile_shown = false
+			self:StopProjectileParticles()
+		end	
+	return end
+	
+	self.projectile_shown = true
+	
+	if self.crosshair:IsShown() then
+		self.crosshair:Show(false)
+	end
+	
+	local throw_pos = projectile_trajectory.get_start_pos(item)
 	
 	local ground_idx
 	local impact_pos
 	
 	for i, particle in pairs(self.projectile_particles) do
 		local t = self.projectile_step_interval * i
-		local play_pos = projectile_trajectory.pos_on_trajectory(throw_pos, throw_force, t)
+		local play_pos = projectile_trajectory.pos_on_trajectory(throw_pos, throw_speed, t)
 		
 		if not ground_idx then
 			local ground_pos = projectile_trajectory.get_ground_pos(play_pos)
@@ -1619,6 +1632,10 @@ function MainIngameOverlay:UpdatePickupInfo()
 		end
 	end		
 	level.iterate_nearest(cam_pos, pickup_info_radius, perform_action)	
+end
+
+function MainIngameOverlay:OnActorDeath()
+	self:StopProjectileParticles()
 end
 
 function MainIngameOverlay:Update()
