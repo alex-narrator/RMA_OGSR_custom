@@ -1,8 +1,10 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
-	sm:subscribe({signal = "on_death",   fun = this.send_tip})
+	sm:subscribe({signal = "on_death", fun = this.on_death})
 	sm:subscribe({signal = "on_actor_before_hit", fun = this.on_actor_before_hit})
 end
+
+local NEWS_DIST = 50
 
 function death_reson_by_killer(killer)
 	if killer:is_monster() then
@@ -24,6 +26,26 @@ function death_reson_by_killer(killer)
 	return "st_death_reason_undefined"
 end
 
+function killer_text(killer)
+	if killer:is_monster() then
+		local props, sect = xr_statistic.getNpcType(killer)
+		return game.translate_string(sect)
+	end
+	if killer:is_stalker() or killer:is_actor() then
+		return string.format("%s (%s %s)", game.translate_string(killer:character_name()), game.translate_string(killer:character_community()), game.translate_string(ranks.get_obj_rank_name(killer)))
+	end
+	if killer:get_helicopter() then
+		return game.translate_string("st_helicopter")
+	end
+	if killer:is_car() then
+		return game.translate_string(string.find(killer:name(), "btr") and "st_btr" or "st_car")
+	end
+	if killer:is_anomaly() then
+		return game.translate_string(killer:section())
+	end
+	return game.translate_string("st_death_reason_undefined")
+end
+
 local last_hit_data = {}
 
 function on_actor_before_hit(object, hit)
@@ -32,17 +54,14 @@ function on_actor_before_hit(object, hit)
 	last_hit_data.bone = object:get_bone_name(hit.bone_id)
 end
 
-function send_tip(victim, killer)
+function on_death(victim, killer)
 	if not victim:is_actor() and not victim:is_stalker() or victim:relation(actor) == game_object.enemy then
 	return end
-	local pda = actor_get_pda()
-	if not pda or not pda:is_power_on() then
-	return end
-	local pda_radius = read_if_exists(sys_ini, "float", pda:section(), "radius", 50)
-	if distance_between(actor, victim) > pda_radius then
-	return end
+	if distance_between(actor, victim) > NEWS_DIST then
+	return end	
 	
-	local tip_header = game.translate_string("st_stalker_death") 						--/заголовок загальний
+	local news_header = game.translate_string("st_stalker_death") 						--/заголовок загальний
+	news_header = string.format("%s%s", "%c[red]", news_header)
 	local victim_header = game.translate_string("st_victim_header") 					--/заголовок жертви
 	local victim_name = game.translate_string(victim:character_name()) 					--/ім'я жертви
 	--local comm_header = game.translate_string("st_community") 						--/заголовок угруповання
@@ -50,28 +69,22 @@ function send_tip(victim, killer)
 	local death_reason_header = game.translate_string("st_death_reason")
 	local death_reason = game.translate_string(victim:id() == killer:id() and "st_suicide" or death_reson_by_killer(killer))
 	
-	if killer and 
-		killer:id() == victim:id() and 
-		killer:is_actor() and 
-		not has_alife_info("eliminate_gunslinger_done") then
-			actor:give_info_portion("eliminate_gunslinger_done")
+	if killer and killer:is_actor() and victim:is_actor() and not has_alife_info("eliminate_gunslinger_done") then
+		actor:give_info_portion("eliminate_gunslinger_done")
 	end
 	
-	local news_text = string.format("%s%s\\n%s%s\\n%s%s %s", 
-									"%c[red]", tip_header, 
+	local news_text = string.format("%s%s\\n%s%s %s", 
 									color_by_relation[victim:relation(actor)], victim_name,
 									"%c[white]", death_reason_header, death_reason)
 									
 	if victim:is_actor() then
-		local last_hit_info = string.format("\\n%s:\\n%s - %s", game.translate_string("st_last_hit"), game.translate_string(last_hit_data.bone), game.translate_string(last_hit_data.type))
+		-- local last_hit_info = string.format("\\n%s:\\n%s - %s", game.translate_string("st_last_hit"), game.translate_string(last_hit_data.bone), game.translate_string(last_hit_data.type))
+		local last_hit_info = string.format("\\n%s: %s\\n%s: %s\\n%s: %s", game.translate_string("st_last_hit_dealer"), killer_text(killer), game.translate_string("st_last_hit_bone"), game.translate_string(last_hit_data.bone), game.translate_string("st_last_hit_type"), game.translate_string(last_hit_data.type))
 		news_text = news_text..last_hit_info
 	end
 	
 	local ttl = victim:is_actor() and 10 or 2
-	
-	local rnd = math.random(1, 3)
-	local icon = community.get_news_icon(victim:character_community())
-	local icon_texture, icon_rect = get_texture_info(icon)
-	actor:give_game_news(news_text, icon_texture, icon_rect, rnd * 1000, ttl * 1000)
-	xr_sound.get_safe_sound_object([[device\pda\pda_tip]]):play(actor, rnd, sound_object.s2d)
+	local delay = victim:is_actor() and 1 or math.random(1, 3)
+	local news_icon = community.get_news_icon(victim:character_community())
+	news_manager.custom_news(news_header, news_text, news_icon, nil, delay * 1000, ttl * 1000)
 end

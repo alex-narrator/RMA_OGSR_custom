@@ -411,12 +411,12 @@ function relocate_money(actor, type, amount)
 	
 end
 
-function custom_news(header_text, news_text, news_icon, news_sound)
+function custom_news(header_text, news_text, news_icon, news_sound, delay, ttl)
 	local news_texture, news_rect = get_texture_info(news_icon, "ui_new_pda_info")
 	local header_color = "%c[255,160,160,160]"
 	local text_color = "%c[default]"
 	local text = string.format("%s%s\\n%s%s", header_color, game.translate_string(header_text), text_color, game.translate_string(news_text))
-	actor:give_game_news(text, news_texture, news_rect, 0, 3000)
+	actor:give_game_news(text, news_texture, news_rect, delay or 0, ttl or 3000)
 	if not news_sound then
 		play_news_sound("news")
 	else
