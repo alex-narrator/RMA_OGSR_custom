@@ -250,7 +250,7 @@ function ActorMenuOverlay:InitControls()
 			restore_speed = function() return 3600 * actor_cond.alcohol_v end,
 		},
 		["radiation_"] 	= { 
-			condition = function() return dosimeter.can_detect_radiation() and actor.radiation or 0 end,
+			condition = function() return actor.radiation end,
 			restore_speed = function() return 3600 * actor_cond.radiation_v end,
 		},
 		["somnolence_"] = { 

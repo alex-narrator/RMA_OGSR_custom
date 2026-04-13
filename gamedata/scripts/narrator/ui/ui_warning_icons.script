@@ -25,7 +25,7 @@ function WarningIcons:InitWnd(xml, owner)
 	self.warning_icons = {
 		--//actor conditions
 		{ name = "bleeding", 		val = function() return actor:get_bleeding() end },
-		{ name = "radiation", 		val = function() return dosimeter.can_detect_radiation() and actor.radiation or 0 end },
+		{ name = "radiation", 		val = function() return actor.radiation end },
 		{ name = "psy_health", 		val = function() return 1 - actor.psy_health end },
 		{ name = "starvation", 		val = function() return 1 - actor.satiety end },
 		{ name = "alcohol", 		val = function() return actor.alcohol end },
