@@ -112,6 +112,7 @@ end
 
 function TalkOverlay:OnShow()
 	self.target = level.get_second_talker()
+	--log_news("~show talk for %s | talk enabled %s", self.target:name(), self.target:is_talk_enabled())
 	if not actor.inventory:is_active_slot_blocked() then
 		actor:hide_weapon()
 	end
@@ -134,6 +135,7 @@ function TalkOverlay:OnShow()
 end
 
 function TalkOverlay:OnHide()
+	--log_news("~hide talk for %s | talk enabled %s", self.target:name(), self.target:is_talk_enabled())
 	self.target = false
 	if actor.inventory:is_active_slot_blocked() then
 		actor:restore_weapon()
@@ -188,4 +190,11 @@ end
 function TalkOverlay:ToRepair()
 	ui_actor_menu.ShowHideMenu("repair", level.get_second_talker())
 	self.owner:Show(false)	
+end
+
+function TalkOverlay:Update()
+	CUIScriptWnd.Update(self)
+	if self.target then
+		aim_camera_to_target(self.target)
+	end
 end
