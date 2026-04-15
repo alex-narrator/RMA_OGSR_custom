@@ -49,7 +49,7 @@ function on_take(item)
 	return end
 	if actor:is_in_slot(item) then
 		if item:get_slot() == DETECTOR_SLOT then
-			actor:activate_slot(DETECTOR_SLOT)
+			actor:activate_slot(DETECTOR_SLOT, true)
 		end	
 	return end
 	if read_if_exists(sys_ini, "bool", item:section(), "default_to_ruck", false) then

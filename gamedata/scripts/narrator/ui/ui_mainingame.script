@@ -1090,22 +1090,8 @@ function MainIngameOverlay:OnKeyPress(key, game_action)
 		local act_device = actor:active_device()
 		local item_to_drop = key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) and act_device or act_item
 		if item_to_drop then
-			local hud_sect = get_hud_sect(item_to_drop)
-			local throw_anim = "anm_throw_stick"
-			if hud_sect and read_if_exists(sys_ini, "string", hud_sect, throw_anim, nil) then
-				local anm_speed = read_if_exists(sys_ini, "float", hud_sect, throw_anim.."_speed_k", 1)
-				local anm_length = item_to_drop:play_hud_motion(throw_anim, true, -1, anm_speed)
-				local throw_delay = read_if_exists(sys_ini, "float", hud_sect, "throw_delay", anm_length * 0.001)
-				block_non_move_action(true)
-				add_time_delayed_action(
-					throw_delay,
-					function()
-						block_non_move_action(false)
-						local pos = device().cam_pos
-						pos:add(device().cam_dir)
-						actor:drop_item_and_teleport(item_to_drop, pos)
-					end
-				)
+			if item_to_drop:get_device() then
+				device_throw_anim.play(item_to_drop)
 			else
 				actor:drop_item(item_to_drop)
 			end
