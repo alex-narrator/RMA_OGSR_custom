@@ -35,7 +35,6 @@ function on_key_press(key, game_action)
 			car:SwitchEngine()
 		end	
 	else
-		actor_obj:block_action(key_bindings.kUSE)
 		block_non_move_action(true)	
 	
 		if actor:active_item() then
@@ -54,7 +53,6 @@ function on_key_press(key, game_action)
 			read_if_exists(sys_ini, "float", hud_sect, "use_delay", 0.7),
 			function() 
 				block_non_move_action(false)
-				actor_obj:unblock_action(key_bindings.kUSE)
 			
 				if game_action == key_bindings.kTORCH then
 					light_sound:play(actor, 0, sound_object.s2d)

@@ -3,14 +3,6 @@
 local gravity = level.physics_world():gravity()
 
 function get_start_pos(item, owner)
-	-- local throw_pos = read_if_exists(sys_ini, "vector", "actor", "missile_throw_offset", vector():set(0.3, 0.5, 0.5))
-	-- local dir = device().cam_dir
-	-- local h = dir:getH() + throw_pos:getH()
-	-- local p = dir:getP() + throw_pos:getP()
-	-- local throw_vec = vector():setHP(h, p):normalize()--:mul(throw_pos:magnitude())
-	-- local res = vector():set(device().cam_pos):add(throw_vec)
-	-- log3("~res: %s %s %s", res.x, res.y, res.z)
-	
 	owner = owner or actor
 	local res = actor and get_missile_throw_point(item) or nil
 	if not res then

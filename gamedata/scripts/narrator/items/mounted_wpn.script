@@ -52,7 +52,7 @@ function on_update(mounted_wpn)
 end
 
 function on_shell_drop(wpn, pos, vel)
-	--log3("~on_shell_drop weapon %s | parent %s", wpn:name(), wpn:parent() and wpn:parent():name() or "UNKNOWN")
+	--log_news("~on_shell_drop weapon %s | parent %s", wpn:name(), wpn:parent() and wpn:parent():name() or "UNKNOWN")
 	if not current_mgun or wpn:id() ~= current_mgun:id() then
 	return end
 	
