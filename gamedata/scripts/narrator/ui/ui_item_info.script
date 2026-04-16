@@ -271,7 +271,7 @@ function attach_condition_params(UIDesc, obj)
 	return end
 	
 	local xml = CScriptXmlInit()
-	xml:ParseFile("script_overlays\\condition_params.xml")
+	xml:ParseFile(OVERLAY_XML)
 	local condition_params = xml:InitStatic("condition_params", UIDesc)
 	local condition_progress = xml:InitProgressBar("condition_params:condition_progress", condition_params)
 	condition_progress:SetProgressPos(condition)
@@ -298,10 +298,10 @@ function attach_effect_params(UIDesc, item)
 	local show = false
 	
 	local xml = CScriptXmlInit()
-	xml:ParseFile("script_overlays\\effect_params.xml")
+	xml:ParseFile(OVERLAY_XML)
 
 	effect_st = {}
-	local params_list = xml:InitScrollView("params_list", UIDesc)
+	local params_list = xml:InitScrollView("effect_params_list", UIDesc)
 	for k,v in ipairs(effect_params) do
 		val = inv_item:item_effect(k-1)
 		if val ~= 0 then
@@ -376,10 +376,10 @@ function attach_protection_params(UIDesc, item)
 	local show = false
 	
 	local xml = CScriptXmlInit()
-	xml:ParseFile("script_overlays\\protection_params.xml")
+	xml:ParseFile(OVERLAY_XML)
 
 	protection_st = {}
-	local params_list = xml:InitScrollView("params_list", UIDesc)
+	local params_list = xml:InitScrollView("protection_params_list", UIDesc)
 	for k,v in ipairs(protection_params) do
 		val = inv_item:hit_type_protection(k-1)
 		if val ~= 0 then
@@ -422,10 +422,10 @@ function attach_eatable_params(UIDesc, item)
 	local show = false
 	
 	local xml = CScriptXmlInit()
-	xml:ParseFile("script_overlays\\eatable_params.xml")
+	xml:ParseFile(OVERLAY_XML)
 
 	eatable_st = {}
-	local params_list = xml:InitScrollView("params_list", UIDesc)
+	local params_list = xml:InitScrollView("eatable_params_list", UIDesc)
 	for k,v in ipairs(eatable_params) do
 		val = v.st_name == "somnolence" and somnolence.get_influence(item) or eatable:influence(k-1)
 		if val ~= 0 then
@@ -485,10 +485,10 @@ function attach_booster_params(UIDesc, item)
 	local show = false
 	
 	local xml = CScriptXmlInit()
-	xml:ParseFile("script_overlays\\boost_params.xml")
+	xml:ParseFile(OVERLAY_XML)
 	
 	boost_st = {}
-	local params_list = xml:InitScrollView("params_list", UIDesc)
+	local params_list = xml:InitScrollView("boost_params_list", UIDesc)
 	for k,v in ipairs(boost_params) do
 		-- if v.st_name == "somnolence" then
 			-- val = somnolence.get_boost(item)
@@ -554,7 +554,7 @@ function attach_anm_use_params(UIDesc, item)
 	local use_delay = read_if_exists(sys_ini, "float", hud_sect, "use_delay", anm_length * 0.001)
 	
 	local xml = CScriptXmlInit()
-	xml:ParseFile("script_overlays\\anm_use_time.xml")
+	xml:ParseFile(OVERLAY_XML)
 	local static = xml:InitStatic("anm_use_time", UIDesc)
 	local text = string.format("%s %s %s%.1f %s", game.translate_string("st_list_mark"), game.translate_string("st_anm_use_time"), "%c[UI_orange]", use_delay, game.translate_string("st_time_second"))
 	static:SetText(text)
@@ -591,14 +591,14 @@ function attach_armor_params(UIDesc, item)
 	local show = false
 	
 	local xml = CScriptXmlInit()
-	xml:ParseFile("script_overlays\\armor_params.xml")
+	xml:ParseFile(OVERLAY_XML)
 	
-	local font = xml:ReadAttrib("params_list:descr_text", "font", "letterica16")
+	local font = xml:ReadAttrib("armor_params_list:descr_text", "font", "letterica16")
 	
 	armor_st = {}
 	local armored_bones = {}
 	sn = game.translate_string("st_armor_class")
-	local params_list = xml:InitScrollView("params_list", UIDesc)
+	local params_list = xml:InitScrollView("armor_params_list", UIDesc)
 	for k,v in ipairs(armor_params) do
 		bone_protect_str = read_if_exists(sys_ini, "string", bones_protect_sect, v.bone, nil)
 		if bone_protect_str then
@@ -654,7 +654,7 @@ end
 function attach_power_params(UIDesc, obj)
 	local bind_obj = obj:binded_object()
 	local xml = CScriptXmlInit()
-	xml:ParseFile("script_overlays\\power_params.xml")
+	xml:ParseFile(OVERLAY_XML)
 	local power_params = xml:InitScrollView("power_params", UIDesc)--xml:InitStatic("power_params", UIDesc)
 	
 	if not read_if_exists(sys_ini, "bool", obj:section(), "condition_as_power", false) then
@@ -684,7 +684,7 @@ function atach_wpn_params(UIDesc, obj)
 	return end
 	
 	local xml = CScriptXmlInit()
-	xml:ParseFile("script_overlays\\weapon_params.xml")
+	xml:ParseFile(OVERLAY_XML)
 	local name = "wpn_params"
 	local main = xml:InitStatic(name, UIDesc)
 	
@@ -732,7 +732,7 @@ function atach_knife_params(UIDesc, obj)
 	
 	local xml = CScriptXmlInit()
 	local name = "knife_params"
-	xml:ParseFile("script_overlays\\knife_params.xml")
+	xml:ParseFile(OVERLAY_XML)
 	local main = xml:InitStatic(name, UIDesc)
 	
 	local cap_damage 		= xml:InitStatic(name..":cap_damage", main)
@@ -779,7 +779,7 @@ function attach_loaded_ammo(UIDesc, obj)
 	pos_x = 0
 	
 	local xml = CScriptXmlInit()
-	xml:ParseFile("script_overlays\\loaded_ammo.xml")
+	xml:ParseFile(OVERLAY_XML)
 	local main = xml:InitStatic("loaded_ammo", UIDesc)
 	
 	local ammo_s = {}
@@ -832,11 +832,9 @@ function attach_magazin_ammo(UIDesc, obj)
 	return end
 	
 	local xml = CScriptXmlInit()
-	xml:ParseFile("script_overlays\\loaded_ammo.xml")
+	xml:ParseFile(OVERLAY_XML)
 	local main = xml:InitStatic("loaded_ammo", UIDesc)
-	local ammo_icon = xml:InitStatic("loaded_ammo:ammo_icon", main) 
-	
-	pos_x = 0
+	local ammo_icon = xml:InitStatic("loaded_ammo:ammo_icon", main)
 	
 	local sect = ammo:ammo_sect()
 	set_ammo_icon(ammo_icon, sect)
@@ -863,7 +861,7 @@ function attach_weapon_addons(UIDesc, obj)
 	return end
 	
 	local xml = CScriptXmlInit()
-	xml:ParseFile("script_overlays\\weapon_addons.xml")
+	xml:ParseFile(OVERLAY_XML)
 
 	local tmp_tbl, def_font, def_color = nil, "letterica16", "255, 255, 255, 255"
 
@@ -923,7 +921,7 @@ local loadout_slots = {
 	}
 function attach_loadout_slots(UIDesc, item)
 	local xml = CScriptXmlInit()
-	xml:ParseFile("script_overlays\\loadout_slots.xml")
+	xml:ParseFile(OVERLAY_XML)
 	local slots_scroll_view = xml:InitScrollView("scroll_view_loadout", UIDesc)
 	local sect = item:section()
 	local count, icon, text
@@ -954,9 +952,9 @@ local ammo_params = {
 	}
 function attach_ammo_params(UIDesc, item)
 	local xml = CScriptXmlInit()
-	xml:ParseFile("script_overlays\\ammo_params.xml")
+	xml:ParseFile(OVERLAY_XML)
 	local show = false
-	local params_list = xml:InitScrollView("params_list", UIDesc)
+	local params_list = xml:InitScrollView("ammo_params_list", UIDesc)
 	local sect = item:section()
 	local val, static, text, color
 	for k,v in ipairs(ammo_params) do
@@ -996,9 +994,9 @@ local addon_params = {
 	}
 function attach_addon_params(UIDesc, item)
 	local xml = CScriptXmlInit()
-	xml:ParseFile("script_overlays\\addon_params.xml")
+	xml:ParseFile(OVERLAY_XML)
 	local show = false
-	local params_list = xml:InitScrollView("params_list", UIDesc)
+	local params_list = xml:InitScrollView("addon_params_list", UIDesc)
 	local sect = item:section()
 	local val, text, color
 	for k,v in ipairs(addon_params) do
@@ -1034,7 +1032,7 @@ end
 function attach_plate_condition(UIDesc, obj)
 	local bind_obj = obj:binded_object()
 	local xml = CScriptXmlInit()
-	xml:ParseFile("script_overlays\\armor_plate.xml")
+	xml:ParseFile(OVERLAY_XML)
 	local plate_params = xml:InitStatic("plate_params", UIDesc)
 	
 	local cap_plate = xml:InitStatic("plate_params:cap_plate", plate_params)
@@ -1053,7 +1051,7 @@ function attach_armor_plates(UIDesc, obj)
 	return end
 	
 	local xml = CScriptXmlInit()
-	xml:ParseFile("script_overlays\\armor_plates.xml")
+	xml:ParseFile(OVERLAY_XML)
 
 	local tmp_tbl, def_font, def_color = nil, "letterica16", "255, 255, 255, 255"
 
@@ -1088,8 +1086,8 @@ function attach_belt_params(UIDesc, item)
 	if belt_size <= 0 then return end
 	
 	local xml = CScriptXmlInit()
-	xml:ParseFile("script_overlays\\belt_params.xml")
-	local params_list = xml:InitScrollView("params_list", UIDesc)
+	xml:ParseFile(OVERLAY_XML)
+	local params_list = xml:InitScrollView("belt_params_list", UIDesc)
 	belt_slots_st = CUIStatic()
 	belt_slots_st:SetTextComplexMode(true)
 	belt_slots_st:SetWidth(params_list:GetDesiredChildWidth())
@@ -1119,9 +1117,9 @@ function attach_pda_owner_info(UIDesc, item)
 	-- end
 	
 	local xml = CScriptXmlInit()
-	xml:ParseFile("script_overlays\\pda_owner.xml")
+	xml:ParseFile(OVERLAY_XML)
 
-	local data_list = xml:InitScrollView("data_list", UIDesc)
+	local data_list = xml:InitScrollView("pda_data_list", UIDesc)
 
 	local color = "%c[UI_orange]"
 	
@@ -1191,8 +1189,8 @@ function attach_repair_params(UIDesc, item)
 	return end
 	
 	local xml = CScriptXmlInit()
-	xml:ParseFile("script_overlays\\repair_params.xml")
-	local params_list = xml:InitScrollView("params_list", UIDesc)
+	xml:ParseFile(OVERLAY_XML)
+	local params_list = xml:InitScrollView("repair_params_list", UIDesc)
 	
 	for k,v in ipairs(repair_params) do
 		local val = read_if_exists(sys_ini, v._type, sect, v.name, v.default)
@@ -1223,8 +1221,8 @@ function attach_loot_spawn_box(UIDesc, obj)
 	return end
 	
 	local xml = CScriptXmlInit()
-	xml:ParseFile("script_overlays\\loot_spawn_box_params.xml")
-	local params_list = xml:InitScrollView("params_list", UIDesc)
+	xml:ParseFile(OVERLAY_XML)
+	local params_list = xml:InitScrollView("loot_spawn_box_params_list", UIDesc)
 	local spawn_items = parse_key_val_line(items_str, 1)
 	loot_spawn_box_st = {}
 	
