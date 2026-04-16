@@ -1,21 +1,22 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 local hud_sect = "device_throw_hud"
-local anim_start = "anm_start"
+local anim_begin = "anm_begin"
 local anim_end = "anm_end"
 
 function play(item)
-	local anm_speed = read_if_exists(sys_ini, "float", hud_sect, anim_start.."_speed_k", 1)
-	local anm_length = game.play_hud_motion(1, hud_sect, anim_start, false, anm_speed, false)
-	--log_news("play anim_start")
+	local anm_speed = read_if_exists(sys_ini, "float", hud_sect, anim_begin.."_speed_k", 1)
+	local anm_length = game.play_hud_motion(1, hud_sect, anim_begin, false, anm_speed, false)
+	--log_news("anim_begin length %s", anm_length * 0.001)
 	block_non_move_action(true)
 	add_time_delayed_action(
 		anm_length * 0.001,
 		function()
 			anm_speed = read_if_exists(sys_ini, "float", hud_sect, anim_end.."_speed_k", 1)
 			anm_length = game.play_hud_motion(1, hud_sect, anim_end, false, anm_speed, false)
-			local throw_delay = read_if_exists(sys_ini, "float", hud_sect, "throw_delay", anm_length * 0.001)
-			--log_news("play anim_end")
+			local throw_delay = read_if_exists(sys_ini, "float", hud_sect, "throw_delay", anm_length * 0.001) 
+			--log_news("anim_end length %s", anm_length * 0.001)
 			--log_news("throw_delay %s", throw_delay)
+			add_time_delayed_action(anm_length * 0.001, function() game.stop_hud_motion() end)
 			add_time_delayed_action(
 				throw_delay,
 				function()
