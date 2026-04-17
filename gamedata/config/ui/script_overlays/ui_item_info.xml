@@ -18,13 +18,32 @@
 		
 		<static_cost x="50" y="25" width="30" height="20" stretch="1">
 			<text font="letterica16" r="238" g="155" b="23" align="l" vert_align="c"/>
-		</static_cost>		
+		</static_cost>
+		
+		<!-- <auto_static x="5" y="40" width="225" height="1" stretch="1"> -->
+			<!-- <texture a="25">inv_progress_long</texture> -->
+		<!-- </auto_static> -->
 
 		<descr_list x="5" y="45" width="235" height="130" always_show_scroll="0" left_ident="10" bottom_indent="5" vert_interval="2">
 			<text font="letterica16" r="240" g="217" b="182"/>
 			<!-- <descr_text text_color="255,238,153,26" font="letterica18"/> -->
-		</descr_list>	
+		</descr_list>
+		
+		<quit_button x="226" y="2" width="10" height="16" stretch="1" hint="st_hint_quit">
+			<texture>ui_button_ordinary</texture>
+			<text font="graffiti19" r="238" g="153" b="26" align="c" v_align="c">X</text>
+			<text_color>
+				<e r="240"	g="217" b="182"/>				
+				<t r="0"	g="0"	b="0"/>				
+				<d r="135"	g="123" b="116"/>
+				<h r="0"	g="0"	b="0"/>
+			</text_color>
+		</quit_button>		
 	</background_frame>
+	
+	<divider_line x="0" y="0" width="238" height="1" stretch="1">
+		<texture a="50">inv_progress_long</texture>
+	</divider_line>
 	
     <condition_params x="0" y="0" width="235" height="10" always_show_scroll="0" left_ident="10" bottom_indent="0">
 		<condition_progress x="0" y="0" width="90" height="8" horz="1" min="0" max="1" pos="1">
@@ -40,35 +59,19 @@
 		</condition_progress>
 	</condition_params>
 
-	<effect_params_list x="5" y="0" width="235" height="0" always_show_scroll="0" left_ident="10" bottom_indent="2">
-		<text font="letterica16" color="UI_orange">st_effects_header</text>
-		<descr_text text_color="255,238,153,26" font="letterica18"/>
-	</effect_params_list>
-	
-	<protection_params_list x="5" y="0" width="235" height="0" always_show_scroll="0" left_ident="10" bottom_indent="2">
-		<text font="letterica16" color="UI_orange">st_protection_header</text>
-		<descr_text text_color="255,238,153,26" font="letterica18"/>
-	</protection_params_list>
-	
-	<eatable_params_list x="5" y="0" width="235" height="0" always_show_scroll="0" left_ident="10" bottom_indent="2">
-		<text font="letterica16" color="UI_orange">st_influence_header</text>
-		<!-- <descr_text text_color="255,238,153,26" font="letterica18"/> -->
-	</eatable_params_list>
-	
-	<boost_params_list x="5" y="0" width="235" height="0" always_show_scroll="0" left_ident="10" bottom_indent="2">
-		<text font="letterica16" color="UI_orange">st_boost_header</text>
-		<!-- <descr_text text_color="255,238,153,26" font="letterica18"/> -->
-	</boost_params_list>
+	<params_list x="5" y="0" width="235" height="0" always_show_scroll="0" left_ident="10" bottom_indent="2">
+	</params_list>
 	
 	<anm_use_time x="5" y="0" height="12" complex_mode="1">
 		<text text_color="255,238,153,26" valign="c"/>
 	</anm_use_time>
-
-	<armor_params_list x="5" y="0" width="235" height="0" always_show_scroll="0" left_ident="10" bottom_indent="2">
-		<text font="letterica16" color="UI_orange">st_armor_header</text>
-		<descr_text text_color="255,238,153,26" font="letterica16"/>
-	</armor_params_list>
 	
+    <loaded_ammo x="0" y="0" width="157" height="50">
+		<ammo_icon x="0" y="5" width="30" height="40" stretch="1">
+			<text font="letterica16" x="20" y="3"/>
+		</ammo_icon>
+	</loaded_ammo>	
+
     <power_params x="0" y="0" width="235" height="0" always_show_scroll="0" left_ident="10" bottom_indent="0">
 		<cap_power x="0" y="0" width="121" height="10">
 			<text font="letterica16" r="124" g="119" b="115"/>
@@ -207,17 +210,6 @@
 		</progress_reliability>
 	</knife_params>
 
-    <loaded_ammo x="0" y="0" width="157" height="50">
-		<ammo_icon x="0" y="5" width="30" height="40" stretch="1">
-			<text font="letterica16" x="20" y="3"/>
-		</ammo_icon>
-	</loaded_ammo>
-
-	<addons_list x="5" y="0" width="235" height="0" always_show_scroll="0" left_ident="10" bottom_indent="0">
-		<text font="letterica16" r="240" g="217" b="182">st_compatible_addon</text>
-		<!-- <descr_text text_color="255,238,153,26" font="letterica18"/> -->
-	</addons_list>
-
 	<scroll_view_loadout x="0" y="0" width="157" height="20" complex_mode="1" always_show_scroll="0" vert_interval="1" bottom_indent="2">
 		<text font="letterica16" color="UI_orange" align="l" vert_align="c">st_loadout_header</text>
 		<pistol_ammo_icon x="0" y="0" width="13" height="14" stretch="1">
@@ -254,16 +246,6 @@
 		</silencer_icon>		
 	</scroll_view_loadout>
 
-	<ammo_params_list x="5" y="0" width="235" height="0" always_show_scroll="0" left_ident="10" bottom_indent="2">
-		<text font="letterica16" color="UI_orange">st_ammo_header</text>
-		<!-- <descr_text text_color="255,238,153,26" font="letterica18"/> -->
-	</ammo_params_list>
-	
-	<addon_params_list x="5" y="0" width="235" height="0" always_show_scroll="0" left_ident="10" bottom_indent="2">
-		<text font="letterica16" color="UI_orange">st_addon_header</text>
-		<!-- <descr_text text_color="255,238,153,26" font="letterica18"/> -->
-	</addon_params_list>
-	
     <plate_params x="0" y="0" width="200" height="40">
 		<cap_plate x="0" y="0" width="200" height="8">
 			<text font="letterica16" r="124" g="119" b="115"/>
@@ -279,30 +261,5 @@
 				<texture a="100" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_16</texture>
 			</background>
 		</progress_condition>
-	</plate_params>
-
-	<plate_list x="5" y="0" width="235" height="0" always_show_scroll="0" left_ident="10" bottom_indent="0">
-		<text font="letterica16" color="UI_orange">st_compatible_plate</text>
-		<!-- <descr_text text_color="255,238,153,26" font="letterica18"/> -->
-	</plate_list>
-
-	<belt_params_list x="5" y="0" width="235" height="0" always_show_scroll="0" left_ident="10" bottom_indent="2">
-		<!-- <text font="letterica16" color="UI_orange">st_belt_header</text> -->
-		<descr_text text_color="255,238,153,26" font="letterica18"/>
-	</belt_params_list>
-	
-	<pda_data_list x="5" y="0" width="235" height="0" always_show_scroll="0" left_ident="10" bottom_indent="2">
-		<text font="letterica16" color="UI_orange">st_pda_owner</text>
-		<!-- <descr_text text_color="255,238,153,26" font="letterica18"/> -->
-	</pda_data_list>
-	
-	<repair_params_list x="5" y="0" width="235" height="0" always_show_scroll="0" left_ident="10" bottom_indent="2">
-		<text font="letterica16" color="UI_orange">st_repair_header</text>
-		<descr_text text_color="255,238,153,26" font="letterica18"/>
-	</repair_params_list>
-	
-	<loot_spawn_box_params_list x="5" y="0" width="235" height="0" always_show_scroll="0" left_ident="10" bottom_indent="2">
-		<text font="letterica16" color="UI_orange">st_loot_spawn_box_header</text>
-		<!-- <descr_text text_color="255,238,153,26" font="letterica18"/> -->
-	</loot_spawn_box_params_list>	
+	</plate_params>	
 </w>

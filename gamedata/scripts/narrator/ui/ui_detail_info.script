@@ -1,6 +1,6 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 local overlay = nil
-local OVERLAY_XML = "script_overlays\\ui_detail_info.xml"
+local OVERLAY_XML = "script_overlays\\ui_item_info.xml"
 
 function show_hide_wnd(item)
 	if not overlay then
@@ -114,7 +114,7 @@ function UIDetailInfo:SetItem(item)
 	end
 	
 	self.descr_list:Clear()
-	ogse_signals.get_mgr():call("on_item_info_init", self.descr_list, item)
+	ogse_signals.get_mgr():call("on_item_info_init", self.descr_list, item, self.xml)
 	local text = read_if_exists(sys_ini, "string", item:section(), "description", nil)
 	if text then
 		text = game.translate_string(text)

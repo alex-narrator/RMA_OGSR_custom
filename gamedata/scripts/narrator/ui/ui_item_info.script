@@ -78,6 +78,8 @@ function UIItemInfo:InitControls()
 	self.background_frame = self.xml:InitFrame("background_frame", self)
 	self.background_frame:Show(false)
 	
+	self.xml:InitAutoStaticGroup("w:background_frame:auto_static", self.background_frame)
+	
 	local tmp_tbl, def_font, def_color = nil, "letterica16", "255, 255, 255, 255"
 	
 	tmp_tbl = split_string(self.xml:ReadAttrib("background_frame", "offset", "0,0"), ",")
@@ -151,7 +153,7 @@ function UIItemInfo:InitItemInfo()
 	end
 	
 	self.descr_list:Clear()
-	ogse_signals.get_mgr():call("on_item_info_init", self.descr_list, item)
+	ogse_signals.get_mgr():call("on_item_info_init", self.descr_list, item, self.xml)
 	text = get_inv_descr(sect)
 	if text then
 		self.descr_text = CUIStatic()
@@ -201,80 +203,95 @@ function UIItemInfo:Update()
 end	
 ------------------------------------------ADDITIONAL WINDOWS-----------------------------------------------------------------------------------------------------------------
 
-function add_custom_info(UIDesc, obj)
+function add_custom_info(UIDesc, obj, xml)
 
-	attach_condition_params(UIDesc, obj)
+	local function create_divider(show)
+		if not show then
+		return end
+		local divider = xml:InitStatic("divider_line", UIDesc)
+		divider:SetWidth(UIDesc:GetDesiredChildWidth())		
+	end
+
+	create_divider(attach_condition_params(UIDesc, obj, xml))
 	
 	if vest_plates.can_detach_plate(obj) then
-		attach_plate_condition(UIDesc, obj)
+		create_divider(attach_plate_condition(UIDesc, obj, xml))
 	end	
 	
-	attach_effect_params(UIDesc, obj)
+	create_divider(attach_effect_params(UIDesc, obj, xml))
 	
-	attach_protection_params(UIDesc, obj)
+	create_divider(attach_protection_params(UIDesc, obj, xml))
 	
-	attach_armor_params(UIDesc, obj)
+	create_divider(attach_armor_params(UIDesc, obj, xml))
 	
-	attach_addon_params(UIDesc, obj)
+	create_divider(attach_addon_params(UIDesc, obj, xml))
 	
-	attach_belt_params(UIDesc, obj)
+	create_divider(attach_belt_params(UIDesc, obj, xml))
 	
-	attach_repair_params(UIDesc, obj)
+	create_divider(attach_repair_params(UIDesc, obj, xml))
 	
 	if obj:is_eatable_item() then
-		attach_eatable_params(UIDesc, obj)
-		attach_booster_params(UIDesc, obj)
-		attach_anm_use_params(UIDesc, obj)
+		create_divider(attach_eatable_params(UIDesc, obj, xml))
+		create_divider(attach_booster_params(UIDesc, obj, xml))
+		create_divider(attach_anm_use_params(UIDesc, obj, xml))
 	end
 	if is_power_device(obj) then
-		attach_power_params(UIDesc, obj)
+		create_divider(attach_power_params(UIDesc, obj, xml))
 	end
 	--if obj:get_pda() then
 	if is_pda_hackable(obj) then
-		attach_pda_owner_info(UIDesc, obj)
+		create_divider(attach_pda_owner_info(UIDesc, obj, xml))
 	end	
 	if obj:is_weapon() then
 		if obj:is_knife() then
-			atach_knife_params(UIDesc, obj)
+			create_divider(atach_knife_params(UIDesc, obj, xml))
 		else
-			atach_wpn_params(UIDesc, obj)
+			create_divider(atach_wpn_params(UIDesc, obj, xml))
 		end
 	end
 	if obj:is_weapon_magazined() then
-		attach_loaded_ammo(UIDesc, obj)
-		attach_weapon_addons(UIDesc, obj)
+		create_divider(attach_loaded_ammo(UIDesc, obj, xml))
+		create_divider(attach_weapon_addons(UIDesc, obj, xml))
 	end
 	if loadout.is_module(obj) then
-		attach_loadout_slots(UIDesc, obj)
+		create_divider(attach_loadout_slots(UIDesc, obj, xml))
 	end
 	if obj:get_weapon_ammo() then
 		if obj:get_weapon_ammo():is_magazine() then
-			attach_magazin_ammo(UIDesc, obj)
+			create_divider(attach_magazin_ammo(UIDesc, obj, xml))
 		else
-			attach_ammo_params(UIDesc, obj)
+			create_divider(attach_ammo_params(UIDesc, obj, xml))
 		end
 	end
 	if is_plate_carrier(obj) then
-		attach_armor_plates(UIDesc, obj)
+		create_divider(attach_armor_plates(UIDesc, obj, xml))
 	end
 	if loot_spawn_box.is_spawn_loot_box(obj) then
-		attach_loot_spawn_box(UIDesc, obj)
+		create_divider(attach_loot_spawn_box(UIDesc, obj, xml))
 	end
 end
 
+function attach_header(tbl, text, params_list)
+	tbl.header = CUIStatic()
+	tbl.header:SetWidth(params_list:GetDesiredChildWidth())
+	tbl.header:SetTextComplexMode(true)
+	tbl.header:SetText(string.format("%s%s", "%c[UI_orange]", game.translate_string(text)))
+	tbl.header:AdjustHeightToText()
+	params_list:AddWindow(tbl.header)
+end
+
 ------------------------------------------ITEM CONDITION WND-----------------------------------------------------------------------------------------------------------------
-function attach_condition_params(UIDesc, obj)
+function attach_condition_params(UIDesc, obj, xml)
 	local condition = obj:condition()
 	
 	local show_cond = condition < 1 or read_if_exists(sys_ini, "bool", obj:section(), "use_condition", false)
 	if not show_cond then
 	return end
 	
-	local xml = CScriptXmlInit()
-	xml:ParseFile(OVERLAY_XML)
 	local condition_params = xml:InitStatic("condition_params", UIDesc)
 	local condition_progress = xml:InitProgressBar("condition_params:condition_progress", condition_params)
 	condition_progress:SetProgressPos(condition)
+	return true
 end
 
 ------------------------------------------EFFECT PARAMS WND-----------------------------------------------------------------------------------------------------------------
@@ -292,16 +309,15 @@ local effect_params = {
 	{st_name = "additional_weight", 		param_name = "ui_inv_weight"},
 }
 local effect_st = {}
-function attach_effect_params(UIDesc, item)
+function attach_effect_params(UIDesc, item, xml)
 	local inv_item = item:get_inventory_item()
 	local val, sn, text, color
 	local show = false
 	
-	local xml = CScriptXmlInit()
-	xml:ParseFile(OVERLAY_XML)
-
 	effect_st = {}
-	local params_list = xml:InitScrollView("effect_params_list", UIDesc)
+	local params_list = xml:InitScrollView("params_list", UIDesc)
+	attach_header(effect_st, "st_effects_header", params_list)
+
 	for k,v in ipairs(effect_params) do
 		val = inv_item:item_effect(k-1)
 		if val ~= 0 then
@@ -354,7 +370,8 @@ function attach_effect_params(UIDesc, item)
 	params_list:SetHeight(params_list:GetPadSize().y)
 	if not show then
 		params_list:Show(false)
-	end	
+	end
+	return show
 end
 
 ------------------------------------------PROTECTION PARAMS WND-----------------------------------------------------------------------------------------------------------------
@@ -370,16 +387,15 @@ local protection_params = {
 	{st_name = "fire_wound_immunity", 		param_name = "ui_inv_fire_wound_protection"},
 }
 local protection_st = {}
-function attach_protection_params(UIDesc, item)
+function attach_protection_params(UIDesc, item, xml)
 	local inv_item = item:get_inventory_item()
 	local val, sn, text, color
 	local show = false
-	
-	local xml = CScriptXmlInit()
-	xml:ParseFile(OVERLAY_XML)
 
 	protection_st = {}
-	local params_list = xml:InitScrollView("protection_params_list", UIDesc)
+	local params_list = xml:InitScrollView("params_list", UIDesc)
+	attach_header(protection_st, "st_protection_header", params_list)
+
 	for k,v in ipairs(protection_params) do
 		val = inv_item:hit_type_protection(k-1)
 		if val ~= 0 then
@@ -400,7 +416,8 @@ function attach_protection_params(UIDesc, item)
 	params_list:SetHeight(params_list:GetPadSize().y)
 	if not show then
 		params_list:Show(false)
-	end	
+	end
+	return show
 end
 
 ------------------------------------------EATABLE PARAMS WND-----------------------------------------------------------------------------------------------------------------
@@ -416,16 +433,15 @@ local eatable_params = {
 	{st_name = "somnolence", 	param_name = "ui_inv_somnolence"},
 }
 local eatable_st = {}
-function attach_eatable_params(UIDesc, item)
+function attach_eatable_params(UIDesc, item, xml)
 	local eatable = item:get_eatable_item()
 	local val, sn, text, color
 	local show = false
-	
-	local xml = CScriptXmlInit()
-	xml:ParseFile(OVERLAY_XML)
 
 	eatable_st = {}
-	local params_list = xml:InitScrollView("eatable_params_list", UIDesc)
+	local params_list = xml:InitScrollView("params_list", UIDesc)
+	attach_header(eatable_st, "st_influence_header", params_list)
+
 	for k,v in ipairs(eatable_params) do
 		val = v.st_name == "somnolence" and somnolence.get_influence(item) or eatable:influence(k-1)
 		if val ~= 0 then
@@ -448,7 +464,8 @@ function attach_eatable_params(UIDesc, item)
 	params_list:SetHeight(params_list:GetPadSize().y)
 	if not show then
 		params_list:Show(false)
-	end	
+	end
+	return show
 end
 
 ------------------------------------------BOOSTER PARAMS WND-----------------------------------------------------------------------------------------------------------------
@@ -478,17 +495,16 @@ local boost_params = {
 	{st_name = "boost_time", 			param_name = "ui_inv_boost_time"},
 }
 local boost_st = {}
-function attach_booster_params(UIDesc, item)
+function attach_booster_params(UIDesc, item, xml)
 	local eatable = item:get_eatable_item()
 	local sect = item:section()
 	local val, sn, text, color
 	local show = false
 	
-	local xml = CScriptXmlInit()
-	xml:ParseFile(OVERLAY_XML)
-	
 	boost_st = {}
-	local params_list = xml:InitScrollView("boost_params_list", UIDesc)
+	local params_list = xml:InitScrollView("params_list", UIDesc)
+	attach_header(boost_st, "st_boost_header", params_list)
+
 	for k,v in ipairs(boost_params) do
 		-- if v.st_name == "somnolence" then
 			-- val = somnolence.get_boost(item)
@@ -540,10 +556,11 @@ function attach_booster_params(UIDesc, item)
 	params_list:SetHeight(params_list:GetPadSize().y)
 	if not show then
 		params_list:Show(false)
-	end		
+	end
+	return show
 end
 
-function attach_anm_use_params(UIDesc, item)
+function attach_anm_use_params(UIDesc, item, xml)
 	local hud_sect = get_hud_sect(item)
 	if not hud_sect then
 	return end
@@ -553,13 +570,12 @@ function attach_anm_use_params(UIDesc, item)
 	
 	local use_delay = read_if_exists(sys_ini, "float", hud_sect, "use_delay", anm_length * 0.001)
 	
-	local xml = CScriptXmlInit()
-	xml:ParseFile(OVERLAY_XML)
 	local static = xml:InitStatic("anm_use_time", UIDesc)
 	local text = string.format("%s %s %s%.1f %s", game.translate_string("st_list_mark"), game.translate_string("st_anm_use_time"), "%c[UI_orange]", use_delay, game.translate_string("st_time_second"))
 	static:SetText(text)
 	--static:AdjustHeightToText()
 	static:AdjustWidthToText()
+	return true
 end
 
 ------------------------------------------ARMOR WND-------------------------------------------------------------------------------------------------------------------
@@ -582,7 +598,7 @@ local armor_params = {
 	{bone = "bip01_l_toe0", 	param_name = "st_armor_toe"},
 }
 local armor_st = {}
-function attach_armor_params(UIDesc, item)
+function attach_armor_params(UIDesc, item, xml)
 	local bones_protect_sect = item:get_inventory_item().bone_protection_sect
 	if not bones_protect_sect or item:condition() == 0 then
 	return end
@@ -590,15 +606,12 @@ function attach_armor_params(UIDesc, item)
 	local val, sn, text, tmp_tbl, bone_protect_str
 	local show = false
 	
-	local xml = CScriptXmlInit()
-	xml:ParseFile(OVERLAY_XML)
-	
-	local font = xml:ReadAttrib("armor_params_list:descr_text", "font", "letterica16")
-	
 	armor_st = {}
 	local armored_bones = {}
 	sn = game.translate_string("st_armor_class")
-	local params_list = xml:InitScrollView("armor_params_list", UIDesc)
+	local params_list = xml:InitScrollView("params_list", UIDesc)
+	attach_header(armor_st, "st_armor_header", params_list)
+
 	for k,v in ipairs(armor_params) do
 		bone_protect_str = read_if_exists(sys_ini, "string", bones_protect_sect, v.bone, nil)
 		if bone_protect_str then
@@ -625,7 +638,7 @@ function attach_armor_params(UIDesc, item)
 		armor_st[armor_class]:SetWidth(params_list:GetDesiredChildWidth())
 		armor_st[armor_class]:SetText(text)
 		armor_st[armor_class]:SetTextComplexMode(true)		
-		armor_st[armor_class]:SetFont(GetFontCustom(font))
+		--armor_st[armor_class]:SetFont(GetFontCustom(font))
 		armor_st[armor_class]:AdjustHeightToText()
 		params_list:AddWindow(armor_st[armor_class])
 		show = true		
@@ -639,7 +652,7 @@ function attach_armor_params(UIDesc, item)
 		text = string.format("%s %s%.0f%s %s%s", game.translate_string("st_list_mark"),"%c[UI_orange]", val * 100, game.translate_string("st_percent"), "%c[default]", game.translate_string("st_armor_hit_fraction"))
 		armor_st["hit_fraction"]:SetText(text)
 		armor_st["hit_fraction"]:SetTextComplexMode(true)	
-		armor_st["hit_fraction"]:SetFont(GetFontCustom(font))
+		--armor_st["hit_fraction"]:SetFont(GetFontCustom(font))
 		armor_st["hit_fraction"]:AdjustHeightToText()
 		params_list:AddWindow(armor_st["hit_fraction"])
 	end
@@ -647,14 +660,14 @@ function attach_armor_params(UIDesc, item)
 	params_list:SetHeight(params_list:GetPadSize().y)
 	if not show then
 		params_list:Show(false)
-	end	
+	end
+	return show
 end
 
 ------------------------------------------BATTERY POWER WND-----------------------------------------------------------------------------------------------------------------
-function attach_power_params(UIDesc, obj)
+function attach_power_params(UIDesc, obj, xml)
 	local bind_obj = obj:binded_object()
-	local xml = CScriptXmlInit()
-	xml:ParseFile(OVERLAY_XML)
+
 	local power_params = xml:InitScrollView("power_params", UIDesc)--xml:InitStatic("power_params", UIDesc)
 	
 	if not read_if_exists(sys_ini, "bool", obj:section(), "condition_as_power", false) then
@@ -676,15 +689,15 @@ function attach_power_params(UIDesc, obj)
 	cap_work_time:AdjustHeightToText()
 	
 	power_params:SetHeight(power_params:GetPadSize().y)
+	
+	return true
 end
 
 ------------------------------------------WEAPON PARAMS WND-----------------------------------------------------------------------------------------------------------------
-function atach_wpn_params(UIDesc, obj)
+function atach_wpn_params(UIDesc, obj, xml)
 	if not read_if_exists(sys_ini, "bool", obj:section(), "show_wpn_properties", true) then
 	return end
 	
-	local xml = CScriptXmlInit()
-	xml:ParseFile(OVERLAY_XML)
 	local name = "wpn_params"
 	local main = xml:InitStatic(name, UIDesc)
 	
@@ -694,7 +707,7 @@ function atach_wpn_params(UIDesc, obj)
 	local cap_rpm 			= xml:InitStatic(name..":cap_rpm", main)
 	local cap_range 		= xml:InitStatic(name..":cap_range", main)
 	local cap_reliability 	= xml:InitStatic(name..":cap_reliability", main)
-		
+
 	local progress_dispersion 	= xml:InitProgressBar(name..":progress_dispersion", main)
 	local progress_damage 		= xml:InitProgressBar(name..":progress_damage", main)
 	local progress_speed 		= xml:InitProgressBar(name..":progress_speed", main)
@@ -723,23 +736,23 @@ function atach_wpn_params(UIDesc, obj)
 	progress_rpm:SetProgressPos(params.GetRPM(obj))
 	progress_range:SetProgressPos(params.GetRange(obj))
 	progress_reliability:SetProgressPos(params.GetReliability(obj))
+	
+	return true
 end
 
 ------------------------------------------KNIFE PARAMS WND-----------------------------------------------------------------------------------------------------------------
-function atach_knife_params(UIDesc, obj)
+function atach_knife_params(UIDesc, obj, xml)
 	if not read_if_exists(sys_ini, "bool", obj:section(), "show_wpn_properties", true) then
 	return end
 	
-	local xml = CScriptXmlInit()
 	local name = "knife_params"
-	xml:ParseFile(OVERLAY_XML)
 	local main = xml:InitStatic(name, UIDesc)
 	
 	local cap_damage 		= xml:InitStatic(name..":cap_damage", main)
 	local cap_damage_2 		= xml:InitStatic(name..":cap_damage_2", main)
 	local cap_range 		= xml:InitStatic(name..":cap_range", main)
 	local cap_reliability 	= xml:InitStatic(name..":cap_reliability", main)
-		
+
 	local progress_damage 		= xml:InitProgressBar(name..":progress_damage", main)
 	local progress_damage_2 	= xml:InitProgressBar(name..":progress_damage_2", main)
 	local progress_range 		= xml:InitProgressBar(name..":progress_range", main)
@@ -760,11 +773,13 @@ function atach_knife_params(UIDesc, obj)
 	progress_damage_2:SetProgressPos(params.GetDamage(obj))
 	progress_range:SetProgressPos(params.GetRange(obj))
 	progress_reliability:SetProgressPos(params.GetReliability(obj))
+	
+	return true
 end
 
 ------------------------------------------LOADED WEAPON AMMO WND-----------------------------------------------------------------------------------------------------------------
 local pos_x
-function attach_loaded_ammo(UIDesc, obj)
+function attach_loaded_ammo(UIDesc, obj, xml)
 	local wpn = obj:get_weapon_m()
 	local show_ammo = obj:get_ammo_in_magazine() > 0
 	local show_mag = wpn:addon_attachable(addon.magazine) and wpn:is_addon_attached(addon.magazine)
@@ -778,8 +793,6 @@ function attach_loaded_ammo(UIDesc, obj)
 
 	pos_x = 0
 	
-	local xml = CScriptXmlInit()
-	xml:ParseFile(OVERLAY_XML)
 	local main = xml:InitStatic("loaded_ammo", UIDesc)
 	
 	local ammo_s = {}
@@ -796,24 +809,26 @@ function attach_loaded_ammo(UIDesc, obj)
 	end
 	if show_ammo2 then
 		set_ammo_icon(ammo_s[3], get_cur_ammo2_sect(obj))
-	end	
+	end
+	
+	return true
 end
 
 function set_ammo_icon(icon, sect)
 	local params = CIconParams(sect)
 	--params:set_shader(icon)
 	SetCellIcon(icon, params)
-		
+
 	local width_k = params.grid_width/CELL_W
 	local height_k = params.grid_height/CELL_H
 	local width = icon:GetWidth() * params.grid_width
 	local height = icon:GetHeight() * params.grid_height
-		
+
 	if params.grid_height > 1 then --//пропорційно зменшимо іконку з висотою > 1 клітинки
 		width = width / params.grid_height
 		height = height / params.grid_height
 	end
-		
+
 	icon:SetWidth(width)
 	icon:SetHeight(height)
 
@@ -826,13 +841,11 @@ end
 
 ------------------------------------------LOADED WEAPON AMMO WND-----------------------------------------------------------------------------------------------------------------
 
-function attach_magazin_ammo(UIDesc, obj)
+function attach_magazin_ammo(UIDesc, obj, xml)
 	local ammo = obj:get_weapon_ammo()
 	if ammo.box_curr == 0 then
 	return end
 	
-	local xml = CScriptXmlInit()
-	xml:ParseFile(OVERLAY_XML)
 	local main = xml:InitStatic("loaded_ammo", UIDesc)
 	local ammo_icon = xml:InitStatic("loaded_ammo:ammo_icon", main)
 	
@@ -840,6 +853,8 @@ function attach_magazin_ammo(UIDesc, obj)
 	set_ammo_icon(ammo_icon, sect)
 	ammo_icon:SetText(game.translate_string(read_if_exists(sys_ini, "string", sect, "inv_name_short", get_inv_name(sect))))
 	ammo_icon:SetTextPos(ammo_icon:GetWidth(), ammo_icon:GetHeight()/2)
+	
+	return true
 end
 
 ------------------------------------------COMPATIBLE WEAPON ADDONS WND-----------------------------------------------------------------------------------------------------------------
@@ -856,20 +871,15 @@ local addon_type = {
 	"grenade"
 }
 local addons_st = {}
-function attach_weapon_addons(UIDesc, obj)
+function attach_weapon_addons(UIDesc, obj, xml)
 	if get_script_option_value("wpn_addon_ammo_wnd_separate") then
 	return end
 	
-	local xml = CScriptXmlInit()
-	xml:ParseFile(OVERLAY_XML)
+	addons_st = {}
 
-	local tmp_tbl, def_font, def_color = nil, "letterica16", "255, 255, 255, 255"
-
-	local addons_list = xml:InitScrollView("addons_list", UIDesc)
+	local params_list = xml:InitScrollView("params_list", UIDesc)
+	attach_header(addons_st, "st_compatible_addon", params_list)
 	
-	addons_list.font = xml:ReadAttrib("addons_list:descr_text", "font", def_font)
-	tmp_tbl = split_string(xml:ReadAttrib("addons_list:descr_text", "text_color", def_color), ",")
-	addons_list.text_color = GetARGB(tmp_tbl[1], tmp_tbl[2], tmp_tbl[3], tmp_tbl[4])
 	local addon_text_st = nil
 
 	local show = false
@@ -877,7 +887,7 @@ function attach_weapon_addons(UIDesc, obj)
 	local addon_str = nil
 	local addon_status = 0
 	local addons = {}
-	addons_st = {}
+
 	for i,addon in pairs(addon_type) do
 		addon_str = read_if_exists(sys_ini, "string", obj:section(), addon.."_name", nil)
 		addon_status = read_if_exists(sys_ini, "u32", obj:section(), addon.."_status", 0)
@@ -890,22 +900,23 @@ function attach_weapon_addons(UIDesc, obj)
 			for __,addon_sect in pairs(addons) do
 				addons_st[addon_sect] = CUIStatic()
 				local _st = addons_st[addon_sect]
-				_st:SetWidth(addons_list:GetDesiredChildWidth())
+				_st:SetWidth(params_list:GetDesiredChildWidth())
 				addons_txt = string.format("%s %s", game.translate_string("st_list_mark"), get_inv_name(addon_sect))
 				_st:SetText(addons_txt)
 				_st:SetTextComplexMode(true)
-				_st:SetTextColor(addons_list.text_color)
-				_st:SetFont(GetFontCustom(addons_list.font))
+				--_st:SetTextColor(params_list.text_color)
+				--_st:SetFont(GetFontCustom(params_list.font))
 				_st:AdjustHeightToText()
-				addons_list:AddWindow(_st)
+				params_list:AddWindow(_st)
 				show = true
 			end
 		end
 	end
-	addons_list:SetHeight(addons_list:GetPadSize().y)
+	params_list:SetHeight(params_list:GetPadSize().y)
 	if not show then
-		addons_list:Show(false)
+		params_list:Show(false)
 	end
+	return show
 end
 
 ------------------------------------------ADDITIONAL LOADOUT SLOTS WND-----------------------------------------------------------------------------------------------------------------
@@ -919,9 +930,7 @@ local loadout_slots = {
 		"scope",
 		"silencer",
 	}
-function attach_loadout_slots(UIDesc, item)
-	local xml = CScriptXmlInit()
-	xml:ParseFile(OVERLAY_XML)
+function attach_loadout_slots(UIDesc, item, xml)
 	local slots_scroll_view = xml:InitScrollView("scroll_view_loadout", UIDesc)
 	local sect = item:section()
 	local count, icon, text
@@ -935,6 +944,7 @@ function attach_loadout_slots(UIDesc, item)
 		end
 	end
 	slots_scroll_view:SetHeight(slots_scroll_view:GetPadSize().y)
+	return true
 end
 
 -----------------------------------------------------AMMO PARAMS------------------------------------------------------------------------------------------------------------------------
@@ -950,11 +960,11 @@ local ammo_params = {
 		{name = "buck_shot", 		unit = "", 						default = 1, is_int = true, invert = false},		
 		{name = "k_ap", 			unit = "st_armor_class", 		default = 0, is_int = true, invert = false},		
 	}
-function attach_ammo_params(UIDesc, item)
-	local xml = CScriptXmlInit()
-	xml:ParseFile(OVERLAY_XML)
+function attach_ammo_params(UIDesc, item, xml)
 	local show = false
-	local params_list = xml:InitScrollView("ammo_params_list", UIDesc)
+	local params_list = xml:InitScrollView("params_list", UIDesc)
+	attach_header(ammo_params, "st_ammo_header", params_list)
+
 	local sect = item:section()
 	local val, static, text, color
 	for k,v in ipairs(ammo_params) do
@@ -980,7 +990,8 @@ function attach_ammo_params(UIDesc, item)
 	params_list:SetHeight(params_list:GetPadSize().y)
 	if not show then
 		params_list:Show(false)
-	end	
+	end
+	return show
 end
 
 -----------------------------------------------------ADDON PARAMS------------------------------------------------------------------------------------------------------------------------
@@ -992,11 +1003,11 @@ local addon_params = {
 		{name = "condition_shot_dec_silencer", 	unit = "%", default = 0, invert = true},
 		{name = "zoom_rotate_time_k", 			unit = "%", default = 0, invert = false, multiplier = -1},
 	}
-function attach_addon_params(UIDesc, item)
-	local xml = CScriptXmlInit()
-	xml:ParseFile(OVERLAY_XML)
+function attach_addon_params(UIDesc, item, xml)
 	local show = false
-	local params_list = xml:InitScrollView("addon_params_list", UIDesc)
+	local params_list = xml:InitScrollView("params_list", UIDesc)
+	attach_header(addon_params, "st_addon_header", params_list)
+	
 	local sect = item:section()
 	local val, text, color
 	for k,v in ipairs(addon_params) do
@@ -1025,14 +1036,14 @@ function attach_addon_params(UIDesc, item)
 	params_list:SetHeight(params_list:GetPadSize().y)
 	if not show then
 		params_list:Show(false)
-	end	
+	end
+	return show
 end
 
 ------------------------------------------VEST ARMOR PLATE WND-----------------------------------------------------------------------------------------------------------------
-function attach_plate_condition(UIDesc, obj)
+function attach_plate_condition(UIDesc, obj, xml)
 	local bind_obj = obj:binded_object()
-	local xml = CScriptXmlInit()
-	xml:ParseFile(OVERLAY_XML)
+	
 	local plate_params = xml:InitStatic("plate_params", UIDesc)
 	
 	local cap_plate = xml:InitStatic("plate_params:cap_plate", plate_params)
@@ -1042,52 +1053,45 @@ function attach_plate_condition(UIDesc, obj)
 	
 	local condition_progress = xml:InitProgressBar("plate_params:progress_condition", plate_params)
 	condition_progress:SetProgressPos(bind_obj:get_plate_condition())
+	return true
 end
 
 ------------------------------------------COMPATIBLE ARMOR PLATES WND-----------------------------------------------------------------------------------------------------------------
 local plates = {}
-function attach_armor_plates(UIDesc, obj)
+function attach_armor_plates(UIDesc, obj, xml)
 	if not obj:binded_object() then
 	return end
-	
-	local xml = CScriptXmlInit()
-	xml:ParseFile(OVERLAY_XML)
-
-	local tmp_tbl, def_font, def_color = nil, "letterica16", "255, 255, 255, 255"
-
-	local plate_list = xml:InitScrollView("plate_list", UIDesc)
-	
-	plate_list.font = xml:ReadAttrib("plate_list:descr_text", "font", def_font)
-	tmp_tbl = split_string(xml:ReadAttrib("plate_list:descr_text", "text_color", def_color), ",")
-	plate_list.text_color = GetARGB(tmp_tbl[1], tmp_tbl[2], tmp_tbl[3], tmp_tbl[4])
 
 	plates = obj:binded_object():get_plates()
+
+	local params_list = xml:InitScrollView("params_list", UIDesc)
+	attach_header(plates, "st_compatible_plate", params_list)
 
 	local text
 	for k,v in pairs(plates) do
 		v.st = CUIStatic()
 		local _st = v.st
-		_st:SetWidth(plate_list:GetDesiredChildWidth())
+		_st:SetWidth(params_list:GetDesiredChildWidth())
 		text = string.format("%s %s", game.translate_string("st_list_mark"), get_inv_name(v.section))
 		_st:SetText(text)
 		_st:SetTextComplexMode(true)
-		_st:SetTextColor(plate_list.text_color)
-		_st:SetFont(GetFontCustom(plate_list.font))
+		-- _st:SetTextColor(params_list.text_color)
+		-- _st:SetFont(GetFontCustom(params_list.font))
 		_st:AdjustHeightToText()
-		plate_list:AddWindow(_st)
+		params_list:AddWindow(_st)
 	end
-	plate_list:SetHeight(plate_list:GetPadSize().y)
+	params_list:SetHeight(params_list:GetPadSize().y)
+	return true
 end
 
 -----------------------------------------------------BELT SLOTS PARAMS-----------------------------------------------------------------------------------------------------------
 local belt_slots_st
-function attach_belt_params(UIDesc, item)
+function attach_belt_params(UIDesc, item, xml)
 	local belt_size = read_if_exists(sys_ini, "u32", item:section(), "belt_size", 0)
 	if belt_size <= 0 then return end
 	
-	local xml = CScriptXmlInit()
-	xml:ParseFile(OVERLAY_XML)
-	local params_list = xml:InitScrollView("belt_params_list", UIDesc)
+	local params_list = xml:InitScrollView("params_list", UIDesc)
+
 	belt_slots_st = CUIStatic()
 	belt_slots_st:SetTextComplexMode(true)
 	belt_slots_st:SetWidth(params_list:GetDesiredChildWidth())
@@ -1097,12 +1101,13 @@ function attach_belt_params(UIDesc, item)
 	belt_slots_st:AdjustHeightToText()
 	params_list:AddWindow(belt_slots_st)
 	params_list:SetHeight(params_list:GetPadSize().y)
+	return true
 end
 
 
 -----------------------------------------------------PDA OWNER INFO------------------------------------------------------------------------------------------------------------------------
 local ui_owner_data = {}
-function attach_pda_owner_info(UIDesc, item)
+function attach_pda_owner_info(UIDesc, item, xml)
 	local se_obj = alife():object(item:id())
 	
 	local owner_data = se_obj.owner_data
@@ -1115,40 +1120,38 @@ function attach_pda_owner_info(UIDesc, item)
 	-- if is_actors_pda(item) then
 		-- pda.fill_owner_info(item:id())
 	-- end
-	
-	local xml = CScriptXmlInit()
-	xml:ParseFile(OVERLAY_XML)
 
-	local data_list = xml:InitScrollView("pda_data_list", UIDesc)
+	local params_list = xml:InitScrollView("params_list", UIDesc)
+	attach_header(ui_owner_data, "st_pda_owner", params_list)
 
 	local color = "%c[UI_orange]"
 	
 	local name_st = CUIStatic()
 	ui_owner_data.name_st = name_st
 	name_st:SetTextComplexMode(true)
-	name_st:SetWidth(data_list:GetDesiredChildWidth())
+	name_st:SetWidth(params_list:GetDesiredChildWidth())
 	local text = string.format("%s %s: %s%s", game.translate_string("st_list_mark"), game.translate_string("ui_st_name"), color, game.translate_string(owner_data.name))
 	name_st:SetText(text)
 	name_st:AdjustHeightToText()
-	data_list:AddWindow(name_st)
+	params_list:AddWindow(name_st)
 	
 	local comm_st = CUIStatic()
 	ui_owner_data.comm_st = comm_st
 	comm_st:SetTextComplexMode(true)
-	comm_st:SetWidth(data_list:GetDesiredChildWidth())
+	comm_st:SetWidth(params_list:GetDesiredChildWidth())
 	text = string.format("%s %s: %s%s", game.translate_string("st_list_mark"), game.translate_string("ui_st_community"), color, game.translate_string(owner_data.comm))
 	comm_st:SetText(text)
 	comm_st:AdjustHeightToText()
-	data_list:AddWindow(comm_st)
+	params_list:AddWindow(comm_st)
 	
 	local rank_st = CUIStatic()
 	ui_owner_data.rank_st = rank_st
 	rank_st:SetTextComplexMode(true)
-	rank_st:SetWidth(data_list:GetDesiredChildWidth())
+	rank_st:SetWidth(params_list:GetDesiredChildWidth())
 	text = string.format("%s %s: %s%s", game.translate_string("st_list_mark"), game.translate_string("ui_st_rank"), color, game.translate_string(ranks.get_val_rank_name(owner_data.rank)))
 	rank_st:SetText(text)
 	rank_st:AdjustHeightToText()
-	data_list:AddWindow(rank_st)
+	params_list:AddWindow(rank_st)
 	
 	local lock_st = CUIStatic()
 	ui_owner_data.lock_st = lock_st
@@ -1164,13 +1167,14 @@ function attach_pda_owner_info(UIDesc, item)
 		color = "%c[red]"
 	end
 	lock_st:SetTextComplexMode(true)
-	lock_st:SetWidth(data_list:GetDesiredChildWidth())
+	lock_st:SetWidth(params_list:GetDesiredChildWidth())
 	text = string.format("%s %s: %s%s", game.translate_string("st_list_mark"), game.translate_string("ui_st_lock_state"), color, game.translate_string(lock_text))
 	lock_st:SetText(text)
 	lock_st:AdjustHeightToText()
-	data_list:AddWindow(lock_st)	
+	params_list:AddWindow(lock_st)	
 	
-	data_list:SetHeight(data_list:GetPadSize().y)
+	params_list:SetHeight(params_list:GetPadSize().y)
+	return true
 end
 
 -----------------------------------------------------REPAIR PARAMS-----------------------------------------------------------------------------------------------------------
@@ -1183,14 +1187,13 @@ local repair_params = {
 		{name = "repair_type", 				prefix="", unit = "", default = "", _type = "string"},
 		{name = "repair_bonus", 			prefix="x", unit = "", default = 0, _type = "float"},
 	}
-function attach_repair_params(UIDesc, item)
+function attach_repair_params(UIDesc, item, xml)
 	local sect = item:section()
 	if read_if_exists(sys_ini, "float", sect, "service_condition_gain", 0) <= 0 and read_if_exists(sys_ini, "float", sect, "repair_bonus", 0) <= 0 then
 	return end
 	
-	local xml = CScriptXmlInit()
-	xml:ParseFile(OVERLAY_XML)
-	local params_list = xml:InitScrollView("repair_params_list", UIDesc)
+	local params_list = xml:InitScrollView("params_list", UIDesc)
+	attach_header(repair_params, "st_repair_header", params_list)
 	
 	for k,v in ipairs(repair_params) do
 		local val = read_if_exists(sys_ini, v._type, sect, v.name, v.default)
@@ -1210,21 +1213,23 @@ function attach_repair_params(UIDesc, item)
 			params_list:SetHeight(params_list:GetPadSize().y)
 		end
 	end
+	return true
 end
 
 -----------------------------------------------------LOOT SPAWN BOX PARAMS-----------------------------------------------------------------------------------------------------------
 local loot_spawn_box_st = {}
-function attach_loot_spawn_box(UIDesc, obj)
+function attach_loot_spawn_box(UIDesc, obj, xml)
 	local sect = obj:section()
 	local items_str = loot_spawn_box.get_spawn_items(sect)
 	if not items_str then
 	return end
 	
-	local xml = CScriptXmlInit()
-	xml:ParseFile(OVERLAY_XML)
-	local params_list = xml:InitScrollView("loot_spawn_box_params_list", UIDesc)
+	loot_spawn_box_st = {}	
+	
+	local params_list = xml:InitScrollView("params_list", UIDesc)
+	attach_header(loot_spawn_box_st, "st_loot_spawn_box_header", params_list)
+	
 	local spawn_items = parse_key_val_line(items_str, 1)
-	loot_spawn_box_st = {}
 	
 	for section,count in pairs(spawn_items) do
 		local static = CUIStatic()
@@ -1239,4 +1244,5 @@ function attach_loot_spawn_box(UIDesc, obj)
 		params_list:AddWindow(static)
 	end
 	params_list:SetHeight(params_list:GetPadSize().y)
+	return true
 end
