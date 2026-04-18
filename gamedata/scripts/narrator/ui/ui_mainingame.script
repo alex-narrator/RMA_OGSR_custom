@@ -10,6 +10,8 @@ local MOTION_TEXTURE_POSTFIX = "_warning"
 
 local pickup_info_radius = read_if_exists(sys_ini, "float", "actor", "pickup_info_radius", 3)
 
+local check_gear_sound = xr_sound.get_safe_sound_object([[interface\inv_check_gear]])
+
 _G.main_window = nil
 
 function get_target_tip_point(tgt)
@@ -1122,6 +1124,7 @@ function MainIngameOverlay:OnKeyPress(key, game_action)
 	if game_action == key_bindings.kCHECKGEAR and not SHOW_GEAR_INFO and not mir then
 		_G.SHOW_GEAR_INFO = true
 		self.gear_info_hide_time = time_global() + get_script_option_value("gear_info_ttl") * 1000
+		check_gear_sound:play(actor, 0, sound_object.s2d)
 	end
 	
 	if game_action == key_bindings.kHIDEHUD then

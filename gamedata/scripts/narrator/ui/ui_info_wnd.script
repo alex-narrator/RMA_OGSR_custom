@@ -1,6 +1,6 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 local overlay = nil
-local OVERLAY_XML = "script_overlays\\ui_info_wnd.xml"
+local OVERLAY_XML = "script_overlays\\ui_item_info.xml"
 
 function show_hide_wnd(text, header)
 	if not overlay then
@@ -74,10 +74,7 @@ function UICustomInfo:InitControls()
 	
 	local tmp_tbl, def_font, def_color = nil, "letterica16", "255, 255, 255, 255"
 	
-	self.base_height = self.xml:ReadAttribFlt("background_frame", "height", 0)
-	if self.base_height > 0 then
-		self.background_frame:SetHeight(self.base_height)
-	end
+	self.base_height = self.background_frame:GetHeight()
 	
 	self.name_st = self.xml:InitStatic("background_frame:static_name", self.background_frame)
 	
@@ -110,6 +107,7 @@ function UICustomInfo:SetInfoText(text, header)
 
 	self.info_list:SetHeight(self.info_list:GetPadSize().y)
 	self.background_frame:SetHeight(self.base_height + self.info_list:GetHeight())
+	log_news("background_frame height %s", self.background_frame:GetHeight())
 	
 	local offset = ui_inv_utils.GetOffset("center", self.background_frame, self)
 	self.background_frame:SetWndPos(offset.x, offset.y)	
