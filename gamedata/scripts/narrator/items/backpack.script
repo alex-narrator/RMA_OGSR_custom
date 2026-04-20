@@ -133,22 +133,17 @@ function play_anim(state)
 	idle_playing = (state == 3)
 end
 
-function skip_state()
-	return actor_obj:is_actor_climb() or actor_obj:is_actor_climbing() or 
-			actor_obj:is_actor_crouch() or actor_obj:is_actor_crouching() or 
-			actor_obj:is_actor_creep() or actor_obj:is_actor_creeping()
-end
-
 function force_crouch(enable)
 	if enable then
-		saved_state = not skip_state() and actor_obj:get_state_wishful() or nil
+		saved_state = not IsMoveState(move_command.mcCrouch)
 		if saved_state then
-			actor_obj:set_state_wishful(move_command.mcCrouch)
+			SetMoveState(move_command.mcCrouch, true)
 		end
 	else
 		if saved_state then
-			actor_obj:set_state_wishful(saved_state)
+			SetMoveState(move_command.mcCrouch, false)
 		end
+		saved_state = false
 	end
 end
 

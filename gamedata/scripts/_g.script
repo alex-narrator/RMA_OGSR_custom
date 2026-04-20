@@ -2688,8 +2688,8 @@ end
 
 function SetMoveState(state, enable)
 	local ws = actor_obj:get_state_wishful()
-	local desired_state = enable and state or bit_not(state)
-	actor_obj:set_state_wishful(bit_and(ws, desired_state))	
+	local desired_state = enable and bit_or(ws, state) or bit_and(ws, bit_not(state))
+	actor_obj:set_state_wishful(desired_state)	
 end
 
 function get_script_option_value(opt, get_default)
