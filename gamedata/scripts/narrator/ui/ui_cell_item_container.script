@@ -8,6 +8,10 @@ local grid_texture_highlight 		= "ui\\ui_grid_array_translucent"
 local grid_texture_locked 			= "ui\\ui_grid_array_locked"
 local TEXTURE_CELL_SIZE 			= 64
 
+--//використовувати округлення в автоматичному розрахунку розміру комірки cell_item
+--//налаштовувати конфіги UI може бути зручніше у цілих числах
+local round_cell_size 				= true
+
 class "UICellItemContainer" (CUIScriptWnd)
 
 function UICellItemContainer:__init(xml, path, owner) super()
@@ -103,8 +107,15 @@ function UICellItemContainer:InitControls()
 	self.ID = self.xml:ReadAttrib(self.path, "ID", "")
 	
 	self.cell_size = {}
-	self.cell_size.w = self.xml:ReadAttribInt(self.path, "cell_width", 30)
-	self.cell_size.h = self.xml:ReadAttribInt(self.path, "cell_height", 40)
+	local cell_size = self.xml:ReadAttribInt(self.path, "cell_size", 40)
+	self.cell_size.w = self.is_vertical and cell_size or cell_size * get_current_kx()
+	self.cell_size.h = self.is_vertical and cell_size * get_current_kx() or cell_size
+	if round_cell_size then
+		self.cell_size.w = math.round(self.cell_size.w)
+		self.cell_size.h = math.round(self.cell_size.h)
+	end
+	
+	log_news("~container %s | cell_size %s | cell_w %s | cell_h %s", self.ID, cell_size, self.cell_size.w, self.cell_size.h)
 	
 	self.rows = self.xml:ReadAttribInt(self.path, "rows_num", 1)
 	self.cols = self.xml:ReadAttribInt(self.path, "cols_num", 1)
