@@ -12,6 +12,7 @@ function attach(sm)
 	sm:subscribe({signal = "on_hud_state_switch", 			fun = this.on_state_switch})
 	sm:subscribe({signal = "on_actor_weapon_zoom_change", 	fun = this.on_zoom_change})
 	sm:subscribe({signal = "on_actor_weapon_fire_mode_change", 	fun = this.play_switch_anim})
+	sm:subscribe({signal = "on_actor_weapon_fire_mode_change", 	fun = this.play_firemode_anim})
 	sm:subscribe({signal = "on_actor_weapon_grenade_mode_change", 	fun = this.play_switch_anim})
 end
 
@@ -84,6 +85,21 @@ function play_switch_anim(item)
 	-- if hud_anim_exists(item, "anm_switch") then
 		-- game.play_hud_motion(2, get_hud_sect(item), "anm_switch", false, 1, false)
 	-- end
+end
+
+function play_firemode_anim(item)
+	local wpn = item:get_weapon_m()
+	if wpn.misfire and hud_anim_exists(item, "anm_switch_mode_jammed") then
+		item:play_hud_motion("anm_switch_mode_jammed", true, -1, 1)
+		return
+	end
+	if item:get_ammo_in_magazine() == 0 and hud_anim_exists(item, "anm_switch_mode_empty") then
+		item:play_hud_motion("anm_switch_mode_empty", true, -1, 1)
+		return
+	end	
+	if hud_anim_exists(item, "anm_switch_mode") then
+		item:play_hud_motion("anm_switch_mode", true, -1, 1)
+	end
 end
 
 function play_zoom_switch_anim(item)

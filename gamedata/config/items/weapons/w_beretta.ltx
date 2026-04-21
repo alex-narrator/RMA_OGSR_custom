@@ -25,7 +25,7 @@ ammo_elapsed		 		= 16
 
 ammo_mag_size		 		= 15
 ammo_class		 			= ammo_9x19_fmj, ammo_9x19_pbp
-magazine_class 				= mag_beretta
+magazine_class 				= mag_beretta, mag_raffica
 
 hand_dependence		 		= 1
 single_handed				= 1							
@@ -148,6 +148,48 @@ silencer_y                  = -19
 
 laser_name 					= wpn_addon_laser_grl_beretta
 laser_x 					= 86
-laser_y 					= 12	
+laser_y 					= 12
 
-repair_icon_sect = beretta_repair
+magazine_x = 18
+magazine_y = 43	
+
+repair_icon_sect 			= beretta_repair
+
+[wpn_raffica]:wpn_beretta,wpn_raffica_sounds
+
+ammo_mag_size		 		= 20
+magazine_class 				= mag_raffica, mag_beretta
+
+inv_name	        		= st_wpn_raffica_name
+inv_name_short				= st_wpn_raffica_short
+description					= st_wpn_raffica_descr
+
+inv_weight					= 1.17	;.5
+
+cost					 	= 180000
+
+inv_grid_width     			= 2
+inv_grid_height    			= 1
+inv_grid_x         			= 4
+inv_grid_y         			= 6
+
+fire_modes					= 1, 3
+
+rpm                      	= 1100
+
+control_inertion_factor 	= 1
+
+hud                      	= wpn_raffica_hud
+visual                   	= dynamics\weapons\wpn_beretta93r\wpn_beretta93r
+
+fire_dispersion_condition_factor = 5		;увеличение дисперсии в процентах при максимальном износе 
+misfire_probability 		= 0.004	    	;вероятность осечки при максимальном износе 
+condition_shot_dec 		= 0.0005	;увеличение износа при каждом выстреле
+
+magazine_x 					= 13
+magazine_y 					= 39
+
+laser_x 					= 76
+laser_y 					= 9
+
+repair_icon_sect 			= raffica_repair

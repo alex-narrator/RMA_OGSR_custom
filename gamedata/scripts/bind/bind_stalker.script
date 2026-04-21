@@ -108,6 +108,7 @@ function actor_binder:net_destroy()
 	self.object:set_callback(callback.on_mouse_move, nil)
 	--
 	self.object:set_callback(callback.on_hud_state_switch, nil)
+	self.object:set_callback(callback.on_motion_mark, nil)
 	self.object:set_callback(callback.on_actor_weapon_zoom_in, nil)
 	self.object:set_callback(callback.on_actor_weapon_zoom_out, nil)
 	self.object:set_callback(callback.on_actor_weapon_zoom_change, nil)
@@ -179,6 +180,7 @@ function actor_binder:reinit()
 	self.object:set_callback(callback.on_mouse_wheel, self.on_mouse_wheel, self)
 	--
 	self.object:set_callback(callback.on_hud_state_switch, self.on_hud_state_switch, self)
+	self.object:set_callback(callback.on_motion_mark, self.on_motion_mark, self)
 	self.object:set_callback(callback.on_actor_weapon_zoom_in, self.on_actor_weapon_zoom_in, self)
 	self.object:set_callback(callback.on_actor_weapon_zoom_out, self.on_actor_weapon_zoom_out, self)
 	self.object:set_callback(callback.on_actor_weapon_zoom_change, self.on_actor_weapon_zoom_change, self)
@@ -548,6 +550,10 @@ end
 
 function actor_binder:on_hud_state_switch(item, state, old_state)
 	self.sm:call("on_hud_state_switch", item, state, old_state)
+end
+
+function actor_binder:on_motion_mark(item, state, mark_name)
+	self.sm:call("on_motion_mark", item, state, mark_name)
 end
 
 function actor_binder:on_actor_weapon_zoom_in(weapon)

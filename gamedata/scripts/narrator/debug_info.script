@@ -16,6 +16,7 @@ function attach(sm)
 	--sm:subscribe({signal = "on_weapon_fire", fun = this.on_weapon_fire})
 	--sm:subscribe({signal = "on_weapon_shell_drop",  fun = this.on_shell_drop})
 	--sm:subscribe({signal = "on_hud_state_switch",  fun = this.on_hud_state_switch})
+	--sm:subscribe({signal = "on_motion_mark",  fun = this.on_motion_mark})
 end
 
 function on_update(dt)
@@ -143,6 +144,10 @@ function on_hud_state_switch(item, state, old_state)
 	if wpn then
 		log_news("~item [%s] direct reload [%s]", item:name(), wpn.direct_reload)
 	end	
+end
+
+function on_motion_mark(item, state, mark_name)
+	log_news("on_motion_mark: item [%s] | state [%s] | mark [%s]", item:name(), HUD_STATE_NAME[state], mark_name)
 end
 
 function item_action_enabled()

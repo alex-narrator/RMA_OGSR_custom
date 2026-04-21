@@ -1,6 +1,7 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 
 local anm_alias = "anm_ammo_check"
+local sound_alias = "snd_ammo_check"
 
 function try_play_anim(item)
 	local hud_sect = get_hud_sect(item)
@@ -12,6 +13,8 @@ function try_play_anim(item)
 	
 	if actor:active_device() then
 	return end
+	
+	local sect = item:section()
 	
 	local anim_name = anm_alias
 	local postfix = ""
@@ -29,10 +32,13 @@ function try_play_anim(item)
 	anim_name = anim_name..postfix
 	if not sys_ini:line_exist(hud_sect,anim_name) then
 	return end
+	
+	local sound = xr_sound.get_safe_sound_object(read_if_exists(sys_ini, "string", sect, sound_alias, ""))
+	if sound then
+		sound:play(actor, 0, sound_object.s2d)
+	end
 
-	-- if wpn and wpn.zoom_mode then
-		-- wpn:zoom_out()
-	-- end	
+	
 	item:zoom_out()
 	item:play_hud_motion(anim_name, false, -1, 1)
 end
