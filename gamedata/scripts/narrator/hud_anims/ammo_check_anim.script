@@ -11,12 +11,6 @@ function try_play_anim(item)
 	if not actor_hands_free() then
 	return end
 	
-	local show_device
-	if actor:active_device() then
-		show_device = true
-		actor:activate_slot(DETECTOR_SLOT, true)
-	end
-	
 	local sect = item:section()
 	
 	local anim_name = anm_alias
@@ -34,7 +28,7 @@ function try_play_anim(item)
 
 	anim_name = anim_name..postfix
 	
-	if wpn.misfire then
+	if wpn and wpn.misfire then
 		anim_name = anim_name.."_jammed"
 	end
 	
@@ -43,6 +37,12 @@ function try_play_anim(item)
 	end
 	if not sys_ini:line_exist(hud_sect, anim_name) then
 	return end
+	
+	local show_device
+	if actor:active_device() then
+		show_device = true
+		actor:activate_slot(DETECTOR_SLOT, true)
+	end	
 	
 	local sound = xr_sound.play_hud_sound(sect, sound_alias)
 
