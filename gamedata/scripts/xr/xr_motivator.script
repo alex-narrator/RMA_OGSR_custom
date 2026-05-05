@@ -31,6 +31,7 @@ function motivator_binder:__init (obj) super(obj)
 
     self.first_update = false
 --	self.treasure_processed = false
+	self.invulnerable = read_if_exists(sys_ini, "bool", obj:section(), "invulnerable", false)
 end
 
 function motivator_binder:extrapolate_callback(cur_pt)
@@ -194,6 +195,9 @@ function motivator_binder:hit_callback(obj, amount, local_direction, who, bone_i
 end
 
 function motivator_binder:on_before_hit(hit)
+	if self.invulnerable then
+		hit.ignore_hit = true
+	end
 	self.sm:call("on_npc_before_hit", self.object, hit)
 end
 

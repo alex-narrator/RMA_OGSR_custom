@@ -172,7 +172,10 @@ function spawn_npc_loot(npc)
     --' Доспавниваем необходимое количество итемов:
     --' Необходимо составить список объектов которые могут быть заспавнены для персонажа
 
-    local spawn_items = item_by_community[npc:character_community()]    
+    local spawn_items = item_by_community[npc:character_community()]
+	if not spawn_items then
+		log_news("!can't find death loot config for NPC %s | community %s", npc:character_name(), npc:character_community())
+	return end
     for k,v in pairs(spawn_items) do
         --' По каждому объекту необходимо получить зависимости    
 		if check_dependence(k) then
