@@ -182,7 +182,7 @@ local sound_path_by_mode = {
 	[1] = "sound_vibro",
 }
 
-function play_news_sound(_type)
+function play_news_sound(_type, delay)
 	local sound_mode = pda.get_sound_mode()
 	if sound_mode == 2 then 
 	return end
@@ -190,7 +190,7 @@ function play_news_sound(_type)
 	-- log3("~snd_name: %s", snd_name)
 	local sound = xr_sound.get_safe_sound_object(snd_name)
 	if not sound then return end
-	sound:play(actor, 0, sound_object.s2d)
+	sound:play(actor, delay or 0, sound_object.s2d)
 	sound.volume = pda.get_sound_volume()
 end
 
@@ -416,11 +416,11 @@ function custom_news(header_text, news_text, news_icon, news_sound, delay, ttl)
 	local header_color = "%c[255,160,160,160]"
 	local text_color = "%c[default]"
 	local text = string.format("%s%s\\n%s%s", header_color, game.translate_string(header_text), text_color, game.translate_string(news_text))
-	actor:give_game_news(text, news_texture, news_rect, delay or 0, ttl or 3000)
+	actor:give_game_news(text, news_texture, news_rect, (delay or 0) * 1000, (ttl or 3) * 1000)
 	if not news_sound then
-		play_news_sound("news")
+		play_news_sound("news", delay or 0)
 	else
-		xr_sound.get_safe_sound_object(news_sound):play(actor, 0, sound_object.s2d)
+		xr_sound.get_safe_sound_object(news_sound):play(actor, delay or 0, sound_object.s2d)
 	end
 end
 
