@@ -170,12 +170,8 @@ function on_update_effects(delta)
 	
 	if stress_k > 1 then
 		local inc = bleeding_stress_inc * stress_k
-		table.insert(stress_blood, inc)
 		actor:heal_wounds(-inc * delta)
-	elseif table.size(stress_blood) > 0 then
-		local dec = stress_blood[table.size(stress_blood)]
-		actor:heal_wounds(dec * delta)
-		table.remove(stress_blood, table.size(stress_blood))
+		--log_news("~stress_k %s", stress_k)
 	end	
 
 	--//boosted params
@@ -312,7 +308,7 @@ function stress_koef()
 	end
 	local weight = actor:get_inventory_weight()
 	local max_weight = actor:get_max_weight()
-	if weight > max_weight then
+	if weight > max_weight and IsMoveState(move_command.mcAnyMove) then
 		res = res * (weight / max_weight)
 	end
 	return res
