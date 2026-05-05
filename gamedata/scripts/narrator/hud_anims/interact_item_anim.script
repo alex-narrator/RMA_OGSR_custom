@@ -95,7 +95,7 @@ function animated_use(tgt, add_act)
 					actor:transfer_item(tgt, actor)
 					script_actions.eat(tgt)
 				return end
-				if tgt:actor_can_capture() and level.get_target_dist() <= PULL_DISTANCE then
+				if tgt:actor_can_capture() and level.get_target_dist() <= get_pull_distance(tgt) then
 					capture(tgt)
 				return end
 			else

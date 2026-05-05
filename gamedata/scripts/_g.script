@@ -1853,6 +1853,18 @@ function is_glowstick(item)
 	return get_clsid(item) == clsid.device_glowstick_s
 end
 
+function get_pull_distance(tgt)
+	local dist = read_if_exists(sys_ini, "float", "actor_capture", "pull_distance", nil)
+	if not dist then
+		dist = read_if_exists(tgt:get_visual_ini(), "float", "capture", "pull_distance", nil)
+	end
+	if not dist then
+		dist = 0
+		log_news("~can`t find pull_distance for target %s | %s", tgt:name(), tgt:section())
+	end
+	return dist
+end
+
 --//інфоповідомлення на худі, у рушійному стилі
 function hud_add_info_message(static_id, text, ttl)
 	-- local hud = get_hud()
@@ -2806,7 +2818,6 @@ BOOST_PARAMS = {
 -- ACTIVE_ITEM_INFO_TTL 	= read_if_exists(sys_ini, "u32", "actor", "active_item_info_ttl", 3)
 -- GEAR_INFO_TTL 			= read_if_exists(sys_ini, "u32", "actor", "gear_info_ttl", 3)
 LIMITED_BOLTS 			= read_if_exists(sys_ini, "bool", "features", "limited_bolts", false)
-PULL_DISTANCE 			= read_if_exists(sys_ini, "float", "actor_capture", "pull_distance", 1.4)
 
 function start_game_callback()
 	--
