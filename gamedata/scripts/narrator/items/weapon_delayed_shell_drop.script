@@ -1,7 +1,7 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
 	sm:subscribe({signal = "on_weapon_fire", 	fun = this.on_weapon_fire})
-	sm:subscribe({signal = "on_hud_state_switch", 	fun = this.on_state_switch})
+	--sm:subscribe({signal = "on_hud_state_switch", 	fun = this.on_state_switch})
 end
 
 local tactical_light_actions = {
@@ -14,13 +14,14 @@ function on_weapon_fire(wpn)
 end
 
 function on_state_switch(item, state, old_state)
-	if state ~= global_flags.eShutter then
+	if state ~= global_flags.eReload then
 	return end
-	if not item:get_weapon() then
+	local wpn = item:get_weapon()
+	if not wpn or not wpn.misfire then
 	return end
 	if item:get_ammo_in_magazine() == 0 then
 	return end
-	play_shell_particle(item, "shell_drop_delay_shutter")
+	play_shell_particle(item, "shell_drop_delay_misfire")
 end
 
 function play_shell_particle(item, delay_param_name)

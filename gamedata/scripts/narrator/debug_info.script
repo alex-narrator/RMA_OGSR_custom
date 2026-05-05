@@ -143,6 +143,8 @@ function on_hud_state_switch(item, state, old_state)
 	local wpn = item:get_weapon()
 	if wpn then
 		log_news("~item [%s] direct reload [%s]", item:name(), wpn.direct_reload)
+		log_news("~item [%s] misfire [%s]", item:name(), wpn.misfire)
+		log_news("~item [%s] ammo in magazine [%s]", item:name(), item:get_ammo_in_magazine())
 	end	
 end
 
@@ -157,11 +159,9 @@ function item_action_text()
 	return "debug_action"
 end
 function item_action(item)
-	log_news("~item %s", item:name())
-	--item:set_condition(0.001)
-	local wpn = item:get_weapon_m()
+	local wpn = item:get_weapon()
 	if wpn then
-		wpn:reload()
+		wpn.misfire = true
 	end
 end
 

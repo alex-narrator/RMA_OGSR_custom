@@ -1533,7 +1533,6 @@ HUD_STATE_NAME = {
 	[global_flags.eThrow] 		= "eThrow",
 	[global_flags.eThrowEnd] 	= "eThrowEnd",
 	[global_flags.eActivating] 	= "eActivating",
-	[global_flags.eShutter] 	= "eShutter",
 	[global_flags.eIdleZoom] 	= "eIdleZoom",
 	[global_flags.eIdleZoomIn] 	= "eIdleZoomIn",
 	[global_flags.eIdleZoomOut] = "eIdleZoomOut",
@@ -2675,7 +2674,7 @@ end
 
 function IsMoveState(state, compare_state)
 	if (not state) then 
-		log_news("~IsMoveState | state {%s) not found ", state)
+		log_news("~IsMoveState | state not found ")
 		return false 
 	end
 	
@@ -2690,6 +2689,11 @@ function SetMoveState(state, enable)
 	local ws = actor_obj:get_state_wishful()
 	local desired_state = enable and bit_or(ws, state) or bit_and(ws, bit_not(state))
 	actor_obj:set_state_wishful(desired_state)	
+end
+
+function MoveStateChanged(state)
+	local ms_old = actor_obj:get_state_old()
+	return IsMoveState(state) ~= IsMoveState(state, ms_old)
 end
 
 function get_script_option_value(opt, get_default)

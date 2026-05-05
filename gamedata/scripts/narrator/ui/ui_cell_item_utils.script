@@ -101,14 +101,22 @@ function unload_magazine(cell_item, for_all)
 	if for_all then
 		for k,v in pairs(cell_item:GetChilds()) do
 			item = level.object_by_id(k)
-			item:unload_magazine_full()
+			item:unload_magazine(true, true)
 		end
 		item = cell_item:GetItem()
-		item:unload_magazine_full()
+		item:unload_magazine(true, true)
+		local wpn = item:get_weapon()
+		if wpn and wpn.misfire then
+			wpn.misfire = false
+		end
 		try_play_sound(item)
 	else
 		item = cell_item:GetAnyItem()
-		item:unload_magazine_full()
+		item:unload_magazine(true, true)
+		local wpn = item:get_weapon()
+		if wpn and wpn.misfire then
+			wpn.misfire = false
+		end		
 		cell_item:ForceUpdate()
 		try_play_sound(item)
 	end

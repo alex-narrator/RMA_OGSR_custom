@@ -942,7 +942,6 @@ end
 local update_states = {
 	[global_flags.eFire] = true,
 	[global_flags.eReload] = true,
-	[global_flags.eShutter] = true,
 }
 local crosshair_set_states = {
 	[global_flags.eShowing] = true,
@@ -1303,7 +1302,7 @@ function MainIngameOverlay:UpdateCrosshair(forced)
 	if act_wpn then
 		if act_wpn.zoom_rotation_factor > 0 then
 			self.crosshair:Show(false)
-		end
+		return end
 	end
 	local dispertion = act_wpn and act_wpn:get_fire_dispertion(true) or 0
 	self:DrawCrosshair(dispertion, forced)

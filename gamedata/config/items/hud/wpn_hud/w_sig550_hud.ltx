@@ -60,17 +60,11 @@ anm_show_w_gl                           = sg550_draw_w_gl
 anm_switch                              = sg550_switch_off
 anm_switch_g                            = sg550_switch_on
 
-anm_shutter 							= sg550_reload_empty, reload_empty
-anm_shutter_start_k 					= 0.6
-anm_shutter_stop_k 					 	= 0.4
+anm_reload_jammed 						= sg550_reload_empty, reload_empty
+anm_reload_jammed_start_k 				= 0.6
 
-anm_shutter_g 							= sg550_reload_empty_w_gl, reload_empty
-anm_shutter_g_start_k 					= 0.6
-anm_shutter_g_stop_k 					= 0.4
-
-anm_shutter_w_gl						= sg550_reload_empty_w_gl, reload_empty
-anm_shutter_w_gl_start_k 				= 0.6
-anm_shutter_w_gl_stop_k 				= 0.4
+anm_reload_jammed_w_gl					= sg550_reload_empty_w_gl, reload_empty
+anm_reload_jammed_w_gl_start_k 			= 0.6
 
 anm_reload_single 						= sg550_reload_empty, reload_empty
 anm_reload_single_start_k 				= 0.6
@@ -79,6 +73,10 @@ anm_reload_single_stop_k 				= 0.4
 anm_reload_single_w_gl 					= sg550_reload_empty_w_gl, reload_empty
 anm_reload_single_w_gl_start_k 			= 0.6
 anm_reload_single_w_gl_stop_k 			= 0.4
+
+anm_ammo_check 							= sg550_reload, reload
+anm_ammo_check_g 						= sg550_reload_g, reload_g
+anm_ammo_check_w_gl						= sg550_reload_w_gl, reload
 
 shell_bone                              = gilza
 shell_dir                               = 0, 1, 0
@@ -126,9 +124,6 @@ wpn_addon_scope_d_pro_attach_pos 		= 0,0.079,0
 aim_scope_hud_offset_pos_16x9 			= -0.0863902,0.0608399,-0.308967
 aim_scope_hud_offset_rot_16x9 			= 0.0098,-0.00105,0.003
 
-aim_alt_sight_hud_offset_pos_16x9 		= -0.08762,0.0723,-0.196795
-aim_alt_sight_hud_offset_rot_16x9 		= -0.00805,0.0018,0.003
-
 wpn_addon_scope_acog_attach_pos 		= -0.000100,0.018900,0.019500
 
 [wpn_sig550_hunting_3x9_hud]:wpn_sig550_scope_hud
@@ -149,8 +144,8 @@ wpn_addon_scope_pn23_attach_pos 		= -0.003200,0.024676,0.000000
 aim_scope_hud_offset_pos_16x9 			= -0.0871543,0.0561728,-0.307936
 aim_scope_hud_offset_rot_16x9 			= 0.00893,-0.000914997,0.003
 
-aim_alt_sight_hud_offset_pos_16x9 		= -0.08903,0.033299,-0.14646
-aim_alt_sight_hud_offset_rot_16x9 		= 0.00875,0.00285,0.003
+aim_alt_hud_offset_pos_16x9 			= -0.08903,0.033299,-0.14646
+aim_alt_hud_offset_rot_16x9 			= 0.00875,0.00285,0.003
 
 wpn_addon_scope_specter_attach_pos 		= -0.003200,0.043576,0.000000
 
@@ -227,13 +222,15 @@ anm_reload_empty                        = lancew_sg550_reload, reload
 anm_shots                               = lancew_sg550_shoot, shoot
 anm_show                                = lancew_sg550_draw
 
-anm_shutter								= sg550_reload_empty, reload_empty
-anm_shutter_start_k 					= 0.6
-anm_shutter_stop_k 						= 0.4
+anm_reload_jammed						= sg550_reload_empty, reload_empty
+anm_reload_jammed_start_k 				= 0.6
 
 anm_reload_single 						= sg550_reload_empty, reload_empty
 anm_reload_single_start_k 				= 0.6
 anm_reload_single_stop_k 				= 0.4
+
+anm_ammo_check 							= lancew_sg550_reload, reload
+anm_ammo_check_stop_k 					= 0.6
 
 shell_bone                              = wpn_body
 shell_dir                               = 0, 1, 0

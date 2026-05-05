@@ -441,3 +441,17 @@ end
 function clear_all_sound_object()
 	sound_object_by_theme = {}
 end
+
+function play_hud_sound(section, sound_name)
+	local sound
+	local sound_str = split_string(read_if_exists(sys_ini, "string", section, sound_name, nil), ",")
+	if sound_str then
+		sound = sound_str[1] and get_safe_sound_object(sound_str[1]) or nil
+		if sound then
+			sound:play(actor, tonumber(sound_str[3]) or 0, sound_object.s2d)
+			sound.volume = sound_str[2] or 1
+			sound.frequency = sound_str[4] or 1
+		end
+	end
+	return sound
+end

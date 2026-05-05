@@ -1,6 +1,7 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
 	sm:subscribe({signal = "on_hud_state_switch", 	fun = this.on_state_switch})
+	sm:subscribe({signal = "on_motion_mark",  		fun = this.on_motion_mark})
 	sm:subscribe({signal = "on_weapon_shell_drop",  fun = this.on_shell_drop})
 	sm:subscribe({signal = "on_spawn",  			fun = this.on_spawn})
 end
@@ -11,24 +12,46 @@ local callback_states = {
 	[global_flags.eFire] = true,
 	[global_flags.eFire2] = true,
 	[global_flags.eThrow] = true,
+	[global_flags.eReload] = true,
 }
 
 function on_state_switch(item, state, old_state)
 	if not callback_states[state] then
 	return end
+	if state == global_flags.eReload then
+		local wpn = item:get_weapon()
+		if wpn and wpn.misfire then
+			sm:call("on_weapon_unjam", item)
+			--log_news("unjam weapon %s", item:name())
+		return end
+	end
 	if item:is_missile() then
 		sm:call("on_missile_throw", item)
+		--log_news("missile throw")
 	return end
+	-- if item:is_knife() then
+		-- sm:call("on_knife_stab", item, state == global_flags.eFire2)
+		-- log_news("knife stab %s", state == global_flags.eFire2 and "alt" or "main")
+	-- end
+end
+
+function on_motion_mark(item, state, mark_name)
+	if not callback_states[state] then
+	return end
+	-- if item:is_missile() then
+		-- sm:call("on_missile_throw", item)
+		-- log_news("missile throw")
+	-- return end
 	if item:is_knife() then
 		sm:call("on_knife_stab", item, state == global_flags.eFire2)
+		--log_news("knife stab %s", state == global_flags.eFire2 and "alt" or "main")
 	end
 end
 
 function on_shell_drop(wpn, pos, vel)
 	if not wpn:is_weapon() then
 	return end
-	local shutter = wpn:get_weapon().state == global_flags.eShutter
-	sm:call(shutter and "on_weapon_shutter" or "on_weapon_fire", wpn)
+	sm:call("on_weapon_fire", wpn)
 end
 
 function on_spawn()

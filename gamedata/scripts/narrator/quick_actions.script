@@ -55,10 +55,10 @@ function on_state_switch(item, state, old_state)
 	if not quick_grenade_id and not quick_knife_id then
 	return end
 	
-	--log3("~item %s | state %s | old_state %s | item:is_pending() %s", item:section(), state, old_state, item:is_pending())
+	--log3("~item %s | state %s | old_state %s | item.pending %s", item:section(), state, old_state, item.pending)
 	
 	if quick_grenade_id == item:id() then
-		--log3("~item %s | state %s | old_state %s | item:is_pending() %s", item:section(), state, old_state, item:is_pending())
+		--log3("~item %s | state %s | old_state %s | item.pending %s", item:section(), state, old_state, item.pending)
 		if state == global_flags.eIdle then
 			level.send_event_key_press(bind_to_dik(key_bindings.kWPN_FIRE))
 		return end

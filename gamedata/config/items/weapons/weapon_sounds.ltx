@@ -79,9 +79,9 @@ snd_shoot_duplet				                                  = weapons\n_toz34_shot
 snd_open_weapon			                                          = weapons\rg6\rg6_reload_start
 snd_add_cartridge				                                  = weapons\rg6\rg6_reload
 snd_close_weapon				                                  = weapons\rg6\rg6_reload_end
+snd_ammo_check			                                          = weapons\rg6\rg6_reload_start
 
 [wpn_mike_snd]:base_sounds
-snd_bore                                                          = $no_sound
 snd_draw				                                          = weapons\mike\ak12_show
 snd_holster				                                          = weapons\mike\ak12_hide
 snd_shoot				                                          = weapons\mike\mike_shot
@@ -90,11 +90,11 @@ snd_shoot2				                                          = weapons\mike\mike_shot
 snd_open_weapon			                                          = weapons\mike\mike_open
 snd_add_cartridge				                                  = weapons\mike\mike_add_grenade
 snd_close_weapon				                                  = weapons\mike\mike_close
-snd_reload_misfire                                                = weapons\mike\mike_mis
+snd_reload_jammed                                                 = weapons\mike\mike_mis
 snd_ammo_check                                           		  = weapons\mike\mike_amck
 snd_ammo_check_jammed                                    		  = weapons\mike\mike_amck
-scripted_snd_bore                                                 = weapons\mike\mike_bore
-scripted_snd_bore_jammed                                          = weapons\mike\mike_bore
+snd_bore                                                 		  = weapons\mike\mike_bore
+bore_jammed                                          			  = weapons\mike\mike_bore
 
 [wpn_rpg7_sounds]:base_sounds
 snd_draw				                                          = weapons\rpg7\rpg7_draw
@@ -129,6 +129,7 @@ snd_shoot_grenade				                                  = weapons\gp30\GP30_grens
 snd_reload_grenade				                                  = weapons\gp30\gp30_grenload,	1.0, 0.8
 snd_silncer_shot				                                  = weapons\abakan\abakan_shot_sil
 snd_bore					                                      = $no_sound
+snd_ammo_check					                                  = weapons\abakan\abakan_reload
 ;--------------------------------------
 [wpn_aek971_snd_shoot]
 snd_1_layer                                        			      = weapons\aek971\aek971_shoot
@@ -162,6 +163,7 @@ snd_shoot_grenade			                                      = weapons\gp30\GP30_gr
 snd_reload_grenade			                                      = weapons\gp30\gp30_grenload,	1.0, 0.8	
 snd_silncer_shot				                                  = weapons\ak\ak_shot_sil
 snd_bore					                                      = $no_sound
+snd_ammo_check 													  = weapons\ak\ak_reload
 
 ;--------------------------------------
 [wpn_ak12_snd_shoot]
@@ -210,6 +212,7 @@ snd_shoot				                                          = wpn_ak74_snd_shoot
 snd_reload				                                          = weapons\aks74\aks74_reload
 snd_reload_empty                                                  = weapons\aks74\aks74_reload_empty
 snd_silncer_shot				                                  = weapons\ak74\ak74_shot_sil 
+snd_ammo_check 													  = weapons\aks74\aks74_reload
 
 [wpn_ak74m_sounds]:wpn_aks74_sounds
 snd_reload_empty                                                  = weapons\aks74\ak74m_reload
@@ -226,6 +229,7 @@ snd_draw					                                      = weapons\ak\ak_draw
 snd_holster				                                          = weapons\rifle_holster
 snd_shoot				                                          = wpn_aks74u_snd_shoot
 snd_reload				                                          = weapons\aks74u\aks74u_reload
+snd_ammo_check 													  = weapons\aks74u\aks74u_reload
 
 [wpn_aks74u_snag_sounds]:wpn_aks74u_sounds
 snd_reload				                                          = weapons\ak\ak_reload
@@ -427,6 +431,7 @@ snd_reload					                                      = weapons\beretta\beretta_r
 snd_reload_empty                                                  = weapons\beretta\beretta_reload_empty
 snd_close					                                      = weapons\beretta\beretta_close
 snd_silncer_shot				                                  = weapons\beretta\beretta_shot_sil
+snd_ammo_check 													  = weapons\beretta\beretta_reload
 
 [wpn_raffica_sounds]:wpn_beretta_sounds
 snd_draw					                                      = weapons\raffica\raffica_draw
@@ -434,7 +439,7 @@ snd_holster					                                      = weapons\raffica\raffica_
 snd_reload					                                      = weapons\raffica\raffica_reload
 snd_reload_empty                                                  = weapons\raffica\raffica_reload_empty
 snd_fire_modes 													  = weapons\raffica\raffica_fire_select
-snd_shutter_misfire 											  = weapons\raffica\raffica_unjam
+snd_reload_jammed 											  	  = weapons\raffica\raffica_unjam
 snd_ammo_check 													  = weapons\raffica\raffica_mag_check
 ;--------------------------------------
 
@@ -515,6 +520,7 @@ snd_reload				                                          = weapons\colt\colt_relo
 snd_reload_empty			                                      = weapons\colt\colt_reload_empty
 snd_close				                                          = weapons\colt\colt_close
 snd_silncer_shot				                                  = weapons\colt\colt_shot_sil
+snd_ammo_check				                                      = weapons\colt\colt_reload
 
 [wpn_kimber_sounds]:wpn_colt1911_sounds
 snd_reload					                                      = weapons\colt\kimber_reload
@@ -536,6 +542,7 @@ snd_reload				                                          = weapons\de\de_reload
 snd_reload_empty                                                  = weapons\de\de_reload_empty
 snd_close				                                          = weapons\de\de_close
 snd_silncer_shot				                                  = weapons\de\de_shot_sil
+snd_ammo_check				                                      = weapons\de\de_reload
 ;--------------------------------------
 
 [wpn_mp412_snd_shoot]
@@ -550,6 +557,7 @@ snd_3_layer                                                       = weapons\_dis
 snd_shoot				                                          = wpn_mp412_snd_shoot
 snd_reload				                                          = weapons\mp412\mp412_reload
 snd_reload_empty                                                  = weapons\mp412\mp412_reload
+snd_ammo_check 													  = weapons\mp412\mp412_reload
 ;--------------------------------------
 
 [wpn_fn2000_snd_shoot]
@@ -564,6 +572,7 @@ snd_shoot				                                          = wpn_fn2000_snd_shoot
 snd_empty				                                          = weapons\fn2000\fn2000_empty,	0.8
 snd_reload				                                          = weapons\fn2000\fn2000_reload
 snd_silncer_shot				                                  = weapons\fn2000\fn2000_shot_sil 
+snd_ammo_check			                                          = weapons\fn2000\fn2000_reload
 ;--------------------------------------
 
 [wpn_fn57_snd_shoot]
@@ -598,6 +607,7 @@ snd_reload					                                      = weapons\fort\fort_reload
 snd_reload_empty                                                  = weapons\fort\fort_reload_empty
 snd_close					                                      = weapons\fort\fort_close
 snd_silncer_shot				                                  = weapons\fort\fort_shot_sil
+snd_ammo_check				                                      = weapons\fort\fort_reload
 ;--------------------------------------
 
 [wpn_glock_snd_shoot]
@@ -616,6 +626,7 @@ snd_reload				                                          = weapons\glock\glock_re
 snd_reload_empty                                                  = weapons\glock\glock_reload_empty
 snd_close				                                          = weapons\walther\walther_close
 snd_silncer_shot				                                  = weapons\glock\glock_shot_sil
+snd_ammo_check			                                          = weapons\glock\glock_reload
 ;--------------------------------------
 
 [wpn_gsh18_snd_shoot]
@@ -673,6 +684,7 @@ snd_shoot_grenade			                                      = weapons\ag36\ag36_gr
 snd_reload_grenade			                                      = weapons\ag36\ag36_grenload,
 snd_switch				                                          = weapons\ag36\ag36_switch,	
 snd_bore 				                                          = $no_sound
+snd_ammo_check 													  = weapons\g36\g36_reload
 ;--------------------------------------
 
 [wpn_g36c_snd_shoot]
@@ -745,6 +757,7 @@ snd_reload_grenade      			                              = weapons\groza\groza_g
 snd_switch              				                          = weapons\groza\groza_switch
 snd_bore					                                      = weapons\draw_silent
 snd_silncer_shot        			                              = weapons\groza\groza_shot_sil
+snd_ammo_check 													  = weapons\groza\groza_reload
 ;--------------------------------------
 
 [wpn_hpsa_snd_shoot]
@@ -761,6 +774,7 @@ snd_reload				                                          = weapons\hpsa\hpsa_relo
 snd_reload_empty                                                  = weapons\hpsa\hpsa_reload_empty
 snd_close					                                      = weapons\hpsa\hpsa_close
 snd_silncer_shot				                                  = weapons\hpsa\hpsa_shot_sil
+snd_ammo_check 													  = weapons\hpsa\hpsa_reload
 ;--------------------------------------
 
 [wpn_kiparis_snd_shoot]
@@ -799,6 +813,7 @@ snd_shoot_grenade				                                  = weapons\m203\m203_grens
 snd_reload_grenade				                                  = weapons\m203\m203_reload
 snd_switch				                                          = weapons\m203\M203_switch
 snd_silncer_shot				                                  = weapons\l85\l85_shot_sil
+snd_ammo_check 													  = weapons\l85\l85_reload
 
 [wpn_mtar21_sounds]:wpn_l85_sounds
 snd_shoot				                                          = wpn_l85_snd_shoot
@@ -822,6 +837,7 @@ snd_reload_grenade				                                  = weapons\m203\M203_relo
 snd_switch				                                          = weapons\hk416\hk416_switch, 1.0, 0.5
 snd_silncer_shot				                                  = weapons\lr300\lr300_shot_sil
 snd_bore					                                      = $no_sound
+snd_ammo_check 													  = weapons\lr300\lr300_reload
 ;--------------------------------------
 
 [wpn_m14_snd_shoot]
@@ -840,6 +856,7 @@ snd_shoot_grenade		                                          = weapons\m203\M203
 snd_reload_grenade		                                          = weapons\m203\M203_reload
 snd_switch                                                        = weapons\groza_switch, 1.0, 0.5
 snd_bore					                                      = $no_sound
+snd_ammo_check                                                    = weapons\m14\m14_reload
 ;--------------------------------------
 
 [wpn_m4_snd_shoot]
@@ -860,6 +877,7 @@ snd_switch				                                          = weapons\m4a1\m4a1_swit
 snd_silncer_shot				                                  = weapons\m4a1\m4a1_shot_sil
 snd_bore					                                      = $no_sound
 snd_empty				                                          = weapons\lr300\lr300_empty,	0.7
+snd_ammo_check 													  = weapons\m4\m4_reload
 ;--------------------------------------
 [wpn_m4a1_snd_shoot]
 snd_1_layer				                                          = weapons\m4a1\m4a1_shoot 
@@ -882,6 +900,7 @@ snd_reload_grenade				                                  = weapons\m203\M203_relo
 snd_switch				                                          = weapons\m4a1\m4a1_switch, 1.0, 0.5
 snd_silncer_shot				                                  = weapons\m4a1\m4a1_shot_sil
 snd_bore					                                      = $no_sound
+snd_ammo_check 													  = weapons\m4a1\m4a1_reload
 ;--------------------------------------
 
 [wpn_m16_snd_shoot]
@@ -905,6 +924,7 @@ snd_switch				                                          = weapons\m4a1\m4a1_swit
 snd_silncer_shot				                                  = weapons\m4a1\m4a1_shot_sil
 snd_bore					                                      = $no_sound
 snd_empty				                                          = weapons\lr300\lr300_empty,	0.7
+snd_ammo_check			                                          = weapons\m16\m16_reload
 ;--------------------------------------
 
 [wpn_m60_sounds]:base_sounds ;-->
@@ -948,6 +968,7 @@ snd_empty				                                          = weapons\lr300\lr300_emp
 snd_reload				                                          = weapons\m249\m249_reload
 snd_silncer_shot				                                  = weapons\m249\m249_shot_sil
 snd_bore					                                      = $no_sound
+snd_ammo_check			                                          = weapons\m249\m249_reload
 ;--------------------------------------
 
 [wpn_mp7_snd_shoot]
@@ -1018,12 +1039,14 @@ snd_reload				                                          = weapons\mp5\mp5_reload
 snd_reload_empty                                                  = weapons\mp5\mp5_reload_empty
 snd_silncer_shot				                                  = weapons\mp5\mp5_shot_sil
 snd_bore 					                                      = $no_sound
+snd_ammo_check 													  = weapons\mp5\mp5_reload
 
 [wpn_mp5sd_sounds]:wpn_mp5_sounds
 snd_reload				                                          = weapons\mp5\mp5sd_reload
 snd_reload_empty                                                  = weapons\mp5\mp5sd_reload
 snd_shoot				                                          = weapons\mp5\mp5_shot_sil
 snd_silncer_shot				                                  = weapons\mp5\mp5sd_shot_sil
+snd_ammo_check 													  = weapons\mp5\mp5sd_reload
 ;--------------------------------------
 
 [wpn_vz61_snd_shoot]
@@ -1061,6 +1084,7 @@ snd_shoot               			                              = wpn_ump45_snd_shoot
 snd_silncer_shot        			                              = weapons\ump45\ump45_shot_sil
 snd_reload              			                              = weapons\ump45\ump45_reload
 snd_reload_empty                                                  = weapons\ump45\ump45_reload_empty
+snd_ammo_check             			                              = weapons\ump45\ump45_reload
 ;--------------------------------------
 
 [wpn_bizon_snd_shoot]
@@ -1073,6 +1097,7 @@ snd_shoot				                                          = wpn_bizon_snd_shoot
 snd_reload				                                          = weapons\bizon\bizon_reload
 snd_reload_empty                                                  = weapons\bizon\bizon_reload
 snd_silncer_shot				                                  = weapons\bizon\bizon_shot_sil
+snd_ammo_check				                                      = weapons\bizon\bizon_reload
 ;--------------------------------------
 
 [wpn_p90_snd_shoot]
@@ -1085,6 +1110,7 @@ snd_shoot				                                          = wpn_p90_snd_shoot
 snd_reload				                                          = weapons\p90\p90_reload
 snd_reload_empty                                                  = weapons\p90\p90_reload
 snd_silncer_shot				                                  = weapons\p90\p90_shot_sil
+snd_ammo_check 													  = $no_sound
 ;--------------------------------------
 
 [wpn_pp2000_snd_shoot]
@@ -1113,6 +1139,7 @@ snd_holster				                                          = weapons\pkm\pkm_holst
 snd_shoot				                                          = wpn_pkm_snd_shoot
 snd_empty				                                          = weapons\pkm\pkm_empty,	0.5
 snd_reload				                                          = weapons\pkm\pkm_reload
+snd_ammo_check			                                          = weapons\pkm\pkm_reload
 ;--------------------------------------
 
 [wpn_pm_snd_shoot]
@@ -1131,6 +1158,7 @@ snd_reload				                                          = weapons\pm\pm_reload
 snd_reload_empty                                                  = weapons\pm\pm_reload_empty
 snd_close				                                          = weapons\pm\pm_close
 snd_silncer_shot		                                          = weapons\pm\pm_shot_sil
+snd_ammo_check 													  = weapons\pm\pm_reload
 
 [wpn_oc33_sounds]:wpn_pm_sounds
 snd_reload				                                          = weapons\oc33\oc33_reload
@@ -1163,9 +1191,9 @@ snd_shoot				                                          = wpn_protecta_snd_shoot
 snd_empty				                                          = weapons\protecta\protecta_empty
 snd_reload				                                          = weapons\toz34_reload
 snd_shoot_duplet				                                  = weapons\toz34_shoot_both
-snd_open_weapon			                                          = silence;$no_sound	
+snd_open_weapon			                                          = $no_sound	
 snd_add_cartridge				                                  = weapons\protecta\protecta_load        
-snd_close_weapon				                                  = silence;$no_sound
+snd_close_weapon				                                  = $no_sound
 ;--------------------------------------
 
 [wpn_sig220_snd_shoot]
@@ -1182,6 +1210,7 @@ snd_reload				                                          = weapons\sig220\sig220_
 snd_reload_empty                                                  = weapons\sig220\sig220_reload_empty
 snd_close				                                          = weapons\sig220\sig220_close
 snd_silncer_shot				                                  = weapons\sig220\sig220_shot_sil
+snd_ammo_check 													  = weapons\sig220\sig220_reload
 ;--------------------------------------
 
 [wpn_saiga_snd_shoot]
@@ -1195,6 +1224,7 @@ snd_holster				                                          = weapons\shotgun_holst
 snd_shoot				                                          = wpn_saiga_snd_shoot
 snd_reload				                                          = weapons\saiga\saiga_reload
 snd_silncer_shot				                                  = weapons\saiga\saiga_shot_sil
+snd_ammo_check 													  = weapons\saiga\saiga_reload
 ;--------------------------------------
 
 [wpn_spas12_snd_shoot]
@@ -1214,7 +1244,7 @@ snd_bore				                                          = $no_sound
 snd_open_weapon				                                      = weapons\spas12\spas12_open
 snd_add_cartridge			                                      = weapons\spas12\spas12_insertshell
 snd_close_weapon			                                      = weapons\spas12\spas12_pump
-snd_shutter			                                      		  = weapons\spas12\spas12_pump
+snd_reload_jammed 												  = weapons\spas12\spas12_pump
 ;--------------------------------------
 
 [wpn_usas12_snd_shoot_2]
@@ -1238,6 +1268,7 @@ snd_shoot				                                          = wpn_usas12_snd_shoot
 snd_empty				                                          = weapons\spas12\spas12_empty
 snd_reload				                                          = weapons\usas12\usas12_reload
 snd_bore					                                      = $no_sound
+snd_ammo_check 													  = weapons\usas12\usas12_reload, 1, 0, 1.25
 ;--------------------------------------
 
 [wpn_m95_sounds]:base_sounds ;-->
@@ -1312,13 +1343,19 @@ snd_switch                                                        = weapons\draw
 snd_bore		                                                  = weapons\draw_silent
 ;--------------------------------------
 
+[wpn_sv98_snd_reload_jammed]
+snd_1_layer                                                       = weapons\ak_empty, 0.7
+snd_2_layer                                                       = weapons\l96a1\bolt
+
 [wpn_sv98_sounds]:base_sounds
 snd_draw					                                      = weapons\sv98\sv98_draw
 snd_holster					                                      = weapons\sniper_holster
-snd_shoot					                                      = weapons\sv98\sv98_shoot
+snd_shoot					                                      = wpn_l96_snd_shoot;weapons\sv98\sv98_shoot
 snd_empty					                                      = weapons\sv98\sv98_empty
 snd_reload					                                      = weapons\sv98\sv98_reload
 snd_silncer_shot					                              = weapons\svd\svd_shot_sil
+snd_reload_jammed 												  = wpn_sv98_snd_reload_jammed
+snd_ammo_check				                                      = weapons\sv98\sv98_reload
 
 ;--------------------------------------
 [wpn_svd_snd_shoot]
@@ -1333,6 +1370,7 @@ snd_shoot				                                          = wpn_svd_snd_shoot
 snd_empty				                                          = weapons\ak_empty, 0.7
 snd_reload				                                          = weapons\svd\svd_reload
 snd_silncer_shot				                                  = weapons\svd\svd_shot_sil
+snd_ammo_check				                                      = weapons\svd\svd_reload
 
 ;--------------------------------------
 [wpn_mosin_snd_shoot]
@@ -1345,6 +1383,10 @@ snd_4_layer                                                       = weapons\_dis
 snd_1_layer		                                          		  = weapons\svd\svd_shot_sil
 snd_2_layer                                                       = weapons\mosin\bolt
 
+[wpn_mosin_snd_reload_jammed]
+snd_1_layer		                                          		  = weapons\ak_empty, 0.7
+snd_2_layer                                                       = weapons\mosin\bolt
+
 [wpn_mosin_sounds]:wpn_svd_sounds
 snd_draw				                                          = weapons\svd\svd_draw
 snd_holster				                                          = weapons\sniper_holster
@@ -1352,6 +1394,8 @@ snd_shoot				                                          = wpn_mosin_snd_shoot
 snd_empty				                                          = weapons\ak_empty, 0.7
 snd_reload				                                          = weapons\mosin\mosin_reload
 snd_silncer_shot		                                          = wpn_mosin_snd_silncer_shot
+snd_reload_jammed 												  = wpn_mosin_snd_reload_jammed
+snd_ammo_check 													  = weapons\mosin\mosin_reload
 ;--------------------------------------
 
 [wpn_svt40_snd_shoot]
@@ -1377,6 +1421,7 @@ snd_holster				                                          = weapons\sniper_holste
 snd_shoot				                                          = weapons\type63\type63_shoot
 snd_reload				                                          = weapons\type63\type63_reload
 snd_empty				                                          = weapons\ak_empty, 0.7
+snd_ammo_check			                                          = weapons\type63\type63_reload
 
 ;--------------------------------------
 [wpn_sks_snd_shoot]
@@ -1391,6 +1436,7 @@ snd_shoot				                                          = wpn_sks_snd_shoot
 snd_empty				                                          = weapons\ak_empty, 	0.7
 snd_reload				                                          = weapons\sks\sks_reload
 snd_close				                                          = weapons\generic_close
+snd_ammo_check			                                          = weapons\sks\sks_reload
 ;--------------------------------------
 
 [wpn_svu_snd_shoot]
@@ -1406,6 +1452,7 @@ snd_empty				                                          = weapons\ak_empty,	0.5
 snd_reload				                                          = weapons\svu\svu_reload
 snd_reload_empty                                                  = weapons\svu\svu_reload_empty
 snd_silncer_shot				                                  = weapons\svu\svu_shoot
+snd_ammo_check				                                      = weapons\svu\svu_reload
 ;--------------------------------------
 
 [wpn_tt33_snd_shoot]
@@ -1469,6 +1516,7 @@ snd_reload				                                          = weapons\usp\usp_reload
 snd_reload_empty                                                  = weapons\usp\usp_reload_empty
 snd_close				                                          = weapons\usp\usp_close
 snd_silncer_shot				                                  = weapons\usp\usp_shot_sil
+snd_ammo_check			                                          = weapons\usp\usp_reload
 ;--------------------------------------
 
 [wpn_fnp45_snd_shoot]
@@ -1493,6 +1541,7 @@ snd_reload				                                          = weapons\vintorez\vinto
 snd_reload_empty                                                  = weapons\vintorez\vintorez_reload_empty
 snd_silncer_shot				                                  = weapons\val\val_shoot
 snd_silncer_shot1				                                  = weapons\val\val_shoot1
+snd_ammo_check			                                          = weapons\vintorez\vintorez_reload
 
 [wpn_vihr_sounds]:wpn_val_sounds
 snd_shoot				                                          = weapons\vihr\vihr_shoot
@@ -1511,6 +1560,7 @@ snd_silncer_shot			                                      = weapons\vintorez\vint
 snd_silncer_shot1			                                      = weapons\vintorez\vintorez_shoot1
 snd_silncer_shot2			                                      = weapons\vintorez\vintorez_shoot2
 snd_silncer_shot3			                                      = weapons\vintorez\vintorez_shoot3
+snd_ammo_check			                                          = weapons\vintorez\vintorez_reload
 
 [wpn_vintorez_nimble_sounds]:base_sounds
 snd_draw				                                          = weapons\vintorez\vintorez_nimble_draw
@@ -1603,6 +1653,7 @@ snd_reload				                                          = weapons\walther\walthe
 snd_reload_empty                                                  = weapons\walther\walther_reload_empty
 snd_close					                                      = weapons\walther\walther_close
 snd_silncer_shot				                                  = weapons\walther\walther_shot_sil
+snd_ammo_check			                                          = weapons\walther\walther_reload
 ;--------------------------------------
 
 [wpn_winchester1300_snd_shoot]
@@ -1617,6 +1668,10 @@ snd_2_layer                                        			      = weapons\mossberg\p
 snd_3_layer                                        			      = weapons\_distance_shooting_mid\saiga_distant
 snd_4_layer                                        			      = weapons\_distance_shooting_far\saiga_distant
 
+[wpn_winchester1300_snd_reload_jammed]
+snd_1_layer                                        			      = weapons\ak_empty, 0.7
+snd_2_layer                                        			      = weapons\mossberg\pump
+
 [wpn_winchester1300_sounds]:base_sounds
 snd_draw					                                      = weapons\w1300\w1300_draw
 snd_holster				                                          = weapons\shotgun_holster
@@ -1627,7 +1682,7 @@ snd_shoot_duplet				                                  = wpn_winchester1300_snd_s
 snd_open_weapon				                                      = weapons\w1300\w1300_open;$no_sound
 snd_add_cartridge				                                  = weapons\w1300\w1300_load		
 snd_close_weapon				                                  = weapons\w1300\w1300_close	
-snd_shutter 													  = weapons\mossberg\pump
+snd_reload_jammed 												  = wpn_winchester1300_snd_reload_jammed
 ;--------------------------------------
 
 [wpn_mossberg_snd_shoot]
@@ -1635,6 +1690,10 @@ snd_1_layer                                        			      = weapons\mossberg\m
 snd_2_layer                                        			      = weapons\mossberg\pump
 snd_3_layer                                        			      = weapons\_distance_shooting_mid\saiga_distant
 snd_4_layer                                                       = weapons\_distance_shooting_far\saiga_distant
+
+[wpn_mossberg_snd_reload_jammed]
+snd_1_layer		                                          		  = weapons\ak_empty, 0.7
+snd_2_layer                                                       = weapons\mossberg\pump
 
 [wpn_mossberg_sounds]:wpn_winchester1300_sounds
 snd_draw					                                      = weapons\mossberg\mossberg_draw
@@ -1646,6 +1705,7 @@ snd_bore					                                      = $no_sound
 snd_open_weapon				                                      = $no_sound
 snd_add_cartridge				                                  = weapons\mossberg\mossberg_reload
 snd_close_weapon				                                  = weapons\mossberg\mossberg_reload_end
+snd_reload_jammed				                                  = wpn_mossberg_snd_reload_jammed
 ;--------------------------------------
 
 [wpn_toz194_snd_shoot]
@@ -1672,9 +1732,14 @@ snd_2_layer                                        			      = weapons\remington8
 snd_3_layer                                        			      = weapons\_distance_shooting_mid\svd_distant
 snd_4_layer                                                       = weapons\_distance_shooting_far\svd_distant
 
+[wpn_remington870_snd_reload_jammed]
+snd_1_layer		                                          		  = weapons\ak_empty, 0.7
+snd_2_layer                                                       = weapons\remington870\pump
+
 [wpn_remington870_sounds]:wpn_winchester1300_sounds
 snd_shoot				                                          = wpn_remington870_snd_shoot
 snd_close_weapon				                                  = weapons\remington870\remington870_close
+snd_reload_jammed				                                  = wpn_remington870_snd_reload_jammed
 ;--------------------------------------
 
 [wpn_mp133_snd_shoot]
@@ -1724,6 +1789,7 @@ snd_reload                                                        = weapons\hk41
 snd_reload_empty                                                  = weapons\hk416\hk416_reload
 snd_switch				                                          = weapons\hk416\hk416_switch, 1.0, 0.5
 snd_reload_grenade				                                  = weapons\m203\M203_reload3
+snd_ammo_check 													  = weapons\hk416\hk416_reload
 ;--------------------------------------
 
 [wpn_hk417_sounds]:wpn_m4_sounds ;-->
@@ -1795,6 +1861,7 @@ snd_silncer_shot				                                  = weapons\sig550\sig550_sh
 snd_shoot_grenade			                                      = weapons\m203\M203_grenshoot
 snd_reload_grenade			                                      = weapons\sig550\sig550_grenload
 snd_bore					                                      = $no_sound
+snd_ammo_check			                                          = weapons\sig550\sig550_reload
 
 [wpn_sig550_sniper_sounds]:wpn_sig550_sounds
 snd_silncer_shot				                                  = weapons\sig550\sig550_sniper_shot_sil
@@ -1802,6 +1869,7 @@ snd_silncer_shot				                                  = weapons\sig550\sig550_sn
 [wpn_sig552_sounds]:wpn_sig550_sounds
 snd_reload				                                          = weapons\sig552\sig552_reload
 snd_reload_empty                                                  = weapons\sig552\sig552_reload
+snd_ammo_check			                                          = weapons\sig552\sig552_reload
 
 [wpn_fal_sounds]:base_sounds
 snd_draw				                                          = weapons\sig550\sig550_draw
@@ -1836,10 +1904,11 @@ snd_reload				                                          = weapons\scar\scar_relo
 snd_reload_empty                                                  = weapons\scar\scar_reload
 snd_reload_grenade			                                      = weapons\m203\m203_reload2
 snd_silncer_shot				                                  = weapons\scar\scar_shot_sil
+snd_ammo_check			                                          = weapons\scar\scar_reload
 ;--------------------------------------
 
 [wpn_fort500_sounds]:wpn_mossberg_sounds ;--?
-snd_shoot				                                          = wpn_mossberg_snd_shoot	;weapons\fort500\fort500_shoot  
+snd_shoot				                                          = weapons\fort500\fort500_shoot
 
 ;--------------------------------------
 [wpn_m82_snd_shoot]
@@ -1866,6 +1935,10 @@ snd_2_layer                                                       = weapons\m24\
 snd_3_layer                                                       = weapons\_distance_shooting_mid\l96_distant
 snd_4_layer                                                       = weapons\_distance_shooting_far\l96_distant
 
+[wpn_m24_snd_reload_jammed]
+snd_1_layer                                                       = weapons\ak_empty, 0.7
+snd_2_layer                                                       = weapons\m24\bolt
+
 [w_remington700_snd_shoot_silencer]
 snd_1_layer                                                       = weapons\m4a1\m4a1_shot_sil
 snd_2_layer                                                       = weapons\remington700\bolt;weapons\m24\bolt
@@ -1876,6 +1949,10 @@ snd_2_layer                                                       = weapons\remi
 snd_3_layer                                                       = weapons\_distance_shooting_mid\l96_distant
 snd_4_layer                                                       = weapons\_distance_shooting_far\l96_distant
 
+[w_remington700_snd_reload_jammed]
+snd_1_layer                                                       = weapons\ak_empty, 0.7
+snd_2_layer                                                       = weapons\remington700\bolt
+
 [wpn_remington700_sounds]:base_sounds
 snd_draw				                                          = weapons\lr300\lr300_draw
 snd_holster				                                          = weapons\sniper_holster
@@ -1884,6 +1961,8 @@ snd_empty				                                          = weapons\lr300\lr300_emp
 snd_reload				                                          = weapons\remington700\reload
 snd_silncer_shot			                                      = w_remington700_snd_shoot_silencer
 snd_bore				                                          = $no_sound
+snd_reload_jammed 												  = w_remington700_snd_reload_jammed
+snd_ammo_check 													  = weapons\remington700\reload
 
 [wpn_m24_sounds]:base_sounds ;--?
 snd_draw				                                          = weapons\sv98\sv98_draw	;weapons\m24\m24_draw
@@ -1895,6 +1974,7 @@ snd_close				                                          = weapons\generic_close
 snd_bore				                                          = weapons\draw_silent
 snd_bore1				                                          = weapons\draw_silent
 snd_silncer_shot			                                      = weapons\silencers\silencer_762x51
+snd_reload_jammed 												  = wpn_m24_snd_reload_jammed
 ;--------------------------------------
 
 [wpn_g43_snd_shoot]
@@ -1939,6 +2019,5 @@ snd_silncer_shot                                                  = wpn_k98_snd_
 [wpn_ar57_sounds]:wpn_p90_sounds
 snd_reload              										  = weapons\ar57\ar57_reload
 snd_reload_empty        										  = weapons\ar57\ar57_reload_empty
-snd_shutter 													  = weapons\ar57\ar57_unjam, 1, 0, 1.5
-snd_shutter_misfire      										  = weapons\ar57\ar57_unjam
+snd_reload_jammed 												  = weapons\ar57\ar57_unjam
 ;--------------------------------------

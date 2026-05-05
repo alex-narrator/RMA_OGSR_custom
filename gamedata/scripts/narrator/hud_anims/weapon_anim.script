@@ -10,6 +10,7 @@ function attach(sm)
 	sm:subscribe({signal = "on_hit_actor",   				fun = this.on_actor_hit})
 	sm:subscribe({signal = "on_spawn",   					fun = this.on_spawn})
 	sm:subscribe({signal = "on_hud_state_switch", 			fun = this.on_state_switch})
+	sm:subscribe({signal = "on_weapon_unjam", 				fun = this.on_weapon_unjam})
 	sm:subscribe({signal = "on_actor_weapon_zoom_change", 	fun = this.on_zoom_change})
 	sm:subscribe({signal = "on_actor_weapon_fire_mode_change", 	fun = this.play_switch_anim})
 	sm:subscribe({signal = "on_actor_weapon_fire_mode_change", 	fun = this.play_firemode_anim})
@@ -88,17 +89,19 @@ function play_switch_anim(item)
 end
 
 function play_firemode_anim(item)
+	if not actor_hands_free() then
+	return end
 	local wpn = item:get_weapon_m()
 	if wpn.misfire and hud_anim_exists(item, "anm_switch_mode_jammed") then
-		item:play_hud_motion("anm_switch_mode_jammed", true, -1, 1)
+		item:play_hud_motion("anm_switch_mode_jammed")
 		return
 	end
 	if item:get_ammo_in_magazine() == 0 and hud_anim_exists(item, "anm_switch_mode_empty") then
-		item:play_hud_motion("anm_switch_mode_empty", true, -1, 1)
+		item:play_hud_motion("anm_switch_mode_empty")
 		return
 	end	
 	if hud_anim_exists(item, "anm_switch_mode") then
-		item:play_hud_motion("anm_switch_mode", true, -1, 1)
+		item:play_hud_motion("anm_switch_mode")
 	end
 end
 
@@ -124,7 +127,6 @@ local hud_state_anims = {
 local hud_state_zoom_out = {
 	[global_flags.eReload] 	= { param_name = "zoom_out_on_reload", 	def_val = true},
 	[global_flags.eMisfire] = { param_name = "zoom_out_on_misfire", def_val = false},
-	[global_flags.eShutter] = {	param_name = "zoom_out_on_shutter", def_val = true},
 }
 
 function on_state_switch(item, state, old_state)
@@ -156,6 +158,17 @@ function on_state_switch(item, state, old_state)
 		hud_add_info_message("hud_info", "gun_jammed", 2)
 		actor_sounds.misfire()
 	end
+end
+
+function on_weapon_unjam(item)
+	level.add_call(
+		function()
+			return actor_hands_free()
+		end,
+		function()
+			hud_add_info_message("hud_info", "gun_unjammed", 2)
+		end
+	)
 end
 
 --//additional hands anim
