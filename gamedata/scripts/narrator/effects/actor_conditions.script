@@ -187,6 +187,10 @@ function on_update_effects(delta)
 		end
 	end
 	
+	if actor:ph_capture() and actor_cant_sprint() then
+		actor:ph_release_object()
+	end
+	
 	update_alcohol_effector()
 	update_psy_health_effector()
 	update_psy_health_effects()
