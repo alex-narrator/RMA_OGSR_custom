@@ -8,6 +8,8 @@ function attach(sm)
 	--sm:subscribe({signal = "on_hit_actor", 			fun = this.on_hit_actor})
 	sm:subscribe({signal = "on_actor_before_hit", 	fun = this.on_actor_before_hit})
 	sm:subscribe({signal = "on_death_actor",   		fun = this.on_death_actor})
+	sm:subscribe({signal = "on_key_press",   		fun = this.on_key_press})
+	sm:subscribe({signal = "on_key_release",   		fun = this.on_key_release})
 end
 
 local get_snd 						= xr_sound.get_safe_sound_object
@@ -19,6 +21,8 @@ local def_walk_accel 				= read_if_exists(sys_ini, "float", "actor", "walk_accel
 local def_sprint_koef 				= read_if_exists(sys_ini, "float", "actor", "sprint_koef", 2.6)
 local def_jump_speed 				= read_if_exists(sys_ini, "float", "actor", "jump_speed", 6)
 local def_max_weight 				= read_if_exists(sys_ini, "float", "inventory", "max_weight", 50)
+
+local movement_inertia 				= read_if_exists(sys_ini, "float", "actor", "movement_inertia", 0.1)
 
 local def_bleeding_v 				= read_if_exists(sys_ini, "float", cond_sect, "bleeding_v", 0)
 local def_satiety_v 				= read_if_exists(sys_ini, "float", cond_sect, "satiety_v", 0)
@@ -300,9 +304,15 @@ end
 function overweight_koef()
 	local power_k = actor.power >= power_slowdown_threshold and 1 or math.clamp(actor.power / power_slowdown_threshold, 1, min_power_walk_jump)
 	local weight = actor:get_inventory_weight()
-	local max_weight = actor:get_max_weight()	
+	local max_weight = actor:get_max_weight()
 	local overweight_k = weight > max_weight and (max_weight / weight) or 1
 	return power_k * overweight_k
+end
+
+function weight_koef()
+	local weight = actor:get_inventory_weight()
+	local max_weight = actor:get_max_weight()
+	return weight / max_weight
 end
 
 function stress_koef()
@@ -477,4 +487,53 @@ function on_death_actor()
 	local die_snd_name = def_die_snds[math.random(1, table.size(def_die_snds))]
 	-- log_news("~die_snd_name %s", die_snd_name)
 	get_snd(die_snd_name):play(actor, 0, sound_object.s2d)
+end
+
+local move_keys = {
+	[key_bindings.kFWD] = true,
+	[key_bindings.kBACK] = true,
+	[key_bindings.kL_STRAFE] = true,
+	[key_bindings.kR_STRAFE] = true,
+}
+
+function on_key_press(key, game_action)
+	if actor:get_holder() then
+	return end
+	if not move_keys[game_action] then
+	return end
+	
+	local inertia = movement_inertia * weight_koef()
+	if math.fsimilar(inertia, 0) then
+	return end
+	--log_news("~inertia %s", inertia)
+	--log_news("~begin movestart inertia")
+	actor_obj:block_action(game_action)
+	add_time_delayed_action(inertia,
+		function()
+			actor_obj:unblock_action(game_action)
+			--log_news("~end movestart inertia")
+		end
+	)
+end
+
+function on_key_release(key, game_action)
+	if actor:get_holder() then
+	return end	
+	if not move_keys[game_action] then
+	return end
+	
+	local inertia = movement_inertia * weight_koef()
+	if math.fsimilar(inertia, 0) then
+	return end
+	--log_news("~inertia %s", inertia)
+	--log_news("~begin movestop inertia")
+	add_time_delayed_action(inertia,
+		function()
+			--log_news("~end movestop inertia")
+		end,
+		function()
+			level.send_event_key_hold(bind_to_dik(game_action))
+			return false
+		end
+	)	
 end

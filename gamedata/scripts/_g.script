@@ -2690,16 +2690,14 @@ function IsMoveState(state, compare_state)
 		return false 
 	end
 	
-	if (not compare_state) then
-		compare_state = actor_obj:get_body_state()
-	end
+	compare_state = compare_state or actor_obj:get_body_state()
 	
 	return (bit_and(compare_state, state) ~= 0)
 end
 
 function SetMoveState(state, enable)
-	local ws = actor_obj:get_state_wishful()
-	local desired_state = enable and bit_or(ws, state) or bit_and(ws, bit_not(state))
+	local ms_wish = actor_obj:get_state_wishful()
+	local desired_state = enable and bit_or(ms_wish, state) or bit_and(ms_wish, bit_not(state))
 	actor_obj:set_state_wishful(desired_state)	
 end
 
