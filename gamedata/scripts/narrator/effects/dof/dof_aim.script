@@ -11,11 +11,12 @@ function on_zoom_in(weapon)
 	local wpn = weapon:get_weapon()
 	if wpn:is_3dss_enabled() and not wpn:aim_alt_mode() then
 	return end
+
 	local param_sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or weapon:section()
 	local dof_params = read_if_exists(sys_ini, "string", param_sect, "dof_aim", AIM_DOF)
 	local dof = split_string(dof_params, ",")
 	if not dof then return end
-	
+
 	local dof_intensity = read_if_exists(sys_ini, "float", param_sect, "dof_aim_intensity", DOF_INTENSITY)
 	get_console():execute("ssfx_wpn_dof_2 "..dof_intensity)
 	
@@ -24,7 +25,8 @@ function on_zoom_in(weapon)
 			--log3("~zoom_inc called for weapon %s", weapon:section())
 			local zrt = weapon:get_weapon().zoom_rotation_factor
 			set_dof_params(dof[1]*zrt*DOF_INTENSITY, dof[2]*zrt, dof[3]*zrt, dof[4]*zrt)
-			return zrt == 1 or zrt == 0
+
+			return zrt == 1 or (zrt == 0 and not weapon:is_zoomed())
 		end,
 		function()
 		end
@@ -34,12 +36,13 @@ end
 function on_zoom_out(weapon)
 	local wpn = weapon:get_weapon()
 	if wpn:is_3dss_enabled() and not wpn:aim_alt_mode() then
-	return end	
+	return end
+	
 	local param_sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or weapon:section()
 	local dof_params = read_if_exists(sys_ini, "string", param_sect, "dof_aim", AIM_DOF)
 	local dof = split_string(dof_params, ",")
 	if not dof then return end
-	
+
 	level.add_call(
 		function()
 			--log3("~zoom_dec called for weapon %s", weapon:section())
@@ -48,7 +51,7 @@ function on_zoom_out(weapon)
 				zrt = 0
 			end			
 			set_dof_params(dof[1]*zrt*DOF_INTENSITY, dof[2]*zrt, dof[3]*zrt, dof[4]*zrt)
-			return zrt == 0
+			return zrt == 0 or zrt == 1
 		end,
 		function()
 		end		
