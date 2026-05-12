@@ -39,14 +39,16 @@ end
 
 local aim_in_prefix = [[weapons\rattle\aimin\aim_in_]]
 local aim_out_prefix = [[weapons\rattle\aimout\aim_out_]]
+local aim_prefix = [[weapons\rattle\aim\aim]]
 function on_spawn()
-	level.prefetch_many_sounds(aim_in_prefix)
-	level.prefetch_many_sounds(aim_out_prefix)
+	-- level.prefetch_many_sounds(aim_in_prefix)
+	-- level.prefetch_many_sounds(aim_out_prefix)
+	level.prefetch_many_sounds(aim_prefix)
 end
 
 function on_zoom_in(weapon)
 	--level.add_complex_effector("aim", 1908)
-	local sound_name = aim_in_prefix..math.random(1,10)
+	local sound_name = aim_prefix..math.random(1,39)--aim_in_prefix..math.random(1,10)
 	local snd = xr_sound.get_safe_sound_object(sound_name)
 	if snd then
 		snd:play(actor, 0, sound_object.s2d)
@@ -59,7 +61,7 @@ end
 
 function on_zoom_out(weapon)
 	--level.add_complex_effector("aim", 1907)
-	local sound_name = aim_out_prefix..math.random(1,10)
+	local sound_name = aim_prefix..math.random(1,39)--aim_out_prefix..math.random(1,10)
 	local snd = xr_sound.get_safe_sound_object(sound_name)
 	if snd then
 		snd:play(actor, 0, sound_object.s2d)
