@@ -144,6 +144,8 @@ function MainIngameOverlay:InitControls()
 	local xml = CScriptXmlInit()
 	xml:ParseFile(OVERLAY_XML)
 	
+	xml:InitAutoStaticGroup("w:auto_static", self)
+	
 	self.outfit_mask = CUIStatic()
 	self.outfit_mask:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
 	self.outfit_mask:SetStretchTexture(true)
@@ -163,33 +165,32 @@ function MainIngameOverlay:InitControls()
 	self.blood_overlay = xml:InitStatic("blood_overlay", self)
 	self.blood_overlay.fade_time = xml:ReadAttribFlt("blood_overlay", "fade_time", 0)
 	
-	self.actor_params = xml:InitStatic("actor_params", self)
 	self.conditions = {
-		["health"] 		= { condition = function() return actor.health end },
-		["power"] 		= { condition = function() return actor.power end },
-		["stamina"] 	= { condition = function() return actor_obj:is_zoom_aiming_mode() and stamina.get_val() or 1 end },
+		-- ["health"] 		= { condition = function() return actor.health end },
+		-- ["power"] 		= { condition = function() return actor.power end },
+		-- ["stamina"] 	= { condition = function() return actor_obj:is_zoom_aiming_mode() and stamina.get_val() or 1 end },
 		["visibility"] 	= { condition = function() return visibility() end },
 		["noise"] 		= { condition = function() return actor:get_holder() and 4 or actor_obj.sound_noise end },
 	}
 	for k,v in pairs(self.conditions) do
-		v.back = xml:InitStatic("actor_params:"..k, self.actor_params)
-		v.static = xml:InitStatic("actor_params:"..k..":static", v.back)
-		v.bar = xml:InitProgressBar("actor_params:"..k..":progress_bar", v.back)
-		v.show_val = xml:ReadAttribFlt("actor_params:"..k, "show_val", 0)
+		v.back = xml:InitStatic(k, self)
+		v.static = xml:InitStatic(k..":static", v.back)
+		v.bar = xml:InitProgressBar(k..":progress_bar", v.back)
+		v.show_val = xml:ReadAttribFlt(k, "show_val", 0)
 	end
 	
 	self.conditions_circles = {
-		["health_circle"] 		= { condition = function() return actor.health end},
-		["power_circle"] 		= { condition = function() return actor.power end},
-		["stamina_circle"] 		= { condition = function() return stamina.get_val() end},
+		-- ["health_circle"] 		= { condition = function() return actor.health end},
+		-- ["power_circle"] 		= { condition = function() return actor.power end},
+		-- ["stamina_circle"] 		= { condition = function() return stamina.get_val() end},
 		-- ["visibility_circle"] 	= { condition = function() return visibility() end },
 		-- ["noise_circle"] 		= { condition = function() return actor_obj.sound_noise end },		
 	}
 	for k,v in pairs(self.conditions_circles) do
-		v.back = xml:InitStatic("actor_params:"..k, self.actor_params)
-		v.icon = xml:InitStatic("actor_params:"..k..":icon", v.back)
-		v.progress_shape = xml:InitProgressShape("actor_params:"..k..":progress_shape", v.back)
-		v.show_val = xml:ReadAttribFlt("actor_params:"..k, "show_val", 1)
+		v.back = xml:InitStatic(k, self)
+		v.icon = xml:InitStatic(k..":icon", v.back)
+		v.progress_shape = xml:InitProgressShape(k..":progress_shape", v.back)
+		v.show_val = xml:ReadAttribFlt(k, "show_val", 1)
 	end
 	
 	self.conditions_icons = {
@@ -197,27 +198,16 @@ function MainIngameOverlay:InitControls()
 		-- ["visibility_icon"] = { condition = function() return visibility() end},
 	}
 	for k,v in pairs(self.conditions_icons) do
-		v.icon = xml:InitStatic("actor_params:"..k, self.actor_params)
-		v.thresholds = split_string(xml:ReadAttrib("actor_params:"..k, "thresholds", "0, 0.01, 0.5, 1"), ",", true)
-		v.texture_name = xml:ReadAttrib("actor_params:"..k, "texture_name", k)
-		v.show_val = xml:ReadAttribFlt("actor_params:"..k, "show_val", 0)
+		v.icon = xml:InitStatic(k, self)
+		v.thresholds = split_string(xml:ReadAttrib(k, "thresholds", "0, 0.01, 0.5, 1"), ",", true)
+		v.texture_name = xml:ReadAttrib(k, "texture_name", k)
+		v.show_val = xml:ReadAttribFlt(k, "show_val", 0)
 	end	
 	
-	--//car condition bar
-	self.car = xml:InitStatic("actor_params:car", self.actor_params)
-	self.car_static = xml:InitStatic("actor_params:car:static", self.car)
-	-- self.car_bar = xml:InitProgressBar("actor_params:car:progress_bar", self.car)
-	self.car_bar = xml:InitProgressShape("actor_params:car:progress_shape", self.car)
-	self.car_color_def = self.car_static:GetColor()
-	self.car_color_engine_on = GetARGB(255, 0, 255, 33)
-	
-	--//stationary machinegun overheat bar
-	self.mgun = xml:InitStatic("actor_params:mgun", self.actor_params)
-	self.mgun_static = xml:InitStatic("actor_params:mgun:static", self.mgun)
-	self.mgun_overheat_bar = xml:InitProgressBar("actor_params:mgun:progress_bar", self.mgun)
-	
 	--//motion icon
-	self.motion_icon = xml:InitStatic("motion_icon", self)
+	name = "motion_icon"
+	self.motion_icon = xml:InitStatic(name, self)
+	self.motion_icon.icon = xml:InitStatic(name..":icon", self.motion_icon)
 	self.current_motion_texture = false
 
 	--// quick slots
@@ -303,15 +293,11 @@ function MainIngameOverlay:InitControls()
 	
 	--//active item info
 	self.active_item = xml:InitStatic("active_item", self)
-	self.active_item_icon = xml:InitStatic("active_item:icon", self.active_item)
-	self.active_item_icon.scale = xml:ReadAttribFlt("active_item:icon", "scale", 1)
-	self.active_item_icon.indent = xml:ReadAttribFlt("active_item:icon", "indent", 5)
-	self.active_item_icon_2 = xml:InitStatic("active_item:icon", self.active_item)
-	self.active_item_icon_3 = xml:InitStatic("active_item:icon", self.active_item)
-	self.ammo_counter = xml:InitStatic("active_item:ammo_counter", self.active_item)
-	self.zoom_counter = xml:InitStatic("active_item:zoom_counter", self.active_item)
-	self.zoom_progress = xml:InitProgressBar("active_item:zoom_counter:progress_bar", self.zoom_counter)
-	self.zoom_progress_icon = xml:InitStatic("active_item:zoom_counter:progress_bar:icon", self.zoom_counter)
+	self.active_item.icon = xml:InitStatic("active_item:icon", self.active_item)
+	self.active_item.ammo_name = xml:InitStatic("active_item:ammo_name", self.active_item)
+	self.active_item.ammo_counter = xml:InitStatic("active_item:ammo_counter", self.active_item)
+	self.active_item.fire_mode = xml:InitStatic("active_item:fire_mode", self.active_item)
+	self.active_item.switch_ammo_name = xml:InitStatic("active_item:switch_ammo_name", self.active_item)
 	
 	--//missile throw progressshape
 	self.missile_throw = xml:InitProgressShape("throw_progress", self)
@@ -392,12 +378,6 @@ function MainIngameOverlay:InitControls()
 	self.nvd_info = xml:InitStatic("nvd_info", self)
 	self.nvd_info.default_offset = {xml:ReadAttribInt("nvd_info", "x", 0), xml:ReadAttribInt("nvd_info", "y", 0)}
 	self.nvd_info:Show(false)
-	
-	self.ammo_switch_info = xml:InitStatic("ammo_switch_info", self)
-	self.ammo_switch_info.icon = xml:InitStatic("ammo_switch_info:icon", self.ammo_switch_info)
-	self.ammo_switch_info.ammo_name = xml:InitStatic("ammo_switch_info:ammo_name", self.ammo_switch_info)
-	self.ammo_switch_info.show_time = xml:ReadAttribFlt("ammo_switch_info:icon", "show_time", 2)
-	self.ammo_switch_info:Show(false)
 	
 	--//use anim progress
 	self.use_anim = xml:InitStatic("use_anim", self)
@@ -510,7 +490,7 @@ function MainIngameOverlay:UpdateBloodOverlay()
 end
 
 function MainIngameOverlay:UpdateMotionIcon()
-	self.motion_icon:Show(not actor:get_holder())
+	--self.motion_icon:Show(not actor:get_holder())
 	local state = "normal"
 	if actor_obj:is_actor_climb() or actor_obj:is_actor_climbing() then
 		state = "climb"
@@ -525,7 +505,7 @@ function MainIngameOverlay:UpdateMotionIcon()
 	end
 	local texture = MOTION_TEXTURE_PREFIX..state
 	if self.current_motion_texture ~= texture then
-		self.motion_icon:InitTexture(texture)
+		self.motion_icon.icon:InitTexture(texture)
 		self.current_motion_texture = texture
 		--log3("~current state %s", state)
 	end
@@ -708,222 +688,82 @@ end
 
 function MainIngameOverlay:UpdateActiveItem()
 	local act_item = actor:active_item()
-	local act_device = actor:active_device()
-	self.active_item:Show((act_item or act_device) and SHOW_ACTIVE_ITEM_INFO)
+	local weapon = act_item and get_clsid(act_item) ~= clsid.wpn_binocular_s and act_item:get_weapon_m()
+	self.active_item:Show(weapon and SHOW_ACTIVE_ITEM_INFO)
 
 	if not self.active_item:IsShown() then
 	return end
-
-	local params, params_2, params_3
-	local show_sect, show_sect_2, show_sect_3
-	local scale = self.active_item_icon.scale
-	local scale_2 = self.active_item_icon.scale
-	local scale_3 = self.active_item_icon.scale
-	local indent = self.active_item_icon.indent
 	
-	local wpn = act_item and act_item:get_weapon_m()
-	self.active_item_icon:Show(false)
-	self.active_item_icon_2:Show(false)
-	self.active_item_icon_3:Show(false)
+	local ammo_count = act_item:get_ammo_in_magazine()
+	local ammo_sect = self.active_item.ammo_sect or get_cur_ammo_sect(act_item)
+	local params = CIconParams(ammo_sect)
+	local ammo_icon = CUIStatic()
+	SetCellIcon(ammo_icon, params)
 	
-	self.active_item:SetText("")
-	self.ammo_counter:SetText("")
-	self.active_item_icon:SetText("")
+	self.active_item.icon:DetachAll()
+	self.active_item.icon:AttachChild(ammo_icon)
+	ui_inv_utils.CellItemFitToSize(params, ammo_icon, self.active_item.icon)
+	ui_inv_utils.UpdateLayerIcons(ammo_sect, ammo_icon)
 	
-	local text, val = "", ""
+	local switch_mode = not not self.active_item.ammo_sect
 	
-	local pos_x = self.active_item:GetWidth()
-	local need_indent = false
+	self.active_item.ammo_counter:Show(not switch_mode)
+	self.active_item.ammo_name:Show(not switch_mode)
+	self.active_item.fire_mode:Show(not switch_mode)
+	self.active_item.switch_ammo_name:Show(switch_mode)
 	
-	if wpn and get_clsid(act_item) ~= clsid.wpn_binocular_s then
-		self.active_item_icon:Show(act_item:get_ammo_in_magazine() > 0)
-		self.active_item_icon_2:Show(wpn:is_addon_attached(addon.magazine) and not act_item:get_gl_mode())
-		
-		show_sect = get_cur_ammo_sect(act_item)
-		show_sect_2 = wpn:is_addon_attached(addon.magazine) and wpn:get_addon_name(addon.magazine) or nil
-		
-		params = CIconParams(show_sect)
-		
-		if show_sect_2 and self.active_item_icon_2:IsShown() then
-			params_2 = CIconParams(show_sect_2)
-		end
-		
-		val = game.translate_string(read_if_exists(sys_ini, "string", show_sect, "inv_name_short", get_inv_name(show_sect)))
-		if act_item:get_ammo_in_magazine() == 0 then
-			val = game.translate_string("st_not_loaded")
-		end
-		text = string.format("%s", val)
-		if has_fire_modes(act_item) or act_item:get_gl_mode() then
-			text = string.format("%s %s", val, get_fire_mode_str(act_item))
-		end
-		self.active_item:SetText(text)
-		
-		val = act_item:get_ammo_in_magazine()
-		text = string.format("[%s]", val)
-		self.ammo_counter:SetText(text)
-	elseif act_item then
-		self.active_item_icon:Show(true)
-		show_sect = act_item:section()
-		
-		if act_item:is_grenade() then
-			local grenade_count = 0
-			function perform_action(dummy, item)
-				if item:is_grenade() and loadout.can_remove(item) then
-					grenade_count = grenade_count + 1
-				end
-			end	
-			actor:iterate_ruck(perform_action, nil)
-			if grenade_count > 0 then
-				val = grenade_count
-				text = string.format("%s", val)
-			end
-		end
-		
-		if get_clsid(act_item) == clsid.obj_bolt and LIMITED_BOLTS then
-			local bolt_count = 0
-			function perform_action(dummy, item)
-				if get_clsid(item) == clsid.obj_bolt then
-					bolt_count = bolt_count + 1
-				end
-			end	
-			actor:iterate_ruck(perform_action, nil)
-			if bolt_count > 0 then
-				val = bolt_count
-				text = string.format("%s", val)
-			end
-		end
-		
-		if act_item:get_pda() and is_power_device(act_item) then
-			self.active_item_icon:SetText(string.format("%.f%s", act_item:binded_object():get_power_level() * 100, "%"))
-		end
-		
-		self.ammo_counter:SetText(text)
-		params = CIconParams(show_sect)
-		self.active_item:SetText(get_inv_name_short(show_sect))
-	end
+	if self.active_item.ammo_sect then
+		local text = string.format("%s:\\n%s", game.translate_string("st_next_ammo_type"), get_inv_name_short(ammo_sect))
+		self.active_item.switch_ammo_name:SetText(text)
+	else
+		self.active_item.ammo_counter:SetText(string.format("[%s]", ammo_count))
+		local text = ammo_count > 0 and game.translate_string(read_if_exists(sys_ini, "string", ammo_sect, "inv_name_short", get_inv_name(ammo_sect))) or ""
+		self.active_item.ammo_name:SetText(text)
 	
-	self.ammo_counter:Show(self.ammo_counter:GetText() ~= "")
+		ammo_icon:Show(ammo_count > 0)
 	
-	if self.ammo_counter:IsShown() then
-		self.ammo_counter:SetWndPos(pos_x - self.ammo_counter:GetWidth(), self.ammo_counter:GetWndPos().y)
-		pos_x = self.ammo_counter:GetWndPos().x 
-		need_indent = true
-	end
-	
-	if self.active_item_icon:IsShown() then
-		SetCellIcon(self.active_item_icon, params)
-		if params.grid_height > 1 or params.grid_width > 2 then
-			scale = scale * 0.75
-		end
-		self.active_item_icon:SetWidth(params.grid_width * scale * CELL_W * get_current_kx())
-		self.active_item_icon:SetHeight(params.grid_height * scale * CELL_H)
-		
-		self.active_item_icon:DetachAll()
-		ui_inv_utils.UpdateLayerIcons(show_sect, self.active_item_icon)
-
-		if need_indent then
-			pos_x = pos_x - indent
-		else
-			need_indent = true
-		end
-		self.active_item_icon:SetWndPos(pos_x - self.active_item_icon:GetWidth(), self.active_item_icon:GetWndPos().y)
-		pos_x = self.active_item_icon:GetWndPos().x
-	end
-	
-	if self.active_item_icon_2:IsShown() then
-		SetCellIcon(self.active_item_icon_2, params_2)
-		if params_2.grid_height > 1 or params_2.grid_width > 2 then
-			scale_2 = scale_2 * 0.75
-		end
-		self.active_item_icon_2:SetWidth(params_2.grid_width * scale_2 * CELL_W * get_current_kx())
-		self.active_item_icon_2:SetHeight(params_2.grid_height * scale_2 * CELL_H)
-
-		if need_indent then
-			pos_x = pos_x - indent
-		else
-			need_indent = true
-		end
-		self.active_item_icon_2:SetWndPos(pos_x - self.active_item_icon_2:GetWidth(), self.active_item_icon_2:GetWndPos().y)
-		pos_x = self.active_item_icon_2:GetWndPos().x
-		
-		self.active_item_icon_2:DetachAll()
-		ui_inv_utils.UpdateLayerIcons(show_sect_2, self.active_item_icon_2)
-	end
-	
-	self.active_item_icon_3:Show(act_device)
-	if self.active_item_icon_3:IsShown() then
-		show_sect_3 = act_device:section()
-		params_3 = CIconParams(show_sect_3)
-		SetCellIcon(self.active_item_icon_3, params_3)
-		if params_3.grid_height > 1 or params_3.grid_width > 2 then
-			scale_3 = scale * 0.75
-		end		
-		self.active_item_icon_3:SetWidth(params_3.grid_width * scale_3 * CELL_W * get_current_kx())
-		self.active_item_icon_3:SetHeight(params_3.grid_height * scale_3 * CELL_H)
-
-		if need_indent then
-			pos_x = pos_x - indent
-		else
-			need_indent = true
-		end
-		self.active_item_icon_3:SetWndPos(pos_x - self.active_item_icon_3:GetWidth(), self.active_item_icon_3:GetWndPos().y)
-		pos_x = self.active_item_icon_3:GetWndPos().x
-
 		local text = ""
-		if is_power_device(act_device) then
-			self.active_item_icon_3:SetText(string.format("%.f%s", act_device:binded_object():get_power_level() * 100, "%"))
-		elseif is_glowstick(act_device) then
-			self.active_item_icon_3:SetText(string.format("%.f%s", act_device:condition() * 100, "%"))
+		if act_item:get_gl_mode() then
+			text = string.format("%s[%s] ", "%c[UI_orange]", get_fire_mode_str(act_item))
+		elseif has_fire_modes(act_item) then
+			local f_mod_tbl = get_fire_modes(act_item)
+			local cur_f_mode = weapon.cur_fire_mode
+			for k,v in pairs(f_mod_tbl) do
+				local val = v == -1 and "A" or v
+				if tonumber(k) == cur_f_mode + 1 then
+					text = text..string.format("%s[%s] ", "%c[UI_orange]", val)
+				else
+					text = text..string.format("%s%s ", "%c[default]", val)
+				end
+			end
 		end
-		if self.active_item:GetText() == "" then
-			self.active_item:SetText(get_inv_name_short(show_sect_3))
-		end
-		
-		self.active_item_icon_3:DetachAll()
-		ui_inv_utils.UpdateLayerIcons(show_sect_3, self.active_item_icon_3)
-	end
-	
-	self.zoom_counter:Show(wpn and wpn:is_addon_attached(addon.scope) and wpn.zoom_mode and wpn.zoom_rotation_factor == 1)
-	if self.zoom_counter:IsShown() then
-		local zoom = wpn.zoom_factor
-		self.zoom_counter:Show(zoom > 1)
-		text = string.format("%s %.1fx", game.translate_string("st_zoom"), zoom)
-		self.zoom_counter:SetText(text)
-		local zoom_params = get_wpn_scope_zoom_params(act_item)
-		self.zoom_progress:Show(zoom_params and #zoom_params>1)
-		self.zoom_progress_icon:Show(self.zoom_progress:IsShown())
-		if self.zoom_progress:IsShown() then
-			local range = zoom_params[2] - zoom_params[1]
-			zoom = zoom - zoom_params[1]
-			zoom = zoom/range
-			self.zoom_progress:SetProgressPos(zoom)		
-		end	
+		self.active_item.fire_mode:SetText(text)	
 	end
 end
 
-function MainIngameOverlay:UpdateCarPanel()
-	local car = actor_get_car()
-	self.car:Show(car)
-	if car then
-		-- self.car_bar:SetProgressPos(car:GetfHealth())
-		--local val = car:GetFuel() / car:GetFuelTank()
-		local val = car:GetfHealth()
-		self.car_bar:SetPos(val)
-		self.car_static:SetColor(car:IsEngineOn() and self.car_color_engine_on or self.car_color_def)
-	end
-end
+-- function MainIngameOverlay:UpdateCarPanel()
+	-- local car = actor_get_car()
+	-- self.car:Show(car)
+	-- if car then
+		-- -- self.car_bar:SetProgressPos(car:GetfHealth())
+		-- --local val = car:GetFuel() / car:GetFuelTank()
+		-- local val = car:GetfHealth()
+		-- self.car_bar:SetPos(val)
+		-- self.car_static:SetColor(car:IsEngineOn() and self.car_color_engine_on or self.car_color_def)
+	-- end
+-- end
 
-function MainIngameOverlay:UpdateMountedWpnPanel()
-	local mgun = nil
-	if handling_mounted_weapon() then
-		mgun = actor:get_holder()
-	end
-	local binded_mgun = mgun and mgun:binded_object() or nil
-	self.mgun:Show(binded_mgun)
-	if binded_mgun then
-		self.mgun_overheat_bar:SetProgressPos(binded_mgun:get_overheat())
-	end
-end
+-- function MainIngameOverlay:UpdateMountedWpnPanel()
+	-- local mgun = nil
+	-- if handling_mounted_weapon() then
+		-- mgun = actor:get_holder()
+	-- end
+	-- local binded_mgun = mgun and mgun:binded_object() or nil
+	-- self.mgun:Show(binded_mgun)
+	-- if binded_mgun then
+		-- self.mgun_overheat_bar:SetProgressPos(binded_mgun:get_overheat())
+	-- end
+-- end
 
 function MainIngameOverlay:UpdateMissileThrow()
 	local val = 0
@@ -1102,7 +942,7 @@ function MainIngameOverlay:OnKeyPress(key, game_action)
 	
 	local mir = level.main_input_receiver()
 	
-	if game_action == key_bindings.kCHECKACTIVEITEM and not SHOW_ACTIVE_ITEM_INFO and not mir then
+	if game_action == key_bindings.kCHECKACTIVEITEM and not mir then
 		local act_item = actor:active_item()
 		local act_device = actor:active_device()
 		if (not act_item and not act_device) then 
@@ -1118,6 +958,7 @@ function MainIngameOverlay:OnKeyPress(key, game_action)
 			hud_add_info_message("hud_info", str, ACTIVE_ITEM_INFO_TTL)
 		end
 		_G.SHOW_ACTIVE_ITEM_INFO = true
+		self.active_item.ammo_sect = nil
 		self.active_item_info_hide_time = time_global() + ACTIVE_ITEM_INFO_TTL * 1000
 	end
 	
@@ -1400,23 +1241,10 @@ function MainIngameOverlay:OnCustomOptionsSave()
 end
 
 function MainIngameOverlay:ShowAmmoSwitchInfo(ammo_sect)
-	local params = CIconParams(ammo_sect)
-	SetCellIcon(self.ammo_switch_info.icon, params)
-	self.ammo_switch_info.icon:DetachAll()
-	ui_inv_utils.UpdateLayerIcons(ammo_sect, self.ammo_switch_info.icon)
-	local tip = string.format("%s:\\n%s", game.translate_string("st_next_ammo_type"), get_inv_name_short(ammo_sect))
-	self.ammo_switch_info.ammo_name:SetText(tip)
-	self.ammo_switch_info.hide_time = time_global() + self.ammo_switch_info.show_time * 1000
-	self.ammo_switch_info:Show(true)
-end
-
-function MainIngameOverlay:UpdateAmmoSwitchInfo()
-	if self.ammo_switch_info:IsShown() then
-		if self.ammo_switch_info.hide_time and time_global() >= self.ammo_switch_info.hide_time then
-			self.ammo_switch_info:Show(false)
-			self.ammo_switch_info.hide_time = nil
-		end		
-	end
+	_G.SHOW_ACTIVE_ITEM_INFO = true
+	self.active_item.ammo_sect = ammo_sect
+	local ACTIVE_ITEM_INFO_TTL = get_script_option_value("active_item_info_ttl")
+	self.active_item_info_hide_time = time_global() + ACTIVE_ITEM_INFO_TTL * 1000	
 end
 
 function MainIngameOverlay:StopProjectileParticles()
@@ -1634,8 +1462,8 @@ function MainIngameOverlay:Update()
 	return end
 	self:UpdateConditions()
 	self:UpdateMotionIcon()
-	self:UpdateCarPanel()
-	self:UpdateMountedWpnPanel()
+	--self:UpdateCarPanel()
+	--self:UpdateMountedWpnPanel()
 	--self.slot_panel:Show(false)--(SHOW_GEAR_INFO)
 	self.belt_panel:Show(SHOW_GEAR_INFO)
 	--self.loadout_panel:Show(SHOW_GEAR_INFO)
@@ -1653,7 +1481,6 @@ function MainIngameOverlay:Update()
 	
 	self:UpdateActiveItemInfo()
 	self:UpdateGearInfo()
-	self:UpdateAmmoSwitchInfo()
 	self:UpdateProjectileTrajectory()
 	self:UpdateInfoMessages()
 end

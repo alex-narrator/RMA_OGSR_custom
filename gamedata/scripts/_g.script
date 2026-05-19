@@ -1927,23 +1927,22 @@ function add_update_delayed_action(updates_count, func, forced_stop_func, func_o
 end
 
 function has_fire_modes(wpn)
-	local f_modes_str = read_if_exists(sys_ini, "string", wpn:section(), "fire_modes", nil)
-    return f_modes_str and #split_string(f_modes_str, ",") > 1
+	local f_modes = get_fire_modes(wpn)
+    return f_modes and #f_modes > 1
 end
 
 function get_fire_mode_str(wpn)
 	if wpn:get_gl_mode() then
-		return string.format("(%s)", game.translate_string("st_gl_firemode"))
+		return string.format("[%s]", game.translate_string("st_gl_firemode"))
 	end
-	local f_modes_str = read_if_exists(sys_ini, "string", wpn:section(), "fire_modes", nil)
-	if not f_modes_str then
+	local firemode_tbl = get_fire_modes(wpn)
+	if not firemode_tbl or #firemode_tbl <= 1 then
 		return ""
 	end
-	local firemode_tbl = split_string(f_modes_str, ",")
 	local cur_firemode = wpn:get_weapon_m().cur_fire_mode
 	local res = firemode_tbl[cur_firemode+1]
-	res = (tonumber(res) ~= -1) and res or "A"
-	return string.format("(%s)", res)
+	res = (res ~= -1) and res or "A"
+	return string.format("[%s]", res)
 end
 
 function get_fire_modes(wpn)
@@ -1954,7 +1953,7 @@ function get_fire_modes(wpn)
 	local f_modes_str = read_if_exists(sys_ini, "string", wpn:section(), "fire_modes", nil)
 	if not f_modes_str then
 	return false end
-	return split_string(f_modes_str, ",")
+	return split_string(f_modes_str, ",", true)
 end
 
 function get_cur_ammo_sect(obj)
