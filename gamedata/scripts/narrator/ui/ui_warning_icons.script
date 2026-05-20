@@ -41,6 +41,7 @@ function WarningIcons:InitWnd(xml, owner)
 		{ name = "weapon", 			val = function() return actor:active_item() and 1 - actor:active_item():condition() or 0 end },
 		{ name = "armor", 			val = function() return actor_get_outfit() and 1 - actor_get_outfit():condition() or 0 end },
 		{ name = "helmet", 			val = function() return actor_get_helmet() and 1 - actor_get_helmet():condition() or 0 end },
+		{ name = "battery", 		val = function() local act_device = actor:active_device() return (act_device and is_power_device(act_device)) and 1 - act_device:binded_object():get_power_level() or 0 end },
 		--//states
 		{ name = "safehouse", 		val = function() return actor:has_info("safehouse") end },		
 		{ name = "use_campfire", 	val = function() return campfire_effects.actor_used_campfire() end },
