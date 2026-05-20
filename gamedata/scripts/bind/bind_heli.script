@@ -29,7 +29,7 @@ function heli_binder:__init( obj, ini ) super( obj )
 	self.ini         = ini
 	self.initialized = false
 	self.loaded      = false
-	self.sm = ogse_signals.get_mgr()
+	self.sm = ogsr_signals.get_mgr()
 end
 
 function heli_binder:reload( section )
@@ -229,5 +229,5 @@ function heli_die( obj, draftsman )
 	st.last_alt       = heli:GetRealAltitude()
 	st.alt_check_time = time_global() + 1000
 	
-	ogse_signals.get_mgr():call("on_death_heli", obj, draftsman)
+	ogsr_signals.get_mgr():call("on_death_heli", obj, draftsman)
 end

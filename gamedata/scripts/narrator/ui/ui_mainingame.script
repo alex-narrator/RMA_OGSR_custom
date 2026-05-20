@@ -102,7 +102,7 @@ function MainIngameOverlay:Subscribe()
 			{signal = "on_actor_before_hit", self = self, fun = self.SetHitMarker},
 			{signal = "on_death_actor", self = self, fun = self.OnActorDeath},
 		}
-		local sm = ogse_signals.get_mgr()
+		local sm = ogsr_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
 			sm:subscribe( s )
 		end
@@ -111,7 +111,7 @@ end
 
 function MainIngameOverlay:Unsubscribe()
 	if self.subscribed then
-		local sm = ogse_signals.get_mgr()
+		local sm = ogsr_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
 			sm:unsubscribe( s )
 		end

@@ -5,7 +5,7 @@ function attach(sm)
 	sm:subscribe({signal = "on_load",   			fun = this.on_load})	
 end
 
-local sm = ogse_signals.get_mgr()
+local sm = ogsr_signals.get_mgr()
 local m_boosters = {}
 local subscribed = false
 
@@ -71,7 +71,7 @@ function booster_enable(booster)
 		subscribed = {
 			{ signal = "on_update", fun = this.on_update },
 		}
-		local sm = ogse_signals.get_mgr()
+		local sm = ogsr_signals.get_mgr()
 		for _, s in ipairs( subscribed ) do
 			sm:subscribe( s )
 		end
@@ -85,7 +85,7 @@ function booster_disable(booster)
 	--log3("~on_booster_disable boosters %s", m_boosters)
 	--body_health.apply_pain_effect(booster.section, false)
 	if table.size(m_boosters) == 0 and subscribed ~= false then
-		local sm = ogse_signals.get_mgr()
+		local sm = ogsr_signals.get_mgr()
 		for _, s in ipairs( subscribed ) do
 			sm:unsubscribe( s )
 		end

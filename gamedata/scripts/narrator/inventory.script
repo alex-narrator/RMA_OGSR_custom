@@ -36,7 +36,7 @@ function set_max_belt(item)
 	if level.is_removing_objects() or xr_conditions.black_screen() then
 	return end
 	drop_belt_to_ruck()
-	ogse_signals.get_mgr():call("on_max_belt_set", actor.inventory.max_belt)	
+	ogsr_signals.get_mgr():call("on_max_belt_set", actor.inventory.max_belt)	
 end
 
 function on_take(item)

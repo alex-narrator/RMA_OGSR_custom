@@ -73,7 +73,7 @@ function use_quick_item(slot_num)
 	end
 	
 	if sect then
-		ogse_signals.get_mgr():call("on_quick_item_use", sect, slot_num)
+		ogsr_signals.get_mgr():call("on_quick_item_use", sect, slot_num)
 	end
 end
 
@@ -129,7 +129,7 @@ function set_item(item_sect, slot_num)
 		end
 	end
 	xr_sound.get_safe_sound_object("interface\\inv_slot"):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
-	ogse_signals.get_mgr():call("on_quick_item_set", item_sect, slot_num)
+	ogsr_signals.get_mgr():call("on_quick_item_set", item_sect, slot_num)
 end
 
 function get_item_sect(slot_num)

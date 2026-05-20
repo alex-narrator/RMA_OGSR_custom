@@ -119,7 +119,7 @@ function update_item_count(item, item_in)
 		loaded_items[item:id()] = nil
 	end
 
-	ogse_signals.get_mgr():call("on_loadout_update_count", item, item_in)
+	ogsr_signals.get_mgr():call("on_loadout_update_count", item, item_in)
 	--log3("~update_item_count item %s [%s] | slot_type %s, slots[slot_type].current_count %s, slots[slot_type].max_count %s", item:name(), item:id(), slot_type, slots[slot_type].current_count, slots[slot_type].max_count)
 end
 
@@ -134,7 +134,7 @@ function update_max_count(item, item_in)
 				log3("!fixing wrong max_count! : item %s | loadout type %s | max_count %s", item:name(), k, v.max_count)
 				v.max_count = 0
 			end
-			ogse_signals.get_mgr():call("on_loadout_update_max_count", item)
+			ogsr_signals.get_mgr():call("on_loadout_update_max_count", item)
 			
 			if not item_in then
 				local _item
@@ -253,14 +253,14 @@ function add(item)
 	
 	--xr_sound.get_safe_sound_object("interface\\inv_slot"):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 	actor_menu:PlayOperateSound(item)
-	--ogse_signals.get_mgr():call("on_item_to_loadout", item)
+	--ogsr_signals.get_mgr():call("on_item_to_loadout", item)
 end
 
 function remove(item)
 	update_item_count(item, false)
 	--xr_sound.get_safe_sound_object("interface\\inv_ruck"):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 	actor_menu:PlayOperateSound(item)
-	--ogse_signals.get_mgr():call("on_item_from_loadout", item)
+	--ogsr_signals.get_mgr():call("on_item_from_loadout", item)
 end
 
 function clear_all()

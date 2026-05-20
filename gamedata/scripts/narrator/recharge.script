@@ -3,7 +3,7 @@ function attach(sm)
 	sm:subscribe({signal = "inv_drag_drop", fun = this.try_recharge})
 end
 
-local sm = ogse_signals.get_mgr()
+local sm = ogsr_signals.get_mgr()
 
 function try_recharge(obj, drop_on_obj)
 	if not can_recharge(obj, drop_on_obj) then 

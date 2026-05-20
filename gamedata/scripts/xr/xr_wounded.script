@@ -64,7 +64,7 @@ function action_wounded:initialize ()
 	end
 	self.object:wounded(true)
 	
-	ogse_signals.get_mgr():call("on_npc_wounded", self.object)
+	ogsr_signals.get_mgr():call("on_npc_wounded", self.object)
 end
 function action_wounded:execute ()
     action_base.execute (self)
@@ -159,7 +159,7 @@ function action_wounded:finalize ()
     self.object:disable_talk()
     xr_sound.set_sound(self.object, nil)
     self.object:wounded(false)
-	ogse_signals.get_mgr():call("on_npc_not_wounded", self.object, self.a.wound_manager.healed_by_actor)
+	ogsr_signals.get_mgr():call("on_npc_not_wounded", self.object, self.a.wound_manager.healed_by_actor)
 end    
 
 ----------------------------------------------------------------------------------------------------------------------
@@ -167,7 +167,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------
 class "Cwound_manager"
 function Cwound_manager:__init(npc, storage)
-	self.sm = ogse_signals.get_mgr()
+	self.sm = ogsr_signals.get_mgr()
 	self.npc = npc
 	self.a = storage
 	self.can_use_medkit = false

@@ -114,7 +114,7 @@ function PDAOverlay:Subscribe()
 			{signal = "on_pda_show", self = self, fun = self.OnShow},
 			{signal = "on_pda_hide", self = self, fun = self.OnHide},
 		}
-		local sm = ogse_signals.get_mgr()
+		local sm = ogsr_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
 			sm:subscribe( s )
 		end
@@ -123,7 +123,7 @@ end
 
 function PDAOverlay:Unsubscribe()
 	if self.subscribed then
-		local sm = ogse_signals.get_mgr()
+		local sm = ogsr_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
 			sm:unsubscribe( s )
 		end
@@ -536,7 +536,7 @@ function UICustomTab7:Subscribe()
 			-- {signal = "on_repair_list_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
 			-- {signal = "on_key_press", self = self, fun = self.OnCellItemFocusLost},
 		}
-		local sm = ogse_signals.get_mgr()
+		local sm = ogsr_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
 			sm:subscribe( s )
 		end
@@ -545,7 +545,7 @@ end
 
 function UICustomTab7:Unsubscribe()
 	if self.subscribed then
-		local sm = ogse_signals.get_mgr()
+		local sm = ogsr_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
 			sm:unsubscribe( s )
 		end

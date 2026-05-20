@@ -24,7 +24,7 @@ function actor_binder:__init (obj) super(obj)
 	_G.actor = self.object
 	_G.actor_obj = get_actor_obj()
 	--
-	self.sm = ogse_signals.get_mgr()
+	self.sm = ogsr_signals.get_mgr()
 	self.sm:call("on_load_before_all")
 	self.sm:call("on_init", obj)
 	--
@@ -427,7 +427,6 @@ function actor_binder:update(delta)
 	if update_was_never_called then
 		self.sm:call( "on_first_update" )
 		update_was_never_called = false
-		self.sm:delay_time_limit( 10000 )
 	end
 	self.sm:call( "on_update", delta )
 end

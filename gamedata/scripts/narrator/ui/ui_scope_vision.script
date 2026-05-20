@@ -112,7 +112,7 @@ function subscribe()
 		subscribed = {
 			{ signal = "on_update", fun = this.on_update },
 		}
-		local sm = ogse_signals.get_mgr()
+		local sm = ogsr_signals.get_mgr()
 		for _, s in ipairs( subscribed ) do
 			sm:subscribe( s )
 		end
@@ -121,7 +121,7 @@ end
 
 function unsubscribe()
 	if subscribed then
-		local sm = ogse_signals.get_mgr()
+		local sm = ogsr_signals.get_mgr()
 		for _, s in ipairs( subscribed ) do
 			sm:unsubscribe( s )
 		end

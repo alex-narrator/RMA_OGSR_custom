@@ -85,6 +85,6 @@ function cfg_save()
 	CFG:save()
 	log3("Config-file [%s] saved successfully", CFG_NAME_FULL)
 	if level.present() then
-		ogse_signals.get_mgr():call("on_custom_options_save")
+		ogsr_signals.get_mgr():call("on_custom_options_save")
 	end
 end

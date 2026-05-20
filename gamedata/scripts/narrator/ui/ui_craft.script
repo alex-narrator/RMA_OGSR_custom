@@ -30,7 +30,7 @@ function CraftOverlay:Subscribe()
 			-- {signal = "on_cell_item_select", 	self = self, fun = self.OnCellItemSelect},
 			-- {signal = "on_drop", 				self = self, fun = self.OnDrop},
 		}
-		local sm = ogse_signals.get_mgr()
+		local sm = ogsr_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
 			sm:subscribe( s )
 		end
@@ -39,7 +39,7 @@ end
 
 function CraftOverlay:Unsubscribe()
 	if self.subscribed then
-		local sm = ogse_signals.get_mgr()
+		local sm = ogsr_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
 			sm:unsubscribe( s )
 		end

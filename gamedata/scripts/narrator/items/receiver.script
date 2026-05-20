@@ -77,7 +77,7 @@ function on_key_press(key, game_action)
 	return end
 	
 	if send_signal_key[game_action] then
-		ogse_signals.get_mgr():call("on_receiver_signal", receiver, get_frequency(receiver:id()), detect_radius)
+		ogsr_signals.get_mgr():call("on_receiver_signal", receiver, get_frequency(receiver:id()), detect_radius)
 	return end
 	
 	local add_val = 1
@@ -194,7 +194,7 @@ function enable(item, prev_place)
 					{ signal = "on_update", fun = this.detect_radio_sources },
 					{ signal = "on_key_press", fun = this.on_key_press },
 				}
-				local sm = ogse_signals.get_mgr()
+				local sm = ogsr_signals.get_mgr()
 				for _, s in ipairs( subscribed ) do
 					sm:subscribe( s )
 				end
@@ -211,7 +211,7 @@ function disable(item, prev_place)
 			sound_time = {}
 			stop_sounds()
 			if subscribed then
-				local sm = ogse_signals.get_mgr()
+				local sm = ogsr_signals.get_mgr()
 				for _, s in ipairs( subscribed ) do
 					sm:unsubscribe( s )
 				end

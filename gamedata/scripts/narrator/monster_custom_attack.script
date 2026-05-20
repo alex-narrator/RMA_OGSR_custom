@@ -39,7 +39,7 @@ function pseudodog_attack(object)
 	return end
 	local dist = object:position():distance_to(actor:position())
 	local attack_dist = pseudodog_attack_data.max_dist
-	ogse_signals.get_mgr():reschedule((dist < attack_dist and 500) or (dist < object:range() and 1000) or 2000)
+	ogsr_signals.get_mgr():reschedule((dist < attack_dist and 500) or (dist < object:range() and 1000) or 2000)
 	if dist > attack_dist then	
 	return end
 	local enemy = object:get_enemy()	
@@ -79,7 +79,7 @@ function pseudodog_attack(object)
 			level.remove_pp_effector(pseudodog_attack_data.eff_id_3)				
 		end
 	)
-	ogse_signals.get_mgr():reschedule( pseudodog_attack_data.delay * (1+math.random(-0.2,0.2)) + pseudodog_attack_data.cam_eff_time )
+	ogsr_signals.get_mgr():reschedule( pseudodog_attack_data.delay * (1+math.random(-0.2,0.2)) + pseudodog_attack_data.cam_eff_time )
 	--log3("~pseudodog %s attack", object:name())
 	---------------------	
 end
@@ -89,7 +89,7 @@ function controller_attack(object)
 	return end
 	local dist = object:position():distance_to( actor:position() )
 	local attack_dist = controller_attack_data.dist
-	ogse_signals.get_mgr():reschedule((dist < attack_dist and 500) or (dist < object:range() and 1000) or 2000)
+	ogsr_signals.get_mgr():reschedule((dist < attack_dist and 500) or (dist < object:range() and 1000) or 2000)
 	if dist > attack_dist then	
 	return end
 	local enemy = object:get_enemy()	
@@ -120,7 +120,7 @@ function controller_attack(object)
 	if rnd < prob then
 		start_fire(object)
 	end
-	ogse_signals.get_mgr():reschedule( controller_attack_data.delay * (1+math.random(-0.2,0.2)) )
+	ogsr_signals.get_mgr():reschedule( controller_attack_data.delay * (1+math.random(-0.2,0.2)) )
 end
 
 function start_fire(object)

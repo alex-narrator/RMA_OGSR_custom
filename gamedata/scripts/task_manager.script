@@ -628,7 +628,7 @@ function check_task_props(task_id)
 end
 --' ѕровер€ем можем ли мы сейчас выдать какой либо самоинициализующийс€ таск
 function actor_update()
-	ogse_signals.get_mgr():reschedule(TASK_UPD_INTERVAL)
+	ogsr_signals.get_mgr():reschedule(TASK_UPD_INTERVAL)
 	--local t = debug_info.p_timer("actor_update()")
 	for k,v in pairs(task_id_self_inited) do
 		local _task_info = task_info[v]

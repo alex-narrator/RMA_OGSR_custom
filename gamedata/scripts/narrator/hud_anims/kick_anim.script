@@ -118,7 +118,7 @@ function kick(forward_dir)
 	
 	--log3("~kick object %s | mass %s | power_dec %s", target:name(), mass, power_dec)
 	
-	ogse_signals.get_mgr():call("on_actor_kick", target, power, power_dec)
+	ogsr_signals.get_mgr():call("on_actor_kick", target, power, power_dec)
 	
 	local sound_name = "interface\\kick\\metal\\metal_"..math.random(1,4)
 	if target:is_stalker() or target:is_monster() then

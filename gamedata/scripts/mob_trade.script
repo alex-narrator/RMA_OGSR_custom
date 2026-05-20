@@ -87,7 +87,7 @@ function set_scheme(npc, ini, scheme, section, gulag_name)
 	local st = xr_logic.assign_storage_and_bind(npc, ini, scheme, section)
 	st.logic = xr_logic.cfg_get_switch_conditions(ini, section, npc)
 	
-	local sm = ogse_signals.get_mgr()
+	local sm = ogsr_signals.get_mgr()
 	local action = st.action
 	sm:subscribe( {signal = "on_actor_menu_show", self = action, fun = action.on_actor_menu_show} )
 	sm:subscribe( {signal = "on_actor_menu_hide", self = action, fun = action.on_actor_menu_hide} )
@@ -96,7 +96,7 @@ end
 
 function disable_scheme(npc, scheme)
 	if npc:is_trader() then
-		local sm = ogse_signals.get_mgr()
+		local sm = ogsr_signals.get_mgr()
 		local st = db.storage[npc:id()][scheme]
 		if not st then return end
 		local action = st.action

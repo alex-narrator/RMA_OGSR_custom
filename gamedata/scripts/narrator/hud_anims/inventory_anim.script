@@ -16,7 +16,7 @@ function subscribe()
 			-- {signal = "on_ruck", fun = this.on_from_slot},
 			-- {signal = "on_drop", fun = this.on_from_slot},
 		}
-		local sm = ogse_signals.get_mgr()
+		local sm = ogsr_signals.get_mgr()
 		for _, s in ipairs(subscribed) do
 			sm:subscribe(s)
 		end
@@ -25,7 +25,7 @@ end
 
 function unsubscribe()
 	if subscribed then
-		local sm = ogse_signals.get_mgr()
+		local sm = ogsr_signals.get_mgr()
 		for _, s in ipairs(subscribed) do
 			sm:unsubscribe(s)
 		end

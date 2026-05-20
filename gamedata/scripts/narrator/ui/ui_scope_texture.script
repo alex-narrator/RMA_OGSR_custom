@@ -30,7 +30,7 @@ function subscribe()
 			{ signal = "on_actor_jump", fun = this.on_actor_jump },
 			{ signal = "on_actor_land", fun = this.on_actor_land },
 		}
-		local sm = ogse_signals.get_mgr()
+		local sm = ogsr_signals.get_mgr()
 		for _, s in ipairs( subscribed ) do
 			sm:subscribe( s )
 		end
@@ -39,7 +39,7 @@ end
 
 function unsubscribe()
 	if subscribed then
-		local sm = ogse_signals.get_mgr()
+		local sm = ogsr_signals.get_mgr()
 		for _, s in ipairs( subscribed ) do
 			sm:unsubscribe( s )
 		end

@@ -56,7 +56,7 @@ function RepairOverlay:Subscribe()
 			{signal = "on_drop", 				self = self, fun = self.OnDrop},
 			-- {signal = "on_cell_item_db_click", self = self, fun = self.ShowRepairRequest},
 		}
-		local sm = ogse_signals.get_mgr()
+		local sm = ogsr_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
 			sm:subscribe( s )
 		end
@@ -65,7 +65,7 @@ end
 
 function RepairOverlay:Unsubscribe()
 	if self.subscribed then
-		local sm = ogse_signals.get_mgr()
+		local sm = ogsr_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
 			sm:unsubscribe( s )
 		end

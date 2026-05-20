@@ -119,7 +119,7 @@ function on_zoom_in(weapon)
 			--{ signal = "on_key_release", 			fun = this.on_key_release },
 			{ signal = "on_actor_weapon_zoom_out", 	fun = this.on_zoom_out},
 		}
-		local sm = ogse_signals.get_mgr()
+		local sm = ogsr_signals.get_mgr()
 		for _, s in ipairs( subscribed ) do
 			sm:subscribe( s )
 		end
@@ -165,7 +165,7 @@ end
 
 function on_zoom_out(weapon)
 	if subscribed then
-		local sm = ogse_signals.get_mgr()
+		local sm = ogsr_signals.get_mgr()
 		for _, s in ipairs( subscribed ) do
 			sm:unsubscribe( s )
 		end

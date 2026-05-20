@@ -2504,7 +2504,7 @@ end
 function detach_addon(item, addon_sect, not_spawn_addon)
 	if not item then
 	return end
-	local mgr = ogse_signals.get_mgr()
+	local mgr = ogsr_signals.get_mgr()
 	mgr:call("on_before_addon_detach", item, addon_sect)
 	local spawn_cond = 1
 	if is_in_addon_list(item, addon_sect, addon.silencer) then
@@ -2522,7 +2522,7 @@ function attach_addon(item, item_to_attach)
 	return false end
 	if not item_to_attach then
 	return false end
-	local mgr = ogse_signals.get_mgr()
+	local mgr = ogsr_signals.get_mgr()
 	local iitem_to_attach = item_to_attach:get_inventory_item()
 	mgr:call("on_before_addon_attach", item, item_to_attach)
 	handle_addon_conflict(item, item_to_attach)

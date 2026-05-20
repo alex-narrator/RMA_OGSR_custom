@@ -111,7 +111,7 @@ function on_key_press(key, game_action)
 			actor:move_to_ruck(act_item)
 			actor:move_to_slot(new_missile)
 			if new_missile:is_grenade() then
-				ogse_signals.get_mgr():call("on_grenade_type_switch", act_item, new_missile)
+				ogsr_signals.get_mgr():call("on_grenade_type_switch", act_item, new_missile)
 			end
 		else
 			block_non_move_action(true)
@@ -126,7 +126,7 @@ function on_key_press(key, game_action)
 					actor:move_to_ruck(act_item)
 					actor:move_to_slot(new_missile)
 					if new_missile:is_grenade() then
-						ogse_signals.get_mgr():call("on_grenade_type_switch", act_item, new_missile)
+						ogsr_signals.get_mgr():call("on_grenade_type_switch", act_item, new_missile)
 					end
 					--log3("get_other_missile %s",new_missile:section())			
 				end

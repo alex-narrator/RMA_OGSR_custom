@@ -44,7 +44,7 @@ function UIItemInfo:Subscribe()
 			{signal = "on_quick_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
 			{signal = "on_key_press", self = self, fun = self.OnCellItemFocusLost},
 		}
-		local sm = ogse_signals.get_mgr()
+		local sm = ogsr_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
 			sm:subscribe( s )
 		end
@@ -53,7 +53,7 @@ end
 
 function UIItemInfo:Unsubscribe()
 	if self.subscribed then
-		local sm = ogse_signals.get_mgr()
+		local sm = ogsr_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
 			sm:unsubscribe( s )
 		end
@@ -150,7 +150,7 @@ function UIItemInfo:InitItemInfo()
 	end
 	
 	self.descr_list:Clear()
-	ogse_signals.get_mgr():call("on_item_info_init", self.descr_list, item, self.xml)
+	ogsr_signals.get_mgr():call("on_item_info_init", self.descr_list, item, self.xml)
 	text = get_inv_descr(sect)
 	if text then
 		self.descr_text = CUIStatic()

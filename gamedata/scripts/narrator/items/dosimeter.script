@@ -65,7 +65,7 @@ function enable(item, prev_place)
 				subscribed = {
 					{ signal = "on_update", fun = this.detect_radiation },
 				}
-				local sm = ogse_signals.get_mgr()
+				local sm = ogsr_signals.get_mgr()
 				for _, s in ipairs( subscribed ) do
 					sm:subscribe( s )
 				end
@@ -82,7 +82,7 @@ function disable(item, prev_place)
 			result_power = 0
 			sound_time = {}
 			if subscribed then
-				local sm = ogse_signals.get_mgr()
+				local sm = ogsr_signals.get_mgr()
 				for _, s in ipairs( subscribed ) do
 					sm:unsubscribe( s )
 				end
