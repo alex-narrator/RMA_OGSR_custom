@@ -4,9 +4,9 @@ function attach(sm)
 	sm:subscribe({signal = "on_key_press",   	fun = this.on_key_press})
 end
 
-local LOOKOUT_ANGLE_STEP = 5
-local MIN_ANGLE = 30
-local MAX_ANGLE = 60
+-- local LOOKOUT_ANGLE_STEP = 5
+-- local MIN_ANGLE = 30
+-- local MAX_ANGLE = 60
 
 local PH_BOX_ID_STEP = 2
 
@@ -21,18 +21,19 @@ function get_ph_box_min_max_id()
 end
 
 function on_mouse_wheel(forward)
-	if not (IsMoveState(move_command.mcLookout) or IsMoveState(move_command.mcCrouch)) then
+	-- if not (IsMoveState(move_command.mcLookout) or IsMoveState(move_command.mcCrouch)) then
+	if not IsMoveState(move_command.mcCrouch) then
 	return end
 	local active_item = actor:active_item()
 	if active_item and active_item:is_zoomed() and has_dynamic_zoom(active_item) then
 	return end
 	
-	if IsMoveState(move_command.mcLookout) then
-		local step = forward and LOOKOUT_ANGLE_STEP or -LOOKOUT_ANGLE_STEP
-		local current_angle = actor_obj.lookout_angle
-		local desired_angle = math.clamp(actor_obj.lookout_angle + step, MIN_ANGLE, MAX_ANGLE)
-		actor_obj.lookout_angle = desired_angle
-	return end
+	-- if IsMoveState(move_command.mcLookout) then
+		-- local step = forward and LOOKOUT_ANGLE_STEP or -LOOKOUT_ANGLE_STEP
+		-- local current_angle = actor_obj.lookout_angle
+		-- local desired_angle = math.clamp(actor_obj.lookout_angle + step, MIN_ANGLE, MAX_ANGLE)
+		-- actor_obj.lookout_angle = desired_angle
+	-- return end
 	
 	if IsMoveState(move_command.mcCrouch) then
 		--log_news("~ph_box id [%s]", actor_obj.ph_box_id)
