@@ -50,7 +50,7 @@ function get_nvd_params(sect)
 		B 				= nv_color[3], 
 		GAIN 			= read_if_exists(sys_ini, "float", sect, "nv_gain", 			2),
 		--//effects
-		RADIUS 			= read_if_exists(sys_ini, "float", sect, "nv_radius", 		0.5),
+		RADIUS 			= read_if_exists(sys_ini, "float", sect, "nv_radius", 			0.5),
 		NOISE 			= read_if_exists(sys_ini, "float", sect, "nv_noise", 			0),
 		SCANLINES 		= read_if_exists(sys_ini, "float", sect, "nv_scanlines", 		0),
 		SCINTILLATION 	= read_if_exists(sys_ini, "float", sect, "nv_scintillation", 	0),
@@ -167,14 +167,16 @@ function play_nvd_sound(section, is_on)
 	
 	local snd_operate = read_if_exists(sys_ini, "string", section, "snd_nvd_operate", nil)
 	if snd_operate then
+		operate_sound = xr_sound.get_safe_sound_object(snd_operate)
 		if is_on then
 			level.add_call(
 				function()
-					return not action_sound or not action_sound:playing()
+					return not action_sound or not action_sound:playing() or not operate_sound
 				end,
 				function()
-					operate_sound = xr_sound.get_safe_sound_object(snd_operate)
-					operate_sound:play(actor, 0, sound_object.s2d + sound_object.looped)
+					if operate_sound then
+						operate_sound:play(actor, 0, sound_object.s2d + sound_object.looped)
+					end
 				end
 			)
 		else

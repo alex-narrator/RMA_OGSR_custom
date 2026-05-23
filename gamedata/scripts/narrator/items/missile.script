@@ -14,7 +14,7 @@ local bolt_sect = "bolt"
 local bolts = {}
 local grenades = {}
 
-local PREV_ACTIVE_SLOT = 255
+local PREV_ACTIVE_SLOT = NO_ACTIVE_SLOT
 
 local POWER_DEC_K = 0.1
 
@@ -26,9 +26,6 @@ function on_spawn()
 end
 
 function on_first_update()
-	-- if not LIMITED_BOLTS and not actor:object(bolt_sect) then
-		-- spawn_to_owner(bolt_sect, actor:id())
-	-- end
 	if not LIMITED_BOLTS then
 		add_update_delayed_action(1, function() if not actor:object(bolt_sect) then spawn_to_owner(bolt_sect, actor:id()) end end)
 	end

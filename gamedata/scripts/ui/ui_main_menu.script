@@ -43,8 +43,10 @@ function main_menu:InitControls()
 	self:Register(self.message_box, "msg_box")	
 
 	local ver = xml:InitStatic("static_version", self)
-	ver:SetText("ver. " .. _G.main_menu.get_main_menu():GetGSVer().." "..game.translate_string("st_rma_ver"))
-	--ver:SetTextColor(255, 255, 132, 0)
+	local engine_version = _G.main_menu.get_main_menu():GetGSVer():sub(2, -2)
+	local rma_version = game.translate_string("st_rma_ver")
+	local text = string.format("%s\\n%s", rma_version, engine_version)
+	ver:SetText(text)
 end
 
 function main_menu:Show(...)

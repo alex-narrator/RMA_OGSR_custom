@@ -10,6 +10,7 @@ local nvd_action = {
 local hud_effector_id = 5558
 local hud_sect_simple = "switch_torch_hud"
 local transition_sect = "transition_nvg_hud"
+local hud_anm = "camera_effects\\item_use\\two_handed_weapon_effect.anm"
 local speed = 1
 local post_fade_delay = 0.6
 
@@ -54,12 +55,12 @@ function on_key_press(key, game_action)
 	if actor:active_item() and actor:active_item():is_zoomed() then
 		actor:active_item():zoom_out()
 		was_zoomed = true
-	end
+	end	
 	
 	if was_zoomed then
 		level.add_call(
 			function()
-				return actor_hands_free()
+				return not _G.SCRIPT_ANIM_PLAYING
 			end,
 			function()
 				if actor:active_item() then
@@ -75,6 +76,7 @@ function on_key_press(key, game_action)
 		_G.SCRIPT_ANIM_PLAYING = true
 		local eff_name = read_if_exists(sys_ini, "string", hud_sect, "hud_effector", nil)
 		level.add_complex_effector(eff_name, hud_effector_id)
+		game.play_hud_anm(hud_anm, 0, 1.5, 0.5, false)
 	
 		add_time_delayed_action(
 			read_if_exists(sys_ini, "float", hud_sect, "use_delay", 1.5),
@@ -93,6 +95,7 @@ function on_key_press(key, game_action)
 		_G.SCRIPT_ANIM_PLAYING = true
 		local is_on = alife():object(curr_nvd:id()).is_nvd_on
 		local action = is_on and "_hide" or "_show"
+		game.play_hud_anm(hud_anm, 0, 1.85, 0.5, false)
 		
 		if is_on then --//turn off sequence
 			-- nvd.switch_nvd(curr_nvd)
