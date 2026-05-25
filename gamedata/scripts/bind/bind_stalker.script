@@ -117,7 +117,7 @@ function actor_binder:net_destroy()
 	self.object:set_callback(callback.on_actor_weapon_grenade_mode_change, nil)
 	self.object:set_callback(callback.on_weapon_shell_drop, nil)
 	--
-	self.object:set_callback(callback.update_items_effect, nil)
+	self.object:set_callback(callback.on_update_items_effect, nil)
 	--
 	self.object:set_callback(callback.on_before_use_item, nil)
 	--
@@ -189,7 +189,7 @@ function actor_binder:reinit()
 	self.object:set_callback(callback.on_actor_weapon_grenade_mode_change, self.on_actor_weapon_grenade_mode_change, self)	
 	self.object:set_callback(callback.on_weapon_shell_drop, self.on_weapon_shell_drop, self)
 	--
-	self.object:set_callback(callback.update_items_effect, self.update_items_effect, self)
+	self.object:set_callback(callback.on_update_items_effect, self.on_update_items_effect, self)
 	--
 	self.object:set_callback(callback.on_before_use_item, self.on_before_use_item, self)
 	--
@@ -583,8 +583,8 @@ function actor_binder:on_weapon_shell_drop(wpn, pos, vel)
 	self.sm:call("on_weapon_shell_drop", wpn, pos, vel)
 end
 
-function actor_binder:update_items_effect(update_time)
-	self.sm:call("update_items_effect", update_time)
+function actor_binder:on_update_items_effect(update_time)
+	self.sm:call("on_update_items_effect", update_time)
 end
 
 function actor_binder:on_before_use_item(item)

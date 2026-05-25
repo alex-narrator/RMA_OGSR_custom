@@ -2,7 +2,7 @@
 function attach(sm)
 	sm:subscribe({signal = "on_slot",   				fun = this.try_add_to_list})
 	sm:subscribe({signal = "on_belt",   				fun = this.try_add_to_list})
-	sm:subscribe({signal = "update_items_effect",   	fun = this.on_update_effects})
+	sm:subscribe({signal = "on_update_items_effect",   	fun = this.on_update_items_effect})
 end
 
 local condition_decrease = {}
@@ -28,7 +28,7 @@ function try_corrupt(item, delta)
 	item:change_condition(-dec*delta)
 end
 
-function on_update_effects(delta)
+function on_update_items_effect(delta)
 	local af_in_slot = actor:item_in_slot(ARTEFACT_SLOT)
 	if af_in_slot then
 		try_corrupt(af_in_slot, delta)

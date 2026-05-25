@@ -225,7 +225,7 @@ function subscribe()
 	if subscribed then
 	return end
 	subscribed = {
-		{ signal = "update_items_effect", fun = this.update_items_effect },
+		{ signal = "on_update_items_effect", fun = this.on_update_items_effect },
 	}
 	local sm = ogsr_signals.get_mgr()
 	for _, s in ipairs( subscribed ) do
@@ -246,7 +246,7 @@ function unsubscribe()
 	--actor:restore_weapon()
 end
 
-function update_items_effect(delta)
+function on_update_items_effect(delta)
 	local used_now = actor_use_campfire 
 		and distance_between_safe(actor, actor_use_campfire) <= CAMPFIRE_EFFECT_DIST 
 		and (actor_obj:is_actor_crouch() or actor_obj:is_actor_crouching() or actor_obj:is_actor_creep() or actor_obj:is_actor_creeping())

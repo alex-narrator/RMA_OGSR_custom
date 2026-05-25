@@ -11,7 +11,7 @@ function attach(sm)
 	--sm:subscribe({signal = "on_task", fun = this.on_task})
 	--sm:subscribe({signal = "on_take", fun = this.on_take})
 	sm:subscribe({signal = "on_key_press", fun = this.on_key_press})
-	--sm:subscribe({signal = "update_items_effect", fun = this.update_items_effect})
+	--sm:subscribe({signal = "on_update_items_effect", fun = this.on_update_items_effect})
 	--sm:subscribe({signal = "on_update", fun = this.on_update})
 	--sm:subscribe({signal = "on_weapon_fire", fun = this.on_weapon_fire})
 	--sm:subscribe({signal = "on_weapon_shell_drop",  fun = this.on_shell_drop})
@@ -107,8 +107,8 @@ function on_key_press(key, game_action)
 	-- end
 end
 
-function update_items_effect(update_time)
-	log_news("~update_items_effect update_time %s", update_time)
+function on_update_items_effect(update_time)
+	log_news("~on_update_items_effect update_time %s", update_time)
 end
 
 local dbg_particle_name = "anomaly2\\plasma_generator_death"

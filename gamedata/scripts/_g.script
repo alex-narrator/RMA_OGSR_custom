@@ -2465,6 +2465,10 @@ function change_game_time(days, hours, minutes)
 	local value = days * 86400 + hours * 3600 + minutes * 60
 	value = value * 1000
 	level.advance_game_time(math.round(value))
+	actor:update_condition()
+	actor_obj:update_items_effect()
+	local mgr = ogsr_signals.get_mgr()
+	mgr:call("on_update", 0)
 	level_weathers.select_weather(true)
 end
 

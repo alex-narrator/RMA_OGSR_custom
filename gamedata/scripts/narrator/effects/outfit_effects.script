@@ -197,7 +197,7 @@ function switch_breath(val)
 	if val then
 		if not subscribed then
 			subscribed = {
-				{signal = "update_items_effect", fun = this.on_update_mask}
+				{signal = "on_update_items_effect", fun = this.on_update_mask}
 			}
 		end
 		for k,v in pairs(subscribed) do
