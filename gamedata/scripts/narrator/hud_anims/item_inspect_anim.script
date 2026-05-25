@@ -27,11 +27,7 @@ function play(item)
 	if not hud_sect then
 	return end
 
-	local already_blocked = actor.inventory:is_active_slot_blocked()
-	
-	if not already_blocked then
-		actor:hide_weapon(HIDE_WPN_ANIM_FAST)
-	end
+	actor:hide_weapon(HIDE_WPN_ANIM_FAST)
 	
 	if not read_if_exists(sys_ini, "string", hud_sect, "anm_idle", nil) then --//simple variant without draw-idle-hide sequence
 		level.add_call(
@@ -57,9 +53,7 @@ function play(item)
 						block_non_move_action(false)
 						level.remove_complex_effector(hud_effector_id)
 						_G.SCRIPT_ANIM_PLAYING = false
-						if not already_blocked then
-							actor:restore_weapon(HIDE_WPN_ANIM_FAST)
-						end
+						actor:restore_weapon(HIDE_WPN_ANIM_FAST)
 						sm:call("on_timed_action_stop")
 					end,
 					function()
@@ -148,13 +142,8 @@ function stop_anim()
 			block_non_move_action(false)
 			_G.SCRIPT_ANIM_PLAYING = false
 			
-			local already_blocked = actor.inventory:is_active_slot_blocked()
-	
-			if already_blocked then
-				actor:hide_weapon(HIDE_WPN_ANIM_FAST)
-			end			
+			actor:hide_weapon(HIDE_WPN_ANIM_FAST)
 			
-			--actor:restore_weapon(HIDE_WPN_ANIM_FAST)
 			local mode = actor_menu:GetMode()
 			if mode == "inventory" or mode == "carbody"	then					
 				backpack.play_anim(3)

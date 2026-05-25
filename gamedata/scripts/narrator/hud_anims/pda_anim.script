@@ -36,10 +36,7 @@ function on_key_press(key, game_action)
 	return end
 	actor_obj:block_action(game_action)
 	--level.set_actor_allow_pda(false)
-	local already_blocked = actor.inventory:is_active_slot_blocked()
-	if not already_blocked then
-		actor:hide_weapon(HIDE_WPN_ANIM_FAST)
-	end
+	actor:hide_weapon(HIDE_WPN_ANIM_FAST)
 	local pda = actor_get_pda()
 	local hud_sect = get_hud_sect(pda) or def_hud_sect
 	level.add_call(
@@ -88,10 +85,7 @@ function on_pda_hide()
 	return end
 	block_non_move_action(true)
 	dof_mir.stop_dof()
-	-- local already_blocked = actor.inventory:is_active_slot_blocked()
-	-- if not already_blocked then
-		-- actor:hide_weapon(HIDE_WPN_ANIM_FAST)
-	-- end
+
 	local pda = actor_get_pda()
 	local hud_sect = get_hud_sect(pda) or def_hud_sect	
 	level.add_call(

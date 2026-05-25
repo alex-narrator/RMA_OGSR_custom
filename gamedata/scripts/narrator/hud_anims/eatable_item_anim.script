@@ -9,11 +9,7 @@ function play(item)
 	if not hud_sect then
 	return end
 
-	local already_blocked = actor.inventory:is_active_slot_blocked()
-	
-	if not already_blocked then
-		actor:hide_weapon(HIDE_WPN_ANIM_FAST)
-	end
+	actor:hide_weapon(HIDE_WPN_ANIM_FAST)
 	
 	level.add_call(
 		function() 
@@ -67,9 +63,7 @@ function play(item)
 						anim_sound:stop()
 					end					
 					_G.SCRIPT_ANIM_PLAYING = false
-					if not already_blocked then
-						actor:restore_weapon(HIDE_WPN_ANIM_FAST)
-					end
+					actor:restore_weapon(HIDE_WPN_ANIM_FAST)
 					local mode = actor_menu:GetMode()
 					if mode == "inventory" or mode == "carbody"	then
 						backpack.play_anim(3)

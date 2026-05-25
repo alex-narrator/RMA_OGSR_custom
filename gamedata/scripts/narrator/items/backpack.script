@@ -122,15 +122,16 @@ function play_anim(state)
 	
 	if no_anim or SCRIPT_ANIM_PLAYING then
 		idle_playing = false
-	return end
+	return 0 end
 	local hud_sect = HANDS_HUD_SECT
 	if actor_get_backpack() and actor_menu:GetMode() == "inventory" then
 		local community_hud_sect = DEF_HUD_SECT.."_"..actor:character_community()
 		hud_sect = sys_ini:section_exist(community_hud_sect) and community_hud_sect or DEF_HUD_SECT
 	end
 
-	game.play_hud_motion(2, hud_sect, anims[state], true, 1, false)
+	local length = game.play_hud_motion(2, hud_sect, anims[state], true, 1, false) * 0.001
 	idle_playing = (state == 3)
+	return length
 end
 
 function force_crouch(enable)
@@ -149,10 +150,10 @@ end
 
 function play_effects(enable)
 	--force_crouch(enable)
-	play_anim(enable and 1 or 2)
+	local length = play_anim(enable and 1 or 2)
 	
 	if SCRIPT_ANIM_PLAYING then
-	return end
+	return length end
 	
 	if actor_get_backpack() and actor_menu:GetMode() == "inventory" then
 		local snd_name = enable and "interface\\item_usage\\backpack_open" or "interface\\item_usage\\backpack_close"
@@ -163,6 +164,8 @@ function play_effects(enable)
 			level.add_complex_effector(effect.name, effect.id)
 		end
 	end
+	
+	return length
 end
 
 function play_fast()

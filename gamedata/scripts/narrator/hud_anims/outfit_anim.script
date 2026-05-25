@@ -10,11 +10,8 @@ local anim_types = {
 function play_outfit(anim_type)
 	
 	local hud_sect = anim_types[anim_type]
-	local already_blocked = actor.inventory:is_active_slot_blocked()
-	
-	if not already_blocked then
-		actor:hide_weapon(HIDE_WPN_ANIM_FAST)
-	end
+
+	actor:hide_weapon(HIDE_WPN_ANIM_FAST)
 	
 	level.add_call(
 		function() 
@@ -31,9 +28,7 @@ function play_outfit(anim_type)
 				function()
 					block_non_move_action(false)
 					_G.SCRIPT_ANIM_PLAYING = false
-					if not already_blocked then
-						actor:restore_weapon(HIDE_WPN_ANIM_FAST)
-					end
+					actor:restore_weapon(HIDE_WPN_ANIM_FAST)
 					local mode = actor_menu:GetMode()
 					if mode == "inventory" or mode == "carbody"	then
 						backpack.play_anim(3)
@@ -66,11 +61,7 @@ function play_gasmask(item, is_on)
 	if not hud_sect then
 	return end
 	
-	local already_blocked = actor.inventory:is_active_slot_blocked()
-	
-	if not already_blocked then
-		actor:hide_weapon(true)
-	end
+	actor:hide_weapon(true)
 	
 	level.add_call(
 		function() 
@@ -97,9 +88,7 @@ function play_gasmask(item, is_on)
 				function()
 					block_non_move_action(false)
 					_G.SCRIPT_ANIM_PLAYING = false
-					if not already_blocked then
-						actor:restore_weapon()
-					end
+					actor:restore_weapon()
 					local mode = actor_menu:GetMode()
 					if mode == "inventory" or mode == "carbody" then
 						backpack.play_anim(3)

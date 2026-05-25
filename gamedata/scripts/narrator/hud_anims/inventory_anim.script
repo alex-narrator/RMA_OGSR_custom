@@ -68,13 +68,11 @@ function on_show(mode)
 			return no_active_items()
 		end,
 		function()
-			backpack.play_effects(true)
+			local anim_length = backpack.play_effects(true)
 			block_non_move_action(false)
 			
-			level.add_call(
-				function()
-					return game.hud_motion_allowed()
-				end,
+			add_time_delayed_action(
+				anim_length,
 				function()
 					if OPEN_ANIM_STARTED then
 						backpack.play_anim(3)
@@ -91,14 +89,12 @@ function on_hide(mode)
 	return end
 	
 	OPEN_ANIM_STARTED = false
-	backpack.play_effects(false)
+	local anim_length = backpack.play_effects(false)
 	block_non_move_action(true)
 	unsubscribe()
 	
-	level.add_call(
-		function()
-			return game.hud_motion_allowed()
-		end,
+	add_time_delayed_action(
+		anim_length,
 		function()
 			actor:restore_weapon(backpack.play_fast())
 			block_non_move_action(false)

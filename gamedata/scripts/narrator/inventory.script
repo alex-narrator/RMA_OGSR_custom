@@ -300,6 +300,7 @@ end
 function item_detach_addon(item, addon_sect)
 	actor:hide_weapon()
 	block_non_move_action(true)
+	local menu_was_shown = actor_menu:IsShown()
 	level.add_call(
 		function()
 			return not actor:active_item()
@@ -311,6 +312,10 @@ function item_detach_addon(item, addon_sect)
 			sm:call("on_timed_action_start", item, snd:length())
 			level.add_call(
 				function()
+					if menu_was_shown and not actor_menu:IsShown() then
+						game.stop_hud_motion()
+						menu_was_shown = false
+					end
 					return not snd or not snd:playing() or need_force_stop_anim()
 				end,
 				function()
@@ -340,6 +345,7 @@ end
 function item_attach_addon(item, addon_item, detach_sect)
 	actor:hide_weapon()
 	block_non_move_action(true)
+	local menu_was_shown = actor_menu:IsShown()
 	level.add_call(
 		function()
 			return not actor:active_item()
@@ -357,6 +363,10 @@ function item_attach_addon(item, addon_item, detach_sect)
 				sm:call("on_timed_action_start", item, snd_detach:length() + snd_attach:length())
 				level.add_call(
 					function()
+						if menu_was_shown and not actor_menu:IsShown() then
+							game.stop_hud_motion()
+							menu_was_shown = false
+						end
 						return not snd_detach or not snd_detach:playing() or need_force_stop_anim()
 					end,
 					function()
@@ -365,8 +375,6 @@ function item_attach_addon(item, addon_item, detach_sect)
 								snd_detach:stop()
 								sm:call("on_timed_action_stop")
 							end
-							block_non_move_action(false)
-							actor:restore_weapon(true)
 						else
 							detach_addon(item, detach_sect)
 							local ci = actor_menu:GetCellItem(item)
@@ -381,9 +389,9 @@ function item_attach_addon(item, addon_item, detach_sect)
 						snd_attach:play(actor, 0, sound_object.s2d)
 						level.add_call(
 							function()
-								if not actor.inventory:is_active_slot_blocked() then
-									need_unblock = true
-									actor:hide_weapon(true)
+								if menu_was_shown and not actor_menu:IsShown() then
+									game.stop_hud_motion()
+									menu_was_shown = false
 								end
 								return not snd_attach or not snd_attach:playing() or need_force_stop_anim()
 							end,
@@ -403,7 +411,7 @@ function item_attach_addon(item, addon_item, detach_sect)
 									end
 								end
 								block_non_move_action(false)
-								actor:restore_weapon(true)
+								actor:restore_weapon()
 								sm:call("on_timed_action_stop")
 							end
 						)					
@@ -418,6 +426,10 @@ function item_attach_addon(item, addon_item, detach_sect)
 				sm:call("on_timed_action_start", item, snd:length())
 				level.add_call(
 					function()
+						if menu_was_shown and not actor_menu:IsShown() then
+							game.stop_hud_motion()
+							menu_was_shown = false
+						end
 						return not snd or not snd:playing() or need_force_stop_anim()
 					end,
 					function()
@@ -436,7 +448,7 @@ function item_attach_addon(item, addon_item, detach_sect)
 							end
 						end
 						block_non_move_action(false)
-						actor:restore_weapon(true)
+						actor:restore_weapon()
 						sm:call("on_timed_action_stop")
 					end
 				)
