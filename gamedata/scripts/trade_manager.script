@@ -149,15 +149,15 @@ function update(npc)
 	local str = xr_logic.pick_section_from_condlist(actor, npc, tt.buy_condition)
 	if tt.current_buy_condition ~= str then
 		--log3("TRADE UPDATE [%s]: buy condition = %s", npc:name(), str)
-		fill_conditions(tt, tt.config, str, true)
 		tt.current_buy_condition = str
+		fill_conditions(tt, true)
 	end
 
 	str = xr_logic.pick_section_from_condlist(actor, npc, tt.sell_condition)
 	if tt.current_sell_condition ~= str then
 		--log3("TRADE UPDATE [%s]: sell condition = %s", npc:name(), str)
-		fill_conditions(tt, tt.config, str, false)
 		tt.current_sell_condition = str
+		fill_conditions(tt, false)
 	end
 
 	if not tt.buy_supplies then return end
@@ -207,11 +207,11 @@ function on_load()
 		tt.config = ini_file_cached(v.cfg_ltx)
 		if v.current_buy_condition then
 			tt.current_buy_condition = v.current_buy_condition
-			fill_conditions(tt, tt.config, tt.current_buy_condition, true)
+			fill_conditions(tt, true)
 		end
 		if v.current_sell_condition then
 			tt.current_sell_condition = v.current_sell_condition
-			fill_conditions(tt, tt.config, tt.current_sell_condition, false)
+			fill_conditions(tt, false)
 		end
 		if v.current_buy_supplies then
 			tt.current_buy_supplies = v.current_buy_supplies
@@ -361,7 +361,7 @@ function tradable(item)
 	return read_if_exists(sys_ini, "bool", item:section(), "can_trade", true) and not read_if_exists(sys_ini, "bool", item:section(), "quest_item", false) and get_trade_cost(item) > 0 and not alife():object(item:id()).is_activated
 end
 
-function fill_conditions(tt, config, section, for_buy)
+function fill_conditions(tt, for_buy)
 	local default = (tt.cfg_ltx == DEF_TRADE_CFG)
 	if default then
 		if for_buy then
@@ -378,6 +378,8 @@ function fill_conditions(tt, config, section, for_buy)
 	end
 	
 	local cond_table = {}
+	local section = for_buy and tt.current_buy_condition or tt.current_sell_condition
+	local config = tt.config
 	local n = config:line_count(section)
 	for i=0,n-1 do
 		local _, sect, value = config:r_line(section,i,"","")
