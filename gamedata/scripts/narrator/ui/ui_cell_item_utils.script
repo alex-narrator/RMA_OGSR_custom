@@ -240,58 +240,27 @@ function add_unload_weapon(pbox, cell_item)
 	pbox:AddItem(name, precondition, action, cell_item)
 end
 
-function add_attach_addon(pbox, cell_item)
+function add_attach_addon(pbox, item)
 	local name, precondition, action
-	local item = cell_item:GetAnyItem()
 	for i = 0, sys_ini:r_u32("inventory","slots") - 1 do
 		local slot_item = actor:item_in_slot(i)
 		if slot_item and parent_is_actor(item) then
-			local iitem = item:get_inventory_item()
-			local slot_iitem = slot_item:get_inventory_item()
 			local attach_tip = read_if_exists(sys_ini, "string", item:section(), "menu_attach_tip", "st_attach")
 			name = string.format("%s %s", game.translate_string(attach_tip), get_inv_name_short(slot_item:section()))
-			precondition = function(iitem, slot_iitem)
-				return slot_iitem:can_attach_addon(iitem)
+			local can_attach_addon = inventory.item_can_attach_addon(slot_item, item)
+			precondition = function()
+				return can_attach_addon
 			end
-			action = function(iitem, slot_iitem)
-				local need_unblock = false
-				block_non_move_action(true)
-				local snd_name = read_if_exists(sys_ini, "string", item:section(), "attach_addon_sound", "interface\\inv_attach_addon")
-				local snd = xr_sound.get_safe_sound_object(snd_name)
-				snd:play(actor, 0, sound_object.s2d)
-				sm:call("on_timed_action_start", slot_item, snd:length())
-				level.add_call(
-					function()
-						if not actor.inventory:is_active_slot_blocked() then
-							need_unblock = true
-							actor:hide_weapon(true)
-						end
-						return not snd or not snd:playing() or need_force_stop_anim()
-					end,
-					function()
-						if need_force_stop_anim() then
-							if snd and snd:playing() then
-								snd:stop()
-							end
-						else					
-							attach_addon(slot_item, item)
-						end
-						block_non_move_action(false)
-						if need_unblock then
-							actor:restore_weapon(true)
-						end
-						sm:call("on_timed_action_stop")
-					end
-				)
+			action = function(slot_item, item, can_attach_addon)
+				inventory.item_attach_addon(slot_item, item, can_attach_addon)
 			end
-			pbox:AddItem(name, precondition, action, iitem, slot_iitem)
+			pbox:AddItem(name, precondition, action, slot_item, item, can_attach_addon)
 		end
 	end
 end
 
-function add_detach_addon(pbox, cell_item)
+function add_detach_addon(pbox, item)
 	local name, precondition, action
-	local item = cell_item:GetAnyItem()
 	local wpn = item:get_weapon_m()
 	if wpn then
 		for i=0,7 do --//all addons except magazine
@@ -302,42 +271,10 @@ function add_detach_addon(pbox, cell_item)
 				precondition = function(item)
 					return parent_is_actor(item) or actor_menu:GetMode() ~= "trade"
 				end
-				action = function(item, cell_item)
-					local need_unblock = false
-					block_non_move_action(true)
-					local snd_name = read_if_exists(sys_ini, "string", addon_sect, "detach_addon_sound", "interface\\inv_detach_addon")
-					local snd = xr_sound.get_safe_sound_object(snd_name)
-					snd:play(actor, 0, sound_object.s2d)
-					sm:call("on_timed_action_start", item, snd:length())
-					level.add_call(
-						function()
-							if not actor.inventory:is_active_slot_blocked() then
-								need_unblock = true
-								actor:hide_weapon(true)
-							end						
-							return not snd or not snd:playing() or need_force_stop_anim()
-						end,
-						function()
-							if need_force_stop_anim() then
-								if snd and snd:playing() then
-									snd:stop()
-								end
-							else						
-								detach_addon(item, addon_sect)
-								cell_item:ForceUpdate()
-								if actor_menu:GetMode() == "trade" then
-									actor_menu:UpdatePrices()
-								end
-							end
-							block_non_move_action(false)
-							if need_unblock then
-								actor:restore_weapon(true)
-							end
-							sm:call("on_timed_action_stop")
-						end
-					)
+				action = function(item, addon_sect)
+					inventory.item_detach_addon(item, addon_sect)
 				end
-				pbox:AddItem(name, precondition, action, item, cell_item)
+				pbox:AddItem(name, precondition, action, item, addon_sect)
 			end
 		end
 	end

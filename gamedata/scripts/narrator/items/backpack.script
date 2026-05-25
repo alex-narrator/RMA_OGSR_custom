@@ -124,7 +124,7 @@ function play_anim(state)
 		idle_playing = false
 	return end
 	local hud_sect = HANDS_HUD_SECT
-	if actor_get_backpack() then
+	if actor_get_backpack() and actor_menu:GetMode() == "inventory" then
 		local community_hud_sect = DEF_HUD_SECT.."_"..actor:character_community()
 		hud_sect = sys_ini:section_exist(community_hud_sect) and community_hud_sect or DEF_HUD_SECT
 	end
@@ -154,7 +154,7 @@ function play_effects(enable)
 	if SCRIPT_ANIM_PLAYING then
 	return end
 	
-	if actor_get_backpack() then
+	if actor_get_backpack() and actor_menu:GetMode() == "inventory" then
 		local snd_name = enable and "interface\\item_usage\\backpack_open" or "interface\\item_usage\\backpack_close"
 		local snd_obj = xr_sound.get_safe_sound_object(snd_name)
 		snd_obj:play(actor, 0, sound_object.s2d)

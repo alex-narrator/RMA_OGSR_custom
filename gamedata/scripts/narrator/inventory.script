@@ -5,6 +5,8 @@ function attach(sm)
 	sm:subscribe({signal = "on_take", 			fun = this.on_take})
 end
 
+local sm = ogsr_signals.get_mgr()
+
 function on_first_update()
 	drop_slots_to_ruck()
 end
@@ -293,4 +295,183 @@ function pickup_all()
 		end
 	end
 	level.iterate_nearest(device().cam_pos, actor.inventory.take_dist, perform_action)
+end
+
+function item_detach_addon(item, addon_sect)
+	actor:hide_weapon()
+	block_non_move_action(true)
+	level.add_call(
+		function()
+			return not actor:active_item()
+		end,
+		function()
+			local snd_name = read_if_exists(sys_ini, "string", addon_sect, "detach_addon_sound", "interface\\inv_detach_addon")
+			local snd = xr_sound.get_safe_sound_object(snd_name)
+			snd:play(actor, 0, sound_object.s2d)
+			sm:call("on_timed_action_start", item, snd:length())
+			level.add_call(
+				function()
+					return not snd or not snd:playing() or need_force_stop_anim()
+				end,
+				function()
+					if need_force_stop_anim() then
+						if snd and snd:playing() then
+							snd:stop()
+						end
+					else						
+						detach_addon(item, addon_sect)
+						local ci = actor_menu:GetCellItem(item)
+						if ci then
+							ci:ForceUpdate()
+						end
+						if actor_menu:GetMode() == "trade" then
+							actor_menu:UpdatePrices()
+						end
+					end
+					block_non_move_action(false)
+					actor:restore_weapon()
+					sm:call("on_timed_action_stop")
+				end
+			)		
+		end
+	)
+end
+
+function item_attach_addon(item, addon_item, detach_sect)
+	actor:hide_weapon()
+	block_non_move_action(true)
+	level.add_call(
+		function()
+			return not actor:active_item()
+		end,
+		function()
+			if type(detach_sect) == "string" then
+				--//detach addon first
+				local snd_detach_name = read_if_exists(sys_ini, "string", detach_sect, "detach_addon_sound", "interface\\inv_detach_addon")
+				local snd_detach = xr_sound.get_safe_sound_object(snd_detach_name)
+				snd_detach:play(actor, 0, sound_object.s2d)
+				
+				local snd_attach_name = read_if_exists(sys_ini, "string", addon_item:section(), "attach_addon_sound", "interface\\inv_attach_addon")
+				local snd_attach = xr_sound.get_safe_sound_object(snd_attach_name)			
+				
+				sm:call("on_timed_action_start", item, snd_detach:length() + snd_attach:length())
+				level.add_call(
+					function()
+						return not snd_detach or not snd_detach:playing() or need_force_stop_anim()
+					end,
+					function()
+						if need_force_stop_anim() then
+							if snd_detach and snd_detach:playing() then
+								snd_detach:stop()
+								sm:call("on_timed_action_stop")
+							end
+							block_non_move_action(false)
+							actor:restore_weapon(true)
+						else
+							detach_addon(item, detach_sect)
+							local ci = actor_menu:GetCellItem(item)
+							if ci then
+								ci:ForceUpdate()
+							end
+							if actor_menu:GetMode() == "trade" then
+								actor_menu:UpdatePrices()
+							end
+						end
+						--//
+						snd_attach:play(actor, 0, sound_object.s2d)
+						level.add_call(
+							function()
+								if not actor.inventory:is_active_slot_blocked() then
+									need_unblock = true
+									actor:hide_weapon(true)
+								end
+								return not snd_attach or not snd_attach:playing() or need_force_stop_anim()
+							end,
+							function()
+								if need_force_stop_anim() then
+									if snd_attach and snd_attach:playing() then
+										snd_attach:stop()
+									end
+								else					
+									attach_addon(item, addon_item)
+									local ci = actor_menu:GetCellItem(item)
+									if ci then
+										ci:ForceUpdate()
+									end
+									if actor_menu:GetMode() == "trade" then
+										actor_menu:UpdatePrices()
+									end
+								end
+								block_non_move_action(false)
+								actor:restore_weapon(true)
+								sm:call("on_timed_action_stop")
+							end
+						)					
+						--//
+					end
+				)
+			else
+				--//simply attaching	
+				local snd_name = read_if_exists(sys_ini, "string", addon_item:section(), "attach_addon_sound", "interface\\inv_attach_addon")
+				local snd = xr_sound.get_safe_sound_object(snd_name)
+				snd:play(actor, 0, sound_object.s2d)
+				sm:call("on_timed_action_start", item, snd:length())
+				level.add_call(
+					function()
+						return not snd or not snd:playing() or need_force_stop_anim()
+					end,
+					function()
+						if need_force_stop_anim() then
+							if snd and snd:playing() then
+								snd:stop()
+							end
+						else					
+							attach_addon(item, addon_item)
+							local ci = actor_menu:GetCellItem(item)
+							if ci then
+								ci:ForceUpdate()
+							end
+							if actor_menu:GetMode() == "trade" then
+								actor_menu:UpdatePrices()
+							end
+						end
+						block_non_move_action(false)
+						actor:restore_weapon(true)
+						sm:call("on_timed_action_stop")
+					end
+				)
+			end		
+		end
+	)
+end
+
+function item_can_attach_addon(item, addon_item)
+	local iitem = item:get_inventory_item()
+	local addon_iitem = addon_item:get_inventory_item()
+	if not iitem or not addon_iitem then
+	return false end
+	if iitem:can_attach_addon(addon_iitem) then
+	return true end
+	detach_addon_type = nil
+	for k, addon in pairs(ADDON_TYPES) do
+		local addons = read_if_exists(sys_ini, "string", item:section(), addon.."_name", nil)
+		local addons_list = split_string(addons, ",")
+		if addons_list then
+			for _, addon_sect in pairs(addons_list) do
+				if addon_sect == addon_item:section() then
+					detach_addon_type = k-1
+					break
+				end
+			end		
+		end
+	end
+	if not detach_addon_type then
+	return false end
+	local wpn = item:get_weapon()
+	if not wpn then
+	return false end
+	if wpn:addon_attachable(detach_addon_type) then
+		--//section to detach
+		return wpn:get_addon_name(detach_addon_type)
+	end
 end
