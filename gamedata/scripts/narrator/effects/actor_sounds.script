@@ -16,7 +16,7 @@ local snd
 
 function misfire()
 	snd = missfire_react[math.random(#missfire_react)]
-	if not snd:playing() and device():time_global() > last_time_played + delay then
+	if actor:alive() and not snd:playing() and device():time_global() > last_time_played + delay then
 		snd:play(actor, 0, sound_object.s2d)
 		last_time_played = device():time_global()
 	end

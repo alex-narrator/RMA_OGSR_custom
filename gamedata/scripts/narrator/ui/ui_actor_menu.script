@@ -1576,6 +1576,22 @@ function ActorMenuOverlay:ReinitLists(show_type)
 		end
 	end
 	
+	self.target_list:Reinit()
+	self.target_list:Show(mode == "carbody" or mode == "trade")
+	if self.target_list:IsShown() then
+		local target_items = {}
+		function fill_target_list(dummy, item)
+			if show_item(item) then
+				table.insert(target_items, item)
+			end
+		end		
+		self.target:iterate_inventory(fill_target_list, nil)
+		table.sort(target_items, ui_inv_utils.sort_by_size_type)
+		for k, item in pairs(target_items) do
+			add_to_container(item, self.target_list)
+		end
+	end	
+	
 	function fill_list(dummy, item)
 		if loadout.can_remove(item) then
 			table.insert(loadout_items, item)
@@ -1608,22 +1624,6 @@ function ActorMenuOverlay:ReinitLists(show_type)
 	table.sort(ruck_items, ui_inv_utils.sort_by_size_type)
 	for k, item in pairs(ruck_items) do
 		add_to_container(item, self.ruck_list)
-	end
-
-	self.target_list:Reinit()
-	self.target_list:Show(mode == "carbody" or mode == "trade")
-	if self.target_list:IsShown() then
-		local target_items = {}
-		function fill_target_list(dummy, item)
-			if show_item(item) then
-				table.insert(target_items, item)
-			end
-		end		
-		self.target:iterate_inventory(fill_target_list, nil)
-		table.sort(target_items, ui_inv_utils.sort_by_size_type)
-		for k, item in pairs(target_items) do
-			add_to_container(item, self.target_list)
-		end
 	end
 	
 	self:UpdateCustomDraw()

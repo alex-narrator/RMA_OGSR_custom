@@ -131,6 +131,8 @@ function on_zoom_in(weapon)
 		if not actor_obj:is_zoom_aiming_mode() then
 		return end
 		
+		local hardhold = ezi and not actor_obj:is_actor_creep() and not force_disable_hard_hold()
+		
 		local wpn = weapon:get_weapon()
 		
 		local s3ds = wpn:is_3dss_enabled()
@@ -142,7 +144,10 @@ function on_zoom_in(weapon)
 		local is_hv = nvd.aim_hv_weapon()
 		local alt_aim = read_if_exists(sys_ini, "bool", weapon:section(), "aim_alt_forced", false) or (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope) and read_if_exists(sys_ini, "bool", wpn:get_addon_name(addon.scope), "aim_alt", false))
 
-		local tip = game.translate_string("st_hold_key_to_hard_hold")		
+		local tip = ""
+		if hardhold then
+			tip = game.translate_string("st_hold_key_to_hard_hold")
+		end
 		if marks then
 			tip = tip.."\\n"..game.translate_string("st_press_key_to_switch_mark")
 		end

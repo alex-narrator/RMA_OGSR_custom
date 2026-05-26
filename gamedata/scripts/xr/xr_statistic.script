@@ -64,7 +64,6 @@ monster_classes = {
 		}		
 
 function attach(sm)
-	sm:subscribe({signal = "on_take", 			fun = this.try_add_item})
 	sm:subscribe({signal = "on_pda_actor_info", fun = this.on_info_tab})
 	sm:subscribe({signal = "on_death", 			fun = this.addKillCount})
 	sm:subscribe({signal = "on_heal_wounded", 	fun = this.add_npc_healed})
@@ -72,6 +71,10 @@ function attach(sm)
 	sm:subscribe({signal = "on_death_car", 		fun = this.add_killed_transport})
 	sm:subscribe({signal = "on_death_heli", 	fun = this.add_killed_transport})
 	sm:subscribe({signal = "on_pda_hack", 		fun = this.add_pda_hack})
+	--//
+	sm:subscribe({signal = "on_take", 			fun = this.try_add_item})	
+	sm:subscribe({signal = "on_place_item_to_box", fun = this.mark_as_taken})
+	sm:subscribe({signal = "on_ruck_npc", 		fun = this.mark_as_taken})
 end
 
 function addKillCount(victim, killer)
@@ -135,8 +138,10 @@ function try_add_item(item)
 	-- if actor:is_talking() then
 	-- return end
 	
-	if not item:is_artefact() and get_clsid(item) ~= clsid.monster_part_s  
-	then return end
+	local artefact = item:is_artefact()
+	
+	if not artefact and get_clsid(item) ~= clsid.monster_part_s then
+	return end
 	
 	if already_counted(item) then
 	return end
@@ -146,18 +151,29 @@ function try_add_item(item)
 	if level.main_input_receiver() then
 	return end
 	
-	if item:is_artefact() then
+	if artefact then
 		ogsr_signals.get_mgr():call("on_af_first_take", item)
 	end
 	
 	local sect = item:section()
-	local stat_sect = item:is_artefact() and "artefacts" or "trophies"
+	local stat_sect = artefact and "artefacts" or "trophies"
 	actor_stats.add_points(stat_sect, get_inv_name(sect), 1, 1)
 	local rank = read_if_exists(sys_ini, "u32", sect, "rank", 0)
 	actor:change_character_rank(rank)
 end
+
 function already_counted(item)
-	return alife():object(item:id()) and alife():object(item:id()).is_taken
+	local se_obj = alife():object(item:id())
+	return se_obj and se_obj.is_taken
+end
+
+function mark_as_taken(owner, item)
+	if not item:is_artefact() and get_clsid(item) ~= clsid.monster_part_s then
+	return end
+	local se_obj = alife():object(item:id())
+	if not se_obj or se_obj.is_taken then
+	return end
+	se_obj.is_taken = true
 end
 
 function on_info_tab()

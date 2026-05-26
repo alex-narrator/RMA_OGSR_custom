@@ -204,8 +204,8 @@ function create_obligatory_items(obj, section , count)
 				position.z = obj:position().z + math.random(-30,30)/100
 				position.y = obj:position().y + math.random(30,50)/100
 				local sobj = spawn_to_level(section, position, level)
-				--//артефакти з ящиків не "кусаютсья"
-				if sobj:clsid() == clsid.artefact_s then
+				--//артефакти та трофеї з ящиків вважаємо взятими кимось до нас
+				if sobj:clsid() == clsid.artefact_s or sobj:clsid() == clsid.monster_part_s then
 					alife():object( sobj.id ).is_taken = true
 				end
 			end
