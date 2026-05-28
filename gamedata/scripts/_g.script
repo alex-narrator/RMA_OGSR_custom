@@ -1515,27 +1515,174 @@ AMMO_PARAM_NAMES = {
 	"grenade_class",
 }
 
-HUD_STATE_NAME = {
-	[global_flags.eIdle] 		= "eIdle",
-	[global_flags.eFire] 		= "eFire",
-	[global_flags.eFire2] 		= "eFire2",
-	[global_flags.eReload] 		= "eReload",
-	[global_flags.eShowing] 	= "eShowing",
-	[global_flags.eHiding] 		= "eHiding",
-	[global_flags.eHidden] 		= "eHidden",
-	[global_flags.eMisfire] 	= "eMisfire",
-	[global_flags.eMagEmpty] 	= "eMagEmpty",
-	[global_flags.eSwitch] 		= "eSwitch",
-	[global_flags.eSprintStart] = "eSprintStart",
-	[global_flags.eSprintEnd] 	= "eSprintEnd",
-	[global_flags.eThrowStart] 	= "eThrowStart",
-	[global_flags.eReady] 		= "eReady",
-	[global_flags.eThrow] 		= "eThrow",
-	[global_flags.eThrowEnd] 	= "eThrowEnd",
-	[global_flags.eActivating] 	= "eActivating",
-	[global_flags.eIdleZoom] 	= "eIdleZoom",
-	[global_flags.eIdleZoomIn] 	= "eIdleZoomIn",
-	[global_flags.eIdleZoomOut] = "eIdleZoomOut",
+--// engine enums start
+inv_item_flags = {
+	FdropManual = global_flags.FdropManual,
+	FCanTake = global_flags.FCanTake,
+	FCanTrade = global_flags.FCanTrade,
+	Fbelt = global_flags.Fbelt,
+	Fruck = global_flags.Fruck,
+	FRuckDefault = global_flags.FRuckDefault,
+	FUsingCondition = global_flags.FUsingCondition,
+	FAllowSprint = global_flags.FAllowSprint,
+	Fuseful_for_NPC = global_flags.Fuseful_for_NPC,
+	FInInterpolation = global_flags.FInInterpolation,
+	FInInterpolate = global_flags.FInInterpolate,
+	FIsQuestItem = global_flags.FIsQuestItem,
+	FIAlwaysUntradable = global_flags.FIAlwaysUntradable,
+	FIUngroupable = global_flags.FIUngroupable,
+	FIHiddenForInventory = global_flags.FIHiddenForInventory,
+}
+
+inv_place = {
+	undefined = item_place.undefined,
+	slot = item_place.slot,
+	belt = item_place.belt,
+	ruck = item_place.ruck,
+}
+
+se_object_flags = {
+	flUseSwitches = global_flags.flUseSwitches,
+	flSwitchOnline = global_flags.flSwitchOnline,
+	flSwitchOffline = global_flags.flSwitchOffline,
+	flInteractive = global_flags.flInteractive,
+	flVisibleForAI = global_flags.flVisibleForAI,
+	flUsefulForAI = global_flags.flUsefulForAI,
+	flOfflineNoMove = global_flags.flOfflineNoMove,
+	flUsedAI_Locations = global_flags.flUsedAI_Locations,
+	flGroupBehaviour = global_flags.flGroupBehaviour,
+	flCanSave = global_flags.flCanSave,
+	flVisibleForMap = global_flags.flVisibleForMap,
+	flUseSmartTerrains = global_flags.flUseSmartTerrains,
+	flCheckForSeparator = global_flags.flCheckForSeparator,
+}
+
+se_addon_flags = {
+	scope = addon_flag.scope,
+	launcher = addon_flag.launcher,
+	silencer = addon_flag.silencer,
+	laser = addon_flag.laser,
+	flashlight = addon_flag.flashlight,
+	sight = addon_flag.sight,
+	extender = addon_flag.extender,
+}
+
+addon_flags = {
+	silencer = addon.silencer,
+	scope = addon.scope,
+	launcher = addon.launcher,
+	laser = addon.laser,
+	flashlight = addon.flashlight,
+	sight = addon.sight,
+	extender = addon.extender,
+	magazine = addon.magazine,
+	max = addon.max,
+}
+
+eatable_item_influence = {
+	health = influence.health,
+	power = influence.power,
+	max_power = influence.max_power,
+	satiety = influence.satiety,
+	radiation = influence.radiation,
+	psy_health = influence.psy_health,
+	alcohol = influence.alcohol,
+	wounds_heal = influence.wounds_heal,
+	max = influence.max,
+}
+
+item_effect = {
+	health_restore = effect.health_restore,
+	power_restore = effect.power_restore,
+	max_power_restore = effect.max_power_restore,
+	satiety_restore = effect.satiety_restore,
+	radiation_restore = effect.radiation_restore,
+	psy_health_restore = effect.psy_health_restore,
+	alcohol_restore = effect.alcohol_restore,
+	wounds_heal_speed = effect.wounds_heal_speed,
+	add_sprint = effect.add_sprint,
+	add_jump = effect.add_jump,
+	add_weight = effect.add_weight,
+	max_effect = effect.max_effect,
+}
+
+task_state = {
+	fail = task.fail,
+	in_progress = task.in_progress,
+	completed = task.completed,
+	skipped = task.skipped,
+	task_dummy = task.task_dummy,
+}
+
+move_state = {
+	mcFwd = move_command.mcFwd,
+	mcBack = move_command.mcBack,
+	mcLStrafe = move_command.mcLStrafe,
+	mcRStrafe = move_command.mcRStrafe,
+	mcCrouch = move_command.mcCrouch,
+	mcAccel = move_command.mcAccel,
+	mcTurn = move_command.mcTurn,
+	mcJump = move_command.mcJump,
+	mcFall = move_command.mcFall,
+	mcLanding = move_command.mcLanding,
+	mcLanding2 = move_command.mcLanding2,
+	mcClimb = move_command.mcClimb,
+	mcSprint = move_command.mcSprint,
+	mcLLookout = move_command.mcLLookout,
+	mcRLookout = move_command.mcRLookout,
+	mcAnyMove = move_command.mcAnyMove,
+	mcAnyAction = move_command.mcAnyAction,
+	mcAnyState = move_command.mcAnyState,
+	mcLookout = move_command.mcLookout,
+	mcCrouchAccel = move_command.mcCrouchAccel,
+}
+
+hud_state = {
+	eIdle = global_flags.eIdle,
+	eFire = global_flags.eFire,
+	eFire2 = global_flags.eFire2,
+	eReload = global_flags.eReload,
+	eShowing = global_flags.eShowing,
+	eHiding = global_flags.eHiding,
+	eHidden = global_flags.eHidden,
+	eMisfire = global_flags.eMisfire,
+	eMagEmpty = global_flags.eMagEmpty,
+	eSwitch = global_flags.eSwitch,
+	eSprintStart = global_flags.eSprintStart,
+	eSprintEnd = global_flags.eSprintEnd,
+	eThrowStart = global_flags.eThrowStart,
+	eReady = global_flags.eReady,
+	eThrow = global_flags.eThrow,
+	eThrowEnd = global_flags.eThrowEnd,
+	eActivating = global_flags.eActivating,
+	eIdleZoom = global_flags.eIdleZoom,
+	eIdleZoomIn = global_flags.eIdleZoomIn,
+	eIdleZoomOut = global_flags.eIdleZoomOut,
+}
+
+--// engine enums end
+
+hud_state_name = {
+	[hud_state.eIdle] = "eIdle",
+	[hud_state.eFire] = "eFire",
+	[hud_state.eFire2] = "eFire2",
+	[hud_state.eReload] = "eReload",
+	[hud_state.eShowing] = "eShowing",
+	[hud_state.eHiding] = "eHiding",
+	[hud_state.eHidden] = "eHidden",
+	[hud_state.eMisfire] = "eMisfire",
+	[hud_state.eMagEmpty] = "eMagEmpty",
+	[hud_state.eSwitch] = "eSwitch",
+	[hud_state.eSprintStart] = "eSprintStart",
+	[hud_state.eSprintEnd] = "eSprintEnd",
+	[hud_state.eThrowStart] = "eThrowStart",
+	[hud_state.eReady] = "eReady",
+	[hud_state.eThrow] = "eThrow",
+	[hud_state.eThrowEnd] = "eThrowEnd",
+	[hud_state.eActivating] = "eActivating",
+	[hud_state.eIdleZoom] = "eIdleZoom",
+	[hud_state.eIdleZoomIn] = "eIdleZoomIn",
+	[hud_state.eIdleZoomOut] = "eIdleZoomOut",
 }
 
 KEY_BIND_STOP_SCRIPT_ANIM = key_bindings.kSPRINT
@@ -1769,34 +1916,34 @@ function actor_limping()
 	return actor_obj.condition.limping
 end
 function actor_get_knife()
-	return actor:item_in_slot(0)
+	return actor:item_in_slot(KNIFE_SLOT)
 end
 function actor_get_grenade()
-	return actor:item_in_slot(3)
+	return actor:item_in_slot(GRENADE_SLOT)
 end
 function actor_get_bolt()
-	return actor:item_in_slot(5)
+	return actor:item_in_slot(BOLT_SLOT)
 end
 function actor_get_outfit()
-	return actor:item_in_slot(6)
+	return actor:item_in_slot(OUTFIT_SLOT)
 end
 function actor_get_pda()
-	return actor:item_in_slot(7)
+	return actor:item_in_slot(PDA_SLOT)
 end
 function actor_get_device()
-	return actor:item_in_slot(8)
+	return actor:item_in_slot(DETECTOR_SLOT)
 end
 function actor_get_torch()
-	return actor:item_in_slot(9)
+	return actor:item_in_slot(TORCH_SLOT)
 end
 function actor_get_artefact()
-	return actor:item_in_slot(10)
+	return actor:item_in_slot(ARTEFACT_SLOT)
 end
 function actor_get_helmet()
-	return actor:item_in_slot(11)
+	return actor:item_in_slot(HELMET_SLOT)
 end
 function actor_get_backpack()
-	return actor:item_in_slot(12)
+	return actor:item_in_slot(BACKPACK_SLOT)
 end
 
 function actor_get_car()
@@ -1812,7 +1959,7 @@ end
 function action_break_sprint()
 	if not get_script_option_value("actions_break_sprint") then
 	return end
-	SetMoveState(move_command.mcSprint, false)
+	SetMoveState(move_state.mcSprint, false)
 end
 
 function block_non_move_action(block)
@@ -2006,14 +2153,14 @@ function can_be_reloaded_by(item, item_to_load)
 			end
 			--//load weapon with gl-grenades
 			if param_name == "grenade_class" then
-				if wpn and wpn:is_addon_attached(addon.launcher) then
+				if wpn and wpn:is_addon_attached(addon_flags.launcher) then
 					return wpn.ammo_elapsed < wpn.ammo_mag_size or wpn:get_ammo_sect() ~= sect
 				end
 			end
 			--//load weapon with magazine
 			if param_name == "magazine_class" then
 				local ammo_to_load = item_to_load:get_weapon_ammo()
-				return ammo_to_load and ammo_to_load.box_curr > 0 and wpn and wpn:addon_attachable(addon.magazine) and (not wpn:is_addon_attached(addon.magazine) or wpn.ammo_elapsed < wpn.ammo_mag_size or sect ~= wpn:get_addon_name(addon.magazine))
+				return ammo_to_load and ammo_to_load.box_curr > 0 and wpn and wpn:addon_attachable(addon_flags.magazine) and (not wpn:is_addon_attached(addon_flags.magazine) or wpn.ammo_elapsed < wpn.ammo_mag_size or sect ~= wpn:get_addon_name(addon_flags.magazine))
 			end
 			--//load weapon with ammo
 			if param_name == "ammo_class" then
@@ -2022,7 +2169,7 @@ function can_be_reloaded_by(item, item_to_load)
 					return wpn.ammo_elapsed < wpn.ammo_mag_size
 				end
 				--//magazine feeded weapon can be reloaded strait to chamber if hase one
-				if wpn and wpn:addon_attachable(addon.magazine) then
+				if wpn and wpn:addon_attachable(addon_flags.magazine) then
 					return wpn.ammo_elapsed == 0 and read_if_exists(sys_ini, "bool", item:section(), "has_chamber", true)
 				end
 				--//vanilla reload condition in other cases
@@ -2109,9 +2256,9 @@ end
 
 function get_wpn_scope_zoom_params(item)
 	local wpn = item:get_weapon_m()
-	if not wpn or not wpn:is_addon_attached(addon.scope) then
+	if not wpn or not wpn:is_addon_attached(addon_flags.scope) then
 	return nil end
-	local sect = wpn:addon_attachable(addon.scope) and wpn:get_addon_name(addon.scope) or item:section()
+	local sect = wpn:addon_attachable(addon_flags.scope) and wpn:get_addon_name(addon_flags.scope) or item:section()
 	local zoom_params = split_string(read_if_exists(sys_ini, "string", sect, "scope_zoom_factor", nil), ",")
 	return zoom_params
 end
@@ -2410,7 +2557,7 @@ function get_zoom_data(item)
 	if not wpn then
 		return nil 
 	end
-	local zoom_sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or item:section()
+	local zoom_sect = (wpn:addon_attachable(addon_flags.scope) and wpn:is_addon_attached(addon_flags.scope)) and wpn:get_addon_name(addon_flags.scope) or item:section()
 	return split_string(read_if_exists(sys_ini, "string", zoom_sect, "scope_zoom_factor", nil), ",", true)
 end
 
@@ -2511,7 +2658,7 @@ function detach_addon(item, addon_sect, not_spawn_addon)
 	local mgr = ogsr_signals.get_mgr()
 	mgr:call("on_before_addon_detach", item, addon_sect)
 	local spawn_cond = 1
-	if is_in_addon_list(item, addon_sect, addon.silencer) then
+	if is_in_addon_list(item, addon_sect, addon_flags.silencer) then
 		local sobj = alife():object(item:id())
 		spawn_cond = sobj.attached_silencer_condition
 		--log3("~item %s | addon_sect %s | spawn_cond %s", item:name(), addon_sect, spawn_cond)

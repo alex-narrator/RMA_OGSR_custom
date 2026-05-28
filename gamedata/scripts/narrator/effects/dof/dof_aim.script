@@ -12,7 +12,7 @@ function on_zoom_in(weapon)
 	if wpn:is_3dss_enabled() and not wpn:aim_alt_mode() then
 	return end
 
-	local param_sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or weapon:section()
+	local param_sect = (wpn:addon_attachable(addon_flags.scope) and wpn:is_addon_attached(addon_flags.scope)) and wpn:get_addon_name(addon_flags.scope) or weapon:section()
 	local dof_params = read_if_exists(sys_ini, "string", param_sect, "dof_aim", AIM_DOF)
 	local dof = split_string(dof_params, ",")
 	if not dof then return end
@@ -38,7 +38,7 @@ function on_zoom_out(weapon)
 	if wpn:is_3dss_enabled() and not wpn:aim_alt_mode() then
 	return end
 	
-	local param_sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or weapon:section()
+	local param_sect = (wpn:addon_attachable(addon_flags.scope) and wpn:is_addon_attached(addon_flags.scope)) and wpn:get_addon_name(addon_flags.scope) or weapon:section()
 	local dof_params = read_if_exists(sys_ini, "string", param_sect, "dof_aim", AIM_DOF)
 	local dof = split_string(dof_params, ",")
 	if not dof then return end

@@ -31,7 +31,7 @@ function on_slot(obj, prev_place)
 end
 
 function on_drop(obj, prev_place)
-	if prev_place == item_place.slot and not level.is_removing_objects() then
+	if prev_place == inv_place.slot and not level.is_removing_objects() then
 		if obj:get_container() then
 			function perform_action(dummy, item)
 				if not loadout.can_remove(item) then
@@ -49,7 +49,7 @@ function on_drop(obj, prev_place)
 end
 
 function on_ruck(obj, prev_place)
-	if prev_place == item_place.slot and obj:get_container() then
+	if prev_place == inv_place.slot and obj:get_container() then
 		if idle_playing then
 			game.stop_hud_motion()
 		end
@@ -136,13 +136,13 @@ end
 
 function force_crouch(enable)
 	if enable then
-		saved_state = not IsMoveState(move_command.mcCrouch)
+		saved_state = not IsMoveState(move_state.mcCrouch)
 		if saved_state then
-			SetMoveState(move_command.mcCrouch, true)
+			SetMoveState(move_state.mcCrouch, true)
 		end
 	else
 		if saved_state then
-			SetMoveState(move_command.mcCrouch, false)
+			SetMoveState(move_state.mcCrouch, false)
 		end
 		saved_state = false
 	end

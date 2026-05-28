@@ -496,7 +496,7 @@ function task_callback(p1, p2, state)
 		return
 	end
 
-	if state == task.completed then
+	if state == task_state.completed then
 		task_info[active_task_by_type[p1]].status = "normal"
 		task_info[active_task_by_type[p1]].give_task_time = nil
 		--' восстановление других заданий данного типа
@@ -506,10 +506,10 @@ function task_callback(p1, p2, state)
 			end
 		end
 		active_task_by_type[p1] = nil
-	elseif state == task.fail or state == task.skipped then
+	elseif state == task_state.fail or state == task_state.skipped then
 		local task_data = task_info[active_task_by_type[p1]]
 		
-		if state == task.fail then
+		if state == task_state.fail then
 			--' Проверяем что жив, выдавший квест (хтонічний Сидорович-trader живий завжди).
 			local parent = alife():story_object(story_by_parent[task_data.parent])
 			local parent_alive = parent and (parent:get_trader() or parent:alive())
@@ -1262,7 +1262,7 @@ end
 
 function on_task(_task, _objective, _state)
 	task_callback(_task:get_id(), _objective:get_idx(), _state)
-	if _objective:get_idx() == 0 and _state == task.completed then
+	if _objective:get_idx() == 0 and _state == task_state.completed then
 		task_reward_storyline(_task)
 	end
 end

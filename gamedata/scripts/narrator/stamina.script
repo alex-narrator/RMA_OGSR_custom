@@ -43,12 +43,12 @@ function get_val()
 end
 
 local process_states = {
-	[global_flags.eShowing] = true,
-	[global_flags.eHidden] = true,
+	[hud_state.eShowing] = true,
+	[hud_state.eHidden] = true,
 }
 function on_state_switch(item, state, old_state)
 	if not process_states[state] or not item:get_weapon_m() then
 	return end
-	stamina_k = state == global_flags.eShowing and read_if_exists(sys_ini, "float", item:section(), "control_inertion_factor", 1) or 1
+	stamina_k = state == hud_state.eShowing and read_if_exists(sys_ini, "float", item:section(), "control_inertion_factor", 1) or 1
 	--log3("~stamina_k %s", stamina_k)
 end

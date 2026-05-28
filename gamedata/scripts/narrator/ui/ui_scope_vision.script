@@ -31,10 +31,10 @@ function create_scope_vision(weapon)
 	if weapon:get_gl_mode() then
 	return false end
 	local wpn = weapon:get_weapon()
-	if not wpn:is_addon_attached(addon.scope) then
+	if not wpn:is_addon_attached(addon_flags.scope) then
 	return false end
 	local sect = weapon:section()
-	local scope_vision_sect = wpn:addon_attachable(addon.scope) and wpn:get_addon_name(addon.scope) or sect
+	local scope_vision_sect = wpn:addon_attachable(addon_flags.scope) and wpn:get_addon_name(addon_flags.scope) or sect
 	local scope_vision_forced = (scope_vision_sect ~= sect) and read_if_exists(sys_ini, "bool", sect, scope_vision_sect.."_scope_vision", false) or false
 	if read_if_exists(sys_ini, "bool", scope_vision_sect, "ignore_scope_vision", false) and not scope_vision_forced then
 	return false end

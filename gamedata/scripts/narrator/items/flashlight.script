@@ -28,7 +28,7 @@ end
 
 function on_state_switch(item, state, old_state)
 	if is_flashlight(item) then
-		if state == global_flags.eShowing then
+		if state == hud_state.eShowing then
 			add_time_delayed_action(0.75, 
 				function() 
 					if can_switch(item) then
@@ -38,7 +38,7 @@ function on_state_switch(item, state, old_state)
 					xr_sound.get_safe_sound_object(SWITCH_SOUND):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 				end
 			)
-		elseif state == global_flags.eHiding then
+		elseif state == hud_state.eHiding then
 			item:switch_power(false)
 			xr_sound.get_safe_sound_object(SWITCH_SOUND):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 		end
@@ -82,9 +82,9 @@ function update_brightness(item)
 end
 
 local idle_zoom_states = {
-	[global_flags.eIdleZoom] = true,
-	[global_flags.eIdleZoomIn] = true,
-	[global_flags.eIdleZoomOut] = true,
+	[hud_state.eIdleZoom] = true,
+	[hud_state.eIdleZoomIn] = true,
+	[hud_state.eIdleZoomOut] = true,
 }
 
 function switch_mode(item)

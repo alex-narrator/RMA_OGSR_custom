@@ -21,21 +21,21 @@ function get_ph_box_min_max_id()
 end
 
 function on_mouse_wheel(forward)
-	-- if not (IsMoveState(move_command.mcLookout) or IsMoveState(move_command.mcCrouch)) then
-	if not IsMoveState(move_command.mcCrouch) then
+	-- if not (IsMoveState(move_state.mcLookout) or IsMoveState(move_state.mcCrouch)) then
+	if not IsMoveState(move_state.mcCrouch) then
 	return end
 	local active_item = actor:active_item()
 	if active_item and active_item:is_zoomed() and has_dynamic_zoom(active_item) then
 	return end
 	
-	-- if IsMoveState(move_command.mcLookout) then
+	-- if IsMoveState(move_state.mcLookout) then
 		-- local step = forward and LOOKOUT_ANGLE_STEP or -LOOKOUT_ANGLE_STEP
 		-- local current_angle = actor_obj.lookout_angle
 		-- local desired_angle = math.clamp(actor_obj.lookout_angle + step, MIN_ANGLE, MAX_ANGLE)
 		-- actor_obj.lookout_angle = desired_angle
 	-- return end
 	
-	if IsMoveState(move_command.mcCrouch) then
+	if IsMoveState(move_state.mcCrouch) then
 		--log_news("~ph_box id [%s]", actor_obj.ph_box_id)
 		local step = forward and PH_BOX_ID_STEP or -PH_BOX_ID_STEP
 		local MIN_BOX_ID, MAX_BOX_ID = get_ph_box_min_max_id()
@@ -48,8 +48,8 @@ function on_mouse_wheel(forward)
 end
 
 local lookout_check = {
-	[key_bindings.kL_LOOKOUT] = function() return IsMoveState(move_command.mcRLookout) end,
-	[key_bindings.kR_LOOKOUT] = function() return IsMoveState(move_command.mcLLookout) end,
+	[key_bindings.kL_LOOKOUT] = function() return IsMoveState(move_state.mcRLookout) end,
+	[key_bindings.kR_LOOKOUT] = function() return IsMoveState(move_state.mcLLookout) end,
 }
 local wait_for_action
 function on_key_press(key, game_action)
@@ -62,7 +62,7 @@ function on_key_press(key, game_action)
 	wait_for_action = true
 	level.add_call(
 		function()
-			return not IsMoveState(move_command.mcLookout)
+			return not IsMoveState(move_state.mcLookout)
 		end,
 		function()
 			wait_for_action = false

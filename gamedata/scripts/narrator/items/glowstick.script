@@ -85,13 +85,13 @@ end
 
 function on_state_switch(item, state, old_state)
 	if is_glowstick(item) then
-		if state == global_flags.eShowing then
+		if state == hud_state.eShowing then
 			if can_be_activated(item) then
 				hud_add_info_message("hud_info", "st_tip_activate_glowstick_hud", 3)
 			end
 			item:switch_power(can_be_enabled(item))
 			enable_script_light(item, false)
-		elseif state == global_flags.eHidden then
+		elseif state == hud_state.eHidden then
 			item:switch_power(false)
 			enable_script_light(item, not actor:is_in_ruck(item))
 		end

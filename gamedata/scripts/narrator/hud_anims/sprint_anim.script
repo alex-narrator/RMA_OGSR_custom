@@ -23,7 +23,7 @@ function on_update()
 end
 
 function on_hud_state_switch(item, state, old_state)
-	if old_state == global_flags.eHidden and sprint_anim_playing then
+	if old_state == hud_state.eHidden and sprint_anim_playing then
 		sprint_anim_playing = false
 		game.stop_hud_motion()
 	end

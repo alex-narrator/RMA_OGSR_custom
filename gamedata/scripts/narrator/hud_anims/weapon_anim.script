@@ -120,16 +120,16 @@ end
 
 local HUD_STATE_ID = 1919
 local hud_state_anims = {
-	[global_flags.eShowing] = {name = "cam_anim_show", default = [[camera_effects\actor_actions\jammed_crp.anm]]},
-	[global_flags.eHiding] = {name = "cam_anim_hide", default = [[camera_effects\actor_actions\jammed_crp.anm]]},
-	[global_flags.eThrow] = {name = "cam_anim_hide", default = [[camera_effects\actor_actions\jammed_crp.anm]]},
-	[global_flags.eMisfire] = {name = "cam_anim_misfire", default = [[camera_effects\actor_actions\jammed_crp.anm]], play_mode = 2},
-	[global_flags.eFire2] = {name = "cam_anim_fire_2", default = [[camera_effects\actor_actions\knife_stab_2.anm]]},
+	[hud_state.eShowing] = {name = "cam_anim_show", default = [[camera_effects\actor_actions\jammed_crp.anm]]},
+	[hud_state.eHiding] = {name = "cam_anim_hide", default = [[camera_effects\actor_actions\jammed_crp.anm]]},
+	[hud_state.eThrow] = {name = "cam_anim_hide", default = [[camera_effects\actor_actions\jammed_crp.anm]]},
+	[hud_state.eMisfire] = {name = "cam_anim_misfire", default = [[camera_effects\actor_actions\jammed_crp.anm]], play_mode = 2},
+	[hud_state.eFire2] = {name = "cam_anim_fire_2", default = [[camera_effects\actor_actions\knife_stab_2.anm]]},
 }
 
 local hud_state_zoom_out = {
-	[global_flags.eReload] 	= { param_name = "zoom_out_on_reload", 	def_val = true},
-	[global_flags.eMisfire] = { param_name = "zoom_out_on_misfire", def_val = false},
+	[hud_state.eReload] 	= { param_name = "zoom_out_on_reload", 	def_val = true},
+	[hud_state.eMisfire] = { param_name = "zoom_out_on_misfire", def_val = false},
 }
 
 function on_state_switch(item, state, old_state)
@@ -157,7 +157,7 @@ function on_state_switch(item, state, old_state)
 		level.add_cam_effector(cam_anim, HUD_STATE_ID, false, "")
 	end
 	
-	if state == global_flags.eMisfire then
+	if state == hud_state.eMisfire then
 		hud_add_info_message("hud_info", "gun_jammed", 2)
 		actor_sounds.misfire()
 	end
@@ -220,29 +220,29 @@ function on_update(dt)
 		game.stop_hud_anm(anim_crouch, false)
 	end
 	
-	if MoveStateChanged(move_command.mcCrouch) then
-		if IsMoveState(move_command.mcCrouch) then
+	if MoveStateChanged(move_state.mcCrouch) then
+		if IsMoveState(move_state.mcCrouch) then
 			game.play_hud_anm(anim_crouch_begin, 2, 1, 1, false, true)
 		else
 			game.play_hud_anm(anim_crouch_end, 2, 1, 1, false, true)
 		end
 	end
 	
-	if IsMoveState(move_command.mcCrouch) and MoveStateChanged(move_command.mcAccel) then
-		if IsMoveState(move_command.mcAccel) then
+	if IsMoveState(move_state.mcCrouch) and MoveStateChanged(move_state.mcAccel) then
+		if IsMoveState(move_state.mcAccel) then
 			game.play_hud_anm(anim_crouch_begin, 2, 1, 0.5, false, true)
 		else
 			game.play_hud_anm(anim_crouch_end, 2, 1, 0.5, false, true)
 		end
 	end
 	
-	if actor_obj:is_zoom_aiming_mode() or not IsMoveState(move_command.mcLookout) then
+	if actor_obj:is_zoom_aiming_mode() or not IsMoveState(move_state.mcLookout) then
 		game.stop_hud_anm(anim_r_look, false)
 		game.stop_hud_anm(anim_l_look, false)
 	else
-		if IsMoveState(move_command.mcLLookout) then
+		if IsMoveState(move_state.mcLLookout) then
 			game.play_hud_anm(anim_l_look, 2, 1, 1, true, true)
-		elseif IsMoveState(move_command.mcRLookout) then
+		elseif IsMoveState(move_state.mcRLookout) then
 			game.play_hud_anm(anim_r_look, 2, 1, -1, true, true)
 		end		
 	end

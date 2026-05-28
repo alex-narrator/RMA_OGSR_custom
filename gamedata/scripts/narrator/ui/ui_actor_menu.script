@@ -2299,9 +2299,9 @@ function ActorMenuOverlay:SetTimedActionProgress(item, action_time)
 end
 
 function ActorMenuOverlay:OnHudStateSwitch(item, state, old_state)
-	if state == global_flags.eReload then
+	if state == hud_state.eReload then
 		--log_news("~%s start reloading", item:name())
-	elseif old_state == global_flags.eReload then
+	elseif old_state == hud_state.eReload then
 		--log_news("~%s finish reloading", item:name())
 	end
 end

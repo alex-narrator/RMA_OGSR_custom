@@ -66,10 +66,10 @@ function create_scope_static(weapon)
 	if weapon:get_gl_mode() then
 	return false end
 	local wpn = weapon:get_weapon()
-	if not wpn:is_addon_attached(addon.scope) then
+	if not wpn:is_addon_attached(addon_flags.scope) then
 	return false end
 	local sect = weapon:section()
-	local scope_tex_sect = wpn:addon_attachable(addon.scope) and wpn:get_addon_name(addon.scope) or sect
+	local scope_tex_sect = wpn:addon_attachable(addon_flags.scope) and wpn:get_addon_name(addon_flags.scope) or sect
 	local scope_texture_forced = (scope_tex_sect ~= sect) and read_if_exists(sys_ini, "string", sect, scope_tex_sect.."_scope_texture", nil) or nil
 	if read_if_exists(sys_ini, "bool", scope_tex_sect, "ignore_scope_texture", false) and not scope_texture_forced then
 	return false end

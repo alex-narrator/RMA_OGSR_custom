@@ -14,7 +14,7 @@ function on_weapon_fire(wpn)
 end
 
 function on_state_switch(item, state, old_state)
-	if state ~= global_flags.eReload then
+	if state ~= hud_state.eReload then
 	return end
 	local wpn = item:get_weapon()
 	if not wpn or not wpn.misfire then

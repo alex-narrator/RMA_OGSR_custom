@@ -18,7 +18,7 @@ function try_play_anim(item)
 	
 	local wpn = item:get_weapon()
 	
-	if wpn and wpn:is_addon_attached(addon.launcher) then
+	if wpn and wpn:is_addon_attached(addon_flags.launcher) then
 		postfix = item:get_gl_mode() and "_g" or "_w_gl"
 	end
 
@@ -61,7 +61,7 @@ function try_play_anim(item)
 		end,
 		function()
 			local act_item = actor:active_item()
-			return not act_item or act_item:id() ~= item:id() or item:is_zoomed() or item:get_hud_item_state() ~= global_flags.eIdle or MoveStateChanged(move_command.mcAnyMove)
+			return not act_item or act_item:id() ~= item:id() or item:is_zoomed() or item:get_hud_item_state() ~= hud_state.eIdle or MoveStateChanged(move_state.mcAnyMove)
 		end
 	)
 end

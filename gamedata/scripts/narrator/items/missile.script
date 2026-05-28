@@ -55,7 +55,7 @@ function on_drop(item, prev_place)
 end
 
 function on_state_switch(item, state, old_state)
-	if state == global_flags.eThrow then
+	if state == hud_state.eThrow then
 		local missile = item:get_missile()
 		if not missile then
 		return end
@@ -71,13 +71,13 @@ function on_state_switch(item, state, old_state)
 		--log_news("~throw - destroy_time_max %s", missile.destroy_time_max)
 	end
 
-	if state == global_flags.eShowing and actor:active_slot() ~= GRENADE_SLOT then
+	if state == hud_state.eShowing and actor:active_slot() ~= GRENADE_SLOT then
 		PREV_ACTIVE_SLOT = actor:active_slot()
 		return
 	end
 	if not item:is_missile() or
 		(not LIMITED_BOLTS and get_clsid(item) == clsid.obj_bolt) or
-		state ~= global_flags.eThrowEnd
+		state ~= hud_state.eThrowEnd
 		then
 	return end
 	

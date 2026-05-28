@@ -13,13 +13,13 @@ function get_start_pos(item, owner)
 end
 
 local missile_states = {
-	[global_flags.eThrowStart] = true,
-	[global_flags.eReady] = true,
-	-- [global_flags.eThrow] = true,
+	[hud_state.eThrowStart] = true,
+	[hud_state.eReady] = true,
+	-- [hud_state.eThrow] = true,
 }
 local weapon_states = {
-	[global_flags.eFire] = true,
-	[global_flags.eIdle] = true,
+	[hud_state.eFire] = true,
+	[hud_state.eIdle] = true,
 }
 function get_speed(item)
 	if not item then
@@ -37,7 +37,7 @@ function get_speed(item)
 	if missile and missile_states[item:get_hud_item_state()] then
 		return missile.const_power and missile.const_force or missile.throw_force
 	elseif wpn and show_for_weapon(item) then
-		local param_sect = (wpn:addon_attachable(addon.launcher) and wpn:is_addon_attached(addon.launcher)) and wpn:get_addon_name(addon.launcher) or item:section()
+		local param_sect = (wpn:addon_attachable(addon_flags.launcher) and wpn:is_addon_attached(addon_flags.launcher)) and wpn:get_addon_name(addon_flags.launcher) or item:section()
 		return sys_ini:r_float(param_sect, "grenade_vel")
 	elseif rg6 and show_for_weapon(item) then
 		return sys_ini:r_float(item:section(), "launch_speed")		

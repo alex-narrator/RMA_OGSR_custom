@@ -77,7 +77,7 @@ function can_be_unloaded(cell_item)
 		can_be_unloaded = true
 	end
 	local wpn = item:get_weapon_m()
-	if wpn and wpn:addon_attachable(addon.magazine) and wpn:is_addon_attached(addon.magazine) then
+	if wpn and wpn:addon_attachable(addon_flags.magazine) and wpn:is_addon_attached(addon_flags.magazine) then
 		can_be_unloaded = true
 	end		
 	local ammo = item:get_weapon_ammo()
@@ -187,7 +187,7 @@ function add_reload_weapon(pbox, cell_item)
 		end
 		action = function(item, _item)
 			local wpn = item:get_weapon_m()
-			if wpn and not wpn:addon_attachable(addon.magazine) then
+			if wpn and not wpn:addon_attachable(addon_flags.magazine) then
 				local next_ammo_type = 0
 				local ammo_types = get_ammo_sects(item)
 				for i, sect in pairs(ammo_types) do

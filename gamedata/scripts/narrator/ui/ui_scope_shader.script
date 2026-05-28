@@ -22,7 +22,7 @@ function on_zoom_in(weapon)
 	if wpn:aim_alt_mode() then
 	return end
 	
-	local param_sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or weapon:section()
+	local param_sect = (wpn:addon_attachable(addon_flags.scope) and wpn:is_addon_attached(addon_flags.scope)) and wpn:get_addon_name(addon_flags.scope) or weapon:section()
 	
 	local zoom = read_if_exists(sys_ini, "float", param_sect, "shader_scope_zoom", 0)
 	if zoom == 0 then

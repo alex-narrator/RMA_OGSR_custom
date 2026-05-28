@@ -59,10 +59,10 @@ function on_state_switch(item, state, old_state)
 	
 	if quick_grenade_id == item:id() then
 		--log3("~item %s | state %s | old_state %s | item.pending %s", item:section(), state, old_state, item.pending)
-		if state == global_flags.eIdle then
+		if state == hud_state.eIdle then
 			level.send_event_key_press(bind_to_dik(key_bindings.kWPN_FIRE))
 		return end
-		if old_state == global_flags.eHidden or state == global_flags.eThrowEnd then
+		if old_state == hud_state.eHidden or state == hud_state.eThrowEnd then
 			quick_grenade_id = nil
 			add_update_delayed_action(1,
 				function()
@@ -73,7 +73,7 @@ function on_state_switch(item, state, old_state)
 		return end
 	end
 	if quick_knife_id == item:id() then
-		if state == global_flags.eShowing then
+		if state == hud_state.eShowing then
 			level.add_call(
 				function() 
 					return actor_hands_free() 
@@ -83,7 +83,7 @@ function on_state_switch(item, state, old_state)
 				end
 			)
 		return end
-		if old_state == global_flags.eFire then
+		if old_state == hud_state.eFire then
 			level.add_call(
 				function() 
 					return actor_hands_free()

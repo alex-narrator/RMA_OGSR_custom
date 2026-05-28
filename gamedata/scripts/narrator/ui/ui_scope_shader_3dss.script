@@ -60,8 +60,8 @@ local function reset_shader_zoom_params()
 end
 
 local process_states = {
-	[global_flags.eShowing] = true,
-	-- [global_flags.eIdle] = true,
+	[hud_state.eShowing] = true,
+	-- [hud_state.eIdle] = true,
 }
 function on_state_switch(item, state, old_state)
 	if not process_states[state] or item:get_slot() == DETECTOR_SLOT then
@@ -83,7 +83,7 @@ function try_apply_params(item)
 	
 	local sect = item:section()
 	
-	local param_sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or sect
+	local param_sect = (wpn:addon_attachable(addon_flags.scope) and wpn:is_addon_attached(addon_flags.scope)) and wpn:get_addon_name(addon_flags.scope) or sect
 	local fake_zoom = read_if_exists(sys_ini, "float", param_sect, sect.."_s3ds_fake_zoom", read_if_exists(sys_ini, "float", param_sect, "s3ds_fake_zoom", nil))
 	if not fake_zoom then
 		reset_shader_zoom_params()
@@ -227,7 +227,7 @@ function on_zoom_in(weapon)
 	return end
 
 	local sect = weapon:section()
-	local param_sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or sect
+	local param_sect = (wpn:addon_attachable(addon_flags.scope) and wpn:is_addon_attached(addon_flags.scope)) and wpn:get_addon_name(addon_flags.scope) or sect
 	local dof_aim_intensity = DEBUG_DOF_INENSITY or read_if_exists(sys_ini, "string", param_sect, sect.."_s3ds_dof_aim_intensity", read_if_exists(sys_ini, "string", param_sect, "s3ds_dof_aim_intensity", 1))
 	
 	level.add_call(
@@ -250,7 +250,7 @@ function on_zoom_out(weapon)
 	return end
 
 	local sect = weapon:section()
-	local param_sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or sect
+	local param_sect = (wpn:addon_attachable(addon_flags.scope) and wpn:is_addon_attached(addon_flags.scope)) and wpn:get_addon_name(addon_flags.scope) or sect
 	local dof_aim_intensity = DEBUG_DOF_INENSITY or read_if_exists(sys_ini, "string", param_sect, sect.."_s3ds_dof_aim_intensity", read_if_exists(sys_ini, "string", param_sect, "s3ds_dof_aim_intensity", 1))
 	
 	level.add_call(

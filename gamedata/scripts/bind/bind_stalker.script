@@ -291,11 +291,11 @@ end
 function actor_binder:task_callback(_task, _objective, _state)
 	local _stage
 	if _objective:get_idx() == 0 then
-		if _state == task.fail then
+		if _state == task_state.fail then
 			_stage = "fail"
-		elseif _state == task.completed then
+		elseif _state == task_state.completed then
 			_stage = "complete"
-		elseif _state == task.skipped then
+		elseif _state == task_state.skipped then
 			_stage = "cancel"			
 		else
 			_stage = "new"
@@ -305,7 +305,7 @@ function actor_binder:task_callback(_task, _objective, _state)
 			end
 		end
 	else
-		if _task:get_objective(0):get_state() == task.in_progress then
+		if _task:get_objective(0):get_state() == task_state.in_progress then
 			_stage = "update"
 		end
 	end

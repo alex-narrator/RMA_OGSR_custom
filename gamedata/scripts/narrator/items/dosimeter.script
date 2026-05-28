@@ -76,7 +76,7 @@ end
 
 function disable(item, prev_place)
 	if is_dosimeter(item) and detector and item:id() == detector:id() then
-		if prev_place ~= item_place.undefined then
+		if prev_place ~= inv_place.undefined then
 			detector:switch_power(false)
 			detector = nil
 			result_power = 0

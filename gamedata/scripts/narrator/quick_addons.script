@@ -28,7 +28,7 @@ function on_key_press(key, game_action)
 	
 	local for_scope = game_action == key_bindings.kQUICK_SCOPE
 	
-	local addon_type = for_scope and addon.scope or addon.silencer
+	local addon_type = for_scope and addon_flags.scope or addon_flags.silencer
 	local function check_type(item) return for_scope and (item:is_scope() or item:is_binoculars()) or item:is_silencer() end
 	
 	if act_wpn:is_addon_attached(addon_type) and act_wpn:addon_attachable(addon_type) then

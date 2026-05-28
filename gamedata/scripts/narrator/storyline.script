@@ -29,14 +29,14 @@ function on_new_game_start()
 end
 
 local addons_flags = {
-	["scope"] 		= { addon_flag.scope, 		function(wpn, val) wpn.current_scope = val 		end, },
-	["silencer"] 	= { addon_flag.silencer, 	function(wpn, val) wpn.current_silencer = val 	end, },
-	["launcher"] 	= { addon_flag.launcher, 	function(wpn, val) wpn.current_launcher = val 	end, },
-	["laser"] 		= { addon_flag.laser, 		function(wpn, val) wpn.current_laser = val 		end, },
-	["flashlight"] 	= { addon_flag.flashlight, 	function(wpn, val) wpn.current_flashlight = val end, },
-	["sight"] 		= { addon_flag.sight, 		function(wpn, val) wpn.current_sight = val 		end, },
-	["extender"] 	= { addon_flag.extender, 	function(wpn, val) wpn.current_extender = val 	end, },
-	["magazine"] 	= { addon_flag.magazine, 	function(wpn, val) wpn.current_magazine = val 	end, },
+	["scope"] 		= { se_addon_flags.scope, 		function(wpn, val) wpn.current_scope = val 		end, },
+	["silencer"] 	= { se_addon_flags.silencer, 	function(wpn, val) wpn.current_silencer = val 	end, },
+	["launcher"] 	= { se_addon_flags.launcher, 	function(wpn, val) wpn.current_launcher = val 	end, },
+	["laser"] 		= { se_addon_flags.laser, 		function(wpn, val) wpn.current_laser = val 		end, },
+	["flashlight"] 	= { se_addon_flags.flashlight, 	function(wpn, val) wpn.current_flashlight = val end, },
+	["sight"] 		= { se_addon_flags.sight, 		function(wpn, val) wpn.current_sight = val 		end, },
+	["extender"] 	= { se_addon_flags.extender, 	function(wpn, val) wpn.current_extender = val 	end, },
+	["magazine"] 	= { "no magazine flag exists", 	function(wpn, val) wpn.current_magazine = val 	end, },
 }
 
 function new_game_spawn()

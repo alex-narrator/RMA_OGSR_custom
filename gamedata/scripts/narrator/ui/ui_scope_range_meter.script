@@ -20,10 +20,10 @@ function create_range_meter_static(weapon)
 	if weapon:get_gl_mode() then
 	return false end
 	local wpn = weapon:get_weapon()
-	if not wpn:is_addon_attached(addon.scope) then
+	if not wpn:is_addon_attached(addon_flags.scope) then
 	return false end
 	local sect = weapon:section()
-	local range_meter_sect = wpn:addon_attachable(addon.scope) and wpn:get_addon_name(addon.scope) or sect
+	local range_meter_sect = wpn:addon_attachable(addon_flags.scope) and wpn:get_addon_name(addon_flags.scope) or sect
 	local range_meter_forced = (range_meter_sect ~= sect) and read_if_exists(sys_ini, "string", sect, range_meter_sect.."_range_meter", false) or false
 	if read_if_exists(sys_ini, "bool", range_meter_sect, "ignore_range_meter", false) and not range_meter_forced then
 	return false end

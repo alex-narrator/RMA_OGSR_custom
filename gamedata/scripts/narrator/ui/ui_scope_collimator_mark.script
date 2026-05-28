@@ -49,7 +49,7 @@ function get_marks_count(item)
 	local wpn = item:get_weapon()
 	if not wpn or (wpn:aim_alt_mode() and not read_if_exists(sys_ini, "bool", item:section(), "collimator_mark_alt_enable", false)) then
 	return 0 end
-	local sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or item:section()
+	local sect = (wpn:addon_attachable(addon_flags.scope) and wpn:is_addon_attached(addon_flags.scope)) and wpn:get_addon_name(addon_flags.scope) or item:section()
 	return read_if_exists(sys_ini, "u32", sect, "collimator_mark_count", 0)
 end
 
@@ -60,7 +60,7 @@ function get_mark_color(item, current_mark)
 	if not wpn then
 	return vector() end
 	local sect = item:section()
-	local res_sect = (wpn:addon_attachable(addon.scope) and wpn:is_addon_attached(addon.scope)) and wpn:get_addon_name(addon.scope) or item:section()
+	local res_sect = (wpn:addon_attachable(addon_flags.scope) and wpn:is_addon_attached(addon_flags.scope)) and wpn:get_addon_name(addon_flags.scope) or item:section()
 	return read_if_exists(sys_ini, "vector", res_sect, sect.."_s3ds_mark_color", read_if_exists(sys_ini, "vector", res_sect, "s3ds_mark_color", nil)) or read_if_exists(sys_ini, "vector", res_sect, "collimator_mark_color_"..current_mark, vector())
 end
 
@@ -120,11 +120,11 @@ function try_apply_mark(weapon)
 end
 
 local process_states = {
-	[global_flags.eShowing] = true,
-	-- [global_flags.eIdle] = true,
+	[hud_state.eShowing] = true,
+	-- [hud_state.eIdle] = true,
 }
 function on_state_switch(item, state, old_state)
-	-- local process = state == global_flags.eIdle and old_state == global_flags.eShowing
+	-- local process = state == hud_state.eIdle and old_state == hud_state.eShowing
 	-- if not process then
 	-- return end
 	if not process_states[state] or item:get_slot() == DETECTOR_SLOT then

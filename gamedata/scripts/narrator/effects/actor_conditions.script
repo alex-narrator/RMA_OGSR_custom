@@ -317,12 +317,12 @@ end
 
 function stress_koef()
 	local res = 1
-	if IsMoveState(move_command.mcSprint) or IsMoveState(move_command.mcJump) then
+	if IsMoveState(move_state.mcSprint) or IsMoveState(move_state.mcJump) then
 		res = res * stress_factor
 	end
 	local weight = actor:get_inventory_weight()
 	local max_weight = actor:get_max_weight()
-	if weight > max_weight and IsMoveState(move_command.mcAnyMove) then
+	if weight > max_weight and IsMoveState(move_state.mcAnyMove) then
 		res = res * (weight / max_weight)
 	end
 	return res
@@ -379,14 +379,14 @@ function on_before_use(item)
 	local eatable_item = item:get_eatable_item()
 	if not eatable_item then
 	return end
-	local eat_satiety = eatable_item:influence(influence.satiety)
+	local eat_satiety = eatable_item:influence(eatable_item_influence.satiety)
 	if eat_satiety <= 0 or eat_satiety ~= read_if_exists(sys_ini, "float", item:section(), "eat_satiety", 0) then
 	return end
-	eatable_item:influence(influence.satiety, eat_satiety * (1 - actor.radiation))
+	eatable_item:influence(eatable_item_influence.satiety, eat_satiety * (1 - actor.radiation))
 	add_update_delayed_action(1, 
 		function() 
 			if item and eatable_item then 
-				eatable_item:influence(influence.satiety, eat_satiety)
+				eatable_item:influence(eatable_item_influence.satiety, eat_satiety)
 			end
 		end
 	)

@@ -512,7 +512,7 @@ function MainIngameOverlay:UpdateMotionIcon()
 end
 
 function MainIngameOverlay:TryUpdatePanelItems(item, prev_place)
-	if prev_place == item_place.belt or quick_slots.is_in_quick_slot(item) then 
+	if prev_place == inv_place.belt or quick_slots.is_in_quick_slot(item) then 
 		self:SetPanelItemsNeedUpdate()
 	end
 end
@@ -769,7 +769,7 @@ function MainIngameOverlay:UpdateMissileThrow()
 	local val = 0
 	local act_item = actor:active_item()
 	local missile = act_item and act_item:get_missile()
-	if missile and act_item:get_hud_item_state() == global_flags.eReady then
+	if missile and act_item:get_hud_item_state() == hud_state.eReady then
 		val = (missile.throw_force - missile.min_force) / (missile.max_force - missile.min_force)
 	else
 		val = 0
@@ -781,13 +781,13 @@ function MainIngameOverlay:UpdateMissileThrow()
 end
 
 local update_states = {
-	[global_flags.eFire] = true,
-	[global_flags.eReload] = true,
+	[hud_state.eFire] = true,
+	[hud_state.eReload] = true,
 }
 local crosshair_set_states = {
-	[global_flags.eShowing] = true,
-	-- [global_flags.eHidden] = true,
-	-- [global_flags.eHiding] = true,	
+	[hud_state.eShowing] = true,
+	-- [hud_state.eHidden] = true,
+	-- [hud_state.eHiding] = true,	
 }
 function MainIngameOverlay:OnHudStateSwitch(item, state, old_state)
 	if update_states[old_state] then
@@ -1117,9 +1117,9 @@ function MainIngameOverlay:UpdateNVDInfo()
 end
 
 local crosshair_hide_states = {
-	[global_flags.eReload] = true,
-	[global_flags.eHiding] = true,
-	[global_flags.eHidden] = true,
+	[hud_state.eReload] = true,
+	[hud_state.eHiding] = true,
+	[hud_state.eHidden] = true,
 }
 
 function MainIngameOverlay:UpdateCrosshair(forced)

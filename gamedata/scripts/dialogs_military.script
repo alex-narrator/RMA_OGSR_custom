@@ -31,13 +31,13 @@ end
 
 -- Отмечаем провал задачи
 function mil_dolg_sniper_failed (stalker, player)
-    level_tasks.set_task_state (task.fail, "mil_kill_sniper", 0)
-    level_tasks.set_task_state (task.fail, "mil_kill_sniper", 1)
+    level_tasks.set_task_state (task_state.fail, "mil_kill_sniper", 0)
+    level_tasks.set_task_state (task_state.fail, "mil_kill_sniper", 1)
 end
 
 -- отмечаем выполнение задачи
 function mil_dolg_sniper_complete (stalker, player)
-    level_tasks.set_task_state (task.completed, "mil_kill_sniper", 0)
+    level_tasks.set_task_state (task_state.completed, "mil_kill_sniper", 0)
 end
 
 function transfer_flash (player, stalker)
@@ -64,14 +64,14 @@ end
 
 function set_task1_complete (player, stalker)
     if has_alife_info("mil_leader_quest1_start") then
-       level_tasks.set_task_state (task.completed, "mil_lukash_job", 1)
+       level_tasks.set_task_state (task_state.completed, "mil_lukash_job", 1)
     end   
 end
 
 function set_task3_complete (player, stalker)
     if has_alife_info("mil_leader_quest1_start") then
-       level_tasks.set_task_state (task.completed, "mil_lukash_job", 0)
-       level_tasks.set_task_state (task.completed, "mil_lukash_job", 3)
+       level_tasks.set_task_state (task_state.completed, "mil_lukash_job", 0)
+       level_tasks.set_task_state (task_state.completed, "mil_lukash_job", 3)
     end   
 end
 
@@ -140,11 +140,11 @@ function mil_remove_base_spot (actor, npc)
 end
 
 function mil_cook_subtask_completed (actor, npc)
-    level_tasks.set_task_state (task.completed, "mil_freedom_rg6_task", 1)
+    level_tasks.set_task_state (task_state.completed, "mil_freedom_rg6_task", 1)
 end
 
 function set_cook_subtask2_complete (actor, npc)
-    level_tasks.set_task_state (task.completed, "mil_freedom_rg6_task", 2)
+    level_tasks.set_task_state (task_state.completed, "mil_freedom_rg6_task", 2)
 end
 
 function send_artefact (npc, actor)

@@ -38,7 +38,7 @@ local loaded_items = {}
 local marked_sect = nil
 
 local unload_states = {
-	[global_flags.eReload] = true,
+	[hud_state.eReload] = true,
 }
 function is_weapon_unloading()
 	local weapon = actor:active_item() and actor:active_item():get_weapon_m()
@@ -167,7 +167,7 @@ function on_drop(item, prev_place)
 		remove(item)
 		return
 	end
-	if is_module(item) and (prev_place == item_place.belt or prev_place == item_place.slot) then
+	if is_module(item) and (prev_place == inv_place.belt or prev_place == inv_place.slot) then
 		update_max_count(item, false)
 	end
 end
@@ -223,7 +223,7 @@ function on_belt(item, prev_place)
 end
 
 function on_ruck(item, prev_place)
-	if is_module(item) and (prev_place == item_place.belt or prev_place == item_place.slot) then
+	if is_module(item) and (prev_place == inv_place.belt or prev_place == inv_place.slot) then
 		update_max_count(item, false)
 	end
 end

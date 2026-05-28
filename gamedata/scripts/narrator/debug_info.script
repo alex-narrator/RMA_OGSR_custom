@@ -139,7 +139,7 @@ function on_shell_drop(wpn, pos, vel)
 end
 
 function on_hud_state_switch(item, state, old_state)
-	log_news("~item [%s] state [%s] old_state [%s]", item:name(), HUD_STATE_NAME[state], HUD_STATE_NAME[old_state])
+	log_news("~item [%s] state [%s] old_state [%s]", item:name(), hud_state_name[state], hud_state_name[old_state])
 	local wpn = item:get_weapon()
 	if wpn then
 		log_news("~item [%s] direct reload [%s]", item:name(), wpn.direct_reload)
@@ -149,7 +149,7 @@ function on_hud_state_switch(item, state, old_state)
 end
 
 function on_motion_mark(item, state, mark_name)
-	log_news("on_motion_mark: item [%s] | state [%s] | mark [%s]", item:name(), HUD_STATE_NAME[state], mark_name)
+	log_news("on_motion_mark: item [%s] | state [%s] | mark [%s]", item:name(), hud_state_name[state], mark_name)
 end
 
 function item_action_enabled()

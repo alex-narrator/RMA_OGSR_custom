@@ -232,7 +232,7 @@ function on_state_switch(item, state, old_state)
 	if not item:get_pda() then
 	return end
 	-- set_power_disabled(false)
-	if state == global_flags.eHiding then
+	if state == hud_state.eHiding then
 		local delay = read_if_exists(sys_ini, "float", item:section(), "screen_off_delay", 0.1)
 		add_time_delayed_action(delay, 
 			function()
@@ -242,7 +242,7 @@ function on_state_switch(item, state, old_state)
 		)		
 		return
 	end
-	if state == global_flags.eShowing then
+	if state == hud_state.eShowing then
 		set_screen_enabled(false)
 		set_power_disabled(false)
 		local delay = read_if_exists(sys_ini, "float", item:section(), "screen_on_delay", 0.1)
@@ -256,7 +256,7 @@ function on_state_switch(item, state, old_state)
 		)	
 		return
 	end
-	if not item:is_power_on() and old_state == global_flags.eShowing then
+	if not item:is_power_on() and old_state == hud_state.eShowing then
 		play_power_off_anim(item)
 	end
 end
@@ -280,7 +280,7 @@ function play_power_off_anim(item)
 				end,
 				function()
 					local act_item = actor:active_item()
-					return not act_item or act_item:id() ~= item:id() or item:is_zoomed() or item:get_hud_item_state() ~= global_flags.eIdle or MoveStateChanged(move_command.mcAnyMove)
+					return not act_item or act_item:id() ~= item:id() or item:is_zoomed() or item:get_hud_item_state() ~= hud_state.eIdle or MoveStateChanged(move_state.mcAnyMove)
 				end
 			)
 		end

@@ -39,7 +39,7 @@ function on_to_slot(item, prev_place)
 end
 
 function on_from_slot(item, prev_place)
-	if prev_place ~= item_place.slot then return end
+	if prev_place ~= inv_place.slot then return end
 	if not item:is_outfit() then return end
 	add_update_delayed_action(1, function() backpack.play_anim(3) end)
 end

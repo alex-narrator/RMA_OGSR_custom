@@ -72,7 +72,7 @@ function on_slot(obj, prev_place)
 end
 
 function on_non_slot(obj, prev_place)
-	if prev_place ~= item_place.slot then
+	if prev_place ~= inv_place.slot then
 	return end
 	
 	if not allowed_item(obj) then
@@ -93,11 +93,11 @@ end
 function on_death_actor()
 	local helmet = actor_get_helmet()
 	if helmet then
-		on_non_slot(helmet, item_place.slot)
+		on_non_slot(helmet, inv_place.slot)
 	end
 	local outfit = actor_get_outfit()
 	if outfit then
-		on_non_slot(outfit, item_place.slot)
+		on_non_slot(outfit, inv_place.slot)
 	end
 end
 

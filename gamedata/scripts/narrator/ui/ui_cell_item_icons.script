@@ -58,8 +58,8 @@ function update_custom_icons(item, cell_item_icon, count, alt_icon)
 		end
 	end
 	
-	if item:get_container() and item:get_inventory_item():item_effect(effect.add_weight) > 0 then
-		text = string.format("+%.0f%s", item:get_inventory_item():item_effect(effect.add_weight) * actor.inventory.max_weight, game.translate_string("st_kg"))
+	if item:get_container() and item:get_inventory_item():item_effect(item_effect.add_weight) > 0 then
+		text = string.format("+%.0f%s", item:get_inventory_item():item_effect(item_effect.add_weight) * actor.inventory.max_weight, game.translate_string("st_kg"))
 	end
 	
 	ui_inv_utils.UpdateAdditionalText(item, alt_icon or cell_item_icon)

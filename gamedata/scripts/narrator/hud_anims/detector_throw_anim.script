@@ -6,17 +6,17 @@ end
 local is_playing = false
 
 local play_states = {
-	[global_flags.eThrowStart] = "anm_throw_begin",
-	[global_flags.eReady] = "anm_throw_idle",
-	[global_flags.eThrow] = "anm_throw",
-	[global_flags.eThrowEnd] = "anm_show",
+	[hud_state.eThrowStart] = "anm_throw_begin",
+	[hud_state.eReady] = "anm_throw_idle",
+	[hud_state.eThrow] = "anm_throw",
+	[hud_state.eThrowEnd] = "anm_show",
 }
 
 local stop_states = {
-	[global_flags.eIdle] = true,
-	[global_flags.eHiding] = true,
-	[global_flags.eHidden] = true,
-	[global_flags.eThrowEnd] = true,
+	[hud_state.eIdle] = true,
+	[hud_state.eHiding] = true,
+	[hud_state.eHidden] = true,
+	[hud_state.eThrowEnd] = true,
 }
 
 function on_state_switch(item, state, old_state)

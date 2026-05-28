@@ -918,7 +918,7 @@ function mil_patrol_death_check (actor, npc)
 end
 
 function mil_cook_dead (actor, npc)
-    --level_tasks.set_task_state (task.fail, "mil_freedom_rg6_task", 2)
+    --level_tasks.set_task_state (task_state.fail, "mil_freedom_rg6_task", 2)
 end
 
 function search_gulag_job(actor, npc)
@@ -1420,8 +1420,8 @@ function bar_arena_teleport_2 ( actor, npc)
 		db.actor:heal_wounds(3)
 		--log3("~heal actor after fight - bleeding")
 	end
-	SetMoveState(move_command.mcCrouch, false)
-	SetMoveState(move_command.mcAccel, false)
+	SetMoveState(move_state.mcCrouch, false)
+	SetMoveState(move_state.mcAccel, false)
 	
 	out_object = actor
     in_object  = inv_box_2
@@ -1480,16 +1480,16 @@ function mil_courier_death (actor, npc)
     actor:give_info_portion ("mil_courier_dead")
     if has_alife_info("mil_leader_quest2_start") then
        if not has_alife_info("mil_courier_visited") then
-          level_tasks.set_task_state (task.fail, "mil_courier_job", 1)
+          level_tasks.set_task_state (task_state.fail, "mil_courier_job", 1)
        end   
-       level_tasks.set_task_state (task.completed, "mil_courier_job", 2)
-       level_tasks.set_task_state (task.completed, "mil_courier_job", 0)
+       level_tasks.set_task_state (task_state.completed, "mil_courier_job", 2)
+       level_tasks.set_task_state (task_state.completed, "mil_courier_job", 0)
     end   
 end
 
 function mil_courier_quest_fail (actor, npc)
     if has_alife_info("mil_courier_quest") == false then return end
-    level_tasks.set_task_state (task.fail, "mil_courier_job", 0)
+    level_tasks.set_task_state (task_state.fail, "mil_courier_job", 0)
     actor:give_info_portion ("mil_courier_quest_failed")
 end
 
