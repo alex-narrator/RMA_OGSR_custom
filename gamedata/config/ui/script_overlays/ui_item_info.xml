@@ -1,15 +1,15 @@
 <?xml version='1.0' encoding="UTF-8"?>
 <w>
-	<background_frame x="0" y="0" width="238" height="45" offset="18,24">
-		<texture>ui_cb_listbox</texture>
+	<background_frame x="0" y="0" width="238" height="45" offset="7,20">
+		<!-- <texture>ui_cb_listbox</texture> -->
 		<!-- <texture>ui_square_frame</texture> -->
 		<!-- <texture>ui_plane_frame</texture> -->
-		<!-- <texture>ui_pda_frame_sub</texture> -->
+		<texture>ui_pda_frame_sub</texture>
 		<!-- <texture>ui_icons_PDA_tooltips</texture> -->
 		<!-- <texture>ui_icons_PDA_dialog</texture> -->
 		
 		<static_name x="5" y="5" width="235" height="20" stretch="1">
-			<text font="letterica18" r="238" g="155" b="23" complex_mode="1" align="l" vert_align="t"/>		
+			<text font="letterica18" r="238" g="155" b="23" complex_mode="1" align="c" vert_align="t"/>		
 		</static_name>
 
 		<static_weight x="5" y="25" width="30" height="20" stretch="1">
@@ -98,42 +98,26 @@
 	</power_params>
 
     <wpn_params x="0" y="0" width="157" height="100">
-		<cap_dispersion x="0" y="5" width="121" height="8">
-			<text font="letterica16" r="124" g="119" b="115">ui_inv_dispersion</text>
-		</cap_dispersion>		
-		<cap_speed x="118" y="5" width="121" height="8">
-			<text font="letterica16" r="124" g="119" b="115">ui_inv_speed</text>
-		</cap_speed>
-		<cap_damage x="0" y="36" width="121" height="8">
+		<cap_damage x="0" y="5" width="121" height="8">
 			<text font="letterica16" r="124" g="119" b="115">ui_inv_damage</text>
-		</cap_damage>
-		<cap_rpm x="118" y="36" width="121" height="8">
-			<text font="letterica16" r="124" g="119" b="115">ui_inv_rate_of_fire</text>
-		</cap_rpm>
+		</cap_damage>	
+		<cap_dispersion x="0" y="36" width="121" height="8">
+			<text font="letterica16" r="124" g="119" b="115">ui_inv_dispersion</text>
+		</cap_dispersion>
 		<cap_range x="0" y="67" width="121" height="8">
 			<text font="letterica16" r="124" g="119" b="115">ui_inv_range</text>
-		</cap_range>
+		</cap_range>		
+		<cap_rpm x="118" y="5" width="121" height="8">
+			<text font="letterica16" r="124" g="119" b="115">ui_inv_rate_of_fire</text>
+		</cap_rpm>
+		<cap_speed x="118" y="36" width="121" height="8">
+			<text font="letterica16" r="124" g="119" b="115">ui_inv_speed</text>
+		</cap_speed>		
 		<cap_reliability x="118" y="67" width="121" height="8">
 			<text font="letterica16" r="124" g="119" b="115">ui_inv_reliability</text>
 		</cap_reliability>		
 		
-		<progress_dispersion x="0" y="21" width="90" height="8" horz="1" min="0" max="1.5" pos="0">
-			<progress>
-				<texture a="255" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_alfa_line_16</texture>
-			</progress>
-			<background>
-				<texture a="100" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_16</texture>
-			</background>
-		</progress_dispersion>		
-		<progress_speed x="119" y="21" width="90" height="8" horz="1" min="0" max="100" pos="0">
-			<progress>
-				<texture a="255" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_alfa_line_16</texture>
-			</progress>
-			<background>
-				<texture a="100" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_16</texture>
-			</background>
-		</progress_speed>
-		<progress_damage x="0" y="52" width="90" height="8" horz="1" min="0" max="2" pos="0">
+		<progress_damage x="0" y="21" width="90" height="8" horz="1" min="0" max="3" pos="0">
 			<progress>
 				<texture a="255" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_alfa_line_16</texture>
 			</progress>
@@ -141,14 +125,14 @@
 				<texture a="100" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_16</texture>
 			</background>
 		</progress_damage>		
-		<progress_rpm x="119" y="52" width="90" height="8" horz="1" min="0" max="1000" pos="0">
+		<progress_dispersion x="0" y="52" width="90" height="8" horz="1" min="0" max="10" pos="0">
 			<progress>
 				<texture a="255" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_alfa_line_16</texture>
 			</progress>
 			<background>
 				<texture a="100" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_16</texture>
 			</background>
-		</progress_rpm>
+		</progress_dispersion>
 		<progress_range x="0" y="83" width="90" height="8" horz="1" min="0" max="1000" pos="0">
 			<progress>
 				<texture a="255" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_alfa_line_16</texture>
@@ -156,8 +140,24 @@
 			<background>
 				<texture a="100" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_16</texture>
 			</background>
-		</progress_range>		
-		<progress_reliability x="119" y="83" width="90" height="8" horz="1" min="0" max="20000" pos="0">
+		</progress_range>
+		<progress_rpm x="119" y="21" width="90" height="8" horz="1" min="0" max="1000" pos="0">
+			<progress>
+				<texture a="255" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_alfa_line_16</texture>
+			</progress>
+			<background>
+				<texture a="100" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_16</texture>
+			</background>
+		</progress_rpm>		
+		<progress_speed x="119" y="52" width="90" height="8" horz="1" min="0" max="1000" pos="0">
+			<progress>
+				<texture a="255" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_alfa_line_16</texture>
+			</progress>
+			<background>
+				<texture a="100" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_16</texture>
+			</background>
+		</progress_speed>
+		<progress_reliability x="119" y="83" width="90" height="8" horz="1" min="0" max="10000" pos="0">
 			<progress>
 				<texture a="255" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_alfa_line_16</texture>
 			</progress>
@@ -171,17 +171,17 @@
 		<cap_damage x="0" y="5" width="121" height="8">
 			<text font="letterica16" r="124" g="119" b="115">ui_inv_damage</text>
 		</cap_damage>		
-		<cap_damage_2 x="118" y="5" width="121" height="8">
+		<cap_damage_2 x="0" y="36" width="121" height="8">
 			<text font="letterica16" r="124" g="119" b="115">ui_inv_damage_2</text>
 		</cap_damage_2>
-		<cap_range x="0" y="36" width="121" height="8">
+		<cap_range x="118" y="5" width="121" height="8">
 			<text font="letterica16" r="124" g="119" b="115">ui_inv_range</text>
 		</cap_range>
 		<cap_reliability x="118" y="36" width="121" height="8">
 			<text font="letterica16" r="124" g="119" b="115">ui_inv_reliability</text>
 		</cap_reliability>
 		
-		<progress_damage x="0" y="21" width="90" height="8" horz="1" min="0" max="1.5" pos="0">
+		<progress_damage x="0" y="21" width="90" height="8" horz="1" min="0" max="2" pos="0">
 			<progress>
 				<texture a="255" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_alfa_line_16</texture>
 			</progress>
@@ -189,7 +189,7 @@
 				<texture a="100" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_16</texture>
 			</background>
 		</progress_damage>		
-		<progress_damage_2 x="119" y="21" width="90" height="8" horz="1" min="0" max="100" pos="0">
+		<progress_damage_2 x="0" y="52" width="90" height="8" horz="1" min="0" max="2" pos="0">
 			<progress>
 				<texture a="255" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_alfa_line_16</texture>
 			</progress>
@@ -197,7 +197,7 @@
 				<texture a="100" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_16</texture>
 			</background>
 		</progress_damage_2>
-		<progress_range x="0" y="52" width="90" height="8" horz="1" min="0" max="2" pos="0">
+		<progress_range x="119" y="21" width="90" height="8" horz="1" min="0" max="2" pos="0">
 			<progress>
 				<texture a="255" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_alfa_line_16</texture>
 			</progress>
