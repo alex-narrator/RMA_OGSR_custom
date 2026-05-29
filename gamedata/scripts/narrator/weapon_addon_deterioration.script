@@ -14,7 +14,7 @@ function on_weapon_fire(item)
 	if not item then return end
 	local wpn = item:get_weapon()
 	if not wpn then return end
-	local silencer_sect = (wpn:addon_attachable(addon_flags.silencer) and wpn:is_addon_attached(addon_flags.silencer)) and wpn:get_addon_name(addon_flags.silencer) or nil
+	local silencer_sect = (wpn:addon_attachable(addon_type.silencer) and wpn:is_addon_attached(addon_type.silencer)) and wpn:get_addon_name(addon_type.silencer) or nil
 	if not silencer_sect then return end
 	local deterioration_per_shot = read_if_exists(sys_ini, "float", silencer_sect, "condition_shot_dec", nil)
 	if not deterioration_per_shot then

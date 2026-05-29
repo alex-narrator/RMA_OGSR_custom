@@ -33,7 +33,7 @@ function get_anim_check_item(item)
 	if item:is_pistol() and wpn.ammo_elapsed == 0 then
 		return anim_check.pistol
 	end
-	if wpn:is_addon_attached(addon_flags.launcher) then
+	if wpn:is_addon_attached(addon_type.launcher) then
 		local g_mode = item:get_gl_mode() and 1 or 2
 		return anim_check.wgl[g_mode]
 	end

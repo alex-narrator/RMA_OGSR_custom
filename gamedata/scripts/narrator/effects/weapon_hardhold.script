@@ -142,7 +142,7 @@ function on_zoom_in(weapon)
 		
 		local is_nvd = nvd.aim_nvd_weapon()--nvd.get_nv_sect(weapon) and not wpn:aim_alt_mode()
 		local is_hv = nvd.aim_hv_weapon()
-		local alt_aim = read_if_exists(sys_ini, "bool", weapon:section(), "aim_alt_forced", false) or (wpn:addon_attachable(addon_flags.scope) and wpn:is_addon_attached(addon_flags.scope) and read_if_exists(sys_ini, "bool", wpn:get_addon_name(addon_flags.scope), "aim_alt", false))
+		local alt_aim = read_if_exists(sys_ini, "bool", weapon:section(), "aim_alt_forced", false) or (wpn:addon_attachable(addon_type.scope) and wpn:is_addon_attached(addon_type.scope) and read_if_exists(sys_ini, "bool", wpn:get_addon_name(addon_type.scope), "aim_alt", false))
 
 		local tip = ""
 		if hardhold then

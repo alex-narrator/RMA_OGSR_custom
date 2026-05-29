@@ -1567,7 +1567,7 @@ se_addon_flags = {
 	extender = addon_flag.extender,
 }
 
-addon_flags = {
+addon_type = {
 	silencer = addon.silencer,
 	scope = addon.scope,
 	launcher = addon.launcher,
@@ -1576,7 +1576,7 @@ addon_flags = {
 	sight = addon.sight,
 	extender = addon.extender,
 	magazine = addon.magazine,
-	max = addon.max,
+	_max = addon.max,
 }
 
 eatable_item_influence = {
@@ -1588,7 +1588,7 @@ eatable_item_influence = {
 	psy_health = influence.psy_health,
 	alcohol = influence.alcohol,
 	wounds_heal = influence.wounds_heal,
-	max = influence.max,
+	_max = influence.max,
 }
 
 item_effect = {
@@ -2153,14 +2153,14 @@ function can_be_reloaded_by(item, item_to_load)
 			end
 			--//load weapon with gl-grenades
 			if param_name == "grenade_class" then
-				if wpn and wpn:is_addon_attached(addon_flags.launcher) then
+				if wpn and wpn:is_addon_attached(addon_type.launcher) then
 					return wpn.ammo_elapsed < wpn.ammo_mag_size or wpn:get_ammo_sect() ~= sect
 				end
 			end
 			--//load weapon with magazine
 			if param_name == "magazine_class" then
 				local ammo_to_load = item_to_load:get_weapon_ammo()
-				return ammo_to_load and ammo_to_load.box_curr > 0 and wpn and wpn:addon_attachable(addon_flags.magazine) and (not wpn:is_addon_attached(addon_flags.magazine) or wpn.ammo_elapsed < wpn.ammo_mag_size or sect ~= wpn:get_addon_name(addon_flags.magazine))
+				return ammo_to_load and ammo_to_load.box_curr > 0 and wpn and wpn:addon_attachable(addon_type.magazine) and (not wpn:is_addon_attached(addon_type.magazine) or wpn.ammo_elapsed < wpn.ammo_mag_size or sect ~= wpn:get_addon_name(addon_type.magazine))
 			end
 			--//load weapon with ammo
 			if param_name == "ammo_class" then
@@ -2169,7 +2169,7 @@ function can_be_reloaded_by(item, item_to_load)
 					return wpn.ammo_elapsed < wpn.ammo_mag_size
 				end
 				--//magazine feeded weapon can be reloaded strait to chamber if hase one
-				if wpn and wpn:addon_attachable(addon_flags.magazine) then
+				if wpn and wpn:addon_attachable(addon_type.magazine) then
 					return wpn.ammo_elapsed == 0 and read_if_exists(sys_ini, "bool", item:section(), "has_chamber", true)
 				end
 				--//vanilla reload condition in other cases
@@ -2256,9 +2256,9 @@ end
 
 function get_wpn_scope_zoom_params(item)
 	local wpn = item:get_weapon_m()
-	if not wpn or not wpn:is_addon_attached(addon_flags.scope) then
+	if not wpn or not wpn:is_addon_attached(addon_type.scope) then
 	return nil end
-	local sect = wpn:addon_attachable(addon_flags.scope) and wpn:get_addon_name(addon_flags.scope) or item:section()
+	local sect = wpn:addon_attachable(addon_type.scope) and wpn:get_addon_name(addon_type.scope) or item:section()
 	local zoom_params = split_string(read_if_exists(sys_ini, "string", sect, "scope_zoom_factor", nil), ",")
 	return zoom_params
 end
@@ -2557,7 +2557,7 @@ function get_zoom_data(item)
 	if not wpn then
 		return nil 
 	end
-	local zoom_sect = (wpn:addon_attachable(addon_flags.scope) and wpn:is_addon_attached(addon_flags.scope)) and wpn:get_addon_name(addon_flags.scope) or item:section()
+	local zoom_sect = (wpn:addon_attachable(addon_type.scope) and wpn:is_addon_attached(addon_type.scope)) and wpn:get_addon_name(addon_type.scope) or item:section()
 	return split_string(read_if_exists(sys_ini, "string", zoom_sect, "scope_zoom_factor", nil), ",", true)
 end
 
@@ -2658,7 +2658,7 @@ function detach_addon(item, addon_sect, not_spawn_addon)
 	local mgr = ogsr_signals.get_mgr()
 	mgr:call("on_before_addon_detach", item, addon_sect)
 	local spawn_cond = 1
-	if is_in_addon_list(item, addon_sect, addon_flags.silencer) then
+	if is_in_addon_list(item, addon_sect, addon_type.silencer) then
 		local sobj = alife():object(item:id())
 		spawn_cond = sobj.attached_silencer_condition
 		--log3("~item %s | addon_sect %s | spawn_cond %s", item:name(), addon_sect, spawn_cond)

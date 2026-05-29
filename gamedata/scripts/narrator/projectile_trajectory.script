@@ -37,7 +37,7 @@ function get_speed(item)
 	if missile and missile_states[item:get_hud_item_state()] then
 		return missile.const_power and missile.const_force or missile.throw_force
 	elseif wpn and show_for_weapon(item) then
-		local param_sect = (wpn:addon_attachable(addon_flags.launcher) and wpn:is_addon_attached(addon_flags.launcher)) and wpn:get_addon_name(addon_flags.launcher) or item:section()
+		local param_sect = (wpn:addon_attachable(addon_type.launcher) and wpn:is_addon_attached(addon_type.launcher)) and wpn:get_addon_name(addon_type.launcher) or item:section()
 		return sys_ini:r_float(param_sect, "grenade_vel")
 	elseif rg6 and show_for_weapon(item) then
 		return sys_ini:r_float(item:section(), "launch_speed")		

@@ -20,7 +20,7 @@ end
 
 function aim_scope()
 	local act_item = actor:active_item()
-	return act_item and act_item:get_weapon() and act_item:get_weapon().zoom_mode and act_item:get_weapon():is_addon_attached(addon_flags.scope) and not nvd.wpn_scope_allow_nvd(act_item)
+	return act_item and act_item:get_weapon() and act_item:get_weapon().zoom_mode and act_item:get_weapon():is_addon_attached(addon_type.scope) and not nvd.wpn_scope_allow_nvd(act_item)
 end
 
 function active_pda()

@@ -133,6 +133,7 @@ function UIItemInfo:InitItemInfo()
 	local sect = item:section()
 	local text = get_inv_name(sect)
 	self.name_st:SetText(text)
+	self.name_st:SetWidth(self.descr_list:GetDesiredChildWidth())
 	text = string.format("%3.2f %s", item:weight(), game.translate_string("st_kg"))
 	self.weight_st:SetText(text)
 	
@@ -779,7 +780,7 @@ local pos_x
 function attach_loaded_ammo(UIDesc, obj, xml)
 	local wpn = obj:get_weapon_m()
 	local show_ammo = obj:get_ammo_in_magazine() > 0
-	local show_mag = wpn:addon_attachable(addon_flags.magazine) and wpn:is_addon_attached(addon_flags.magazine)
+	local show_mag = wpn:addon_attachable(addon_type.magazine) and wpn:is_addon_attached(addon_type.magazine)
 	local show_ammo2 = obj:get_ammo_in_magazine2() > 0
 	
 	if 
@@ -802,7 +803,7 @@ function attach_loaded_ammo(UIDesc, obj, xml)
 		set_ammo_icon(ammo_s[1], get_cur_ammo_sect(obj))
 	end
 	if show_mag then
-		set_ammo_icon(ammo_s[2], wpn:get_addon_name(addon_flags.magazine))
+		set_ammo_icon(ammo_s[2], wpn:get_addon_name(addon_type.magazine))
 	end
 	if show_ammo2 then
 		set_ammo_icon(ammo_s[3], get_cur_ammo2_sect(obj))

@@ -10,7 +10,7 @@ function on_update_addons_visibility(item)
 		local wpn = item:get_weapon()
 		local scope_mesh_table = split_string(scope_mesh, ",")
 		for k,v in pairs(scope_mesh_table) do
-			item:set_show_model_mesh(v, wpn:is_addon_attached(addon_flags.scope))
+			item:set_show_model_mesh(v, wpn:is_addon_attached(addon_type.scope))
 		end
 	else
 		for i = 0, item:get_mesh_count() - 1 do
@@ -27,7 +27,7 @@ function on_update_hud_addons_visibility(item)
 		local wpn = item:get_weapon()
 		scope_mesh_table = split_string(scope_mesh, ",")
 		for k,v in pairs(scope_mesh_table) do
-			item:set_show_model_mesh_hud(v, wpn:is_addon_attached(addon_flags.scope))
+			item:set_show_model_mesh_hud(v, wpn:is_addon_attached(addon_type.scope))
 		end
 	else
 		for i = 0, item:get_mesh_count_hud() - 1 do

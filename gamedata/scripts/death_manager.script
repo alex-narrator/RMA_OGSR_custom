@@ -225,7 +225,7 @@ function fill_dependent_ammo(item, tbl)
 		-- end
 	end
 	local wpn = item:get_weapon()
-	if wpn and wpn:is_addon_attached(addon_flags.launcher) then
+	if wpn and wpn:is_addon_attached(addon_type.launcher) then
 		check_line = read_if_exists(sys_ini, "string", sect, "grenade_class", nil)
 		if check_line then
 			check_line = split_string(check_line, ",")
