@@ -60,7 +60,7 @@ function new_game_spawn()
 				if v.shape then
 					local pk = get_netpk( se_item, 1 )
 					local data = pk:get()
-					data.restrictor_type = v.restrictor_type or 0
+					data.restrictor_type = v.restrictor_type or restr_type.eDefaultNone
 					local offset = v.shape._offset and vector():set(v.shape._offset[1], v.shape._offset[2], v.shape._offset[3]) or vector():set(0, 0, 0)
 					if v.shape._type == "sphere" then
 						local radius = v.shape._radius or 1

@@ -34,14 +34,18 @@ local PSY_HEALTH_K 			= read_if_exists(sys_ini, "float", 		cond_sect, 		"psy_hea
 --//пише координати спавну матрасу у файл sleeping_props.txt
 --//файл буде лежати у каталозі bin_x64
 local prop_num = 0
-function write_prop_pos_to_file()
+function write_prop_pos_to_file(spawn_prop, spawn_dir)
 	local pos = actor:position()
+	local dir = spawn_dir or vector()
 	local file = io.open("sleeping_props.txt", "a")
 	--local text = string.format("{level = '%s', pos = {%.2f, %.2f, %.2f}},\n", level.name(), pos.x, pos.y, pos.z)
-	local text = string.format("[%s]\nprop_id_%s = %.2f, %.2f, %.2f\n", PROP_PREFIX..level.name(), prop_num, pos.x, pos.y, pos.z)
+	local text = string.format("[%s]\nprop_id_%s = %.2f, %.2f, %.2f, %.2f, %.2f, %.2f\n", PROP_PREFIX..level.name(), prop_num, pos.x, pos.y, pos.z, dir.x, dir.y, dir.z)
 	prop_num = prop_num + 1
 	file:write(text)
 	file:close()
+	if spawn_prop then
+		spawn_to_level(PROP_SECT, pos, level.name(), dir)
+	end
 end
 --//пише координати зони для сну у спальнику у файл sleeping_places.txt
 --//файл буде лежати у каталозі bin_x64
@@ -59,7 +63,7 @@ end
 
 
 
-function on_mattress_use(obj)
+function on_sleep_prop_use(obj)
 	if ADD_SPOT and level.map_has_object_spot(obj:id(), SLEEP_SPOT) == 0 then
 		level.map_add_object_spot_ser(obj:id(), SLEEP_SPOT, game.translate_string("ui_st_place_to_rest"))
 	end
@@ -90,7 +94,8 @@ function create_mattresses()
 				result, name, value = sys_ini:r_line(sect,i,"","")
 				local coord_tbl = split_string(value, ",", true)
 				local pos = vector():set(coord_tbl[1], coord_tbl[2], coord_tbl[3])
-				local obj = spawn_to_level(PROP_SECT, pos, level_name)
+				local dir = vector():set(coord_tbl[4] or 0, coord_tbl[5] or 0, coord_tbl[6] or 0)
+				local obj = spawn_to_level(PROP_SECT, pos, level_name, dir)
 				--log3("~level name %s | param name %s | x=%s, y=%s, z=%s", level_name, name, pos.x, pos.y, pos.z)
 				if DEBUG_SPOT then
 					local txt = string.format("level: [%s]\\nparam name: [%s]\\npos: [%.2f, %.2f, %.2f]",level_name, name, pos.x, pos.y, pos.z)

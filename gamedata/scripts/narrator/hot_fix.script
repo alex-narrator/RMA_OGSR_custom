@@ -7,8 +7,8 @@ function attach(sm)
 end
 
 local fix_funcs = {
-	function() medkit_model_spawn() end,
-	function() esc_bridge_anomaly_spawn() end,
+	--function() medkit_model_spawn() end,
+	--function() esc_bridge_anomaly_spawn() end,
 }
 
 local last_fix_called = 0
@@ -47,10 +47,10 @@ function esc_bridge_anomaly_spawn()
 	local spawn_sect = "zone_mincer_strong_noart"
 	local radius = 5
 	local se_obj = spawn_to_level(spawn_sect, spawn_pos, level_name, spawn_dir)
-	alife():assign_story_id(se_obj.id, 90)
+	alife():assign_story_id(se_obj.id, story_ids.esc_bridge_anomaly)
 	local pk = get_netpk( se_obj, 1 )
 	local data = pk:get()
-	data.restrictor_type = 0
+	data.restrictor_type = restr_type.eDefaultNone
 	local offset = vector()
 	data.shapes:addSphere(radius, offset)
 	pk:set( data )
