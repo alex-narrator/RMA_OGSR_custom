@@ -4,7 +4,7 @@ local OVERLAY_XML = "script_overlays\\skip_time_overlay.xml"
 local subscribed = false
 
 function show_skip_time_window(button_type, action, ...)
-	level.start_stop_menu(SkipTimeOverlay(button_type, action, ...),true)
+	level.start_stop_menu(SkipTimeOverlay(button_type, action, ...), false)
 end
 
 class "SkipTimeOverlay" (CUIScriptWnd)
@@ -50,17 +50,21 @@ function SkipTimeOverlay:InitControls(button_type)
 	self:Register(self.time_track, name)
 	self:AddCallback(name, ui_events.TRACKBAR_CHANGED, self.ChangeTime, self)
 	
-	--//skip timer
-	self.timer_line = xml:InitFrameLine("timer_frame_line", self.back)
-	self.time_value = xml:InitStatic("time_value", self.timer_line)
-	
 	--//skip time button
 	name = "skip_time_button"
 	self.skip_time = xml:Init3tButton(button_type.."_button", self.back)
 	self:Register(self.skip_time, name)
 	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.SkipTime, self)
 	self.key_accels[self.skip_time:GetAccelerator(0)] = true
-		
+
+	--// full sleep button
+	name = "full_sleep_button"
+	self.full_sleep = xml:Init3tButton("full_sleep_button", self.back)
+	self:Register(self.full_sleep, name)
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.FullSleep, self)
+	self.key_accels[self.full_sleep:GetAccelerator(0)] = true
+	self.full_sleep:Show(button_type == "sleep")
+
 	--// quit button
 	name = "quit_button"
 	self.quit_button = xml:Init3tButton("quit_button", self.back)
@@ -99,9 +103,6 @@ end
 
 function SkipTimeOverlay:ChangeTime()
 	self.sleep_h = self.time_track:GetTrackValue()
-	local tmp = string.format("%d %s", self.sleep_h, game.translate_string("ui_st_hours"))
-	self.time_value:SetText(tmp)
-	
 	local marker_pos = self.marker:GetWndPos()
 	marker_pos.x = self.panorama_move_part * (self.sleep_h - 1)
 	self.marker:SetWndPos(marker_pos.x, marker_pos.y)
@@ -119,6 +120,15 @@ function SkipTimeOverlay:SkipTime()
 			self:Hide()
 		end
 	)
+end
+
+function SkipTimeOverlay:FullSleep()
+	self.action(0, unpack(self.args))
+	add_update_delayed_action(1,
+		function()
+			self:Hide()
+		end
+	)	
 end
 
 local actions = {

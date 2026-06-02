@@ -11,7 +11,7 @@ end
 local DEBUG_SPOT = false
 local ADD_SPOT = false
 
-local sleep_h, sleep_m = 0, 0
+local sleep_h = 0
 local dream_name, dream_type
 local is_sleeping = false
 
@@ -72,7 +72,7 @@ function on_sleep_prop_use(obj)
 			actor:activate_slot(NO_ACTIVE_SLOT)
 		end
 		--ui_sleep.show_sleep_window()
-		ui_skip_time.show_skip_time_window("sleep", start_sleep)
+		ui_skip_time.show_skip_time_window("sleep", start_sleep, obj)
 	else
 		show_cant_sleep_msg()
 	end
@@ -126,17 +126,45 @@ function actor_in_zone(pos1, pos2, r)
 	return (pos1.y <= pos2.y) and (pos2.y <= pos1.y + 2) and (math.pow(pos1.x - pos2.x, 2) + math.pow(pos1.z - pos2.z, 2) <= math.pow(r, 2))
 end
 
-function start_sleep(h, m)
+function start_sleep(h, obj)
 	sleep_h = h
-	sleep_m = m or 0
-	
+	if actor_menu:IsShown() then
+		ui_actor_menu.ShowHideMenu()
+	end	
+	local section = obj:section()
+	PROP_K = read_if_exists(sys_ini, "float", section, "sleep_conditions_k", 1)
+	local use_count = read_if_exists(sys_ini, "float", section, "use_count", 0)
 	actor:stop_talk()
-	actor:hide_weapon()
-	level.disable_input()
-	level.add_pp_effector("sleep_fade.ppe", 11, false)
-	level.add_cam_effector("camera_effects\\sleep.anm", 10, false, "sleep_manager.play_start_sleep")
-	somnolence.play_yawn()
-	is_sleeping = true
+	level.add_call(
+		function()
+			return not level.main_input_receiver()
+		end,
+		function()
+			xr_effects.disable_ui()
+		end
+	)
+	level.add_call(
+		function()
+			return no_active_items()
+		end,
+		function()
+			if use_count > 0 then
+				obj:change_condition(-1/use_count)
+				if obj:condition() == 0 then
+					alife():release(alife():object(obj:id()), true)
+				end				
+			end
+			level.add_pp_effector("agr_u_fade.ppe", 6611, false)
+			level.add_cam_effector("camera_effects\\sleep.anm", 6612, false, "sleep_manager.play_start_sleep")
+			-- add_time_delayed_action(
+				-- 9,
+				-- function() level.add_pp_effector("agr_u_fade.ppe", 6611, false) end
+			-- )
+			-- level.add_cam_effector("camera_effects\\radar_stop.anm", 6612, false, "sleep_manager.play_start_sleep")			
+			somnolence.play_yawn()
+			is_sleeping = true
+		end
+	)
 end
 
 function play_start_sleep()
@@ -144,33 +172,40 @@ function play_start_sleep()
 end
 
 function perform_sleep()
-	dream_name, dream_type = get_dream()--dream.sleep_video_name_callback()
-	--local dream = dream_name ~= "" and dream_name or "without_dream"
+	dream_name, dream_type = get_dream()
 	game.start_tutorial(dream_name)
 end
 
 function change_time()
 	--log3("~change time")
-	if sleep_h <= 0 and sleep_m <= 0 then
-		log_news("!can`t perform sleep because sleep timer is %s:%s", sleep_h, sleep_m)
-	return end
-	local total_minutes = sleep_h * 60 + sleep_m
+	local start_time = game.get_game_time()
+	local get_full_sleep = sleep_h <= 0
 	local time_quant_minutes = 15
-	--//рахуємо цілу частину та залишок від ділення
-	local iter_count, remainder = math.modf(total_minutes / time_quant_minutes)
-	--log_news("~iter_count %s, remainder %s", iter_count, remainder)
-	--//промотаємо час на фіксовані проміжки
-	for i = 1, iter_count do
-		change_game_time(0, 0, time_quant_minutes)
-		sleep_conditions(time_quant_minutes * 60)
+	if get_full_sleep then
+		while somnolence.get_val() > 0 do
+			change_game_time(0, 0, time_quant_minutes)
+			sleep_conditions(time_quant_minutes * 60)
+		end
+	else
+		local total_minutes = sleep_h * 60
+		--//рахуємо цілу частину та залишок від ділення
+		local iter_count, remainder = math.modf(total_minutes / time_quant_minutes)
+		--log_news("~iter_count %s, remainder %s", iter_count, remainder)
+		--//промотаємо час на фіксовані проміжки
+		for i = 1, iter_count do
+			change_game_time(0, 0, time_quant_minutes)
+			sleep_conditions(time_quant_minutes * 60)
+		end
+		--//промотаємо час на залишок хвилин
+		if remainder > 0 then
+			change_game_time(0, 0, remainder)
+			sleep_conditions(remainder * 60)
+		end
 	end
-	--//промотаємо час на залишок хвилин
-	if remainder > 0 then
-		change_game_time(0, 0, remainder)
-		sleep_conditions(remainder * 60)
-	end	
-	sleep_h, sleep_m = 0, 0	
+	sleep_h = 0
 	play_awake_effects()
+	local diff = game.get_game_time() - start_time
+	--log_news("~total sleep time [%s]", diff:timeToString(game.CTime.TimeToSeconds))
 end
 
 function sleep_conditions(sleep_time)
@@ -180,45 +215,45 @@ function sleep_conditions(sleep_time)
 	--log3("~sleep_time %s", sleep_time)
 	
 	--штатна регенерація здоров'я за час сну
-	delta = sleep_time * actor_cond.health_restore_v * HEALTH_K
+	delta = sleep_time * actor_cond.health_restore_v * HEALTH_K * PROP_K
 	--додатковий реген уві сні
 	actor.health = delta
 	--log3("~change health %s", delta)
 
 	--штатна регенерація псі-здоров'я за час сну
-	delta = sleep_time * actor_cond.psy_health_v * PSY_HEALTH_K
+	delta = sleep_time * actor_cond.psy_health_v * PSY_HEALTH_K * PROP_K
 	--додатковий реген уві сні
 	actor.psy_health = delta
 	--log3("~change psy_health %s", delta)
 	
 	--штатна регенерація витривалості за час сну
-	delta = sleep_time * actor_cond.power_v * POWER_K
+	delta = sleep_time * actor_cond.power_v * POWER_K * PROP_K
 	--додатковий реген уві сні
 	actor.power = delta
 	--log3("~change power %s", delta)
 	
 	--штатна зменшення рівня алкоголю за час сну
-	delta = sleep_time * actor_cond.alcohol_v * ALCOHOL_K
+	delta = sleep_time * actor_cond.alcohol_v * ALCOHOL_K * PROP_K
 	--додаткове тверезіння уві сні
 	actor.alcohol = delta
 	--log3("~change alcohol %s", delta)
 	
 	--штатне зменшення ситості за час сну
-	delta = sleep_time * actor_cond.satiety_v * SATIETY_K
+	delta = sleep_time * actor_cond.satiety_v * SATIETY_K * PROP_K
 	--компенсація втрати ситості
 	actor.satiety = delta
 	--log3("~change satiety %s", delta)
 	
-	delta = sleep_time * somnolence.get_v() * SOMNOLENCE_K
+	delta = sleep_time * somnolence.get_v() * SOMNOLENCE_K * PROP_K
 	--компенсуємо надбаня сонливості та зменшуємо сонливість
 	somnolence.change_val(-delta)
 	--log3("~change somnolence %s", -delta)
 end
 
 function play_awake_effects()
-	level.add_cam_effector("camera_effects\\prison_1.anm", 25, false, "sleep_manager.restore_control")
-	level.add_pp_effector("yantar_underground_psi.ppe", 2007, false)
-	level.add_pp_effector("total_recall.ppe", 2008, false)
+	level.add_cam_effector("camera_effects\\prison_1.anm", 6625, false, "sleep_manager.restore_control")
+	level.add_pp_effector("yantar_underground_psi.ppe", 6626, false)
+	level.add_pp_effector("total_recall.ppe", 6627, false)
 	if dream_type == "nightmare" then
 		somnolence.play_heavy_breath_nightmare()
 	else
@@ -228,8 +263,7 @@ function play_awake_effects()
 end
 
 function restore_control()
-	actor:restore_weapon()
-	level.enable_input()
+	xr_effects.enable_ui()
 	make_sleep_savegame()
 	is_sleeping = false
 end
@@ -334,4 +368,18 @@ function get_dream()
 	end
 	
 	return "without_dream", "normal"
+end
+
+function is_sleeping_bag(item)
+	return item and item:section() == "sleeping_bag"
+end
+
+
+function use_sleeping_bag(item)
+	local use_snd = xr_sound.get_safe_sound_object(read_if_exists(sys_ini, "string", item:section(), "use_sound", ""))
+	if use_snd then
+		use_snd:play(actor, 0, sound_object.s2d)
+		use_snd.volume = 2
+	end
+	on_sleep_prop_use(item)
 end

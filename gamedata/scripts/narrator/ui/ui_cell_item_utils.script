@@ -678,3 +678,11 @@ function add_activate_glowstick(pbox, item)
 	action = glowstick.activate
 	pbox:AddItem(name, precondition, action, item)
 end
+
+function add_use_sleeping_bag(pbox, item)
+	local name, precondition, action
+	name = "st_use"
+	precondition = sleep_manager.is_sleeping_bag
+	action = sleep_manager.use_sleeping_bag
+	pbox:AddItem(name, precondition, action, item)
+end

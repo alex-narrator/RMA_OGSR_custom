@@ -1885,6 +1885,11 @@ function ActorMenuOverlay:OnKeyboard(dik, keyboard_action)
 					self:ResetCellItemSelected()
 					return true
 				end
+				if sleep_manager.is_sleeping_bag(item) then
+					sleep_manager.use_sleeping_bag(item)
+					self:ResetCellItemSelected()
+					return true
+				end				
 			end
 		elseif game_action == key_bindings.kDROP then
 			if mode == "inventory" then
@@ -2002,6 +2007,8 @@ function ActorMenuOverlay:ShowPropertiesBox(item, cell_item)
 	ui_cell_item_utils.add_unpack_loot_spawn_box(pbox, item)	
 	--//inspect artefact
 	ui_cell_item_utils.add_item_inspect(pbox, item)
+	--//use sleeping bag
+	ui_cell_item_utils.add_use_sleeping_bag(pbox, item)	
 	--//item info
 	ui_cell_item_utils.add_info(pbox, item)
 	--//item custom info
@@ -2153,6 +2160,9 @@ function ActorMenuOverlay:UpdateInvTip(cell_item)
 		if musical_instruments.can_play_instrument(item) then
 			text = text.."\\n"..game.translate_string("st_tip_play_musical_instrument")
 		end
+		if sleep_manager.is_sleeping_bag(item) then
+			text = text.."\\n"..game.translate_string("st_use")
+		end		
 	end
 	self.selected_item_tip:SetText(text)
 end
