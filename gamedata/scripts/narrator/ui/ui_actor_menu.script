@@ -575,8 +575,8 @@ function ActorMenuOverlay:InitControls()
 		end
 	end	
 	
-	--//selected item tip
-	self.selected_item_tip = xml:InitStatic("selected_item_tip", self)
+	--//inventory tip
+	self.inventory_tip = xml:InitStatic("inventory_tip", self)
 end
 
 function ActorMenuOverlay:QuickOnFocusReceived(slot_num)
@@ -698,7 +698,7 @@ function ActorMenuOverlay:OnCellItemSelect(item, cell_item)
 	end
 	
 	self:UpdateRepair(cell_item)
-	self:UpdateInvTip(cell_item)
+	self:SetInvTip(cell_item)
 end
 
 function ActorMenuOverlay:ResetCellItemSelected()
@@ -707,7 +707,7 @@ function ActorMenuOverlay:ResetCellItemSelected()
 	self.cell_item_selected:GetOwnerList():UnselectAll()
 	self.cell_item_selected:ClearColorize()
 	self.cell_item_selected = nil
-	self:UpdateInvTip()	
+	self:SetInvTip()	
 end
 
 function ActorMenuOverlay:OnCellItemStartDrag(cell_item)
@@ -1120,6 +1120,16 @@ function ActorMenuOverlay:UpdateEffectsInfo()
 	end
 end
 
+function ActorMenuOverlay:UpdateInvTip()
+	if self.inventory_tip:GetText() ~= "" and (self.inventory_tip.hide_time and self.inventory_tip.hide_time < time_global()) then
+		self.inventory_tip:SetText("")
+		self.inventory_tip.hide_time = nil
+		if self.cell_item_selected then
+			self:SetInvTip(self.cell_item_selected)
+		end
+	end	
+end
+
 function ActorMenuOverlay:Update()
 	CUIScriptWnd.Update(self)
 	
@@ -1133,6 +1143,7 @@ function ActorMenuOverlay:Update()
 	self:UpdateDateTimeText()
 	self:UpdateTooltip()
 	self:UpdateDragItem()
+	self:UpdateInvTip()
 	
 	local mode = self:GetMode()
 	if mode ~= "inventory" and self.target then
@@ -1528,7 +1539,7 @@ function ActorMenuOverlay:ReinitLists(show_type)
 	self.cell_item_selected = nil
 	self.cell_item_focused = nil
 	self.cell_container_focused	= nil
-	self:UpdateInvTip()
+	self:SetInvTip()
 	self:UpdateRepair()
 	
 	self.ruck_list:Reinit()
@@ -1867,27 +1878,22 @@ function ActorMenuOverlay:OnKeyboard(dik, keyboard_action)
 				local item = self.cell_item_selected:GetAnyItem()
 				if script_actions.can_eat(item) then
 					script_actions.eat(item)
-					self:ResetCellItemSelected()
 					return true
 				end
 				if pda.can_try_hack(item) then
 					pda.try_hack(item)
-					self:ResetCellItemSelected()
 					return true
 				end
 				if glowstick.can_be_activated(item) then
 					glowstick.activate(item)
-					self:ResetCellItemSelected()
 					return true
 				end
 				if musical_instruments.can_play_instrument(item) then
 					musical_instruments.play_instrument(item)
-					self:ResetCellItemSelected()
 					return true
 				end
 				if sleep_manager.is_sleeping_bag(item) then
 					sleep_manager.use_sleeping_bag(item)
-					self:ResetCellItemSelected()
 					return true
 				end				
 			end
@@ -2137,34 +2143,47 @@ function ActorMenuOverlay:PlayOperateSound(item)
 	snd:play(actor, 0, sound_object.s2d)
 end
 
-function ActorMenuOverlay:UpdateInvTip(cell_item)
-	local item = cell_item and cell_item:GetAnyItem()
-	local text = ""
-	if self:GetMode() == "inventory" and item then
-		text = game.translate_string(read_if_exists(sys_ini, "string", item:section(), "selected_tip", ""))		
-		if read_if_exists(sys_ini, "bool", item:section(), "quick_slot", false) then
-			text = text.."\\n"..game.translate_string("st_tip_quick_slot")
+function ActorMenuOverlay:SetInvTip(input, ttl)
+	self.inventory_tip:SetText("")
+	self.inventory_tip.hide_time = nil	
+	if not input then
+		if self.cell_item_selected then
+			self:SetInvTip(self.cell_item_selected)
 		end
-		if service_kit.can_disassemble(item) then
-			text = text.."\\n"..game.translate_string("st_tip_disassembly")
+	return end
+	if type(input) == "string" then
+		self.inventory_tip:SetText(input)
+		if (not ttl or ttl <= 0) then ttl = 999 end
+		self.inventory_tip.hide_time = time_global() + ttl * 1000
+	else
+		local item = input and input:GetAnyItem()
+		local text = ""
+		if self:GetMode() == "inventory" and item then
+			text = game.translate_string(read_if_exists(sys_ini, "string", item:section(), "selected_tip", ""))
+			if read_if_exists(sys_ini, "bool", item:section(), "quick_slot", false) then
+				text = text.."\\n"..game.translate_string("st_tip_quick_slot")
+			end
+			if service_kit.can_disassemble(item) then
+				text = text.."\\n"..game.translate_string("st_tip_disassembly")
+			end
+			if pda.can_try_hack(item) then
+				text = text.."\\n"..game.translate_string("st_tip_hack_pda")
+			end
+			if ui_repair.can_repair(item) then
+				text = text.."\\n"..game.translate_string("st_tip_repair")
+			end
+			if glowstick.can_be_activated(item) then
+				text = text.."\\n"..game.translate_string("st_tip_activate_glowstick")
+			end
+			if musical_instruments.can_play_instrument(item) then
+				text = text.."\\n"..game.translate_string("st_tip_play_musical_instrument")
+			end
+			if sleep_manager.is_sleeping_bag(item) then
+				text = text.."\\n"..game.translate_string("st_tip_use_sleeping_bag")
+			end
 		end
-		if pda.can_try_hack(item) then
-			text = text.."\\n"..game.translate_string("st_tip_hack_pda")
-		end
-		if ui_repair.can_repair(item) then
-			text = text.."\\n"..game.translate_string("st_tip_repair")
-		end
-		if glowstick.can_be_activated(item) then
-			text = text.."\\n"..game.translate_string("st_tip_activate_glowstick")
-		end
-		if musical_instruments.can_play_instrument(item) then
-			text = text.."\\n"..game.translate_string("st_tip_play_musical_instrument")
-		end
-		if sleep_manager.is_sleeping_bag(item) then
-			text = text.."\\n"..game.translate_string("st_use")
-		end		
+		self.inventory_tip:SetText(text)	
 	end
-	self.selected_item_tip:SetText(text)
 end
 
 function ActorMenuOverlay:UpdateRepair(cell_item)
@@ -2278,10 +2297,10 @@ end
 function ActorMenuOverlay:SetTimedActionProgress(item, action_time)
 	if not item then
 		self.use_anim:Show(false)
-		self.selected_item_tip:SetText("")
+		self:SetInvTip()
 	else
 		self.use_anim:Show(true)
-		self.selected_item_tip:SetText(game.translate_string("st_key_to_stop_anim"))
+		self:SetInvTip(game.translate_string("st_key_to_stop_anim"))
 		
 		local cell_item = self:GetCellItem(item)
 		if cell_item then

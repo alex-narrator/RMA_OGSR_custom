@@ -151,6 +151,9 @@ function on_campfire_use(campfire_usable, campfire_zone)
 	actor_use_campfire = campfire_zone
 	--actor:hide_weapon()
 	actor:activate_slot(NO_ACTIVE_SLOT)
+	if actor:active_device() then
+		actor:activate_slot(DETECTOR_SLOT)
+	end
 	backpack.force_crouch(true)
 	subscribe()	
 end

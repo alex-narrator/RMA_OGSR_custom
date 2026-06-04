@@ -61,7 +61,7 @@ function pseudodog_attack(object)
 	actor:hit(h)
 	pseudodog_attack_data.sound:play_at_pos(actor,actor:position())
 	local active_item = actor:active_item()
-	if get_clsid(active_item) ~= clsid.obj_bolt then
+	if get_clsid(active_item) == clsid.obj_bolt then
 	return end
 	local rnd = math.random(0, 5)
 	local prob = (level.get_game_difficulty() + 1) * (1 - actor.alcohol)

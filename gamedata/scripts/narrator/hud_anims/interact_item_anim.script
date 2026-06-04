@@ -7,6 +7,11 @@ local hud_sect = "pickup_hud"
 local hud_anm = "camera_effects\\item_use\\two_handed_weapon_effect.anm"
 local hud_effector_id = 5559
 
+local non_animated_use_sect = {
+	["fireplace"] = true,
+	["pillow"] = true,
+}
+
 function on_key_press(key, game_action)
 	if game_action ~= key_bindings.kUSE then
 	return end
@@ -128,6 +133,10 @@ function play()
 	local add_act = key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION))
 	
 	if tgt and tgt:is_monster() and not add_act and harvest.try_harvest(tgt) then
+	return end
+	
+	if tgt and non_animated_use_sect[tgt:section()] then
+		use_usable(tgt)
 	return end
 	
 	block_non_move_action(true)

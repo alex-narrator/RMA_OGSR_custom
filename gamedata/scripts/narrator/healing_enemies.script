@@ -25,6 +25,7 @@ function on_npc_not_wounded(npc, healed_by_actor)
 		if comm_goodwill < 100 then
 			if restricted_comms[comm] then
 				npc:enable_memory_object( actor, false )
+				db.storage[npc:id()].enemy = nil
 			else
 				npc:set_character_community("stalker", 0, 0)
 				--log3("~changing community for NPC %s", npc:character_name())
