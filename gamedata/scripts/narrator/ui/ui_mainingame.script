@@ -101,6 +101,8 @@ function MainIngameOverlay:Subscribe()
 			
 			{signal = "on_actor_before_hit", self = self, fun = self.SetHitMarker},
 			{signal = "on_death_actor", self = self, fun = self.OnActorDeath},
+			
+			{signal = "on_throw_grenade", self = self, fun = self.OnThrowGrenade},
 		}
 		local sm = ogsr_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
@@ -152,7 +154,8 @@ function MainIngameOverlay:InitControls()
 	self:AttachChild(self.outfit_mask)
 	
 	self.hitmarker = CUIStatic()
-	self.hitmarker:Init(0, 0, UI_BASE_HEIGHT * get_current_kx(), UI_BASE_HEIGHT)
+	local scale = xml:ReadAttribFlt("hitmarker", "scale", 1)
+	self.hitmarker:Init(0, 0, UI_BASE_HEIGHT * scale, UI_BASE_HEIGHT * scale)
 	self.hitmarker:SetStretchTexture(true)
 	self:AttachChild(self.hitmarker)
 	local offset = ui_inv_utils.GetOffset("center", self.hitmarker, self)
@@ -161,6 +164,21 @@ function MainIngameOverlay:InitControls()
 	self.hitmarker.hit_types = split_string(xml:ReadAttrib("hitmarker", "hit_types", ""), ",", false, true)
 	self.hitmarker.ttl = xml:ReadAttribFlt("hitmarker", "ttl", 3)
 	self.hitmarker.alpha = xml:ReadAttribFlt("hitmarker", "alpha", 255)
+	
+	self.grenade_marker = CUIStatic()
+	local scale = xml:ReadAttribFlt("grenade_marker", "scale", 1)
+	self.grenade_marker:Init(0, 0, UI_BASE_HEIGHT * scale, UI_BASE_HEIGHT * scale)
+	self.grenade_marker:SetStretchTexture(true)
+	self:AttachChild(self.grenade_marker)
+	local offset = ui_inv_utils.GetOffset("center", self.grenade_marker, self)
+	self.grenade_marker:SetWndPos(offset.x, offset.y)
+	self.grenade_marker.texture = xml:ReadAttrib("grenade_marker", "grenade_mark_texture", "")
+	self.grenade_marker.distance = xml:ReadAttribFlt("grenade_marker", "distance", 10)
+	self.grenade_marker.color = split_string(xml:ReadAttrib("grenade_marker", "color", nil), ",", true)
+	self.grenade_marker.alpha = xml:ReadAttribFlt("grenade_marker", "alpha", 255)
+	self.grenade_marker.warning_colorize = xml:ReadAttribInt("grenade_marker", "warning_colorize", 0) > 0 and true or false
+	self.grenade_marker.show_my_grenade = xml:ReadAttribInt("grenade_marker", "show_my_grenade", 1) > 0 and true or false
+	self.grenade_marker.grenades = {}
 	
 	self.blood_overlay = xml:InitStatic("blood_overlay", self)
 	self.blood_overlay.fade_time = xml:ReadAttribFlt("blood_overlay", "fade_time", 0)
@@ -1418,8 +1436,66 @@ function MainIngameOverlay:SetHitMarker(object, hit)
 		end,
 		function()
 			self.hitmarker:DetachChild(static)
-		end		
-	)	
+		end
+	)
+end
+
+function MainIngameOverlay:OnThrowGrenade(initiator, fake_grenade)
+	--log_news("~OnThrowGrenade initiator [%s] fake_grenade [%s] destroy_time_max [%s]", initiator:name(), fake_grenade:name(), fake_grenade:get_missile().destroy_time_max)
+	if initiator:is_actor() and not self.grenade_marker.show_my_grenade then
+	return end
+	
+	local static = CUIStatic()
+	static:Init(0, 0, self.grenade_marker:GetWidth(), self.grenade_marker:GetHeight())
+	static:SetStretchTexture(true)
+	static:EnableHeading(true)
+	static:InitTexture(self.grenade_marker.texture)
+	static:SetColorA(self.grenade_marker.alpha)
+	self.grenade_marker:AttachChild(static)
+	static:Show(false)
+	
+	local action_time = fake_grenade:get_missile().destroy_time_max
+	local end_time = time_global() + action_time
+	
+	local data = {
+		static = static,
+		action_time = action_time,
+		end_time = end_time
+	}
+	self.grenade_marker.grenades[fake_grenade:id()] = data
+end
+
+function MainIngameOverlay:UpdateGrenadeMarker()
+	local cam_pos = device().cam_pos
+	local tg = time_global()
+	local map_spot = self.grenade_marker.map_spot
+	for id, data in pairs(self.grenade_marker.grenades) do
+		local obj = level.object_by_id(id)
+		local explosive = obj and obj:get_explosive()
+		if obj and explosive and not explosive:exploding() then
+			local show = cam_pos:distance_to(obj:position()) <= self.grenade_marker.distance
+			data.static:Show(show)
+			if show then
+				data.static:Show(true)
+				local val = math.clamp((data.end_time - tg) / data.action_time, 0, 1)
+				val = 1 - val
+				if self.grenade_marker.warning_colorize then
+					local R = math.clamp(val * 2, 0, 1) * 255
+					local G = math.clamp(2 - val * 2, 0, 1) * 255
+					local color = GetARGB(self.grenade_marker.alpha, R, G, 0)
+					data.static:SetColor(color)
+				end
+				local cam_h = device().cam_dir:getH()
+				local grenade_dir = obj:position():sub(cam_pos)
+				local grenade_h = grenade_dir:normalize():getH()
+				local heading = -cam_h + grenade_h
+				data.static:SetHeading(heading)
+			end
+		else
+			self.grenade_marker:DetachChild(data.static)
+			self.grenade_marker.grenades[id] = nil
+		end
+	end
 end
 
 local pickup_infos = {}
@@ -1448,7 +1524,7 @@ function MainIngameOverlay:UpdatePickupInfo()
 			end
 		end
 	end		
-	level.iterate_nearest(cam_pos, pickup_info_radius, perform_action)	
+	level.iterate_nearest(cam_pos, pickup_info_radius, perform_action)
 end
 
 function MainIngameOverlay:OnActorDeath()
@@ -1483,4 +1559,6 @@ function MainIngameOverlay:Update()
 	self:UpdateGearInfo()
 	self:UpdateProjectileTrajectory()
 	self:UpdateInfoMessages()
+	
+	self:UpdateGrenadeMarker()
 end

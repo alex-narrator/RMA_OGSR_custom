@@ -31,7 +31,10 @@ function motivator_binder:__init (obj) super(obj)
 
     self.first_update = false
 --	self.treasure_processed = false
-	self.invulnerable = read_if_exists(sys_ini, "bool", obj:section(), "invulnerable", false)
+	local sect = obj:section()
+	self.invulnerable = read_if_exists(sys_ini, "bool", sect, "invulnerable", false)
+	--//spawn for grenade throwing
+	self.throw_grenade_spawn_sect = split_string(read_if_exists(sys_ini, "string", sect, "throw_grenade_spawn_sect", nil), ",")
 end
 
 function motivator_binder:extrapolate_callback(cur_pt)
@@ -105,6 +108,7 @@ function motivator_binder:net_spawn(sobject)
 	self.object:set_callback(callback.on_slot, motivator_binder.on_slot, self)
 	self.object:set_callback(callback.on_item_drop, motivator_binder.on_item_drop, self)
 	self.object:set_callback(callback.on_item_take, motivator_binder.on_item_take, self)
+	self.object:set_callback(callback.on_throw_grenade, motivator_binder.on_throw_grenade, self)
 	--memusage.collect_info(self.object, "after__callback")
 
 	--self.object:set_callback(callback.sound, motivator_binder.hear_callback, self)
@@ -131,6 +135,10 @@ function motivator_binder:net_spawn(sobject)
 	end
 	
 	xr_gulag.setup_gulag_and_logic_on_spawn( self.object, self.st, sobject, modules.stype_stalker, self.loaded )
+	
+	if self.object.can_throw_grenades and not self.object:item_in_slot(GRENADE_SLOT) then
+		self:spawn_grenade()
+	end	
 
 	self.sm:call("on_npc_spawn", self.object, self)
 	return true
@@ -168,6 +176,7 @@ function motivator_binder:clear_callbacks(on_destroy)
 	self.object:set_callback(callback.on_slot, nil)
 	self.object:set_callback(callback.on_item_drop, nil)
 	self.object:set_callback(callback.on_item_take, nil)
+	self.object:set_callback(callback.on_throw_grenade, nil)
 end
 
 function motivator_binder:hit_callback(obj, amount, local_direction, who, bone_index, hit_type)
@@ -262,6 +271,14 @@ end
 
 function motivator_binder:on_item_take(item)
 	self.sm:call("on_take_npc", self.object, item)	
+end
+
+function motivator_binder:on_throw_grenade(fake_granade)
+	if self.object.can_throw_grenades then
+		self:spawn_grenade()
+	end
+	self.sm:call("on_throw_grenade", self.object, fake_granade)
+	self.sm:call("on_throw_grenade_npc", self.object, fake_granade)
 end
 
 function motivator_binder:update(delta)
@@ -444,6 +461,24 @@ function motivator_binder:hear_callback(self, who, sound_type, sound_position, s
 	if type ~= "NIL" then
 		printf("SND *%s* dist: %d [%f], %s -> %s", type, self:position():distance_to(who:position()), sound_power, who:name(), self:name())
 	end
+end
+
+function motivator_binder:spawn_grenade()
+	if not self.throw_grenade_spawn_sect then
+	return end
+	local grenade_sect = self.throw_grenade_spawn_sect[math.random(1, table.size(self.throw_grenade_spawn_sect))]
+	if not grenade_sect then
+		log_news("!npc [%s] - can`t find grenade section to spawn in [%s]", self.object:name(), self.throw_grenade_spawn_sect)
+	return end
+	level.add_call(
+		function()
+			return not self.object:item_in_slot(GRENADE_SLOT)
+		end,
+		function()
+			spawn_to_owner(grenade_sect, self.object:id())
+			--log_news("~npc [%s] - spawn grenade [%s]", self.object:name(), grenade_sect)
+		end
+	)	
 end
 
 function AddToMotivator(npc)

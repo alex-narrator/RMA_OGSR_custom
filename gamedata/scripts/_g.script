@@ -1747,7 +1747,7 @@ function get_screen_center()
 end
 
 function read_if_exists(ltx, val_type, section, val_name, default)
-	if ltx and ltx:line_exist(section,val_name) then
+	if ltx and section and ltx:line_exist(section,val_name) then
 		if val_type == "string" then
 			return ltx:r_string(section,val_name)
 		elseif val_type == "bool" then
@@ -1768,6 +1768,12 @@ function read_if_exists(ltx, val_type, section, val_name, default)
 		log3("!read_if_exists - value type [%s] undefined", val_type)
 		return default
 	else
+		if not ltx then
+			log_news("!read_if_exists incorrect input - ltx not exists. val_name [%s]", val_name)
+		end
+		if not section then
+			log_news("!read_if_exists incorrect input - section not exists. val_name [%s]", val_name)
+		end		
 		return default
 	end
 end

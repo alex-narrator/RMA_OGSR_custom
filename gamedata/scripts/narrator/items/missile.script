@@ -7,6 +7,8 @@ function attach(sm)
 	sm:subscribe({signal = "on_hud_state_switch",   fun = this.on_state_switch})
 	sm:subscribe({signal = "on_key_press",   		fun = this.on_key_press})
 	sm:subscribe({signal = "on_npc_first_update", 	fun = this.on_npc_first_update})
+	sm:subscribe({signal = "on_throw_grenade", 		fun = this.on_throw_grenade})
+	sm:subscribe({signal = "on_throw_grenade_actor", fun = this.on_throw_grenade_actor})
 end
 
 local bolt_sect = "bolt"
@@ -54,6 +56,28 @@ function on_drop(item, prev_place)
 	end
 end
 
+function on_throw_grenade(initiator, fake_grenade)
+	local destroy_time = split_string(read_if_exists(sys_ini, "string", fake_grenade:section(), "destroy_time", nil), ",", true)
+	if destroy_time and table.size(destroy_time) > 1 then
+		local missile = fake_grenade:get_missile()
+		missile.destroy_time_max = math.random(destroy_time[1], destroy_time[2])
+		--log_news("~throw [%s] destroy_time_max [%s]", fake_grenade:name(), missile.destroy_time_max)
+	end
+end
+
+function on_throw_grenade_actor(initiator, fake_grenade)
+	if is_unlimited_ammo() then
+		level.add_call(
+			function()
+				return not actor_get_grenade()
+			end,
+			function()
+				spawn_to_owner(fake_grenade:section())
+			end
+		)
+	end
+end
+
 function on_state_switch(item, state, old_state)
 	if state == hud_state.eThrow then
 		local missile = item:get_missile()
@@ -64,11 +88,6 @@ function on_state_switch(item, state, old_state)
 		actor.power = power_dec
 		--log_news("~throw - power_dec %s", power_dec)
 		--log_news("~throw - throw_force_k %s", throw_force_k)
-		local destroy_time = split_string(read_if_exists(sys_ini, "string", item:section(), "destroy_time", nil), ",", true)
-		if destroy_time and table.size(destroy_time) > 1 then
-			missile.destroy_time_max = math.random(destroy_time[1], destroy_time[2])
-		end
-		--log_news("~throw - destroy_time_max %s", missile.destroy_time_max)
 	end
 
 	if state == hud_state.eShowing and actor:active_slot() ~= GRENADE_SLOT then
@@ -81,8 +100,7 @@ function on_state_switch(item, state, old_state)
 		then
 	return end
 	
-	if is_unlimited_ammo() and item:is_grenade() and state == hud_state.eThrowEnd then
-		add_update_delayed_action(1, function() spawn_to_owner(item:section()) end)
+	if is_unlimited_ammo() and item:is_grenade() then
 	return end
 	
 	local missile = get_same_missile(item)

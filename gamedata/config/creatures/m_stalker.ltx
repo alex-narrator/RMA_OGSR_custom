@@ -320,6 +320,14 @@ class							= AI_STL_S						; Class identifier
 
 can_select_items				= on
 
+;;grenade throwing
+can_throw_grenades 				= true
+throw_time_interval 			= 90000 ;in milliseconds
+throw_randomness_enabled 		= true
+throw_max_distance 				= 40
+;;script params
+throw_grenade_spawn_sect 		= grenade_rgd5, grenade_f1
+
 ;---EVALUATION FUNCTIONS----------------------------------------------
 ef_creature_type				= 17							; option for evaluation functions
 
@@ -434,6 +442,7 @@ sound_attack_allies_single_enemy	= fight\attack\attack_,fight\attack\attack_one_
 sound_attack_allies_several_enemies	= fight\attack\attack_,fight\attack\attack_many_,fight\fire\fire_
 sound_search1_no_allies				= fight\threat\threat_distant_
 sound_search1_with_allies			= fight\searching_enemy\search_,fight\searching_enemy\enemy_lost_
+sound_throw_grenade					= fight\grenade\grenade_ready_
 
 ;---STEP MANAGER------------------------------------------------------
 LegsCount						= 2
