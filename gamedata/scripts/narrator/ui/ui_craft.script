@@ -366,18 +366,7 @@ function CraftOverlay:PerformCraft()
 				end
 				spawn_to_owner(receipt.result)
 				if receipt.craft_time then
-					local time_quant_minutes = 15
-					local total_minutes = receipt.craft_time
-					local iter_count, remainder = math.modf(total_minutes / time_quant_minutes)
-					--log_news("~iter_count %s, remainder %s", iter_count, remainder)
-					--//промотаємо час на фіксовані проміжки
-					for i = 1, iter_count do
-						change_game_time(0, 0, time_quant_minutes)
-					end
-					--//промотаємо час на залишок хвилин
-					if remainder > 0 then
-						change_game_time(0, 0, remainder)
-					end					
+					change_game_time(0, 0, receipt.craft_time)				
 				end
 			end
 			level.enable_input()

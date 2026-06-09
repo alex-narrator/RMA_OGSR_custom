@@ -3,6 +3,7 @@ function attach(sm)
 	sm:subscribe({signal = "on_update",   			fun = this.on_update})
 	sm:subscribe({signal = "on_save",   			fun = this.on_save})
 	sm:subscribe({signal = "on_load",   			fun = this.on_load})
+	sm:subscribe({signal = "on_time_change", 		fun = this.on_time_change})
 end
 
 local weather_data = {
@@ -32,6 +33,10 @@ end
 
 function on_load()
 	load_weather()
+end
+
+function on_time_change()
+	select_weather(true)
 end
 
 -- Вызывается после load(). Состояние погоды уже загружено.

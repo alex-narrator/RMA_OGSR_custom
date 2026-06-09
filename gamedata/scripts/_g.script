@@ -2615,15 +2615,31 @@ function teleport_actor(position, level_name)
 	end
 end
 
-function change_game_time(days, hours, minutes)
-	local value = days * 86400 + hours * 3600 + minutes * 60
-	value = value * 1000
-	level.advance_game_time(math.round(value))
+function advance_game_time(m_sec)
+	m_sec = math.round(m_sec)
+	level.advance_game_time(m_sec)
 	actor:update_condition()
 	actor_obj:update_items_effect()
-	local mgr = ogsr_signals.get_mgr()
-	mgr:call("on_update", 0)
-	level_weathers.select_weather(true)
+	local sm = ogsr_signals.get_mgr()
+	sm:call("on_update", 0)
+	sm:call("on_time_change", m_sec)
+end
+
+function change_game_time(days, hours, minutes)
+	local time_quant_minutes = 15
+	local change_one_quant = not (days and hours and minutes)
+	local total_minutes = change_one_quant and time_quant_minutes or (days * 24 * 60 + hours * 60 + minutes)
+	--//рахуємо цілу частину та залишок від ділення
+	local iter_count, remainder = math.modf(total_minutes / time_quant_minutes)
+	--log_news("~iter_count %s, remainder %s", iter_count, remainder)
+	--//промотаємо час на фіксовані проміжки
+	for i = 1, iter_count do
+		advance_game_time(time_quant_minutes * 60 * 1000)
+	end
+	--//промотаємо час на залишок хвилин
+	if remainder > 0 then
+		advance_game_time(remainder * 60 * 1000)
+	end
 end
 
 function wait_game_time (days, hours, minutes, on_start_f, on_stop_f, forced_stop_f)

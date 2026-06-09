@@ -43,8 +43,9 @@ function on_update()
 	local conds = actor.conditions
 	if not conds.has_valid_time or sleep_manager.is_sleeping_now() then 
 	return end
-	change_val(get_v() * conds:fdelta_time())
-	--log3("somnolence delta on update %s", get_v() * conds:fdelta_time())
+	local val = get_v() * conds:fdelta_time()
+	change_val(val)
+	--log3("somnolence delta on update %s", val)
 	add_v = 0
 	process_effects()
 end
