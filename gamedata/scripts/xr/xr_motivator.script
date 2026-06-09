@@ -275,7 +275,7 @@ end
 
 function motivator_binder:on_throw_grenade(fake_granade)
 	if self.object.can_throw_grenades then
-		self:spawn_grenade()
+		level.add_call(function() return not self.object:item_in_slot(GRENADE_SLOT) end, function() self:spawn_grenade() end)
 	end
 	self.sm:call("on_throw_grenade", self.object, fake_granade)
 	self.sm:call("on_throw_grenade_npc", self.object, fake_granade)
@@ -470,15 +470,7 @@ function motivator_binder:spawn_grenade()
 	if not grenade_sect then
 		log_news("!npc [%s] - can`t find grenade section to spawn in [%s]", self.object:name(), self.throw_grenade_spawn_sect)
 	return end
-	level.add_call(
-		function()
-			return not self.object:item_in_slot(GRENADE_SLOT)
-		end,
-		function()
-			spawn_to_owner(grenade_sect, self.object:id())
-			--log_news("~npc [%s] - spawn grenade [%s]", self.object:name(), grenade_sect)
-		end
-	)	
+	spawn_to_owner(grenade_sect, self.object:id())	
 end
 
 function AddToMotivator(npc)
