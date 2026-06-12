@@ -1072,29 +1072,25 @@ function MainIngameOverlay:ShowTask(b_show, _task, _objective, _stage)
 			end
 			
 			self.task_remaining_time:Show(false)
-			local random_task = task_manager.get_active_random_task(task:get_id())
-			if random_task then
-				local task_info = task_manager.get_random_task_info(random_task)
-				if task_info and task_info.time then
-					local c_time = game.CTime()
-					c_time:setHMS(task_info.time, 0, 0)
-					local current_time = game.get_game_time()
-					local deadline_time = task_info.give_task_time + c_time
-					local deadline_time_diff = deadline_time - current_time
+			local receive_time = task:get_receive_time()
+			local complete_time = task:get_time_to_complete()
+			if not _stage and complete_time ~= receive_time then
+				local current_time = game.get_game_time()
+				local deadline_time = complete_time
+				local deadline_time_diff = complete_time - current_time
 
-					local curr_diff_sec = deadline_time:diffSec(current_time)
-					local deadline_diff_sec = deadline_time:diffSec(task_info.give_task_time)
-					local time_progress = curr_diff_sec/deadline_diff_sec
-					local time_color = GetARGB(255, 255 * (1 - time_progress), 255 * time_progress, 0)
+				local curr_diff_sec = complete_time:diffSec(current_time)
+				local deadline_diff_sec = complete_time:diffSec(receive_time)
+				local time_progress = curr_diff_sec/deadline_diff_sec
+				local time_color = GetARGB(255, 255 * (1 - time_progress), 255 * time_progress, 0)
 					
-					self.task_remaining_time:Show(true)
-					self.task_remaining_time:SetText(deadline_time_diff:timeToString(game.CTime.TimeToMinutes))
-					self.task_remaining_time:SetTextColor(time_color)
+				self.task_remaining_time:Show(true)
+				self.task_remaining_time:SetText(deadline_time_diff:timeToString(game.CTime.TimeToMinutes))
+				self.task_remaining_time:SetTextColor(time_color)
 					
-					self.task_state_icon:Show(true)
-					self.task_state_icon:InitTexture("time_limited_task_icon")
-					self.task_state_icon:SetColor(time_color)
-				end
+				self.task_state_icon:Show(true)
+				self.task_state_icon:InitTexture("time_limited_task_icon")
+				self.task_state_icon:SetColor(time_color)
 			end
 		end		
 	else

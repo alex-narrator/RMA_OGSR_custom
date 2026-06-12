@@ -126,6 +126,8 @@ function actor_binder:net_destroy()
 	self.object:set_callback(callback.on_actor_land, nil)
 	
 	self.object:set_callback(callback.on_throw_grenade, nil)
+	
+	self.object:set_callback(callback.map_location_clicked, nil)
 
 	if sr_psy_antenna.psy_antenna then
 		sr_psy_antenna.psy_antenna:destroy()
@@ -200,6 +202,8 @@ function actor_binder:reinit()
 	self.object:set_callback(callback.on_actor_land, self.on_actor_land, self)
 	
 	self.object:set_callback(callback.on_throw_grenade, self.on_throw_grenade, self)
+	
+	self.object:set_callback(callback.map_location_clicked, self.map_location_clicked, self)
 	--	
 	self.sm:call("on_reinit")
 end
@@ -303,10 +307,6 @@ function actor_binder:task_callback(_task, _objective, _state)
 			_stage = "cancel"			
 		else
 			_stage = "new"
-			--при отриманні нової таски робимо активним першу підзадачу і на неї ставим таргет на мапі
-			if get_script_option_value("select_new_task") then
-				actor:set_task_selected(_task, 1, true)
-			end
 		end
 	else
 		if _task:get_objective(0):get_state() == task_state.in_progress then
@@ -608,6 +608,10 @@ end
 function actor_binder:on_throw_grenade(fake_granade)
 	self.sm:call("on_throw_grenade", actor, fake_granade)
 	self.sm:call("on_throw_grenade_actor", actor, fake_granade)
+end
+
+function actor_binder:map_location_clicked(obj_id, spot_type, level_name, position, is_user_spot)
+	self.sm:call("on_map_spot_clicked", obj_id, spot_type, level_name, position, is_user_spot)
 end
 
 --старт префетча звуков

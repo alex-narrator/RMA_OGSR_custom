@@ -2,10 +2,11 @@
 function attach(sm)
 	sm:subscribe({signal = "on_save",   		fun = this.on_save})
 	sm:subscribe({signal = "on_load",   		fun = this.on_load})
-	sm:subscribe({signal = "on_update", 		fun = this.actor_update})
-	sm:subscribe({signal = "on_task",   		fun = this.on_task})
+	sm:subscribe({signal = "on_update", 		fun = this.actor_update, queued = true})
+	sm:subscribe({signal = "on_task_stage", 	fun = this.on_task_stage})
 	sm:subscribe({signal = "on_npc_death",   	fun = this.on_npc_death})
 	sm:subscribe({signal = "on_take_from_box", 	fun = this.on_take_from_box})
+	sm:subscribe({signal = "on_map_spot_clicked", fun = this.on_map_spot_clicked})
 end
 
 local LIST_SECT = "task_list"
@@ -332,7 +333,8 @@ function action_give_task(actor, npc, p1, p2)
 	end
 	
 	local task_time = task_desc.time and task_desc.time * 60 * 60 * 1000 or nil
-	db.actor:give_task(task, task_time, false)
+	--db.actor:give_task(task, task_time, false)
+	gametask.give_task(task, task_time, false)
 
 	--' дизаблим все остальные задания данного типа, так как игрок не может одновременно обладать двумя заданиями одного типа.
 	task_info[task_id_by_yes_phrase_id[p2]].status = "selected"
@@ -487,7 +489,7 @@ function task_skipped(p1, p2)
 	return false
 end
 --' Обнуление переменных при завершении или провале таска
-function task_callback(p1, p2, state)
+function task_callback(p1, p2, stage)
 	if p2 ~= 0 then
 		return
 	end
@@ -496,7 +498,7 @@ function task_callback(p1, p2, state)
 		return
 	end
 
-	if state == task_state.completed then
+	if stage == "complete" then
 		task_info[active_task_by_type[p1]].status = "normal"
 		task_info[active_task_by_type[p1]].give_task_time = nil
 		--' восстановление других заданий данного типа
@@ -506,10 +508,10 @@ function task_callback(p1, p2, state)
 			end
 		end
 		active_task_by_type[p1] = nil
-	elseif state == task_state.fail or state == task_state.skipped then
+	elseif stage == "fail" or stage == "cancel" then
 		local task_data = task_info[active_task_by_type[p1]]
 		
-		if state == task_state.fail then
+		if stage == "fail" then
 			--' Проверяем что жив, выдавший квест (хтонічний Сидорович-trader живий завжди).
 			local parent = alife():story_object(story_by_parent[task_data.parent])
 			local parent_alive = parent and (parent:get_trader() or parent:alive())
@@ -526,7 +528,7 @@ function task_callback(p1, p2, state)
 				v.enabled = true
 			end
 		end
-		active_task_by_type[p1] = nil	
+		active_task_by_type[p1] = nil
 	end
 end
 --' Выводит список доступных квестов
@@ -628,7 +630,6 @@ function check_task_props(task_id)
 end
 --' Проверяем можем ли мы сейчас выдать какой либо самоинициализующийся таск
 function actor_update()
-	ogsr_signals.get_mgr():reschedule(TASK_UPD_INTERVAL)
 	--local t = debug_info.p_timer("actor_update()")
 	for k,v in pairs(task_id_self_inited) do
 		local _task_info = task_info[v]
@@ -910,7 +911,7 @@ function task_reward(npc, actor, p1, p2)
 				end				
 
 				if task_desc.reward_rank ~= nil then
-					actor_stats.add_points("quests", task_desc.name, 1, 1)
+					--actor_stats.add_points("quests_complete", task_desc.name, 1, 1)
 					db.actor:change_character_rank(task_desc.reward_rank)
 				end
 				
@@ -958,7 +959,7 @@ function task_reward_remote(task_desc)
 
 	if task_desc.reward_rank ~= nil then
 		--log3("~reward rank %s", task_desc.reward_rank)
-		actor_stats.add_points("quests", task_desc.name, 1, 1)
+		--actor_stats.add_points("quests_complete", task_desc.name, 1, 1)
 		actor:change_character_rank(task_desc.reward_rank)
 	end
 	
@@ -984,7 +985,7 @@ function task_reward_storyline(task)
 	end
 
 	if task_desc.reward_rank ~= nil then
-		actor_stats.add_points("quests", task_desc.name, 1, 1)
+		--actor_stats.add_points("quests_complete", task_desc.name, 1, 1)
 		actor:change_character_rank(task_desc.reward_rank)
 	end
 end
@@ -1260,11 +1261,27 @@ function precondition_dont_have_completed_job(npc, actor, p1, p2, p3)
 	return not have_completed_job(actor, npc)
 end
 
-function on_task(_task, _objective, _state)
-	task_callback(_task:get_id(), _objective:get_idx(), _state)
-	if _objective:get_idx() == 0 and _state == task_state.completed then
+function on_task_stage(_task, _objective, _stage)
+	task_callback(_task:get_id(), _objective:get_idx(), _stage)
+	if _stage == "complete" then
 		task_reward_storyline(_task)
 	end
+	if _stage ~= "update" and _stage ~= "new" then
+		--//будемо видаляти виконані/провалені/скасовані таски з реєстру
+		--//1. уникаємо проблеми із обиранням активними міток на циклічні квести
+		--//якщо брати декілька квестів одного типу у одного вендора то зробити активною мітку на ціль можна буде тільки для першого обраного квесту
+		--//як приклад - взяти у Вовка завдання на винищення кабанів біля селища а потім завдання на винищення плотей на фермі - активна мітка буде тільки на перший
+		--//відбувається це через те що квести одного типу у одного вендора мають однаковий ID
+		--//проблема вирішиться при перезавантаженні якщо увімкнено опцію keep_inprogress_tasks_only в секції [features] - бо виконаний квест буде видалено
+		--//2. просто не бачу сенсу зберігати ці квести - провалені та виконані будемо писати в статистику
+		gametask.remove_task(_task)
+		--log_news("remove task [%s]", _task:get_title())
+	end
+	--при отриманні нової таски робимо активним першу підзадачу і на неї ставим таргет на мапі
+	if _stage == "new" and get_script_option_value("select_new_task") then
+		--actor:set_task_selected(_task, 1, true)
+		gametask.set_active_task(_task, 1, true)
+	end	
 end
 
 function check_vendor_dead(npc)
@@ -1299,4 +1316,27 @@ function on_take_from_box(box, item)
 	while level.map_has_object_spot(box:id(), store_box.store_box_spot) ~= 0 do
 		level.map_remove_object_spot(box:id(), store_box.store_box_spot)
 	end
+end
+
+function on_map_spot_clicked(obj_id, spot_type, level_name, position, is_user_spot)
+	local spot_selected
+	function perform_action(game_task)
+		local count = game_task:get_objectives_cnt()
+		local prev_objective_state
+		for i = 1, count - 1 do
+			local objective = game_task:get_objective(i)
+			local map_spot = objective:get_map_location()
+			local state = objective:get_state()
+			local can_show_stage = game_task.show_all_objectives or not prev_objective_state or prev_objective_state ~= task_state.in_progress
+			if can_show_stage then
+				if map_spot ~= "" and state == task_state.in_progress and objective:get_object_id() == obj_id and not spot_selected then
+					--log_news("task [%s], objective [%s], map_spot [%s], description [%s]", game_task:get_title(), i, map_spot, objective:get_description())
+					gametask.set_active_task(game_task, i, true)
+					spot_selected = true
+				end
+			end
+			prev_objective_state = state
+		end		
+	end
+	gametask.iterate_tasks(perform_action)
 end

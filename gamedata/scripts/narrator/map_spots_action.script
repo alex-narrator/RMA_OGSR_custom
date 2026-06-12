@@ -25,11 +25,11 @@ function fast_travel_allowed()
 	return ENABLED or not has_enemy_near(actor, get_script_option_value("check_enemy_radius")) and actor:get_inventory_weight() < actor:get_max_weight() and actor:get_bleeding() < 0.1
 end
 
-function ft_action_tip(id, spot_type, level_name, position)
+function ft_action_tip(id, spot_type, level_name, position, is_user_spot)
 	--log3("~action_tip id %s, spot_type %s, level_name %s, position (%s %s %s)", id, spot_type, level_name, position.x, position.y, position.z)
 	return game.translate_string("st_fast_travel")
 end
-function ft_action_check(id, spot_type, level_name, position)
+function ft_action_check(id, spot_type, level_name, position, is_user_spot)
 	--log3("~action_check id %s, spot_type %s, level_name %s, position (%s %s %s)", id, spot_type, level_name, position.x, position.y, position.z)
 	return fast_travel_allowed()
 end
@@ -46,11 +46,11 @@ local spot_types = {
 	[get_find_person_spot()] = true,
 }
 
-function rs_action_tip(id, spot_type, level_name, position)
+function rs_action_tip(id, spot_type, level_name, position, is_user_spot)
 	return game.translate_string("st_pda_delete_spot")
 end
 
-function rs_action_check(id, spot_type, level_name, position)
+function rs_action_check(id, spot_type, level_name, position, is_user_spot)
 	for k,v in pairs(spot_types) do
 		if k == spot_type then
 			return true
@@ -59,7 +59,7 @@ function rs_action_check(id, spot_type, level_name, position)
 	return false
 end
 
-function rs_action(id, spot_type, level_name, position)
+function rs_action(id, spot_type, level_name, position, is_user_spot)
 	for k,v in pairs(spot_types) do
 		if k == spot_type then
 			level.map_remove_object_spot(id, spot_type)
