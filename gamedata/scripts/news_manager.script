@@ -266,32 +266,15 @@ function send_task(task, objective, stage)
     --local task_texture, task_rect = get_texture_info("ui_iconsTotal_"..task:get_id(), "ui_iconsTotal_locations")
 	local task_texture = task:get_objective(0):get_icon_name()
 	local task_rect = task:get_objective(0):get_icon_rect()
-        
-	--' Играем дефолтный звук
-	--pda_task:play(db.actor, 0, sound_object.s2d)
+
 	play_news_sound("task")
 
 	local news_text = "%c[255,160,160,160]".."["..game.translate_string("general_"..stage.."_task").."]".."\\n".."%c[default]"..game.translate_string(task:get_title())
 
 	if actor:is_talking() then	
-		actor:give_talk_message(news_text, task_texture, task_rect,"iconed_answer_item")
-	-- else
-		-- actor:give_game_news(news_text, task_texture, task_rect, 0, 3000)
+		actor:give_talk_message(news_text, task_texture, task_rect, "iconed_answer_item")
 	end	
 	actor:give_game_news(news_text, task_texture, task_rect, 0, 3000)
-
-	-- if stage == "new" or stage == "update" then
-		-- --' Выдать новое подзадание
-		-- if task:get_objectives_cnt() == objective:get_idx()+1 then
-			-- return
-		-- end
-		-- news_text = game.translate_string(task:get_objective(objective:get_idx() + 1):get_description())
-	-- end
-
-	-- local hud = get_hud()
-	-- hud:AddCustomStatic("main_task", true)
-	-- hud:GetCustomStatic("main_task"):wnd():SetTextST(news_text)
-	-- hud:GetCustomStatic("main_task").m_endTime = time_global()/1000 + 5
 end
 
 local icon_by_group = {
