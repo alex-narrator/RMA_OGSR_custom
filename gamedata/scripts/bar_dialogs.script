@@ -1043,10 +1043,13 @@ local find_person_clsids = {
 }
 function try_find_person(person_name)
 	local actor_name = actor:character_name()
+	local game_time = game.get_game_time()
 	if person_name == actor_name then
-		level.map_add_object_spot_ser(actor:id(), get_find_person_spot(), actor_name)
+		local sobj = alife():object(0)
+		local text = string.format("%s%s\\n%s %s", "%c[UI_orange]", actor_name, game_time:dateToString(game.CTime.DateToDay), game_time:timeToString(game.CTime.TimeToMinutes))
+		level.map_add_user_spot(sobj.level_id, sobj.position, get_find_person_spot(), text)
 		local news = string.format("%s%s\\n%s", "%c[UI_orange]", actor_name, game.translate_string(level.name()))
-		news_manager.custom_news("st_map_location_added", news, "ui_new_map_location")		
+		news_manager.custom_news("st_map_location_added", news, "ui_new_map_location")
 		return
 	end
 	for i=0, MAX_U16 do
@@ -1054,8 +1057,9 @@ function try_find_person(person_name)
 		if sobj and find_person_clsids[sobj:clsid()] then
 			local name = get_translated_character_name(sobj.character_name)
 			if name == person_name then
-				level.map_add_object_spot_ser(sobj.id, get_find_person_spot(), name)
-				local level = alife():level_name( game_graph():vertex( sobj.m_game_vertex_id ):level_id() )
+				local text = string.format("%s%s\\n%s %s", "%c[UI_orange]", name, game_time:dateToString(game.CTime.DateToDay), game_time:timeToString(game.CTime.TimeToMinutes))
+				level.map_add_user_spot(sobj.level_id, sobj.position, get_find_person_spot(), text)
+				local level = alife():level_name( sobj.level_id )
 				local news = string.format("%s%s\\n%s", "%c[UI_orange]", name, game.translate_string(level))
 				news_manager.custom_news("st_map_location_added", news, "ui_new_map_location")
 				return
