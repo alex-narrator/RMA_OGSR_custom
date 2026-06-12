@@ -421,6 +421,7 @@ end
 local sound_object_by_path = {}
 --' Обертка вокруг функции, возвращающий звуковой объект.
 function get_safe_sound_object(path, is_music, non_cached)
+	if not path then return end
 	local snd_type = is_music and sound_object.music or sound_object.effect
 	if non_cached then
 		return sound_object(path, 0, snd_type)
