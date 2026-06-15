@@ -1,5 +1,6 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
-local hostile_treshold = sys_ini:r_float("game_relations", "attitude_neutral_threshold")
+local hostile_threshold = sys_ini:r_float("game_relations", "attitude_neutral_threshold")
+local friend_threshold = sys_ini:r_float("game_relations", "attitude_friend_threshold")
 
 local index_for_community = {}
 local communities_relations = {}
@@ -44,5 +45,33 @@ function community_relation_safe(community, npc)
 end
 
 function hostile(community, npc)
-	return community_relation_safe(community, npc) < hostile_treshold
+	return community_relation_safe(community, npc) < hostile_threshold
+end
+
+function friendly(community, npc)
+	return community_relation_safe(community, npc) >= friend_threshold
+end
+
+function color(community, npc)
+	local color = "%c[default]"
+	local relation = community_relation_safe(community, npc)
+	if relation < hostile_threshold then
+		color = "%c[red]" 
+	end
+	if relation >= friend_threshold then
+		color = "%c[green]"
+	end
+	return color
+end
+
+function name(community, npc)
+	local name = "indifferent"
+	local relation = community_relation_safe(community, npc)
+	if relation < hostile_threshold then
+		name = "enemy" 
+	end
+	if relation >= friend_threshold then
+		name = "friendly"
+	end
+	return name
 end

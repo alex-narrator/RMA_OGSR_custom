@@ -1312,7 +1312,7 @@ function ActorMenuOverlay:OnCommIconFocus(for_actor)
 	local obj = for_actor and actor or self.target
 	if not obj then
 	return end
-	local text = string.format("%s %s", game.translate_string("st_community"), game.translate_string(obj:character_community()))
+	local text = string.format("%s: %s", game.translate_string("ui_st_community"), game.translate_string(obj:character_community()))
 	self:SetTooltip(text)
 end
 

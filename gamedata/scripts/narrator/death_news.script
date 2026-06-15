@@ -8,7 +8,7 @@ local NEWS_DIST = 50
 
 function death_reson_by_killer(killer)
 	if killer:is_monster() then
-		local props, sect = xr_statistic.getNpcType(killer)
+		local sect = xr_statistic.get_entry_name(killer)
 		return sect
 	end
 	if killer:is_stalker() or killer:is_actor() then
@@ -28,7 +28,7 @@ end
 
 function killer_text(killer)
 	if killer:is_monster() then
-		local props, sect = xr_statistic.getNpcType(killer)
+		local sect = xr_statistic.get_entry_name(killer)
 		return game.translate_string(sect)
 	end
 	if killer:is_stalker() or killer:is_actor() then

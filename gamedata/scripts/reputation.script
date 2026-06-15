@@ -7,8 +7,6 @@ local stalker_rept_intervals
 
 local stalker_max_rept_name
 
-local was_called = false
-
 -- парсит заданную строку репутацґй в заданную таблицу.
 -- возвращает название максимально» репутацґ»
 function parse_repts( s, tbl )
@@ -29,9 +27,9 @@ end
 function read_all_repts()
 	stalker_rept_intervals = {}
 	stalker_max_rept_name = parse_repts(sys_ini:r_string("game_relations", "reputation_names"), stalker_rept_intervals)
-	was_called = true
 end
 
+read_all_repts()
 -- 
 function get_rept_name(rept, tbl)
 	for name, interval in pairs( tbl ) do
@@ -44,9 +42,6 @@ end
 
 -- возвращает название репутацґ» заданного game_object (персонажа)
 function get_obj_reputation_name(obj)
-	if not was_called then
-		read_all_repts()
-	end
 	return get_rept_name(obj:character_reputation(), stalker_rept_intervals) or "neutral"--stalker_max_rept_name
 end
 

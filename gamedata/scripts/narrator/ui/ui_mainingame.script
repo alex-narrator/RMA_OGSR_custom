@@ -884,7 +884,7 @@ function MainIngameOverlay:UpdateTargetTip()
 				text = string.format("%s%s%s", color_by_relation[tgt:relation(actor)], tgt:character_name(), "%c[default]")
 			end
 			if tgt and tgt:is_monster() then
-				local name = xr_statistic.name_to_show(tgt)
+				local name = xr_statistic.get_entry_name(tgt)
 				text = game.translate_string(name)
 			end
 		end

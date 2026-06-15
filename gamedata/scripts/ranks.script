@@ -10,8 +10,6 @@ local monster_rank_intervals
 local stalker_max_rank_name
 local monster_max_rank_name
 
-local ranks_loaded = false
-
 -- парсит заданную строку рангов в заданную таблицу.
 -- возвращает название максимального ранга
 function parse_ranks( s, tbl )
@@ -36,11 +34,10 @@ function read_all_ranks()
 	stalker_max_rank_name = parse_ranks( sys_ini:r_string( "game_relations", "rating" ),         stalker_rank_intervals )
 	monster_max_rank_name = parse_ranks( sys_ini:r_string( "game_relations", "monster_rating" ), monster_rank_intervals )
 
-	ranks_loaded = true
-
 --	print_table( stalker_rank_intervals )
 end
 
+read_all_ranks()
 -- 
 function get_rank_name( rank, tbl )
 	for name, interval in pairs( tbl ) do
@@ -54,10 +51,6 @@ end
 
 -- возвращает название ранга заданного game_object (персонажа)
 function get_obj_rank_name( obj )
-	if not ranks_loaded then
-		read_all_ranks()
-	end
-
 	local obj_rank
 
 	-- HACK
@@ -90,22 +83,18 @@ end
 
 -- возвращает табличку с интервалом рангов для заданного названия интервала
 function get_rank_interval( name )
-	if not ranks_loaded then
-		read_all_ranks()
-	end
-
 	return stalker_rank_intervals[name] or monster_rank_intervals[name]
 end
 
 function set_actor_rank_str(rank)
 	if rank == "novice" then
-		db.actor:set_character_rank(0)
+		actor:set_character_rank(0)
 	elseif rank == "stalker" then
-		db.actor:set_character_rank(300)
+		actor:set_character_rank(300)
 	elseif rank == "veteran" then
-		db.actor:set_character_rank(600)
+		actor:set_character_rank(600)
 	elseif rank == "master" then
-		db.actor:set_character_rank(900)
+		actor:set_character_rank(900)
 	end
 end
 

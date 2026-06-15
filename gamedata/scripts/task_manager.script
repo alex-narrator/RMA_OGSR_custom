@@ -911,7 +911,6 @@ function task_reward(npc, actor, p1, p2)
 				end				
 
 				if task_desc.reward_rank ~= nil then
-					--actor_stats.add_points("quests_complete", task_desc.name, 1, 1)
 					db.actor:change_character_rank(task_desc.reward_rank)
 				end
 				
@@ -959,7 +958,6 @@ function task_reward_remote(task_desc)
 
 	if task_desc.reward_rank ~= nil then
 		--log3("~reward rank %s", task_desc.reward_rank)
-		--actor_stats.add_points("quests_complete", task_desc.name, 1, 1)
 		actor:change_character_rank(task_desc.reward_rank)
 	end
 	
@@ -985,7 +983,6 @@ function task_reward_storyline(task)
 	end
 
 	if task_desc.reward_rank ~= nil then
-		--actor_stats.add_points("quests_complete", task_desc.name, 1, 1)
 		actor:change_character_rank(task_desc.reward_rank)
 	end
 end

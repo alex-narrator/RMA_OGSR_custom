@@ -30,19 +30,6 @@ local killCountProps = {
 	fracture_weak = 1, fracture_normal = 2, fracture_strong = 3
 }
 
-local sect_alias = {	
-	tushkano_normal = "tushkano_weak", tushkano_strong = "tushkano_weak",
-	poltergeist_normal = "poltergeist_weak", poltergeist_strong = "poltergeist_weak",
-	pseudo_gigant_normal = "pseudo_gigant_weak", pseudo_gigant_strong = "pseudo_gigant_weak",
-	controller_normal = "controller_weak", controller_strong = "controller_weak",
-	psy_dog_weak = "psy_dog", psy_dog_normal = "psy_dog", psy_dog_strong = "psy_dog", rad_psy_dog = "psy_dog",
-	zombie_weak = "zombie_weak", zombie_normal  = "zombie_normal", zombie_strong = "zombie_strong",
-	burer_weak = "burer_weak", burer_normal = "burer_normal", burer_strong = "burer_strong",
-	cat_weak = "cat_weak", cat_normal = "cat_normal", cat_strong = "cat_strong",
-	chimera_weak = "chimera_weak", chimera_normal = "chimera_normal", chimera_strong = "chimera_strong",
-	fracture_weak = "fracture_weak", fracture_normal = "fracture_normal", fracture_strong = "fracture_strong"
-}
-
 monster_classes = {
 			[clsid.tushkano_s    ] = "tushkano",
 			[clsid.flesh_s       ] = "flesh",
@@ -54,7 +41,7 @@ monster_classes = {
 			[clsid.dog_s         ] = "dog",
 			[clsid.pseudodog_s   ] = "pseudodog",
 			[clsid.psy_dog_s     ] = "psy_dog",
-			[clsid.psy_dog_phantom_s] = "NIL",
+			[clsid.psy_dog_phantom_s] = "skip",
 			[clsid.snork_s       ] = "snork",
 			[clsid.poltergeist_s ] = "poltergeist",
 			[clsid.gigant_s      ] = "pseudo_gigant",
@@ -64,82 +51,78 @@ monster_classes = {
 		}		
 
 function attach(sm)
-	sm:subscribe({signal = "on_pda_actor_info", fun = this.on_info_tab})
-	sm:subscribe({signal = "on_death", 			fun = this.addKillCount})
+	sm:subscribe({signal = "on_save", 			fun = this.on_save})
+	sm:subscribe({signal = "on_load", 			fun = this.on_load})
+	--//
+	sm:subscribe({signal = "on_death", 			fun = this.add_kill})
 	sm:subscribe({signal = "on_heal_wounded", 	fun = this.add_npc_healed})
 	sm:subscribe({signal = "on_give_treasure", 	fun = this.add_treasure})
-	sm:subscribe({signal = "on_death_car", 		fun = this.add_killed_transport})
-	sm:subscribe({signal = "on_death_heli", 	fun = this.add_killed_transport})
+	sm:subscribe({signal = "on_death_car", 		fun = this.add_transport_kill})
+	sm:subscribe({signal = "on_death_heli", 	fun = this.add_transport_kill})
 	sm:subscribe({signal = "on_pda_hack", 		fun = this.add_pda_hack})
 	--//
 	sm:subscribe({signal = "on_take", 			fun = this.try_add_item})	
 	sm:subscribe({signal = "on_place_item_to_box", fun = this.mark_as_taken})
 	sm:subscribe({signal = "on_ruck_npc", 		fun = this.mark_as_taken})
-	
+	--//
 	sm:subscribe({signal = "on_task_stage", 	fun = this.on_task_stage})
 end
 
-function addKillCount(victim, killer)
-	if not killer or not killer:is_actor() or	
-		victim:id() == killer:id()
-	then
-	return end
-	
-	local props, sect = getNpcType(victim)
-	if props == nil then
-	return end
+local statistic = {}
 
-	local sect_name
-	if sect_alias[sect] ~= nil then
-		sect_name = sect_alias[sect]
-	else
-		sect_name = sect
-	end
-
-	if killCountProps[sect_name] == nil then
-		log_news("!can't find killCountProps for sect_name %s", sect_name)
-		return
-	end
-	actor_stats.add_points(props, sect_name, 1, 1)
-	actor:change_character_rank(killCountProps[sect_name])
+function on_save(packet)
+	xr_vars.save_var("statistic", statistic)
 end
 
-function name_to_show(npc)
-	local _, sect = getNpcType(npc)
-	if not sect then
-	return end
-
-	local sect_name
-	if sect_alias[sect] ~= nil then
-		sect_name = sect_alias[sect]
-	else
-		sect_name = sect
-	end
-	return sect_name
+function on_load(reader)
+	statistic = xr_vars.load_var("statistic", statistic)
 end
 
-function getNpcType(npc)
+function add_entry(section, entry)
+	if not statistic[section] then
+		statistic[section] = {}
+	end
+	if not statistic[section][entry] then
+		statistic[section][entry] = 1
+	else
+		statistic[section][entry] = statistic[section][entry] + 1
+	end
+end
+
+function get_statistic()
+	return statistic
+end
+
+function add_kill(victim, killer)
+	if not killer or not killer:is_actor() or victim:id() == killer:id() then
+	return end
+	local sect = victim:is_stalker() and "stalker_kills" or "monster_kills"
+	local entry_name = get_entry_name(victim)
+	if entry_name then
+		add_entry(sect, entry_name)
+	end
+	local kill_rank = killCountProps[entry_name]
+	if kill_rank then
+		actor:change_character_rank(kill_rank)
+	end
+end
+
+function get_entry_name(npc)
 	local rank = ranks.get_obj_rank_name(npc)
 	if npc:is_stalker() then
-		return "stalkerkills", npc:character_community().."_"..rank
+		return npc:character_community().."_"..rank
 	else
 		local community = monster_classes[get_clsid(npc)]
-		if community == nil then
-			abort("Statistic ERROR: cannot find monstr class for [%s]", npc:name())
-		end
-		if community == "NIL" then
-			return nil,nil
-		end
-		return "monsterkills", community.."_"..rank
+		if not community then
+			log_news("!Statistic ERROR: cannot find monstr class for [%s]", npc:name())
+		return end
+		if community == "skip" then
+		return end
+		return community.."_"..rank
 	end	
 end
 
 function try_add_item(item)
-	-- if xr_conditions.black_screen() then
-	-- return end
-	-- if actor:is_talking() then
-	-- return end
-	
 	local artefact = item:is_artefact()
 	
 	if not artefact and get_clsid(item) ~= clsid.monster_part_s then
@@ -158,8 +141,8 @@ function try_add_item(item)
 	end
 	
 	local sect = item:section()
-	local stat_sect = artefact and "artefacts" or "trophies"
-	actor_stats.add_points(stat_sect, get_inv_name(sect), 1, 1)
+	local stat_sect = artefact and "found_artefacts" or "trophies"
+	add_entry(stat_sect, get_inv_name(sect))
 	local rank = read_if_exists(sys_ini, "u32", sect, "rank", 0)
 	actor:change_character_rank(rank)
 end
@@ -178,22 +161,10 @@ function mark_as_taken(owner, item)
 	se_obj.is_taken = true
 end
 
-function on_info_tab()
-	update_day_in_zone()
-end
-
-function update_day_in_zone()
-	local stat_sect = "life_in_game"
-	local days_in_zone = game.translate_string("st_days_in_zone")
-	while level.get_time_days() > actor_stats.get_points_key(stat_sect, days_in_zone) do
-		actor_stats.add_points(stat_sect, days_in_zone, 1, 1)
-	end
-end
-
 function add_npc_healed(npc)
 	local stat_sect = "npc_healed"
 	local entry = string.format("%s [%s, %s]", npc:character_name(), game.translate_string(npc:character_community()), game.translate_string(ranks.get_obj_rank_name(npc)))
-	actor_stats.add_points(stat_sect, entry, 1, 1)
+	add_entry(stat_sect, entry)
 	actor:change_character_reputation(10)
 end
 
@@ -202,14 +173,14 @@ function add_pda_hack(id)
 	local od = se_obj.owner_data
 	local stat_sect = "pda_hacked"
 	local entry = string.format("%s, %s", game.translate_string(od.comm), game.translate_string(ranks.get_val_rank_name(od.rank)))
-	actor_stats.add_points(stat_sect, entry, 1, 1)
+	add_entry(stat_sect, entry)
 	--actor:change_character_reputation(10)
 end
 
 function add_treasure(id, name)
 	local stat_sect = "treasures"
 	local sect = game.translate_string(name)
-	actor_stats.add_points(stat_sect, sect, 1, 1)	
+	add_entry(stat_sect, sect)
 end
 
 local transport_name_by_visual = {
@@ -223,11 +194,11 @@ local transport_name_by_visual = {
 	["zaz"] = "Zaporozh",
 }
 
-function add_killed_transport(victim, killer)
+function add_transport_kill(victim, killer)
 	if killer and not killer:is_actor() then
 	return end
 	--log3("~killed object %s with visual %s", victim:name(), victim:get_visual_name())
-	local stat_sect = "transportkills"
+	local stat_sect = "transport_kills"
 	local visual_name = victim:get_visual_name()
 	local transport_name
 	for k,v in pairs(transport_name_by_visual) do
@@ -239,12 +210,12 @@ function add_killed_transport(victim, killer)
 	if not transport_name then
 		log_news("~%s: name for transport visual [%s] section [%s] not found in transport_name_by_visual table", script_name(), visual_name, victim:section())
 	return end
-	actor_stats.add_points(stat_sect, game.translate_string(transport_name), 1, 1)
+	add_entry(stat_sect, game.translate_string(transport_name))
 end
 
 function on_task_stage(_task, _objective, _stage)
 	if _stage == "complete" or _stage == "fail" then
 		local stat_sect = string.format("quests_%s", _stage)
-		actor_stats.add_points(stat_sect, _task:get_title(), 1, 1)
+		add_entry(stat_sect, _task:get_title())
 	end
 end
