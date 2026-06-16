@@ -235,7 +235,9 @@ function log_news(fmt, ...)
 		color = "%c["..log_color[msg:sub(1, 1)].."]"
 		news = msg:sub(2)
 	end
-	news_manager.custom_news("DEBUG MESSAGE", string.format("%s%s", color, news))
+	if actor then
+		news_manager.custom_news("DEBUG MESSAGE", string.format("%s%s", color, news))
+	end
 	log1(msg)
 end
 

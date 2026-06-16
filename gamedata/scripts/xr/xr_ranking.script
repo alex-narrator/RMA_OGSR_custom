@@ -1,0 +1,38 @@
+local non_ranked_comms = {
+	["military"] = true,
+	["killer"] = true,
+	["zombied"] = true,
+	["monolith"] = true,
+	["arena_enemy"] = true,
+}
+
+local ranking = {}
+
+function add_to_ranking(id)
+	ranking[#ranking + 1] = id
+end
+
+function remove_from_ranking(id)
+	if level.is_removing_objects() then
+	return end
+	for k, v in ipairs(ranking) do
+		if id == v then
+			ranking[k] = nil
+		end
+	end
+end
+
+function get_ranking()
+	table.sort(ranking, sort_by_rank)
+	return ranking
+end
+
+function non_ranked(community)
+	return non_ranked_comms[community]
+end
+
+function sort_by_rank(id_1, id_2)
+	local rank_1 = get_character_info(id_1):rank()
+	local rank_2 = get_character_info(id_2):rank()
+	return rank_1 > rank_2
+end

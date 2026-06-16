@@ -151,20 +151,15 @@ end
 function se_stalker:on_register()
 	cse_alife_human_stalker.on_register( self )
 
-	if(actor_stats.add_to_ranking~=nil)then
-		local community = self:community()
-		if not(community == "zombied" or
-		   community == "monolith" or
-		   community == "arena_enemy")
-		then
-			actor_stats.add_to_ranking(self.id)
-		end
+	if not xr_ranking.non_ranked(self:community()) then
+		xr_ranking.add_to_ranking(self.id)
 	end
 
 	if self:alive() and self:smart_terrain_id() == MAX_U16 then
 		self:brain():update()
 	end
 
+	-- log_news("se_stalker:on_register %s", self:name())
 
 	--' Нарисовать мапспот с собой
 --'	if sim_statistic.show_stalker_spot == true and self:alive() then
@@ -184,16 +179,11 @@ function se_stalker:on_unregister()
 
 	smart_terrain.unregister_npc(self)
 	
-	if(actor_stats.remove_from_ranking~=nil)then
-		local community = self:community()
-		if community == "zombied" or
-		   community == "monolith" or
-		   community == "arena_enemy"
-		then
-			return
-		end
-		actor_stats.remove_from_ranking(self.id)
-	end
+	-- log_news("se_stalker:on_unregister %s", self:name())
+	
+	if not xr_ranking.non_ranked(self:community()) then
+		xr_ranking.remove_from_ranking(self.id)
+	end	
 end
 --------------------
 function se_stalker:on_spawn()
@@ -204,6 +194,10 @@ end
 function se_stalker:on_death(killer)
 	cse_alife_human_stalker.on_death(self, killer)
 
+	if not xr_ranking.non_ranked(self:community()) then
+		xr_ranking.remove_from_ranking(self.id)
+	end
+	-- log_news("se_stalker:on_death %s", self:name())
 	--' Убрать мапспот с собой
 	-- if sim_statistic.show_stalker_spot == true then
 		-- local community, rank = sim_statistic.getNpcType(self)

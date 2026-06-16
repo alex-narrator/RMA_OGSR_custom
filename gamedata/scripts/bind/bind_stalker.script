@@ -62,21 +62,17 @@ function actor_binder:net_spawn(data)
 
 --	game_stats.initialize ()
 
-	if(actor_stats.add_to_ranking~=nil)then
-		actor_stats.add_to_ranking(self.object:id())
-	end
+	xr_ranking.add_to_ranking(self.object:id())
 	
 	self.actor_detector.init_time = -1
 
 	self.sm:call("on_spawn", data)
-		
+
 	return true
 end
 ----------------------------------------------------------------------------------------------------------------------
 function actor_binder:net_destroy()
-	if(actor_stats.remove_from_ranking~=nil)then
-		actor_stats.remove_from_ranking(self.object:id())
-	end
+	xr_ranking.remove_from_ranking(self.object:id())
 --	game_stats.shutdown ()
 	db.del_actor(self.object)
 

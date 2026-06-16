@@ -1,0 +1,170 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+local OVERLAY_XML = "script_overlays\\ui_pda_tab_ranking.xml"
+
+class "UIPdaTabRanking" (CUIScriptWnd)
+function UIPdaTabRanking:__init() super()
+	self:InitControls()
+end
+
+function UIPdaTabRanking:InitControls()
+	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
+	local xml = CScriptXmlInit()
+	self.xml = xml
+	xml:ParseFile(OVERLAY_XML)
+
+	local name = "background_frame_left"
+	self.back_left = xml:InitFrame(name, self)
+	xml:InitAutoStaticGroup(name..":auto_static", self.back_left)
+	self.left_frame_line = xml:InitFrameLine(name..":left_frame_line", self.back_left)
+	
+	self.left_scroll_view = xml:InitScrollView(name..":left_scroll_view", self.back_left)
+	
+	self.max_place = xml:ReadAttribInt(name..":left_scroll_view", "max_place", 20)
+	
+	self.color = {}
+	self.color.default = GetARGB(
+		xml:ReadAttribFlt(name..":left_scroll_view:list_item:text", "a", 255),
+		xml:ReadAttribFlt(name..":left_scroll_view:list_item:text", "r", 255),
+		xml:ReadAttribFlt(name..":left_scroll_view:list_item:text", "g", 255),
+		xml:ReadAttribFlt(name..":left_scroll_view:list_item:text", "b", 255)
+	)
+	self.color.focused = GetARGB(255, 255, 255, 255)
+	self.color.selected = GetARGB(255, 238, 153, 26)
+	
+	name = "background_frame_right"
+	self.back_right = xml:InitFrame(name, self)
+	xml:InitAutoStaticGroup(name..":auto_static", self.back_right)
+	self.right_frame_line = xml:InitFrameLine(name..":right_frame_line", self.back_right)
+	
+	name = name..":character_info"
+	self.character_info = xml:InitStatic(name, self.back_right)
+	xml:InitAutoStaticGroup(name..":auto_static", self.character_info)
+	self.character_icon = xml:InitStatic(name..":character_icon", self.character_info)
+	self.character_community = xml:InitStatic(name..":character_community", self.character_info)
+	self.character_rank = xml:InitStatic(name..":character_rank", self.character_info)
+	self.character_relation = xml:InitStatic(name..":character_relation", self.character_info)
+	self.character_community_icon = xml:InitStatic(name..":character_community_icon", self.character_info)
+	self.character_rank_icon = xml:InitStatic(name..":character_rank_icon", self.character_info)
+	self.character_bio = xml:InitStatic(name..":character_bio", self.character_info)
+end
+
+function UIPdaTabRanking:OnShow()
+	self.character_info:Show(false)
+	self.right_frame_line:GetTitleStatic():SetText("")
+	
+	self.left_scroll_view:Clear()
+	self.left_scroll_view.statics = {}
+	
+	local list_item_path = "background_frame_left:left_scroll_view:list_item"
+	local divider_path = "background_frame_left:left_scroll_view:divider"
+	
+	local actor_in_top
+	local ranking = xr_ranking.get_ranking()
+	for idx=1, self.max_place do
+		local id = ranking[idx]
+		local is_actor = id == 0
+		if is_actor then
+			actor_in_top = true
+		end
+		local static = self.xml:InitStatic(list_item_path, self.left_scroll_view)
+		static:SetWidth(self.left_scroll_view:GetDesiredChildWidth())
+		local se_object = alife():object(id)
+		local name = is_actor and actor:character_name() or se_object:name_translated()
+		local text = string.format("[%s%s] %s", idx < 10 and 0 or "", idx, name)
+		static:SetText(text)
+		self:Register(static, name)
+		self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnFocusReceived(id) end, self)
+		self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnFocusLost(id) end, self)
+		self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnLButtonDown(id) end, self)
+		self.left_scroll_view.statics[id] = static
+		local static_right = self.xml:InitStatic(list_item_path, static)
+		static_right:SetWidth(self.left_scroll_view:GetDesiredChildWidth())
+		local rank = is_actor and actor:character_rank() or se_object:rank()
+		text = string.format("%s", rank)
+		static_right:SetText(text)
+		static_right:SetTextAlign(CGameFont.alRight)		
+		local divider = self.xml:InitStatic(divider_path, self.left_scroll_view)
+		divider:SetWidth(self.left_scroll_view:GetDesiredChildWidth())
+	end
+	if not actor_in_top then
+		local id = 0
+		local static = self.xml:InitStatic(list_item_path, self.left_scroll_view)
+		static:SetWidth(self.left_scroll_view:GetDesiredChildWidth())
+		local name = actor:character_name()
+		local idx = self.max_place + 1
+		for i = idx, #ranking do
+			if ranking[i] == 0 then
+				idx = i
+			break end
+		end
+		local text = string.format("[%s%s] %s", idx < 10 and 0 or "", idx, name)
+		static:SetText(text)
+		self:Register(static, name)
+		self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnFocusReceived(id) end, self)
+		self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnFocusLost(id) end, self)
+		self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnLButtonDown(id) end, self)
+		self.left_scroll_view.statics[id] = static
+		local static_right = self.xml:InitStatic(list_item_path, static)
+		static_right:SetWidth(self.left_scroll_view:GetDesiredChildWidth())
+		local rank = actor:character_rank()
+		text = string.format("%s", rank)
+		static_right:SetText(text)
+		static_right:SetTextAlign(CGameFont.alRight)		
+		local divider = self.xml:InitStatic(divider_path, self.left_scroll_view)
+		divider:SetWidth(self.left_scroll_view:GetDesiredChildWidth())		
+	end
+	
+	for k,v in pairs(self.left_scroll_view.statics) do
+		v:SetTextColor(self.color.default)
+	end
+end
+
+function UIPdaTabRanking:OnFocusReceived(id)
+	if not self.left_scroll_view.statics[id].selected then
+		self.left_scroll_view.statics[id]:SetTextColor(self.color.focused)
+	end
+end
+
+function UIPdaTabRanking:OnFocusLost(id)
+	if not self.left_scroll_view.statics[id].selected then
+		self.left_scroll_view.statics[id]:SetTextColor(self.color.default)
+	end
+end
+
+function UIPdaTabRanking:OnLButtonDown(id)
+	for k,v in pairs(self.left_scroll_view.statics) do
+		v.selected = k == id
+		if (v.selected) then
+			v:SetTextColor(self.color.selected)
+		else
+			v:SetTextColor(self.color.default)
+		end
+	end
+	
+	local is_actor = id == 0
+	local se_object = alife():object(id)
+	
+	self.character_info:Show(true)
+	local text = is_actor and actor:character_name() or alife():object(id):name_translated()
+	self.right_frame_line:GetTitleStatic():SetText(text)
+	
+	local icon = is_actor and actor:get_character_icon() or get_character_info(id):icon()
+	self.character_icon:InitTexture(icon)
+	
+	local target_community = is_actor and actor:character_community() or se_object:community()
+	self.character_community:SetText(game.translate_string(target_community))
+	
+	local rank = is_actor and actor:character_rank() or se_object:rank()
+	text = ranks.get_val_rank_name(rank)
+	self.character_rank:SetText(game.translate_string(text))
+	
+	local relation_to_actor = relation.comm2comm_relation(target_community, actor:character_community()) + relation_registry.get_personal_goodwill(id, 0)
+	text = string.format("%s%s", game.translate_string(relation.color_by_val(relation_to_actor)), game.translate_string(relation.name_by_val(relation_to_actor)))
+	self.character_relation:SetText(text)
+	
+	self.character_community_icon:InitTexture(community.get_icon_sect(target_community))
+	self.character_rank_icon:InitTexture(ranks.get_icon_sect(rank))
+	
+	text = get_character_info(id):bio()
+	self.character_bio:SetText(game.translate_string(text))
+end

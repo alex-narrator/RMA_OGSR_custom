@@ -17,7 +17,6 @@ function UIPdaTabStatistics:InitControls()
 	xml:InitAutoStaticGroup(name..":auto_static", self.back_left)
 	self.left_frame_line = xml:InitFrameLine(name..":left_frame_line", self.back_left)
 	self.character_icon = xml:InitStatic(name..":character_icon", self.back_left)
-	self.character_name = xml:InitStatic(name..":character_name", self.back_left)
 	self.character_community_icon = xml:InitStatic(name..":character_community_icon", self.back_left)
 	self.character_rank_icon = xml:InitStatic(name..":character_rank_icon", self.back_left)
 	self.character_community = xml:InitStatic(name..":character_community", self.back_left)
@@ -25,17 +24,17 @@ function UIPdaTabStatistics:InitControls()
 	self.character_reputation = xml:InitStatic(name..":character_reputation", self.back_left)
 	self.days_in_zone = xml:InitStatic(name..":days_in_zone", self.back_left)
 	
-	self.sect_scroll_view = xml:InitScrollView(name..":sect_scroll_view", self.back_left)
+	self.left_scroll_view = xml:InitScrollView(name..":left_scroll_view", self.back_left)
 	
-	self.sect_color = {}
-	self.sect_color.default = GetARGB(
-		xml:ReadAttribFlt(name..":sect_scroll_view:list_item:text", "a", 255),
-		xml:ReadAttribFlt(name..":sect_scroll_view:list_item:text", "r", 255),
-		xml:ReadAttribFlt(name..":sect_scroll_view:list_item:text", "g", 255),
-		xml:ReadAttribFlt(name..":sect_scroll_view:list_item:text", "b", 255)
+	self.color = {}
+	self.color.default = GetARGB(
+		xml:ReadAttribFlt(name..":left_scroll_view:list_item:text", "a", 255),
+		xml:ReadAttribFlt(name..":left_scroll_view:list_item:text", "r", 255),
+		xml:ReadAttribFlt(name..":left_scroll_view:list_item:text", "g", 255),
+		xml:ReadAttribFlt(name..":left_scroll_view:list_item:text", "b", 255)
 	)
-	self.sect_color.focused = GetARGB(255, 255, 255, 255)
-	self.sect_color.selected = GetARGB(255, 238, 153, 26)
+	self.color.focused = GetARGB(255, 255, 255, 255)
+	self.color.selected = GetARGB(255, 238, 153, 26)
 	
 	self.relation_communities_list = split_string(xml:ReadAttrib(name..":relation_communities_list", "communities", nil), ",")
 	
@@ -43,13 +42,12 @@ function UIPdaTabStatistics:InitControls()
 	self.back_right = xml:InitFrame(name, self)
 	xml:InitAutoStaticGroup(name..":auto_static", self.back_right)
 	self.right_frame_line = xml:InitFrameLine(name..":right_frame_line", self.back_right)
-	self.entry_header = xml:InitStatic(name..":entry_header", self.back_right)
-	self.entry_scroll_view = xml:InitScrollView(name..":entry_scroll_view", self.back_right)
+	self.right_scroll_view = xml:InitScrollView(name..":right_scroll_view", self.back_right)
 end
 
 function UIPdaTabStatistics:OnShow()
 	self.character_icon:InitTexture(actor:get_character_icon())
-	self.character_name:SetText(game.translate_string(actor:character_name()))
+	self.left_frame_line:GetTitleStatic():SetText(game.translate_string(actor:character_name()))
 	self.character_community_icon:InitTexture(community.get_icon_sect(actor:character_community()))
 	self.character_rank_icon:InitTexture(ranks.get_icon_sect(actor))
 	self.character_community:SetText(game.translate_string(actor:character_community()))
@@ -57,43 +55,43 @@ function UIPdaTabStatistics:OnShow()
 	self.character_reputation:SetText(string.format("%s%s", game.translate_string(reputation.get_obj_reputation_color(actor)), game.translate_string(reputation.get_obj_reputation_name(actor))))
 	self.days_in_zone:SetText(level.get_time_days())
 	
-	self.entry_header:SetText("")
+	self.right_frame_line:GetTitleStatic():SetText("")
 	
-	self.entry_scroll_view:Clear()
+	self.right_scroll_view:Clear()
 	
-	self.sect_scroll_view:Clear()
-	self.sect_scroll_view.sects = {}
+	self.left_scroll_view:Clear()
+	self.left_scroll_view.statics = {}
 	
-	local list_item_path = "background_frame_right:entry_scroll_view:list_item"
-	local divider_path = "background_frame_right:entry_scroll_view:divider"
+	local list_item_path = "background_frame_left:left_scroll_view:list_item"
+	local divider_path = "background_frame_left:left_scroll_view:divider"
 	
 	local name = "community_relations"
-	local static = self.xml:InitStatic(list_item_path, self.sect_scroll_view)
-	static:SetWidth(self.sect_scroll_view:GetDesiredChildWidth())
+	local static = self.xml:InitStatic(list_item_path, self.left_scroll_view)
+	static:SetWidth(self.left_scroll_view:GetDesiredChildWidth())
 	local text = game.translate_string(game.translate_string("st_"..name))
 	static:SetText(text)
 	self:Register(static, name)
 	self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnFocusReceived(name) end, self)
 	self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnFocusLost(name) end, self)
 	self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnLButtonDown(name) end, self)
-	self.sect_scroll_view.sects[name] = static
-	local divider = self.xml:InitStatic(divider_path, self.sect_scroll_view)
-	divider:SetWidth(self.sect_scroll_view:GetDesiredChildWidth())
+	self.left_scroll_view.statics[name] = static
+	local divider = self.xml:InitStatic(divider_path, self.left_scroll_view)
+	divider:SetWidth(self.left_scroll_view:GetDesiredChildWidth())
 	
 	local stat = xr_statistic.get_statistic()
 	for sect, entries in pairs(stat) do
 		local name = sect
-		local static = self.xml:InitStatic(list_item_path, self.sect_scroll_view)
-		static:SetWidth(self.sect_scroll_view:GetDesiredChildWidth())
+		local static = self.xml:InitStatic(list_item_path, self.left_scroll_view)
+		static:SetWidth(self.left_scroll_view:GetDesiredChildWidth())
 		local text = game.translate_string(game.translate_string("st_"..name))
 		static:SetText(text)
 		self:Register(static, name)
 		self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnFocusReceived(name) end, self)
 		self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnFocusLost(name) end, self)
 		self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnLButtonDown(name) end, self)
-		self.sect_scroll_view.sects[name] = static
+		self.left_scroll_view.statics[name] = static
 		local static_right = self.xml:InitStatic(list_item_path, static)
-		static_right:SetWidth(self.sect_scroll_view:GetDesiredChildWidth())
+		static_right:SetWidth(self.left_scroll_view:GetDesiredChildWidth())
 		local count = 0
 		for k,v in pairs(entries) do
 			count = count + v
@@ -101,66 +99,66 @@ function UIPdaTabStatistics:OnShow()
 		text = string.format("x%s", count)
 		static_right:SetText(text)
 		static_right:SetTextAlign(CGameFont.alRight)		
-		local divider = self.xml:InitStatic(divider_path, self.sect_scroll_view)
-		divider:SetWidth(self.sect_scroll_view:GetDesiredChildWidth())		
+		local divider = self.xml:InitStatic(divider_path, self.left_scroll_view)
+		divider:SetWidth(self.left_scroll_view:GetDesiredChildWidth())		
 	end
 	
-	for k,v in pairs(self.sect_scroll_view.sects) do
-		v:SetTextColor(self.sect_color.default)
+	for k,v in pairs(self.left_scroll_view.statics) do
+		v:SetTextColor(self.color.default)
 	end	
 end
 
 function UIPdaTabStatistics:OnFocusReceived(name)
-	if not self.sect_scroll_view.sects[name].selected then
-		self.sect_scroll_view.sects[name]:SetTextColor(self.sect_color.focused)
+	if not self.left_scroll_view.statics[name].selected then
+		self.left_scroll_view.statics[name]:SetTextColor(self.color.focused)
 	end
 end
 
 function UIPdaTabStatistics:OnFocusLost(name)
-	if not self.sect_scroll_view.sects[name].selected then
-		self.sect_scroll_view.sects[name]:SetTextColor(self.sect_color.default)
+	if not self.left_scroll_view.statics[name].selected then
+		self.left_scroll_view.statics[name]:SetTextColor(self.color.default)
 	end
 end
 
 function UIPdaTabStatistics:OnLButtonDown(name)
-	for k,v in pairs(self.sect_scroll_view.sects) do
+	for k,v in pairs(self.left_scroll_view.statics) do
 		v.selected = k == name
 		if (v.selected) then
-			v:SetTextColor(self.sect_color.selected)
+			v:SetTextColor(self.color.selected)
 		else
-			v:SetTextColor(self.sect_color.default)
+			v:SetTextColor(self.color.default)
 		end
 	end
 
-	self.entry_scroll_view:Clear()
-	local list_item_path = "background_frame_right:entry_scroll_view:list_item"
-	local divider_path = "background_frame_right:entry_scroll_view:divider"
+	self.right_scroll_view:Clear()
+	local list_item_path = "background_frame_right:right_scroll_view:list_item"
+	local divider_path = "background_frame_right:right_scroll_view:divider"
 	
 	local stat = xr_statistic.get_statistic()
 	local entry = stat[name]
 	
 	if entry then
 		local text = game.translate_string(game.translate_string("st_"..name))
-		self.entry_header:SetText(text)
+		self.right_frame_line:GetTitleStatic():SetText(text)
 		for name, count in pairs(entry) do
-			local static = self.xml:InitStatic(list_item_path, self.entry_scroll_view)
-			static:SetWidth(self.entry_scroll_view:GetDesiredChildWidth())
+			local static = self.xml:InitStatic(list_item_path, self.right_scroll_view)
+			static:SetWidth(self.right_scroll_view:GetDesiredChildWidth())
 			text = game.translate_string(name)
 			static:SetText(text)
 			local static_right = self.xml:InitStatic(list_item_path, static)
-			static_right:SetWidth(self.entry_scroll_view:GetDesiredChildWidth())
+			static_right:SetWidth(self.right_scroll_view:GetDesiredChildWidth())
 			text = string.format("x%s", count)
 			static_right:SetText(text)
 			static_right:SetTextAlign(CGameFont.alRight)
-			local divider = self.xml:InitStatic(divider_path, self.entry_scroll_view)
-			divider:SetWidth(self.entry_scroll_view:GetDesiredChildWidth())			
+			local divider = self.xml:InitStatic(divider_path, self.right_scroll_view)
+			divider:SetWidth(self.right_scroll_view:GetDesiredChildWidth())			
 		end
 	else
 		local text = game.translate_string(game.translate_string("st_"..name))
-		self.entry_header:SetText(text)
+		self.right_frame_line:GetTitleStatic():SetText(text)
 		for k, community_sect in pairs(self.relation_communities_list) do
-			local static = self.xml:InitStatic(list_item_path.."_relation", self.entry_scroll_view)
-			static:SetWidth(self.entry_scroll_view:GetDesiredChildWidth())
+			local static = self.xml:InitStatic(list_item_path.."_relation", self.right_scroll_view)
+			static:SetWidth(self.right_scroll_view:GetDesiredChildWidth())
 			text = game.translate_string(community_sect)
 			static:SetText(text)
 			local comm_goodwill = relation.community_relation_safe(community_sect, actor)
@@ -168,14 +166,14 @@ function UIPdaTabStatistics:OnLButtonDown(name)
 			local color = relation.color(community_sect, actor)
 			text = string.format("%s%s", color, game.translate_string(relation.name(community_sect, actor)))
 			local static_right = self.xml:InitStatic(list_item_path.."_relation", static)
-			static_right:SetWidth(self.entry_scroll_view:GetDesiredChildWidth())
+			static_right:SetWidth(self.right_scroll_view:GetDesiredChildWidth())
 			static_right:SetText(text)
 			static_right:SetTextAlign(CGameFont.alRight)
 			local icon = self.xml:InitStatic(list_item_path.."_relation:icon", static)
 			icon:InitTexture(community.get_icon_sect(community_sect))
 			static:SetTextPos(icon:GetWidth() + 2, 0)
-			local divider = self.xml:InitStatic(divider_path, self.entry_scroll_view)
-			divider:SetWidth(self.entry_scroll_view:GetDesiredChildWidth())
+			local divider = self.xml:InitStatic(divider_path, self.right_scroll_view)
+			divider:SetWidth(self.right_scroll_view:GetDesiredChildWidth())
 		end
 	end
 end

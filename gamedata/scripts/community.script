@@ -58,11 +58,6 @@ local comm_news_icons = {
 	arena_enemy = {x=747, y=705}, 
 	stranger 	= {x=747, y=705}, 
 }
-local non_ranked_comms = {
-	arena_enemy = true,
-	monolith 	= true,
-	zombied 	= true,
-}
 
 function get_icon_sect(comm)
 	return comm_patches[comm] or comm_patches["default"]
@@ -75,8 +70,4 @@ end
 function get_news_icon(comm)
 	--return comm_news_icons[comm] or comm_news_icons["default"]
 	return comm_icons_news[comm] or comm_icons_news["default"]
-end
-
-function non_ranked(comm)
-	return non_ranked_comms[comm]
 end

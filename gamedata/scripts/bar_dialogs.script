@@ -1055,7 +1055,7 @@ function try_find_person(person_name)
 	for i=0, MAX_U16 do
 		local sobj = alife():object(i)
 		if sobj and find_person_clsids[sobj:clsid()] then
-			local name = get_translated_character_name(sobj.character_name)
+			local name = sobj:get_trader() and get_translated_character_name(sobj.character_name) or sobj:name_translated()
 			if name == person_name then
 				local text = string.format("%s%s\\n%s %s", "%c[UI_orange]", name, game_time:dateToString(game.CTime.DateToDay), game_time:timeToString(game.CTime.TimeToMinutes))
 				level.map_add_user_spot(sobj.level_id, sobj.position, get_find_person_spot(), text)

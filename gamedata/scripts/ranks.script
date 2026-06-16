@@ -70,10 +70,6 @@ function get_obj_rank_name( obj )
 end
 
 function get_val_rank_name(rank_val, for_monster)
-	if not ranks_loaded then
-		read_all_ranks()
-	end
-	
 	if for_monster then
 		return get_rank_name( rank_val, monster_rank_intervals ) or monster_max_rank_name
 	else

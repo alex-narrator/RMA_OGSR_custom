@@ -64,6 +64,17 @@ function color(community, npc)
 	return color
 end
 
+function color_by_val(val)
+	local color = "%c[default]"
+	if val < hostile_threshold then
+		color = "%c[red]" 
+	end
+	if val >= friend_threshold then
+		color = "%c[green]"
+	end
+	return color
+end
+
 function name(community, npc)
 	local name = "indifferent"
 	local relation = community_relation_safe(community, npc)
@@ -71,6 +82,17 @@ function name(community, npc)
 		name = "enemy" 
 	end
 	if relation >= friend_threshold then
+		name = "friendly"
+	end
+	return name
+end
+
+function name_by_val(val)
+	local name = "indifferent"
+	if val < hostile_threshold then
+		name = "enemy" 
+	end
+	if val >= friend_threshold then
 		name = "friendly"
 	end
 	return name
