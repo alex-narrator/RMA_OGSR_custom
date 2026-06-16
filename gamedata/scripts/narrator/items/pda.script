@@ -6,6 +6,7 @@ function attach(sm)
 	sm:subscribe({signal = "on_save", 				fun = this.on_save})
 	sm:subscribe({signal = "on_pda_contact_add", 	fun = this.on_pda_contact_add})
 	sm:subscribe({signal = "on_pda_contact_remove", fun = this.on_pda_contact_remove})
+	sm:subscribe({signal = "on_npc_death", 			fun = this.on_npc_death})
 end
 
 local msg_box = nil
@@ -291,17 +292,26 @@ end
 local contacts = {}
 
 function on_pda_contact_add(id)
+	local npc = level.object_by_id(id)
+	if not npc or not npc:alive() then
+	return end
 	contacts[#contacts+1] = id
 	add_relation_map_spot_text(id)
+	--log_news("on_pda_contact_add %s | %s", id, level.object_by_id(id):character_name())
 end
 
 function on_pda_contact_remove(id)
-	for k, contact_id in ipairs(contacts) do
+	for k, contact_id in pairs(contacts) do
 		if id == contact_id then
 			contacts[k] = nil
-			break
+			--log_news("on_pda_contact_remove %s | %s", id, level.object_by_id(id):character_name())
+			return
 		end
 	end
+end
+
+function on_npc_death(npc)
+	on_pda_contact_remove(npc:id())
 end
 
 function get_contacts()

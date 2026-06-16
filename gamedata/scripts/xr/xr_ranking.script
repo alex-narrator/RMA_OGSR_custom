@@ -15,10 +15,10 @@ end
 function remove_from_ranking(id)
 	if level.is_removing_objects() then
 	return end
-	for k, v in ipairs(ranking) do
+	for k, v in pairs(ranking) do
 		if id == v then
 			ranking[k] = nil
-			break
+			return
 		end
 	end
 end
