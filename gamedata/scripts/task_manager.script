@@ -1310,7 +1310,7 @@ function get_random_task_info(task)
 end
 
 function on_take_from_box(box, item)
-	while level.map_has_object_spot(box:id(), store_box.store_box_spot) ~= 0 do
+	while level.map_has_object_spot(box:id(), store_box.store_box_spot) do
 		level.map_remove_object_spot(box:id(), store_box.store_box_spot)
 	end
 end

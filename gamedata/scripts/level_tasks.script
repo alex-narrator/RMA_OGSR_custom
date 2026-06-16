@@ -106,9 +106,9 @@ function remove_location_safe(sid, location)
 	if sim then
 		local obj = sim:story_object(sid)
 		if obj then
-		   for a = 1, level.map_has_object_spot(obj.id, location), 1 do
-			   level.map_remove_object_spot(obj.id, location)
-		   end	
+			while level.map_has_object_spot(obj.id, location) do
+				level.map_remove_object_spot(obj.id, location)
+			end
 		end
 	end
 end
@@ -117,7 +117,7 @@ function is_map_spot_present(sid, location)
 	local sim = alife()
 	if sim then
 		local obj = sim:story_object(sid)
-		if obj and level.map_has_object_spot(obj.id, location) ~= 0 then
+		if obj and level.map_has_object_spot(obj.id, location) then
 		   return true
 		end
 	end

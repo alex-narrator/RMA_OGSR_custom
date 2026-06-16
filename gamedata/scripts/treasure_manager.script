@@ -48,7 +48,7 @@ end
 function has_treasure_spot(treasure_id)
 	local sid = treasure_info[treasure_id].target
 	local s_obj = alife():story_object( sid )
-	return level.map_has_object_spot(s_obj.id, TREASURE_SPOT) ~= 0
+	return level.map_has_object_spot(s_obj.id, TREASURE_SPOT)
 end
 
 function parse_treasures()

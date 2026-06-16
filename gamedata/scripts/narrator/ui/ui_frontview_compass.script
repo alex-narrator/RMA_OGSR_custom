@@ -150,7 +150,7 @@ function CompassOverlay:ShowFrontViewMarks()
 			if pos then
 				--target map spot
 				for spot, texture in pairs(map_spot_to_texture) do
-					if level.map_has_object_spot(tgt_id, spot) ~= 0 then
+					if level.map_has_object_spot(tgt_id, spot) then
 						local size = table.copy(params.other_marker_size)
 						local dist_k = params.distance_mark_scale and pda_radius / dist or 1
 						dist_k = math.clamp(dist_k, 0.5, 1)
@@ -206,7 +206,7 @@ function CompassOverlay:ShowFrontViewMarks()
 			end
 		end
 		for spot, texture in pairs(map_spot_to_texture) do
-			if level.map_has_object_spot(obj:id(), spot) ~= 0 and obj:id() ~= tgt_id then
+			if level.map_has_object_spot(obj:id(), spot) and obj:id() ~= tgt_id then
 				local pos = point_on_screen.compass_ui_projection(obj:center(), self.compass_modern_scale:GetWidth(), self.compass_modern_scale:GetHeight() + params.vertical_mark_add, params.hide_point_off_bound)
 				if pos then
 					local marker_data = {

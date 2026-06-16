@@ -4,7 +4,8 @@ function attach(sm)
 	sm:subscribe({signal = "on_pda_hack",   		fun = this.on_pda_hack})
 	sm:subscribe({signal = "on_hud_state_switch", 	fun = this.on_state_switch})
 	sm:subscribe({signal = "on_save", 				fun = this.on_save})
-	sm:subscribe({signal = "on_load", 				fun = this.on_load})	
+	sm:subscribe({signal = "on_pda_contact_add", 	fun = this.on_pda_contact_add})
+	sm:subscribe({signal = "on_pda_contact_remove", fun = this.on_pda_contact_remove})
 end
 
 local msg_box = nil
@@ -285,4 +286,50 @@ function play_power_off_anim(item)
 			)
 		end
 	)
+end
+
+local contacts = {}
+
+function on_pda_contact_add(id)
+	contacts[#contacts+1] = id
+	add_relation_map_spot_text(id)
+end
+
+function on_pda_contact_remove(id)
+	for k, contact_id in ipairs(contacts) do
+		if id == contact_id then
+			contacts[k] = nil
+			break
+		end
+	end
+end
+
+function get_contacts()
+	table.sort(contacts, sort_by_distance)
+	return contacts
+end
+
+function sort_by_distance(id_1, id_2)
+	local dist_1 = distance_between_safe(actor, level.object_by_id(id_1))
+	local dist_2 = distance_between_safe(actor, level.object_by_id(id_2))
+	return dist_1 < dist_2
+end
+
+local spot_type = {
+	["neutral_location"] = true,
+	["friend_location"] = true,
+	["enemy_location"] = true,
+	["deadbody_location"] = true,
+}
+
+function add_relation_map_spot_text(id)
+	for spot,v in pairs(spot_type) do
+		if level.map_has_object_spot(id, spot) then
+			local npc = level.object_by_id(id)
+			local text = string.format("%s\\n%s\\n%s", npc:character_name(), game.translate_string(npc:character_community()), game.translate_string(ranks.get_obj_rank_name(npc)))
+			level.map_change_spot_hint(id, spot, text)
+			--log_news("add_relation_map_spot_text %s", text)
+			break
+		end
+	end
 end

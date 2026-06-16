@@ -124,6 +124,9 @@ function actor_binder:net_destroy()
 	self.object:set_callback(callback.on_throw_grenade, nil)
 	
 	self.object:set_callback(callback.map_location_clicked, nil)
+	
+	self.object:set_callback(callback.on_pda_contact_add, nil)
+	self.object:set_callback(callback.on_pda_contact_remove, nil)
 
 	if sr_psy_antenna.psy_antenna then
 		sr_psy_antenna.psy_antenna:destroy()
@@ -200,7 +203,10 @@ function actor_binder:reinit()
 	self.object:set_callback(callback.on_throw_grenade, self.on_throw_grenade, self)
 	
 	self.object:set_callback(callback.map_location_clicked, self.map_location_clicked, self)
-	--	
+	--
+	self.object:set_callback(callback.on_pda_contact_add, self.on_pda_contact_add, self)
+	self.object:set_callback(callback.on_pda_contact_remove, self.on_pda_contact_remove, self)
+	--
 	self.sm:call("on_reinit")
 end
 ----------------------------------------------------------------------------------------------------------------------
@@ -608,6 +614,13 @@ end
 
 function actor_binder:map_location_clicked(obj_id, spot_type, level_name, position, is_user_spot)
 	self.sm:call("on_map_spot_clicked", obj_id, spot_type, level_name, position, is_user_spot)
+end
+
+function actor_binder:on_pda_contact_add(obj_id)
+	self.sm:call("on_pda_contact_add", obj_id)
+end
+function actor_binder:on_pda_contact_remove(obj_id)
+	self.sm:call("on_pda_contact_remove", obj_id)
 end
 
 --старт префетча звуков

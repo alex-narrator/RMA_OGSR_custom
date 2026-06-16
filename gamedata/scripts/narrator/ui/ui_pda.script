@@ -90,21 +90,12 @@ function destroy_window()
 	end
 end
 
-function skip_time(h, m)
-	level.add_pp_effector("blink.ppe", 999, false)
-	change_game_time(0, h, m)
-	--xr_sound.get_safe_sound_object("device\\pda\\pda_alarm"):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
-end
-
 class "PDAOverlay" (CUIScriptWnd)
 
 function PDAOverlay:__init(owner) super()
 	self.owner = owner
 	self:InitControls()
 	self:Subscribe()
-	-- self.wait_h = 0
-	-- self.wait_m = 0
-	-- self:UpdateTimer()
 end
 
 function PDAOverlay:Subscribe()
@@ -169,39 +160,6 @@ function PDAOverlay:InitControls()
 	self.btn_off = xml:Init3tButton("off_button", self)
 	self:Register(self.btn_off, "off_btn")
 	self:AddCallback("off_btn", ui_events.BUTTON_CLICKED, self.HidePda, self)
-	
-	--//skip timer
-	-- self.skip_time_frame = xml:InitFrame("timer_frame", self)
-	-- self.skip_time_frame:Show(false)
-	
-	-- self.skip_time_header = xml:InitStatic("timer_header", self.skip_time_frame)
-	-- self.hour_st = xml:InitStatic("hour_static", self.skip_time_frame)
-	-- self.minute_st = xml:InitStatic("minute_static", self.skip_time_frame)
-	-- self.hm_separator = xml:InitStatic("separator_static", self.skip_time_frame)
-	
-	-- self.minus_h = xml:Init3tButton("minus_button_h", self.hour_st)
-	-- self:Register(self.minus_h, "minus_hour")
-	-- self:AddCallback("minus_hour", ui_events.BUTTON_CLICKED, self.DecHour, self)
-	
-	-- self.plus_h = xml:Init3tButton("plus_button_h", self.hour_st)
-	-- self:Register(self.plus_h, "plus_hour")
-	-- self:AddCallback("plus_hour", ui_events.BUTTON_CLICKED, self.IncHour, self)
-	
-	-- self.minus_m = xml:Init3tButton("minus_button_m", self.minute_st)
-	-- self:Register(self.minus_m, "minus_minute")
-	-- self:AddCallback("minus_minute", ui_events.BUTTON_CLICKED, self.DecMinute, self)
-	
-	-- self.plus_m = xml:Init3tButton("plus_button_m", self.minute_st)
-	-- self:Register(self.plus_m, "plus_minute")
-	-- self:AddCallback("plus_minute", ui_events.BUTTON_CLICKED, self.IncMinute, self)
-	
-	-- self.skip_time = xml:Init3tButton("wait_button", self.skip_time_frame)
-	-- self:Register(self.skip_time, "skip_time")
-	-- self:AddCallback("skip_time", ui_events.BUTTON_CLICKED, self.SkipTime, self)
-	
-	-- self.clear_time = xml:Init3tButton("clear_button", self.skip_time_frame)
-	-- self:Register(self.clear_time, "clear_time")
-	-- self:AddCallback("clear_time", ui_events.BUTTON_CLICKED, self.ClearTime, self)
 	
 	--//personal notes
 	self.notes_left_frame = xml:InitFrame("notes_left_frame", self)
@@ -268,88 +226,7 @@ function PDAOverlay:Update()
 	self.del_all_notes_btn:Show(table.size(user_notes) > 0)
 	self.del_note_btn:Show(not not self.selected_note)
 	self.edit_note_btn:Show(not not self.selected_note)
-	
-	self:UpdateRelationSpotText()
 end
-
-local spot_type = {
-	neutral_location = true,
-	friend_location = true,
-	enemy_location = true,
-	deadbody_location = true,
-}
-
-function PDAOverlay:UpdateRelationSpotText()
-	function perform_action(obj)
-		if not obj:is_actor() and (obj:is_stalker() or obj:is_trader()) then
-			for spot, v in pairs(spot_type) do
-				if level.map_has_object_spot(obj:id(), spot) then
-					local hint_text = string.format("%s%s\\n%s%s\\n%s", color_by_relation[obj:relation(actor)], obj:character_name(), "%c[white]", game.translate_string(obj:character_community()), game.translate_string(ranks.get_obj_rank_name(obj)))
-					level.map_change_spot_hint(obj:id(), spot, hint_text)
-				end
-			end			
-		end
-	end	
-	local detect_radius = read_if_exists(sys_ini, "float", actor_get_pda():section(), "radius", 50)
-	level.iterate_nearest(actor:position(), detect_radius, perform_action)
-end
-
--- function PDAOverlay:UpdateTimer()
-	-- self.hour_st:SetText(self.wait_h)
-	-- self.minute_st:SetText(self.wait_m)
--- end
-
--- function PDAOverlay:DecHour()
-	-- self.wait_h = self.wait_h - 1
-	-- if self.wait_h < 0 then
-		-- self.wait_h = 24
-	-- end
-	-- self:UpdateTimer()
--- end
-
--- function PDAOverlay:IncHour()
-	-- self.wait_h = self.wait_h + 1
-	-- if self.wait_h > 24 then
-		-- self.wait_h = 0
-	-- end
-	-- self:UpdateTimer()
--- end
-
--- function PDAOverlay:DecMinute()
-	-- self.wait_m = self.wait_m - 5
-	-- if self.wait_m < 0 then
-		-- self.wait_m = 55
-	-- end
-	-- self:UpdateTimer()
--- end
-
--- function PDAOverlay:IncMinute()
-	-- self.wait_m = self.wait_m + 5
-	-- if self.wait_m > 55 then
-		-- self.wait_m = 0
-	-- end
-	-- self:UpdateTimer()
--- end
-
--- function PDAOverlay:SkipTime()
-	-- if self.wait_h == 0 and self.wait_m == 0 then
-	-- return end
-	
-	-- skip_time(self.wait_h, self.wait_m)
-	-- self:ClearTime()
-	-- self:ShowSkipTimer()
--- end
-
--- function PDAOverlay:ClearTime()
-	-- self.wait_h = 0
-	-- self.wait_m = 0
-	-- self:UpdateTimer()
--- end
-
--- function PDAOverlay:ShowSkipTimer()
-	-- local is_shown = self.skip_time_frame:IsShown()
-	-- self.skip_time_frame:Show(not is_shown)
--- end
 
 function PDAOverlay:OnNotesClick()
 	--log3("~button state %s", self.notes_btn:GetCheck())
@@ -390,23 +267,6 @@ function PDAOverlay:UpdateNotes()
 		local name = "note_name_"..k
 		self:Register(note_name_st, name)
 		self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnNoteNameLButton(k) end, self)
-		--self:AddCallback(name, ui_events.WINDOW_LBUTTON_DB_CLICK, function() self:OnEditNoteBtn(k) end, self)
-		
-		-- name = "remove_btn_"..k
-		-- local del_note_btn = self.xml:Init3tButton("notes_left_frame:scroll_view:del_note_btn", note_name_st)
-		-- self:Register(del_note_btn, name)
-		-- self:AddCallback(name, ui_events.BUTTON_CLICKED, function() self:OnRemoveNoteBtn(k) end, self)
-		-- --del_note_btn:Show(false)
-		
-		-- name = "edit_btn_"..k
-		-- local edit_note_btn = self.xml:Init3tButton("notes_left_frame:scroll_view:edit_note_btn", note_name_st)
-		-- self:Register(edit_note_btn, name)
-		-- self:AddCallback(name, ui_events.BUTTON_CLICKED, function() self:OnEditNoteBtn(k) end, self)
-		-- --edit_note_btn:Show(false)
-		
-		-- name = "note_name_"..k
-		-- self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnNoteNameFocus(del_note_btn, edit_note_btn, k) end, self)
-		-- self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnNoteNameFocusLost(del_note_btn, edit_note_btn, k) end, self)
 	end
 end
 

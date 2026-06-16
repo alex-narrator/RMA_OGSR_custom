@@ -515,7 +515,7 @@ function set_poi_map_mark(sp1, sp2, dlg_id, phr_id)
 	local sobj = alife():object(poi.name)
 	if not sobj then
 	return end
-	if level.map_has_object_spot(sobj.id, poi_spot) ~= 0 then
+	if level.map_has_object_spot(sobj.id, poi_spot) then
 	return end
 	local text = game.translate_string(poi.text or "")
 	level.map_add_object_spot(sobj.id, poi_spot, text)

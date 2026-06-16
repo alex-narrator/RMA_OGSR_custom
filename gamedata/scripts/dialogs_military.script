@@ -319,7 +319,7 @@ function remove_defense_tower_spot()
 	local mounted_weapon = alife():story_object(story_ids.mil_barrier_mounted_weapon)
 	if not mounted_weapon then
 	return end
-	if level.map_has_object_spot(mounted_weapon.id, "crlc_small") ~= 0 then
+	if level.map_has_object_spot(mounted_weapon.id, "crlc_small") then
 		level.map_remove_object_spot(mounted_weapon.id, "crlc_small")
 	end
 end

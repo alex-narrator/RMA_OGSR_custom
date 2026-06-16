@@ -11,7 +11,7 @@ local SOS_DELAY = 5
 function on_wounded(npc)
 	if npc:relation(actor) == game_object.enemy then
 	return end
-	if level.map_has_object_spot(npc:id(), wounded_spot) ~= 0 then
+	if level.map_has_object_spot(npc:id(), wounded_spot) then
 	return end
 
 	add_time_delayed_action(SOS_DELAY,
@@ -40,7 +40,7 @@ function on_wounded(npc)
 end
 
 function on_not_wounded(npc)
-	if level.map_has_object_spot(npc:id(), wounded_spot) ~= 0 then
+	if level.map_has_object_spot(npc:id(), wounded_spot) then
 		level.map_remove_object_spot(npc:id(), wounded_spot)
 	end
 end

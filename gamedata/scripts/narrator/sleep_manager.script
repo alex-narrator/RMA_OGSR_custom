@@ -70,7 +70,7 @@ function on_time_change(m_sec)
 end
 
 function on_sleep_prop_use(obj)
-	if ADD_SPOT and level.map_has_object_spot(obj:id(), SLEEP_SPOT) == 0 then
+	if ADD_SPOT and not level.map_has_object_spot(obj:id(), SLEEP_SPOT) then
 		level.map_add_object_spot_ser(obj:id(), SLEEP_SPOT, game.translate_string("ui_st_place_to_rest"))
 	end
 	if can_sleep() then
