@@ -42,11 +42,12 @@ end
 
 -- возвращает название репутацґ» заданного game_object (персонажа)
 function get_obj_reputation_name(obj)
-	return get_rept_name(obj:character_reputation(), stalker_rept_intervals) or "neutral"--stalker_max_rept_name
+	local rept = type(obj) == "number" and obj or obj:character_reputation()
+	return get_rept_name(rept, stalker_rept_intervals) or "neutral"
 end
 
 function get_obj_reputation_color(obj)
-	local val = obj:character_reputation()
+	local val = type(obj) == "number" and obj or obj:character_reputation()
 	local rept = "neutral"
 	if val > 50 then
 		rept = "good"

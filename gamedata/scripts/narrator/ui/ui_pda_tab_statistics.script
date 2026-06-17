@@ -96,7 +96,7 @@ function UIPdaTabStatistics:OnShow()
 		for k,v in pairs(entries) do
 			count = count + v
 		end
-		text = string.format("x%s", count)
+		text = string.format("[%s]", count)
 		static_right:SetText(text)
 		static_right:SetTextAlign(CGameFont.alRight)		
 		local divider = self.xml:InitStatic(divider_path, self.left_scroll_view)

@@ -7,7 +7,10 @@ function attach(sm)
 	sm:subscribe({signal = "on_pda_contact_add", 	fun = this.on_pda_contact_add})
 	sm:subscribe({signal = "on_pda_contact_remove", fun = this.on_pda_contact_remove})
 	sm:subscribe({signal = "on_npc_death", 			fun = this.on_npc_death})
+	sm:subscribe({signal = "on_key_press",   		fun = this.on_key_press})
 end
+
+local sm = ogsr_signals.get_mgr()
 
 local msg_box = nil
 local error_msg = nil
@@ -207,7 +210,7 @@ function try_hack(item)
 end
 
 function download_info(item)
-	ogsr_signals.get_mgr():call("on_pda_hack", item:id())
+	sm:call("on_pda_hack", item:id())
 end
 
 function on_pda_hack(id)
@@ -297,6 +300,7 @@ function on_pda_contact_add(id)
 	return end
 	contacts[#contacts+1] = id
 	add_relation_map_spot_text(id)
+	sm:call("on_pda_contact_add_list", id)
 	--log_news("on_pda_contact_add %s | %s", id, level.object_by_id(id):character_name())
 end
 
@@ -304,8 +308,9 @@ function on_pda_contact_remove(id)
 	for k, contact_id in pairs(contacts) do
 		if id == contact_id then
 			contacts[k] = nil
+			sm:call("on_contact_remove_list", id)
 			--log_news("on_pda_contact_remove %s | %s", id, level.object_by_id(id):character_name())
-			return
+			break
 		end
 	end
 end
@@ -341,5 +346,18 @@ function add_relation_map_spot_text(id)
 			--log_news("add_relation_map_spot_text %s", text)
 			break
 		end
+	end
+end
+
+local custom_pda_tabs = {
+	[key_bindings.kCONTACTS] 	= 4,
+}
+function on_key_press(key, game_action)
+	local custom_tab = custom_pda_tabs[game_action]
+	if not custom_tab then
+	return end
+	if is_3d_pda() then
+		level.send_event_key_press(bind_to_dik(key_bindings.kJOURNAL))
+		add_update_delayed_action(1, function() level.set_active_pda_tab_idx(custom_tab) end)
 	end
 end

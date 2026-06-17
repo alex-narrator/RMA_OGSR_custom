@@ -1,0 +1,222 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+local OVERLAY_XML = "script_overlays\\ui_pda_tab_contacts.xml"
+
+local sm = ogsr_signals.get_mgr()
+
+class "UIPdaTabContacts" (CUIScriptWnd)
+function UIPdaTabContacts:__init() super()
+	self:InitControls()
+	self:Subscribe()
+end
+
+function UIPdaTabContacts:Subscribe()
+	self.subscribed = false
+	if not self.subscribed then
+		self.subscribed = {
+			{signal = "on_pda_contact_add_list", self = self, fun = self.OnContactAdd},
+			{signal = "on_contact_remove_list", self = self, fun = self.OnContactRemove},
+		}
+		for _, s in ipairs( self.subscribed ) do
+			sm:subscribe( s )
+		end
+	end
+end
+
+function UIPdaTabContacts:InitControls()
+	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
+	local xml = CScriptXmlInit()
+	self.xml = xml
+	xml:ParseFile(OVERLAY_XML)
+
+	local name = "background_frame_left"
+	self.back_left = xml:InitFrame(name, self)
+	xml:InitAutoStaticGroup(name..":auto_static", self.back_left)
+	self.left_frame_line = xml:InitFrameLine(name..":left_frame_line", self.back_left)
+	
+	self.left_scroll_view = xml:InitScrollView(name..":left_scroll_view", self.back_left)
+	
+	self.max_place = xml:ReadAttribInt(name..":left_scroll_view", "max_place", 20)
+	
+	self.color = {}
+	self.color.default = GetARGB(
+		xml:ReadAttribFlt(name..":left_scroll_view:list_item:text", "a", 255),
+		xml:ReadAttribFlt(name..":left_scroll_view:list_item:text", "r", 255),
+		xml:ReadAttribFlt(name..":left_scroll_view:list_item:text", "g", 255),
+		xml:ReadAttribFlt(name..":left_scroll_view:list_item:text", "b", 255)
+	)
+	self.color.focused = GetARGB(255, 255, 255, 255)
+	self.color.selected = GetARGB(255, 238, 153, 26)
+	
+	self.color_a = {}
+	self.color_a.default = 180
+	self.color_a.focused = 255
+	self.color_a.selected = 255
+	
+	name = "background_frame_right"
+	self.back_right = xml:InitFrame(name, self)
+	xml:InitAutoStaticGroup(name..":auto_static", self.back_right)
+	self.right_frame_line = xml:InitFrameLine(name..":right_frame_line", self.back_right)
+	
+	name = name..":character_info"
+	self.character_info = xml:InitStatic(name, self.back_right)
+	xml:InitAutoStaticGroup(name..":auto_static", self.character_info)
+	self.character_icon = xml:InitStatic(name..":character_icon", self.character_info)
+	self.character_community = xml:InitStatic(name..":character_community", self.character_info)
+	self.character_rank = xml:InitStatic(name..":character_rank", self.character_info)
+	self.character_reputation = xml:InitStatic(name..":character_reputation", self.character_info)
+	self.character_relation = xml:InitStatic(name..":character_relation", self.character_info)
+	self.character_community_icon = xml:InitStatic(name..":character_community_icon", self.character_info)
+	self.character_rank_icon = xml:InitStatic(name..":character_rank_icon", self.character_info)
+	self.character_bio = xml:InitStatic(name..":character_bio", self.character_info)
+end
+
+function UIPdaTabContacts:OnShow(skip_right_frame_reset)
+	if not skip_right_frame_reset then
+		self.character_info:Show(false)
+		self.right_frame_line:GetTitleStatic():SetText("")
+	end
+	
+	self.left_scroll_view:Clear()
+	self.left_scroll_view.statics = {}
+	
+	local list_item_path = "background_frame_left:left_scroll_view:list_item"
+	local divider_path = "background_frame_left:left_scroll_view:divider"
+	
+	local contacts = pda.get_contacts()
+	self.left_frame_line:GetTitleStatic():SetText(string.format("%s [%s]", game.translate_string("Contacts"), table.size(contacts)))
+	
+	for k, id in pairs(contacts) do
+		local npc = level.object_by_id(id)
+		local static = self.xml:InitStatic(list_item_path, self.left_scroll_view)
+		self.xml:InitAutoStaticGroup(list_item_path..":auto_static", static)
+		local name = npc:character_name()
+		local text = name
+		static:SetText(text)
+		self:Register(static, name)
+		self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnFocusReceived(id) end, self)
+		self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnFocusLost(id) end, self)
+		self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnLButtonDown(id) end, self)
+		self.left_scroll_view.statics[id] = static
+
+		local character_icon = self.xml:InitStatic(list_item_path..":character_icon", static)
+		character_icon:InitTexture(npc:get_character_icon())
+		self.left_scroll_view.statics[id].character_icon = character_icon
+		
+		local target_community = npc:character_community()
+		local character_community = self.xml:InitStatic(list_item_path..":character_community", static)
+		character_community:SetText(game.translate_string(target_community))
+		local divider = self.xml:InitStatic(list_item_path..":divider_1", static)
+		
+		local rank = npc:character_rank()
+		local character_rank = self.xml:InitStatic(list_item_path..":character_rank", static)
+		character_rank:SetText(game.translate_string(ranks.get_val_rank_name(rank)))
+		local divider = self.xml:InitStatic(list_item_path..":divider_2", static)
+		
+		local target_reputation = npc:character_reputation()
+		local color = reputation.get_obj_reputation_color(target_reputation)
+		text = string.format("%s%s", color, game.translate_string(reputation.get_obj_reputation_name(target_reputation)))
+		local character_reputation = self.xml:InitStatic(list_item_path..":character_reputation", static)
+		character_reputation:SetText(text)
+		local divider = self.xml:InitStatic(list_item_path..":divider_3", static)
+		
+		local relation_to_actor = npc:relation(actor)
+		text = string.format("%s%s", game.translate_string(color_by_relation[relation_to_actor]), game.translate_string(name_by_relation[relation_to_actor]))
+		local character_relation = self.xml:InitStatic(list_item_path..":character_relation", static)
+		character_relation:SetText(text)
+		
+		local character_community_icon = self.xml:InitStatic(list_item_path..":character_community_icon", static)
+		character_community_icon:InitTexture(community.get_icon_sect(target_community))
+		local character_rank_icon = self.xml:InitStatic(list_item_path..":character_rank_icon", static)
+		character_rank_icon:InitTexture(ranks.get_icon_sect(rank))		
+		
+		local divider = self.xml:InitStatic(divider_path, self.left_scroll_view)
+	end
+	
+	for k,v in pairs(self.left_scroll_view.statics) do
+		v:SetTextColor(self.color.default)
+		v.character_icon:SetColorA(self.color_a.default)
+	end
+end
+
+function UIPdaTabContacts:OnFocusReceived(id)
+	if not self.left_scroll_view.statics[id].selected then
+		self.left_scroll_view.statics[id]:SetTextColor(self.color.focused)
+		self.left_scroll_view.statics[id].character_icon:SetColorA(self.color_a.focused)
+	end
+end
+
+function UIPdaTabContacts:OnFocusLost(id)
+	if not self.left_scroll_view.statics[id].selected then
+		self.left_scroll_view.statics[id]:SetTextColor(self.color.default)
+		self.left_scroll_view.statics[id].character_icon:SetColorA(self.color_a.default)
+	end
+end
+
+function UIPdaTabContacts:OnLButtonDown(id)
+	for k,v in pairs(self.left_scroll_view.statics) do
+		v.selected = k == id
+		if (v.selected) then
+			v:SetTextColor(self.color.selected)
+			v.character_icon:SetColorA(self.color_a.selected)
+		else
+			v:SetTextColor(self.color.default)
+			v.character_icon:SetColorA(self.color_a.default)
+		end
+	end
+	
+	local npc = level.object_by_id(id)
+	
+	self.character_info:Show(true)
+	local text = npc:character_name()
+	self.right_frame_line:GetTitleStatic():SetText(text)
+	
+	local icon = npc:get_character_icon()
+	self.character_icon:InitTexture(icon)
+	
+	local target_community = npc:character_community()
+	self.character_community:SetText(game.translate_string(target_community))
+	
+	local rank = npc:character_rank()
+	text = ranks.get_val_rank_name(rank)
+	self.character_rank:SetText(game.translate_string(text))
+	
+	local character_reputation = npc:character_reputation()
+	local color = reputation.get_obj_reputation_color(character_reputation)
+	text = string.format("%s%s", color, game.translate_string(reputation.get_obj_reputation_name(character_reputation)))
+	self.character_reputation:SetText(text)	
+	
+	local relation_to_actor = npc:relation(actor)
+	text = string.format("%s%s", game.translate_string(color_by_relation[relation_to_actor]), game.translate_string(name_by_relation[relation_to_actor]))
+	self.character_relation:SetText(text)
+	
+	self.character_community_icon:InitTexture(community.get_icon_sect(target_community))
+	self.character_rank_icon:InitTexture(ranks.get_icon_sect(rank))
+	
+	text = get_character_info(id):bio()
+	self.character_bio:SetText(game.translate_string(text))
+end
+
+function UIPdaTabContacts:OnContactAdd(id)
+	self.was_changed = true
+end
+
+function UIPdaTabContacts:OnContactRemove(id)
+	self.was_changed = true
+end
+
+function UIPdaTabContacts:Update()
+	CUIScriptWnd.Update(self)
+	if self.was_changed then
+		self:OnShow(true)
+		self.was_changed = false
+		if self.character_info:IsShown() then
+			for k,v in pairs(self.left_scroll_view.statics) do
+				if v:GetText() == self.right_frame_line:GetTitleStatic():GetText() then
+					v:SetTextColor(self.color.selected)
+					v.character_icon:SetColorA(self.color_a.selected)
+					break
+				end
+			end
+		end
+	end
+end
