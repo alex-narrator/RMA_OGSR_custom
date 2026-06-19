@@ -18,6 +18,7 @@ local error_msg = nil
 local screen_brightness = 0.75
 local sound_mode = 0
 local sound_volume = 0.5
+local task_sorting_mode = 0
 
 --//tokens for listbox option
 local options_tokens = {
@@ -26,6 +27,11 @@ local options_tokens = {
 		"pda_sound_vibro",
 		"pda_sound_off",
 	},
+	["task_sorting_mode"] = {
+		"task_sorting_default",
+		"task_sorting_oldest_first",
+		"task_sorting_newest_first",
+	},	
 }
 
 function get_option_tokens(option)
@@ -36,6 +42,7 @@ function on_save(packet)
 	xr_vars.save_var("screen_brightness", screen_brightness)
 	xr_vars.save_var("sound_mode", sound_mode)
 	xr_vars.save_var("sound_volume", sound_volume)
+	xr_vars.save_var("task_sorting_mode", task_sorting_mode)
 end
 
 function on_load(reader)
@@ -43,6 +50,7 @@ function on_load(reader)
 	set_screen_brightness(screen_brightness)
 	sound_mode = xr_vars.load_var("sound_mode", sound_mode)
 	sound_volume = xr_vars.load_var("sound_volume", sound_volume)
+	task_sorting_mode = xr_vars.load_var("task_sorting_mode", task_sorting_mode)
 end
 
 function get_sound_mode()
@@ -59,6 +67,14 @@ end
 
 function set_sound_volume(val)
 	sound_volume = val
+end
+
+function get_task_sorting_mode()
+	return task_sorting_mode
+end
+
+function set_task_sorting_mode(val)
+	task_sorting_mode = val
 end
 
 function get_screen_brisghtness()
@@ -350,7 +366,8 @@ function add_relation_map_spot_text(id)
 end
 
 local custom_pda_tabs = {
-	[key_bindings.kCONTACTS] 	= 4,
+	[key_bindings.kACTIVE_JOBS] = pda_tab.quests,
+	[key_bindings.kCONTACTS] 	= pda_tab.contacts,
 }
 function on_key_press(key, game_action)
 	local custom_tab = custom_pda_tabs[game_action]

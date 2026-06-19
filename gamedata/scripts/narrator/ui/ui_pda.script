@@ -9,6 +9,8 @@ function attach(sm)
 	sm:subscribe({signal = "on_load",   	fun = this.on_load})
 end
 
+local sm = ogsr_signals.get_mgr()
+
 local subscribed = false
 
 local user_notes = {}
@@ -105,7 +107,6 @@ function PDAOverlay:Subscribe()
 			{signal = "on_pda_show", self = self, fun = self.OnShow},
 			{signal = "on_pda_hide", self = self, fun = self.OnHide},
 		}
-		local sm = ogsr_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
 			sm:subscribe( s )
 		end
@@ -220,7 +221,7 @@ function PDAOverlay:Update()
 	local date_text = string.format("%s %s", get_current_weekday_name(true), _time:dateToString(game.CTime.DateToDay))
 	self.date:SetText(date_text)
 	
-	local show = has_pda_power and actor:has_info("ui_pda_notes")
+	local show = has_pda_power and actor:has_info("ui_pda_notes") and (level.get_active_pda_tab_idx() == pda_tab.journal)
 	self.notes_left_frame:Show(show)
 	self.notes_right_frame:Show(show)
 	self.del_all_notes_btn:Show(table.size(user_notes) > 0)
@@ -332,6 +333,9 @@ end
 
 function PDAOverlay:OnShow()
 	self.prev_active_slot = actor:active_slot()
+	if self.prev_active_slot == PDA_SLOT then
+		self.prev_active_slot = NO_ACTIVE_SLOT
+	end
 	self.active_detector = not not actor:active_device()
 	local cursor_pos = vector2():set(UI_BASE_WIDTH * 0.5, UI_BASE_HEIGHT * 0.7)
 	level.set_cursor_pos(cursor_pos)
@@ -363,10 +367,11 @@ end
 
 ----------------------------------------------------------CUSTOM PDA TABS-------------------------------------------------------------------------
 local custom_tabs = {
-	[4] = { init_func = function() return ui_pda_tab_contacts.UIPdaTabContacts() end },
-	[5] = { init_func = function() return ui_pda_tab_ranking.UIPdaTabRanking() end },
-	[6] = { init_func = function() return ui_pda_tab_statistics.UIPdaTabStatistics() end },
-	[7] = { init_func = function() return ui_pda_tab_options.UIPdaTabOptions() end },
+	[pda_tab.quests] 		= { init_func = function() return ui_pda_tab_quests.UIPdaTabQuests() end },
+	[pda_tab.contacts] 		= { init_func = function() return ui_pda_tab_contacts.UIPdaTabContacts() end },
+	[pda_tab.ranking] 		= { init_func = function() return ui_pda_tab_ranking.UIPdaTabRanking() end },
+	[pda_tab.statistics] 	= { init_func = function() return ui_pda_tab_statistics.UIPdaTabStatistics() end },
+	[pda_tab.options] 		= { init_func = function() return ui_pda_tab_options.UIPdaTabOptions() end },
 }
 
 function get_custom_tab(idx)
@@ -379,5 +384,6 @@ function get_custom_tab(idx)
 	if custom_tabs[idx].wnd.OnShow then
 		custom_tabs[idx].wnd:OnShow()
 	end
+	sm:call("on_pda_custom_tab", idx)
 	return custom_tabs[idx].wnd
 end

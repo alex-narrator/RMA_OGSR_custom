@@ -7,6 +7,7 @@ function attach(sm)
 	sm:subscribe({signal = "on_npc_death",   	fun = this.on_npc_death})
 	sm:subscribe({signal = "on_take_from_box", 	fun = this.on_take_from_box})
 	sm:subscribe({signal = "on_map_spot_clicked", fun = this.on_map_spot_clicked})
+	sm:subscribe({signal = "on_first_update", 	fun = this.on_first_update})
 end
 
 local LIST_SECT = "task_list"
@@ -1336,4 +1337,20 @@ function on_map_spot_clicked(obj_id, spot_type, level_name, position, is_user_sp
 		end		
 	end
 	gametask.iterate_tasks(perform_action)
+end
+
+function on_first_update()
+	local active_task = gametask.active_task()
+	if active_task then
+		local active_objective = gametask.active_objective()
+		if active_objective then
+			if active_objective:get_state() ~= task_state.in_progress then
+				local idx = active_objective:get_idx() + 1
+				if idx < active_task:get_objectives_cnt() then
+					gametask.set_active_task(active_task, idx)
+					--log_news("~reset active objective in task [%s]", game.translate_string(active_task:get_title()))
+				end
+			end
+		end
+	end
 end

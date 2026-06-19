@@ -1,0 +1,365 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+local OVERLAY_XML = "script_overlays\\ui_pda_tab_quests.xml"
+
+local sm = ogsr_signals.get_mgr()
+
+local objective_state_texture = {
+	[task_state.fail] 			= "ui_icons_PDA_subtask_failed",
+	[task_state.in_progress] 	= "ui_icons_PDA_subtask_active",
+	[task_state.completed] 		= "ui_icons_PDA_subtask_accomplished",
+}
+local objective_text_color = {
+	[task_state.fail] 			= GetARGB(255, 255, 100, 100),
+	[task_state.completed] 		= GetARGB(255, 100, 255, 100),
+	[task_state.in_progress] 	= GetARGB(255, 255, 255, 255),
+	["selected"] 				= GetARGB(255, 238, 153, 26)
+}
+
+class "UIPdaTabQuests" (CUIScriptWnd)
+function UIPdaTabQuests:__init() super()
+	self:InitControls()
+	self:Subscribe()
+end
+
+function UIPdaTabQuests:Subscribe()
+	self.subscribed = false
+	if not self.subscribed then
+		self.subscribed = {
+			{signal = "on_task_stage", self = self, fun = self.OnTaskStage},
+		}
+		for _, s in ipairs( self.subscribed ) do
+			sm:subscribe( s )
+		end
+	end
+end
+
+function UIPdaTabQuests:InitControls()
+	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
+	local xml = CScriptXmlInit()
+	self.xml = xml
+	xml:ParseFile(OVERLAY_XML)
+
+	local name = "background_frame_left"
+	self.back_left = xml:InitFrame(name, self)
+	xml:InitAutoStaticGroup(name..":auto_static", self.back_left)
+	self.left_frame_line = xml:InitFrameLine(name..":left_frame_line", self.back_left)
+	
+	self.task_sorting_mode = xml:InitStatic(name..":task_sorting_mode", self.back_left)
+	self.task_sorting_mode_combobox = xml:InitComboBox(name..":task_sorting_mode:list_task_sorting_mode", self.task_sorting_mode)
+	self:Register(self.task_sorting_mode_combobox, "task_sorting_mode_combobox")
+	self:AddCallback("task_sorting_mode_combobox", ui_events.LIST_ITEM_SELECT, self.ChangeTaskSortingMode, self)
+	local tokens = pda.get_option_tokens("task_sorting_mode")
+	if tokens then
+		for k,v in pairs(tokens) do
+			self.task_sorting_mode_combobox:AddItem(v)
+		end
+	end
+	self.task_sorting_mode_combobox:SetCurrentID(pda.get_task_sorting_mode())	
+	
+	self.left_scroll_view = xml:InitScrollView(name..":left_scroll_view", self.back_left)
+	
+	self.color = {}
+	self.color.default = GetARGB(
+		xml:ReadAttribFlt(name..":left_scroll_view:list_item:task_title:text", "a", 255),
+		xml:ReadAttribFlt(name..":left_scroll_view:list_item:task_title:text", "r", 255),
+		xml:ReadAttribFlt(name..":left_scroll_view:list_item:task_title:text", "g", 255),
+		xml:ReadAttribFlt(name..":left_scroll_view:list_item:task_title:text", "b", 255)
+	)
+	self.color.selected = GetARGB(255, 238, 153, 26)
+	
+	self.color_a = {}
+	self.color_a.default = 180
+	self.color_a.selected = 255
+	
+	objective_text_color[task_state.in_progress] = GetARGB(
+		xml:ReadAttribFlt(name..":left_scroll_view:list_item:objective_item:text", "a", 255),
+		xml:ReadAttribFlt(name..":left_scroll_view:list_item:objective_item:text", "r", 255),
+		xml:ReadAttribFlt(name..":left_scroll_view:list_item:objective_item:text", "g", 255),
+		xml:ReadAttribFlt(name..":left_scroll_view:list_item:objective_item:text", "b", 255)
+	)
+	
+	name = "background_frame_right"
+	self.back_right = xml:InitFrame(name, self)
+	xml:InitAutoStaticGroup(name..":auto_static", self.back_right)
+	self.right_frame_line = xml:InitFrameLine(name..":right_frame_line", self.back_right)
+	
+	self.right_scroll_view = xml:InitScrollView(name..":right_scroll_view", self.back_right)
+end
+
+function UIPdaTabQuests:ChangeTaskSortingMode()
+	local mode = self.task_sorting_mode_combobox:CurrentID()
+	pda.set_task_sorting_mode(mode)
+	self:OnShow(true)
+end
+
+function UIPdaTabQuests:OnShow(skip_right_frame_reset)
+	if not skip_right_frame_reset then
+		self.right_frame_line:GetTitleStatic():SetText("")
+		self.right_scroll_view:Clear()
+	end
+	
+	self.left_scroll_view:Clear()
+	self.left_scroll_view.statics = {}
+	
+	local list_item_path = "background_frame_left:left_scroll_view:list_item"
+	local divider_path = "background_frame_left:left_scroll_view:divider"
+	
+	self.tasks = {}
+	function perform_action(game_task)
+		table.insert(self.tasks, game_task)
+		--local receive_time = game_task:get_receive_time()
+		--log_news("task %s prior %s receive time %s %s", game.translate_string(game_task:get_title()), game_task:get_priority(), receive_time:dateToString(game.CTime.DateToDay), receive_time:timeToString(game.CTime.TimeToMinutes))
+	end
+	gametask.iterate_tasks(perform_action)
+	
+	local sort_mode = pda.get_task_sorting_mode()
+	if sort_mode ~= 0 then
+		if sort_mode == 1 then
+			table.sort(self.tasks, function(a,b) return a:get_receive_time() < b:get_receive_time() end )
+		elseif sort_mode == 2 then
+			table.sort(self.tasks, function(a,b) return a:get_receive_time() > b:get_receive_time() end )
+		end
+	end
+
+	local current_time = game.get_game_time()
+
+	for k, game_task in pairs(self.tasks) do
+		local static = self.xml:InitStatic(list_item_path, self.left_scroll_view)
+		self.xml:InitAutoStaticGroup(list_item_path..":auto_static", static)
+		local id = game_task:get_id()
+		local name = id
+		local idx = 0
+
+		static:SetText(text)
+		self:Register(static, name)
+		self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnFocusReceived(id) end, self)
+		self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnFocusLost(id) end, self)
+		self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnLButtonDown(id, idx) end, self)
+		self:AddCallback(name, ui_events.WINDOW_LBUTTON_DB_CLICK, function() self:OnTaskDbClick(id) end, self)
+		self.left_scroll_view.statics[id] = static
+		
+		local objective = game_task:get_objective(idx)
+		local task_icon_texture = objective:get_icon_name()
+		if task_icon_texture then
+			local task_icon = self.xml:InitStatic(list_item_path..":task_icon", static)
+			task_icon:InitTexture(task_icon_texture)
+			local r = objective:get_icon_rect()
+			task_icon:SetOriginalRect(r.x1, r.y1, r.x2, r.y2)
+			self.left_scroll_view.statics[id].task_icon = task_icon
+		end
+		
+		local text = game.translate_string(game_task:get_title())
+		local task_title = self.xml:InitStatic(list_item_path..":task_title", static)
+		task_title:SetText(text)
+		self.left_scroll_view.statics[id].task_title = task_title
+		
+		local task_receive_time = game_task:get_receive_time()
+		text = string.format("%s %s", task_receive_time:dateToString(game.CTime.DateToDay), task_receive_time:timeToString(game.CTime.TimeToMinutes))
+		local receive_time = self.xml:InitStatic(list_item_path..":receive_time", static)
+		receive_time:SetText(text)
+		
+		local task_complete_time = game_task:get_time_to_complete()
+		if task_receive_time ~= task_complete_time then
+			local time_diff = task_complete_time - current_time
+			text = string.format("%s %s", game.translate_string("ui_st_time_remains"), time_diff:timeToString(game.CTime.TimeToMinutes))
+			local remaining_time = self.xml:InitStatic(list_item_path..":remaining_time", static)
+			remaining_time:SetText(text)
+			self.left_scroll_view.statics[id].remaining_time = remaining_time
+		end
+		
+		self.left_scroll_view.statics[id].objectives = {}
+		
+		local list_item_objective_path = list_item_path..":objective_item"
+		local divider_objective_path = list_item_path..":objective_divider"
+		local count = game_task:get_objectives_cnt()
+		local prev_objective_state
+		for idx = 1, count - 1 do
+			local objective = game_task:get_objective(idx)
+			local map_spot = objective:get_map_location()
+			local state = objective:get_state()
+			local target = objective:get_object_id()
+			local can_show_stage = game_task.show_all_objectives or not prev_objective_state or prev_objective_state ~= task_state.in_progress
+			if can_show_stage then
+				local objective_static = self.xml:InitStatic(list_item_objective_path, static)
+				local description = game.translate_string(objective:get_description())
+				objective_static:SetText(string.format("%s", description))
+				objective_static:SetWndPos(objective_static:GetWndPos().x, static:GetHeight())
+				static:SetHeight(static:GetHeight() + objective_static:GetHeight())
+				
+				self.left_scroll_view.statics[id].objectives[idx] = objective_static
+				
+				name = id.."_"..idx
+				self:Register(objective_static, name)
+				self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnLButtonDown(id, idx) end, self)
+				self:AddCallback(name, ui_events.WINDOW_LBUTTON_DB_CLICK, function() self:OnObjectiveDbClick(id, idx) end, self)
+				
+				local selected = self.xml:InitStatic(list_item_objective_path..":selected", objective_static)
+				selected:Show(false)
+				self.left_scroll_view.statics[id].objectives[idx].selected = selected
+				
+				local state_icon = self.xml:InitStatic(list_item_objective_path..":state_icon", objective_static)
+				state_icon:Show(false)
+				self.left_scroll_view.statics[id].objectives[idx].state_icon = state_icon				
+				
+				local map_location = objective:get_map_location()
+				if map_location and map_location ~= "" then
+					local show_on_map_btn = self.xml:Init3tButton(list_item_objective_path..":show_on_map_btn", objective_static)
+					name = id.."_"..idx.."_show_on_map"
+					self:Register(show_on_map_btn, name)
+					self:AddCallback(name, ui_events.BUTTON_CLICKED, function() self:OnShowOnMapClick(objective:get_object_id(), map_location) end, self)
+					self.left_scroll_view.statics[id].objectives[idx].show_on_map_btn = show_on_map_btn
+				end
+			end
+			prev_objective_state = state
+		end
+		
+		local divider = self.xml:InitStatic(divider_path, self.left_scroll_view)
+	end
+end
+
+function UIPdaTabQuests:OnFocusReceived(id)
+end
+
+function UIPdaTabQuests:OnFocusLost(id)
+end
+
+function UIPdaTabQuests:OnLButtonDown(id, idx)
+	self.right_scroll_view:Clear()
+	
+	local game_task = gametask.get_task(id)
+	local text = game.translate_string(game_task:get_title())
+	self.right_frame_line:GetTitleStatic():SetText(text)
+	
+	local list_item_path = "background_frame_right:right_scroll_view"
+	local divider
+	
+	local objective = game_task:get_objective(idx)
+	local article = objective:get_article_id()
+	if article == "" then
+		article = game_task:get_objective(0):get_article_id()
+	end
+	if article and article ~= "" then
+		local article_image_static = actor:get_article_image(article)
+		if article_image_static then
+			local article_image = self.xml:InitStatic(list_item_path..":article_image", self.right_scroll_view)
+			article_image:SetWidth(self.right_scroll_view:GetDesiredChildWidth())
+			local texture_name = article_image_static:GetTextureName()
+			local r = article_image_static:GetOriginalRect()
+			local image = CUIStatic()
+			article_image:AttachChild(image)
+			image:SetStretchTexture(true)
+			image:InitTexture(texture_name)
+			image:SetOriginalRect(r.x1, r.y1, r.x2, r.y2)
+			image:SetWidth(r.x2)
+			image:SetHeight(r.y2)
+			image:SetWndPos((article_image:GetWidth() - image:GetWidth()) * 0.5, image:GetWndPos().y)
+			article_image:SetHeight(image:GetHeight())
+		end	
+		local article_text = self.xml:InitStatic(list_item_path..":article_text", self.right_scroll_view)
+		article_text:SetText(game.translate_string(actor:get_article_text(article)))
+		article_text:AdjustHeightToText()
+	end
+	
+	local random_task = task_manager.get_active_random_task(game_task:get_id())
+	if random_task then
+		local task_info = task_manager.get_random_task_info(random_task)
+		if task_info then
+			divider = self.xml:InitStatic(list_item_path..":divider", self.right_scroll_view)
+			local reward_text = self.xml:InitStatic(list_item_path..":article_text", self.right_scroll_view)
+			reward_text:SetText(task_manager.GetRewardText(task_info))
+			reward_text:SetFont(GetFontCustom("letterica16"))
+			reward_text:AdjustHeightToText()
+			divider = self.xml:InitStatic(list_item_path..":divider", self.right_scroll_view)
+			local penalty_text = self.xml:InitStatic(list_item_path..":article_text", self.right_scroll_view)
+			penalty_text:SetText(task_manager.GetPenaltyText(task_info))
+			penalty_text:SetFont(GetFontCustom("letterica16"))
+			penalty_text:AdjustHeightToText()
+			divider = self.xml:InitStatic(list_item_path..":divider", self.right_scroll_view)
+		end
+	end
+end
+
+function UIPdaTabQuests:OnTaskDbClick(id)
+	local game_task = gametask.get_task(id)
+	local count = game_task:get_objectives_cnt()
+	local prev_objective_state
+	for idx = 1, count - 1 do
+		local objective = game_task:get_objective(idx)
+		local state = objective:get_state()
+		local can_show_stage = (state == task_state.in_progress) and (game_task.show_all_objectives or not prev_objective_state or prev_objective_state ~= task_state.in_progress)
+		if can_show_stage then
+			gametask.set_active_task(game_task, idx)
+			return 
+		end
+		prev_objective_state = state
+	end	
+end
+
+function UIPdaTabQuests:OnObjectiveDbClick(id, idx)
+	local game_task = gametask.get_task(id)
+	local objective = game_task:get_objective(idx)
+	if objective:get_state() ~= task_state.in_progress then
+		log_news(" return objective:get_state() %s | in progress state %s", objective:get_state(), task_state.in_progress)
+	return end
+	gametask.set_active_task(game_task, idx)
+end
+
+function UIPdaTabQuests:OnShowOnMapClick(id, map_location)
+	level.set_pda_map_target_spot(id, map_location, true)
+	level.set_active_pda_tab_idx(pda_tab.map)
+end
+
+function UIPdaTabQuests:OnTaskStage(_task, _objective, _stage)
+	self.was_changed = true
+end
+
+function UIPdaTabQuests:Update()
+	CUIScriptWnd.Update(self)
+	
+	if self.was_changed then
+		self.was_changed = false
+		self:Update()
+	end
+	
+	local current_time = game.get_game_time()
+	local active_task = gametask.active_task()
+	local active_objective = gametask.active_objective()
+	local active_objective_idx = active_objective and active_objective:get_idx() or nil
+	for id,v in pairs(self.left_scroll_view.statics) do
+		local game_task = gametask.get_task(id)
+		if v.remaining_time then
+			local task_complete_time = game_task:get_time_to_complete()
+			local time_diff = task_complete_time - current_time
+			local text = string.format("%s %s", game.translate_string("ui_st_time_remains"), time_diff:timeToString(game.CTime.TimeToMinutes))
+			v.remaining_time:SetText(text)
+		end
+		local task_selected = active_task and active_task:get_id() == id
+		if task_selected then
+			v.task_title:SetTextColor(self.color.selected)
+			if v.task_icon then
+				v.task_icon:SetColorA(self.color_a.selected)
+			end
+		else
+			v.task_title:SetTextColor(self.color.default)
+			if v.task_icon then
+				v.task_icon:SetColorA(self.color_a.default)
+			end
+		end
+		for idx, _v in pairs(v.objectives) do
+			local objective_selected = task_selected and active_objective_idx and active_objective_idx == idx
+			_v.selected:Show(objective_selected)
+			local state = game_task:get_objective(idx):get_state()
+			if objective_selected then
+				_v:SetTextColor(objective_text_color["selected"])
+				_v.state_icon:Show(false)
+			else
+				_v:SetTextColor(objective_text_color[state])
+				_v.state_icon:Show(true)
+				_v.state_icon:InitTexture(objective_state_texture[state])
+			end
+			if _v.show_on_map_btn then
+				_v.show_on_map_btn:Show(state == task_state.in_progress)
+			end
+		end		
+	end
+end

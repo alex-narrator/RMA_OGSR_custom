@@ -1,0 +1,84 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<w>
+	<background_frame_left x="15" y="50" width="298" height="630" a="90">
+		<texture>ui_pda_frame_sub</texture>
+		
+		<left_frame_line x="10" y="16" width="280" height="20" stretch="1">
+			<texture>ui_string_02</texture>
+			<title x="10" y="1" width="280" height="18">
+				<text font="letterica25" r="255" g="255" b="255">Tasks</text>
+			</title>			
+		</left_frame_line>
+		
+		<task_sorting_mode x="147" y="24" width="150" height="20" stretch="1" complex_mode="1">
+			<!-- <texture>inv_progress_long</texture> -->
+			<text font="letterica16" y="1" r="216" g="186" b="140" align="l" v_align="c">ui_st_pda_task_sorting_mode</text>
+			<list_task_sorting_mode x="70" y="0" width="75" height="20" always_show_scroll="0" list_length="3" skip_option="1">	
+				<text_color>
+					<e r="216" g="186" b="140"/>
+				</text_color>
+				<list_font_s r="240" g="217" b="182"/>
+				<list_font	 r="216" g="186" b="140" font="letterica16"/>
+			</list_task_sorting_mode>			
+		</task_sorting_mode>		
+
+		<auto_static x="10" y="50" width="260" height="0.9" stretch="1" complex_mode="1">
+			<texture>inv_progress_long</texture>
+		</auto_static>
+
+		<left_scroll_view x="10" y="50" width="280" height="575" always_show_scroll="0" scroll_profile="pda" vert_interval="5">
+			<list_item width="260" height="50" stretch="1" complex_mode="1">
+				<text font="letterica18" r="128" g="128" b="128" align="l" v_align="t"/>
+				
+				<task_icon x="0" y="0" width="83" height="47" stretch="1"/>
+				<task_title x="85" y="0" width="175" height="15" stretch="1" complex_mode="1">
+					<text font="arial_21" r="200" g="200" b="200" v_align="c"/>			
+				</task_title>
+				<receive_time x="85" y="15" width="175" height="15">
+					<text font="letterica16" r="150" g="150" b="180" a="255" v_align="c"/>
+				</receive_time>
+				<remaining_time x="85" y="30" width="175" height="15">
+					<text font="letterica16" r="150" g="150" b="180" a="255" v_align="c"/>
+				</remaining_time>
+				
+				<objective_item x="0" y="0" width="260" height="20" stretch="1" complex_mode="1">
+					<text font="arial_21" x="13" r="128" g="128" b="128" v_align="c"/>
+					<show_on_map_btn x="247" y="2.5" width="13" height="15" stretch="1" hint="pda_show_on_map_btn_hint">
+						<texture>ui_icons_newPDA_gomark</texture>
+					</show_on_map_btn>
+					<selected x="0" y="2.5" width="12" height="15" stretch="1" light_anim="ui_too_slow_blinking" la_cyclic="1" la_texture="1" la_text="0" la_alpha="1">
+						<texture>ui_cur_task</texture>
+					</selected>
+					<state_icon x="1.5" y="5" width="8" height="10" stretch="1"/>
+				</objective_item>
+				<objective_divider width="260" height="0.9" stretch="1" complex_mode="1">
+					<texture>inv_progress_long</texture>
+				</objective_divider>
+			</list_item>
+			<divider width="260" height="0.9" stretch="1" complex_mode="1">
+				<texture>inv_progress_long</texture>
+			</divider>
+		</left_scroll_view>
+	</background_frame_left>
+	
+	<background_frame_right x="328" y="50" width="448" height="630" a="90">
+		<texture>ui_pda_frame_sub</texture>
+		
+		<right_frame_line x="10" y="16" width="430" height="21">
+			<texture>ui_string_03</texture>
+			<title x="5" y="0" width="430" height="21" complex_mode="1">
+				<text font="arial_21" r="225" g="225" b="250" align="l" v_align="c"/>
+			</title>			
+		</right_frame_line>
+		
+		<right_scroll_view x="10" y="40" width="430" height="585" always_show_scroll="0" scroll_profile="pda">
+			<article_image x="85" y="0" width="410" height="15" stretch="1" complex_mode="1"/>
+			<article_text x="85" y="0" width="410" height="15" stretch="1" complex_mode="1">
+				<text font="arial_21" v_align="c"/>			
+			</article_text>
+			<divider width="410" height="0.9" stretch="1" complex_mode="1">
+				<texture>inv_progress_long</texture>
+			</divider>			
+		</right_scroll_view>
+	</background_frame_right>		
+</w>

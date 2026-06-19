@@ -19,9 +19,9 @@ function try_play_pda_sound(snd_name)
 end
 
 local pda_action = {
-	[key_bindings.kACTIVE_JOBS] = true,
+	[key_bindings.kACTIVE_JOBS] = pda_tab.quests,
 	[key_bindings.kMAP] 		= true,
-	[key_bindings.kCONTACTS] 	= 4,
+	[key_bindings.kCONTACTS] 	= pda_tab.contacts,
 	[key_bindings.kJOURNAL] 	= true,
 }
 
@@ -31,7 +31,7 @@ function on_key_press(key, game_action)
 	if not pda_action[game_action] then
 	return end
 	if level.main_input_receiver() then
-		if game_action == key_bindings.kCONTACTS and level.get_pda_wnd():IsShown() then
+		if (game_action == key_bindings.kCONTACTS or game_action == key_bindings.kACTIVE_JOBS) and level.get_pda_wnd():IsShown() then
 			level.start_stop_menu(level.main_input_receiver(), true)
 		end
 	return end
@@ -74,7 +74,7 @@ function on_key_press(key, game_action)
 					else
 						actor_obj:unblock_action(game_action)
 						--level.set_actor_allow_pda(true)
-						if game_action == key_bindings.kCONTACTS then
+						if game_action == key_bindings.kCONTACTS or game_action == key_bindings.kACTIVE_JOBS then
 							level.send_event_key_press(bind_to_dik(key_bindings.kJOURNAL))
 							add_update_delayed_action(1, function() level.set_active_pda_tab_idx(pda_action[game_action]) end)
 						else
