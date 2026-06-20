@@ -1,44 +1,20 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
-	sm:subscribe({signal = "on_key_press",   	fun = this.on_key_press})
 	sm:subscribe({signal = "on_pda_show", 		fun = this.on_pda_swow})	
 	sm:subscribe({signal = "on_pda_hide",   	fun = this.on_pda_hide})
 end
 
 local def_hud_sect = "pda_hud"
 
-local subscribed = false
-
-function play_2d_anim()
-	return actor_get_pda() and not get_console():get_bool("g_3d_pda")
-end
-
 function try_play_pda_sound(snd_name)
 	if not snd_name then return end
 	xr_sound.get_safe_sound_object(snd_name):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 end
 
-local pda_action = {
-	[key_bindings.kACTIVE_JOBS] = pda_tab.quests,
-	[key_bindings.kMAP] 		= true,
-	[key_bindings.kCONTACTS] 	= pda_tab.contacts,
-	[key_bindings.kJOURNAL] 	= true,
-}
-
-function on_key_press(key, game_action)
-	if not play_2d_anim() then
-	return end
-	if not pda_action[game_action] then
-	return end
-	if level.main_input_receiver() then
-		if (game_action == key_bindings.kCONTACTS or game_action == key_bindings.kACTIVE_JOBS) and level.get_pda_wnd():IsShown() then
-			level.start_stop_menu(level.main_input_receiver(), true)
-		end
-	return end
+function play_show()
 	if _G.SCRIPT_ANIM_PLAYING then
 	return end
 	actor_obj:block_action(game_action)
-	--level.set_actor_allow_pda(false)
 	actor:hide_weapon(HIDE_WPN_ANIM_FAST)
 	local pda = actor_get_pda()
 	local hud_sect = get_hud_sect(pda) or def_hud_sect
@@ -65,7 +41,6 @@ function on_key_press(key, game_action)
 									length * 0.001,
 									function()
 										actor_obj:unblock_action(game_action)
-										--level.set_actor_allow_pda(true)
 										_G.SCRIPT_ANIM_PLAYING = false
 									end
 								)
@@ -73,13 +48,7 @@ function on_key_press(key, game_action)
 						)
 					else
 						actor_obj:unblock_action(game_action)
-						--level.set_actor_allow_pda(true)
-						if game_action == key_bindings.kCONTACTS or game_action == key_bindings.kACTIVE_JOBS then
-							level.send_event_key_press(bind_to_dik(key_bindings.kJOURNAL))
-							add_update_delayed_action(1, function() level.set_active_pda_tab_idx(pda_action[game_action]) end)
-						else
-							level.send_event_key_press(bind_to_dik(game_action))
-						end						
+						level.start_stop_menu(level.get_pda_wnd(), true)
 						_G.SCRIPT_ANIM_PLAYING = false
 					end
 				end
@@ -89,7 +58,7 @@ function on_key_press(key, game_action)
 end
 
 function on_pda_hide()
-	if not play_2d_anim() then
+	if is_3d_pda() or not get_script_option_value("play_pda_2d_anim") then
 	return end
 	block_non_move_action(true)
 	dof_mir.stop_dof()
@@ -115,7 +84,7 @@ function on_pda_hide()
 end
 
 function on_pda_swow()
-	if not play_2d_anim() then
+	if is_3d_pda() or not get_script_option_value("play_pda_2d_anim") then
 	return end
 	dof_mir.start_dof()
 end
