@@ -4,16 +4,16 @@ local msg_box_type_prefix = "message_box_accept_decline_"
 
 class "MessageBoxWnd" (CUIScriptWnd)
 
-function MessageBoxWnd:__init(box_type, attach) super()
-	self.owner = level.main_input_receiver()
-	self:InitWnd(box_type, attach)
+function MessageBoxWnd:__init(box_type, attach_wnd) super()
+	self.owner = attach_wnd
+	self:InitWnd(box_type)
 end
 
 function MessageBoxWnd:DetachWnd()
 	self:ClearCallbacks()
 end
 
-function MessageBoxWnd:InitWnd(box_type, attach)
+function MessageBoxWnd:InitWnd(box_type)
 	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
 	local xml = CScriptXmlInit()
 	xml:ParseFile(OVERLAY_XML)
@@ -27,12 +27,12 @@ function MessageBoxWnd:InitWnd(box_type, attach)
 	self:AddCallback("message_box", ui_events.MESSAGE_BOX_YES_CLICKED, self.ProcessAction, self)
 	self:AddCallback("message_box", ui_events.MESSAGE_BOX_NO_CLICKED, self.HideWnd, self)
 	
-	if not attach then
-		level.start_stop_menu(self, true)
-	else
+	if self.owner then
 		self.owner:AttachChild(self)
 		self:Enable(true)
 		self:Show(true)
+	else
+		level.start_stop_menu(self, true)
 	end
 end
 
@@ -48,7 +48,7 @@ function MessageBoxWnd:ProcessAction()
 end
 
 function MessageBoxWnd:HideWnd()
-	if self.owner:IsChild(self) then
+	if self.owner and self.owner:IsChild(self) then
 		self.owner:DetachChild(self)
 	elseif self:IsShown() then
 		level.start_stop_menu(self, true)
@@ -56,21 +56,19 @@ function MessageBoxWnd:HideWnd()
 	self:DetachWnd()
 end
 
-
-
 class "MessageBoxUserNoteWnd" (CUIScriptWnd)
 local msg_box_type = "message_box_accept_decline_user_note"
 
-function MessageBoxUserNoteWnd:__init(attach) super()
-	self.owner = level.main_input_receiver()
-	self:InitWnd(attach)
+function MessageBoxUserNoteWnd:__init(attach_wnd) super()
+	self.owner = attach_wnd
+	self:InitWnd()
 end
 
 function MessageBoxUserNoteWnd:DetachWnd()
 	self:ClearCallbacks()
 end
 
-function MessageBoxUserNoteWnd:InitWnd(attach)
+function MessageBoxUserNoteWnd:InitWnd()
 	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
 	local xml = CScriptXmlInit()
 	xml:ParseFile(OVERLAY_XML)
@@ -95,12 +93,12 @@ function MessageBoxUserNoteWnd:InitWnd(attach)
 	--self:AddCallback("note_text", ui_events.EDIT_TEXT_CHANGED, self.EditTextChange, self)
 	self.cap_note_text = xml:InitStatic(msg_box_type..":cap_note_text", self.message_box)
 	
-	if not attach then
-		level.start_stop_menu(self, true)
-	else
+	if self.owner then
 		self.owner:AttachChild(self)
 		self:Enable(true)
-		self:Show(true)
+		self:Show(true)		
+	else
+		level.start_stop_menu(self, true)
 	end
 end
 
@@ -133,7 +131,7 @@ function MessageBoxUserNoteWnd:SetEditText(text1, text2)
 end
 
 function MessageBoxUserNoteWnd:HideWnd()
-	if self.owner:IsChild(self) then
+	if self.owner and self.owner:IsChild(self) then
 		self.owner:DetachChild(self)
 	elseif self:IsShown() then
 		level.start_stop_menu(self, true)
@@ -141,21 +139,19 @@ function MessageBoxUserNoteWnd:HideWnd()
 	self:DetachWnd()
 end
 
-
-
 class "MessageBoxPasswordWnd" (CUIScriptWnd)
 local msg_box_type = "message_box_accept_decline_password"
 
-function MessageBoxPasswordWnd:__init(attach) super()
-	self.owner = level.main_input_receiver()
-	self:InitWnd(attach)
+function MessageBoxPasswordWnd:__init(attach_wnd) super()
+	self.owner = attach_wnd
+	self:InitWnd()
 end
 
 function MessageBoxPasswordWnd:DetachWnd()
 	self:ClearCallbacks()
 end
 
-function MessageBoxPasswordWnd:InitWnd(attach)
+function MessageBoxPasswordWnd:InitWnd()
 	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
 	local xml = CScriptXmlInit()
 	xml:ParseFile(OVERLAY_XML)
@@ -175,12 +171,12 @@ function MessageBoxPasswordWnd:InitWnd(attach)
 	
 	self.password_tip = xml:InitStatic(msg_box_type..":password_tip", self.message_box)
 	
-	if not attach then
-		level.start_stop_menu(self, true)
-	else
+	if self.owner then
 		self.owner:AttachChild(self)
 		self:Enable(true)
-		self:Show(true)
+		self:Show(true)		
+	else
+		level.start_stop_menu(self, true)
 	end
 end
 
@@ -202,7 +198,7 @@ function MessageBoxPasswordWnd:EditPasswordChange()
 end
 
 function MessageBoxPasswordWnd:HideWnd()
-	if self.owner:IsChild(self) then
+	if self.owner and self.owner:IsChild(self) then
 		self.owner:DetachChild(self)
 	elseif self:IsShown() then
 		level.start_stop_menu(self, true)
@@ -213,16 +209,16 @@ end
 class "MessageBoxFindPersonWnd" (CUIScriptWnd)
 local msg_box_type = "message_box_find_person"
 
-function MessageBoxFindPersonWnd:__init(attach) super()
-	self.owner = level.main_input_receiver()
-	self:InitWnd(attach)
+function MessageBoxFindPersonWnd:__init(attach_wnd) super()
+	self.owner = attach_wnd
+	self:InitWnd()
 end
 
 function MessageBoxFindPersonWnd:DetachWnd()
 	self:ClearCallbacks()
 end
 
-function MessageBoxFindPersonWnd:InitWnd(attach)
+function MessageBoxFindPersonWnd:InitWnd()
 	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
 	local xml = CScriptXmlInit()
 	xml:ParseFile(OVERLAY_XML)
@@ -240,12 +236,12 @@ function MessageBoxFindPersonWnd:InitWnd(attach)
 	self:AddCallback("enter_person_name", ui_events.EDIT_TEXT_COMMIT, self.EditPersoneNameChange, self)
 	self.cap_enter_person_name = xml:InitStatic(msg_box_type..":cap_enter_person_name", self.message_box)
 	
-	if not attach then
-		level.start_stop_menu(self, true)
-	else
+	if self.owner then
 		self.owner:AttachChild(self)
 		self:Enable(true)
-		self:Show(true)
+		self:Show(true)		
+	else
+		level.start_stop_menu(self, true)
 	end
 end
 
@@ -266,7 +262,7 @@ function MessageBoxFindPersonWnd:EditPersoneNameChange()
 end
 
 function MessageBoxFindPersonWnd:HideWnd()
-	if self.owner:IsChild(self) then
+	if self.owner and self.owner:IsChild(self) then
 		self.owner:DetachChild(self)
 	elseif self:IsShown() then
 		level.start_stop_menu(self, true)
@@ -278,16 +274,16 @@ end
 class "MessageBoxErrorWnd" (CUIScriptWnd)
 local msg_box_type = "message_box_custom_error"
 
-function MessageBoxErrorWnd:__init(attach) super()
-	self.owner = level.main_input_receiver()
-	self:InitWnd(attach)
+function MessageBoxErrorWnd:__init(attach_wnd) super()
+	self.owner = attach_wnd
+	self:InitWnd()
 end
 
 function MessageBoxErrorWnd:DetachWnd()
 	self:ClearCallbacks()
 end
 
-function MessageBoxErrorWnd:InitWnd(attach)
+function MessageBoxErrorWnd:InitWnd()
 	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
 	local xml = CScriptXmlInit()
 	xml:ParseFile(OVERLAY_XML)
@@ -301,12 +297,12 @@ function MessageBoxErrorWnd:InitWnd(attach)
 	
 	self.tip_text = xml:InitStatic(msg_box_type..":tip_text", self.message_box)
 	
-	if not attach then
-		level.start_stop_menu(self, true)
-	else
+	if self.owner then
 		self.owner:AttachChild(self)
 		self:Enable(true)
-		self:Show(true)
+		self:Show(true)		
+	else
+		level.start_stop_menu(self, true)
 	end
 end
 
@@ -316,7 +312,7 @@ function MessageBoxErrorWnd:SetErrorText(message_text, tip_text)
 end
 
 function MessageBoxErrorWnd:HideWnd()
-	if self.owner:IsChild(self) then
+	if self.owner and self.owner:IsChild(self) then
 		self.owner:DetachChild(self)
 	elseif self:IsShown() then
 		level.start_stop_menu(self, true)
@@ -328,9 +324,9 @@ end
 class "MessageBoxHealLimbsWnd" (CUIScriptWnd)
 local msg_box_type = "message_box_heal_limbs"
 
-function MessageBoxHealLimbsWnd:__init(healing_item, attach) super()
-	self.owner = level.main_input_receiver()
-	self:InitWnd(attach)
+function MessageBoxHealLimbsWnd:__init(healing_item, attach_wnd) super()
+	self.owner = attach_wnd
+	self:InitWnd()
 	self.healing_item = healing_item
 end
 
@@ -338,7 +334,7 @@ function MessageBoxHealLimbsWnd:DetachWnd()
 	self:ClearCallbacks()
 end
 
-function MessageBoxHealLimbsWnd:InitWnd(attach)
+function MessageBoxHealLimbsWnd:InitWnd()
 	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
 	local xml = CScriptXmlInit()
 	xml:ParseFile(OVERLAY_XML)
@@ -354,12 +350,12 @@ function MessageBoxHealLimbsWnd:InitWnd(attach)
 	
 	self.tip_text = xml:InitStatic(msg_box_type..":tip_text", self.message_box)
 	
-	if not attach then
-		level.start_stop_menu(self, true)
-	else
+	if self.owner then
 		self.owner:AttachChild(self)
 		self:Enable(true)
-		self:Show(true)
+		self:Show(true)		
+	else
+		level.start_stop_menu(self, true)
 	end
 end
 

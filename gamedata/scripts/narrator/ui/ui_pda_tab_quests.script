@@ -9,11 +9,22 @@ local objective_state_texture = {
 	[task_state.completed] 		= "ui_icons_PDA_subtask_accomplished",
 }
 local objective_text_color = {
-	[task_state.fail] 			= GetARGB(255, 255, 100, 100),
-	[task_state.completed] 		= GetARGB(255, 100, 255, 100),
+	[task_state.fail] 			= GetARGB(255, 255, 50, 50),
+	[task_state.completed] 		= GetARGB(255, 50, 255, 50),
 	[task_state.in_progress] 	= GetARGB(255, 255, 255, 255),
 	["selected"] 				= GetARGB(255, 238, 153, 26)
 }
+
+
+function skip_task(id)
+	local random_task = task_manager.get_active_random_task(id)
+	if random_task then
+		local task_info = task_manager.get_random_task_info(random_task)
+		if task_info then
+			task_info.status = "refused"
+		end
+	end
+end
 
 class "UIPdaTabQuests" (CUIScriptWnd)
 function UIPdaTabQuests:__init() super()
@@ -38,7 +49,7 @@ function UIPdaTabQuests:InitControls()
 	local xml = CScriptXmlInit()
 	self.xml = xml
 	xml:ParseFile(OVERLAY_XML)
-
+	
 	local name = "background_frame_left"
 	self.back_left = xml:InitFrame(name, self)
 	xml:InitAutoStaticGroup(name..":auto_static", self.back_left)
@@ -66,10 +77,12 @@ function UIPdaTabQuests:InitControls()
 		xml:ReadAttribFlt(name..":left_scroll_view:list_item:task_title:text", "b", 255)
 	)
 	self.color.selected = GetARGB(255, 238, 153, 26)
+	self.color.focused = GetARGB(255, 255, 255, 255)
 	
 	self.color_a = {}
 	self.color_a.default = 180
 	self.color_a.selected = 255
+	self.color_a.focused = 255
 	
 	objective_text_color[task_state.in_progress] = GetARGB(
 		xml:ReadAttribFlt(name..":left_scroll_view:list_item:objective_item:text", "a", 255),
@@ -113,12 +126,12 @@ function UIPdaTabQuests:OnShow(skip_right_frame_reset)
 	gametask.iterate_tasks(perform_action)
 	
 	local sort_mode = pda.get_task_sorting_mode()
-	if sort_mode ~= 0 then
-		if sort_mode == 1 then
-			table.sort(self.tasks, function(a,b) return a:get_receive_time() < b:get_receive_time() end )
-		elseif sort_mode == 2 then
-			table.sort(self.tasks, function(a,b) return a:get_receive_time() > b:get_receive_time() end )
-		end
+	if sort_mode == 0 then
+		table.sort(self.tasks, function(a,b) return a:get_receive_time() > b:get_receive_time() end )
+	elseif sort_mode == 1 then
+		table.sort(self.tasks, function(a,b) return a:get_receive_time() < b:get_receive_time() end )
+	elseif sort_mode == 2 then
+		table.sort(self.tasks, function(a,b) return a:get_priority() < b:get_priority() end )
 	end
 
 	local current_time = game.get_game_time()
@@ -165,6 +178,17 @@ function UIPdaTabQuests:OnShow(skip_right_frame_reset)
 			local remaining_time = self.xml:InitStatic(list_item_path..":remaining_time", static)
 			remaining_time:SetText(text)
 			self.left_scroll_view.statics[id].remaining_time = remaining_time
+		end
+		
+		local random_task = task_manager.get_active_random_task(id)
+		if random_task then
+			local task_info = task_manager.get_random_task_info(random_task)
+			if task_info then		
+				local skip_task_btn = self.xml:Init3tButton(list_item_path..":skip_task_btn", static)
+				name = id.."_skip_task"
+				self:Register(skip_task_btn, name)
+				self:AddCallback(name, ui_events.BUTTON_CLICKED, function() self:OnSkipTaskClick(id) end, self)
+			end
 		end
 		
 		self.left_scroll_view.statics[id].objectives = {}
@@ -215,12 +239,35 @@ function UIPdaTabQuests:OnShow(skip_right_frame_reset)
 		
 		local divider = self.xml:InitStatic(divider_path, self.left_scroll_view)
 	end
+	
+	self:UpdateTasksDraw()
+	if self.msg_box then
+		self.msg_box:HideWnd()
+	end	
 end
 
 function UIPdaTabQuests:OnFocusReceived(id)
+	local active_task = gametask.active_task()
+	local task_selected = active_task and active_task:get_id() == id
+	if not task_selected then
+		local list_item = self.left_scroll_view.statics[id]
+		list_item.task_title:SetTextColor(self.color.focused)
+		if list_item.task_icon then
+			list_item.task_icon:SetColorA(self.color_a.focused)
+		end
+	end
 end
 
 function UIPdaTabQuests:OnFocusLost(id)
+	local active_task = gametask.active_task()
+	local task_selected = active_task and active_task:get_id() == id
+	if not task_selected then
+		local list_item = self.left_scroll_view.statics[id]
+		list_item.task_title:SetTextColor(self.color.default)
+		if list_item.task_icon then
+			list_item.task_icon:SetColorA(self.color_a.default)
+		end	
+	end
 end
 
 function UIPdaTabQuests:OnLButtonDown(id, idx)
@@ -289,19 +336,49 @@ function UIPdaTabQuests:OnTaskDbClick(id)
 		local can_show_stage = (state == task_state.in_progress) and (game_task.show_all_objectives or not prev_objective_state or prev_objective_state ~= task_state.in_progress)
 		if can_show_stage then
 			gametask.set_active_task(game_task, idx)
+			self:UpdateTasksDraw()
 			return 
 		end
 		prev_objective_state = state
+	end
+end
+
+function UIPdaTabQuests:OnSkipTaskClick(id)
+	local game_task = gametask.get_task(id)
+	local objective = game_task:get_objective(1)
+	local se_parent
+	local random_task = task_manager.get_active_random_task(id)
+	if random_task then
+		local task_info = task_manager.get_random_task_info(random_task)
+		if task_info then
+			local parent_id = task_info.parent
+			if parent_id then
+				parent_id = task_manager.get_sid_by_parent(parent_id)
+				se_parent = alife():story_object(tonumber(parent_id))
+			end
+		end
 	end	
+	local text = string.format("%s\\n \\n%s: %s", 
+			game.translate_string("st_pda_skip_task"), 
+			game.translate_string(game_task:get_title()), game.translate_string(objective:get_description()))
+	if se_parent then
+		text = text..string.format("\\n \\n%s: %s", game.translate_string("st_pda_task_vendor"), se_parent:name_translated())
+	end
+	if self.msg_box then
+		self.msg_box:HideWnd()
+	end
+	self.msg_box = ui_message_box.MessageBoxWnd("red", is_3d_pda() and self or nil)
+	self.msg_box:InitAction(text, skip_task, id)
 end
 
 function UIPdaTabQuests:OnObjectiveDbClick(id, idx)
 	local game_task = gametask.get_task(id)
 	local objective = game_task:get_objective(idx)
 	if objective:get_state() ~= task_state.in_progress then
-		log_news(" return objective:get_state() %s | in progress state %s", objective:get_state(), task_state.in_progress)
+		log_news("!return objective:get_state() %s | in progress state %s", objective:get_state(), task_state.in_progress)
 	return end
 	gametask.set_active_task(game_task, idx)
+	self:UpdateTasksDraw()
 end
 
 function UIPdaTabQuests:OnShowOnMapClick(id, map_location)
@@ -310,29 +387,16 @@ function UIPdaTabQuests:OnShowOnMapClick(id, map_location)
 end
 
 function UIPdaTabQuests:OnTaskStage(_task, _objective, _stage)
-	self.was_changed = true
+	self:OnShow(_stage == "update")
+	self:UpdateTasksDraw()
 end
 
-function UIPdaTabQuests:Update()
-	CUIScriptWnd.Update(self)
-	
-	if self.was_changed then
-		self.was_changed = false
-		self:Update()
-	end
-	
-	local current_time = game.get_game_time()
+function UIPdaTabQuests:UpdateTasksDraw()
 	local active_task = gametask.active_task()
 	local active_objective = gametask.active_objective()
 	local active_objective_idx = active_objective and active_objective:get_idx() or nil
 	for id,v in pairs(self.left_scroll_view.statics) do
 		local game_task = gametask.get_task(id)
-		if v.remaining_time then
-			local task_complete_time = game_task:get_time_to_complete()
-			local time_diff = task_complete_time - current_time
-			local text = string.format("%s %s", game.translate_string("ui_st_time_remains"), time_diff:timeToString(game.CTime.TimeToMinutes))
-			v.remaining_time:SetText(text)
-		end
 		local task_selected = active_task and active_task:get_id() == id
 		if task_selected then
 			v.task_title:SetTextColor(self.color.selected)
@@ -360,6 +424,21 @@ function UIPdaTabQuests:Update()
 			if _v.show_on_map_btn then
 				_v.show_on_map_btn:Show(state == task_state.in_progress)
 			end
-		end		
+		end
+	end
+end
+
+function UIPdaTabQuests:Update()
+	CUIScriptWnd.Update(self)
+	
+	local current_time = game.get_game_time()
+	for id,v in pairs(self.left_scroll_view.statics) do
+		local game_task = gametask.get_task(id)
+		if v.remaining_time then
+			local task_complete_time = game_task:get_time_to_complete()
+			local time_diff = task_complete_time - current_time
+			local text = string.format("%s %s", game.translate_string("ui_st_time_remains"), time_diff:timeToString(game.CTime.TimeToMinutes))
+			v.remaining_time:SetText(text)
+		end
 	end
 end

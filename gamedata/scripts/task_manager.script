@@ -1316,6 +1316,10 @@ function on_take_from_box(box, item)
 	end
 end
 
+function get_sid_by_parent(parent)
+	return story_by_parent[parent]
+end
+
 function on_map_spot_clicked(obj_id, spot_type, level_name, position, is_user_spot)
 	local spot_selected
 	function perform_action(game_task)
