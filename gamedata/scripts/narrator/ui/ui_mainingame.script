@@ -1076,13 +1076,12 @@ function MainIngameOverlay:ShowTask(b_show, _task, _objective, _stage)
 			local complete_time = task:get_time_to_complete()
 			if not _stage and complete_time ~= receive_time then
 				local current_time = game.get_game_time()
-				local deadline_time = complete_time
 				local deadline_time_diff = complete_time - current_time
 
 				local curr_diff_sec = complete_time:diffSec(current_time)
 				local deadline_diff_sec = complete_time:diffSec(receive_time)
 				local time_progress = curr_diff_sec/deadline_diff_sec
-				local time_color = GetARGB(255, 255 * (1 - time_progress), 255 * time_progress, 0)
+				local time_color = GetARGB(255, 255 * (2 - time_progress * 2), 255 * time_progress, 0)
 					
 				self.task_remaining_time:Show(true)
 				self.task_remaining_time:SetText(deadline_time_diff:timeToString(game.CTime.TimeToMinutes))

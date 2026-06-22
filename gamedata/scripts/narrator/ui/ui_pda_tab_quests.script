@@ -439,6 +439,12 @@ function UIPdaTabQuests:Update()
 			local time_diff = task_complete_time - current_time
 			local text = string.format("%s %s", game.translate_string("ui_st_time_remains"), time_diff:timeToString(game.CTime.TimeToMinutes))
 			v.remaining_time:SetText(text)
+			local curr_diff_sec = task_complete_time:diffSec(current_time)
+			local receive_time = game_task:get_receive_time()
+			local deadline_diff_sec = task_complete_time:diffSec(receive_time)
+			local time_progress = curr_diff_sec/deadline_diff_sec
+			local time_color = GetARGB(255, 255 * (2 - time_progress * 2), 255 * time_progress, 0)			
+			v.remaining_time:SetTextColor(time_color)
 		end
 	end
 end
