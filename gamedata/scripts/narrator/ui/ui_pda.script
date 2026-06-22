@@ -227,6 +227,8 @@ function PDAOverlay:Update()
 	self.del_all_notes_btn:Show(table.size(user_notes) > 0)
 	self.del_note_btn:Show(not not self.selected_note)
 	self.edit_note_btn:Show(not not self.selected_note)
+	
+	_G.text_edit_active = self.msg_box and self.msg_box:IsShown()
 end
 
 function PDAOverlay:OnNotesClick()

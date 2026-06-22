@@ -365,20 +365,14 @@ function add_relation_map_spot_text(id)
 	end
 end
 
-local pda_tabs = {
-	[key_bindings.kMAP] 		= pda_tab.map,
-	[key_bindings.kJOURNAL] 	= pda_tab.journal,
-	[key_bindings.kACTIVE_JOBS] = pda_tab.quests,
-	[key_bindings.kCONTACTS] 	= pda_tab.contacts,
-}
 function on_key_press(key, game_action)
-	local pda_tab = pda_tabs[game_action]
+	local pda_tab = pda_tab_by_key[game_action]
 	if not pda_tab then
 	return end
 	if not actor_get_pda() then
 	return end
 	if level.main_input_receiver() then
-		if level.get_pda_wnd():IsShown() then
+		if level.get_pda_wnd():IsShown() and not text_edit_active then
 			if is_3d_pda() then
 				actor:activate_slot(NO_ACTIVE_SLOT)
 			else

@@ -11,32 +11,35 @@ function UIPdaTabOptions:InitControls()
 	local xml = CScriptXmlInit()
 	xml:ParseFile(OVERLAY_XML)
 
-	local name
-	self.back = xml:InitFrame("background_frame", self)
+	local name = "background_frame_left"
+	local root = name
+	self.back_left = xml:InitFrame(root, self)
+	xml:InitAutoStaticGroup(root..":auto_static", self.back_left)
+	self.left_frame_line = xml:InitFrameLine(root..":left_frame_line", self.back_left)	
 	
-	self.screen_brightness = xml:InitStatic("background_frame:screen_brightness", self.back)
+	self.screen_brightness = xml:InitStatic(root..":screen_brightness", self.back_left)
 	name = "screen_brightness_track"
-	self.screen_brightness_track = xml:InitTrackBar("background_frame:screen_brightness:"..name, self.screen_brightness)
+	self.screen_brightness_track = xml:InitTrackBar(root..":screen_brightness:"..name, self.screen_brightness)
 	self:Register(self.screen_brightness_track, name)
 	self:AddCallback(name, ui_events.TRACKBAR_CHANGED, self.ChangeBrightness, self)
 	self.screen_brightness_track:SetTrackValue(pda.get_screen_brisghtness() * 100)
 	
-	self.sound_mode = xml:InitStatic("background_frame:sound_mode", self.back)
+	self.sound_mode = xml:InitStatic(root..":sound_mode", self.back_left)
 	
-	self.sound_check_button = xml:Init3tButton("background_frame:sound_mode:sound_check_button", self.sound_mode)
+	self.sound_check_button = xml:Init3tButton(root..":sound_mode:sound_check_button", self.sound_mode)
 	name = "sound_check_button"
 	self:Register(self.sound_check_button, name)
 	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.CheckSound, self)	
 	
-	self.sound_volume = xml:InitStatic("background_frame:sound_volume", self.back)
+	self.sound_volume = xml:InitStatic(root..":sound_volume", self.back_left)
 	name = "sound_volume_track"
-	self.sound_volume_track = xml:InitTrackBar("background_frame:sound_volume:"..name, self.sound_volume)
+	self.sound_volume_track = xml:InitTrackBar(root..":sound_volume:"..name, self.sound_volume)
 	self:Register(self.sound_volume_track, name)
 	self:AddCallback(name, ui_events.TRACKBAR_CHANGED, self.ChangeVolume, self)
 	self.sound_volume_track:SetTrackValue(pda.get_sound_volume() * 100)	
 	
 	name = "sound_mode_combobox"
-	self.sound_mode_combobox = xml:InitComboBox("background_frame:sound_mode:list_sound_mode", self.sound_mode)
+	self.sound_mode_combobox = xml:InitComboBox(root..":sound_mode:list_sound_mode", self.sound_mode)
 	self:Register(self.sound_mode_combobox, name)
 	self:AddCallback(name, ui_events.LIST_ITEM_SELECT, self.ChangeSoundMode, self)
 	local tokens = pda.get_option_tokens("message_sound_mode")
@@ -46,6 +49,12 @@ function UIPdaTabOptions:InitControls()
 		end
 	end
 	self.sound_mode_combobox:SetCurrentID(pda.get_sound_mode())
+	
+	name = "background_frame_right"
+	root = name
+	self.back_right = xml:InitFrame(name, self)
+	xml:InitAutoStaticGroup(root..":auto_static", self.back_right)
+	self.right_frame_line = xml:InitFrameLine(root..":right_frame_line", self.back_right)	
 end
 
 function UIPdaTabOptions:ChangeBrightness()
