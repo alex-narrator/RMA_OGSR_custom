@@ -4,6 +4,7 @@ function attach(sm)
 	sm:subscribe({signal = "on_pda_hack",   		fun = this.on_pda_hack})
 	sm:subscribe({signal = "on_hud_state_switch", 	fun = this.on_state_switch})
 	sm:subscribe({signal = "on_save", 				fun = this.on_save})
+	sm:subscribe({signal = "on_load", 				fun = this.on_load})
 	sm:subscribe({signal = "on_pda_contact_add", 	fun = this.on_pda_contact_add})
 	sm:subscribe({signal = "on_pda_contact_remove", fun = this.on_pda_contact_remove})
 	sm:subscribe({signal = "on_npc_death", 			fun = this.on_npc_death})
@@ -19,6 +20,8 @@ local screen_brightness = 0.75
 local sound_mode = 0
 local sound_volume = 0.5
 local task_sorting_mode = 0
+
+local user_notes = {}
 
 --//tokens for listbox option
 local options_tokens = {
@@ -38,19 +41,41 @@ function get_option_tokens(option)
 	return options_tokens[option]
 end
 
-function on_save(packet)
+function on_save()
 	xr_vars.save_var("screen_brightness", screen_brightness)
 	xr_vars.save_var("sound_mode", sound_mode)
 	xr_vars.save_var("sound_volume", sound_volume)
 	xr_vars.save_var("task_sorting_mode", task_sorting_mode)
+	--//
+	local saved_notes = {}
+	for k,v in ipairs(user_notes) do
+		local entry = {
+			name = v.name,
+			text = v.text,
+			time = ctime_to_table(v.time)
+		}
+		table.insert(saved_notes, entry)
+	end
+	xr_vars.save_var("saved_notes", saved_notes)
 end
 
-function on_load(reader)
+function on_load()
 	screen_brightness = xr_vars.load_var("screen_brightness", screen_brightness)
 	set_screen_brightness(screen_brightness)
 	sound_mode = xr_vars.load_var("sound_mode", sound_mode)
 	sound_volume = xr_vars.load_var("sound_volume", sound_volume)
 	task_sorting_mode = xr_vars.load_var("task_sorting_mode", task_sorting_mode)
+	--//
+	local saved_notes = xr_vars.load_var("saved_notes", {})
+	user_notes = {}
+	for k,v in ipairs(saved_notes) do
+		local entry = {
+			name = v.name,
+			text = v.text,
+			time = table_to_ctime(v.time)
+		}
+		table.insert(user_notes, entry)
+	end	
 end
 
 function get_sound_mode()
@@ -98,6 +123,49 @@ function set_screen_enabled(val)
 	local pda_params = get_pda_params()
 	pda_params.z = val and screen_brightness or 0
 	set_pda_params(pda_params)	
+end
+
+--//user notes
+function get_notes()
+	return user_notes
+end
+
+function add_note(name, text)
+	if not text then
+	return end
+	
+	if not name or name == "" then
+		name = string.format("%s %s", game.translate_string("st_new_note"), table.size(user_notes) + 1)
+	end
+	
+	local entry = {
+		name = name,
+		text = text,
+		time = game.get_game_time()
+	}
+	
+	table.insert(user_notes, entry)
+	
+	sm:call("on_add_note", table.size(user_notes))
+end
+
+function remove_note(i)
+	table.remove(user_notes, i)
+	sm:call("on_remove_note", i)
+end
+
+function edit_note(i, name, text)
+	local entry = user_notes[i]
+	if not entry then
+	return end
+	entry.name = name
+	entry.text = text
+	sm:call("on_edit_note", i)
+end
+
+function remove_all_notes()
+	user_notes = {}
+	sm:call("on_remove_note")
 end
 
 function on_take(item)
@@ -372,11 +440,11 @@ function on_key_press(key, game_action)
 	if not actor_get_pda() then
 	return end
 	if level.main_input_receiver() then
-		if level.get_pda_wnd():IsShown() and not text_edit_active then
-			if is_3d_pda() then
+		if level.get_pda_wnd():IsShown() then
+			local active_item = actor:active_item()
+			local zoomed_pda = active_item and active_item:get_pda() and active_item:is_zoomed()
+			if is_3d_pda() and not zoomed_pda  then
 				actor:activate_slot(NO_ACTIVE_SLOT)
-			else
-				level.start_stop_menu(level.main_input_receiver(), true)
 			end
 		end
 	return end

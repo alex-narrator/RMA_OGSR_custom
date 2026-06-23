@@ -31,6 +31,8 @@ function MessageBoxWnd:InitWnd(box_type)
 		self.owner:AttachChild(self)
 		self:Enable(true)
 		self:Show(true)
+		local offset = ui_inv_utils.GetOffset("center", self, self.owner)
+		self:SetWndPos(offset.x, offset.y)		
 	else
 		level.start_stop_menu(self, true)
 	end
@@ -96,7 +98,9 @@ function MessageBoxUserNoteWnd:InitWnd()
 	if self.owner then
 		self.owner:AttachChild(self)
 		self:Enable(true)
-		self:Show(true)		
+		self:Show(true)
+		local offset = ui_inv_utils.GetOffset("center", self, self.owner)
+		self:SetWndPos(offset.x, offset.y)
 	else
 		level.start_stop_menu(self, true)
 	end
@@ -174,7 +178,9 @@ function MessageBoxPasswordWnd:InitWnd()
 	if self.owner then
 		self.owner:AttachChild(self)
 		self:Enable(true)
-		self:Show(true)		
+		self:Show(true)
+		local offset = ui_inv_utils.GetOffset("center", self, self.owner)
+		self:SetWndPos(offset.x, offset.y)		
 	else
 		level.start_stop_menu(self, true)
 	end
@@ -239,7 +245,9 @@ function MessageBoxFindPersonWnd:InitWnd()
 	if self.owner then
 		self.owner:AttachChild(self)
 		self:Enable(true)
-		self:Show(true)		
+		self:Show(true)
+		local offset = ui_inv_utils.GetOffset("center", self, self.owner)
+		self:SetWndPos(offset.x, offset.y)		
 	else
 		level.start_stop_menu(self, true)
 	end
@@ -300,7 +308,9 @@ function MessageBoxErrorWnd:InitWnd()
 	if self.owner then
 		self.owner:AttachChild(self)
 		self:Enable(true)
-		self:Show(true)		
+		self:Show(true)
+		local offset = ui_inv_utils.GetOffset("center", self, self.owner)
+		self:SetWndPos(offset.x, offset.y)		
 	else
 		level.start_stop_menu(self, true)
 	end
@@ -353,7 +363,9 @@ function MessageBoxHealLimbsWnd:InitWnd()
 	if self.owner then
 		self.owner:AttachChild(self)
 		self:Enable(true)
-		self:Show(true)		
+		self:Show(true)
+		local offset = ui_inv_utils.GetOffset("center", self, self.owner)
+		self:SetWndPos(offset.x, offset.y)		
 	else
 		level.start_stop_menu(self, true)
 	end

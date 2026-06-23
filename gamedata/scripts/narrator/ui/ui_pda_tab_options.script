@@ -1,14 +1,32 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 local OVERLAY_XML = "script_overlays\\ui_pda_tab_options.xml"
 
+local sm = ogsr_signals.get_mgr()
+
 class "UIPdaTabOptions" (CUIScriptWnd)
 function UIPdaTabOptions:__init() super()
 	self:InitControls()
+	self:Subscribe()
+end
+
+function UIPdaTabOptions:Subscribe()
+	self.subscribed = false
+	if not self.subscribed then
+		self.subscribed = {
+			{signal = "on_add_note", self = self, fun = self.OnAddNote},
+			{signal = "on_remove_note", self = self, fun = self.OnRemoveNote},
+			{signal = "on_edit_note", self = self, fun = self.OnEditNote},
+		}
+		for _, s in ipairs( self.subscribed ) do
+			sm:subscribe( s )
+		end
+	end
 end
 
 function UIPdaTabOptions:InitControls()
-	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
+	self:Init(0, 0, 784, 692)
 	local xml = CScriptXmlInit()
+	self.xml = xml
 	xml:ParseFile(OVERLAY_XML)
 
 	local name = "background_frame_left"
@@ -24,20 +42,27 @@ function UIPdaTabOptions:InitControls()
 	self:AddCallback(name, ui_events.TRACKBAR_CHANGED, self.ChangeBrightness, self)
 	self.screen_brightness_track:SetTrackValue(pda.get_screen_brisghtness() * 100)
 	
-	self.sound_mode = xml:InitStatic(root..":sound_mode", self.back_left)
+	self.left_frame_line_notes = xml:InitFrameLine(root..":left_frame_line_notes", self.back_left)
 	
+	name = "add_note_btn"
+	self.add_note_btn = xml:Init3tButton(root..":"..name, self.back_left)
+	self:Register(self.add_note_btn, name)
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.OnAddNoteClick, self)	
+	
+	self.left_scroll_view_notes = xml:InitScrollView(root..":left_scroll_view_notes", self.back_left)
+	
+	--//спецально інітиться нижче за left_scroll_view_notes щоб перекривати його при розкритті списку опцій звуку
+	self.sound_mode = xml:InitStatic(root..":sound_mode", self.back_left)
 	self.sound_check_button = xml:Init3tButton(root..":sound_mode:sound_check_button", self.sound_mode)
 	name = "sound_check_button"
 	self:Register(self.sound_check_button, name)
 	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.CheckSound, self)	
-	
 	self.sound_volume = xml:InitStatic(root..":sound_volume", self.back_left)
 	name = "sound_volume_track"
 	self.sound_volume_track = xml:InitTrackBar(root..":sound_volume:"..name, self.sound_volume)
 	self:Register(self.sound_volume_track, name)
 	self:AddCallback(name, ui_events.TRACKBAR_CHANGED, self.ChangeVolume, self)
 	self.sound_volume_track:SetTrackValue(pda.get_sound_volume() * 100)	
-	
 	name = "sound_mode_combobox"
 	self.sound_mode_combobox = xml:InitComboBox(root..":sound_mode:list_sound_mode", self.sound_mode)
 	self:Register(self.sound_mode_combobox, name)
@@ -48,13 +73,25 @@ function UIPdaTabOptions:InitControls()
 			self.sound_mode_combobox:AddItem(v)
 		end
 	end
-	self.sound_mode_combobox:SetCurrentID(pda.get_sound_mode())
+	self.sound_mode_combobox:SetCurrentID(pda.get_sound_mode())	
+	
+	self.color = {}
+	self.color.default = GetARGB(
+		xml:ReadAttribFlt(root..":left_scroll_view_notes:list_item:text", "a", 255),
+		xml:ReadAttribFlt(root..":left_scroll_view_notes:list_item:text", "r", 255),
+		xml:ReadAttribFlt(root..":left_scroll_view_notes:list_item:text", "g", 255),
+		xml:ReadAttribFlt(root..":left_scroll_view_notes:list_item:text", "b", 255)
+	)
+	self.color.focused = GetARGB(255, 255, 255, 255)
+	self.color.selected = GetARGB(255, 238, 153, 26)	
 	
 	name = "background_frame_right"
 	root = name
 	self.back_right = xml:InitFrame(name, self)
 	xml:InitAutoStaticGroup(root..":auto_static", self.back_right)
-	self.right_frame_line = xml:InitFrameLine(root..":right_frame_line", self.back_right)	
+	self.right_frame_line = xml:InitFrameLine(root..":right_frame_line", self.back_right)
+	
+	self.right_scroll_view_notes = xml:InitScrollView(root..":right_scroll_view_notes", self.back_right)
 end
 
 function UIPdaTabOptions:ChangeBrightness()
@@ -74,4 +111,143 @@ end
 function UIPdaTabOptions:ChangeVolume()
 	local volume = self.sound_volume_track:GetTrackValue() * 0.01
 	pda.set_sound_volume(volume)
+end
+
+function UIPdaTabOptions:OnShow(skip_right_frame_reset)
+	if self.msg_box then
+		self.msg_box:HideWnd()
+	end
+	
+	if not skip_right_frame_reset then
+		self.right_frame_line:GetTitleStatic():SetText("")
+		self.right_scroll_view_notes:Clear()
+	end
+	
+	self.left_scroll_view_notes:Clear()
+	self.left_scroll_view_notes.statics = {}
+	
+	local list_item_path = "background_frame_left:left_scroll_view_notes:list_item"
+	local divider_path = "background_frame_left:left_scroll_view_notes:divider"
+	
+	local notes = pda.get_notes()
+	table.sort( notes, function(a,b) return a.time > b.time end )
+	
+	for k,v in pairs(notes) do
+		local static = self.xml:InitStatic(list_item_path, self.left_scroll_view_notes)
+		self.xml:InitAutoStaticGroup(list_item_path..":auto_static", static)
+		local text = string.format("[%s] %s", k, v.name)
+		static:SetText(text)
+		local def_height = static:GetHeight()
+		static:AdjustHeightToText()
+		if static:GetHeight() < def_height then
+			static:SetHeight(def_height)
+		end
+		local name = "note_name_"..k
+		self:Register(static, name)
+		self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnNoteFocusReceived(k) end, self)
+		self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnNoteFocusLost(k) end, self)
+		self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnNoteLButton(k) end, self)
+		self:AddCallback(name, ui_events.WINDOW_LBUTTON_DB_CLICK, function() self:OnNoteDbClick(k) end, self)
+		self.left_scroll_view_notes.statics[k] = static
+		
+		local remove_note_btn = self.xml:Init3tButton(list_item_path..":remove_note_btn", static)
+		name = "remove_note_btn"..k
+		self:Register(remove_note_btn, name)
+		self:AddCallback(name, ui_events.BUTTON_CLICKED, function() self:OnRemoveNoteClick(k) end, self)
+		self.left_scroll_view_notes.statics[k].remove_note_btn = remove_note_btn
+		remove_note_btn:Show(false)
+
+		local divider = self.xml:InitStatic(divider_path, self.left_scroll_view_notes)		
+	end
+end
+
+function UIPdaTabOptions:OnAddNoteClick()
+	if self.msg_box then
+		self.msg_box:HideWnd()
+	end
+	self.msg_box = ui_message_box.MessageBoxUserNoteWnd(is_3d_pda() and self or nil)
+	self.msg_box:InitAction(game.translate_string("st_add_note"), pda.add_note)
+	--log_news("add note")
+end
+
+function UIPdaTabOptions:OnNoteFocusReceived(i)
+	--log_news("OnNoteFocusReceived %s", i)
+	self.left_scroll_view_notes.statics[i].remove_note_btn:Show(true)
+	if not self.left_scroll_view_notes.statics[i].selected then
+		self.left_scroll_view_notes.statics[i]:SetTextColor(self.color.focused)
+	end	
+end
+
+function UIPdaTabOptions:OnNoteFocusLost(i)
+	--log_news("OnNoteFocusLost %s", i)
+	self.left_scroll_view_notes.statics[i].remove_note_btn:Show(false)
+	if not self.left_scroll_view_notes.statics[i].selected then
+		self.left_scroll_view_notes.statics[i]:SetTextColor(self.color.default)
+	end	
+end
+
+function UIPdaTabOptions:OnNoteLButton(i)
+	for k,v in pairs(self.left_scroll_view_notes.statics) do
+		v.selected = k == i
+		if (v.selected) then
+			v:SetTextColor(self.color.selected)
+		else
+			v:SetTextColor(self.color.default)
+		end
+	end
+	--log_news("OnNoteLButton %s", i)
+	local note = pda.get_notes()[i]
+	if self.msg_box then
+		self.msg_box:HideWnd()
+	end
+	self.right_scroll_view_notes:Clear()
+	self.right_frame_line:GetTitleStatic():SetText(note.name)
+	
+	local list_item_path = "background_frame_right:right_scroll_view_notes:list_item"
+	local static = self.xml:InitStatic(list_item_path, self.right_scroll_view_notes)
+	self.left_scroll_view_notes.statics[i].note_text_static = static
+	self.xml:InitAutoStaticGroup(list_item_path..":auto_static", static)
+	static:SetText(note.text)
+end
+
+function UIPdaTabOptions:OnNoteDbClick(i)
+	-- log_news("OnNoteDbClick %s", i)
+	local note = pda.get_notes()[i]
+	if self.msg_box then
+		self.msg_box:HideWnd()
+	end
+	self.msg_box = ui_message_box.MessageBoxUserNoteWnd(is_3d_pda() and self or nil)
+	self.msg_box:SetEditText(note.name, note.text)
+	self.msg_box:InitAction(game.translate_string("st_edit_note"), pda.edit_note, i)	
+end
+
+function UIPdaTabOptions:OnRemoveNoteClick(i)
+	--log_news("OnRemoveNoteClick %s", i)
+	local note = pda.get_notes()[i]
+	if self.msg_box then
+		self.msg_box:HideWnd()
+	end	
+	self.msg_box = ui_message_box.MessageBoxWnd("red", is_3d_pda() and self or nil)
+	local text = string.format("%s %s ?", game.translate_string("st_del_note"), note.name)
+	self.msg_box:InitAction(text, pda.remove_note, i)	
+end
+
+function UIPdaTabOptions:OnAddNote(i)
+	self:OnShow(true)
+end
+
+function UIPdaTabOptions:OnEditNote(i)
+	-- self:OnShow()
+	local note = pda.get_notes()[i]
+	self.right_frame_line:GetTitleStatic():SetText(note.name)
+	self.left_scroll_view_notes.statics[i]:SetText(string.format("[%s] %s", i, note.name))
+	self.left_scroll_view_notes.statics[i].note_text_static:SetText(note.text)
+end
+
+function UIPdaTabOptions:OnRemoveNote(i)
+	self:OnShow()
+end
+
+function UIPdaTabOptions:Update()
+	CUIScriptWnd.Update(self)
 end

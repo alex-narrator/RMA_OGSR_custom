@@ -5,8 +5,8 @@
 		
 		<left_frame_line x="10" y="16" width="280" height="20" stretch="1">
 			<texture>ui_string_02</texture>
-			<title x="10" y="1" width="280" height="18">
-				<text font="letterica25" r="255" g="255" b="255">Options</text>
+			<title x="0" y="0" width="280" height="20">
+				<text font="letterica25" x="10" y="1" r="255" g="255" b="255">Options</text>
 			</title>			
 		</left_frame_line>
 		
@@ -14,21 +14,18 @@
 			<texture>inv_progress_long</texture>
 		</auto_static>
 		
+		<auto_static x="10" y="55" width="280" height="70" stretch="1" complex_mode="1">
+			<texture a="200">ui_inv_back_green</texture>
+		</auto_static>
 		<screen_brightness x="10" y="55" width="280" height="20" stretch="1">
 			<text align="l" x="0" y="0" font="letterica18" v_align="c">ui_st_pda_screen_brightness</text>
 			<screen_brightness_track x="100" y="2" width="180" height="16" step="1" min="1" max="100"/>
 		</screen_brightness>
-		<auto_static x="10" y="77" width="280" height="0.9" stretch="1" complex_mode="1">
-			<texture>inv_progress_long</texture>
-		</auto_static>		
 		
 		<sound_volume x="10" y="80" width="280" height="20" stretch="1">
 			<text align="l" x="0" y="0" font="letterica18" v_align="c">ui_st_pda_sound_volume</text>
 			<sound_volume_track x="100" y="2" width="180" height="16" step="1" min="1" max="100"/>
 		</sound_volume>
-		<auto_static x="10" y="102" width="280" height="0.9" stretch="1" complex_mode="1">
-			<texture>inv_progress_long</texture>
-		</auto_static>	
 		
 		<sound_mode x="10" y="105" width="280" height="20" complex_mode = "1" stretch="1">
 			<text font="letterica18" v_align="c">ui_st_pda_sound_mode</text>
@@ -52,9 +49,31 @@
 				</text_color>
 			</sound_check_button>
 		</sound_mode>
-		<auto_static x="10" y="127" width="280" height="0.9" stretch="1" complex_mode="1">
-			<texture>inv_progress_long</texture>
-		</auto_static>		
+		
+		<left_frame_line_notes x="10" y="130" width="280" height="21">
+			<texture>ui_string_03</texture>
+			<title x="0" y="0" width="280" height="21" complex_mode="1">
+				<text font="arial_21" x="5" r="225" g="225" b="250" align="l" v_align="c">st_notes</text>
+			</title>			
+		</left_frame_line_notes>
+		
+		<add_note_btn x="220" y="131" width="65" height="15" stretch="1" hint="st_add_note">
+			<texture>ui_inGame2_big_inventory_button</texture>
+			<text x="0" y="0" align="c" vert_align="c" font="arial_21">st_add_note</text>
+		</add_note_btn>		
+		
+		<left_scroll_view_notes x="10" y="150" width="280" height="475" always_show_scroll="0" scroll_profile="pda" vert_interval="1">
+			<list_item width="260" height="20" stretch="1" complex_mode="1">
+				<text font="letterica18" r="128" g="128" b="128" align="l" v_align="c"/>
+
+				<remove_note_btn x="247" y="2" width="13" height="15" stretch="1" hint="pda_remove_note_btn_hint">
+					<texture>ui_icons_newPDA_mapMarDel</texture>
+				</remove_note_btn>				
+			</list_item>
+			<divider width="260" height="0.9" stretch="1" complex_mode="1">
+				<texture>inv_progress_long</texture>
+			</divider>
+		</left_scroll_view_notes>		
 	</background_frame_left>
 	
 	<background_frame_right x="328" y="50" width="448" height="630" a="90">
@@ -66,5 +85,11 @@
 				<text font="arial_21" r="225" g="225" b="250" align="l" v_align="c"/>
 			</title>			
 		</right_frame_line>
+		
+		<right_scroll_view_notes x="10" y="40" width="430" height="585" always_show_scroll="0" scroll_profile="pda" vert_interval="0">
+			<list_item x="85" y="0" width="430" height="15" stretch="1" complex_mode="1">
+				<text font="arial_21" v_align="c"/>			
+			</list_item>
+		</right_scroll_view_notes>		
 	</background_frame_right>	
 </w>
