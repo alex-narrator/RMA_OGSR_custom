@@ -45,7 +45,7 @@ function UIPdaTabQuests:Subscribe()
 end
 
 function UIPdaTabQuests:InitControls()
-	self:Init(0, 0, 784, 692)
+	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
 	local xml = CScriptXmlInit()
 	self.xml = xml
 	xml:ParseFile(OVERLAY_XML)
@@ -241,9 +241,6 @@ function UIPdaTabQuests:OnShow(skip_right_frame_reset)
 	end
 	
 	self:UpdateTasksDraw()
-	if self.msg_box then
-		self.msg_box:HideWnd()
-	end	
 end
 
 function UIPdaTabQuests:OnFocusReceived(id)
@@ -364,11 +361,8 @@ function UIPdaTabQuests:OnSkipTaskClick(id)
 	if se_parent then
 		text = text..string.format("\\n \\n%s: %s", game.translate_string("st_pda_task_vendor"), se_parent:name_translated())
 	end
-	if self.msg_box then
-		self.msg_box:HideWnd()
-	end
-	self.msg_box = ui_message_box.MessageBoxWnd("red", is_3d_pda() and self or nil)
-	self.msg_box:InitAction(text, skip_task, id)
+	local msg_box = ui_message_box.MessageBoxWnd("red")
+	msg_box:InitAction(text, skip_task, id)
 end
 
 function UIPdaTabQuests:OnObjectiveDbClick(id, idx)

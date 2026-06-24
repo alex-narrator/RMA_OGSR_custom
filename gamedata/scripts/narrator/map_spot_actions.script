@@ -1,0 +1,92 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_map_db_click", 		fun = this.on_map_db_click})
+	sm:subscribe({signal = "on_map_spot_clicked", 	fun = this.on_map_spot_clicked})
+end
+
+function on_map_db_click(map_pos, level_name, real_pos)
+	level.map_add_user_spot(level_name, real_pos, user_map_spots["spot_flag"], "")
+end
+
+function on_map_spot_clicked(obj_id, spot_type, level_name, position, is_user_spot)
+	local properties_box = ui_properties_box.UIPropertiesBox()
+
+	properties_box:Clear()
+	
+	local name, precondition, action
+
+	name = "st_pda_change_spot_hint"
+	precondition = function() return is_user_spot end
+	action = this.show_spot_hint_wnd
+	properties_box:AddItem(name, precondition, action, obj_id, spot_type)
+	
+	for spot_name, new_spot_type in pairs(user_map_spots) do
+		name = string.format("%s %s", game.translate_string("st_pda_change_spot_type"), game.translate_string("st_"..spot_name))
+		precondition = function() return is_user_spot and spot_type ~= new_spot_type end
+		action = this.change_spot_type
+		properties_box:AddItem(name, precondition, action, obj_id, spot_type, level_name, position, new_spot_type)
+	end
+	
+	name = "st_pda_delete_spot"
+	precondition = function() return is_user_spot end
+	action = this.delete_map_spot
+	properties_box:AddItem(name, precondition, action, obj_id, spot_type)	
+	
+	name = "st_fast_travel"
+	precondition = this.fast_travel_allowed
+	action = this.fast_travel_action
+	properties_box:AddItem(name, precondition, action, spot_type, level_name, position)
+	
+	properties_box:Activate()
+end
+
+function show_spot_hint_wnd(obj_id, spot_type)
+	local function set_spot_hint(obj_id, spot_type, text)
+		level.map_change_spot_hint(obj_id, spot_type, text)
+	end
+	local text = level.map_get_spot_hint(obj_id, spot_type)
+	local msg_box = ui_message_box.MessageBoxMapSpotTextWnd()
+	msg_box:SetEditText(text)
+	msg_box:InitAction(game.translate_string("st_pda_change_spot_hint"), set_spot_hint, obj_id, spot_type)	
+end
+
+function change_spot_type(obj_id, spot_type, level_name, position, new_spot_type)
+	local hint = level.map_get_spot_hint(obj_id, spot_type)
+	level.map_remove_object_spot(obj_id, spot_type)
+	level.map_add_user_spot(level_name, position, new_spot_type, hint or "")
+end
+
+function delete_map_spot(obj_id, spot_type)
+	level.map_remove_object_spot(obj_id, spot_type)
+end
+
+--//fast travel
+local FT_DEBUG_ENABLED = true
+local max_bleeding = 0.1
+
+function refuse_reason()
+	if has_enemy_near(actor, get_script_option_value("check_enemy_radius")) then
+	return "st_enemies_nearby" end
+	if actor:get_inventory_weight() >= actor:get_max_weight() then
+	return "st_has_overweight" end
+	if actor:get_bleeding() >= max_bleeding then
+	return "st_has_bleeding" end
+	return nil
+end
+
+function show_refuse_msg(reason)
+	local refuse_text = string.format("%s: %s", game.translate_string("ui_st_cant_fast_travel"), game.translate_string(reason))
+	hud_add_info_message("hud_info", refuse_text)
+end
+
+function fast_travel_allowed(spot_type, level_name, position)
+	return FT_DEBUG_ENABLED or not has_enemy_near(actor, get_script_option_value("check_enemy_radius")) and actor:get_inventory_weight() < actor:get_max_weight() and actor:get_bleeding() < max_bleeding
+end
+
+function fast_travel_action(spot_type, level_name, position)
+	local reason = refuse_reason()
+	if reason then
+		show_refuse_msg(reason)
+	return end
+	teleport_actor(position, level_name)
+end

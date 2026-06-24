@@ -944,8 +944,11 @@ function MainIngameOverlay:OnKeyPress(key, game_action)
 	
 	if game_action == key_bindings.kDROP then
 		local act_item = actor:active_item()
-		if act_item and (not LIMITED_BOLTS and get_clsid(act_item) == clsid.obj_bolt) then
-			act_item = nil
+		if act_item then
+			local restricted = (not LIMITED_BOLTS and get_clsid(act_item) == clsid.obj_bolt) or (act_item:get_pda() and is_3d_pda() and act_item:is_zoomed())
+			if restricted then
+				act_item = nil
+			end
 		end
 		local act_device = actor:active_device()
 		local item_to_drop = key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) and act_device or act_item

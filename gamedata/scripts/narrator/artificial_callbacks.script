@@ -4,6 +4,8 @@ function attach(sm)
 	sm:subscribe({signal = "on_motion_mark",  		fun = this.on_motion_mark})
 	sm:subscribe({signal = "on_weapon_shell_drop",  fun = this.on_shell_drop})
 	sm:subscribe({signal = "on_spawn",  			fun = this.on_spawn})
+	sm:subscribe({signal = "on_hud_item_zoom_in", 		fun = this.on_hud_item_zoom_in})
+	sm:subscribe({signal = "on_hud_item_zoom_out", 		fun = this.on_hud_item_zoom_out})
 end
 
 local sm = ogsr_signals.get_mgr()
@@ -72,4 +74,22 @@ function on_spawn()
 	
 	xr_vars.save_var("prev_location_name", _G.prev_location_name)
 	xr_vars.save_var("curr_location_name", _G.curr_location_name)	
+end
+
+function on_hud_item_zoom_in(item)
+	if item:get_weapon() then
+		sm:call("on_actor_weapon_zoom_in", item)
+	return end
+	if item:get_pda() then
+		sm:call("on_actor_pda_zoom_in", item)
+	return end
+end
+
+function on_hud_item_zoom_out(item)
+	if item:get_weapon() then
+		sm:call("on_actor_weapon_zoom_out", item)
+	return end
+	if item:get_pda() then
+		sm:call("on_actor_pda_zoom_out", item)
+	return end
 end

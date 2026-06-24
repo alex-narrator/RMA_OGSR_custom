@@ -4,8 +4,7 @@ local msg_box_type_prefix = "message_box_accept_decline_"
 
 class "MessageBoxWnd" (CUIScriptWnd)
 
-function MessageBoxWnd:__init(box_type, attach_wnd) super()
-	self.owner = attach_wnd
+function MessageBoxWnd:__init(box_type) super()
 	self:InitWnd(box_type)
 end
 
@@ -27,15 +26,7 @@ function MessageBoxWnd:InitWnd(box_type)
 	self:AddCallback("message_box", ui_events.MESSAGE_BOX_YES_CLICKED, self.ProcessAction, self)
 	self:AddCallback("message_box", ui_events.MESSAGE_BOX_NO_CLICKED, self.HideWnd, self)
 	
-	if self.owner then
-		self.owner:AttachChild(self)
-		self:Enable(true)
-		self:Show(true)
-		local offset = ui_inv_utils.GetOffset("center", self, self.owner)
-		self:SetWndPos(offset.x, offset.y)		
-	else
-		level.start_stop_menu(self, true)
-	end
+	level.start_stop_menu(self, false)
 end
 
 function MessageBoxWnd:InitAction(message_text, action_func, ...)
@@ -50,19 +41,14 @@ function MessageBoxWnd:ProcessAction()
 end
 
 function MessageBoxWnd:HideWnd()
-	if self.owner and self.owner:IsChild(self) then
-		self.owner:DetachChild(self)
-	elseif self:IsShown() then
-		level.start_stop_menu(self, true)
-	end
+	level.start_stop_menu(self, false)
 	self:DetachWnd()
 end
 
 class "MessageBoxUserNoteWnd" (CUIScriptWnd)
 local msg_box_type = "message_box_accept_decline_user_note"
 
-function MessageBoxUserNoteWnd:__init(attach_wnd) super()
-	self.owner = attach_wnd
+function MessageBoxUserNoteWnd:__init() super()
 	self:InitWnd()
 end
 
@@ -86,24 +72,14 @@ function MessageBoxUserNoteWnd:InitWnd()
 	self.edit_note_name = xml:InitEditBoxEx(msg_box_type..":edit_note_name", self.message_box)
 	self:Register(self.edit_note_name, "note_name")
 	self:AddCallback("note_name", ui_events.EDIT_TEXT_COMMIT, self.EditNameChange, self)
-	--self:AddCallback("note_name", ui_events.EDIT_TEXT_CHANGED, self.EditNameChange, self)
 	self.cap_note_name = xml:InitStatic(msg_box_type..":cap_note_name", self.message_box)
-		
+
 	self.edit_note_text = xml:InitEditBoxEx(msg_box_type..":edit_note_text", self.message_box)
 	self:Register(self.edit_note_text, "note_text")
 	self:AddCallback("note_text", ui_events.EDIT_TEXT_COMMIT, self.EditTextChange, self)
-	--self:AddCallback("note_text", ui_events.EDIT_TEXT_CHANGED, self.EditTextChange, self)
 	self.cap_note_text = xml:InitStatic(msg_box_type..":cap_note_text", self.message_box)
 	
-	if self.owner then
-		self.owner:AttachChild(self)
-		self:Enable(true)
-		self:Show(true)
-		local offset = ui_inv_utils.GetOffset("center", self, self.owner)
-		self:SetWndPos(offset.x, offset.y)
-	else
-		level.start_stop_menu(self, true)
-	end
+	level.start_stop_menu(self, false)
 end
 
 function MessageBoxUserNoteWnd:InitAction(message_text, action_func, ...)
@@ -135,19 +111,76 @@ function MessageBoxUserNoteWnd:SetEditText(text1, text2)
 end
 
 function MessageBoxUserNoteWnd:HideWnd()
-	if self.owner and self.owner:IsChild(self) then
-		self.owner:DetachChild(self)
-	elseif self:IsShown() then
-		level.start_stop_menu(self, true)
-	end
+	level.start_stop_menu(self, false)
+	self:DetachWnd()
+end
+
+class "MessageBoxMapSpotTextWnd" (CUIScriptWnd)
+local msg_box_type = "message_box_accept_decline_map_spot_text"
+
+function MessageBoxMapSpotTextWnd:__init() super()
+	self:InitWnd()
+end
+
+function MessageBoxMapSpotTextWnd:DetachWnd()
+	self:ClearCallbacks()
+end
+
+function MessageBoxMapSpotTextWnd:InitWnd()
+	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
+	local xml = CScriptXmlInit()
+	xml:ParseFile(OVERLAY_XML)
+	
+	self.message_box = CUIMessageBox()
+	self:AttachChild(self.message_box)
+	self.message_box:Init(msg_box_type)
+	self:Register(self.message_box, "message_box")
+	
+	self:AddCallback("message_box", ui_events.MESSAGE_BOX_YES_CLICKED, self.ProcessAction, self)
+	self:AddCallback("message_box", ui_events.MESSAGE_BOX_NO_CLICKED, self.HideWnd, self)
+	
+	self.edit_map_spot_text = xml:InitEditBoxEx(msg_box_type..":edit_map_spot_text", self.message_box)
+	self:Register(self.edit_map_spot_text, "edit_map_spot_text")
+	self:AddCallback("edit_map_spot_text", ui_events.EDIT_TEXT_COMMIT, self.EditTextChange, self)
+	
+	level.start_stop_menu(self, false)
+end
+
+function MessageBoxMapSpotTextWnd:InitAction(message_text, action_func, ...)
+	self.action = action_func
+	self.args = {...}
+	self.message_box:SetText(message_text)
+end
+
+function MessageBoxMapSpotTextWnd:ProcessAction()
+	table.insert(self.args, self.edit_map_spot_text:GetText())
+	self.action(unpack(self.args))
+	self:HideWnd()
+end
+
+function MessageBoxMapSpotTextWnd:EditNameChange()
+	local text = self.edit_note_name:GetText()
+	self.edit_note_name:SetText(text)
+end
+
+function MessageBoxMapSpotTextWnd:EditTextChange()
+	local text = self.edit_map_spot_text:GetText()
+	self.edit_map_spot_text:SetText(text)
+end
+
+function MessageBoxMapSpotTextWnd:SetEditText(text)
+	self.edit_map_spot_text:SetText(text)
+end
+
+function MessageBoxMapSpotTextWnd:HideWnd()
+	level.start_stop_menu(self, false)
 	self:DetachWnd()
 end
 
 class "MessageBoxPasswordWnd" (CUIScriptWnd)
 local msg_box_type = "message_box_accept_decline_password"
 
-function MessageBoxPasswordWnd:__init(attach_wnd) super()
-	self.owner = attach_wnd
+function MessageBoxPasswordWnd:__init() super()
 	self:InitWnd()
 end
 
@@ -175,15 +208,7 @@ function MessageBoxPasswordWnd:InitWnd()
 	
 	self.password_tip = xml:InitStatic(msg_box_type..":password_tip", self.message_box)
 	
-	if self.owner then
-		self.owner:AttachChild(self)
-		self:Enable(true)
-		self:Show(true)
-		local offset = ui_inv_utils.GetOffset("center", self, self.owner)
-		self:SetWndPos(offset.x, offset.y)		
-	else
-		level.start_stop_menu(self, true)
-	end
+	level.start_stop_menu(self, false)
 end
 
 function MessageBoxPasswordWnd:InitAction(tip_text, action_func, ...)
@@ -204,19 +229,14 @@ function MessageBoxPasswordWnd:EditPasswordChange()
 end
 
 function MessageBoxPasswordWnd:HideWnd()
-	if self.owner and self.owner:IsChild(self) then
-		self.owner:DetachChild(self)
-	elseif self:IsShown() then
-		level.start_stop_menu(self, true)
-	end
+	level.start_stop_menu(self, false)
 	self:DetachWnd()
 end
 
 class "MessageBoxFindPersonWnd" (CUIScriptWnd)
 local msg_box_type = "message_box_find_person"
 
-function MessageBoxFindPersonWnd:__init(attach_wnd) super()
-	self.owner = attach_wnd
+function MessageBoxFindPersonWnd:__init() super()
 	self:InitWnd()
 end
 
@@ -242,15 +262,7 @@ function MessageBoxFindPersonWnd:InitWnd()
 	self:AddCallback("enter_person_name", ui_events.EDIT_TEXT_COMMIT, self.EditPersoneNameChange, self)
 	self.cap_enter_person_name = xml:InitStatic(msg_box_type..":cap_enter_person_name", self.message_box)
 	
-	if self.owner then
-		self.owner:AttachChild(self)
-		self:Enable(true)
-		self:Show(true)
-		local offset = ui_inv_utils.GetOffset("center", self, self.owner)
-		self:SetWndPos(offset.x, offset.y)		
-	else
-		level.start_stop_menu(self, true)
-	end
+	level.start_stop_menu(self, false)
 end
 
 function MessageBoxFindPersonWnd:InitAction(action_func, ...)
@@ -270,11 +282,7 @@ function MessageBoxFindPersonWnd:EditPersoneNameChange()
 end
 
 function MessageBoxFindPersonWnd:HideWnd()
-	if self.owner and self.owner:IsChild(self) then
-		self.owner:DetachChild(self)
-	elseif self:IsShown() then
-		level.start_stop_menu(self, true)
-	end
+	level.start_stop_menu(self, false)
 	self:DetachWnd()
 end
 
@@ -282,8 +290,7 @@ end
 class "MessageBoxErrorWnd" (CUIScriptWnd)
 local msg_box_type = "message_box_custom_error"
 
-function MessageBoxErrorWnd:__init(attach_wnd) super()
-	self.owner = attach_wnd
+function MessageBoxErrorWnd:__init() super()
 	self:InitWnd()
 end
 
@@ -305,15 +312,7 @@ function MessageBoxErrorWnd:InitWnd()
 	
 	self.tip_text = xml:InitStatic(msg_box_type..":tip_text", self.message_box)
 	
-	if self.owner then
-		self.owner:AttachChild(self)
-		self:Enable(true)
-		self:Show(true)
-		local offset = ui_inv_utils.GetOffset("center", self, self.owner)
-		self:SetWndPos(offset.x, offset.y)		
-	else
-		level.start_stop_menu(self, true)
-	end
+	level.start_stop_menu(self, false)
 end
 
 function MessageBoxErrorWnd:SetErrorText(message_text, tip_text)
@@ -322,11 +321,7 @@ function MessageBoxErrorWnd:SetErrorText(message_text, tip_text)
 end
 
 function MessageBoxErrorWnd:HideWnd()
-	if self.owner and self.owner:IsChild(self) then
-		self.owner:DetachChild(self)
-	elseif self:IsShown() then
-		level.start_stop_menu(self, true)
-	end
+	level.start_stop_menu(self, false)
 	self:DetachWnd()
 end
 
@@ -334,8 +329,7 @@ end
 class "MessageBoxHealLimbsWnd" (CUIScriptWnd)
 local msg_box_type = "message_box_heal_limbs"
 
-function MessageBoxHealLimbsWnd:__init(healing_item, attach_wnd) super()
-	self.owner = attach_wnd
+function MessageBoxHealLimbsWnd:__init(healing_item) super()
 	self:InitWnd()
 	self.healing_item = healing_item
 end
@@ -360,15 +354,7 @@ function MessageBoxHealLimbsWnd:InitWnd()
 	
 	self.tip_text = xml:InitStatic(msg_box_type..":tip_text", self.message_box)
 	
-	if self.owner then
-		self.owner:AttachChild(self)
-		self:Enable(true)
-		self:Show(true)
-		local offset = ui_inv_utils.GetOffset("center", self, self.owner)
-		self:SetWndPos(offset.x, offset.y)		
-	else
-		level.start_stop_menu(self, true)
-	end
+	level.start_stop_menu(self, false)
 end
 
 function MessageBoxHealLimbsWnd:HealHands()
@@ -384,10 +370,6 @@ function MessageBoxHealLimbsWnd:HealLegs()
 end
 
 function MessageBoxHealLimbsWnd:HideWnd()
-	if self.owner and self.owner:IsChild(self) then
-		self.owner:DetachChild(self)
-	elseif self:IsShown() then
-		level.start_stop_menu(self, true)
-	end
+	level.start_stop_menu(self, false)
 	self:DetachWnd()
 end

@@ -439,12 +439,13 @@ function on_key_press(key, game_action)
 	return end
 	if not actor_get_pda() then
 	return end
-	if level.main_input_receiver() then
-		if level.get_pda_wnd():IsShown() then
-			local active_item = actor:active_item()
-			local zoomed_pda = active_item and active_item:get_pda() and active_item:is_zoomed()
-			if is_3d_pda() and not zoomed_pda  then
+	local mir = level.main_input_receiver()
+	if mir then
+		if mir:WindowName() == "pda_wnd" then
+			if is_3d_pda() then
 				actor:activate_slot(NO_ACTIVE_SLOT)
+			else
+				level.start_stop_menu(mir, true)
 			end
 		end
 	return end

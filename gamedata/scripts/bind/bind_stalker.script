@@ -105,8 +105,8 @@ function actor_binder:net_destroy()
 	--
 	self.object:set_callback(callback.on_hud_state_switch, nil)
 	self.object:set_callback(callback.on_motion_mark, nil)
-	self.object:set_callback(callback.on_actor_weapon_zoom_in, nil)
-	self.object:set_callback(callback.on_actor_weapon_zoom_out, nil)
+	self.object:set_callback(callback.on_hud_item_zoom_in, nil)
+	self.object:set_callback(callback.on_hud_item_zoom_out, nil)
 	self.object:set_callback(callback.on_actor_weapon_zoom_change, nil)
 	self.object:set_callback(callback.on_actor_weapon_scope_mode_change, nil)
 	self.object:set_callback(callback.on_actor_weapon_fire_mode_change, nil)
@@ -124,6 +124,7 @@ function actor_binder:net_destroy()
 	self.object:set_callback(callback.on_throw_grenade, nil)
 	
 	self.object:set_callback(callback.map_location_clicked, nil)
+	self.object:set_callback(callback.on_level_map_db_click, nil)
 	
 	self.object:set_callback(callback.on_pda_contact_add, nil)
 	self.object:set_callback(callback.on_pda_contact_remove, nil)
@@ -184,8 +185,8 @@ function actor_binder:reinit()
 	--
 	self.object:set_callback(callback.on_hud_state_switch, self.on_hud_state_switch, self)
 	self.object:set_callback(callback.on_motion_mark, self.on_motion_mark, self)
-	self.object:set_callback(callback.on_actor_weapon_zoom_in, self.on_actor_weapon_zoom_in, self)
-	self.object:set_callback(callback.on_actor_weapon_zoom_out, self.on_actor_weapon_zoom_out, self)
+	self.object:set_callback(callback.on_hud_item_zoom_in, self.on_hud_item_zoom_in, self)
+	self.object:set_callback(callback.on_hud_item_zoom_out, self.on_hud_item_zoom_out, self)
 	self.object:set_callback(callback.on_actor_weapon_zoom_change, self.on_actor_weapon_zoom_change, self)
 	self.object:set_callback(callback.on_actor_weapon_scope_mode_change, self.on_actor_weapon_scope_mode_change, self)
 	self.object:set_callback(callback.on_actor_weapon_fire_mode_change, self.on_actor_weapon_fire_mode_change, self)
@@ -203,6 +204,7 @@ function actor_binder:reinit()
 	self.object:set_callback(callback.on_throw_grenade, self.on_throw_grenade, self)
 	
 	self.object:set_callback(callback.map_location_clicked, self.map_location_clicked, self)
+	self.object:set_callback(callback.on_level_map_db_click, self.on_level_map_db_click, self)
 	--
 	self.object:set_callback(callback.on_pda_contact_add, self.on_pda_contact_add, self)
 	self.object:set_callback(callback.on_pda_contact_remove, self.on_pda_contact_remove, self)
@@ -561,12 +563,12 @@ function actor_binder:on_motion_mark(item, state, mark_name)
 	self.sm:call("on_motion_mark", item, state, mark_name)
 end
 
-function actor_binder:on_actor_weapon_zoom_in(weapon)
-	self.sm:call("on_actor_weapon_zoom_in", weapon)
+function actor_binder:on_hud_item_zoom_in(item)
+	self.sm:call("on_hud_item_zoom_in", item)
 end
 
-function actor_binder:on_actor_weapon_zoom_out(weapon)
-	self.sm:call("on_actor_weapon_zoom_out", weapon)
+function actor_binder:on_hud_item_zoom_out(item)
+	self.sm:call("on_hud_item_zoom_out", item)
 end
 
 function actor_binder:on_actor_weapon_zoom_change(weapon)
@@ -614,6 +616,10 @@ end
 
 function actor_binder:map_location_clicked(obj_id, spot_type, level_name, position, is_user_spot)
 	self.sm:call("on_map_spot_clicked", obj_id, spot_type, level_name, position, is_user_spot)
+end
+
+function actor_binder:on_level_map_db_click(map_position, level_name, real_position)
+	self.sm:call("on_map_db_click", map_position, level_name, real_position)
 end
 
 function actor_binder:on_pda_contact_add(obj_id)

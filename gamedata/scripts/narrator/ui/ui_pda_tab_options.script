@@ -24,7 +24,7 @@ function UIPdaTabOptions:Subscribe()
 end
 
 function UIPdaTabOptions:InitControls()
-	self:Init(0, 0, 784, 692)
+	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
 	local xml = CScriptXmlInit()
 	self.xml = xml
 	xml:ParseFile(OVERLAY_XML)
@@ -114,10 +114,6 @@ function UIPdaTabOptions:ChangeVolume()
 end
 
 function UIPdaTabOptions:OnShow(skip_right_frame_reset)
-	if self.msg_box then
-		self.msg_box:HideWnd()
-	end
-	
 	if not skip_right_frame_reset then
 		self.right_frame_line:GetTitleStatic():SetText("")
 		self.right_scroll_view_notes:Clear()
@@ -162,11 +158,8 @@ function UIPdaTabOptions:OnShow(skip_right_frame_reset)
 end
 
 function UIPdaTabOptions:OnAddNoteClick()
-	if self.msg_box then
-		self.msg_box:HideWnd()
-	end
-	self.msg_box = ui_message_box.MessageBoxUserNoteWnd(is_3d_pda() and self or nil)
-	self.msg_box:InitAction(game.translate_string("st_add_note"), pda.add_note)
+	local msg_box = ui_message_box.MessageBoxUserNoteWnd()
+	msg_box:InitAction(game.translate_string("st_add_note"), pda.add_note)
 	--log_news("add note")
 end
 
@@ -197,9 +190,7 @@ function UIPdaTabOptions:OnNoteLButton(i)
 	end
 	--log_news("OnNoteLButton %s", i)
 	local note = pda.get_notes()[i]
-	if self.msg_box then
-		self.msg_box:HideWnd()
-	end
+
 	self.right_scroll_view_notes:Clear()
 	self.right_frame_line:GetTitleStatic():SetText(note.name)
 	
@@ -213,23 +204,17 @@ end
 function UIPdaTabOptions:OnNoteDbClick(i)
 	-- log_news("OnNoteDbClick %s", i)
 	local note = pda.get_notes()[i]
-	if self.msg_box then
-		self.msg_box:HideWnd()
-	end
-	self.msg_box = ui_message_box.MessageBoxUserNoteWnd(is_3d_pda() and self or nil)
-	self.msg_box:SetEditText(note.name, note.text)
-	self.msg_box:InitAction(game.translate_string("st_edit_note"), pda.edit_note, i)	
+	local msg_box = ui_message_box.MessageBoxUserNoteWnd()
+	msg_box:SetEditText(note.name, note.text)
+	msg_box:InitAction(game.translate_string("st_edit_note"), pda.edit_note, i)	
 end
 
 function UIPdaTabOptions:OnRemoveNoteClick(i)
 	--log_news("OnRemoveNoteClick %s", i)
 	local note = pda.get_notes()[i]
-	if self.msg_box then
-		self.msg_box:HideWnd()
-	end	
-	self.msg_box = ui_message_box.MessageBoxWnd("red", is_3d_pda() and self or nil)
+	local msg_box = ui_message_box.MessageBoxWnd("red")
 	local text = string.format("%s %s ?", game.translate_string("st_del_note"), note.name)
-	self.msg_box:InitAction(text, pda.remove_note, i)	
+	msg_box:InitAction(text, pda.remove_note, i)	
 end
 
 function UIPdaTabOptions:OnAddNote(i)

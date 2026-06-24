@@ -81,6 +81,7 @@ function ActorMenuOverlay:__init() super()
 	self.sm = ogsr_signals.get_mgr()
 	self:InitControls()
 	--self:Subscribe()
+	self:SetWindowName("actor_menu")
 end
 
 function ActorMenuOverlay:GetMode()
@@ -222,7 +223,7 @@ function ActorMenuOverlay:InitControls()
 	self.sell_cost = xml:InitStatic("sell_cost", self.sell_buy_back)
 	self.sell_cost.base_color = self.sell_cost:GetTextColor()
 	
-	self.properties_box = ui_properties_box.UIPropertiesBox(self)
+	self.properties_box = ui_properties_box.UIPropertiesBox()
 
 	self.conditions_background = xml:InitStatic("conditions_background", self)
 	

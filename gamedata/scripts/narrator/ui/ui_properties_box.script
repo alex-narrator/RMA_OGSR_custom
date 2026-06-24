@@ -22,18 +22,15 @@ local back_colors = {
 
 class "UIPropertiesBox" (CUIScriptWnd)
 
-function UIPropertiesBox:__init(owner) super()
-	self.owner = owner
+function UIPropertiesBox:__init() super()
 	self:InitControls()
 end
 
 function UIPropertiesBox:DetachWnd()
 	self:ClearCallbacks()
-	self.owner:DetachChild(self)
 end
 
 function UIPropertiesBox:InitControls()
-	self.owner:AttachChild(self)
 	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
 	
 	self.xml = CScriptXmlInit()
@@ -106,7 +103,7 @@ function UIPropertiesBox:Activate()
 	local show = table.size(self.actions) > 0
 	--self:Show(show)
 	if show then
-		local pos = vector2():set(self.owner:GetMousePosX(), self.owner:GetMousePosY())
+		local pos = level.get_cursor_pos()
 		local wnd_size = {x = self.scroll_view:GetWidth(), y = self.scroll_view:GetHeight()}
 		local delta = {x = pos.x + wnd_size.x - UI_BASE_WIDTH, y = pos.y + wnd_size.y - UI_BASE_HEIGHT}
 		if delta.x > 0 then
@@ -116,7 +113,7 @@ function UIPropertiesBox:Activate()
 			pos.y = pos.y - delta.y
 		end	
 		self.back:SetWndPos(pos.x, pos.y)
-		level.start_stop_menu(self, true)
+		level.start_stop_menu(self, false)
 	end
 	return show
 end
@@ -186,7 +183,7 @@ end
 function UIPropertiesBox:OnKeyboard(dik, keyboard_action)
 	CUIScriptWnd.OnKeyboard(self, dik, keyboard_action)
 	if keyboard_action == ui_events.WINDOW_KEY_PRESSED and dik ~= DIK_keys.MOUSE_2 then
-		level.start_stop_menu(self, true)
+		level.start_stop_menu(self, false)
 		return true
 	end
 	return false

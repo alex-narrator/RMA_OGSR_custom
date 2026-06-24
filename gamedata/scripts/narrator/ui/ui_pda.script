@@ -9,6 +9,8 @@ end
 
 local sm = ogsr_signals.get_mgr()
 
+local def_cursor_pos = vector2():set(UI_BASE_WIDTH * 0.5, UI_BASE_HEIGHT * 0.7)
+
 function create_window()
 	if not overlay then
 		overlay = PDAOverlay(level.get_pda_wnd())
@@ -34,8 +36,10 @@ function PDAOverlay:Subscribe()
 	self.subscribed = false
 	if not self.subscribed then
 		self.subscribed = {
-			{signal = "on_pda_show", self = self, fun = self.OnShow},
-			{signal = "on_pda_hide", self = self, fun = self.OnHide},
+			{signal = "on_pda_show", 			self = self, fun = self.OnShow},
+			{signal = "on_pda_hide", 			self = self, fun = self.OnHide},
+			{signal = "on_actor_pda_zoom_in", 	self = self, fun = self.OnZoomIn},
+			{signal = "on_actor_pda_zoom_out", 	self = self, fun = self.OnZoomOut},
 		}
 		for _, s in ipairs( self.subscribed ) do
 			sm:subscribe( s )
@@ -134,8 +138,8 @@ function PDAOverlay:OnShow()
 		self.prev_active_slot = NO_ACTIVE_SLOT
 	end
 	self.active_detector = not not actor:active_device()
-	local cursor_pos = vector2():set(UI_BASE_WIDTH * 0.5, UI_BASE_HEIGHT * 0.7)
-	level.set_cursor_pos(cursor_pos)
+	self.last_cursor_pos = def_cursor_pos
+	level.set_cursor_pos(self.last_cursor_pos)
 	if level.get_active_pda_tab_idx() == MAX_U16 then
 		level.set_active_pda_tab_idx(self.last_active_tab)
 	end
@@ -153,9 +157,16 @@ function PDAOverlay:OnHide()
 			end
 		end
 	)
-	self.last_active_tab = level.get_active_pda_tab_idx()	
+	self.last_active_tab = level.get_active_pda_tab_idx()
 end
 
+function PDAOverlay:OnZoomIn()
+	level.set_cursor_pos(self.last_cursor_pos)
+end
+
+function PDAOverlay:OnZoomOut()
+	self.last_cursor_pos = level.get_cursor_pos()
+end
 
 ----------------------------------------------------------CUSTOM PDA TABS-------------------------------------------------------------------------
 local custom_tabs = {

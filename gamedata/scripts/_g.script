@@ -1719,6 +1719,12 @@ pda_tab_by_key = {
 	[key_bindings.kCONTACTS] 	= pda_tab.contacts,
 }
 
+user_map_spots = {
+	["spot_flag"] = "personal_location",
+	["spot_question"] = "red_location",
+	["spot_exclamation"] = "red_location_exclamation",
+}
+
 KEY_BIND_STOP_SCRIPT_ANIM = key_bindings.kSPRINT
 
 --рушійно-подібні константи
@@ -2918,10 +2924,6 @@ end
 
 function get_script_option_tokens(opt)
 	return addon_options.get_option_tokens(opt)
-end
-
-function get_find_person_spot()
-	return read_if_exists(sys_ini, "string", "user_spots", "find_person_spot", "red_location")
 end
 
 function CIconParams(sect)
