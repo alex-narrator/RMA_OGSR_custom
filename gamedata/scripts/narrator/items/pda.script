@@ -442,10 +442,14 @@ function on_key_press(key, game_action)
 	local mir = level.main_input_receiver()
 	if mir then
 		if mir:WindowName() == "pda_wnd" then
-			if is_3d_pda() then
-				actor:activate_slot(NO_ACTIVE_SLOT)
+			if pda_tab == level.get_active_pda_tab_idx() then
+				if is_3d_pda() then
+					actor:activate_slot(NO_ACTIVE_SLOT)
+				else
+					level.start_stop_menu(mir, true)
+				end
 			else
-				level.start_stop_menu(mir, true)
+				level.set_active_pda_tab_idx(pda_tab)
 			end
 		end
 	return end
