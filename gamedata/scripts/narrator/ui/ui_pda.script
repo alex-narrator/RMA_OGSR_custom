@@ -95,6 +95,21 @@ function PDAOverlay:InitControls()
 	self.btn_off = xml:Init3tButton("off_button", self)
 	self:Register(self.btn_off, "off_btn")
 	self:AddCallback("off_btn", ui_events.BUTTON_CLICKED, self.HidePda, self)
+	
+	local work_frame_area = xml:ReadAttrib("work_frame", "area", nil)
+	if work_frame_area then
+		work_frame_area = split_string(work_frame_area, ",", true)
+		self.work_frame_area = {
+			x = {
+				min = work_frame_area[1],
+				max = work_frame_area[1] + work_frame_area[3]
+			},
+			y = {
+				min = work_frame_area[2],
+				max = work_frame_area[4] + work_frame_area[4]
+			}		
+		}
+	end
 end
 
 function PDAOverlay:Update()
@@ -122,6 +137,29 @@ function PDAOverlay:Update()
 	self.time:SetText(_time:timeToString(game.CTime.TimeToMinutes))
 	local date_text = string.format("%s %s", get_current_weekday_name(true), _time:dateToString(game.CTime.DateToDay))
 	self.date:SetText(date_text)
+	
+	if self.work_frame_area then
+		local mir = level.main_input_receiver()
+		if mir and mir:WindowName() == "pda_wnd" then
+			local current_pos = level.get_cursor_pos()
+			local new_pos = level.get_cursor_pos()
+			local out_of_frame
+			if new_pos.x < self.work_frame_area.x.min then
+				new_pos.x = self.work_frame_area.x.min
+			elseif new_pos.x > self.work_frame_area.x.max then
+				new_pos.x = self.work_frame_area.x.max
+			end
+			if new_pos.y < self.work_frame_area.y.min then
+				new_pos.y = self.work_frame_area.y.min
+			elseif new_pos.y > self.work_frame_area.y.max then
+				new_pos.y = self.work_frame_area.y.max
+			end
+			if new_pos.x ~= current_pos.x or new_pos.y ~= current_pos.y then
+				level.set_cursor_pos(new_pos)
+				-- log_news("cursor out of work frame area")
+			end
+		end
+	end
 end
 
 function PDAOverlay:HidePda()
