@@ -5,7 +5,7 @@ function attach(sm)
 end
 
 function on_map_db_click(map_pos, level_name, real_pos)
-	level.map_add_user_spot(level_name, real_pos, user_map_spots["spot_flag"], "")
+	level.map_add_user_spot(level_name, real_pos, get_user_spot("spot_flag"), "")
 end
 
 function on_map_spot_clicked(obj_id, spot_type, level_name, position, is_user_spot)
@@ -20,11 +20,11 @@ function on_map_spot_clicked(obj_id, spot_type, level_name, position, is_user_sp
 	action = this.show_spot_hint_wnd
 	properties_box:AddItem(name, precondition, action, obj_id, spot_type)
 	
-	for spot_name, new_spot_type in pairs(user_map_spots) do
-		name = string.format("%s %s", game.translate_string("st_pda_change_spot_type"), game.translate_string("st_"..spot_name))
-		precondition = function() return is_user_spot and spot_type ~= new_spot_type end
+	for k, v in pairs(user_map_spots) do
+		name = string.format("%s %s", game.translate_string("st_pda_change_spot_type"), game.translate_string("st_"..v.spot_name))
+		precondition = function() return is_user_spot and spot_type ~= v.spot_type end
 		action = this.change_spot_type
-		properties_box:AddItem(name, precondition, action, obj_id, spot_type, level_name, position, new_spot_type)
+		properties_box:AddItem(name, precondition, action, obj_id, spot_type, level_name, position, v.spot_type)
 	end
 	
 	name = "st_pda_delete_spot"
