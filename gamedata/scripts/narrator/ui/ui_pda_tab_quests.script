@@ -377,7 +377,7 @@ end
 
 function UIPdaTabQuests:OnShowOnMapClick(id, map_location)
 	level.set_pda_map_target_spot(id, map_location, true)
-	level.set_active_pda_tab_idx(pda_tab.map)
+	level.get_pda_wnd():GetPdaWnd():SetActiveTabIdx(pda_tab.map)
 end
 
 function UIPdaTabQuests:OnTaskStage(_task, _objective, _stage)

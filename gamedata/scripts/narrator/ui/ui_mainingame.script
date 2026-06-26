@@ -804,15 +804,12 @@ local update_states = {
 }
 local crosshair_set_states = {
 	[hud_state.eShowing] = true,
-	-- [hud_state.eHidden] = true,
-	-- [hud_state.eHiding] = true,	
 }
 function MainIngameOverlay:OnHudStateSwitch(item, state, old_state)
 	if update_states[old_state] then
 		self:SetPanelItemsNeedUpdate()
 	end
-	local device = item:get_device()
-	if crosshair_set_states[state] and not device then
+	if crosshair_set_states[state] and not item:get_device() then
 		self:SetCrosshair(read_if_exists(sys_ini, "string", item:section(), "crosshair", nil))
 		self:UpdateCrosshair(true)
 	end
@@ -1133,6 +1130,7 @@ function MainIngameOverlay:UpdateNVDInfo()
 end
 
 local crosshair_hide_states = {
+	-- [hud_state.eShowing] = true,
 	[hud_state.eReload] = true,
 	[hud_state.eHiding] = true,
 	[hud_state.eHidden] = true,
@@ -1148,11 +1146,11 @@ function MainIngameOverlay:UpdateCrosshair(forced)
 		self.crosshair:Show(false)
 	return end
 	
-	if act_item:is_hud_item() and crosshair_hide_states[act_item:get_hud_item_state()] then
-		self.crosshair:Show(false)
-	return end
-	
 	if actor_obj:is_actor_sprinting() then
+		self.crosshair:Show(false)
+	return end	
+	
+	if act_item:is_hud_item() and crosshair_hide_states[act_item:get_hud_item_state()] then
 		self.crosshair:Show(false)
 	return end
 	
@@ -1219,12 +1217,8 @@ function MainIngameOverlay:SetCrosshair(section)
 	self.crosshair.auto_scale = read_if_exists(sys_ini, "bool", section, "auto_scale", true)
 	self.crosshair.const_scale = read_if_exists(sys_ini, "float", section, "const_scale", 1)
 	
-	-- local color = split_string(read_if_exists(sys_ini, "string", section, "color", "255,255,255,255"), ",")
-	-- self.crosshair.color = GetARGB(color[1],color[2],color[2],color[4])
-	
 	local center = read_if_exists(sys_ini, "string", section, "center", "none")
 	self.crosshair:InitTexture(center)
-	--self.crosshair:SetColor(self.crosshair.color)
 	
 	for part_name, v in pairs(self.crosshair_parts) do
 		local params = read_if_exists(sys_ini, "string", section, part_name, nil)
@@ -1234,7 +1228,6 @@ function MainIngameOverlay:SetCrosshair(section)
 			v.static:InitTexture(params[1])
 			v.static:SetWidth((params[2] or 1) * get_current_kx())
 			v.static:SetHeight(params[3] or 1)
-			-- v.static:SetColor(self.crosshair.color)
 		end
 	end
 end

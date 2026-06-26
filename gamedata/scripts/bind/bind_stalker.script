@@ -624,9 +624,25 @@ end
 
 function actor_binder:on_pda_contact_add(obj_id)
 	self.sm:call("on_pda_contact_add", obj_id)
+	local npc = level.object_by_id(obj_id)
+	if not npc then
+	return end
+	if npc:alive() then
+		self.sm:call("on_pda_contact_add_alive", obj_id)
+	else
+		self.sm:call("on_pda_contact_add_dead", obj_id)
+	end
 end
 function actor_binder:on_pda_contact_remove(obj_id)
 	self.sm:call("on_pda_contact_remove", obj_id)
+	local npc = level.object_by_id(obj_id)
+	if not npc then
+	return end
+	if npc:alive() then
+		self.sm:call("on_pda_contact_remove_alive", obj_id)
+	else
+		self.sm:call("on_pda_contact_remove_dead", obj_id)
+	end	
 end
 
 --старт префетча звуков

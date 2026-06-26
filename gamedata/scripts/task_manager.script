@@ -1275,11 +1275,12 @@ function on_task_stage(_task, _objective, _stage)
 		gametask.remove_task(_task)
 		--log_news("remove task [%s]", _task:get_title())
 	end
-	--при отриманні нової таски робимо активним першу підзадачу і на неї ставим таргет на мапі
-	if _stage == "new" and get_script_option_value("select_new_task") then
-		--actor:set_task_selected(_task, 1, true)
-		gametask.set_active_task(_task, 1, true)
-	end	
+	if _stage == "new" then
+		if get_script_option_value("select_new_task") then
+			--при отриманні нової таски робимо активним першу підзадачу і на неї ставим таргет на мапі
+			gametask.set_active_task(_task, 1, true)
+		end
+	end
 end
 
 function check_vendor_dead(npc)

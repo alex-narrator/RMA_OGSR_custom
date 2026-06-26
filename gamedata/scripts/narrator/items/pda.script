@@ -1,14 +1,15 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
-	--sm:subscribe({signal = "on_take",   			fun = this.on_take})
-	sm:subscribe({signal = "on_pda_hack",   		fun = this.on_pda_hack})
-	sm:subscribe({signal = "on_hud_state_switch", 	fun = this.on_state_switch})
-	sm:subscribe({signal = "on_save", 				fun = this.on_save})
-	sm:subscribe({signal = "on_load", 				fun = this.on_load})
-	sm:subscribe({signal = "on_pda_contact_add", 	fun = this.on_pda_contact_add})
-	sm:subscribe({signal = "on_pda_contact_remove", fun = this.on_pda_contact_remove})
-	sm:subscribe({signal = "on_npc_death", 			fun = this.on_npc_death})
-	sm:subscribe({signal = "on_key_press",   		fun = this.on_key_press})
+	--sm:subscribe({signal = "on_take",   					fun = this.on_take})
+	sm:subscribe({signal = "on_pda_hack",   				fun = this.on_pda_hack})
+	sm:subscribe({signal = "on_hud_state_switch", 			fun = this.on_state_switch})
+	sm:subscribe({signal = "on_save", 						fun = this.on_save})
+	sm:subscribe({signal = "on_load", 						fun = this.on_load})
+	sm:subscribe({signal = "on_pda_contact_add_alive", 		fun = this.on_pda_contact_add_alive})
+	sm:subscribe({signal = "on_pda_contact_remove_alive", 	fun = this.on_pda_contact_remove_alive})
+	sm:subscribe({signal = "on_pda_contact_add_dead", 		fun = this.add_relation_map_spot_text})
+	sm:subscribe({signal = "on_npc_death", 					fun = this.on_npc_death})
+	sm:subscribe({signal = "on_key_press",   				fun = this.on_key_press})
 end
 
 local sm = ogsr_signals.get_mgr()
@@ -378,17 +379,14 @@ end
 
 local contacts = {}
 
-function on_pda_contact_add(id)
-	local npc = level.object_by_id(id)
-	if not npc or not npc:alive() then
-	return end
+function on_pda_contact_add_alive(id)
 	contacts[#contacts+1] = id
 	add_relation_map_spot_text(id)
 	sm:call("on_pda_contact_add_list", id)
 	--log_news("on_pda_contact_add %s | %s", id, level.object_by_id(id):character_name())
 end
 
-function on_pda_contact_remove(id)
+function on_pda_contact_remove_alive(id)
 	for k, contact_id in pairs(contacts) do
 		if id == contact_id then
 			contacts[k] = nil
@@ -400,7 +398,8 @@ function on_pda_contact_remove(id)
 end
 
 function on_npc_death(npc)
-	on_pda_contact_remove(npc:id())
+	on_pda_contact_remove_alive(npc:id())
+	add_relation_map_spot_text(id)
 end
 
 function get_contacts()
@@ -425,7 +424,7 @@ function add_relation_map_spot_text(id)
 	for spot,v in pairs(spot_type) do
 		if level.map_has_object_spot(id, spot) then
 			local npc = level.object_by_id(id)
-			local text = string.format("%s\\n%s\\n%s", npc:character_name(), game.translate_string(npc:character_community()), game.translate_string(ranks.get_obj_rank_name(npc)))
+			local text = string.format("%s%s%s \\n%s, %s", color_by_relation[npc:relation(actor)], npc:character_name(), "%c[default]", game.translate_string(npc:character_community()), game.translate_string(ranks.get_obj_rank_name(npc)))
 			level.map_change_spot_hint(id, spot, text)
 			--log_news("add_relation_map_spot_text %s", text)
 			break
@@ -439,31 +438,32 @@ function on_key_press(key, game_action)
 	return end
 	if not actor_get_pda() then
 	return end
+	local pda_wnd = level.get_pda_wnd():GetPdaWnd()
 	local mir = level.main_input_receiver()
 	if mir then
-		if mir:WindowName() == "pda_wnd" then
-			if pda_tab == level.get_active_pda_tab_idx() then
+		if mir:WindowName() == pda_wnd:WindowName() then
+			if pda_tab == pda_wnd:GetActiveTabIdx() then
 				if is_3d_pda() then
 					actor:activate_slot(NO_ACTIVE_SLOT)
 				else
 					level.start_stop_menu(mir, true)
 				end
 			else
-				level.set_active_pda_tab_idx(pda_tab)
+				pda_wnd:SetActiveTabIdx(pda_tab)
 			end
 		end
 	return end
 	if actor:active_slot() == PDA_SLOT then
 		actor:activate_slot(NO_ACTIVE_SLOT)
 	return end
-	level.set_active_pda_tab_idx(pda_tab)
+	pda_wnd:SetActiveTabIdx(pda_tab)
 	if is_3d_pda() then
 		actor:activate_slot(PDA_SLOT)
 	else
 		if get_script_option_value("play_pda_2d_anim") then
 			pda_anim.play_show()
 		else
-			level.start_stop_menu(level.get_pda_wnd(), true)
+			level.start_stop_menu(pda_wnd, true)
 		end
 	end
 end
