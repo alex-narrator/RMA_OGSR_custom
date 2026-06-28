@@ -1,48 +1,37 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
-	sm:subscribe({signal = "on_item_info_init",   	fun = this.add_custom_info})
-	sm:subscribe({signal = "on_slot_selector_show", fun = this.create_window})
-	sm:subscribe({signal = "on_slot_selector_hide", fun = this.destroy_window})
-	sm:subscribe({signal = "on_actor_menu_show", 	fun = this.create_window})
-	sm:subscribe({signal = "on_actor_menu_hide", 	fun = this.destroy_window})
-	sm:subscribe({signal = "on_quick_addon_show", 	fun = this.create_window})
-	sm:subscribe({signal = "on_quick_addon_hide", 	fun = this.destroy_window})
+	sm:subscribe({signal = "on_item_info_init",   		fun = this.add_custom_info})
+	--//
+	sm:subscribe({signal = "on_cell_item_focus", 		fun = this.on_focus})
+	sm:subscribe({signal = "on_quick_item_focus", 		fun = this.on_focus})
 end
 
-local overlay = nil
 local OVERLAY_XML = "script_overlays\\ui_item_info.xml"
 
-function create_window()
-	if not overlay then
-		overlay = UIItemInfo(level.main_input_receiver())
-	end
-end
-
-function destroy_window()
-	if overlay then
-		overlay:DetachWnd()
-		overlay = nil
-	end
+function on_focus(item)
+	if not get_script_option_value("floating_info") then
+	return end
+	UIItemInfo(item)
 end
 
 ------------------------------------------MAIN ITEM INFO WINDOW-----------------------------------------------------------------------------------------------------------------
 
 class "UIItemInfo" (CUIScriptWnd)
-function UIItemInfo:__init(owner) super()
-	self.owner = owner
+function UIItemInfo:__init(item, independent) super()
+	self.owner = level.main_input_receiver()
+	self.item = item
+	self.independent = independent
 	self:InitControls()
 	self:Subscribe()
+	self:SetShowTime()
 end
 
 function UIItemInfo:Subscribe()
 	self.subscribed = false
 	if not self.subscribed then
 		self.subscribed = {
-			{signal = "on_cell_item_focus", self = self, fun = self.OnCellItemFocus},
-			{signal = "on_cell_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
-			{signal = "on_quick_item_focus", self = self, fun = self.OnCellItemFocus},
-			{signal = "on_quick_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
-			{signal = "on_key_press", self = self, fun = self.OnCellItemFocusLost},
+			{signal = "on_cell_item_focus_lost", self = self, fun = self.DetachWnd},
+			{signal = "on_quick_item_focus_lost", self = self, fun = self.DetachWnd},
 		}
 		local sm = ogsr_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
@@ -62,71 +51,58 @@ function UIItemInfo:Unsubscribe()
 end
 
 function UIItemInfo:DetachWnd()
-	self:Unsubscribe()
 	self:ClearCallbacks()
-	self.owner:DetachChild(self)
+	self:Unsubscribe()
+	if self.independent then
+		level.start_stop_menu(self, false)
+	else	
+		self.owner:DetachChild(self)
+	end
 end
 
 function UIItemInfo:InitControls()
-	self.owner:AttachChild(self)
-	--self:Enable(true)
-	self:Show(true)
+	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
+	if self.independent then
+		level.start_stop_menu(self, false)
+	else
+		self.owner:AttachChild(self)
+		self:Show(true)
+	end
 
 	self.xml = CScriptXmlInit()
 	self.xml:ParseFile(OVERLAY_XML)
+	
+	self.background_contrast = self.xml:InitStatic("background_contrast", self)
+	self.background_contrast:Show(false)
 
-	self.background_frame = self.xml:InitFrame("background_frame", self)
+	local root = "background_frame"
+	self.background_frame = self.xml:InitFrame(root, self)
 	self.background_frame:Show(false)
 	
-	self.xml:InitAutoStaticGroup("w:background_frame:auto_static", self.background_frame)
+	self.xml:InitAutoStaticGroup("w:"..root..":auto_static", self.background_frame)
 	
 	local tmp_tbl, def_font, def_color = nil, "letterica16", "255, 255, 255, 255"
 	
-	tmp_tbl = split_string(self.xml:ReadAttrib("background_frame", "offset", "0,0"), ",")
+	tmp_tbl = split_string(self.xml:ReadAttrib(root, "offset", "0,0"), ",")
 	self.background_frame.offset = {x = tmp_tbl[1], y = tmp_tbl[2]}
 	
 	self.base_height = self.background_frame:GetHeight()
 	
-	self.name_st = self.xml:InitStatic("background_frame:static_name", self.background_frame)
-	self.weight_st = self.xml:InitStatic("background_frame:static_weight", self.background_frame)
-	self.cost_st = self.xml:InitStatic("background_frame:static_cost", self.background_frame)
+	self.name_st = self.xml:InitStatic(root..":static_name", self.background_frame)
+	self.weight_st = self.xml:InitStatic(root..":static_weight", self.background_frame)
+	self.cost_st = self.xml:InitStatic(root..":static_cost", self.background_frame)
 	self.cost_st.base_color = self.cost_st:GetTextColor()
 	
-	self.descr_list = self.xml:InitScrollView("background_frame:descr_list", self.background_frame)
-	self.descr_list.font = self.xml:ReadAttrib("background_frame:descr_list:descr_text", "font", def_font)
-	tmp_tbl = split_string(self.xml:ReadAttrib("background_frame:descr_list:descr_text", "text_color", def_color), ",")
+	root = root..":descr_list"
+	self.descr_list = self.xml:InitScrollView(root, self.background_frame)
+	self.descr_list.font = self.xml:ReadAttrib(root, "font", def_font)
+	tmp_tbl = split_string(self.xml:ReadAttrib(root, "text_color", def_color), ",")
 	self.descr_list.text_color = GetARGB(tmp_tbl[1], tmp_tbl[2], tmp_tbl[3], tmp_tbl[4])
-end
-
-function UIItemInfo:OnCellItemFocus(item)
-	if not get_script_option_value("floating_info") then
-	return end
-	self.item = item
-	self.show_time = time_global() + get_script_option_value("floating_show_delay") * 1000
-	level.add_call(
-		function()
-			local res = not self.show_time or (self.show_time and time_global() >= self.show_time)
-			if res then
-				self.show_time = nil
-			end
-			return res
-		end,
-		function()
-			self:InitItemInfo()
-		end
-	)
-end
-
-function UIItemInfo:OnCellItemFocusLost()
-	self.background_frame:Show(false)
-	self.item = nil
-	self.show_time = nil
 end
 
 function UIItemInfo:InitItemInfo()
 	local item = self.item
 	if not item then
-		self:OnCellItemFocusLost(item)
 	return end
 	
 	self.background_frame:Show(true)
@@ -168,20 +144,33 @@ function UIItemInfo:InitItemInfo()
 	self.descr_list:SetHeight(self.descr_list:GetPadSize().y)
 	self.background_frame:SetHeight(self.base_height + self.descr_list:GetHeight())
 	
-	self.owner:BringToTop(self)
+	self.background_contrast:Show(true)
+	local rect = Frect()
+	self.background_frame:GetWndRect(rect)
+	self.background_contrast:SetWndPos(rect.x1, rect.y1)
+	self.background_contrast:SetWidth(rect.x2)
+	self.background_contrast:SetHeight(rect.y2)
+	
+	if self.independent then
+		local offset = ui_inv_utils.GetOffset("center", self.background_frame, self)
+		self.background_frame:SetWndPos(offset.x, offset.y)
+		self.background_contrast:SetWndPos(offset.x, offset.y)
+	end
+end
+
+function UIItemInfo:SetShowTime()
+	if self.independent then
+		self:InitItemInfo()
+	else
+		self.show_time = time_global() + get_script_option_value("floating_show_delay") * 1000
+	end
 end
 
 function UIItemInfo:UpdateWndPos()
-	if not self.background_frame:IsShown() then
+	if not self.background_frame:IsShown() or self.independent then
 	return end
 	
-	local b_show = self.item and not actor_menu.properties_box:IsShown()
-	self.background_frame:Show(b_show)
-
-	if not self.background_frame:IsShown() then
-	return end
-	
-	local pos = vector2():set(self.owner:GetMousePosX(), self.owner:GetMousePosY())
+	local pos = level.get_cursor_pos()
 	pos.x = pos.x + self.background_frame.offset.x
 	pos.y = pos.y + self.background_frame.offset.y
 	local wnd_size = {x = self.background_frame:GetWidth(), y = self.background_frame:GetHeight()}
@@ -193,12 +182,26 @@ function UIItemInfo:UpdateWndPos()
         pos.y = pos.y - delta.y
 	end		
 	self.background_frame:SetWndPos(pos.x, pos.y)
+	self.background_contrast:SetWndPos(pos.x, pos.y)
 end
 
 function UIItemInfo:Update()
 	CUIScriptWnd.Update(self)
+	if self.show_time and time_global() >= self.show_time then
+		self:InitItemInfo()
+		self.show_time = nil
+	end
 	self:UpdateWndPos()
-end	
+end
+
+function UIItemInfo:OnKeyboard(dik, keyboard_action)
+	CUIScriptWnd.OnKeyboard(self, dik, keyboard_action)
+	if keyboard_action == ui_events.WINDOW_KEY_PRESSED then
+		self:DetachWnd()
+		return true
+	end
+	return false
+end
 ------------------------------------------ADDITIONAL WINDOWS-----------------------------------------------------------------------------------------------------------------
 
 function add_custom_info(UIDesc, obj, xml)
