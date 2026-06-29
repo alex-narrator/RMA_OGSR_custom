@@ -635,8 +635,8 @@ function add_info(pbox, item)
 	local name, precondition, action
 	name = "st_detail_info"
 	precondition = function() return not get_script_option_value("floating_info") end
-	action = ui_detail_info.show_hide_wnd
-	pbox:AddItem(name, precondition, action, item)
+	action = ui_item_info.UIItemInfo--ui_detail_info.show_hide_wnd
+	pbox:AddItem(name, precondition, action, item, true)
 end
 
 function add_custom_info(pbox, item)

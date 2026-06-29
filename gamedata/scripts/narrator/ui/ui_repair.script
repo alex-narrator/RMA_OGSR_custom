@@ -1,31 +1,29 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 local OVERLAY_XML = "script_overlays\\repair_overlay.xml"
 
-local back_texture 		= "square_light_grey"
-local color_default 	= GetARGB(0, 255, 255, 255)
-local color_focused 	= GetARGB(100, 200, 200, 200)
-local color_selected 	= GetARGB(170, 255, 255, 255)
-
 local BASE_DONOR_COND_K = 0.2
 local REPAIR_THRESHOLD = 0
 
 class "RepairOverlay" (CUIScriptWnd)
 
 local overlay = nil
-local repair_sound_weapon = [[interface\item_usage\inv_repair_kit_use_fast]]
-local repair_sound_armor = [[interface\item_usage\inv_repair_sewing_kit_fast]]
-local repair_sound_knife = [[interface\item_usage\inv_repair_knife]]
+
+local repair_sounds = {
+	["weapon"] = [[interface\item_usage\inv_repair_kit_use_fast]],
+	["knife"] = [[interface\item_usage\inv_repair_knife]],
+	["armor"] = [[interface\item_usage\inv_repair_sewing_kit_fast]],
+}
+
+--//repair time in game minutes for 1% condition restore
+local repair_time_default = {
+	["weapon"] = 2,
+	["knife"] = 1,
+	["armor"] = 2,
+}
+
+local min_repair_time = 5
 
 function create_overlay(item)
-	if not condition_limit then
-		condition_limit = 1
-	end
-	if not cost_k then
-		cost_k = 1
-	end
-	if not uniquie_k then
-		uniquie_k = 1
-	end
 	if not overlay then
 		overlay = RepairOverlay()		
 		overlay:Reinit(item)
@@ -46,15 +44,8 @@ function RepairOverlay:Subscribe()
 	self.subscribed = false
 	if not self.subscribed then
 		self.subscribed = {
-			-- {signal = "on_dialog_show", self = self, fun = self.DetachWnd},
-			-- {signal = "on_dialog_hide", self = self, fun = self.DetachWnd},
-			-- {signal = "on_talk_show", self = self, fun = self.DetachWnd},
-			-- {signal = "on_talk_hide", self = self, fun = self.DetachWnd},
-			-- {signal = "on_actor_menu_show", self = self, fun = self.OnActorMenuShow},
-			-- {signal = "on_cell_item_show", self = self, fun = self.OnItemIconShow},
 			{signal = "on_cell_item_select", 	self = self, fun = self.OnCellItemSelect},
 			{signal = "on_drop", 				self = self, fun = self.OnDrop},
-			-- {signal = "on_cell_item_db_click", self = self, fun = self.ShowRepairRequest},
 		}
 		local sm = ogsr_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
@@ -140,6 +131,7 @@ function RepairOverlay:Reinit(item)
 	self.donor_item = nil
 	self.tool_item = nil
 	self.res_cond_gain = nil
+	self.res_repair_time = nil
 	self.selected_donor:DetachAll()
 	self.selected_donor:SetText("")
 	self.selected_tool:DetachAll()
@@ -164,21 +156,21 @@ function RepairOverlay:InitItemsList()
 	function fill_list(dummy, item)
 		if item:id() ~= self.item:id() then
 			if self:IsDonor(item) then
-				table.insert(self.donors, {item = item, back = CUIStatic(), static = CUIStatic()})
+				table.insert(self.donors, item)
 			end
 			if self:IsRepairTool(item) then
-				table.insert(self.tools, {item = item, back = CUIStatic(), static = CUIStatic()})
+				table.insert(self.tools, item)
 			end
 		end
 	end
 	actor:iterate_inventory(fill_list, nil)
 	table.sort(self.donors, ui_inv_utils.sort_by_size_type)
 	table.sort(self.tools, ui_inv_utils.sort_by_size_type)
-	for k, v in pairs(self.donors) do
-		self.repair_donors:AddItem(v.item)
+	for k, item in pairs(self.donors) do
+		self.repair_donors:AddItem(item)
 	end
-	for k, v in pairs(self.tools) do
-		self.repair_tools:AddItem(v.item)
+	for k, item in pairs(self.tools) do
+		self.repair_tools:AddItem(item)
 	end	
 end
 
@@ -263,7 +255,6 @@ function RepairOverlay:AttachItemIcon(item, parent_wnd)
 	local icon_sect = read_if_exists(sys_ini, "string", item:section(), "repair_icon_sect", item:section())
 	local params = CIconParams(icon_sect)
 	parent_wnd:AttachChild(item_static)
-	--params:set_shader(item_static)
 	SetCellIcon(item_static, params)
 	ui_inv_utils.CellItemFitToSize(params, item_static, parent_wnd)
 	local offset = ui_inv_utils.GetOffset("center", item_static, parent_wnd)
@@ -274,27 +265,39 @@ function RepairOverlay:UpdateRepairInfo()
 	self.repair_button:Enable(self.donor_item)
 	
 	self.res_cond_gain = 0
+	self.res_repair_time = 0
+	
 	if self.donor_item then
 		self.res_cond_gain = read_if_exists(sys_ini, "float", self.donor_item:section(), "service_condition_gain", math.clamp(self.donor_item:condition() * BASE_DONOR_COND_K, 0.01, 1))
 		self.res_cond_gain = self.res_cond_gain + self.res_cond_gain * campfire_effects.repair_bonus()
+		self.res_repair_time = read_if_exists(sys_ini, "float", self.item:section(), "repair_time", self.item:is_weapon() and self.item:is_knife() and repair_time_default["knife"] or repair_time_default["weapon"] or repair_time_default["armor"])
+		self.res_repair_time = self.res_repair_time - self.res_repair_time * campfire_effects.repair_bonus()
 		local text = string.format("%+.1f%s", self.res_cond_gain * 100, game.translate_string("st_percent"))
 		self.selected_donor:SetText(text)
-		
-		
 	end
+	
 	if self.tool_item then
 		local bonus = read_if_exists(sys_ini, "float", self.tool_item:section(), "repair_bonus", 0)
 		
 		if self.donor_item then
 			self.res_cond_gain = self.res_cond_gain * bonus
+			self.res_repair_time = self.res_repair_time / bonus
 		end
 		text = string.format("x%.1f", bonus)
 		self.selected_tool:SetText(text)
 	end
 	
+	if self.item:condition() + self.res_cond_gain > 1 then
+		self.res_cond_gain = 1 - self.item:condition()
+	end
+	
+	self.res_repair_time = math.ceil(self.res_repair_time * self.res_cond_gain * 100)
+	self.res_repair_time = math.clamp(self.res_repair_time, min_repair_time, 24*60*10)
+	--log_news("repair time [%s]", self.res_repair_time)
+	
 	local text
 	if self.res_cond_gain > 0 then
-		text = string.format("%.1f%s (%+.1f%s)", math.clamp(self.item:condition() + self.res_cond_gain, 0, 1) * 100, game.translate_string("st_percent"), self.res_cond_gain * 100, game.translate_string("st_percent"))
+		text = string.format("%.1f%s [%+.1f%s] [%s %s]", (self.item:condition() + self.res_cond_gain) * 100, game.translate_string("st_percent"), self.res_cond_gain * 100, game.translate_string("st_percent"), self.res_repair_time, game.translate_string("ui_st_mins"))
 	else
 		text = string.format("%.1f%s", self.item:condition() * 100, game.translate_string("st_percent"))
 	end
@@ -302,7 +305,7 @@ function RepairOverlay:UpdateRepairInfo()
 end
 
 function RepairOverlay:PerformRepair()
-	local sound = read_if_exists(sys_ini, "string", self.donor_item:section(), "repair_sound", self.item:is_weapon() and self.item:is_knife() and repair_sound_knife or repair_sound_weapon or repair_sound_armor)
+	local sound = read_if_exists(sys_ini, "string", self.donor_item:section(), "use_sound", self.item:is_weapon() and self.item:is_knife() and repair_sounds["knife"] or repair_sounds["weapon"] or repair_sounds["armor"])
 	local snd = xr_sound.get_safe_sound_object(sound)
 	local length = snd:length()
 	local snd_end_time = time_global() + length
@@ -353,7 +356,9 @@ function RepairOverlay:PerformRepair()
 						end
 					end
 				end
-				
+				if self.res_repair_time > 0 then
+					forward_game_time(0, 0, self.res_repair_time)
+				end
 				self.item:change_condition(self.res_cond_gain)
 			end
 			if can_repair(self.item) then

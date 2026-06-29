@@ -1514,7 +1514,7 @@ end
 function ActorMenuOverlay:SkipTime()
 	local function wait_time(skeep_h)
 		level.add_pp_effector("blink.ppe", 999, false)
-		change_game_time(0, skeep_h, 0)
+		forward_game_time(0, skeep_h, 0)
 	end
 	ui_skip_time.show_skip_time_window("wait", wait_time)
 end

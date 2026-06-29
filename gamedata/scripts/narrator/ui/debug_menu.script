@@ -395,7 +395,7 @@ function UIDebugMenu:OnChangeTime()
 	local val_m = self.change_time_track_minutes:GetTrackValue()
 	if not val_h and not val_m or val_h == 0 and val_m == 0 then
 	return end
-	change_game_time(0, val_h, val_m)
+	forward_game_time(0, val_h, val_m)
 	self:InitChangeTime()
 end
 

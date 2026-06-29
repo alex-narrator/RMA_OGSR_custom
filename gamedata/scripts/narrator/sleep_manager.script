@@ -62,11 +62,10 @@ function write_place_pos_to_file(radius)
 	file:close()
 end
 
-function on_time_change(m_sec)
+function on_time_change(seconds)
 	if not is_sleeping then
 	return end
-	local sleep_seconds = m_sec * 0.001
-	sleep_conditions(sleep_seconds)
+	sleep_conditions(seconds)
 end
 
 function on_sleep_prop_use(obj)
@@ -188,10 +187,10 @@ function change_time()
 	local get_full_sleep = sleep_h <= 0
 	if get_full_sleep then
 		while somnolence.get_val() > 0 do
-			change_game_time()
+			forward_game_time()
 		end
 	else
-		change_game_time(0, sleep_h, 0)
+		forward_game_time(0, sleep_h, 0)
 	end
 	sleep_h = 0
 	play_awake_effects()

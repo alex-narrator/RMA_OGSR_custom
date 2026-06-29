@@ -1,9 +1,9 @@
 function attach(sm)
-	sm:subscribe({signal = "on_spawn",   			fun = this.on_spawn})
-	sm:subscribe({signal = "on_update",   			fun = this.on_update})
-	sm:subscribe({signal = "on_save",   			fun = this.on_save})
-	sm:subscribe({signal = "on_load",   			fun = this.on_load})
-	sm:subscribe({signal = "on_time_change", 		fun = this.on_time_change})
+	sm:subscribe({signal = "on_spawn", 			fun = this.reset})
+	sm:subscribe({signal = "on_update", 		fun = this.update})
+	sm:subscribe({signal = "on_save", 			fun = this.save_weather})
+	sm:subscribe({signal = "on_load", 			fun = this.load_weather})
+	sm:subscribe({signal = "on_time_change", 	fun = this.forced_weather_change})
 end
 
 local weather_data = {
@@ -18,26 +18,6 @@ local weather_data = {
 	graphs={},
 }
 local graphs_ini = ini_file_cached("environment\\dynamic_weather_graphs.ltx")
-
-function on_spawn()
-	reset()
-end
-
-function on_update()
-	update()
-end
-
-function on_save()
-	save_weather()
-end
-
-function on_load()
-	load_weather()
-end
-
-function on_time_change()
-	select_weather(true)
-end
 
 -- Вызывается после load(). Состояние погоды уже загружено.
 function reset()
@@ -56,9 +36,11 @@ function reset()
     select_weather(true)
 	weather_data.last_hour=level.get_time_hours()
 end
+
 function forced_weather_change()
 	weather_data.forced_weather_change_on_time_change = true
 end
+
 -- Обновляем погоду раз в час.
 function update()
 	weather_data.weather_fx = level.is_wfx_playing() and level.get_weather() or nil

@@ -2658,30 +2658,43 @@ function teleport_actor(position, level_name)
 	end
 end
 
-function advance_game_time(m_sec)
-	m_sec = math.round(m_sec)
-	level.advance_game_time(m_sec)
+function advance_game_time(sec)
+	level.advance_game_time(sec * 1000)
 	actor:update_condition()
 	actor_obj:update_items_effect()
 	local sm = ogsr_signals.get_mgr()
 	sm:call("on_update", 0)
-	sm:call("on_time_change", m_sec)
+	sm:call("on_time_change", sec)
 end
 
 function change_game_time(days, hours, minutes)
+	--log_news("change_game_time days [%s] hours [%s] minutes [%s]", days, hours, minutes)
+	level.change_game_time(days, hours, minutes)
+	actor:update_condition()
+	actor_obj:update_items_effect()
+	local sm = ogsr_signals.get_mgr()
+	sm:call("on_update", 0)
+	local seconds = (days * 24 * 60 + hours * 60 + minutes) * 60
+	sm:call("on_time_change", seconds)	
+end
+
+function forward_game_time(days, hours, minutes)
+	--log_news("forward_game_time days [%s] hours [%s] minutes [%s]", days, hours, minutes)
 	local time_quant_minutes = 15
 	local change_one_quant = not (days and hours and minutes)
 	local total_minutes = change_one_quant and time_quant_minutes or (days * 24 * 60 + hours * 60 + minutes)
 	--//рахуємо цілу частину та залишок від ділення
-	local iter_count, remainder = math.modf(total_minutes / time_quant_minutes)
+	local iter_count, remainder = math.floor(total_minutes / time_quant_minutes), math.fmod(total_minutes, time_quant_minutes)
 	--log_news("~iter_count %s, remainder %s", iter_count, remainder)
 	--//промотаємо час на фіксовані проміжки
 	for i = 1, iter_count do
-		advance_game_time(time_quant_minutes * 60 * 1000)
+		--advance_game_time(time_quant_minutes * 60)
+		change_game_time(0, 0, time_quant_minutes)
 	end
 	--//промотаємо час на залишок хвилин
 	if remainder > 0 then
-		advance_game_time(remainder * 60 * 1000)
+		--advance_game_time(remainder * 60)
+		change_game_time(0, 0, remainder)
 	end
 end
 
