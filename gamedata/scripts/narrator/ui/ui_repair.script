@@ -1,5 +1,5 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
-local OVERLAY_XML = "script_overlays\\repair_overlay.xml"
+local OVERLAY_XML = "script_overlays\\ui_repair_overlay.xml"
 
 local BASE_DONOR_COND_K = 0.2
 local REPAIR_THRESHOLD = 0
@@ -41,7 +41,6 @@ function RepairOverlay:__init() super()
 end
 
 function RepairOverlay:Subscribe()
-	self.subscribed = false
 	if not self.subscribed then
 		self.subscribed = {
 			{signal = "on_cell_item_select", 	self = self, fun = self.OnCellItemSelect},
@@ -251,12 +250,9 @@ end
 
 function RepairOverlay:AttachItemIcon(item, parent_wnd)
 	parent_wnd:DetachAll()
-	local item_static = CUIStatic()
 	local icon_sect = read_if_exists(sys_ini, "string", item:section(), "repair_icon_sect", item:section())
-	local params = CIconParams(icon_sect)
-	parent_wnd:AttachChild(item_static)
-	SetCellIcon(item_static, params)
-	ui_inv_utils.CellItemFitToSize(params, item_static, parent_wnd)
+	local item_static = ui_cell_item.UICellItemSimple(parent_wnd, icon_sect)
+	item_static:SetInteractive(false)
 	local offset = ui_inv_utils.GetOffset("center", item_static, parent_wnd)
 	item_static:SetWndPos(offset.x, offset.y)
 end

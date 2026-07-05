@@ -1,5 +1,5 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
-local OVERLAY_XML = "script_overlays\\mainingame_overlay.xml"
+local OVERLAY_XML = "script_overlays\\ui_mainingame_overlay.xml"
 local subscribed = false
 local DYNAMIC_SHOW = true
 local DEBUG_WARNING_SHOW = false
@@ -67,20 +67,15 @@ function MainIngameOverlay:__init(owner) super()
 end
 
 function MainIngameOverlay:Subscribe()
-	self.subscribed = false
 	if not self.subscribed then
 		self.subscribed = {
 			{signal = "on_quick_item_set", self = self, fun = self.SetPanelItemsNeedUpdate},
-			--{signal = "on_quick_item_use", self = self, fun = self.UpdatePanelItems},
 			{signal = "on_drop", self = self, fun = self.TryUpdatePanelItems},
-			--{signal = "on_use", self = self, fun = self.UpdateQuickSlotsAndPanels},
-			--{signal = "on_item_to_loadout", self = self, fun = self.UpdatePanelItems},
-			--{signal = "on_item_from_loadout", self = self, fun = self.UpdatePanelItems},
-			--{signal = "on_slot", self = self, fun = self.UpdatePanelItems},
 			{signal = "on_ruck", self = self, fun = self.TryUpdatePanelItems},
 			{signal = "on_belt", self = self, fun = self.SetPanelItemsNeedUpdate},
 			{signal = "on_loadout_update_count", self = self, fun = self.SetPanelItemsNeedUpdate},
-			{signal = "on_actor_menu_hide", self = self, fun = self.SetPanelItemsNeedUpdate},			
+			{signal = "on_actor_menu_hide", self = self, fun = self.SetPanelItemsNeedUpdate},
+			{signal = "on_use", self = self, fun = self.OnItemUse},
 			{signal = "on_hud_state_switch", self = self, fun = self.OnHudStateSwitch},
 			{signal = "on_key_press", self = self, fun = self.OnKeyPress},
 			{signal = "on_key_release", self = self, fun = self.OnKeyRelease},
@@ -145,8 +140,11 @@ function MainIngameOverlay:InitControls()
 	
 	local xml = CScriptXmlInit()
 	xml:ParseFile(OVERLAY_XML)
+	self.xml = xml
 	
 	xml:InitAutoStaticGroup("w:auto_static", self)
+	
+	local root
 	
 	self.outfit_mask = CUIStatic()
 	self.outfit_mask:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
@@ -180,8 +178,9 @@ function MainIngameOverlay:InitControls()
 	self.grenade_marker.show_my_grenade = xml:ReadAttribInt("grenade_marker", "show_my_grenade", 1) > 0 and true or false
 	self.grenade_marker.grenades = {}
 	
-	self.blood_overlay = xml:InitStatic("blood_overlay", self)
-	self.blood_overlay.fade_time = xml:ReadAttribFlt("blood_overlay", "fade_time", 0)
+	root = "blood_overlay"
+	self.blood_overlay = xml:InitStatic(root, self)
+	self.blood_overlay.fade_time = xml:ReadAttribFlt(root, "fade_time", 0)
 	
 	self.conditions = {
 		-- ["health"] 		= { condition = function() return actor.health end },
@@ -223,102 +222,51 @@ function MainIngameOverlay:InitControls()
 	end	
 	
 	--//motion icon
-	name = "motion_icon"
-	self.motion_icon = xml:InitStatic(name, self)
-	self.motion_icon.icon = xml:InitStatic(name..":icon", self.motion_icon)
+	root = "motion_icon"
+	self.motion_icon = xml:InitStatic(root, self)
+	self.motion_icon.icon = xml:InitStatic(root..":icon", self.motion_icon)
 	self.current_motion_texture = false
-
-	--// quick slots
-	self.quick_slots = xml:InitStatic("quick_slots", self)
-	self.quick_slots.show_on_gear = (xml:ReadAttribInt("quick_slots", "show_on_gear", 0) > 0) and true or false
-
-	--//slot colors
-	self.quick_color_has_item 	= GetARGB(255, 255, 255, 255)
-	self.quick_color_no_item 	= GetARGB(120, 255, 255, 255)
-
-	local pos_x = xml:ReadAttribFlt("quick_slots:slot", "x", 0)
-	local pos_y = xml:ReadAttribFlt("quick_slots:slot", "y", 0)	
-	local horz = (xml:ReadAttribInt("quick_slots", "horz", 1) > 0) and true or false
-	local indent = xml:ReadAttribFlt("quick_slots", "indent", 0)
-
-	self.slots = {}
-	for i=0,3 do
-		local s = xml:InitStatic("quick_slots:slot", self.quick_slots)
-		self.slots[i] = s
-		s:SetText(game.translate_string("ui_quick_slot_"..i))
-		s:SetWndPos(pos_x, pos_y)
-		if horz then
-			pos_x = pos_x + s:GetWidth() + indent
-		else
-			pos_y = pos_y + s:GetHeight() + indent
-		end
-		s.icon = xml:InitStatic("quick_slots:slot:icon", s)
-		s.count = xml:InitStatic("quick_slots:slot:count", s)
-		self:DrawSlotIcon(i)
-	end
 	
 	local tmp_tbl, def_font, def_color = nil, "letterica16", "255, 255, 255, 255"
-	--// slot panel
-	-- self.slot_panel = xml:InitStatic("slot_panel", self)
-	-- self.slot_panel.scale = xml:ReadAttribFlt("slot_panel", "scale", 1)
-	-- self.slot_panel.indent = xml:ReadAttribFlt("slot_panel", "indent", 0)
-	-- self.slot_panel.vertical = xml:ReadAttribInt("slot_panel", "vertical", 0) > 0 and true or false
-	-- self.slot_panel.font = xml:ReadAttrib("slot_panel", "font", def_font)
-	-- tmp_tbl = split_string(xml:ReadAttrib("slot_panel", "text_color", def_color), ",")
-	-- self.slot_panel.text_color = GetARGB(tmp_tbl[1], tmp_tbl[2], tmp_tbl[3], tmp_tbl[4])
-	-- tmp_tbl = split_string(xml:ReadAttrib("slot_panel", "text_offset", "0,0"), ",")
-	-- self.slot_panel.text_offset = {x = tmp_tbl[1], y = tmp_tbl[2]}
-	-- self.slot_panel.slots = split_string(xml:ReadAttrib("slot_panel", "slots", ""), ",")
-	-- self.slot_panel.align_center = xml:ReadAttribInt("slot_panel", "center", 0) > 0 and true or false
-	--// belt panel
-	self.belt_panel = xml:InitStatic("belt_panel", self)
-	self.belt_panel.scale = xml:ReadAttribFlt("belt_panel", "scale", 1)
-	self.belt_panel.indent = xml:ReadAttribFlt("belt_panel", "indent", 0)
-	self.belt_panel.vertical = xml:ReadAttribInt("belt_panel", "vertical", 0) > 0 and true or false
-	self.belt_panel.group_similar = xml:ReadAttribInt("belt_panel", "group_similar", 0) > 0 and true or false
-	self.belt_panel.font = xml:ReadAttrib("belt_panel", "font", def_font)
-	tmp_tbl = split_string(xml:ReadAttrib("belt_panel", "text_color", def_color), ",")
-	self.belt_panel.text_color = GetARGB(tmp_tbl[1], tmp_tbl[2], tmp_tbl[3], tmp_tbl[4])
-	tmp_tbl = split_string(xml:ReadAttrib("belt_panel", "text_offset", "0,0"), ",")
-	self.belt_panel.text_offset = {x = tmp_tbl[1], y = tmp_tbl[2]}
-	self.belt_panel.align_center = xml:ReadAttribInt("belt_panel", "center", 0) > 0 and true or false
-	self.belt_panel.hide_in_quick_slot = xml:ReadAttribInt("belt_panel", "hide_in_quick_slot", 0) > 0 and true or false
-	self.belt_panel.hide_modules = xml:ReadAttribInt("belt_panel", "hide_modules", 0) > 0 and true or false
-	--// loadout panel
-	-- self.loadout_panel = xml:InitStatic("loadout_panel", self)
-	-- self.loadout_panel.scale = xml:ReadAttribFlt("loadout_panel", "scale", 1)
-	-- self.loadout_panel.indent = xml:ReadAttribFlt("loadout_panel", "indent", 0)
-	-- self.loadout_panel.vertical = xml:ReadAttribInt("loadout_panel", "vertical", 0) > 0 and true or false
-	-- self.loadout_panel.group_similar = xml:ReadAttribInt("loadout_panel", "group_similar", 0) > 0 and true or false
-	-- self.loadout_panel.font = xml:ReadAttrib("loadout_panel", "font", def_font)
-	-- tmp_tbl = split_string(xml:ReadAttrib("loadout_panel", "text_color", def_color), ",")
-	-- self.loadout_panel.text_color = GetARGB(tmp_tbl[1], tmp_tbl[2], tmp_tbl[3], tmp_tbl[4])
-	-- tmp_tbl = split_string(xml:ReadAttrib("loadout_panel", "text_offset", "0,0"), ",")
-	-- self.loadout_panel.text_offset = {x = tmp_tbl[1], y = tmp_tbl[2]}
-	-- self.loadout_panel.align_center = xml:ReadAttribInt("loadout_panel", "center", 0) > 0 and true or false
 	--// booster panel
-	self.booster_panel = xml:InitStatic("booster_panel", self)
-	self.booster_panel.scale = xml:ReadAttribFlt("booster_panel", "scale", 1)
-	self.booster_panel.indent = xml:ReadAttribFlt("booster_panel", "indent", 0)
-	self.booster_panel.vertical = xml:ReadAttribInt("booster_panel", "vertical", 0) > 0 and true or false
-	self.booster_panel.font = xml:ReadAttrib("booster_panel", "font", def_font)
-	tmp_tbl = split_string(xml:ReadAttrib("booster_panel", "text_color", def_color), ",")
+	root = "booster_panel"
+	self.booster_panel = xml:InitStatic(root, self)
+	local cell_size = xml:ReadAttribFlt(root, "cell_size", CELL_H)
+	self.booster_panel.cell_size = { w = math.round(cell_size * get_current_kx()), h = math.round(cell_size) }	
+	self.booster_panel.indent = xml:ReadAttribFlt(root, "indent", 0)
+	self.booster_panel.vertical = xml:ReadAttribInt(root, "vertical", 0) > 0 and true or false
+	self.booster_panel.font = xml:ReadAttrib(root, "font", def_font)
+	tmp_tbl = split_string(xml:ReadAttrib(root, "text_color", def_color), ",")
 	self.booster_panel.text_color = GetARGB(tmp_tbl[1], tmp_tbl[2], tmp_tbl[3], tmp_tbl[4])
-	tmp_tbl = split_string(xml:ReadAttrib("booster_panel", "text_offset", "0,0"), ",")
+	tmp_tbl = split_string(xml:ReadAttrib(root, "text_offset", "0,0"), ",")
 	self.booster_panel.text_offset = {x = tmp_tbl[1], y = tmp_tbl[2]}
-	self.booster_panel.align_center = xml:ReadAttribInt("booster_panel", "center", 0) > 0 and true or false
+	self.booster_panel.align_center = xml:ReadAttribInt(root, "center", 0) > 0 and true or false
+	--//equiped panel
+	root = "equiped_panel"
+	self.equiped_panel = xml:InitStatic(root, self)
+	local cell_size = xml:ReadAttribFlt(root, "cell_size", CELL_H)
+	self.equiped_panel.cell_size = { w = math.round(cell_size * get_current_kx()), h = math.round(cell_size) }
+	self.equiped_panel.group_similar = xml:ReadAttribInt(root, "group_similar", 0) > 0 and true or false
+	self.equiped_panel.indent = xml:ReadAttribFlt(root, "indent", 0)
+	self.equiped_panel.vertical = xml:ReadAttribInt(root, "vertical", 0) > 0 and true or false
+	self.equiped_panel.offset_type = xml:ReadAttrib(root, "offset", "center")
+	tmp_tbl = split_string(xml:ReadAttrib(root, "offset_shift", "0,0"), ",")
+	self.equiped_panel.offset_shift = {x = tmp_tbl[1], y = tmp_tbl[2]}
+	self.equiped_panel.quick_key_offset = xml:ReadAttrib(root..":quick_key", "offset", "left_down")
 	self:UpdatePanelItems()
 	
 	--//active item info
-	self.active_item = xml:InitStatic("active_item", self)
-	self.active_item.icon = xml:InitStatic("active_item:icon", self.active_item)
-	self.active_item.ammo_name = xml:InitStatic("active_item:ammo_name", self.active_item)
-	self.active_item.ammo_counter = xml:InitStatic("active_item:ammo_counter", self.active_item)
-	self.active_item.fire_mode = xml:InitStatic("active_item:fire_mode", self.active_item)
-	self.active_item.switch_ammo_name = xml:InitStatic("active_item:switch_ammo_name", self.active_item)
+	root = "active_item"
+	self.active_item = xml:InitStatic(root, self)
+	self.active_item.icon = xml:InitStatic(root..":icon", self.active_item)
+	self.active_item.ammo_name = xml:InitStatic(root..":ammo_name", self.active_item)
+	self.active_item.ammo_counter = xml:InitStatic(root..":ammo_counter", self.active_item)
+	self.active_item.fire_mode = xml:InitStatic(root..":fire_mode", self.active_item)
+	self.active_item.switch_ammo_name = xml:InitStatic(root..":switch_ammo_name", self.active_item)
 	
 	--//missile throw progressshape
-	self.missile_throw = xml:InitProgressShape("throw_progress", self)
+	root = "throw_progress"
+	self.missile_throw = xml:InitProgressShape(root, self)
 	local offset = ui_inv_utils.GetOffset("center", self.missile_throw, self.owner)
 	self.missile_throw:SetWndPos(offset.x, offset.y)
 	self.missile_text = xml:InitStatic("throw_text", self)
@@ -326,20 +274,21 @@ function MainIngameOverlay:InitControls()
 	self.missile_text:SetWndPos(offset.x, offset.y)
 	
 	--//projectile trajectory
-	local style 		= xml:ReadAttrib("projectile_trajectory", "style", "glow") 			--// dim/glow
-	local size 			= xml:ReadAttrib("projectile_trajectory", "size", "medium") 		--// small/medium/large
-	local brightness 	= xml:ReadAttrib("projectile_trajectory", "brightness", "medium") 	--// bright/medium/dark
-	local color 		= xml:ReadAttrib("projectile_trajectory", "color", "green") 		--// red/green/blue/white/yellow/cyan
+	root = "projectile_trajectory"
+	local style 		= xml:ReadAttrib(root, "style", "glow") 		--// dim/glow
+	local size 			= xml:ReadAttrib(root, "size", "medium") 		--// small/medium/large
+	local brightness 	= xml:ReadAttrib(root, "brightness", "medium") 	--// bright/medium/dark
+	local color 		= xml:ReadAttrib(root, "color", "green") 		--// red/green/blue/white/yellow/cyan
 	self.projectile_particle = string.format([[_samples_particles_\gt_%s_%s_%s_%s]], style, size, brightness, color)--xml:ReadAttrib("projectile_trajectory", "particle", "_samples_particles_\\gt_glow_small_bright_yellow")
-	self.projectile_step_count = xml:ReadAttribInt("projectile_trajectory", "step_count", 10)
-	self.projectile_step_interval = xml:ReadAttribFlt("projectile_trajectory", "step_interval", 0.1)
+	self.projectile_step_count = xml:ReadAttribInt(root, "step_count", 10)
+	self.projectile_step_interval = xml:ReadAttribFlt(root, "step_interval", 0.1)
 	self.projectile_particles = {}
 	for i=1, self.projectile_step_count do
 		self.projectile_particles[i] = particles_object(self.projectile_particle)
 	end
-	local impact_size 			= xml:ReadAttribInt("projectile_trajectory", "impact_size", "1") 			--// 1/2/3/4/5
-	local impact_brightness 	= xml:ReadAttrib("projectile_trajectory", "impact_brightness", brightness) 	--// bright/medium/dark
-	local impact_color 			= xml:ReadAttrib("projectile_trajectory", "impact_color", color) 			--// red/green/blue/white/yellow	
+	local impact_size 			= xml:ReadAttribInt(root, "impact_size", "1") 			--// 1/2/3/4/5
+	local impact_brightness 	= xml:ReadAttrib(root, "impact_brightness", brightness) 	--// bright/medium/dark
+	local impact_color 			= xml:ReadAttrib(root, "impact_color", color) 			--// red/green/blue/white/yellow	
 	local impact_particle = string.format([[_samples_particles_\gt_impact_%sx_%s_%s]], impact_size, impact_brightness, impact_color)
 	self.projectile_particle_impact = particles_object(impact_particle)
 	
@@ -347,27 +296,30 @@ function MainIngameOverlay:InitControls()
 	self.warning_icons = ui_warning_icons.WarningIcons(xml, self)
 	
 	--//classic top view compass
-	self.minimap = self.owner:GetStatic("minimap")
-	self.minimap_back = self.owner:GetStatic("minimap:background")
-	self.compass = xml:InitStatic("compass_top_view", self.minimap_back)
-	self.compass_arrow = xml:InitStatic("compass_top_view:arrow", self.compass)
-	self.dist_text = xml:InitStatic("compass_top_view:dist_text", self.compass)
-	self.time_text = xml:InitStatic("compass_top_view:time_text", self.compass)
+	root = "minimap"
+	self.minimap = self.owner:GetStatic(root)
+	self.minimap_back = self.owner:GetStatic(root..":background")
+	root = "compass_top_view"
+	self.compass = xml:InitStatic(root, self.minimap_back)
+	self.compass_arrow = xml:InitStatic(root..":arrow", self.compass)
+	self.dist_text = xml:InitStatic(root..":dist_text", self.compass)
+	self.time_text = xml:InitStatic(root..":time_text", self.compass)
 	
 	--//modern front view compass
 	self.front_view_compass = ui_frontview_compass.CompassOverlay(self)
 	
 	--//active task
-	self.active_task = xml:InitStatic("active_task", self)
+	root = "active_task"
+	self.active_task = xml:InitStatic(root, self)
 	self.active_task:Show(false)
-	self.active_task_show_time = xml:ReadAttribInt("active_task", "show_time", 5)
-	self.task_icon = xml:InitStatic("active_task:task_icon", self.active_task)
-	self.task_header = xml:InitStatic("active_task:task_header", self.active_task)
+	self.active_task_show_time = xml:ReadAttribInt(root, "show_time", 5)
+	self.task_icon = xml:InitStatic(root..":task_icon", self.active_task)
+	self.task_header = xml:InitStatic(root..":task_header", self.active_task)
 	self.task_header.base_color = self.task_header:GetTextColor()
-	self.objective_header = xml:InitStatic("active_task:objective_header", self.active_task)
+	self.objective_header = xml:InitStatic(root..":objective_header", self.active_task)
 	self.objective_header.base_color = self.objective_header:GetTextColor()
-	self.task_state_icon = xml:InitStatic("active_task:task_state_icon", self.active_task)
-	self.task_remaining_time = xml:InitStatic("active_task:task_remaining_time", self.active_task)
+	self.task_state_icon = xml:InitStatic(root..":task_state_icon", self.active_task)
+	self.task_remaining_time = xml:InitStatic(root..":task_remaining_time", self.active_task)
 	
 	--//slot selector
 	self.slot_selector = ui_slot_selector.SlotSelectorOverlay()
@@ -376,36 +328,42 @@ function MainIngameOverlay:InitControls()
 	self.quick_addon = ui_quick_addon.QuickAddonOverlay()	
 	
 	--//target tip
-	self.target_tip = xml:InitStatic("target_tip", self)
-	self.target_tip.offset = xml:ReadAttrib("target_tip", "offset", "center")
-	self.target_tip.offset_shift = split_string(xml:ReadAttrib("target_tip", "offset_shift", "0,0"), ",", true)
-	self.target_tip.show_on_object = xml:ReadAttribInt("target_tip", "show_on_object", 0) > 0 and true or false
-	self.target_tip.border = xml:ReadAttribInt("target_tip", "border", 0)
-	self.tip_cursor = xml:InitStatic("tip_cursor", self)
-	local size = xml:ReadAttribInt("tip_cursor", "size", 30)
+	root = "target_tip"
+	self.target_tip = xml:InitStatic(root, self)
+	self.target_tip.offset = xml:ReadAttrib(root, "offset", "center")
+	self.target_tip.offset_shift = split_string(xml:ReadAttrib(root, "offset_shift", "0,0"), ",", true)
+	self.target_tip.show_on_object = xml:ReadAttribInt(root, "show_on_object", 0) > 0 and true or false
+	self.target_tip.border = xml:ReadAttribInt(root, "border", 0)
+	root = "tip_cursor"
+	self.tip_cursor = xml:InitStatic(root, self)
+	local size = xml:ReadAttribInt(root, "size", 30)
 	self.tip_cursor:SetWidth(size * get_current_kx())
 	self.tip_cursor:SetHeight(size)
 	local offset = ui_inv_utils.GetOffset("center", self.tip_cursor, self.owner)
 	self.tip_cursor:SetWndPos(offset.x, offset.y)
 	
 	--//flashing icon
-	self.flashing_icon = xml:InitStatic("flashing_icon", self)
+	root = "flashing_icon"
+	self.flashing_icon = xml:InitStatic(root, self)
 	self.flashing_icon:Show(false)
 	
 	--//NVD info
-	self.nvd_info = xml:InitStatic("nvd_info", self)
-	self.nvd_info.default_offset = {xml:ReadAttribInt("nvd_info", "x", 0), xml:ReadAttribInt("nvd_info", "y", 0)}
+	root = "nvd_info"
+	self.nvd_info = xml:InitStatic(root, self)
+	self.nvd_info.default_offset = {xml:ReadAttribInt(root, "x", 0), xml:ReadAttribInt(root, "y", 0)}
 	self.nvd_info:Show(false)
 	
 	--//use anim progress
-	self.use_anim = xml:InitStatic("use_anim", self)
-	self.use_anim.progress = xml:InitProgressShape("use_anim:progress", self.use_anim)
+	root = "use_anim"
+	self.use_anim = xml:InitStatic(root, self)
+	self.use_anim.progress = xml:InitProgressShape(root..":progress", self.use_anim)
 	local offset = ui_inv_utils.GetOffset("center", self.use_anim, self.owner)
 	self.use_anim:SetWndPos(offset.x, offset.y)
 	self.use_anim:Show(false)
 	
 	--//crosshair
-	self.crosshair = xml:InitStatic("crosshair", self)
+	root = "crosshair"
+	self.crosshair = xml:InitStatic(root, self)
 	self.crosshair_parts = {
 		["left"] 		= { static = CUIStatic(), offset_type = "left_center_out"},
 		["right"] 		= { static = CUIStatic(), offset_type = "right_center_out"},
@@ -420,9 +378,9 @@ function MainIngameOverlay:InitControls()
 		v.static:SetStretchTexture(true)
 		self.crosshair:AttachChild(v.static)
 	end
-	self.crosshair.min_size = xml:ReadAttribInt("crosshair", "min_size", 10)
-	self.crosshair.max_size = xml:ReadAttribInt("crosshair", "max_size", 600)
-	self.crosshair.scale_time = xml:ReadAttribFlt("crosshair", "scale_time", 2)
+	self.crosshair.min_size = xml:ReadAttribInt(root, "min_size", 10)
+	self.crosshair.max_size = xml:ReadAttribInt(root, "max_size", 600)
+	self.crosshair.scale_time = xml:ReadAttribFlt(root, "scale_time", 2)
 	self.crosshair:SetWidth(self.crosshair.min_size * get_current_kx())
 	self.crosshair:SetHeight(self.crosshair.min_size)
 	
@@ -535,26 +493,10 @@ function MainIngameOverlay:TryUpdatePanelItems(item, prev_place)
 	end
 end
 
-function MainIngameOverlay:DrawSlotIcon(slot_num)
-	local s = self.slots[slot_num]
-	local sect = quick_slots.get_item_sect(slot_num)
-	local show_icon = sect ~= ""
-	s.icon:Show(show_icon)
-	if show_icon then
-		SetCellIcon(s.icon, CIconParams(sect))
-	end	
-	
-	local count = quick_slots.get_item_count(slot_num)
-	local count_text = string.format("x%s", count)
-	s.count:SetText(count_text)
-	s.count:Show(count > 0)
-
-	s.icon:SetColor(count > 0 and self.quick_color_has_item or self.quick_color_no_item)
-end
-
-function MainIngameOverlay:UpdateQuickSlots()
-	for i=0,3 do
-		self:DrawSlotIcon(i)
+function MainIngameOverlay:OnItemUse(item)
+	local ci = self:GetEquipedCellItem(item)
+	if ci then
+		ci:ForceUpdate()
 	end
 end
 
@@ -566,131 +508,118 @@ function MainIngameOverlay:UpdatePanelItems()
 	if level.is_removing_objects() then
 	return end
 	
+	self.equiped_panel:Show(SHOW_GEAR_INFO)
+	
 	if not self.update_panel_items then
 	return end
 	self.update_panel_items = false
-
-	local item, params, item_st, text
-	local pos = vector2():set(0,0)
-	--// slots
-	-- self.slot_panel:DetachAll()
-	-- for _,i in ipairs(self.slot_panel.slots) do
-		-- item = actor:item_in_slot(i)
-		-- if item and (tonumber(i) ~= BACKPACK_SLOT or read_if_exists(sys_ini, "bool", item:section(), "quick_drop", false)) then
-			-- params = CIconParams(item:section())
-			-- item_st = CUIStatic()
-			-- params:set_shader(item_st)
-			-- item_st:SetWidth(params.grid_width * CELL_W * self.slot_panel.scale * get_current_kx())
-			-- item_st:SetHeight(params.grid_height * CELL_H * self.slot_panel.scale)
-			-- ui_inv_utils.AttachPanelIcons(item, item_st)
-			-- item_st:SetWndPos(pos.x, pos.y)
-			-- text = "ui_use_slot_"..i
-			-- if tonumber(i) == TORCH_SLOT then
-				-- local torch = torch.get_light_sect(item)
-				-- local nvd = nvd.get_nvd_params(item:section())
-				-- if not (torch and nvd) then
-					-- if torch then
-						-- text = "ui_switch_torch"
-					-- elseif nvd then
-						-- text = "ui_switch_night_vision"
-					-- end
-				-- end
-			-- end
-			-- item_st:SetText(game.translate_string(text))
-			-- item_st:SetFont(GetFontCustom(self.slot_panel.font))
-			-- item_st:SetTextColor(self.slot_panel.text_color)
-			-- item_st:SetTextPos(self.slot_panel.text_offset.x, self.slot_panel.text_offset.y)
-			-- if self.slot_panel.vertical then
-				-- pos.y = pos.y + item_st:GetHeight() + self.slot_panel.indent
-			-- else
-				-- pos.x = pos.x + item_st:GetWidth() + self.slot_panel.indent
-			-- end
-			-- self.slot_panel:AttachChild(item_st)
-		-- end
-	-- end
-	-- if self.slot_panel.align_center then
-		-- local orig_pos = self.slot_panel:GetWndPos()
-		-- if self.slot_panel.vertical then
-			-- self.slot_panel:SetHeight(pos.y)
-			-- self.slot_panel:SetWndPos(orig_pos.x, UI_BASE_HEIGHT / 2 - self.slot_panel:GetHeight() / 2)
-		-- else
-			-- self.slot_panel:SetWidth(pos.x)
-			-- self.slot_panel:SetWndPos(UI_BASE_WIDTH / 2 - self.slot_panel:GetWidth() / 2, orig_pos.y)
-		-- end
-	-- end
-	--// belt
-	self.belt_panel:DetachAll()
+	
 	local items = {}
-	pos = vector2():set(0,0)
 	for i = 0, actor:belt_count() - 1 do
 		item = actor:item_on_belt(i)
-		if item and (not self.belt_panel.hide_modules or not loadout.is_module(item)) then
-			ui_inv_utils.try_add_to_list(item, items, self.belt_panel.group_similar)
+		if item and not loadout.is_module(item) then
+			--items[item:id()] = item
+			table.insert(items, item)
 		end
 	end
 	for k,v in pairs(loadout.get_loaded_items()) do
 		item = level.object_by_id(k)
-		if item and (not self.belt_panel.hide_in_quick_slot or not quick_slots.is_in_quick_slot(item)) then
-			ui_inv_utils.try_add_to_list(item, items, self.belt_panel.group_similar)
+		if item then
+			-- items[item:id()] = item
+			table.insert(items, item)
 		end
-	end	
-	--table.sort(items,ui_inv_utils.sort_by_size_type)
-	table.sort(items,ui_inv_utils.sort_by_quick_slot_num)
-	for k, v in pairs(items) do
-		params = CIconParams(v.item:section())
-		item_st = CUIStatic()
-		--params:set_shader(item_st)
-		SetCellIcon(item_st, params)
-		item_st:SetWidth(params.grid_width * CELL_W * self.belt_panel.scale * get_current_kx())
-		item_st:SetHeight(params.grid_height * CELL_H * self.belt_panel.scale)
-		ui_inv_utils.AttachPanelIcons(v.item, item_st, v.count)
-		item_st:SetWndPos(pos.x, pos.y)
-		
-		if self.belt_panel.vertical then
-			pos.y = pos.y + item_st:GetHeight() + self.belt_panel.indent
-		else
-			pos.x = pos.x + item_st:GetWidth() + self.belt_panel.indent
-		end
-		self.belt_panel:AttachChild(item_st)
 	end
-	if self.belt_panel.align_center then
-		local orig_pos = self.belt_panel:GetWndPos()
-		if self.belt_panel.vertical then
-			self.belt_panel:SetHeight(pos.y)
-			self.belt_panel:SetWndPos(orig_pos.x, UI_BASE_HEIGHT / 2 - self.belt_panel:GetHeight() / 2)
-		else
-			self.belt_panel:SetWidth(pos.x)
-			self.belt_panel:SetWndPos(UI_BASE_WIDTH / 2 - self.belt_panel:GetWidth() / 2, orig_pos.y)
+	table.sort(items,ui_inv_utils.sort_by_quick_slot_num)
+	self.equiped_panel:DetachAll()
+	self.equiped_panel.cell_items = {}
+	local function add_similar(item)
+		if not self.equiped_panel.group_similar then
+		return false end
+		for id, cell_item in pairs(self.equiped_panel.cell_items) do
+			if ui_inv_utils.similar_item(cell_item:GetItem(), item) then
+				cell_item:AddChild(item)
+				return true
+			end
 		end
-	end		
+		return false
+	end
+	local pos = vector2()
+	local cell_size = self.equiped_panel.cell_size
+	local final_size = vector2()
+	local indent = self.equiped_panel.indent
+	local vertical = self.equiped_panel.vertical
+	for _, item in pairs(items) do
+		if not add_similar(item) then
+			local cell_item = ui_cell_item.UICellItem(self.equiped_panel, item, cell_size)
+			cell_item:SetWndPos(pos.x, pos.y)
+			self.equiped_panel.cell_items[item:id()] = cell_item
+			if vertical then
+				pos.y = pos.y + cell_item:GetHeight() + indent
+				final_size.y = pos.y
+				local width = cell_item:GetWidth()
+				if width > final_size.x then
+					final_size.x = width
+				end
+			else
+				pos.x = pos.x + cell_item:GetWidth() + indent
+				final_size.x = pos.x
+				local height = cell_item:GetHeight()
+				if height > final_size.y then
+					final_size.y = height
+				end
+			end
+			local quick_num = quick_slots.get_slot_num(item)
+			if quick_num then
+				local text = game.translate_string("ui_quick_slot_"..quick_num)
+				local quick_key = self.xml:InitStatic("equiped_panel:quick_key", cell_item)
+				quick_key:SetText(text)
+				quick_key:AdjustHeightToText()
+				quick_key:AdjustWidthToText()
+				local offset = ui_inv_utils.GetOffset(self.equiped_panel.quick_key_offset, quick_key, cell_item)
+				quick_key:SetWndPos(offset.x, offset.y)
+				cell_item.quick_key = quick_key				
+			end
+		end
+	end
+	self.equiped_panel:SetHeight(final_size.y)
+	self.equiped_panel:SetWidth(final_size.x)
+	local offset = ui_inv_utils.GetOffset(self.equiped_panel.offset_type, self.equiped_panel, self.owner)
+	local оfset_shift = self.equiped_panel.offset_shift
+	self.equiped_panel:SetWndPos(offset.x + оfset_shift.x, offset.y + оfset_shift.y)
+end
+
+function MainIngameOverlay:GetEquipedCellItem(item)
+	for id, cell_item in pairs(self.equiped_panel.cell_items) do
+		if cell_item:IsChild(item) then
+			return cell_item
+		end
+		if id == item:id() then
+			return cell_item
+		end
+	end
+	return nil
 end
 
 function MainIngameOverlay:UpdatePanelBoosters()
-	local item, params, item_st, text
 	--// boosters
 	self.booster_panel:DetachAll()
 	local pos = vector2():set(0,0)
 	for b_sect,b_time in pairs(boosters.get_booster_sections()) do
-		params = CIconParams(b_sect)
-		item_st = CUIStatic()
-		--params:set_shader(item_st)
-		SetCellIcon(item_st, params)
-		item_st:SetWidth(params.grid_width * CELL_W * self.booster_panel.scale * get_current_kx())
-		item_st:SetHeight(params.grid_height * CELL_H * self.booster_panel.scale)
-		--ui_inv_utils.AttachPanelIcons(item, item_st)
-		ui_inv_utils.UpdateLayerIcons(b_sect, item_st)
-		item_st:SetWndPos(pos.x, pos.y)
-		text = string.format("%.f %s", b_time, game.translate_string("st_time_minute"))
-		item_st:SetText(game.translate_string(text))
-		item_st:SetFont(GetFontCustom(self.booster_panel.font))
-		item_st:SetTextColor(self.booster_panel.text_color)
-		item_st:SetTextPos(self.booster_panel.text_offset.x, self.booster_panel.text_offset.y)
+		local icon = ui_cell_item.UICellItemSimple(self.booster_panel, b_sect, self.booster_panel.cell_size)
+		icon:SetWndPos(pos.x, pos.y)
+		local text_static = CUIStatic()
+		text_static:Init(0, 0, icon:GetWidth(), icon:GetHeight())
+		icon:AttachChild(text_static)
+		local text = string.format("%.f %s", b_time, game.translate_string("st_time_minute"))
+		text_static:SetText(game.translate_string(text))
+		text_static:SetFont(GetFontCustom(self.booster_panel.font))
+		text_static:SetTextColor(self.booster_panel.text_color)
+		text_static:SetTextPos(self.booster_panel.text_offset.x, self.booster_panel.text_offset.y)
 		if self.booster_panel.vertical then
-			pos.y = pos.y + item_st:GetHeight() + self.booster_panel.indent
+			pos.y = pos.y + icon:GetHeight() + self.booster_panel.indent
 		else
-			pos.x = pos.x + item_st:GetWidth() + self.booster_panel.indent
+			pos.x = pos.x + icon:GetWidth() + self.booster_panel.indent
 		end
-		self.booster_panel:AttachChild(item_st)
 	end
 	if self.booster_panel.align_center then
 		local orig_pos = self.booster_panel:GetWndPos()
@@ -711,17 +640,15 @@ function MainIngameOverlay:UpdateActiveItem()
 
 	if not self.active_item:IsShown() then
 	return end
+
+	self.active_item.icon:DetachAll()
 	
 	local ammo_count = act_item:get_ammo_in_magazine()
 	local ammo_sect = self.active_item.ammo_sect or get_cur_ammo_sect(act_item)
-	local params = CIconParams(ammo_sect)
-	local ammo_icon = CUIStatic()
-	SetCellIcon(ammo_icon, params)
-	
-	self.active_item.icon:DetachAll()
-	self.active_item.icon:AttachChild(ammo_icon)
-	ui_inv_utils.CellItemFitToSize(params, ammo_icon, self.active_item.icon)
-	ui_inv_utils.UpdateLayerIcons(ammo_sect, ammo_icon)
+
+	local ammo_icon = ui_cell_item.UICellItemSimple(self.active_item.icon, ammo_sect)
+	local offset = ui_inv_utils.GetOffset("center", ammo_icon, self.active_item.icon)
+	ammo_icon:SetWndPos(offset.x, offset.y)
 	
 	local switch_mode = not not self.active_item.ammo_sect
 	
@@ -1529,12 +1456,6 @@ function MainIngameOverlay:Update()
 	return end
 	self:UpdateConditions()
 	self:UpdateMotionIcon()
-	--self:UpdateCarPanel()
-	--self:UpdateMountedWpnPanel()
-	--self.slot_panel:Show(false)--(SHOW_GEAR_INFO)
-	self.belt_panel:Show(SHOW_GEAR_INFO)
-	--self.loadout_panel:Show(SHOW_GEAR_INFO)
-	self.quick_slots:Show(false)--(not self.quick_slots.show_on_gear or SHOW_GEAR_INFO)
 	self:UpdatePanelItems()
 	self:UpdatePanelBoosters()
 	self:UpdateActiveItem()

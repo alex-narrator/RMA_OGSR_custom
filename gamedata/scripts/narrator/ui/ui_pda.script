@@ -1,6 +1,6 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 local overlay = nil
-local OVERLAY_XML = "script_overlays\\pda_overlay.xml"
+local OVERLAY_XML = "script_overlays\\ui_pda_overlay.xml"
 
 function attach(sm)
 	sm:subscribe({signal = "on_spawn",   	fun = this.create_window})
@@ -33,7 +33,6 @@ function PDAOverlay:__init(owner) super()
 end
 
 function PDAOverlay:Subscribe()
-	self.subscribed = false
 	if not self.subscribed then
 		self.subscribed = {
 			{signal = "on_pda_show", 			self = self, fun = self.OnShow},

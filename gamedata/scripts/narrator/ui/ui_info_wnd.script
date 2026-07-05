@@ -34,7 +34,6 @@ function UICustomInfo:__init() super()
 end
 
 function UICustomInfo:Subscribe()
-	self.subscribed = false
 	if not self.subscribed then
 		self.subscribed = {
 			-- {signal = "on_cell_item_focus", self = self, fun = self.OnCellItemFocus},
@@ -66,8 +65,11 @@ function UICustomInfo:InitControls()
 	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
 	self.xml = CScriptXmlInit()
 	self.xml:ParseFile(OVERLAY_XML)
+	
+	self.background_contrast = self.xml:InitStatic("background_contrast", self)
 
-	self.background_frame = self.xml:InitFrame("background_frame", self)
+	local root = "background_frame"
+	self.background_frame = self.xml:InitFrame(root, self)
 	
 	local offset = ui_inv_utils.GetOffset("center", self.background_frame, self)
 	self.background_frame:SetWndPos(offset.x, offset.y)
@@ -76,18 +78,12 @@ function UICustomInfo:InitControls()
 	
 	self.base_height = self.background_frame:GetHeight()
 	
-	self.name_st = self.xml:InitStatic("background_frame:static_name", self.background_frame)
+	self.name_st = self.xml:InitStatic(root..":static_name", self.background_frame)
 	
-	self.info_list = self.xml:InitScrollView("background_frame:info_list", self.background_frame)
-	self.info_list.font = self.xml:ReadAttrib("background_frame:info_list:descr_text", "font", def_font)
-	tmp_tbl = split_string(self.xml:ReadAttrib("background_frame:info_list:descr_text", "text_color", def_color), ",")
-	self.info_list.text_color = GetARGB(tmp_tbl[1], tmp_tbl[2], tmp_tbl[3], tmp_tbl[4])
-	
-	--// quit button
-	name = "quit_button"
-	self.quit_button = self.xml:Init3tButton("background_frame:quit_button", self.background_frame)
-	self:Register(self.quit_button, name)
-	self:AddCallback(name, ui_events.BUTTON_CLICKED, self.Hide, self)	
+	self.info_list = self.xml:InitScrollView(root..":info_list", self.background_frame)
+	self.info_list.font = self.xml:ReadAttrib(root..":info_list:descr_text", "font", def_font)
+	tmp_tbl = split_string(self.xml:ReadAttrib(root..":info_list:descr_text", "text_color", def_color), ",")
+	self.info_list.text_color = GetARGB(tmp_tbl[1], tmp_tbl[2], tmp_tbl[3], tmp_tbl[4])	
 end
 
 function UICustomInfo:SetInfoText(text, header)
@@ -107,12 +103,24 @@ function UICustomInfo:SetInfoText(text, header)
 
 	self.info_list:SetHeight(self.info_list:GetPadSize().y)
 	self.background_frame:SetHeight(self.base_height + self.info_list:GetHeight())
+	self.background_contrast:SetWidth(self.background_frame:GetWidth())
+	self.background_contrast:SetHeight(self.background_frame:GetHeight())
 	--log_news("background_frame height %s", self.background_frame:GetHeight())
 	
 	local offset = ui_inv_utils.GetOffset("center", self.background_frame, self)
-	self.background_frame:SetWndPos(offset.x, offset.y)	
+	self.background_frame:SetWndPos(offset.x, offset.y)
+	self.background_contrast:SetWndPos(offset.x, offset.y)
 end
 
 function UICustomInfo:Hide()
 	level.start_stop_menu(self, false)
+end
+
+function UICustomInfo:OnKeyboard(dik, keyboard_action)
+	CUIScriptWnd.OnKeyboard(self, dik, keyboard_action)
+	if keyboard_action == ui_events.WINDOW_KEY_PRESSED then
+		self:Hide()
+		return true
+	end
+	return false
 end

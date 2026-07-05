@@ -3,13 +3,19 @@ function attach(sm)
 	sm:subscribe({signal = "on_item_info_init",   		fun = this.add_custom_info})
 	--//
 	sm:subscribe({signal = "on_cell_item_focus", 		fun = this.on_focus})
-	sm:subscribe({signal = "on_quick_item_focus", 		fun = this.on_focus})
+	sm:subscribe({signal = "on_quick_item_focus", 		fun = this.on_quick_focus})
 end
 
 local OVERLAY_XML = "script_overlays\\ui_item_info.xml"
 
 function on_focus(item)
 	if not get_script_option_value("floating_info") then
+	return end
+	UIItemInfo(item)
+end
+
+function on_quick_focus(slot_num, sect, item)
+	if not get_script_option_value("floating_info") or not item then
 	return end
 	UIItemInfo(item)
 end
@@ -27,7 +33,6 @@ function UIItemInfo:__init(item, independent) super()
 end
 
 function UIItemInfo:Subscribe()
-	self.subscribed = false
 	if not self.subscribed then
 		self.subscribed = {
 			{signal = "on_cell_item_focus_lost", self = self, fun = self.DetachWnd},
@@ -802,6 +807,14 @@ function attach_loaded_ammo(UIDesc, obj, xml)
 		ammo_s[i]:Show(false)
 	end
 
+	local function set_ammo_icon(icon, sect)
+		local item_icon = ui_cell_item.UICellItemSimple(icon, sect)
+		icon:SetWidth(item_icon:GetWidth())
+		icon:Show(true)
+		icon:SetWndPos(pos_x, icon:GetWndPos().y)
+		pos_x = pos_x + icon:GetWidth()	
+	end
+
 	if show_ammo then
 		set_ammo_icon(ammo_s[1], get_cur_ammo_sect(obj))
 	end
@@ -813,31 +826,6 @@ function attach_loaded_ammo(UIDesc, obj, xml)
 	end
 	
 	return true
-end
-
-function set_ammo_icon(icon, sect)
-	local params = CIconParams(sect)
-	--params:set_shader(icon)
-	SetCellIcon(icon, params)
-
-	local width_k = params.grid_width/CELL_W
-	local height_k = params.grid_height/CELL_H
-	local width = icon:GetWidth() * params.grid_width
-	local height = icon:GetHeight() * params.grid_height
-
-	if params.grid_height > 1 then --//пропорційно зменшимо іконку з висотою > 1 клітинки
-		width = width / params.grid_height
-		height = height / params.grid_height
-	end
-
-	icon:SetWidth(width)
-	icon:SetHeight(height)
-
-	icon:Show(true)
-	icon:SetWndPos(pos_x, icon:GetWndPos().y)
-	pos_x = pos_x + icon:GetWidth()
-	
-	ui_inv_utils.UpdateLayerIcons(sect, icon)
 end
 
 ------------------------------------------LOADED WEAPON AMMO WND-----------------------------------------------------------------------------------------------------------------

@@ -2130,7 +2130,7 @@ end
 
 function get_fire_mode_str(wpn)
 	if wpn:get_gl_mode() then
-		return string.format("[%s]", game.translate_string("st_gl_firemode"))
+		return string.format("%s", game.translate_string("st_gl_firemode"))
 	end
 	local firemode_tbl = get_fire_modes(wpn)
 	if not firemode_tbl or #firemode_tbl <= 1 then
@@ -2139,7 +2139,7 @@ function get_fire_mode_str(wpn)
 	local cur_firemode = wpn:get_weapon_m().cur_fire_mode
 	local res = firemode_tbl[cur_firemode+1]
 	res = (res ~= -1) and res or "A"
-	return string.format("[%s]", res)
+	return string.format("%s", res)
 end
 
 function get_fire_modes(wpn)

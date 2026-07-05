@@ -10,7 +10,6 @@ function UIPdaTabContacts:__init() super()
 end
 
 function UIPdaTabContacts:Subscribe()
-	self.subscribed = false
 	if not self.subscribed then
 		self.subscribed = {
 			{signal = "on_pda_contact_add_list", self = self, fun = self.OnContactAdd},

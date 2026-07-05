@@ -1,89 +1,114 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
-local highlight_texture = "square_light_grey"
-local color_default 	= GetARGB(255, 255, 255, 255)
-local color_compatible 	= GetARGB(150, 0, 128, 0)
-local color_restricted 	= GetARGB(150, 124, 0, 0)
+local OVERLAY_XML = "script_overlays\\ui_cell_item.xml"
 
-local back_texture 		= "square_light_grey"
-local back_color 		= GetARGB(150, 255, 255, 255)
-local VERTICAL_HEADING 	= -math.pi * 0.5 --// додатнє значення - крутимо проти годинникової стрілки, від'ємне значення - крутимо за годинниковою стрілкою
+local VERTICAL_HEADING 	= math.pi * 0.5 --// додатнє значення - крутимо проти годинникової стрілки, від'ємне значення - крутимо за годинниковою стрілкою
+
+local green = GetARGB(255, 0, 255, 0)
+local red = GetARGB(255, 255, 0, 0)
+local orange = GetARGB(255, 238, 153, 26)
+
+local lock_green = GetARGB(175, 0, 255, 0)
+local lock_red = GetARGB(175, 255, 0, 0)
+local lock_orange = GetARGB(175, 238, 153, 26)
+
+local color_default = GetARGB(255, 255, 255, 255)
+
+function get_val_color(val)
+	local color = ""
+	if not val then
+		return color
+	end
+	if val >= 0.95 then
+		color = green
+	elseif val <= 0.05 then
+		color = red
+	else
+		color = orange
+	end
+	return color
+end
+
+local addon_names = ui_inv_utils.get_addon_names()
+local get_addon_offset = ui_inv_utils.get_addon_offset
+local GetOffset = ui_inv_utils.GetOffset
+
+local sm = ogsr_signals.get_mgr()
 
 class "UICellItem" (CUIScriptWnd)
 
-function UICellItem:__init(owner, item, cell_pos, cell_size, owner_list) super()
+function UICellItem:__init(owner, item, cell_size, cell_pos, owner_list) super()
 	--//статик до якого атачимо іконки
 	self.owner = owner
-	--//сам cell_item_container
+	--//сам cell_item_container (опціонально)
 	self.owner_list = owner_list
 	self.item_id = item:id()
-	self.cell_size = cell_size
+	self.sect = item:section()
+	self.icon_params = CIconParams(self.sect)
+	self.cell_size = cell_size or ui_inv_utils.FitCellItemSize(owner, self.sect)
 	self.childs = {}
 	self.selected = false
 	self.interactive = true
-	self.sm = ogsr_signals.get_mgr()
-	self:Subscribe()
-	self:InitControls(cell_pos)
+	self:InitControls(cell_pos or vector2())
 end
 
 function UICellItem:DetachWnd()
 	self:OnFocusLost()
 	self:ClearCallbacks()
 	self.owner:DetachChild(self)
-	self:Unsubscribe()
-end
-
-function UICellItem:Subscribe()
-	self.subscribed = false
-	if not self.subscribed then
-		self.subscribed = {
-			-- {signal = "on_cell_item_select", self = self, fun = self.OnCellItemSelect},
-			-- {signal = "on_cell_item_focus", self = self, fun = self.OnCellItemFocus},
-			-- {signal = "on_cell_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
-		}
-		for _, s in ipairs( self.subscribed ) do
-			self.sm:subscribe( s )
-		end
-	end
-end
-
-function UICellItem:Unsubscribe()
-	if self.subscribed then
-		for _, s in ipairs( self.subscribed ) do
-			self.sm:unsubscribe( s )
-		end
-		self.subscribed = false
-	end
 end
 
 function UICellItem:InitControls(cell_pos)
 	local item = level.object_by_id(self.item_id)
-	local sect = item:section()
-	local params = CIconParams(sect)
+	local sect = self.sect
+	local params = self.icon_params
 	
-	self.drag_enabled = self.owner_list:IsDragEnabled()
-	self.dbclick_enabled = self.owner_list:IsDbclickEnabled()
+	--// загортання у таблицю для тернарних операцій нижче це безпечний workaround для наступного випадку:
+	--// local var = condition and val_if_true or val_if_false
+	--// у випадку коли val_if_true може бути false/nil LUA буде сприймати умову condition як таку що НЕ виконано і поверне val_if_false
+	self.drag_enabled = (self.owner_list and {self.owner_list:IsDragEnabled()} or {false})[1]
+	self.dbclick_enabled = (self.owner_list and {self.owner_list:IsDbclickEnabled()} or {false})[1]
 	
-	local vertical = self.owner_list:GetVertical()
+	local vertical = self.owner_list and self.owner_list:GetVertical() or 0
 	local is_vertical = vertical ~= 0
-	local centered = self.owner_list:IsCentered()
+	--//cell_item створений без використання cell_item_container будемо вважати відцентрованим, бо майже напевне використано в якихось ui-панелях, де він зазвичай вже відцентрований по батьківському статику
+	--//також це важливо для коректної роботи функції ResizeForCentered, яка заточена (і має сенс) саме для центрованого cell_item
+	local centered = (self.owner_list and {self.owner_list:IsCentered()} or {true})[1]
 	
 	local cell_size = self.cell_size
 	local icon_w = cell_size.w * (is_vertical and params.grid_height or params.grid_width)
 	local icon_h = cell_size.h * (is_vertical and params.grid_width or params.grid_height)
 	local pos_x = centered and (self.owner:GetWidth() / 2) - (icon_w / 2) or (cell_pos.x - 1) * cell_size.w
-	local pos_y = centered and (self.owner:GetHeight() / 2) - (icon_h / 2) or (cell_pos.y - 1) * cell_size.h	
+	local pos_y = centered and (self.owner:GetHeight() / 2) - (icon_h / 2) or (cell_pos.y - 1) * cell_size.h
+	
+	self.icon_rect = Frect():set(pos_x, pos_y, icon_w, icon_h)
 	
 	self.owner:AttachChild(self)
 	self:Init(pos_x, pos_y, icon_w, icon_h)
 	self:Show(true)
+	
+	local xml = CScriptXmlInit()
+	xml:ParseFile(OVERLAY_XML)
+	local root = "cell_item"
+	local highlight_texture = xml:ReadAttrib(root, "highlight_texture", "square_light_grey")
+	self.highlight_colors = {}
+	local color = split_string(xml:ReadAttrib(root, "highlight_color_default", "255,255,255,255"), ",", true)
+	self.highlight_colors.default = GetARGB(color[1], color[2], color[3], color[4])
+	color = split_string(xml:ReadAttrib(root, "highlight_color_compatible", "150,0,128,0"), ",", true)
+	self.highlight_colors.compatible = GetARGB(color[1], color[2], color[3], color[4])
+	color = split_string(xml:ReadAttrib(root, "highlight_color_restricted", "150,124,0,0"), ",", true)
+	self.highlight_colors.restricted = GetARGB(color[1], color[2], color[3], color[4])
 
 	self.highlight = CUIStatic()
 	self:AttachChild(self.highlight)	
 	self.highlight:Init(0, 0, icon_w, icon_h)
 	self.highlight:SetStretchTexture(true)
 	self.highlight:InitTexture(highlight_texture)
-	self.highlight:SetColor(color_default)
+	self.highlight:SetColor(self.highlight_colors.default)
 	self.highlight:Show(false)
+	
+	local back_texture = xml:ReadAttrib(root, "back_texture", "square_light_grey")
+	color = split_string(xml:ReadAttrib(root, "back_color", "150,255,255,255"), ",", true)
+	local back_color = GetARGB(color[1], color[2], color[3], color[4])	
 
 	self.back = CUIStatic()
 	self:AttachChild(self.back)	
@@ -99,14 +124,129 @@ function UICellItem:InitControls(cell_pos)
 
 	SetCellIcon(self.icon, params)
 	
+	self.heading = 0
+	
 	if is_vertical then
-		local heading = vertical * VERTICAL_HEADING
+		self.heading = vertical * VERTICAL_HEADING
 		self.icon:EnableHeading(true)
-		self.icon:SetHeading(heading)
+		self.icon:SetHeading(self.heading)
 		local pivot = vector2():set(cell_size.w * 0.5, cell_size.h * 0.5) --//обертаємо навколо центру лівої верхньої клітинки сітки
-		local offset = heading > 0 and vector2():set(0, icon_h - cell_size.h) or vector2():set(icon_w - cell_size.w, 0)
+		local offset = self.heading > 0 and vector2():set(0, icon_h - cell_size.h) or vector2():set(icon_w - cell_size.w, 0)
 		self.icon:SetHeadingPivot(pivot, offset, true)
+	end
+	
+	--//weapon addons
+	local wpn = item:get_weapon_m()
+	if wpn then
+		self.weapon_addons = {}
+		for k,v in ipairs(addon_names) do
+			i = k-1
+			if wpn:addon_attachable(i) then
+				--log_news("item [%s] weapon addon [%s][%s]", item:name(), i, v)
+				self.weapon_addons[i] = self:CreateIconChild()
+			end
+		end
+	end
+	--//rpg rocket icon
+	if get_clsid(item) == clsid.wpn_rpg7_s then
+		self.rpg_rocket_icon = self:CreateIconChild()
+		self.rpg_rocket_offset = vector2():set(read_if_exists(sys_ini, "float", sect, "grenade_x", 0), read_if_exists(sys_ini, "float", sect, "grenade_y", 0))
+	end
+	--//icon layers
+	local max_layer_icons = xml:ReadAttrib(root, "max_layer_icons", 255)
+	self.layers = {}
+	for i=0,max_layer_icons do
+		local icon_sect = read_if_exists(sys_ini, "string", sect, "layer_icon_sect_"..i, nil)
+		if icon_sect then
+			local offset_type = read_if_exists(sys_ini, "string", sect, "layer_icon_offset_"..i, "left_down")
+			local scale = read_if_exists(sys_ini, "float", sect, "layer_icon_scale_"..i, 1)
+			self.layers[i] = self:CreateAttachedIcon(icon_sect, offset_type, scale, true)
+		end
+	end
+	--//quest item marker
+	if read_if_exists(sys_ini, "bool", sect, "quest_item", false) then
+		local icon_sect = read_if_exists(sys_ini, "string", sect, "quest_icon_sect", "quest_icon")
+		if icon_sect then
+			local offset_type = read_if_exists(sys_ini, "string", sect, "quest_icon_sect", "right_top")
+			local scale = read_if_exists(sys_ini, "float", sect, "quest_icon_scale", 1)
+			self.quest_item_icon = self:CreateAttachedIcon(icon_sect, offset_type, scale)
+			self.quest_item_icon:SetLightAnim("ui_too_slow_blinking", true, true, false, true)
+		end
+	end
+	--//item condition
+	if get_script_option_value("inv_item_condition") then
+		self.condition_progess_bar = xml:InitProgressBar("condition_progess_bar", self.icon)
+		local offset = GetOffset("left_down", self.condition_progess_bar, self.icon)
+		offset.y = offset.y - 1
+		self.condition_progess_bar:SetWndPos(offset.x, offset.y)
+		self.condition_progess_bar:SetWidth(icon_w - 1)
+		self.condition_progess_bar:Show(false)
 	end	
+	--//armor plate icon
+	if is_plate_carrier(item) then
+		local icon_sect = sect
+		self.last_plate_sect = icon_sect
+		local offset_type = read_if_exists(sys_ini, "string", sect, "plate_icon_offset", "center")
+		local scale = read_if_exists(sys_ini, "float", sect, "plate_icon_scale", 0.7)		
+		self.armor_plate = self:CreateAttachedIcon(icon_sect, offset_type, scale)
+		self.armor_plate:Show(vest_plates.can_detach_plate(item))
+	end
+	--//pda hackable icon
+	if is_pda_hackable(item) then
+		local se_obj = alife():object(self.item_id)
+		local od = se_obj.owner_data
+		if od then
+			--//lock
+			local icon_sect = read_if_exists(sys_ini, "string", sect, "pda_lock_icon_sect", "pda_lock_icon")
+			local offset_type = read_if_exists(sys_ini, "string", sect, "pda_lock_offset", "left_down")
+			local scale = read_if_exists(sys_ini, "string", sect, "pda_lock_scale", 1)
+			self.pda_lock = self:CreateAttachedIcon(icon_sect, offset_type, scale)
+			--//rank
+			icon_sect = sect
+			offset_type = read_if_exists(sys_ini, "string", sect, "pda_rank_offset", "right_down")
+			scale = read_if_exists(sys_ini, "string", sect, "pda_rank_scale", 0.35)
+			self.pda_rank = self:CreateAttachedIcon(icon_sect, offset_type, scale)			
+		end
+	end
+	--//ammo in box icon
+	local ammo = item:get_weapon_ammo()
+	if ammo and ammo:is_magazine() then
+		self.last_ammo_sect = ammo:ammo_sect()
+		local icon_sect = self.last_ammo_sect
+		local offset_type = read_if_exists(sys_ini, "string", sect, "ammo_icon_offset", "center")
+		local scale = read_if_exists(sys_ini, "float", sect, "ammo_icon_scale", 1)
+		self.ammo_in_box = self:CreateAttachedIcon(icon_sect, offset_type, scale)
+		self.ammo_in_box:Show(ammo.box_curr > 0)
+	end
+	--//items count in stack
+	root = "cell_item_count"
+	self.count_static = xml:InitStatic(root, self.icon)
+	local offset_type = xml:ReadAttrib(root, "offset", "left_top")
+	self.count_static.offset_type = offset_type
+	local offset = GetOffset(offset_type, self.count_static, self.icon)
+	self.count_static:SetWndPos(offset.x, offset.y)
+	self.count_static:Show(false)
+	self.count_for_ammo = ammo and not ammo:is_magazine() and ammo.box_size > 1
+	self.count_str = self.count_for_ammo and "%s" or "x%s"
+	--//additional text
+	root = "cell_item_text"
+	self.cell_item_text = xml:InitStatic(root, self.icon)
+	local offset_type = xml:ReadAttrib(root, "offset", "left_top")
+	self.cell_item_text.offset_type = offset_type
+	local offset = GetOffset(offset_type, self.cell_item_text, self.icon)
+	self.cell_item_text:SetWndPos(offset.x, offset.y)
+	self.cell_item_text.text_color_default = self.cell_item_text:GetTextColor()
+	--//custom text from config
+	local text = read_if_exists(sys_ini, "string", sect, "icon_text", nil)
+	if text then
+		text = game.translate_string(text)
+		root = "icon_text"
+		self.icon_text = xml:InitStatic(root, self.icon)
+		local offset_type = xml:ReadAttrib(root, "offset", "left_top")
+		local offset = GetOffset(offset_type, self.icon_text, self.icon)
+		self.icon_text:SetWndPos(offset.x, offset.y)
+		self.icon_text:SetText(text)
+	end
 	
 	local name = "cell_item"
 	self:Register(self.icon, name)
@@ -122,42 +262,313 @@ function UICellItem:InitControls(cell_pos)
 	self:OnIconShow()
 end
 
+function UICellItem:CreateAttachedIcon(icon_sect, icon_offset, icon_scale, use_heading)
+	local static = CUIStatic()
+	local icon_params = CIconParams(icon_sect)
+	SetCellIcon(static, icon_params)
+	local cell_size = self.cell_size
+	local scale = icon_scale or 1
+	local width = icon_params.grid_width * cell_size.w * scale
+	local height = icon_params.grid_height * cell_size.h * scale
+	if use_heading and self.heading ~= 0 then
+		static:EnableHeading(true)
+		static:SetHeading(self.heading)
+		local heading_pivot = vector2():set(width * 0.5, height * 0.5)
+		local heading_offset = self.heading > 0 and vector2():set(0, height - cell_size.w) or vector2():set(width - cell_size.h, 0)
+		static:SetHeadingPivot(heading_pivot, heading_offset, true)
+	end
+	static:SetWidth(width)
+	static:SetHeight(height)
+	if icon_offset then
+		local offset = GetOffset(icon_offset, static, self.icon)
+		static:SetWndPos(offset.x, offset.y)
+	end
+	self.icon:AttachChild(static)
+	return static
+end
+
+function UICellItem:CreateIconChild()
+	local static = CUIStatic()
+	self.icon:AttachChild(static)
+	return static
+end
+
+function UICellItem:ApplyWeaponIcon(static, icon_sect, icon_offset)
+	local icon_params = CIconParams(icon_sect)
+	SetCellIcon(static, icon_params)
+	local cell_size = self.cell_size
+	local width = icon_params.grid_width * cell_size.w
+	local height = icon_params.grid_height * cell_size.h
+	if self.heading ~= 0 then
+		static:EnableHeading(true)
+		static:SetHeading(self.heading)
+		local heading_pivot = vector2():set(width * 0.5, height * 0.5)
+		local heading_offset = self.heading > 0 and vector2():set(0, height - cell_size.w) or vector2():set(width - cell_size.h, 0)
+		static:SetHeadingPivot(heading_pivot, heading_offset, true)
+	end
+	static:SetWidth(width)
+	static:SetHeight(height)
+	if icon_offset then
+		local offset = vector2()
+		local relative_width = (cell_size.w/CELL_W)
+		local relative_height = (cell_size.h/CELL_H)
+		if self.heading ~= 0 then
+			if self.heading > 0 then
+				offset.x = icon_offset.y * relative_width * get_current_kx()
+				offset.y = self.icon_rect.y2 - height - icon_offset.x * relative_height
+			else
+				offset.x = self.icon_rect.x2 - width - icon_offset.y * relative_width * get_current_kx()
+				offset.y = icon_offset.x * relative_height
+			end
+		else
+			offset.x = icon_offset.x * relative_width
+			offset.y = icon_offset.y * relative_height
+		end
+		static:SetWndPos(offset.x, offset.y)
+	end	
+end
+
+function UICellItem:OnIconShow()
+	local item = level.object_by_id(self.item_id)
+	if not item then return end
+	self:SetCellItemText(item)
+	self:SetArmorPlateIcon(item)
+	self:SetAmmoInBoxIcon(item)
+	self:SetPdaIcons(item)
+	self:SetRPGRocket(item)
+	self:SetWeaponAddons(item)
+	local slot_list = (actor:is_in_slot(item) and self.owner_list and self.owner_list:IsCentered()) and self.owner_list.service_back or nil
+	self:ResizeForCentered(slot_list)
+	local count = self:GetCount()
+	sm:call("on_cell_item_show", item, self.icon, count, slot_list)
+end
+
 function UICellItem:Update()
 	CUIScriptWnd.Update(self)
 	if not self.interactive then
 	return end
 	local item = level.object_by_id(self.item_id)
 	if not item then return end
-	local slot_list = (actor:is_in_slot(item) and self.owner_list:IsCentered()) and self.owner_list.service_back or nil
-	self.sm:call("on_cell_item_update", item, self.icon, self:GetCount(), slot_list)
+	-- local slot_list = (actor:is_in_slot(item) and self.owner_list and self.owner_list:IsCentered()) and self.owner_list.service_back or nil
+	local count = self:GetCount()
+	self:UpdateCountStatic(count)
+	self:UpdateConditionProgress(item)
+	sm:call("on_cell_item_update", item, self.icon, count--[[, slot_list]])
 end
 
-function UICellItem:OnIconShow()
-	--log3("~on_cell_item_show item %s [id %s] | count %s", self.item:name(), self.item:id(), self:GetCount())
-	local item = level.object_by_id(self.item_id)
-	if not item then return end
-	local slot_list = (actor:is_in_slot(item) and self.owner_list:IsCentered()) and self.owner_list.service_back or nil
-	self.sm:call("on_cell_item_show", item, self.icon, self:GetCount(), slot_list)
+function UICellItem:ResizeForCentered(static_to_resize)
+	if not static_to_resize then
+	return end
+	local rect = self.icon_rect
+	if rect.x1 <= 0 and rect.y1 <= 0 then
+	return end
+	local list_size = vector2():set(static_to_resize:GetWidth(), static_to_resize:GetHeight())
+	--/icon back
+	local offset = GetOffset("left_top", self.back, static_to_resize)
+	self.back:SetWndPos(offset.x - rect.x1, offset.y - rect.y1)
+	self.back:SetWidth(list_size.x)	
+	self.back:SetHeight(list_size.y)
+	--//highlight
+	local offset = GetOffset("left_top", self.highlight, static_to_resize)
+	self.highlight:SetWndPos(offset.x - rect.x1, offset.y - rect.y1)
+	self.highlight:SetWidth(list_size.x)	
+	self.highlight:SetHeight(list_size.y)
+	--//cell_item_text
+	offset = GetOffset(self.cell_item_text.offset_type, self.cell_item_text, static_to_resize)
+	self.cell_item_text:SetWndPos(offset.x - rect.x1, offset.y - rect.y1)
+	--//condition_progess_bar
+	if self.condition_progess_bar then
+		local offset = GetOffset("left_down", self.condition_progess_bar, static_to_resize)
+		offset.y = offset.y - 1
+		self.condition_progess_bar:SetWndPos(offset.x - rect.x1, offset.y - rect.y1)
+		self.condition_progess_bar:SetWidth(list_size.x - 1)
+	end
+end
+
+function UICellItem:UpdateCountStatic(count)
+	local show = self.count_for_ammo or count > 1
+	self.count_static:Show(show)
+	if not show then
+	return end
+	if self.last_count and self.last_count == count then
+	return end
+	self.last_count = count
+	self.count_static:SetText(string.format(self.count_str, count))
+	self.count_static:AdjustWidthToText()
+	local offset = GetOffset(self.count_static.offset_type, self.count_static, self.icon)
+	self.count_static:SetWndPos(offset.x, offset.y)
+end
+
+function UICellItem:SetCellItemText(item)
+	local text, color
+	local ammo = item:get_weapon_ammo()
+	if ammo and ammo:is_magazine() then
+		color = get_val_color(ammo.box_curr / ammo.box_size)
+		text = string.format("%s/%s", ammo.box_curr, ammo.box_size)
+	end
+	local eatable = item:get_eatable_item()
+	if eatable and eatable.eat_start_portions_num > 1 then
+		color = get_val_color(eatable.eat_portions_num / eatable.eat_start_portions_num)
+		text = string.format("%s/%s", eatable.eat_portions_num, eatable.eat_start_portions_num)
+	end
+	local use_count = read_if_exists(sys_ini, "float", item:section(), "use_count", 0)
+	if use_count > 1 then
+		color = get_val_color(use_count*item:condition() / use_count)
+		text = string.format("%.0f/%s", use_count*item:condition(), use_count)
+	end
+	local weapon_mag = item:get_weapon_m()
+	if weapon_mag and weapon_mag.ammo_mag_size > 0 then
+		color = get_val_color(weapon_mag.ammo_elapsed / weapon_mag.ammo_mag_size)
+		local firemode = get_fire_mode_str(item)
+		if firemode ~= "" then
+			text = string.format("%s/%s [%s]", weapon_mag.ammo_elapsed, weapon_mag.ammo_mag_size, get_fire_mode_str(item))
+		else
+			text = string.format("%s/%s", weapon_mag.ammo_elapsed, weapon_mag.ammo_mag_size)
+		end
+	end
+	if get_clsid(item) == clsid.wpn_binocular_s then
+		local zoom_params = get_zoom_data(item)
+		if zoom_params then
+			if zoom_params[2] then
+				text = string.format("%sx-%sx", zoom_params[1], zoom_params[2])
+			else
+				text = string.format("%sx", zoom_params[1])
+			end
+		end
+	end
+	if item:get_container() and item:get_inventory_item():item_effect(item_effect.add_weight) > 0 then
+		text = string.format("+%.0f%s", item:get_inventory_item():item_effect(item_effect.add_weight) * actor.inventory.max_weight, game.translate_string("st_kg"))
+	end
+	self.cell_item_text:Show(not not text)
+	if not text then
+	return end
+	color = color or self.cell_item_text.text_color_default
+	self.cell_item_text:SetTextColor(color)
+	self.cell_item_text:SetText(text)
+	self.cell_item_text:AdjustWidthToText()
+	local offset = GetOffset(self.cell_item_text.offset_type, self.cell_item_text, self.icon)
+	self.cell_item_text:SetWndPos(offset.x, offset.y)
+end
+
+function UICellItem:SetAmmoInBoxIcon(item)
+	if not self.last_ammo_sect then
+	return end
+	local ammo = item and item:get_weapon_ammo() or nil
+	if not ammo then
+	return end
+	local show = ammo.box_curr > 0
+	self.ammo_in_box:Show(show)
+	if not show then
+	return end
+	local ammo_sect = ammo:ammo_sect()
+	if self.last_ammo_sect == ammo_sect then
+	return end
+	self.last_ammo_sect = ammo_sect
+	local icon_params = CIconParams(ammo_sect)
+	SetCellIcon(self.ammo_in_box, icon_params)
+end
+
+function UICellItem:SetArmorPlateIcon(item)
+	if not self.last_plate_sect then
+	return end
+	local show = vest_plates.can_detach_plate(item)
+	self.armor_plate:Show(show)
+	if not show then
+	return end
+	local plate_sect = item:binded_object():get_plate_sect()
+	if self.last_plate_sect == plate_sect then
+	return end
+	self.last_plate_sect = plate_sect
+	local icon_params = CIconParams(plate_sect)
+	SetCellIcon(self.armor_plate, icon_params)	
+end
+
+function UICellItem:SetPdaIcons(item)
+	if not is_pda_hackable(item) then
+	return end
+	local se_obj = alife():object(self.item_id)
+	if not se_obj then
+	return end
+	local od = se_obj.owner_data
+	if not od then
+	return end
+	local lock_state = se_obj.lock_state
+	local icon_color = lock_green
+	if lock_state == 1 then
+		icon_color = lock_orange
+	elseif lock_state == 2 then
+		icon_color = lock_red
+	end
+	self.pda_lock:SetColor(icon_color)
+	self.pda_rank:InitTexture(ranks.get_icon_sect(od.rank))
+end
+
+function UICellItem:UpdateConditionProgress(item)
+	if not self.condition_progess_bar then
+	return end
+	local power_device = is_power_device(item)
+	local show = item:condition() < 1 or power_device
+	self.condition_progess_bar:Show(show)
+	if not show then 
+	return end
+	local val = (power_device and not read_if_exists(sys_ini, "bool", self.sect, "condition_as_power", false)) and item:binded_object():get_power_level() or item:condition()
+	self.condition_progess_bar:SetProgressPos(val)
+end
+
+function UICellItem:SetRPGRocket(item)
+	if not self.rpg_rocket_icon then
+	return end
+	local show = item:get_ammo_in_magazine() > 0
+	self.rpg_rocket_icon:Show(show)
+	if not show then
+	return end
+	self:ApplyWeaponIcon(self.rpg_rocket_icon, get_cur_ammo_sect(item), self.rpg_rocket_offset)
+end
+
+function UICellItem:SetWeaponAddons(item)
+	if not self.weapon_addons then
+	return end
+	local wpn = item:get_weapon_m()	
+	for i,static in pairs(self.weapon_addons) do
+		static:Show(false)
+		local k = i+1
+		local addon_name = addon_names[i+1]
+		if not wpn:is_addon_attached(i) then
+			--//no_addon icons
+			local icon_sect = read_if_exists(sys_ini, "string", self.sect, "no_"..addon_name, nil)
+			if icon_sect then
+				static:Show(true)
+				local offset = get_addon_offset(k, "no_"..addon_name, self.sect)
+				self:ApplyWeaponIcon(static, icon_sect, offset)
+			end
+		else
+			local addon_sect = wpn:get_addon_name(i)
+			local icon_sect = read_if_exists(sys_ini, "string", addon_sect, self.sect.."_icon_sect", read_if_exists(sys_ini, "string", addon_sect, "addon_icon_sect", addon_name ~= "magazine" and addon_sect or nil))
+			if icon_sect then
+				static:Show(true)
+				local offset = get_addon_offset(k, addon_sect, self.sect)
+				self:ApplyWeaponIcon(static, icon_sect, offset)
+			end		
+		end
+	end
 end
 
 function UICellItem:OnFocusReceived()
 	if not self.interactive then
 	return end
-	
 	self.back:Show(true)
 	local item = level.object_by_id(self.item_id)
 	if not item then return end
-	self.sm:call("on_cell_item_focus", item, self)
+	sm:call("on_cell_item_focus", item, self)
 end
 
 function UICellItem:OnFocusLost()
 	if not self.interactive then
 	return end
-	
 	self.back:Show(self:GetSelected())
 	local item = level.object_by_id(self.item_id)
 	if not item then return end	
-	self.sm:call("on_cell_item_focus_lost", item, self)
+	sm:call("on_cell_item_focus_lost", item, self)
 end
 
 function UICellItem:OnLButtonDown()
@@ -165,9 +576,8 @@ function UICellItem:OnLButtonDown()
 	return end
 	local item = level.object_by_id(self.item_id)
 	if not item then return end	
-	self.sm:call("on_cell_item_select", item, self)
-	self.sm:call("on_cell_item_lb_click", item, self)
-	
+	sm:call("on_cell_item_select", item, self)
+	sm:call("on_cell_item_lb_click", item, self)
 	self.l_button_down = true
 	self.start_drag = false
 end
@@ -184,19 +594,16 @@ function UICellItem:OnRButtonDown()
 	return end
 	local item = level.object_by_id(self.item_id)
 	if not item then return end	
-	self.sm:call("on_cell_item_select", item, self)
-	self.sm:call("on_cell_item_rb_click", item, self)
-	
-	--log3("~OnRButtonDown item %s | ID %s", self.item:name(), self.item:id())
+	sm:call("on_cell_item_select", item, self)
+	sm:call("on_cell_item_rb_click", item, self)
 end
 
 function UICellItem:OnDBClick()
 	if not self.interactive or not self.dbclick_enabled then
 	return end
-	
 	local item = self:GetAnyItem()
 	if not item then return end	
-	self.sm:call("on_cell_item_db_click", item, self)
+	sm:call("on_cell_item_db_click", item, self)
 end
 
 function UICellItem:SetInteractive(val)
@@ -220,7 +627,7 @@ function UICellItem:GetOwnerList()
 end
 
 function UICellItem:GetOwnerID()
-	return self.owner_list:GetID()
+	return self.owner_list and self.owner_list:GetID() or nil
 end
 
 function UICellItem:GetItem()
@@ -273,7 +680,6 @@ function UICellItem:RemoveChild(item)
 end
 
 function UICellItem:GetCount()
-
 	local function item_count(item)
 		local ammo = item:get_weapon_ammo()
 		if ammo and not ammo:is_magazine() then
@@ -281,18 +687,15 @@ function UICellItem:GetCount()
 		end
 		return 1
 	end
-	
 	local item = level.object_by_id(self.item_id)
 	if not item then return 0 end
 	local count = item_count(item)
-	
 	for child_id,v in pairs(self.childs) do
 		local item = level.object_by_id(child_id)
 		if item then
 			count = count + item_count(item)
 		end
 	end
-	
 	return count
 end
 
@@ -309,19 +712,19 @@ end
 
 function UICellItem:ClearColorize()
 	self.highlight:Show(false)
-	self.highlight:SetColor(color_default)
+	self.highlight:SetColor(self.highlight_colors.default)
 end
 
 function UICellItem:ColorizeCompatible()
 	self.highlight:Show(true)
-	self.highlight:SetColor(color_compatible)
+	self.highlight:SetColor(self.highlight_colors.compatible)
 	self.highlight:SetLightAnim("ui_slow_blinking", true, true, false, true)	
 end
 
 function UICellItem:ColorizeRestricted()
 	self.highlight:Show(true)
 	self.highlight:SetLightAnim()
-	self.highlight:SetColor(color_restricted)
+	self.highlight:SetColor(self.highlight_colors.restricted)
 end
 
 function UICellItem:SetBlinking(val)
@@ -329,28 +732,248 @@ function UICellItem:SetBlinking(val)
 		self.icon:SetLightAnim("ui_slow_blinking", true, true, false, true)
 	else
 		self.icon:SetLightAnim()
-		self.icon:SetColor(color_default)
+		self.icon:SetColor(self.highlight_colors.default)
 	end
 end
 
 function UICellItem:ForceUpdate()
 	local item = level.object_by_id(self.item_id)	
-	
 	for child_id,v in pairs(self.childs) do
 		local _item = level.object_by_id(child_id)
 		if _item and not ui_inv_utils.similar_item(item, _item) then
 			self:RemoveChild(_item)
-			self.owner_list:AddItem(_item)
+			if self.owner_list then
+				self.owner_list:AddItem(_item)
+			end
 		end
 	end
-	self.icon:DetachAll()
-	local slot_list = (actor:is_in_slot(item) and self.owner_list:IsCentered()) and self.owner_list.service_back or nil
-	self.sm:call("on_cell_item_show", item, self.icon, self:GetCount(), slot_list)
+	self:OnIconShow()
 end
 
 function UICellItem:OnMouseMove()
 	if self.l_button_down and not self.start_drag and self.drag_enabled then
 		self.start_drag = true
-		self.sm:call("on_cell_item_start_drag", self)
+		sm:call("on_cell_item_start_drag", self)
 	end
+end
+
+function UICellItem:SetCellItemColor(color_argb)
+	self.icon:SetColor(color_argb)
+	for k,v in pairs(self.layers) do
+		v:SetColor(color_argb)
+	end
+	for k,v in pairs(self.weapon_addons) do
+		v:SetColor(color_argb)
+	end	
+	if self.ammo_in_box then
+		self.ammo_in_box:SetColor(color_argb)
+	end
+	if self.rpg_rocket_icon then
+		self.rpg_rocket_icon:SetColor(color_argb)
+	end
+end
+
+function UICellItem:ResetCellItemColor()
+	self:SetCellItemColor(color_default)
+end
+
+function UICellItem:SetCellItemColorA(color_a)
+	self.icon:SetColorA(color_a)
+	for k,v in pairs(self.layers) do
+		v:SetColorA(color_a)
+	end
+	for k,v in pairs(self.weapon_addons) do
+		v:SetColorA(color_a)
+	end	
+	if self.ammo_in_box then
+		self.ammo_in_box:SetColorA(color_a)
+	end
+	if self.rpg_rocket_icon then
+		self.rpg_rocket_icon:SetColorA(color_a)
+	end
+end
+
+function UICellItem:ResetCellItemColorA()
+	self:SetCellItemColorA(255)
+end
+
+----------//----------SIMPLE CELL ITEM (BY SECTION ONLY)----------//----------
+
+class "UICellItemSimple" (CUIScriptWnd)
+
+function UICellItemSimple:__init(owner, section, cell_size) super()
+	--//статик до якого атачимо іконки
+	self.owner = owner
+	self.sect = section
+	self.cell_size = cell_size or ui_inv_utils.FitCellItemSize(owner, section)
+	self.interactive = true
+	self:InitControls()
+end
+
+function UICellItemSimple:DetachWnd()
+	self:OnFocusLost()
+	self:ClearCallbacks()
+	self.owner:DetachChild(self)
+end
+
+function UICellItemSimple:InitControls()
+	local sect = self.sect
+	local params = CIconParams(sect)
+	
+	local cell_size = self.cell_size
+	local icon_w = cell_size.w * params.grid_width
+	local icon_h = cell_size.h * params.grid_height
+	
+	self.owner:AttachChild(self)
+	self:Init(0, 0, icon_w, icon_h)
+	self:Show(true)
+	
+	local xml = CScriptXmlInit()
+	xml:ParseFile(OVERLAY_XML)
+	
+	local root = "cell_item"
+	
+	local back_texture = xml:ReadAttrib(root, "back_texture", "square_light_grey")
+	color = split_string(xml:ReadAttrib(root, "back_color", "150,255,255,255"), ",", true)
+	local back_color = GetARGB(color[1], color[2], color[3], color[4])	
+
+	self.back = CUIStatic()
+	self:AttachChild(self.back)	
+	self.back:Init(0, 0, icon_w, icon_h)
+	self.back:SetStretchTexture(true)
+	self.back:InitTexture(back_texture)
+	self.back:SetColor(back_color)
+	self.back:Show(false)	
+	
+	self.icon = CUIStatic()	
+	self:AttachChild(self.icon)	
+	self.icon:Init(0, 0, icon_w, icon_h)
+
+	SetCellIcon(self.icon, params)
+	
+	--//icon layers
+	local max_layer_icons = xml:ReadAttrib(root, "max_layer_icons", 255)
+	self.layers = {}
+	for i=0,max_layer_icons do
+		local icon_sect = read_if_exists(sys_ini, "string", sect, "layer_icon_sect_"..i, nil)
+		if icon_sect then
+			local offset_type = read_if_exists(sys_ini, "string", sect, "layer_icon_offset_"..i, "left_down")
+			local scale = read_if_exists(sys_ini, "float", sect, "layer_icon_scale_"..i, 1)
+			self.layers[i] = self:CreateAttachedIcon(icon_sect, offset_type, scale, true)
+		end
+	end
+	--//quest item marker
+	if read_if_exists(sys_ini, "bool", sect, "quest_item", false) then
+		local icon_sect = read_if_exists(sys_ini, "string", sect, "quest_icon_sect", "quest_icon")
+		if icon_sect then
+			local offset_type = read_if_exists(sys_ini, "string", sect, "quest_icon_sect", "right_top")
+			local scale = read_if_exists(sys_ini, "float", sect, "quest_icon_scale", 1)
+			self.quest_item_icon = self:CreateAttachedIcon(icon_sect, offset_type, scale)
+			self.quest_item_icon:SetLightAnim("ui_too_slow_blinking", true, true, false, true)
+		end
+	end
+	--//custom text from config
+	local text = read_if_exists(sys_ini, "string", sect, "icon_text", nil)
+	if text then
+		text = game.translate_string(text)
+		root = "icon_text"
+		self.icon_text = xml:InitStatic(root, self.icon)
+		local offset_type = xml:ReadAttrib(root, "offset", "left_top")
+		local offset = GetOffset(offset_type, self.icon_text, self.icon)
+		self.icon_text:SetWndPos(offset.x, offset.y)
+		self.icon_text:SetText(text)
+	end
+	
+	local name = "cell_item_simple"
+	self:Register(self.icon, name)
+	self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnFocusReceived() end, self)
+	self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnFocusLost() end, self)
+	self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnLButtonDown() end, self)
+	self:AddCallback(name, ui_events.WINDOW_RBUTTON_DOWN, function() self:OnRButtonDown() end, self)
+	self:AddCallback(name, ui_events.WINDOW_LBUTTON_DB_CLICK, function() self:OnDBClick() end, self)
+	
+	self:AddCallback(name, ui_events.WINDOW_LBUTTON_UP, function() self:OnLButtonUp() end, self)
+end
+
+function UICellItemSimple:CreateAttachedIcon(icon_sect, icon_offset, icon_scale)
+	local static = CUIStatic()
+	local icon_params = CIconParams(icon_sect)
+	SetCellIcon(static, icon_params)
+	local cell_size = self.cell_size
+	local scale = icon_scale or 1
+	local width = icon_params.grid_width * cell_size.w * scale
+	local height = icon_params.grid_height * cell_size.h * scale
+	static:SetWidth(width)
+	static:SetHeight(height)
+	if icon_offset then
+		local offset = GetOffset(icon_offset, static, self.icon)
+		static:SetWndPos(offset.x, offset.y)
+	end
+	self.icon:AttachChild(static)
+	return static
+end
+
+function UICellItemSimple:OnFocusReceived()
+	if not self.interactive then
+	return end
+	self.back:Show(true)
+	sm:call("on_cell_item_simple_focus", self.sect, self)
+end
+
+function UICellItemSimple:OnFocusLost()
+	if not self.interactive then
+	return end
+	self.back:Show(false)
+	sm:call("on_cell_item_simple_focus_lost", self.sect, self)
+end
+
+function UICellItemSimple:OnLButtonDown()
+	sm:call("on_cell_item_simple_select", self.sect, self)
+	sm:call("on_cell_item_simple_lb_click", self.sect, self)
+end
+
+function UICellItemSimple:OnLButtonUp()
+end
+
+function UICellItemSimple:OnRButtonDown()
+	sm:call("on_cell_item_simple_select", self.sect, self)
+	sm:call("on_cell_item_simple_rb_click", self.sect, self)
+end
+
+function UICellItemSimple:OnDBClick()
+	sm:call("on_cell_item_simple_db_click", self.sect, self)
+end
+
+function UICellItemSimple:SetInteractive(val)
+	self.interactive = val
+end
+
+function UICellItemSimple:ResizeForCentered(static_to_resize)
+	local pos = self:GetWndPos()
+	self.back:SetWidth(static_to_resize:GetWidth())
+	self.back:SetHeight(static_to_resize:GetHeight())
+	local offset = GetOffset("center", self.back, static_to_resize)
+	self.back:SetWndPos(offset.x - pos.x, offset.y - pos.y)
+end
+
+function UICellItemSimple:SetCellItemColor(color_argb)
+	self.icon:SetColor(color_argb)
+	for k,v in pairs(self.layers) do
+		v:SetColor(color_argb)
+	end
+end
+
+function UICellItemSimple:ResetCellItemColor()
+	self:SetCellItemColor(color_default)
+end
+
+function UICellItemSimple:SetCellItemColorA(color_a)
+	self.icon:SetColorA(color_a)
+	for k,v in pairs(self.layers) do
+		v:SetColorA(color_a)
+	end
+end
+
+function UICellItemSimple:ResetCellItemColorA()
+	self:SetCellItemColorA(255)
 end

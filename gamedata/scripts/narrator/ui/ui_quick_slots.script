@@ -1,0 +1,155 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+local sm = ogsr_signals.get_mgr()
+
+class "UIQuickSlots" (CUIScriptWnd)
+
+function UIQuickSlots:__init(xml, root, owner) super()
+	self:InitControls(xml, root, owner)
+	self:Subscribe()
+end
+
+function UIQuickSlots:DetachWnd()
+	self:ClearCallbacks()
+	self.owner:DetachChild(self)
+	self:Unsubscribe()
+end
+
+function UIQuickSlots:Subscribe()
+	if not self.subscribed then
+		self.subscribed = {
+			{signal = "on_actor_menu_show", self = self, fun = self.UpdateSlots},
+			{signal = "on_slot_selector_show", self = self, fun = self.UpdateSlots},
+			
+			{signal = "on_quick_item_set", self = self, fun = self.UpdateSlots},
+			{signal = "on_quick_item_use", self = self, fun = self.UpdateSlots},
+			
+			{signal = "on_use", self = self, fun = self.UpdateSlots},
+			
+			{signal = "on_loadout_update_count", self = self, fun = self.UpdateSlots},
+			{signal = "on_loadout_update_max_count", self = self, fun = self.UpdateSlots},
+			
+			{signal = "on_cell_item_focus", self = self, fun = self.EnableHighlight},
+			{signal = "on_cell_item_focus_lost", self = self, fun = self.DisableHighlight},
+		}
+		for _, s in ipairs( self.subscribed ) do
+			sm:subscribe( s )
+		end
+	end
+end
+
+function UIQuickSlots:Unsubscribe()
+	if self.subscribed then
+		for _, s in ipairs( self.subscribed ) do
+			sm:unsubscribe( s )
+		end
+		self.subscribed = false
+	end
+end
+
+function UIQuickSlots:InitControls(xml, root, owner)
+	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
+	owner:AttachChild(self)
+	self:Show(true)
+	
+	--// quick slots
+	self.quick_slots = xml:InitStatic(root, self)
+	
+	--//quick item icon colors
+	self.quick_alpha_no_item 	= 120
+	
+	local pos_x = xml:ReadAttribFlt(root..":slot", "x", 0)
+	local pos_y = xml:ReadAttribFlt(root..":slot", "y", 0)
+	local horz = (xml:ReadAttribInt(root, "horz", 1) > 0) and true or false
+	local indent = xml:ReadAttribFlt(root, "indent", 0)
+	
+	self.slots = {}
+	root = root..":slot"
+	for i=0,3 do
+		local s = xml:InitStatic(root, self.quick_slots)
+		self.slots[i] = s
+		s:SetText(game.translate_string("ui_quick_slot_"..i))
+		s:SetWndPos(pos_x, pos_y)
+		if horz then
+			pos_x = pos_x + s:GetWidth() + indent
+		else
+			pos_y = pos_y + s:GetHeight() + indent
+		end
+		s.highlight = xml:InitStatic(root..":highlight", s)
+		s.highlight:Show(false)
+		s.highlight:SetLightAnim("ui_slow_blinking", true, true, false, true)
+		s.icon = xml:InitStatic(root..":icon", s)
+		s.count = xml:InitStatic(root..":count", s)
+		name = "quick_"..i
+		self:Register(s, name)
+		self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:QuickOnFocusReceived(i) end, self)
+		self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:QuickOnFocusLost(i) end, self)
+		self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:QuickOnClick(i) end)
+		self:AddCallback(name, ui_events.WINDOW_LBUTTON_DB_CLICK, function() self:QuickOnDbClick(i) end, self)
+		
+		self:DrawSlotIcon(i)
+	end	
+end
+
+function UIQuickSlots:DrawSlotIcon(slot_num)
+	local s = self.slots[slot_num]
+	local sect = quick_slots.get_item_sect(slot_num)
+	local show_icon = sect ~= ""
+	s.icon:Show(show_icon)
+	local count = quick_slots.get_item_count(slot_num)
+	local count_text = string.format("x%s", count)
+	s.count:SetText(count_text)
+	s.count:Show(count > 0)	
+	if show_icon then
+		s.icon:DetachAll()
+		local icon = ui_cell_item.UICellItemSimple(s.icon, sect)
+		local offset = ui_inv_utils.GetOffset("center", icon, s.icon)
+		icon:SetWndPos(offset.x, offset.y)
+		if count > 0 then
+			icon:ResetCellItemColorA()
+		else
+			icon:SetCellItemColorA(self.quick_alpha_no_item)
+		end		
+	end
+end
+
+function UIQuickSlots:QuickOnClick(slot_num)
+	sm:call("on_quick_item_click", slot_num, quick_slots.get_item_sect(slot_num), quick_slots.get_item(slot_num))
+end
+
+function UIQuickSlots:QuickOnDbClick(slot_num)
+	sm:call("on_quick_item_db_click", slot_num, quick_slots.get_item_sect(slot_num), quick_slots.get_item(slot_num))
+end
+
+function UIQuickSlots:UpdateSlots()
+	for i=0,3 do
+		self:DrawSlotIcon(i)
+	end
+end
+
+function UIQuickSlots:QuickOnFocusReceived(slot_num)
+	quick_slots.set_selected(slot_num)
+	-- self.slots[slot_num].highlight:Show(true)
+	sm:call("on_quick_item_focus", slot_num, quick_slots.get_item_sect(slot_num), quick_slots.get_item(slot_num))
+end
+
+function UIQuickSlots:QuickOnFocusLost(slot_num)
+	quick_slots.set_selected(nil)
+	-- self.slots[slot_num].highlight:Show(false)
+	sm:call("on_quick_item_focus_lost", slot_num, quick_slots.get_item_sect(slot_num), quick_slots.get_item(slot_num))
+end
+
+function UIQuickSlots:EnableHighlight(obj, cell_item)
+	local sect = obj:section()
+	local highlight_quick_slots = read_if_exists(sys_ini, "bool", sect, "quick_slot", false)
+	if highlight_quick_slots then
+		for i=0,3 do
+			self.slots[i].highlight:Show(true)
+		end
+	end
+end
+
+function UIQuickSlots:DisableHighlight(obj, cell_item)
+	for i=0,3 do
+		self.slots[i].highlight:Show(false)
+	end
+end

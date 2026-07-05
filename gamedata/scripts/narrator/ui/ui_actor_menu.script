@@ -7,7 +7,9 @@
 --"repair"
 
 _G.actor_menu = nil
-local OVERLAY_XML = "script_overlays\\actor_menu_overlay.xml"
+local OVERLAY_XML = "script_overlays\\ui_actor_menu_overlay.xml"
+
+local sm = ogsr_signals.get_mgr()
 
 function attach(sm)
 	sm:subscribe({signal = "on_spawn",   			fun = this.create_window})
@@ -78,7 +80,6 @@ end
 class "ActorMenuOverlay" (CUIScriptWnd)
 
 function ActorMenuOverlay:__init() super()
-	self.sm = ogsr_signals.get_mgr()
 	self:InitControls()
 	--self:Subscribe()
 	self:SetWindowName("actor_menu")
@@ -101,7 +102,6 @@ function ActorMenuOverlay:SetTarget(target)
 end
 
 function ActorMenuOverlay:Subscribe()
-	self.subscribed = false
 	if not self.subscribed then
 		self.subscribed = {
 			{signal = "on_cell_item_focus", self = self, fun = self.OnCellItemFocus},
@@ -117,10 +117,8 @@ function ActorMenuOverlay:Subscribe()
 			
 			{signal = "on_drag_item_drop", self = self, fun = self.OnDragItemDrop},
 			
-			{signal = "on_quick_item_set", self = self, fun = self.UpdateSlots},
-			{signal = "on_quick_item_use", self = self, fun = self.UpdateSlots},
-			{signal = "on_loadout_update_count", self = self, fun = self.UpdateSlots},
-			{signal = "on_loadout_update_max_count", self = self, fun = self.UpdateSlots},
+			{signal = "on_loadout_update_count", self = self, fun = self.UpdateLoadout},
+			{signal = "on_loadout_update_max_count", self = self, fun = self.UpdateLoadout},
 			{signal = "on_actor_icon_update", self = self, fun = self.OnActorIconUpdate},
 			
 			{signal = "on_ruck", self = self, fun = self.OnRuck},
@@ -129,6 +127,8 @@ function ActorMenuOverlay:Subscribe()
 			{signal = "on_belt", self = self, fun = self.OnBelt},
 			{signal = "on_use", self = self, fun = self.OnUse},
 			{signal = "on_place_item_to_box", self = self, fun = self.OnItemToPartner},
+			
+			{signal = "on_quick_item_db_click", self = self, fun = self.OnQUickItemDbClick},
 			
 			{signal = "on_ruck_npc", self = self, fun = self.OnItemToPartner},
 			{signal = "on_slot_npc", self = self, fun = self.OnItemToPartner},
@@ -150,7 +150,7 @@ function ActorMenuOverlay:Subscribe()
 			{signal = "on_hud_state_switch", self = self, fun = self.OnHudStateSwitch},
 		}
 		for _, s in ipairs( self.subscribed ) do
-			self.sm:subscribe( s )
+			sm:subscribe( s )
 		end
 	end
 end
@@ -158,7 +158,7 @@ end
 function ActorMenuOverlay:Unsubscribe()
 	if self.subscribed then
 		for _, s in ipairs( self.subscribed ) do
-			self.sm:unsubscribe( s )
+			sm:unsubscribe( s )
 		end
 		self.subscribed = false
 	end
@@ -185,6 +185,7 @@ function ActorMenuOverlay:InitControls()
 	
 	local xml = CScriptXmlInit()
 	xml:ParseFile(OVERLAY_XML)
+	local root
 	
 	xml:InitAutoStaticGroup("w:auto_static", self)
 	
@@ -222,8 +223,6 @@ function ActorMenuOverlay:InitControls()
 	self.buy_cost.base_color = self.buy_cost:GetTextColor()
 	self.sell_cost = xml:InitStatic("sell_cost", self.sell_buy_back)
 	self.sell_cost.base_color = self.sell_cost:GetTextColor()
-	
-	self.properties_box = ui_properties_box.UIPropertiesBox()
 
 	self.conditions_background = xml:InitStatic("conditions_background", self)
 	
@@ -312,44 +311,7 @@ function ActorMenuOverlay:InitControls()
 	end
 	
 	--// quick slots
-	self.quick_slots = xml:InitStatic("quick_slots", self)
-	
-	--//quick item icon colors
-	self.quick_color_has_item 	= GetARGB(255, 255, 255, 255)
-	self.quick_color_no_item 	= GetARGB(120, 255, 255, 255)
-	
-	local pos_x = xml:ReadAttribFlt("quick_slots:slot", "x", 0)
-	local pos_y = xml:ReadAttribFlt("quick_slots:slot", "y", 0)
-	local horz = (xml:ReadAttribInt("quick_slots", "horz", 1) > 0) and true or false
-	local indent = xml:ReadAttribFlt("quick_slots", "indent", 0)
-	
-	self.slots = {}
-	for i=0,3 do
-		local s = xml:InitStatic("quick_slots:slot", self.quick_slots)
-		self.slots[i] = s
-		s:SetText(game.translate_string("ui_quick_slot_"..i))
-		s:SetWndPos(pos_x, pos_y)
-		if horz then
-			pos_x = pos_x + s:GetWidth() + indent
-		else
-			pos_y = pos_y + s:GetHeight() + indent
-		end
-		s.highlight = xml:InitStatic("quick_slots:slot:highlight", s)
-		s.highlight:Show(false)
-		s.highlight:SetLightAnim("ui_slow_blinking", true, true, false, true)
-		s.icon = xml:InitStatic("quick_slots:slot:icon", s)
-		s.icon.image = CUIStatic()
-		s.icon.image:SetStretchTexture(true)
-		s.icon:AttachChild(s.icon.image)
-		s.count = xml:InitStatic("quick_slots:slot:count", s)
-		name = "quick_"..i
-		self:Register(s, name)
-		self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:QuickOnFocusReceived(i) end, self)
-		self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:QuickOnFocusLost(i) end, self)
-		self:AddCallback(name, ui_events.WINDOW_LBUTTON_DB_CLICK, function() self:QuickOnDbClick(i) end, self)
-		
-		self:DrawSlotIcon(i)
-	end
+	self.quick_slots = ui_quick_slots.UIQuickSlots(xml, "quick_slots", self)
 	
 	--//loadout
 	--//loadout colors
@@ -382,7 +344,7 @@ function ActorMenuOverlay:InitControls()
 		self:AddCallback(k, ui_events.STATIC_FOCUS_RECEIVED, function() self:LoadoutSlotOnFocusReceived(k) end)
 		self:AddCallback(k, ui_events.STATIC_FOCUS_LOST, function() self:LoadoutSlotOnFocusLost(k) end)		
 	end
-	self:UpdateSlots()
+	self:UpdateLoadout()
 	
 	--//show types buttons back
 	self.show_buttons_back = xml:InitStatic("show_buttons_back", self)
@@ -414,17 +376,23 @@ function ActorMenuOverlay:InitControls()
 	end
 	
 	--//floating tooltip
-	self.tooltip_frame = xml:InitFrame("tooltip_frame", self)
+	root = "tooltip_frame"
+	self.tooltip_frame = xml:InitFrame(root, self)
 	self.tooltip_frame:Show(false)
-	self.tooltip = xml:InitStatic("tooltip_frame:tooltip", self.tooltip_frame)
-	local tmp_tbl = split_string(xml:ReadAttrib("tooltip_frame", "offset", "0,0"), ",")
+	self.tooltip = xml:InitStatic(root..":tooltip", self.tooltip_frame)
+	local tmp_tbl = split_string(xml:ReadAttrib(root, "offset", "0,0"), ",")
 	self.tooltip_frame.offset = {x = tmp_tbl[1], y = tmp_tbl[2]}
 	self.tooltip_frame_base_height = self.tooltip_frame:GetHeight()
+	self.tooltip_frame.background_contrast = xml:InitStatic(root..":background_contrast", self)
+	self.tooltip_frame.background_contrast:SetWidth(self.tooltip_frame:GetWidth())
+	self.tooltip_frame.background_contrast:SetHeight(self.tooltip_frame:GetHeight())
+	self.tooltip_frame.background_contrast:Show(false)	
 	
 	--//use anim progress
-	self.use_anim = xml:InitStatic("use_anim", self)
-	self.use_anim.progress = xml:InitProgressShape("use_anim:progress", self.use_anim)
-	self.use_anim.offset = split_string(xml:ReadAttrib("use_anim", "offset", "0,0"), ",", true)
+	root = "use_anim"
+	self.use_anim = xml:InitStatic(root, self)
+	self.use_anim.progress = xml:InitProgressShape(root..":progress", self.use_anim)
+	self.use_anim.offset = split_string(xml:ReadAttrib(root, "offset", "0,0"), ",", true)
 	self.use_anim:Show(false)
 	
 	--//character info
@@ -520,7 +488,6 @@ function ActorMenuOverlay:InitControls()
 	self.repair_condition = xml:InitStatic("repair_back:condition", self.repair_back)
 	self.repair_condition_progress = xml:InitProgressBar("repair_back:condition_progress_bar", self.repair_back)
 	self.repair_item_back = xml:InitStatic("repair_back:repair_item_back", self.repair_back)
-	self.repair_item = xml:InitStatic("repair_back:repair_item_back:repair_item", self.repair_item_back)
 	--//repair button
 	self.repair_button = xml:Init3tButton("repair_button", self)
 	name = "repair_button"
@@ -580,26 +547,8 @@ function ActorMenuOverlay:InitControls()
 	self.inventory_tip = xml:InitStatic("inventory_tip", self)
 end
 
-function ActorMenuOverlay:QuickOnFocusReceived(slot_num)
-	quick_slots.set_selected(slot_num)
-	self.slots[slot_num].highlight:Show(true)
-	self.sm:call("on_quick_item_focus", quick_slots.get_item(slot_num))
-end
-
-function ActorMenuOverlay:QuickOnFocusLost(slot_num)
-	quick_slots.set_selected(nil)
-	self.slots[slot_num].highlight:Show(false)
-	self.sm:call("on_quick_item_focus_lost", quick_slots.get_item(slot_num))
-end
-
 function ActorMenuOverlay:OnCellItemFocus(obj, cell_item)
 	local sect = obj:section()
-	local highlight_quick_slots = read_if_exists(sys_ini, "bool", sect, "quick_slot", false)
-	if highlight_quick_slots then
-		for i=0,3 do
-			self.slots[i].highlight:Show(true)
-		end
-	end
 	local slot_type = loadout.get_slot_type(obj)
 	if slot_type then
 		for k,v in pairs(self.loadout) do
@@ -651,9 +600,6 @@ function ActorMenuOverlay:OnCellItemFocus(obj, cell_item)
 end
 
 function ActorMenuOverlay:OnCellItemFocusLost(obj, cell_item)
-	for i=0,3 do
-		self.slots[i].highlight:Show(false)--.back:SetColor(self.quick_color_default)
-	end
 	for k,v in pairs(self.loadout) do
 		v.static:SetTextColor(self.loadout_color_default)
 		--v.icon:SetColor(self.loadout_color_default)
@@ -714,7 +660,7 @@ end
 function ActorMenuOverlay:OnCellItemStartDrag(cell_item)
 	local item = cell_item:GetAnyItem()
 	local cell_pos = vector2():set(1, 1)
-	self.drag_item = ui_cell_item.UICellItem(self, item, cell_pos, cell_item:GetCellSize(), cell_item:GetOwnerList())
+	self.drag_item = ui_cell_item.UICellItem(self, item, cell_item:GetCellSize(), cell_pos, cell_item:GetOwnerList())
 	self.drag_item:SetInteractive(false)
 	self.drag_item.orig_pos = vector2():set(cell_item:GetMousePosX(), cell_item:GetMousePosY())
 	self:PlayOperateSound(item)
@@ -731,7 +677,7 @@ end
 
 function ActorMenuOverlay:ServiceOnLButtonUp()
 	if self.drag_item then
-		self.sm:call("on_drag_item_drop", self.drag_item)
+		sm:call("on_drag_item_drop", self.drag_item)
 		self:DestroyDragItem()
 	end
 end
@@ -754,7 +700,7 @@ function ActorMenuOverlay:OnDragItemDrop(cell_item)
 	local ci_f = self.cell_item_focused
 	if ci_f then
 		local on_item = ci_f:GetAnyItem()
-		self.sm:call( "inv_drag_drop", item, on_item )
+		sm:call( "inv_drag_drop", item, on_item )
 		return
 	end
 	
@@ -835,53 +781,15 @@ function ActorMenuOverlay:OnContainerFocusLost(container)
 	self.cell_container_focused = nil
 end
 
-function ActorMenuOverlay:DrawSlotIcon(slot_num)
-	local s = self.slots[slot_num]
-	local sect = quick_slots.get_item_sect(slot_num)
-	local show_icon = sect ~= ""
-	s.icon:Show(show_icon)
-	if show_icon then
-		local params = CIconParams(sect)
-		SetCellIcon(s.icon.image, params)
-		ui_inv_utils.CellItemFitToSize(params, s.icon.image, s.icon)
-		ui_inv_utils.UpdateLayerIcons(sect, s.icon.image)
-	end	
-	
-	local count = quick_slots.get_item_count(slot_num)
-	local count_text = string.format("x%s", count)
-	s.count:SetText(count_text)
-	s.count:Show(count > 0)
-
-	if count > 0 then
-		s.icon.image:SetColor(self.quick_color_has_item)
-	else
-		s.icon.image:SetColor(self.quick_color_no_item)
-	end
-end
-
-function ActorMenuOverlay:QuickOnDbClick(slot_num)
+function ActorMenuOverlay:OnQUickItemDbClick(slot_num, sect, item)
 	quick_slots.set_item("", slot_num)
-	self:UpdateSlots()
 end
 
-function ActorMenuOverlay:UpdateSlots()
-	for i=0,3 do
-		self:DrawSlotIcon(i)
-	end
-	
-	local loadout_slot_text
+function ActorMenuOverlay:UpdateLoadout()
 	for k,v in pairs(self.loadout) do
-		loadout_slot_text = string.format("[%s/%s]", loadout.get_current(k), loadout.get_max(k))
+		local loadout_slot_text = string.format("[%s/%s]", loadout.get_current(k), loadout.get_max(k))
 		v.static:SetText(loadout_slot_text)
 	end
-end
-
-function ActorMenuOverlay:CheckNeedUpdate(obj, prev_place)
-	local item_allowed = read_if_exists(sys_ini, "bool", obj:section(), "quick_slot", false)
-	if not item_allowed then
-		return
-	end
-	self:UpdateSlots()
 end
 
 function ActorMenuOverlay:ConditionOnFocusReceived(cond_name)
@@ -960,6 +868,8 @@ function ActorMenuOverlay:SetTooltip(text)
 			self.tooltip_frame:SetHeight(self.tooltip:GetHeight() + 15)
 		end
 	end
+	self.tooltip_frame.background_contrast:SetHeight(self.tooltip_frame:GetHeight())
+	self.tooltip_frame.background_contrast:Show(not not text)
 end
 
 function ActorMenuOverlay:UpdateTooltip()
@@ -977,7 +887,8 @@ function ActorMenuOverlay:UpdateTooltip()
     if delta.y > 0 then
         pos.y = pos.y - delta.y
 	end		
-	self.tooltip_frame:SetWndPos(pos.x, pos.y)	
+	self.tooltip_frame:SetWndPos(pos.x, pos.y)
+	self.tooltip_frame.background_contrast:SetWndPos(pos.x, pos.y)
 end
 
 function ActorMenuOverlay:UpdateConditions()
@@ -1160,7 +1071,7 @@ function ActorMenuOverlay:ClearLoadout()
 end
 
 function ActorMenuOverlay:OnShow()
-	self.sm:call("on_actor_menu_show", self:GetMode(), self:GetTarget())
+	sm:call("on_actor_menu_show", self:GetMode(), self:GetTarget())
 	self:Subscribe()
 	
 	local cursor_pos = vector2():set(UI_BASE_WIDTH * 0.5, UI_BASE_HEIGHT * 0.7)
@@ -1190,16 +1101,12 @@ function ActorMenuOverlay:OnShow()
 	self.repair_back:Show(mode == "repair")
 	self.to_talk_button:Show(mode == "trade" or mode == "repair")
 	self.sell_buy_back:Show(mode == "trade")
-	--self.conditions_background:Show(mode ~= "trade")
-	--self.loadout_back:Show(mode ~= "trade")
-	--self.quick_slots:Show(mode ~= "trade")
 	self:OnShowButtonClick(0)
 	self:OnActorIconUpdate()
 	self:OnNPCIconUpdate()
 	self:SetCharacterText()	
 	self:SetCharacterTextNPC()
 	self:UpdatePrices()
-	self:UpdateSlots()
 	
 	self.use_anim:Show(false)
 	
@@ -1207,7 +1114,7 @@ function ActorMenuOverlay:OnShow()
 end
 
 function ActorMenuOverlay:OnHide()
-	self.sm:call("on_actor_menu_hide", self:GetMode(), self:GetTarget())
+	sm:call("on_actor_menu_hide", self:GetMode(), self:GetTarget())
 	self:Unsubscribe()
 	
 	inventory.repack_power_sources()
@@ -1377,12 +1284,12 @@ function ActorMenuOverlay:PerformTrade()
 			for id,v in pairs(cell_item:GetChilds()) do
 				item = level.object_by_id(id)
 				seller:transfer_item(item, buyer)
-				self.sm:call("on_trade", item, sell_buy, trade_manager.get_trade_cost(item))
+				sm:call("on_trade", item, sell_buy, trade_manager.get_trade_cost(item))
 			end
 			item = cell_item:GetItem()
 			seller:transfer_item(item, buyer)
 			trade_list:RemoveItem(item)
-			self.sm:call("on_trade", item, sell_buy, trade_manager.get_trade_cost(item))
+			sm:call("on_trade", item, sell_buy, trade_manager.get_trade_cost(item))
 		end		
 	end
 	
@@ -1415,7 +1322,7 @@ function ActorMenuOverlay:PerformTrade()
 		end		
 	end
 
-	self.sm:call("on_perform_trade", self.target, money_give, money_take)
+	sm:call("on_perform_trade", self.target, money_give, money_take)
 	self:PlayActionSound("trade")
 	
 	self:UpdateCharInfos()
@@ -1734,7 +1641,7 @@ function ActorMenuOverlay:OnCellItemDBClick(item, cell_item)
 end
 
 function ActorMenuOverlay:OnRuck(item)
-	self:UpdateSlots()
+	self:UpdateLoadout()
 	local ci = self:GetCellItem(item)
 	if ci then
 		ci:GetOwnerList():RemoveItem(item)
@@ -1745,7 +1652,7 @@ function ActorMenuOverlay:OnRuck(item)
 end
 
 function ActorMenuOverlay:OnDrop(item)
-	self:UpdateSlots()
+	self:UpdateLoadout()
 	local ci = self:GetCellItem(item)
 	if ci then
 		ci:GetOwnerList():RemoveItem(item)
@@ -1792,7 +1699,7 @@ end
 
 function ActorMenuOverlay:OnUse(item)
 	if parent_is_actor(item) then
-		self:UpdateSlots()
+		self:UpdateLoadout()
 	end
 	local ci = self:GetCellItem(item)	
 	if ci then
@@ -1940,7 +1847,7 @@ function ActorMenuOverlay:ShowPropertiesBox(item, cell_item)
 	local item = cell_item:GetAnyItem()
 	local cell_item = cell_item
 	
-	local pbox = self.properties_box
+	local pbox = ui_properties_box.UIPropertiesBox()
 	
 	pbox:Clear()
 	
@@ -2181,31 +2088,27 @@ function ActorMenuOverlay:UpdateRepair(cell_item)
 	
 	self.repair_button:SetText(game.translate_string("ui_st_repair"))
 	self.repair_button:Enable(false)
+	self.repair_item_back:DetachAll()
 	
 	local item = cell_item and cell_item:GetAnyItem()
 	
 	local can_action = item and (self.repair:RepairAllowed(item) or self.repair:HackAllowed(item))
 	
 	if not can_action then
-		self.repair_item:Show(false)
 		self.repair_back:SetText("")
 		self.repair_item_back:SetText("")
 		self.repair_condition_progress:Show(false)
 		self.repair_condition:Show(false)
 	return end
 	
-	self.repair_item:Show(true)
-	
 	local is_hack = self.repair:HackAllowed(item)
 	self.repair_button:SetText(game.translate_string(is_hack and "ui_st_hack" or"ui_st_repair"))
 	
 	local icon_sect = read_if_exists(sys_ini, "string", item:section(), "repair_icon_sect", item:section())
-	local params = CIconParams(icon_sect)
-	--params:set_shader(self.repair_item)
-	SetCellIcon(self.repair_item, params)
-	ui_inv_utils.CellItemFitToSize(params, self.repair_item, self.repair_item_back)
-	local offset = ui_inv_utils.GetOffset("center", self.repair_item, self.repair_item_back)
-	self.repair_item:SetWndPos(offset.x, offset.y)
+	local icon = ui_cell_item.UICellItemSimple(self.repair_item_back, icon_sect)
+	icon:SetInteractive(false)
+	local offset = ui_inv_utils.GetOffset("center", icon, self.repair_item_back)
+	icon:SetWndPos(offset.x, offset.y)
 	
 	local has_money = self.repair:HasMoneyToRepair(item)
 	if is_hack then 
@@ -2219,14 +2122,11 @@ function ActorMenuOverlay:UpdateRepair(cell_item)
 	self.repair_item_back:SetText(text)
 	text = get_inv_name(item:section())
 	self.repair_back:SetText(text)
-
-	ui_inv_utils.AttachRepairMenuIcons(item, self.repair_item)
 	
 	local cond = item:condition()
 	self.repair_condition_progress:Show(cond < 1)
 	self.repair_condition:Show(cond < 1)
 	if self.repair_condition_progress:IsShown() then
-		--self.repair_condition_progress:SetWidth(self.repair_item:GetWidth())
 		self.repair_condition_progress:SetProgressPos(cond)
 		local cond_text = string.format("%.f%s", cond*100, "%")
 		self.repair_condition:SetText(cond_text)
@@ -2321,5 +2221,9 @@ function ActorMenuOverlay:OnHudStateSwitch(item, state, old_state)
 		--log_news("~%s start reloading", item:name())
 	elseif old_state == hud_state.eReload then
 		--log_news("~%s finish reloading", item:name())
+		local ci = self:GetCellItem(item)
+		if ci then
+			ci:ForceUpdate()
+		end		
 	end
 end

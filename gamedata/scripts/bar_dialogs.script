@@ -1028,12 +1028,7 @@ end
 function osvedomitel_find_person_action(first_speaker, second_speaker)
 	dialogs.relocate_money(second_speaker, FIND_PERSON_PRICE, "out")
 	
-	if msg_box then
-		msg_box:HideWnd()
-		msg_box = nil
-	end
-	
-	msg_box = ui_message_box.MessageBoxFindPersonWnd()	
+	local msg_box = ui_message_box.MessageBoxFindPersonWnd()
 	msg_box:InitAction(try_find_person)	
 end
 local find_person_clsids = {

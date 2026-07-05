@@ -1,5 +1,5 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
-local OVERLAY_XML = "script_overlays\\debug_menu.xml"
+local OVERLAY_XML = "script_overlays\\ui_debug_menu.xml"
 local SPAWN_LIST_SECT = "spawn_items_list"
 local LOCATIONS_LIST_CFG = ini_file_cached("game_maps_single.ltx")
 local LOCATIONS_LIST_SECT = "level_maps_single"
@@ -48,6 +48,7 @@ function UIDebugMenu:InitControls()
 	self.spawn_items_name = xml:InitStatic(prefix..":"..name, self.background)
 	name = "spawn_items_icon"
 	self.spawn_items_icon = xml:InitStatic(prefix..":"..name, self.background)
+	self.spawn_items_icon.min_cell_size = xml:ReadAttribFlt(prefix..":"..name, "min_cell_size", CELL_H)
 	name = "spawn_items_descr"
 	self.spawn_items_descr = xml:InitStatic(prefix..":"..name, self.background)
 	name = "spawn_button"
@@ -283,14 +284,9 @@ function UIDebugMenu:OnSpawnItemClick(section, i)
 	self.spawn_items_descr:SetText(text)
 	
 	self.spawn_items_icon:DetachAll()
-	local icon_static = CUIStatic()
-	self.spawn_items_icon:AttachChild(icon_static)
-	local params = CIconParams(section)
-	SetCellIcon(icon_static, params)
-	ui_inv_utils.CellItemFitToSize(params, icon_static, self.spawn_items_icon)
-	ui_inv_utils.UpdateLayerIcons(section, icon_static)
-	local offset = ui_inv_utils.GetOffset("center", icon_static, self.spawn_items_icon)
-	icon_static:SetWndPos(offset.x, offset.y)	
+	local icon = ui_cell_item.UICellItemSimple(self.spawn_items_icon, section)
+	local offset = ui_inv_utils.GetOffset("center", icon, self.spawn_items_icon)
+	icon:SetWndPos(offset.x, offset.y)	
 end
 
 function UIDebugMenu:OnSpawnItemFocus(section, i)

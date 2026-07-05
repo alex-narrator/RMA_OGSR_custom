@@ -1,5 +1,5 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
-local OVERLAY_XML = "script_overlays\\slot_selector_overlay.xml"
+local OVERLAY_XML = "script_overlays\\ui_slot_selector_overlay.xml"
 
 local subscribed = false
 local sm = ogsr_signals.get_mgr()
@@ -12,12 +12,15 @@ class "SlotSelectorOverlay" (CUIScriptWnd)
 
 function SlotSelectorOverlay:__init() super()
 	self:InitControls()
+	self:Subscribe()
 end
 
 function SlotSelectorOverlay:Subscribe()
-	self.subscribed = false
 	if not self.subscribed then
 		self.subscribed = {
+			{signal = "on_quick_item_focus", self = self, fun = self.OnQuickFocusReceived},
+			{signal = "on_quick_item_focus_lost", self = self, fun = self.OnQuickFocusLost},
+			{signal = "on_quick_item_click", self = self, fun = self.OnQuickClick},
 		}
 		for _, s in ipairs( self.subscribed ) do
 			sm:subscribe( s )
@@ -44,10 +47,11 @@ function SlotSelectorOverlay:InitControls()
 	
 	local name
 	--//background
-	self.back = xml:InitStatic("background", self)
-	xml:InitAutoStaticGroup("background:auto_static", self.back)
+	local root = "background"
+	self.back = xml:InitStatic(root, self)
+	xml:InitAutoStaticGroup(root..":auto_static", self.back)
 	
-	self.offset = xml:ReadAttrib("background", "offset", "center")
+	self.offset = xml:ReadAttrib(root, "offset", "center")
 	local pos = ui_inv_utils.GetOffset(self.offset, self.back, self)
 	self.back:SetWndPos(pos.x, pos.y)
 	
@@ -55,21 +59,18 @@ function SlotSelectorOverlay:InitControls()
 	self.service_back:Init(0, 0, self.back:GetWidth(), self.back:GetHeight())
 	self.back:AttachChild(self.service_back)
 	
-	self.menu_time_factor = xml:ReadAttribFlt("background", "menu_time_factor", 1)
-	self.slot_icon_scale = xml:ReadAttribFlt("background", "icon_scale", 1)
-	self.slot_icon_indent = xml:ReadAttribFlt("background", "icon_indent", 10)
+	self.menu_time_factor = xml:ReadAttribFlt(root, "menu_time_factor", 1)
+	self.slot_icon_scale = xml:ReadAttribFlt(root, "icon_scale", 1)
+	self.slot_icon_indent = xml:ReadAttribFlt(root, "icon_indent", 10)
 
-	self.slot_back_texture = xml:ReadAttrib("background", "back_texture", "ui_inv_back_gray")
+	self.slot_back_texture = xml:ReadAttrib(root, "back_texture", "ui_inv_back_gray")
 
-	local slot_list = split_string(xml:ReadAttrib("background", "slots", ""), ",", true)
-	
-	local root = "background:"
+	local slot_list = split_string(xml:ReadAttrib(root, "slots", ""), ",", true)
 	
 	self.slots = {}
 	for _,i in pairs(slot_list) do
 		self.slots[i] = {}
-		local path = root.."slot_"..i
-		local static = xml:InitStatic(path, self.back)
+		local static = xml:InitStatic(root..":slot_"..i, self.back)
 		self.slots[i].static = static
 		name = "slot_"..i
 		
@@ -89,37 +90,10 @@ function SlotSelectorOverlay:InitControls()
 		back:SetStretchTexture(true)
 	end
 	
-	self.quick_slots_back = xml:InitStatic(root.."quick_slots", self.back)
-	self.quick_slots_back_texture = xml:ReadAttrib(root.."quick_slots", "back_texture", "ui_inv_back_gray")
-	self.quick_slot_icon_scale = xml:ReadAttribFlt(root.."quick_slots", "icon_scale", 1)
+	--// quick slots
+	self.quick_slots = ui_quick_slots.UIQuickSlots(xml, root..":quick_slots", self.back)
 	
-	self.quick_slots = {}
-	for i=0,3 do
-		self.quick_slots[i] = {}
-		local path = root.."quick_slots:slot_"..i
-		local static = xml:InitStatic(path, self.quick_slots_back)
-		self.quick_slots[i].static = static
-		
-		name = "quick_slot_"..i
-		
-		self:Register(static, name)
-		self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnQuickFocusReceived(i) end)
-		self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnQuickFocusLost(i) end)
-		self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnQuickClick(i) end)
-		
-		local back = CUIStatic()
-		local size = vector2():set(static:GetWidth() * self.quick_slot_icon_scale, static:GetHeight() * self.quick_slot_icon_scale)
-		back:Init(0, 0, size.x, size.y)
-		local offset = ui_inv_utils.GetOffset("center", back, static)
-		back:SetWndPos(offset.x, offset.y)
-		self.quick_slots[i].static.back = back
-		static:AttachChild(back)
-		back:InitTexture(self.quick_slots_back_texture)
-		back:SetStretchTexture(true)
-	end
-	
-	path = root..":center_tip"
-	self.center_tip = xml:InitStatic(path, self.back)
+	self.center_tip = xml:InitStatic(root..":center_tip", self.back)
 	self.center_tip:Show(false)
 end
 
@@ -142,55 +116,11 @@ function SlotSelectorOverlay:UpdateSlots()
 	for i,v in pairs(self.slots) do
 		local item = actor:item_in_slot(i)
 		v.static.back:DetachAll()
-		v.static.back:SetColor(color_default)
 		if item then
-			local params = CIconParams(item:section())
-			local icon_size = vector2():set(params.grid_width * CELL_W * get_current_kx(), params.grid_height * CELL_H)
-			
-			local icon = CUIStatic()
-			icon:Init(0, 0, icon_size.x, icon_size.y)			
-			
-			SetCellIcon(icon, params)
-			
-			ui_inv_utils.CellItemFitToSize(params, icon, v.static)
-			
+			local icon = ui_cell_item.UICellItem(v.static.back, item)
+			icon:ResizeForCentered(v.static.back)
 			local offset = ui_inv_utils.GetOffset("center", icon, v.static.back)
 			icon:SetWndPos(offset.x, offset.y)
-			ui_inv_utils.AttachPanelIcons(item, icon)
-			
-			v.static.back:AttachChild(icon)
-		end
-	end
-	
-	for i,v in pairs(self.quick_slots) do
-		local sect = quick_slots.get_item_sect(i)
-		local count = quick_slots.get_item_count(i)
-		v.static.back:DetachAll()
-		v.static.back:SetColor(color_default)
-		local show_icon = sect ~= "" and count > 0
-		if show_icon then
-			local params = CIconParams(sect)
-			local icon_size = vector2():set(params.grid_width * CELL_W * get_current_kx(), params.grid_height * CELL_H)
-
-			local icon = CUIStatic()
-			icon:Init(0, 0, icon_size.x, icon_size.y)
-
-			SetCellIcon(icon, params)
-			
-			ui_inv_utils.CellItemFitToSize(params, icon, v.static.back)
-			ui_inv_utils.UpdateLayerIcons(sect, icon)
-			
-			local offset = ui_inv_utils.GetOffset("center", icon, v.static.back)
-			icon:SetWndPos(offset.x, offset.y)
-			
-			local text = ""
-			local count = quick_slots.get_item_count(i)
-			--if count > 1 then
-				text = string.format("x%s", count)
-			--end
-			icon:SetText(text)
-			
-			v.static.back:AttachChild(icon)			
 		end
 	end
 end
@@ -200,12 +130,6 @@ function SlotSelectorOverlay:OnSlotFocusReceived(slot_num)
 	local item = actor:item_in_slot(slot_num)
 	if not item then
 	return end
-	
-	sm:call("on_cell_item_focus", item)
-	
-	for i,v in pairs(self.slots) do
-		v.static.back:SetColor((i == slot_num) and color_focused or color_default)
-	end
 	
 	self.service_back:DetachAll()
 	self.compatible_items = {}	
@@ -227,8 +151,6 @@ function SlotSelectorOverlay:OnSlotFocusReceived(slot_num)
 end
 
 function SlotSelectorOverlay:OnSlotFocusLost(slot_num)
-	sm:call("on_cell_item_focus_lost", actor:item_in_slot(slot_num))
-	self.slots[slot_num].static.back:SetColor(color_default)
 	self.center_tip:Show(false)
 end
 
@@ -257,14 +179,9 @@ function SlotSelectorOverlay:OnSlotClick(slot_num)
 	actor:activate_slot(slot, false)
 end
 
-function SlotSelectorOverlay:OnQuickFocusReceived(quick_slot_num)
-	local item = quick_slots.get_item(quick_slot_num)
+function SlotSelectorOverlay:OnQuickFocusReceived(slot_num, sect, item)
 	if not item then
-	return end
-	
-	sm:call("on_quick_item_focus", item)
-	self.quick_slots[quick_slot_num].static.back:SetColor(color_focused)
-	
+	return end	
 	self.center_tip:Show(true)
 	local action = "ui_st_quick_use"
 	action = game.translate_string(action)
@@ -273,20 +190,15 @@ function SlotSelectorOverlay:OnQuickFocusReceived(quick_slot_num)
 	self.center_tip:SetText(text)	
 end
 
-function SlotSelectorOverlay:OnQuickFocusLost(quick_slot_num)
-	local item = quick_slots.get_item(quick_slot_num)
+function SlotSelectorOverlay:OnQuickFocusLost(slot_num, sect, item)
 	if not item then
 	return end
-	
-	sm:call("on_quick_item_focus_lost", item)
-	self.quick_slots[quick_slot_num].static.back:SetColor(color_default)
 	self.center_tip:Show(false)
 end
 
-function SlotSelectorOverlay:OnQuickClick(quick_slot_num)
-	local sect = quick_slots.get_item_sect(quick_slot_num)
+function SlotSelectorOverlay:OnQuickClick(slot_num, sect, item)
 	if sect ~= "" then
-		quick_slots.use_quick_item(quick_slot_num)
+		quick_slots.use_quick_item(slot_num)
 	end
 end
 
@@ -328,19 +240,11 @@ function SlotSelectorOverlay:ShowCompatible(slot_num)
 			pos.x = pos.x + offset.x
 			pos.y = pos.y + offset.y
 			back:SetWndPos(pos.x, pos.y)
-			
-			params = CIconParams(item:section())
-			local icon_size = vector2():set(params.grid_width * CELL_W * get_current_kx(), params.grid_height * CELL_H)		
-			
-			local icon = CUIStatic()
-			icon:Init(0, 0, icon_size.x, icon_size.y)
-			
-			ui_inv_utils.CellItemFitToSize(params, icon, back)
-			
-			SetCellIcon(icon, params)
-			ui_inv_utils.AttachPanelIcons(item, icon)
 
-			back:AttachChild(icon)
+			local icon = ui_cell_item.UICellItem(back, item)
+			icon:ResizeForCentered(back)
+			local offset = ui_inv_utils.GetOffset("center", icon, back)
+			icon:SetWndPos(offset.x, offset.y)
 			
 			table.insert(self.compatible_items, {back = back})
 			
@@ -394,19 +298,11 @@ function SlotSelectorOverlay:ShowCompatible(slot_num)
 			pos.x = pos.x + offset.x
 			pos.y = pos.y + offset.y
 			back:SetWndPos(pos.x, pos.y)			
-			
-			params = CIconParams(item:section())
-			local icon_size = vector2():set(params.grid_width * CELL_W * get_current_kx(), params.grid_height * CELL_H)
-			
-			local icon = CUIStatic()
-			icon:Init(0, 0, icon_size.x, icon_size.y)
-			
-			ui_inv_utils.CellItemFitToSize(params, icon, back)
-			
-			SetCellIcon(icon, params)
-			ui_inv_utils.AttachPanelIcons(item, icon)
 
-			back:AttachChild(icon)
+			local icon = ui_cell_item.UICellItem(back, item)
+			icon:ResizeForCentered(back)
+			local offset = ui_inv_utils.GetOffset("center", icon, back)
+			icon:SetWndPos(offset.x, offset.y)
 			
 			table.insert(self.compatible_items, {back = back})
 			
@@ -422,9 +318,6 @@ function SlotSelectorOverlay:ShowCompatible(slot_num)
 end
 
 function SlotSelectorOverlay:OnBeltFocusReceived(id, idx)
-	sm:call("on_cell_item_focus", level.object_by_id(id))
-	self.compatible_items[idx].back:SetColor(color_focused)
-	
 	self.center_tip:Show(true)
 	local action = "ui_st_compat_to_slot"
 	action = game.translate_string(action)
@@ -434,8 +327,6 @@ function SlotSelectorOverlay:OnBeltFocusReceived(id, idx)
 end
 
 function SlotSelectorOverlay:OnBeltFocusLost(id, idx)
-	sm:call("on_cell_item_focus_lost", level.object_by_id(id))
-	self.compatible_items[idx].back:SetColor(color_defaul_compat)
 	self.center_tip:Show(false)
 end
 
@@ -447,14 +338,6 @@ function SlotSelectorOverlay:OnBeltClick(id)
 	if not slot_item then
 	return end
 	
-	-- add_update_delayed_action(1,
-		-- function()
-			-- actor:move_to_ruck(slot_item)
-			-- actor:move_to_slot(desired_item)
-			-- actor:activate_slot(self.selected_slot, false)
-			-- actor:move_to_belt(slot_item)		
-		-- end
-	-- )
 	actor:move_to_ruck(slot_item)
 	actor:move_to_slot(desired_item)
 	actor:activate_slot(self.selected_slot, false)
@@ -463,9 +346,6 @@ end
 
 function SlotSelectorOverlay:OnLoadoutFocusReceived(id, idx)
 	local item = level.object_by_id(id)
-	sm:call("on_cell_item_focus", item)
-	self.compatible_items[idx].back:SetColor(color_focused)
-	
 	self.center_tip:Show(true)
 	local action = "ui_st_compat_to_slot"
 	action = game.translate_string(action)
@@ -476,8 +356,6 @@ end
 
 function SlotSelectorOverlay:OnLoadoutFocusLost(id, idx)
 	local item = level.object_by_id(id)
-	sm:call("on_cell_item_focus_lost", item)
-	self.compatible_items[idx].back:SetColor(color_defaul_compat)
 	self.center_tip:Show(false)
 end
 

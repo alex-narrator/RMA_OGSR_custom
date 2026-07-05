@@ -5,7 +5,6 @@ local subscribed = false
 local sm = ogsr_signals.get_mgr()
 
 local color_focused = GetARGB(255, 255, 255, 0)
-local color_none = GetARGB(255, 255, 255, 255)
 
 local addon_params = {
 	[0] = { name = "silencer_name", 		offset = "left_center_out", },
@@ -23,7 +22,6 @@ function QuickAddonOverlay:__init() super()
 end
 
 function QuickAddonOverlay:Subscribe()
-	self.subscribed = false
 	if not self.subscribed then
 		self.subscribed = {
 			{signal = "on_drop", self = self, fun = self.UpdateCompatible},
@@ -145,21 +143,16 @@ function QuickAddonOverlay:CheckAddons(check_item, addon_type)
 		
 		item_back:SetWndPos(pos.x, pos.y)
 
-		local params = CIconParams(addon_sect)
-		local icon_size = vector2():set(params.grid_width * base_size.x, params.grid_height * base_size.y)
-
-		local item_icon = CUIStatic()
-		item_icon:Init(0, 0, icon_size.x, icon_size.y)
-		
-		ui_inv_utils.CellItemFitToSize(params, item_icon, item_back)
-		
-		SetCellIcon(item_icon, params)
-		ui_inv_utils.UpdateDetachAddonIcon(item_back)
+		self:AddDettachAddonIcon(item_back)
 		
 		table.insert(self.addons[addon_type].items, {back = item_back})
 		
 		self.back:AttachChild(item_back)
-		item_back:AttachChild(item_icon)
+		
+		local icon = ui_cell_item.UICellItemSimple(item_back, addon_sect)
+		local offset = ui_inv_utils.GetOffset("center", icon, item_back)
+		icon:SetWndPos(offset.x, offset.y)
+		icon:ResizeForCentered(item_back)
 		
 		self:Register(item_back, name)
 		
@@ -203,23 +196,18 @@ function QuickAddonOverlay:CheckAddons(check_item, addon_type)
 			local offset = ui_inv_utils.GetOffset(addon_params[addon_type].offset, item_back, prev_static, self.items_indent)
 			pos.x = pos.x + offset.x
 			pos.y = pos.y + offset.y
-			item_back:SetWndPos(pos.x, pos.y)			
-			
-			local params = CIconParams(item:section())
-			local icon_size = vector2():set(params.grid_width * base_size.x, params.grid_height * base_size.y)
-
-			local item_icon = CUIStatic()
-			item_icon:Init(0, 0, icon_size.x, icon_size.y)
-			
-			ui_inv_utils.CellItemFitToSize(params, item_icon, item_back)
+			item_back:SetWndPos(pos.x, pos.y)
 		
-			SetCellIcon(item_icon, params)
-			ui_inv_utils.UpdateAttachAddonIcon(item_back)				
+			self:AddAttachAddonIcon(item_back)
 
 			table.insert(self.addons[addon_type].items, {back = item_back})
 			
 			self.back:AttachChild(item_back)
-			item_back:AttachChild(item_icon)
+
+			local icon = ui_cell_item.UICellItem(item_back, item)
+			icon:ResizeForCentered(item_back)
+			local offset = ui_inv_utils.GetOffset("center", icon, item_back)
+			icon:SetWndPos(offset.x, offset.y)
 			
 			self:Register(item_back, name)
 			
@@ -257,13 +245,11 @@ function QuickAddonOverlay:SetTip(text)
 end
 
 function QuickAddonOverlay:OnDetachFocusReceived(sect, static)
-	self:HighlightStatic(static, color_focused)
 	local text = string.format("%s\\n%s", game.translate_string("ui_st_detach"), get_inv_name_short(sect))
 	self:SetTip(text)
 end
 
 function QuickAddonOverlay:OnDetachFocusLost(sect, static)
-	self:HighlightStatic(static, color_none)
 	self:SetTip()
 end
 
@@ -275,7 +261,6 @@ end
 
 function QuickAddonOverlay:OnAttachFocusReceived(id, static)
 	local item = level.object_by_id(id)
-	self:HighlightStatic(static, color_focused)
 	sm:call("on_cell_item_focus", item)
 	
 	local text = string.format("%s\\n%s", game.translate_string("ui_st_attach"), get_inv_name_short(item:section()))
@@ -284,7 +269,6 @@ end
 
 function QuickAddonOverlay:OnAttachFocusLost(id, static)
 	local item = level.object_by_id(id)
-	self:HighlightStatic(static, color_none)
 	sm:call("on_cell_item_focus_lost", item)
 	
 	self:SetTip()
@@ -377,4 +361,29 @@ function QuickAddonOverlay:OnKeyboard(dik, keyboard_action)
 	end
 
 	return false
+end
+
+function QuickAddonOverlay:AddAttachAddonIcon(icon)
+	local params = CIconParams("addon_attach_icon")
+	local attach_addon_icon = CUIStatic()
+	SetCellIcon(attach_addon_icon, params)
+	attach_addon_icon:SetWidth(icon:GetWidth())
+	attach_addon_icon:SetHeight(icon:GetHeight())
+	local offset = ui_inv_utils.GetOffset("left_top", attach_addon_icon, icon)
+	attach_addon_icon:SetWndPos(offset.x, offset.y)
+	icon:AttachChild(attach_addon_icon)
+	return attach_addon_icon
+end
+
+function QuickAddonOverlay:AddDettachAddonIcon(icon)
+	local params = CIconParams("addon_detach_icon")
+	local detach_addon_icon = CUIStatic()
+	SetCellIcon(detach_addon_icon, params)
+	detach_addon_icon:SetWidth(icon:GetWidth())
+	detach_addon_icon:SetHeight(icon:GetHeight())
+	local offset = ui_inv_utils.GetOffset("left_top", detach_addon_icon, icon)
+	detach_addon_icon:SetWndPos(offset.x, offset.y)
+	detach_addon_icon:SetWindowName("detach_addon_icon")
+	icon:AttachChild(detach_addon_icon)
+	return detach_addon_icon
 end

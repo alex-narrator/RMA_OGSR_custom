@@ -116,10 +116,10 @@ function unload_magazine(cell_item, for_all)
 		local wpn = item:get_weapon()
 		if wpn and wpn.misfire then
 			wpn.misfire = false
-		end		
-		cell_item:ForceUpdate()
+		end
 		try_play_sound(item)
 	end
+	cell_item:ForceUpdate()
 end
 
 function add_move_to_slot(pbox, item)

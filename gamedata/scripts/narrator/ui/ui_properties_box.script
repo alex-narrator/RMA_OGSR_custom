@@ -1,5 +1,5 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
-local OVERLAY_XML = "script_overlays\\properties_box.xml"
+local OVERLAY_XML = "script_overlays\\ui_properties_box.xml"
 
 local CUSTOM_ACTION_SECT = "custom_properties_box_action_item"
 
@@ -36,8 +36,10 @@ function UIPropertiesBox:InitControls()
 	self.xml = CScriptXmlInit()
 	self.xml:ParseFile(OVERLAY_XML)
 
-	self.back = self.xml:InitFrame("properties_box", self)
+	self.background_contrast = self.xml:InitStatic("background_contrast", self)
+
 	local root = "properties_box"
+	self.back = self.xml:InitFrame(root, self)
 	self.scroll_view = self.xml:InitScrollView(root..":list", self.back)
 	local root = "properties_box:list"
 	self.scroll_view.indent = {
@@ -66,7 +68,6 @@ function UIPropertiesBox:Activate()
 	for k, v in ipairs(self.actions) do
 		v.list_item = self.xml:InitStatic("properties_box:list:list_item", self.scroll_view)
 		v.list_item:SetText(v.name)
-		--v.list_item:AdjustHeightToText()
 		v.list_item:AdjustWidthToText()
 		v.list_item:SetWidth(v.list_item:GetWidth() + v.list_item:GetTextX() * 2)
 		
@@ -95,6 +96,9 @@ function UIPropertiesBox:Activate()
 		end
 	end
 	
+	self.background_contrast:SetWidth(self.back:GetWidth())
+	self.background_contrast:SetHeight(self.back:GetHeight())	
+	
 	for k, v in ipairs(self.actions) do
 		v.list_item:SetWidth(max_w)
 	end
@@ -113,6 +117,8 @@ function UIPropertiesBox:Activate()
 			pos.y = pos.y - delta.y
 		end	
 		self.back:SetWndPos(pos.x, pos.y)
+		self.background_contrast:SetWndPos(pos.x, pos.y)
+
 		level.start_stop_menu(self, false)
 	end
 	return show
@@ -182,9 +188,9 @@ end
 
 function UIPropertiesBox:OnKeyboard(dik, keyboard_action)
 	CUIScriptWnd.OnKeyboard(self, dik, keyboard_action)
-	if keyboard_action == ui_events.WINDOW_KEY_PRESSED and dik ~= DIK_keys.MOUSE_2 then
+	if keyboard_action == ui_events.WINDOW_KEY_PRESSED then
 		level.start_stop_menu(self, false)
-		return true
+		return dik ~= DIK_keys.MOUSE_2
 	end
 	return false
 end

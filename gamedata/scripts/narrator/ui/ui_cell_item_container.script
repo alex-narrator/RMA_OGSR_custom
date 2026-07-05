@@ -12,6 +12,8 @@ local TEXTURE_CELL_SIZE 			= 64
 --//налаштовувати конфіги UI може бути зручніше у цілих числах
 local round_cell_size 				= true
 
+local sm = ogsr_signals.get_mgr()
+
 class "UICellItemContainer" (CUIScriptWnd)
 
 function UICellItemContainer:__init(xml, path, owner) super()
@@ -27,7 +29,6 @@ function UICellItemContainer:__init(xml, path, owner) super()
 	self.saved_scroll_pos = nil
 	self.locked = false
 	self:InitControls()
-	self.sm = ogsr_signals.get_mgr()
 	self:Subscribe()
 end
 
@@ -38,7 +39,6 @@ function UICellItemContainer:DetachWnd()
 end
 
 function UICellItemContainer:Subscribe()
-	self.subscribed = false
 	if not self.subscribed then
 		self.subscribed = {
 			{signal = "on_cell_item_select", self = self, fun = self.OnCellItemSelect},
@@ -48,7 +48,7 @@ function UICellItemContainer:Subscribe()
 			-- {signal = "on_cell_item_focus_lost", self = self, fun = self.OnCellItemFocusLost},
 		}
 		for _, s in ipairs( self.subscribed ) do
-			self.sm:subscribe( s )
+			sm:subscribe( s )
 		end
 	end
 end
@@ -56,7 +56,7 @@ end
 function UICellItemContainer:Unsubscribe()
 	if self.subscribed then
 		for _, s in ipairs( self.subscribed ) do
-			self.sm:unsubscribe( s )
+			sm:unsubscribe( s )
 		end
 		self.subscribed = false
 	end
@@ -91,7 +91,6 @@ function UICellItemContainer:InitControls()
 	}
 	self.service_back:Init(pos.x, pos.y, size.w, size.h)
 	self:AttachChild(self.service_back)
-	--self:BringToBottom(self.service_back)
 	
 	self.cell_container = CUIStatic()
 	self.scroll:AddWindow(self.cell_container)
@@ -99,7 +98,7 @@ function UICellItemContainer:InitControls()
 	self.auto_grow = self.xml:ReadAttribInt(self.path, "auto_grow", 0) > 0 and true or false
 	self.group_by_type = self.xml:ReadAttribInt(self.path, "group_by_type", 0) > 0 and true or false
 	self.group_similar = self.xml:ReadAttribInt(self.path, "group_similar", 0) > 0 and true or false
-	self.vertical = self.xml:ReadAttribInt(self.path, "vertical", 0)
+	self.vertical = self.xml:ReadAttribInt(self.path, "vertical", 0) --// додатнє значення - крутимо проти годинникової стрілки, від'ємне значення - крутимо за годинниковою стрілкою, 0 - не крутимо взагалі
 	self.is_vertical = self.vertical ~= 0
 	self.centered = self.xml:ReadAttribInt(self.path, "centered", 0) > 0 and true or false
 	self.drag_enabled = self.xml:ReadAttribInt(self.path, "drag_enabled", 1) > 0 and true or false
@@ -171,26 +170,38 @@ function UICellItemContainer:Reinit()
 		self:Grow()
 	end	
 	self:AdjustContainerHeight()
+	self.scroll:ForceScrollPos()	
 end
 
 function UICellItemContainer:Update()
 	CUIScriptWnd.Update(self)
-	if self.saved_scroll_pos then
-		self.scroll:SetScrollPos(self.saved_scroll_pos)
-		self.scroll:ForceScrollPos()
-	end
+	self:UpdateScrollPos()
 	if table.size(self.cell_items) == 0 then
 		self.service_back:DetachAll()
 	end
 end
 
+function UICellItemContainer:UpdateScrollPos()
+	local cur_scroll_pos = self.scroll:GetCurrentScrollPos()
+	local target_pos
+	if table.size(self.grid) == self.rows and cur_scroll_pos ~= 0 then
+		target_pos = 0
+	elseif self.saved_scroll_pos and cur_scroll_pos ~= self.saved_scroll_pos then
+		target_pos = self.saved_scroll_pos
+	end
+	if target_pos then
+		self.scroll:SetScrollPos(target_pos)
+		self.scroll:ForceScrollPos()	
+	end
+end
+
 function UICellItemContainer:OnFocusReceived()
-	self.sm:call("on_cell_item_container_focus", self)
+	sm:call("on_cell_item_container_focus", self)
 	--log3("~%s is focused", self.ID)
 end
 
 function UICellItemContainer:OnFocusLost()
-	self.sm:call("on_cell_item_container_focus_lost", self)
+	sm:call("on_cell_item_container_focus_lost", self)
 	--log3("~%s is non focused", self.ID)
 end
 
@@ -269,7 +280,7 @@ function UICellItemContainer:AddItem(item)
 	
 	local cell_pos = self:FindFreeCell(item)
 	if cell_pos then
-		local ci = ui_cell_item.UICellItem(self.cell_container, item, cell_pos, self.cell_size, self)
+		local ci = ui_cell_item.UICellItem(self.cell_container, item, self.cell_size, cell_pos, self)
 		local params = CIconParams(item:section())
 		local w = self.is_vertical and params.grid_height or params.grid_width
 		local h = self.is_vertical and params.grid_width or params.grid_height

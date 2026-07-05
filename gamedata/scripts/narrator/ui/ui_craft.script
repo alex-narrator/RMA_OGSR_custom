@@ -24,7 +24,6 @@ function CraftOverlay:__init(craft_sect) super()
 end
 
 function CraftOverlay:Subscribe()
-	self.subscribed = false
 	if not self.subscribed then
 		self.subscribed = {
 			-- {signal = "on_cell_item_select", 	self = self, fun = self.OnCellItemSelect},
@@ -206,21 +205,14 @@ function CraftOverlay:ShowReceiptInfo()
 	self.craft_button:Enable(can_craft)
 	
 	self.craft_result:DetachAll()
-	local scale = self.craft_result.icon_scale
-	
-	local static = CUIStatic()
+
 	local sect = receipt.result
-	local params = CIconParams(sect)
-	SetCellIcon(static, params)
-	static:SetWidth(params.grid_width * scale * CELL_W * get_current_kx())
-	static:SetHeight(params.grid_height * scale * CELL_H)
-	static:DetachAll()
-	ui_inv_utils.UpdateLayerIcons(sect, static)
-	local offset = ui_inv_utils.GetOffset("center", static, self.craft_result)
-	static:SetWndPos(offset.x, offset.y)
-	self.craft_result:AttachChild(static)
+	local icon = ui_cell_item.UICellItemSimple(self.craft_result, sect)
+	icon:SetInteractive(false)
+	local offset = ui_inv_utils.GetOffset("center", icon, self.craft_result)
+	icon:SetWndPos(offset.x, offset.y)
 	if not can_craft then
-		static:SetColor(color_unavailable)
+		icon:SetCellItemColor(color_unavailable)
 	end
 	
 	self.craft_components:DetachAll()
@@ -229,26 +221,22 @@ function CraftOverlay:ShowReceiptInfo()
 	local scale = self.craft_components.icon_scale
 	local indent = self.craft_components.indent
 	local static_back = CUIStatic()
+	static_back:Init(0, 0, self.craft_components:GetWidth(), self.craft_components:GetHeight())
 	for sect,count in pairs(receipt.components) do
-		local static = CUIStatic()
-		local params = CIconParams(sect)
-		SetCellIcon(static, params)
-		static:SetWidth(params.grid_width * scale * CELL_W * get_current_kx())
-		static:SetHeight(params.grid_height * scale * CELL_H)
-		ui_inv_utils.UpdateLayerIcons(sect, static)
+		local icon = ui_cell_item.UICellItemSimple(static_back, sect)
+		icon:SetInteractive(false)
 		if count > 1 then
-			static:SetText(string.format("x%s", count))
+			local static_count = CUIStatic()
+			static_count:Init(0, 0, icon:GetWidth(), icon:GetHeight())
+			static_count:SetText(string.format("x%s", count))
+			icon:AttachChild(static_count)
 		end
-		static:SetWndPos(x, y)
-		x = x + static:GetWidth() + indent
-		static_back:AttachChild(static)
-		if static:GetHeight() > static_back:GetHeight() then
-			static_back:SetHeight(static:GetHeight())
-		end
-		
+		icon:SetWndPos(x, y)
+		x = x + icon:GetWidth() + indent
+
 		local has_count = self.current_components[sect] and table.size(self.current_components[sect]) or 0
 		if has_count < count then
-			static:SetColor(color_unavailable)
+			icon:SetCellItemColor(color_unavailable)
 		end
 		
 		local color = has_count >= count and "%c[green]" or "%c[red]"

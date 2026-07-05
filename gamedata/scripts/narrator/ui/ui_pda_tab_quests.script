@@ -33,7 +33,6 @@ function UIPdaTabQuests:__init() super()
 end
 
 function UIPdaTabQuests:Subscribe()
-	self.subscribed = false
 	if not self.subscribed then
 		self.subscribed = {
 			{signal = "on_task_stage", self = self, fun = self.OnTaskStage},

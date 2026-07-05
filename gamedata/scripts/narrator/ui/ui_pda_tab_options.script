@@ -10,7 +10,6 @@ function UIPdaTabOptions:__init() super()
 end
 
 function UIPdaTabOptions:Subscribe()
-	self.subscribed = false
 	if not self.subscribed then
 		self.subscribed = {
 			{signal = "on_add_note", self = self, fun = self.OnAddNote},

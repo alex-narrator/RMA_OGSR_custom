@@ -14,8 +14,8 @@ end
 
 local sm = ogsr_signals.get_mgr()
 
-local msg_box = nil
-local error_msg = nil
+-- local msg_box = nil
+-- local error_msg = nil
 
 local screen_brightness = 0.75
 local sound_mode = 0
@@ -255,11 +255,7 @@ function verify_password(item, input_password)
 		try_hack(item)
 	else
 		se_obj.lock_state = 2
-		if error_msg then
-			error_msg:HideWnd()
-			error_msg = nil
-		end
-		error_msg = ui_message_box.MessageBoxErrorWnd()
+		local error_msg = ui_message_box.MessageBoxErrorWnd()
 		error_msg:SetErrorText(game.translate_string("st_device_dead_locked"), game.translate_string("st_device_dead_locked_tip"))
 		news_manager.custom_news(string.format("%s %s [%s]", game.translate_string("st_device_pda_name"), od.name, game.translate_string(ranks.get_val_rank_name(od.rank))), game.translate_string("st_device_dead_locked"), "ui_pda_dark_back")
 	end
@@ -277,12 +273,7 @@ end
 function try_hack(item)
 	local se_obj = alife():object(item:id())
 	
-	if msg_box then
-		msg_box:HideWnd()
-		msg_box = nil
-	end
-	
-	msg_box = ui_message_box.MessageBoxPasswordWnd()
+	local msg_box = ui_message_box.MessageBoxPasswordWnd()
 	
 	local od = se_obj.owner_data
 	local password = od.password
@@ -290,7 +281,7 @@ function try_hack(item)
 	local msg = string.format("%s: %s%s%s \\n \\n%s: %s%s", 
 		game.translate_string("st_password_tip"), password == password_tip and "%c[green]" or "", password_tip, "%c[default]", 
 		game.translate_string("st_unlock_attempts"), se_obj.unlock_attempts > 1 and "%c[default]" or "%c[red]", se_obj.unlock_attempts)
-	
+
 	msg_box:InitAction(msg, verify_password, item)
 end
 

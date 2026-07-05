@@ -5,10 +5,11 @@ local thresholds_sect = "main_ingame_indicators_thresholds"
 
 local def_smooth_max = 0.9
 
+local sm = ogsr_signals.get_mgr()
+
 class "WarningIcons" (CUIScriptWnd)
 
 function WarningIcons:__init(xml, owner) super()
-	self.sm = ogsr_signals.get_mgr()
 	self:InitWnd(xml, owner)
 end
 
@@ -19,7 +20,6 @@ end
 function WarningIcons:InitWnd(xml, owner)
 	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
 	owner:AttachChild(self)
-	self:Enable(true)
 	self:Show(true)
 	
 	self.warning_icons_back = xml:InitStatic("warning_icons_back", self)
@@ -144,11 +144,11 @@ function WarningIcons:Update()
 end
 
 function WarningIcons:OnFocusReceived(name, icon)
-	self.sm:call("on_warning_icon_focus", name, icon)
+	sm:call("on_warning_icon_focus", name, icon)
 	--log3("~WarningIcons:OnFocusReceived %s", name)
 end
 
 function WarningIcons:OnFocusLost(name, icon)
-	self.sm:call("on_warning_icon_focus_lost", name, icon)
+	sm:call("on_warning_icon_focus_lost", name, icon)
 	--log3("~WarningIcons:OnFocusLost %s", name)
 end
