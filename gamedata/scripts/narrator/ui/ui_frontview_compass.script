@@ -8,6 +8,8 @@ local relation_color = {
 }
 local dead_color = GetARGB(255, 168, 168, 168)
 
+local level_changer_color = GetARGB(255, 10, 250, 250)
+
 local directions = {
 	[0] = "N",
 	[45] = "NE",
@@ -47,6 +49,7 @@ local map_spot_to_texture = {
 	["spot_primary_cop"] = "ui_inGame2_PDA_icon_Primary_mission",
 	["spot_secondary_cop"] = "ui_inGame2_PDA_icon_Secondary_mission",
 	["personal_location"] = "ui_icons_newPDA_markPersonal",
+	["level_changer"] = "ui_pda2_exit_point",
 }
 
 class "CompassOverlay" (CUIScriptWnd)
@@ -75,6 +78,7 @@ function CompassOverlay:InitControls()
 	local compass_params = {}
 	compass_params.marker_size = split_string(xml:ReadAttrib("compass_front_view", "mark_size", "8,10"), ",", true)
 	compass_params.selected_marker_size = split_string(xml:ReadAttrib("compass_front_view", "selected_mark_size", "8,10"), ",", true)
+	compass_params.level_changer_mark_size = split_string(xml:ReadAttrib("compass_front_view", "level_changer_mark_size", "8,10"), ",", true)
 	compass_params.other_marker_size = split_string(xml:ReadAttrib("compass_front_view", "other_mark_size", "8,10"), ",", true)
 	compass_params.scale_texture_w = xml:ReadAttribInt("compass_front_view", "scale_texture_w", 2400)
 	compass_params.scale_texture_h = xml:ReadAttribInt("compass_front_view", "scale_texture_h", 100)
@@ -125,6 +129,7 @@ function CompassOverlay:ShowFrontViewMarks()
 	local objective = gametask.active_objective()
 	local tgt_id = objective and objective:get_object_id() or nil
 	--//selected quest target
+	local lc_target_id = false
 	if objective then
 		local dist = main_window.minimap:GetActivePointDist()
 		local sim = alife()
@@ -141,6 +146,7 @@ function CompassOverlay:ShowFrontViewMarks()
 						local dist_to_lc = distance_between(actor, lc)
 						if dist and math.fsimilar(dist, dist_to_lc, 1) then
 							obj_pos = lc:center()
+							lc_target_id = id
 							break
 						end
 					end
@@ -187,6 +193,19 @@ function CompassOverlay:ShowFrontViewMarks()
 	end	
 	--//nearest objects
 	function perform_action(obj)
+		if obj:clsid() == clsid.level_changer and obj:id() ~= lc_target_id then
+			local pos = point_on_screen.compass_ui_projection(obj:center(), self.compass_modern_scale:GetWidth(), self.compass_modern_scale:GetHeight() + params.vertical_mark_add, params.hide_point_off_bound)
+			if pos then
+				local marker_data = {
+					pos = pos,
+					dist = distance_between(actor, obj),
+					color = level_changer_color,
+					texture = map_spot_to_texture["level_changer"],
+					size = params.level_changer_mark_size,
+				}
+				table.insert(compass_targets, marker_data)
+			end
+		end
 		if (obj:is_stalker() or obj:is_trader()) and obj:id() ~= tgt_id then
 			local pos = point_on_screen.compass_ui_projection(obj:center(), self.compass_modern_scale:GetWidth(), self.compass_modern_scale:GetHeight() + params.vertical_mark_add, params.hide_point_off_bound)
 			if pos then

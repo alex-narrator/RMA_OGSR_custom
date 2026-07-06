@@ -60,7 +60,6 @@ function SlotSelectorOverlay:InitControls()
 	self.back:AttachChild(self.service_back)
 	
 	self.menu_time_factor = xml:ReadAttribFlt(root, "menu_time_factor", 1)
-	self.slot_icon_scale = xml:ReadAttribFlt(root, "icon_scale", 1)
 	self.slot_icon_indent = xml:ReadAttribFlt(root, "icon_indent", 10)
 
 	self.slot_back_texture = xml:ReadAttrib(root, "back_texture", "ui_inv_back_gray")
@@ -80,7 +79,7 @@ function SlotSelectorOverlay:InitControls()
 		self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnSlotClick(i) end)
 		
 		local back = CUIStatic()
-		local size = vector2():set(static:GetWidth() * self.slot_icon_scale, static:GetHeight() * self.slot_icon_scale)
+		local size = vector2():set(static:GetWidth(), static:GetHeight())
 		back:Init(0, 0, size.x, size.y)
 		local offset = ui_inv_utils.GetOffset("center", back, static)
 		back:SetWndPos(offset.x, offset.y)
@@ -229,7 +228,7 @@ function SlotSelectorOverlay:ShowCompatible(slot_num)
 			local name = item:name()..id
 			
 			local back = CUIStatic()
-			local size = vector2():set(slot_static:GetWidth() * self.slot_icon_scale, slot_static:GetHeight() * self.slot_icon_scale)
+			local size = vector2():set(base_size.x, base_size.y)
 			back:Init(0, 0, size.x, size.y)
 			self.service_back:AttachChild(back)
 			back:InitTexture(self.slot_back_texture)
@@ -287,7 +286,7 @@ function SlotSelectorOverlay:ShowCompatible(slot_num)
 			local name = item:name()..id
 			
 			local back = CUIStatic()
-			local size = vector2():set(slot_static:GetWidth() * self.slot_icon_scale, slot_static:GetHeight() * self.slot_icon_scale)
+			local size = vector2():set(base_size.x, base_size.y)
 			back:Init(0, 0, size.x, size.y)
 			self.service_back:AttachChild(back)
 			back:InitTexture(self.slot_back_texture)

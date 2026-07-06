@@ -1064,7 +1064,7 @@ local crosshair_hide_states = {
 }
 
 function MainIngameOverlay:UpdateCrosshair(forced)
-	self.crosshair:Show(not actor_obj:is_zoom_aiming_mode() and get_script_option_value("hud_crosshair") and not self.slot_selector:IsShown())
+	self.crosshair:Show(not actor_obj:is_zoom_aiming_mode() and get_script_option_value("hud_crosshair") and not level.main_input_receiver())
 	if not self.crosshair:IsShown() then
 	return end
 

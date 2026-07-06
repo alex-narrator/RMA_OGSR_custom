@@ -9,7 +9,9 @@ local hud_anm = "camera_effects\\item_use\\two_handed_weapon_effect.anm"
 local hud_effector_id = 5556
 
 function on_key_press(key, game_action)
-	if level.main_input_receiver() or 
+	local mir = level.main_input_receiver()
+	local pda_wnd = level.get_pda_wnd():GetPdaWnd()
+	if (mir and (mir:WindowName() ~= pda_wnd:WindowName() or not is_3d_pda())) or 
 		game_action ~= key_bindings.kSWIPE_MASK or
 		not actor_hands_free() or
 		not console:get_bool("r2_rain_drops_control")
