@@ -98,6 +98,9 @@ function MainIngameOverlay:Subscribe()
 			{signal = "on_death_actor", self = self, fun = self.OnActorDeath},
 			
 			{signal = "on_throw_grenade", self = self, fun = self.OnThrowGrenade},
+			
+			{signal = "on_actor_weapon_fire_mode_change", self = self, fun = self.ShowActiveitemInfo},
+			{signal = "on_actor_weapon_grenade_mode_change", self = self, fun = self.ShowActiveitemInfo},
 		}
 		local sm = ogsr_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
@@ -739,7 +742,29 @@ function MainIngameOverlay:OnHudStateSwitch(item, state, old_state)
 	if crosshair_set_states[state] and not item:get_device() then
 		self:SetCrosshair(read_if_exists(sys_ini, "string", item:section(), "crosshair", nil))
 		self:UpdateCrosshair(true)
+		
+		self:ShowActiveitemInfo()
 	end
+end
+
+function MainIngameOverlay:ShowActiveitemInfo(play_anim)
+	local act_item = actor:active_item()
+	local act_device = actor:active_device()
+	if play_anim and (not act_item and not act_device) then 
+		outfit_anim.play_outfit("inspect")
+	end
+	if act_item and play_anim then
+		ammo_check_anim.try_play_anim(act_item)
+	end
+	local ACTIVE_ITEM_INFO_TTL = get_script_option_value("active_item_info_ttl")
+	if act_device and dosimeter.is_dosimeter(act_device) and act_device:is_power_on() then
+		dosimeter.show_actor_radiation()
+		local str = string.format("%s: %.2f %s ", game.translate_string("st_actor_radiation"), actor.radiation * 100, game.translate_string("st_percent"))--actor.radiation, game.translate_string("st_rad"))
+		hud_add_info_message("hud_info", str, ACTIVE_ITEM_INFO_TTL)
+	end
+	_G.SHOW_ACTIVE_ITEM_INFO = true
+	self.active_item.ammo_sect = nil
+	self.active_item_info_hide_time = time_global() + ACTIVE_ITEM_INFO_TTL * 1000
 end
 
 function MainIngameOverlay:UpdateCompass()
@@ -888,23 +913,7 @@ function MainIngameOverlay:OnKeyPress(key, game_action)
 	local mir = level.main_input_receiver()
 	
 	if game_action == key_bindings.kCHECKACTIVEITEM and not mir then
-		local act_item = actor:active_item()
-		local act_device = actor:active_device()
-		if (not act_item and not act_device) then 
-			outfit_anim.play_outfit("inspect")
-		end
-		if act_item then
-			ammo_check_anim.try_play_anim(act_item)
-		end
-		local ACTIVE_ITEM_INFO_TTL = get_script_option_value("active_item_info_ttl")
-		if act_device and dosimeter.is_dosimeter(act_device) and act_device:is_power_on() then
-			dosimeter.show_actor_radiation()
-			local str = string.format("%s: %.2f %s ", game.translate_string("st_actor_radiation"), actor.radiation * 100, game.translate_string("st_percent"))--actor.radiation, game.translate_string("st_rad"))
-			hud_add_info_message("hud_info", str, ACTIVE_ITEM_INFO_TTL)
-		end
-		_G.SHOW_ACTIVE_ITEM_INFO = true
-		self.active_item.ammo_sect = nil
-		self.active_item_info_hide_time = time_global() + ACTIVE_ITEM_INFO_TTL * 1000
+		self:ShowActiveitemInfo(true)
 	end
 	
 	if game_action == key_bindings.kCHECKGEAR and not SHOW_GEAR_INFO and not mir then
