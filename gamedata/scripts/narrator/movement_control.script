@@ -1,7 +1,8 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
-	sm:subscribe({signal = "on_mouse_wheel", 	fun = this.on_mouse_wheel})
-	sm:subscribe({signal = "on_key_press",   	fun = this.on_key_press})
+	sm:subscribe({signal = "on_mouse_wheel", 		fun = this.on_mouse_wheel})
+	sm:subscribe({signal = "on_key_press", 			fun = this.on_key_press})
+	sm:subscribe({signal = "on_hud_state_switch", 	fun = this.on_state_switch})
 end
 
 -- local LOOKOUT_ANGLE_STEP = 5
@@ -70,4 +71,21 @@ function on_key_press(key, game_action)
 			level.send_event_key_release(bind_to_dik(game_action))
 		end
 	)
+end
+
+local reset_lookout_states = {
+	[hud_state.eShowing] = true,
+	[hud_state.eHidden] = true,
+	[hud_state.eHiding] = true,
+	[hud_state.eReload] = true,
+}
+
+function on_state_switch(item, state, old_state)
+	if get_console():get_bool("g_hold_to_lookout") then
+	return end
+	if not reset_lookout_states[state] then
+	return end
+	if not IsMoveState(move_state.mcLookout) then
+	return end
+	SetMoveState(move_state.mcLookout, false)
 end
