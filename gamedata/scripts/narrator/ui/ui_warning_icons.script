@@ -45,6 +45,7 @@ function WarningIcons:InitWnd(xml, owner)
 		--//states
 		{ name = "safehouse", 		val = function() return actor:has_info("safehouse") end },		
 		{ name = "use_campfire", 	val = function() return campfire_effects.actor_used_campfire() end },
+		{ name = "no_weapon", 		val = function() return bind_stalker.get_hide_weapon() end },
 		--//holder
 		{ name = "car", 			val = function() return actor_get_car() and 1 - actor_get_car():GetfHealth() or 0 end },
 		{ name = "stat_mgun", 		val = function() local mgun = (handling_mounted_weapon() and actor:get_holder()) and actor:get_holder():binded_object() or nil return mgun and mgun:get_overheat() or 0 end },		

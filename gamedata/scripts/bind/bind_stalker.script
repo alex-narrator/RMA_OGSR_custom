@@ -379,15 +379,28 @@ function actor_binder:update(delta)
 	end
 
 	-- Апдейт прятание оружия игрока во время диалога
-	if weapon_hide == true then--or self.object:is_talking() then
-		if self.weapon_hide == false then
-			self.object:hide_weapon()
+	if weapon_hide then--or self.object:is_talking() then
+		-- if self.weapon_hide == false then
+			-- self.object:hide_weapon()
+			-- self.weapon_hide = true
+		-- end
+	-- else
+		-- if self.weapon_hide == true then
+			-- self.object:restore_weapon()
+			-- self.weapon_hide = false
+		-- end
+		local act_item = actor:active_item()
+		if act_item and (act_item:get_weapon() or act_item:is_grenade()) then
+			actor:activate_slot(NO_ACTIVE_SLOT, self.weapon_hide)
+			hud_add_info_message("hud_info", "st_enter_no_weapon_zone")
+		end
+		if not self.weapon_hide then
 			self.weapon_hide = true
 		end
 	else
-		if self.weapon_hide == true then
-			self.object:restore_weapon()
+		if self.weapon_hide then
 			self.weapon_hide = false
+			hud_add_info_message("hud_info", "st_exit_no_weapon_zone")
 		end
 	end	
 
@@ -657,6 +670,9 @@ function hide_weapon()
 end
 function restore_weapon()
 	weapon_hide = false
+end
+function get_hide_weapon()
+	return weapon_hide
 end
 
 // this is test for section iteration
