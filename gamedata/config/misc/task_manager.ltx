@@ -346,18 +346,21 @@ reward_item_receiver = barman_box
 
 [ecolog_base_task]:task_base
 penalty_relation = ecolog, -20
+condlist = {=actor_not_in_community(freedom)}
 
 [ecolog_remote_task]:remote_task,ecolog_base_task
 reward_item_receiver = sakharov_box
 
 [dolg_base_task]:task_base
 penalty_relation = dolg, -20
+condlist = {=actor_not_in_community(freedom)}
 
 [dolg_remote_task]:remote_task,dolg_base_task
 reward_item_receiver = voronin_box
 
 [freedom_base_task]:task_base
 penalty_relation = freedom, -20
+condlist = {=actor_not_in_community(dolg, ecolog)}
 
 [freedom_remote_task]:remote_task,freedom_base_task
 reward_item_receiver = max_box
@@ -1059,7 +1062,7 @@ penalty_reputation = none
 type = find_item
 
 text = ecolog_find_item_1_text
-description = ecolog_find_item_2_descr
+description = ecolog_find_item_1_descr
 parent = ecolog
 target = outfit_stalker_m1
 reward_reputation = +30
@@ -2054,6 +2057,7 @@ type = eliminate_lager
 text = zastava_commander_eliminate_lager_text
 description = zastava_commander_eliminate_lager_descr
 ;condlist = {+esc_serious_talk}
+condlist = {=actor_not_in_community(freedom)}
 parent = zastava_commander
 target = bar_zastava_dogs_lair
 ;reward_money = 4000
@@ -2074,6 +2078,7 @@ text = wolf_eliminate_lager_1_text
 description = wolf_eliminate_lager_1_descr
 ;condlist = {+esc_serious_talk}
 ;condlist = {=actor_on_level(l01_escape)}
+condlist = {-agroprom_military_case_have}
 parent = wolf
 target = esc_bridge_boar
 ;reward_money = 1500
@@ -2097,6 +2102,7 @@ text = wolf_eliminate_lager_2_text
 description = wolf_eliminate_lager_2_descr
 ;condlist = {+esc_serious_talk}
 ;condlist = {=actor_on_level(l01_escape)}
+condlist = {-agroprom_military_case_have}
 parent = wolf
 target = esc_flesh_2
 ;reward_money = 2500
@@ -2124,6 +2130,8 @@ reward_reputation = +3
 reward_rank = 9
 reward_item = dolg_scientific_outfit
 time = 24
+
+condlist = {=actor_not_in_community(freedom)}
 
 penalty_reputation = -5
 penalty_relation = dolg, -10

@@ -21,6 +21,7 @@ local screen_brightness = 0.75
 local sound_mode = 0
 local sound_volume = 0.5
 local task_sorting_mode = 0
+local work_sorting_mode = 0
 
 local user_notes = {}
 
@@ -35,6 +36,10 @@ local options_tokens = {
 		"task_sorting_newest_first",
 		"task_sorting_oldest_first",
 		"task_sorting_priority",
+	},
+	["work_sorting_mode"] = {
+		"work_sorting_by_vendor",
+		"work_sorting_by_type",
 	},	
 }
 
@@ -47,6 +52,7 @@ function on_save()
 	xr_vars.save_var("sound_mode", sound_mode)
 	xr_vars.save_var("sound_volume", sound_volume)
 	xr_vars.save_var("task_sorting_mode", task_sorting_mode)
+	xr_vars.save_var("work_sorting_mode", work_sorting_mode)
 	--//
 	local saved_notes = {}
 	for k,v in ipairs(user_notes) do
@@ -66,6 +72,7 @@ function on_load()
 	sound_mode = xr_vars.load_var("sound_mode", sound_mode)
 	sound_volume = xr_vars.load_var("sound_volume", sound_volume)
 	task_sorting_mode = xr_vars.load_var("task_sorting_mode", task_sorting_mode)
+	work_sorting_mode = xr_vars.load_var("work_sorting_mode", work_sorting_mode)
 	--//
 	local saved_notes = xr_vars.load_var("saved_notes", {})
 	user_notes = {}
@@ -101,6 +108,14 @@ end
 
 function set_task_sorting_mode(val)
 	task_sorting_mode = val
+end
+
+function get_work_sorting_mode()
+	return work_sorting_mode
+end
+
+function set_work_sorting_mode(val)
+	work_sorting_mode = val
 end
 
 function get_screen_brisghtness()

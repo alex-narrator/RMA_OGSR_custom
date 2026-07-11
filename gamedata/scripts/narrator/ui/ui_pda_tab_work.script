@@ -1,0 +1,283 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+local OVERLAY_XML = "script_overlays\\ui_pda_tab_work.xml"
+
+local sm = ogsr_signals.get_mgr()
+
+function sort_by_vendor(a, b)
+	if a.parent_sid < b.parent_sid then
+		return true
+	end
+	if a.parent_sid == b.parent_sid then
+		return a.complex_type < b.complex_type
+	end
+	return false
+end
+
+function sort_by_type(a, b)
+	if a.complex_type < b.complex_type then
+		return true
+	end
+	if a.complex_type == b.complex_type then
+		return a.parent_sid < b.parent_sid
+	end
+	return false
+end
+
+function accept_task(task_id)
+	task_manager.give_remote_task(task_id)
+end
+
+class "UIPdaTabWork" (CUIScriptWnd)
+function UIPdaTabWork:__init() super()
+	self:InitControls()
+	self:Subscribe()
+end
+
+function UIPdaTabWork:Subscribe()
+	if not self.subscribed then
+		self.subscribed = {
+			{signal = "on_task_stage", self = self, fun = self.OnTaskStage},
+		}
+		for _, s in ipairs( self.subscribed ) do
+			sm:subscribe( s )
+		end
+	end
+end
+
+function UIPdaTabWork:InitControls()
+	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
+	local xml = CScriptXmlInit()
+	self.xml = xml
+	xml:ParseFile(OVERLAY_XML)
+	
+	local name = "background_frame_left"
+	self.back_left = xml:InitFrame(name, self)
+	xml:InitAutoStaticGroup(name..":auto_static", self.back_left)
+	self.left_frame_line = xml:InitFrameLine(name..":left_frame_line", self.back_left)
+	
+	self.work_sorting_mode = xml:InitStatic(name..":work_sorting_mode", self.back_left)
+	self.work_sorting_mode_combobox = xml:InitComboBox(name..":work_sorting_mode:list_work_sorting_mode", self.work_sorting_mode)
+	self:Register(self.work_sorting_mode_combobox, "work_sorting_mode_combobox")
+	self:AddCallback("work_sorting_mode_combobox", ui_events.LIST_ITEM_SELECT, self.ChangeTaskSortingMode, self)
+	local tokens = pda.get_option_tokens("work_sorting_mode")
+	if tokens then
+		for k,v in pairs(tokens) do
+			self.work_sorting_mode_combobox:AddItem(v)
+		end
+	end
+	self.work_sorting_mode_combobox:SetCurrentID(pda.get_work_sorting_mode())	
+	
+	self.left_scroll_view = xml:InitScrollView(name..":left_scroll_view", self.back_left)
+	
+	self.color = {}
+	self.color.default = GetARGB(
+		xml:ReadAttribFlt(name..":left_scroll_view:list_item:task_title:text", "a", 255),
+		xml:ReadAttribFlt(name..":left_scroll_view:list_item:task_title:text", "r", 255),
+		xml:ReadAttribFlt(name..":left_scroll_view:list_item:task_title:text", "g", 255),
+		xml:ReadAttribFlt(name..":left_scroll_view:list_item:task_title:text", "b", 255)
+	)
+	self.color.selected = GetARGB(255, 238, 153, 26)
+	self.color.focused = GetARGB(255, 255, 255, 255)
+	
+	self.color_a = {}
+	self.color_a.default = 180
+	self.color_a.selected = 255
+	self.color_a.focused = 255
+	
+	name = "background_frame_right"
+	self.back_right = xml:InitFrame(name, self)
+	xml:InitAutoStaticGroup(name..":auto_static", self.back_right)
+	self.right_frame_line = xml:InitFrameLine(name..":right_frame_line", self.back_right)
+	
+	self.right_scroll_view = xml:InitScrollView(name..":right_scroll_view", self.back_right)
+end
+
+function UIPdaTabWork:ChangeTaskSortingMode()
+	local mode = self.work_sorting_mode_combobox:CurrentID()
+	pda.set_work_sorting_mode(mode)
+	self:OnShow()
+end
+
+function UIPdaTabWork:OnShow()
+	self.right_frame_line:GetTitleStatic():SetText("")
+	self.right_scroll_view:Clear()
+	
+	self.left_scroll_view:Clear()
+	self.left_scroll_view.statics = {}
+	
+	local list_item_path = "background_frame_left:left_scroll_view:list_item"
+	local divider_path = "background_frame_left:left_scroll_view:divider"
+	
+	self.tasks = task_manager.get_remote_tasks()
+	
+	local sort_mode = pda.get_work_sorting_mode()
+	if sort_mode == 0 then
+		table.sort(self.tasks, sort_by_vendor)
+	elseif sort_mode == 1 then
+		table.sort(self.tasks, sort_by_type)
+	end
+
+	for idx, task_data in pairs(self.tasks) do
+		local static = self.xml:InitStatic(list_item_path, self.left_scroll_view)
+		self.xml:InitAutoStaticGroup(list_item_path..":auto_static", static)
+		local id = task_data.id
+		local name = id
+
+		self:Register(static, name)
+		self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnFocusReceived(id) end, self)
+		self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnFocusLost(id) end, self)
+		self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnLButtonDown(id) end, self)
+		self:AddCallback(name, ui_events.WINDOW_LBUTTON_DB_CLICK, function() self:OnAcceptTaskClick(id) end, self)
+		self.left_scroll_view.statics[id] = static
+		
+		local task_icon = self.xml:InitStatic(list_item_path..":task_icon", static)
+		task_icon:InitTexture(task_data.icon_texture)
+		local r = task_data.icon_rect
+		task_icon:SetOriginalRect(r.x1, r.y1, r.x2, r.y2)
+		task_icon:SetColorA(self.color_a.default)
+		self.left_scroll_view.statics[id].task_icon = task_icon
+		
+		local task_title = self.xml:InitStatic(list_item_path..":task_title", static)
+		task_title:SetText(task_data.title)
+		self.left_scroll_view.statics[id].task_title = task_title
+		
+		local vendor_name = self.xml:InitStatic(list_item_path..":vendor_name", static)
+		vendor_name:SetText(task_data.parent_name)
+		
+		if task_data.need_return then
+			local need_return = self.xml:InitStatic(list_item_path..":need_return", static)
+			need_return:SetText(game.translate_string("st_pda_task_need_return"))
+			need_return:SetWndPos(need_return:GetWndPos().x, static:GetHeight())
+			static:SetHeight(static:GetHeight() + need_return:GetHeight())			
+		end
+		
+		local accept_task_btn = self.xml:Init3tButton(list_item_path..":accept_task_btn", static)
+		local name = id.."_skip_task"
+		self:Register(accept_task_btn, name)
+		self:AddCallback(name, ui_events.BUTTON_CLICKED, function() self:OnAcceptTaskClick(id) end, self)		
+		
+		local task_text = self.xml:InitStatic(list_item_path..":task_text", static)
+		task_text:SetText(task_data.text)
+		task_text:AdjustHeightToText()
+		task_text:SetWndPos(task_text:GetWndPos().x, static:GetHeight())
+		static:SetHeight(static:GetHeight() + task_text:GetHeight())		
+		
+		local divider = self.xml:InitStatic(divider_path, self.left_scroll_view)
+	end
+	
+	if table.size(self.tasks) == 0 then
+		local static = self.xml:InitStatic(list_item_path, self.left_scroll_view)
+		self.xml:InitAutoStaticGroup(list_item_path..":auto_static", static)
+		static:SetText(game.translate_string("ui_st_no_remote_tasks"))
+	end
+	
+	self.back_left:BringToTop(self.work_sorting_mode)
+end
+
+function UIPdaTabWork:OnFocusReceived(id)
+	local list_item = self.left_scroll_view.statics[id]
+	if list_item.selected then
+	return end
+	list_item.task_title:SetTextColor(self.color.focused)
+	list_item.task_icon:SetColorA(self.color_a.focused)
+end
+
+function UIPdaTabWork:OnFocusLost(id)
+	local list_item = self.left_scroll_view.statics[id]
+	if list_item.selected then
+	return end
+	list_item.task_title:SetTextColor(self.color.default)
+	list_item.task_icon:SetColorA(self.color_a.default)
+end
+
+function UIPdaTabWork:OnLButtonDown(id)
+	self.right_scroll_view:Clear()
+	for k, v in pairs(self.left_scroll_view.statics) do
+		v.selected = k == id
+		v.task_title:SetTextColor(v.selected and self.color.selected or self.color.default)
+		v.task_icon:SetColorA(v.selected and self.color_a.selected or self.color_a.default)
+	end
+	local task_data
+	for k, v in pairs(self.tasks) do
+		if v.id == id then
+			task_data = v
+			break
+		end
+	end
+	if not task_data then
+	return end
+	
+	self.right_frame_line:GetTitleStatic():SetText(task_data.title)
+	
+	local list_item_path = "background_frame_right:right_scroll_view:list_item"
+	local divider_path = "background_frame_right:right_scroll_view:divider"
+	
+	local description_text = task_data.description
+	if description_text ~= "" then
+		local static = self.xml:InitStatic(list_item_path, self.right_scroll_view)
+		static:SetText(description_text)
+		static:AdjustHeightToText()
+		local divider = self.xml:InitStatic(divider_path, self.right_scroll_view)
+	end
+	local reward_text = task_data.reward_text
+	if reward_text ~= "" then
+		local static = self.xml:InitStatic(list_item_path, self.right_scroll_view)
+		static:SetText(reward_text)
+		static:AdjustHeightToText()
+		local divider = self.xml:InitStatic(divider_path, self.right_scroll_view)
+	end
+	local time_text = task_data.time_text
+	if time_text ~= "" then
+		local static = self.xml:InitStatic(list_item_path, self.right_scroll_view)
+		static:SetText(time_text)
+		static:AdjustHeightToText()
+		local divider = self.xml:InitStatic(divider_path, self.right_scroll_view)
+	end
+	local target_text = task_data.target_text
+	if target_text ~= "" then
+		local static = self.xml:InitStatic(list_item_path, self.right_scroll_view)
+		static:SetText(target_text)
+		static:AdjustHeightToText()
+		local divider = self.xml:InitStatic(divider_path, self.right_scroll_view)
+	end
+	local location_text = task_data.location_text
+	if location_text ~= "" then
+		local static = self.xml:InitStatic(list_item_path, self.right_scroll_view)
+		static:SetText(location_text)
+		static:AdjustHeightToText()
+		local divider = self.xml:InitStatic(divider_path, self.right_scroll_view)
+	end	
+	local penalty_text = task_data.penalty_text
+	if penalty_text ~= "" then
+		local static = self.xml:InitStatic(list_item_path, self.right_scroll_view)
+		static:SetText(penalty_text)
+		static:AdjustHeightToText()
+		local divider = self.xml:InitStatic(divider_path, self.right_scroll_view)
+	end
+end
+
+function UIPdaTabWork:OnAcceptTaskClick(id)
+	local task_data
+	for k, v in pairs(self.tasks) do
+		if v.id == id then
+			task_data = v
+			break
+		end
+	end
+	if not task_data then
+	return end
+	local text = string.format("%s\\n \\n%s\\n \\n%s: %s", 
+			game.translate_string("st_pda_accept_task"), 
+			task_data.text,
+			game.translate_string("st_pda_task_vendor"), task_data.parent_name)
+	local msg_box = ui_message_box.MessageBoxWnd("alarm")
+	msg_box:InitAction(text, accept_task, id)
+end
+
+function UIPdaTabWork:OnTaskStage(_task, _objective, _stage)
+	add_update_delayed_action(1, function() self:OnShow() end)
+end
+
+function UIPdaTabWork:Update()
+	CUIScriptWnd.Update(self)
+end

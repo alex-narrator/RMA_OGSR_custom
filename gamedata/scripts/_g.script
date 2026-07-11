@@ -1029,6 +1029,34 @@ function get_clsid(npc)
 --    end
 end
 
+function get_obj_id(obj)
+	if type(obj.id) == "function" then
+		return obj:id()
+	end
+	return obj.id
+end
+
+function is_obj_alive(id)
+	local se_obj = alife():object(id)
+	local ce_obj = level.object_by_id(id)
+	if not se_obj and not ce_obj then
+		return false
+	end
+	if se_obj:get_trader() then
+		return true
+	end
+	if ce_obj then
+		return ce_obj:alive()
+	end
+	return se_obj:alive()
+end
+
+function get_obj_name_translated(id)
+	local se_obj = alife():object(id)
+	local name_translated = se_obj:get_trader() and get_translated_character_name(se_obj.character_name) or se_obj:name_translated()
+	return name_translated
+end
+
 --//суд€чи по м≥сц€м де цим користуютьс€ тут маЇтсь€ на уваз≥ кл≥Їнтський об'Їкт
 function isWeapon(object)
 	return object and ((object:is_weapon() and get_clsid(object) ~= clsid.wpn_binocular_s) or object:is_grenade())
@@ -1709,7 +1737,8 @@ pda_tab = {
 	contacts = 4,
 	ranking = 5,
 	statistics = 6,
-	options = 7,
+	work = 7,
+	options = 8,
 }
 
 pda_tab_by_key = {

@@ -142,7 +142,6 @@ function UIPdaTabQuests:OnShow(skip_right_frame_reset)
 		local name = id
 		local idx = 0
 
-		static:SetText(text)
 		self:Register(static, name)
 		self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnFocusReceived(id) end, self)
 		self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnFocusLost(id) end, self)
@@ -177,6 +176,8 @@ function UIPdaTabQuests:OnShow(skip_right_frame_reset)
 			local remaining_time = self.xml:InitStatic(list_item_path..":remaining_time", static)
 			remaining_time:SetText(text)
 			self.left_scroll_view.statics[id].remaining_time = remaining_time
+			remaining_time:SetWndPos(remaining_time:GetWndPos().x, static:GetHeight())
+			static:SetHeight(static:GetHeight() + remaining_time:GetHeight())			
 		end
 		
 		local random_task = task_manager.get_active_random_task(id)
@@ -238,7 +239,7 @@ function UIPdaTabQuests:OnShow(skip_right_frame_reset)
 		
 		local divider = self.xml:InitStatic(divider_path, self.left_scroll_view)
 	end
-	
+	self.back_left:BringToTop(self.task_sorting_mode)
 	self:UpdateTasksDraw()
 end
 
@@ -274,7 +275,6 @@ function UIPdaTabQuests:OnLButtonDown(id, idx)
 	self.right_frame_line:GetTitleStatic():SetText(text)
 	
 	local list_item_path = "background_frame_right:right_scroll_view"
-	local divider
 	
 	local objective = game_task:get_objective(idx)
 	local article = objective:get_article_id()
@@ -307,7 +307,7 @@ function UIPdaTabQuests:OnLButtonDown(id, idx)
 	if random_task then
 		local task_info = task_manager.get_random_task_info(random_task)
 		if task_info then
-			divider = self.xml:InitStatic(list_item_path..":divider", self.right_scroll_view)
+			local divider = self.xml:InitStatic(list_item_path..":divider", self.right_scroll_view)
 			local reward_text = self.xml:InitStatic(list_item_path..":article_text", self.right_scroll_view)
 			reward_text:SetText(task_manager.GetRewardText(task_info))
 			reward_text:SetFont(GetFontCustom("letterica16"))
@@ -342,23 +342,26 @@ end
 function UIPdaTabQuests:OnSkipTaskClick(id)
 	local game_task = gametask.get_task(id)
 	local objective = game_task:get_objective(1)
-	local se_parent
+	local parent_name
 	local random_task = task_manager.get_active_random_task(id)
 	if random_task then
 		local task_info = task_manager.get_random_task_info(random_task)
 		if task_info then
-			local parent_id = task_info.parent
-			if parent_id then
-				parent_id = task_manager.get_sid_by_parent(parent_id)
-				se_parent = alife():story_object(tonumber(parent_id))
+			local parent = task_info.parent
+			if parent then
+				local sid = task_manager.get_sid_by_parent(parent)
+				local se_parent = alife():story_object(tonumber(sid))
+				if se_parent then
+					parent_name = get_obj_name_translated(se_parent.id)
+				end
 			end
 		end
 	end	
 	local text = string.format("%s\\n \\n%s: %s", 
 			game.translate_string("st_pda_skip_task"), 
 			game.translate_string(game_task:get_title()), game.translate_string(objective:get_description()))
-	if se_parent then
-		text = text..string.format("\\n \\n%s: %s", game.translate_string("st_pda_task_vendor"), se_parent:name_translated())
+	if parent_name then
+		text = text..string.format("\\n \\n%s: %s", game.translate_string("st_pda_task_vendor"), parent_name)
 	end
 	local msg_box = ui_message_box.MessageBoxWnd("red")
 	msg_box:InitAction(text, skip_task, id)
@@ -368,7 +371,7 @@ function UIPdaTabQuests:OnObjectiveDbClick(id, idx)
 	local game_task = gametask.get_task(id)
 	local objective = game_task:get_objective(idx)
 	if objective:get_state() ~= task_state.in_progress then
-		log_news("!return objective:get_state() %s | in progress state %s", objective:get_state(), task_state.in_progress)
+		--log_news("!return objective:get_state() %s | in progress state %s", objective:get_state(), task_state.in_progress)
 	return end
 	gametask.set_active_task(game_task, idx)
 	self:UpdateTasksDraw()

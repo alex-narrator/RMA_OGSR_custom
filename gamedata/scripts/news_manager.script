@@ -145,6 +145,23 @@ tips_icons = {
 	prapor = { 415, 47}
 }
 
+local icon_by_sid = {
+	[MAX_U16]  								= { 498, 846},
+	[story_ids.Escape_Trader] 				= { 332, 893},
+	[story_ids.bar_Barman] 					= { 332, 235},
+	[story_ids.yan_general_ecolog] 			= { 332, 470},
+	[story_ids.bar_dolg_general_voronin] 	= { 332, 423},
+	[story_ids.Mil_Lukash] 					= { 415, 235},
+	[story_ids.Escape_novice_lager_volk] 	= { 332, 940},
+	[story_ids.Escape_shustryi] 			= { 332, 846},
+	[story_ids.bar_drunk_dolg] 				= { 332, 376},
+	[story_ids.bar_hunter] 					= { 415, 752},
+	[story_ids.bar_zastava_commander] 		= { 332, 282},
+	[story_ids.bar_dolg_polkovnik_petrenko] = { 332, 376},
+	[story_ids.bar_lisiy] 					= { 415, 141},
+	[story_ids.bar_bar_osvedomitel] 		= { 498, 846},	
+}
+
 local pda_prefix = [[device\pda\pda_]]
 
 local sound_prefixes = {
@@ -421,4 +438,24 @@ function item_tip(item, tip_type)
 	local sect = type(item) == "string" and item or item:section()
 	local news = string.format("%s %s", get_inv_name(sect), game.translate_string(tip.news))
 	custom_news(tip.header, news, tip.icon)
+end
+
+function give_personal_message(sender, header_text, msg_text, sound, delay, ttl)
+	if not sender then
+	return end
+	
+	local sid = sender:story_id()
+	local x = icon_by_sid[sid][1]
+	local y = icon_by_sid[sid][2]
+
+	local header_color = "%c[255,160,160,160]"
+	local text_color = "%c[default]"
+	local text = string.format("%s%s\\n%s%s", header_color, game.translate_string(header_text), text_color, game.translate_string(msg_text))
+
+	actor:give_game_news(text, "ui\\ui_iconsTotal", Frect():set(x,y,83,47), (delay or 0) * 1000, (ttl or 3) * 1000)
+	if not sound then
+		play_news_sound("news", delay or 0)
+	else
+		xr_sound.get_safe_sound_object(sound):play(actor, delay or 0, sound_object.s2d)
+	end	
 end

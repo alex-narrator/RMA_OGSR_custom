@@ -356,6 +356,10 @@ function RepairOverlay:PerformRepair()
 					forward_game_time(0, 0, self.res_repair_time)
 				end
 				self.item:change_condition(self.res_cond_gain)
+				local ci = actor_menu:GetCellItem(self.item)
+				if ci then
+					ci:ForceUpdate()
+				end				
 			end
 			if can_repair(self.item) then
 				self:Reinit(self.item)

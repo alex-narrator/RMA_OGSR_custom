@@ -807,14 +807,6 @@ function attach_loaded_ammo(UIDesc, obj, xml)
 		ammo_s[i]:Show(false)
 	end
 
-	local function set_ammo_icon(icon, sect)
-		local item_icon = ui_cell_item.UICellItemSimple(icon, sect)
-		icon:SetWidth(item_icon:GetWidth())
-		icon:Show(true)
-		icon:SetWndPos(pos_x, icon:GetWndPos().y)
-		pos_x = pos_x + icon:GetWidth()	
-	end
-
 	if show_ammo then
 		set_ammo_icon(ammo_s[1], get_cur_ammo_sect(obj))
 	end
@@ -828,6 +820,14 @@ function attach_loaded_ammo(UIDesc, obj, xml)
 	return true
 end
 
+function set_ammo_icon(icon, sect)
+	local item_icon = ui_cell_item.UICellItemSimple(icon, sect)
+	icon:SetWidth(item_icon:GetWidth())
+	icon:Show(true)
+	icon:SetWndPos(pos_x, icon:GetWndPos().y)
+	pos_x = pos_x + icon:GetWidth()	
+end
+
 ------------------------------------------LOADED WEAPON AMMO WND-----------------------------------------------------------------------------------------------------------------
 
 function attach_magazin_ammo(UIDesc, obj, xml)
@@ -837,6 +837,8 @@ function attach_magazin_ammo(UIDesc, obj, xml)
 	
 	local main = xml:InitStatic("loaded_ammo", UIDesc)
 	local ammo_icon = xml:InitStatic("loaded_ammo:ammo_icon", main)
+	
+	pos_x = 0
 	
 	local sect = ammo:ammo_sect()
 	set_ammo_icon(ammo_icon, sect)

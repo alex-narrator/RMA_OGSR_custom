@@ -1500,3 +1500,13 @@ end
 function is_rain()
 	return level.rain_factor() >= 0.07
 end
+
+function actor_not_in_community(actor, npc, p)
+	local actor_comm = actor:character_community()
+	for k,v in pairs(p) do
+		if actor_comm == v then
+			return false
+		end
+	end
+	return true
+end

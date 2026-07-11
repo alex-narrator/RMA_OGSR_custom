@@ -85,6 +85,8 @@ local task_id_by_init_phrase_id = {}
 local task_id_by_desc_phrase_id = {}
 local active_task_by_type = {}
 local task_id_self_inited = {}
+--//
+local task_requested = {}
 
 function parse_tasks()
 	--log3("~parse_tasks")
@@ -217,6 +219,7 @@ function on_save()
 	--log3("~on_save task_processed %s", task_processed)
 	xr_vars.save_var("active_task_by_type", active_task_by_type)
 	--log3("~on_save active_task_by_type %s", active_task_by_type)
+	xr_vars.save_var("task_requested", task_requested)
 end
 --' Загрузка
 function on_load()
@@ -231,10 +234,11 @@ function on_load()
 	--//завантажуємо активні таски
 	active_task_by_type = xr_vars.load_var("active_task_by_type", active_task_by_type)
 	--log3("~on_load active_task_by_type %s", active_task_by_type)
+	task_requested = xr_vars.load_var("task_requested", task_requested)
 end
 --' Возвращает идентификатор вендора, с которым мы говорим
-function get_parent(npc, nofatal)
-	local story_id = npc:story_id()
+function get_parent(npc_id, nofatal)
+	local story_id = alife():object(npc_id).m_story_id
 	if not nofatal then
 		ASSERT(parent_by_story[story_id], "Task manager error: wrong parent story_id[%s]", story_id)
 	end
@@ -242,7 +246,11 @@ function get_parent(npc, nofatal)
 end
 --' Может ли вендор выдать квест
 function parent_can_task(actor, npc, p1, p2, p3)
-	local parent = get_parent(npc)
+	local id = get_obj_id(npc)
+	if not is_obj_alive(id) then
+		return false 
+	end
+	local parent = get_parent(id)
 	local avail = false
 	task_avail(actor, npc, nil, nil, nil, "reset")
 	for k,v in pairs(task_id_by_parent[parent]) do
@@ -254,7 +262,7 @@ function parent_can_task(actor, npc, p1, p2, p3)
 end
 --' Есть ли у игрока хоть одно задание от данного вендора
 function active_parent_task(actor, npc)
-	local parent = get_parent(npc)
+	local parent = get_parent(get_obj_id(npc))
 	for k,v in pairs(active_task_by_type) do
 		if task_info[v].parent == parent and
 		  (task_info[v].status == "selected" or
@@ -267,7 +275,7 @@ function active_parent_task(actor, npc)
 end
 --' Есть ли игрока завершенные задания (которые осталось только сдать)
 function have_completed_job(actor, npc)
-	local parent = get_parent(npc)
+	local parent = get_parent(get_obj_id(npc))
 	for k,v in pairs(active_task_by_type) do
 		if task_info[v].parent == parent and
 		   task_info[v].status == "completed"
@@ -534,12 +542,10 @@ function task_callback(p1, p2, stage)
 end
 --' Выводит список доступных квестов
 function action_task_show(npc, actor)
-	local parent = get_parent(npc)	
+	local parent = get_parent(get_obj_id(npc))	
 	for k,v in pairs(task_id_by_parent[parent]) do		
 		if task_avail(actor, npc, nil, nil, task_info[v].init_phrase_id, false) then
-			local icon_type = (task_info[v].type == "eliminate_lager") and (mob_lagers[task_info[v].target] and "eliminate_lair" or "eliminate_lager") or task_info[v].type
-			--log3("~icon_type %s", icon_type)
-			local task_texture, task_rect = get_texture_info("ui_icons_task_"..icon_type, "ui_iconsTotal_locations")
+			local task_texture, task_rect = get_icon_info(v)
 			db.actor:give_talk_message(game.translate_string(task_info[v].name), task_texture, task_rect, "iconed_answer_item")
 		end
 	end
@@ -655,6 +661,7 @@ end
 function init_task_dialog(dlg, parent)
 	local phr = dlg:AddPhrase("tm_seek_new_job","0","",-10000)
 	local phrase_script = phr:GetPhraseScript()
+	phrase_script:AddAction("task_manager.task_request")
 
 	phr = dlg:AddPhrase("tm_"..parent.."_list_job","1","0",-10000)
 	phrase_script = phr:GetPhraseScript()
@@ -688,24 +695,29 @@ function init_task_dialog(dlg, parent)
 	dlg:AddPhrase("tm_seek_job_abandon","3","1",-10000)
 end
 
+function task_request(actor, npc, p1, p2)
+	if task_requested[npc:story_id()] then
+	return end
+	task_requested[npc:story_id()] = true
+	news_manager.give_personal_message(npc, "ui_st_remote_tasks_header", string.format("%s %s", npc:character_name(), game.translate_string("ui_st_acess_to_remote_tasks")))
+	--log_news("task_request actor [%s] npc [%s] ", actor:character_name(), npc:character_name())
+end
+
 function show_reward_text(actor, npc, p1, p2)
-	local _task_info = task_info[task_id_by_desc_phrase_id[p2]]
-	local icon_type = (_task_info.type == "eliminate_lager") and (mob_lagers[_task_info.target] and "eliminate_lair" or "eliminate_lager") or _task_info.type
-	local task_texture, task_rect = get_texture_info("ui_icons_task_"..icon_type, "ui_iconsTotal_locations")
+	local task_id = task_id_by_desc_phrase_id[p2]
+	local _task_info = task_info[task_id]
+	local task_texture, task_rect = get_icon_info(task_id)
 	local text = string.format("%s%s%s%s%s", GetRewardText(_task_info), GetTaskTimeText(_task_info), GetLocationText(_task_info), GetPersonalText(_task_info), GetPenaltyText(_task_info))
 	actor:give_talk_message(text, task_texture, task_rect, "iconed_answer_item")
 end
 
 function ShowRewardMsg(task_info)
-	local icon_type = (task_info.type == "eliminate_lager") and (mob_lagers[task_info.target] and "eliminate_lair" or "eliminate_lager") or task_info.type
-	local task_texture, task_rect = get_texture_info("ui_icons_task_"..icon_type, "ui_iconsTotal_locations")
+	local task_texture, task_rect = get_icon_info(task_info.name)
 	actor:give_talk_message(GetRewardText(task_info), task_texture, task_rect, "iconed_answer_item")
 end
 
 function ShowPenaltyMsg(task_info)
-	local icon_type = (task_info.type == "eliminate_lager") and (mob_lagers[task_info.target] and "eliminate_lair" or "eliminate_lager") or task_info.type
-	local task_texture, task_rect = get_texture_info("ui_icons_task_"..icon_type, "ui_iconsTotal_locations")
-	--actor:give_talk_message(GetPenaltyText(task_info), task_texture, task_rect, "iconed_answer_item")
+	local task_texture, task_rect = get_icon_info(task_info.name)
 	actor:give_game_news(GetPenaltyText(task_info), task_texture, task_rect, 0, 3000)
 end
 
@@ -849,7 +861,7 @@ end
 
 --' Функция, в которой будет выдаваться вещевая награда за выполненные квесты
 function task_reward(npc, actor, p1, p2)
-	local parent = get_parent(npc)	
+	local parent = get_parent(get_obj_id(npc))	
 	for k,v in pairs(active_task_by_type) do	
 		local task_desc = task_info[v]
 		if task_desc.status == "completed" and task_desc.parent == parent then
@@ -930,7 +942,7 @@ function task_reward_remote(task_desc)
 		game_stats.money_quest_update(task_desc.reward_money)
 		--news_manager.relocate_money(actor, "in", task_desc.reward_money)
 	end
-				
+
 	if task_desc.reward_item ~= nil then
 		local receiver = task_desc.reward_item_receiver and alife():story_object(receiver_sid_by_alias[task_desc.reward_item_receiver]) or alife():actor()
 		for k,v in pairs(task_desc.reward_item) do
@@ -962,8 +974,7 @@ function task_reward_remote(task_desc)
 		actor:change_character_rank(task_desc.reward_rank)
 	end
 	
-	local icon_type = (task_desc.type == "eliminate_lager") and (mob_lagers[task_desc.target] and "eliminate_lair" or "eliminate_lager") or task_desc.type
-	local task_texture, task_rect = get_texture_info("ui_icons_task_"..icon_type, "ui_iconsTotal_locations")
+	local task_texture, task_rect = get_icon_info(task_desc.name)
 	actor:give_game_news(GetRewardText(task_desc), task_texture, task_rect, 0, 3000)
 end
 --' Функция, в которой будет выдаваться вещевая награда за выполненные сторилайновые квесты
@@ -996,7 +1007,7 @@ function init_reward_dialog(dlg, parent)
 	phrase_script = phr:GetPhraseScript()
 	phrase_script:AddAction("task_manager.task_reward")
 	phrase_script:AddPrecondition("task_manager.precondition_have_completed_job")
-			
+
 	phr = dlg:AddPhrase("tm_"..parent.."_job_ask", "2", "0", -10000)
 	phrase_script = phr:GetPhraseScript()
 	phrase_script:AddPrecondition("task_manager.precondition_dont_have_completed_job")
@@ -1284,7 +1295,7 @@ function on_task_stage(_task, _objective, _stage)
 end
 
 function check_vendor_dead(npc)
-	local parent = get_parent(npc, true)
+	local parent = get_parent(get_obj_id(npc), true)
 	if not parent then
 	return end
 	for k,v in pairs(task_id_by_parent[parent]) do
@@ -1319,6 +1330,17 @@ end
 
 function get_sid_by_parent(parent)
 	return story_by_parent[parent]
+end
+
+function get_icon_type(task_id)
+	local icon_type = (task_info[task_id].type == "eliminate_lager") and (mob_lagers[task_info[task_id].target] and "eliminate_lair" or "eliminate_lager") or task_info[task_id].type
+	return icon_type
+end
+
+function get_icon_info(task_id)
+	local icon_type = get_icon_type(task_id)
+	local icon_texture, icon_rect = get_texture_info("ui_icons_task_"..icon_type, "ui_iconsTotal_locations")
+	return icon_texture, icon_rect
 end
 
 function on_map_spot_clicked(obj_id, spot_type, level_name, position, is_user_spot)
@@ -1358,4 +1380,48 @@ function on_first_update()
 			end
 		end
 	end
+end
+
+function get_remote_tasks()
+	local remote_tasks = {}
+	for parent, tasks in pairs(task_id_by_parent) do
+		local sid = tonumber(story_by_parent[parent])
+		local se_parent = alife():story_object(sid)
+		if se_parent and task_requested[sid] then
+			local parent_name = get_obj_name_translated(se_parent.id)
+			if parent_can_task(actor, se_parent) then
+				for _, task_id in pairs(tasks) do
+					local task_data = task_info[task_id]
+					if task_avail(actor, se_parent, nil, nil, task_data.init_phrase_id, false) then
+						local icon_texture, icon_rect = get_icon_info(task_id)
+						local data = {
+							id = task_id,
+							type = task_data.type,
+							complex_type = task_data.complex_type,
+							se_parent = se_parent,
+							parent_sid = sid,
+							parent_name = parent_name,
+							icon_texture = icon_texture,
+							icon_rect = icon_rect,
+							title = game.translate_string(task_data.title or task_data.type),
+							text = game.translate_string(task_data.text),
+							description = game.translate_string(task_data.description),
+							reward_text = GetRewardText(task_data),
+							time_text = GetTaskTimeText(task_data),
+							target_text = GetPersonalText(task_data),
+							location_text = GetLocationText(task_data),
+							penalty_text = GetPenaltyText(task_data),
+							need_return = task_data.need_return,
+						}
+						table.insert(remote_tasks, data)
+					end
+				end
+			end
+		end
+	end
+	return remote_tasks
+end
+
+function give_remote_task(task_id)
+	action_give_task(actor, nil, nil, task_info[task_id].yes_phrase_id)
 end
