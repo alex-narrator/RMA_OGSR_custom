@@ -19,6 +19,7 @@ class "QuickAddonOverlay" (CUIScriptWnd)
 
 function QuickAddonOverlay:__init() super()
 	self:InitControls()
+	self:Subscribe()
 end
 
 function QuickAddonOverlay:Subscribe()
@@ -43,8 +44,6 @@ end
 
 function QuickAddonOverlay:InitControls()
 	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
-	
-	self:DetachAll()
 	
 	local xml = CScriptXmlInit()
 	xml:ParseFile(OVERLAY_XML)
@@ -299,7 +298,7 @@ end
 
 function QuickAddonOverlay:ShowHide()
 	if not level.main_input_receiver() or self:IsShown() then
-		level.start_stop_menu(self, false)
+		level.start_stop_menu(self)
 		if self:IsShown() then
 			self:OnShow()
 		else
@@ -315,8 +314,7 @@ function QuickAddonOverlay:ProcessSlowMotion(enable)
 end
 
 function QuickAddonOverlay:OnShow()
-	self:InitControls()
-	self:UpdateCompatible()
+	 self:UpdateCompatible()
 	if not self:CanShow() then
 	return end
 	self:Subscribe()
@@ -330,8 +328,6 @@ end
 
 function QuickAddonOverlay:OnHide()
 	sm:call("on_quick_addon_hide")
-	self:Unsubscribe()
-	self:ClearCallbacks()
 	self:ProcessSlowMotion(false)
 end
 

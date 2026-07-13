@@ -39,8 +39,6 @@ end
 
 function SlotSelectorOverlay:InitControls()
 	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
-
-	self:DetachAll()
 	
 	local xml = CScriptXmlInit()
 	xml:ParseFile(OVERLAY_XML)
@@ -225,7 +223,7 @@ function SlotSelectorOverlay:ShowCompatible(slot_num)
 		--log3("~check item %s | slots %s", item:name(), slots)
 		if can_set then
 			--log3("~item %s | slot %s", item:name(), slot_num)
-			local name = item:name()..id
+			local name = item:name()
 			
 			local back = CUIStatic()
 			local size = vector2():set(base_size.x, base_size.y)
@@ -247,12 +245,10 @@ function SlotSelectorOverlay:ShowCompatible(slot_num)
 			
 			table.insert(self.compatible_items, {back = back})
 			
-			local idx = #self.compatible_items
-			
 			self:Register(back, name)
 			
-			self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnBeltFocusReceived(id, idx) end)
-			self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnBeltFocusLost(id, idx) end)
+			self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnBeltFocusReceived(id) end)
+			self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnBeltFocusLost(id) end)
 			self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnBeltClick(id) end)		
 		end
 	end
@@ -305,18 +301,16 @@ function SlotSelectorOverlay:ShowCompatible(slot_num)
 			
 			table.insert(self.compatible_items, {back = back})
 			
-			local idx = #self.compatible_items
-			
 			self:Register(back, name)
 
-			self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnLoadoutFocusReceived(id, idx) end)
-			self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnLoadoutFocusLost(id, idx) end)
+			self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnLoadoutFocusReceived(id) end)
+			self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnLoadoutFocusLost(id) end)
 			self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnLoadoutClick(id) end)			
 		end
 	end
 end
 
-function SlotSelectorOverlay:OnBeltFocusReceived(id, idx)
+function SlotSelectorOverlay:OnBeltFocusReceived(id)
 	self.center_tip:Show(true)
 	local action = "ui_st_compat_to_slot"
 	action = game.translate_string(action)
@@ -325,7 +319,7 @@ function SlotSelectorOverlay:OnBeltFocusReceived(id, idx)
 	self.center_tip:SetText(text)	
 end
 
-function SlotSelectorOverlay:OnBeltFocusLost(id, idx)
+function SlotSelectorOverlay:OnBeltFocusLost(id)
 	self.center_tip:Show(false)
 end
 
@@ -343,7 +337,7 @@ function SlotSelectorOverlay:OnBeltClick(id)
 	actor:move_to_belt(slot_item)
 end
 
-function SlotSelectorOverlay:OnLoadoutFocusReceived(id, idx)
+function SlotSelectorOverlay:OnLoadoutFocusReceived(id)
 	local item = level.object_by_id(id)
 	self.center_tip:Show(true)
 	local action = "ui_st_compat_to_slot"
@@ -353,7 +347,7 @@ function SlotSelectorOverlay:OnLoadoutFocusReceived(id, idx)
 	self.center_tip:SetText(text)	
 end
 
-function SlotSelectorOverlay:OnLoadoutFocusLost(id, idx)
+function SlotSelectorOverlay:OnLoadoutFocusLost(id)
 	local item = level.object_by_id(id)
 	self.center_tip:Show(false)
 end
@@ -378,7 +372,7 @@ end
 
 function SlotSelectorOverlay:ShowHide()
 	if not level.main_input_receiver() or self:IsShown() then
-		level.start_stop_menu(self,false)
+		level.start_stop_menu(self)
 		if self:IsShown() then
 			self:OnShow()
 		else
@@ -394,8 +388,6 @@ function SlotSelectorOverlay:ProcessSlowMotion(enable)
 end
 
 function SlotSelectorOverlay:OnShow()
-	self:InitControls()
-	self:Subscribe()
 	self:UpdateSlots()
 	local cursor_pos = vector2():set(UI_BASE_WIDTH * 0.5, UI_BASE_HEIGHT * 0.45)
 	level.set_cursor_pos(cursor_pos)
@@ -409,8 +401,6 @@ end
 
 function SlotSelectorOverlay:OnHide()
 	sm:call("on_slot_selector_hide")
-	self:Unsubscribe()
-	self:ClearCallbacks()
 	self:ProcessSlowMotion(false)
 end
 
