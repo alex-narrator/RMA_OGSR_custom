@@ -128,14 +128,15 @@ local hud_state_anims = {
 }
 
 local hud_state_zoom_out = {
-	[hud_state.eReload] 	= { param_name = "zoom_out_on_reload", 	def_val = true},
-	[hud_state.eMisfire] = { param_name = "zoom_out_on_misfire", def_val = false},
+	[hud_state.eReload] = true,
+	[hud_state.eMisfire] = false,
 }
+local def_zoom_out = true
 
 function on_state_switch(item, state, old_state)
 	local zoom_out_state = hud_state_zoom_out[state]
 	if zoom_out_state then
-		if item:is_zoomed() and read_if_exists(sys_ini, "bool", item:section(), zoom_out_state.param_name, zoom_out_state.def_val) then
+		if item:is_zoomed() and read_if_exists(sys_ini, "bool", item:section(), hud_state_name[state].."_zoom_out", def_zoom_out) then
 			item:zoom_out()
 		end
 	end
