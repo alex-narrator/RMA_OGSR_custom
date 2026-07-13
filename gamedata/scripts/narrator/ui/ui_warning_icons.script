@@ -26,9 +26,7 @@ function WarningIcons:InitWnd(xml, owner)
 	self.warning_icons_horz = (xml:ReadAttribInt("warning_icons_back", "horz", 0) > 0) and true or false
 	self.warning_icons = {
 		--//actor conditions
-		{ name = "health", 			val = function() return 1 - actor.health end },
-		{ name = "power", 			val = function() return 1 - actor.power end },
-		{ name = "bleeding", 		val = function() return actor:get_bleeding() end },
+		-- { name = "bleeding", 		val = function() return actor:get_bleeding() end },
 		{ name = "radiation", 		val = function() return actor.radiation end },
 		{ name = "psy_health", 		val = function() return 1 - actor.psy_health end },
 		{ name = "starvation", 		val = function() return 1 - actor.satiety end },
@@ -38,10 +36,10 @@ function WarningIcons:InitWnd(xml, owner)
 		{ name = "overweight", 		val = function() return inventory.get_overweight() - 1 end },
 		{ name = "stamina", 		val = function() return 1 - stamina.get_val() end },
 		--//gear
-		{ name = "weapon", 			val = function() return actor:active_item() and 1 - actor:active_item():condition() or 0 end },
+		-- { name = "weapon", 			val = function() return actor:active_item() and 1 - actor:active_item():condition() or 0 end },
 		{ name = "armor", 			val = function() return actor_get_outfit() and 1 - actor_get_outfit():condition() or 0 end },
 		{ name = "helmet", 			val = function() return actor_get_helmet() and 1 - actor_get_helmet():condition() or 0 end },
-		{ name = "battery", 		val = function() local act_device = actor:active_device() return (act_device and is_power_device(act_device)) and 1 - act_device:binded_object():get_power_level() or 0 end },
+		-- { name = "battery", 		val = function() local act_device = actor:active_device() return (act_device and is_power_device(act_device)) and 1 - act_device:binded_object():get_power_level() or 0 end },
 		--//states
 		{ name = "safehouse", 		val = function() return actor:has_info("safehouse") end },		
 		{ name = "use_campfire", 	val = function() return campfire_effects.actor_used_campfire() end },

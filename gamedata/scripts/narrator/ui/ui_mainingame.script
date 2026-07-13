@@ -200,8 +200,8 @@ function MainIngameOverlay:InitControls()
 	end
 	
 	self.conditions_circles = {
-		-- ["health_circle"] 		= { condition = function() return actor.health end},
-		-- ["power_circle"] 		= { condition = function() return actor.power end},
+		["health_circle"] 		= { condition = function() return actor.health end},
+		["power_circle"] 		= { condition = function() return actor.power end},
 		-- ["stamina_circle"] 		= { condition = function() return stamina.get_val() end},
 		-- ["visibility_circle"] 	= { condition = function() return visibility() end },
 		-- ["noise_circle"] 		= { condition = function() return actor_obj.sound_noise end },		
@@ -256,7 +256,7 @@ function MainIngameOverlay:InitControls()
 	tmp_tbl = split_string(xml:ReadAttrib(root, "offset_shift", "0,0"), ",")
 	self.equiped_panel.offset_shift = {x = tmp_tbl[1], y = tmp_tbl[2]}
 	self.equiped_panel.quick_key_offset = xml:ReadAttrib(root..":quick_key", "offset", "left_down")
-	self:UpdatePanelItems()
+	self.equiped_panel.cell_items = {}
 	
 	--//active item info
 	root = "active_item"
