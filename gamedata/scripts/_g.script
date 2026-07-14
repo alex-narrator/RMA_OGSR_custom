@@ -1749,22 +1749,10 @@ pda_tab_by_key = {
 }
 
 user_map_spots = {
-	{spot_name = "spot_flag", 			spot_type = "personal_location"},
-	{spot_name = "spot_question", 		spot_type = "red_location"},
-	{spot_name = "spot_exclamation", 	spot_type = "red_location_exclamation"},
-	-- {spot_name = "spot_small_circle", 	spot_type = "crlc_small"},
-	-- {spot_name = "spot_middle_circle", 	spot_type = "crlc_mdl"},
-	-- {spot_name = "spot_big_circle", 	spot_type = "crlc_big"},
+	["personal_location"] 			= {texture = "ui_icons_newPDA_markPersonal"},
+	["red_location"] 				= {texture = "ui_icons_mapPDA_mark_t"},
+	["red_location_exclamation"] 	= {texture = "exclamation_mark", color = GetARGB(255, 255, 0, 0)},
 }
-
-function get_user_spot(spot_name)
-	for k,v in pairs(user_map_spots) do
-		if v.spot_name == spot_name then
-			return v.spot_type
-		end
-	end
-	return nil
-end
 
 KEY_BIND_STOP_SCRIPT_ANIM = key_bindings.kSPRINT
 

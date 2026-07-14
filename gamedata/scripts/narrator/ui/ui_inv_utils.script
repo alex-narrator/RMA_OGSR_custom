@@ -82,20 +82,32 @@ function GetOffset(offset_type, icon, parent_icon, indent)
 end
 
 function FitCellItemSize(static_to_fit, icon_sect, min_cell_size)
-	local static_size = vector2():set(static_to_fit:GetWidth(), static_to_fit:GetHeight())
+	local size_to_fit = vector2():set(static_to_fit:GetWidth(), static_to_fit:GetHeight())
 	local cell_w = min_cell_size or CELL_W
 	local cell_h = min_cell_size or CELL_H
 	local cell_size = {w = cell_w * get_current_kx(), h = cell_h}
 	local params = CIconParams(icon_sect)
 	local icon_size = vector2():set(params.grid_width * cell_size.w, params.grid_height * cell_size.h)
-	local scale_x = static_size.x / icon_size.x
+	local scale_x = size_to_fit.x / icon_size.x
 	scale_x = scale_x > 1 and 1 or scale_x
-	local scale_y = static_size.y / icon_size.y
+	local scale_y = size_to_fit.y / icon_size.y
 	scale_y = scale_y > 1 and 1 or scale_y
 	local scale = math.min(scale_x, scale_y)
 	cell_size.w = math.round(cell_size.w * scale)
 	cell_size.h = math.round(cell_size.h * scale)
 	return cell_size
+end
+
+function FitStaticToSize(static_to_fit, static)
+	local size_to_fit = vector2():set(static_to_fit:GetWidth(), static_to_fit:GetHeight())
+	local static_size = vector2():set(static:GetWidth(), static:GetHeight())
+	local scale_x = size_to_fit.x / static_size.x
+	--scale_x = scale_x > 1 and 1 or scale_x
+	local scale_y = size_to_fit.y / static_size.y
+	--scale_y = scale_y > 1 and 1 or scale_y
+	local scale = math.min(scale_x, scale_y)
+	static:SetWidth(static_size.x * scale)
+	static:SetHeight(static_size.y * scale)
 end
 
 function try_add_to_list(item, tbl, group_similar)

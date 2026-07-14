@@ -263,7 +263,7 @@ function add_detach_addon(pbox, item)
 	local name, precondition, action
 	local wpn = item:get_weapon_m()
 	if wpn then
-		for i=0,7 do --//all addons except magazine
+		for i=0,6 do --//all addons except magazine
 			if wpn:addon_attachable(i) and wpn:is_addon_attached(i) then
 				local addon_sect = wpn:get_addon_name(i)
 				local detach_tip = read_if_exists(sys_ini, "string", addon_sect, "menu_detach_tip", "st_detach")
@@ -314,7 +314,7 @@ function add_drop(pbox, cell_item)
 		drop_cell_item(cell_item)
 	end
 	local idx = pbox:AddItem(name, precondition, action, cell_item)
-	pbox:SetItemColorFocused(idx, "red")	
+	pbox:SetItemColorFocused(idx, "red")
 	
 	if cell_item:GetChildsCount() == 0 then
 	return end	

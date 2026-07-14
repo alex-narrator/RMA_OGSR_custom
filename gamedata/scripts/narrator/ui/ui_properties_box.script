@@ -40,17 +40,10 @@ function UIPropertiesBox:InitControls()
 
 	local root = "properties_box"
 	self.back = self.xml:InitFrame(root, self)
-	self.scroll_view = self.xml:InitScrollView(root..":list", self.back)
-	local root = "properties_box:list"
-	self.scroll_view.indent = {
-		l = self.xml:ReadAttribInt(root, "left_ident", 0),	
-		r = self.xml:ReadAttribInt(root, "right_ident", 0),
-		t = self.xml:ReadAttribInt(root, "top_indent", 0),
-		b = self.xml:ReadAttribInt(root, "bottom_indent", 0),
-	}
+	root = root..":scroll_view"
+	self.scroll_view = self.xml:InitScrollView(root, self.back)
 	
-	local pos = self.scroll_view:GetWndPos()
-	self.scroll_view:SetWndPos(pos.x, pos.y + self.scroll_view.indent.t)
+	self.list_item_path = root..":list_item"
 	
 	self.actions = {}
 	
@@ -60,13 +53,13 @@ end
 function UIPropertiesBox:Update()
 	CUIScriptWnd.Update(self)
 	self.scroll_view:SetScrollPos(0)
+	self.scroll_view:ForceScrollPos()
 end
 
 function UIPropertiesBox:Activate()
-	local name
-	local max_w = 0
-	for k, v in ipairs(self.actions) do
-		v.list_item = self.xml:InitStatic("properties_box:list:list_item", self.scroll_view)
+	local indent = self.scroll_view:GetHorizIndent()
+	for k, v in ipairs(self.actions) do	
+		v.list_item = self.xml:InitStatic(self.list_item_path, self.scroll_view)
 		v.list_item:SetText(v.name)
 		v.list_item:AdjustWidthToText()
 		v.list_item:SetWidth(v.list_item:GetWidth() + v.list_item:GetTextX() * 2)
@@ -74,42 +67,47 @@ function UIPropertiesBox:Activate()
 		v.list_item:SetColor(color_default)
 		v.list_item:SetTextColor(text_color_default)
 		
-		name = "list_item_"..k
+		if v.icon then
+			local icon = CUIStatic()
+			icon:Init(0, 0, v.icon.size.x, v.icon.size.y)
+			icon:SetStretchTexture(true)
+			icon:InitTexture(v.icon.texture)
+			if v.icon.color then
+				icon:SetColor(v.icon.color)
+			end
+			ui_inv_utils.FitStaticToSize(v.list_item, icon)
+			v.list_item:SetWidth(v.list_item:GetWidth() + icon:GetWidth() + v.list_item:GetTextX())
+			v.list_item:AttachChild(icon)			
+			v.list_item.icon = icon
+		end
+		
+		local name = "list_item_"..k
 		self:Register(v.list_item, name)
 		self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnLButtonDown( k ) end, self)
 		self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnFocusReceived( k ) end, self)
 		self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnFocusLost( k ) end, self)
-		
-		--self.scroll_view:AddWindow(v.list_item)
-		--log3("~list item w %s | h %s", v.list_item:GetWidth(), v.list_item:GetHeight())
-		local indent = self.scroll_view.indent
-		if v.list_item:GetWidth() > self.scroll_view:GetPadSize().x then
-			self.scroll_view:SetWidth(v.list_item:GetWidth() + indent.r + indent.l)
-		end
-		self.scroll_view:SetWidth(self.scroll_view:GetPadSize().x + indent.r + indent.l)
-		self.scroll_view:SetHeight(self.scroll_view:GetPadSize().y + indent.b)
-		self.back:SetWidth(self.scroll_view:GetWidth())
-		self.back:SetHeight(self.scroll_view:GetHeight())
-		
-		if v.list_item:GetWidth() > max_w then
-			max_w = v.list_item:GetWidth()
-		end
 	end
 	
-	self.background_contrast:SetWidth(self.back:GetWidth())
-	self.background_contrast:SetHeight(self.back:GetHeight())	
+	self.scroll_view:SetWndSize(self.scroll_view:GetPadSize().x + indent, self.scroll_view:GetPadSize().y)
+	local scroll_size = vector2():set(self.scroll_view:GetWidth(), self.scroll_view:GetHeight())
+	self.back:SetWidth(scroll_size.x)
+	self.back:SetHeight(scroll_size.y)
+	self.background_contrast:SetWndSize(scroll_size.x, scroll_size.y)
 	
+	local dcw = self.scroll_view:GetDesiredChildWidth()
 	for k, v in ipairs(self.actions) do
-		v.list_item:SetWidth(max_w)
+		v.list_item:SetWidth(dcw)
+		if v.list_item.icon then
+			local offset = ui_inv_utils.GetOffset("right_center", v.list_item.icon, v.list_item)
+			v.list_item.icon:SetWndPos(offset.x - v.list_item:GetTextX(), offset.y)
+		end
 	end
 	--log3("self.actions: %s", self.actions)
 	
 	local show = table.size(self.actions) > 0
-	--self:Show(show)
 	if show then
 		local pos = level.get_cursor_pos()
-		local wnd_size = {x = self.scroll_view:GetWidth(), y = self.scroll_view:GetHeight()}
-		local delta = {x = pos.x + wnd_size.x - UI_BASE_WIDTH, y = pos.y + wnd_size.y - UI_BASE_HEIGHT}
+		local delta = {x = pos.x + scroll_size.x - UI_BASE_WIDTH, y = pos.y + scroll_size.y - UI_BASE_HEIGHT}
 		if delta.x > 0 then
 			pos.x = pos.x - delta.x
 		end		
@@ -171,6 +169,13 @@ function UIPropertiesBox:SetItemColorFocused(i, color_def)
 	if not back_colors[color_def] then
 	return end
 	v.color_focused = back_colors[color_def]
+end
+
+function UIPropertiesBox:SetItemIcon(i, icon_texture, icon_size, icon_color)
+	local v = self.actions[i]
+	if not v then
+	return end
+	v.icon = {texture = icon_texture, size = icon_size or vector2():set(get_current_kx(), 1), color = icon_color}
 end
 
 function UIPropertiesBox:AddCustomAction(item)
