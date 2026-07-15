@@ -78,10 +78,7 @@ function ph_item_box:__init(obj)
 	for i=0,n-1 do
 		result, id, value	= death_ini:r_line("ammo_sections",i,"","")
         ammo_sections[id] = true
-	end        
-	        
-	
-	
+	end
 end
 
 function ph_item_box:spawn_items()
@@ -95,8 +92,8 @@ function ph_item_box:spawn_items()
 		end
 		return
 	end
-			
-		printf(" community = %s", community)
+
+	printf(" community = %s", community)
 	--' Доспавниваем необходимое количество итемов:
     --' Необходимо составить список объектов которые могут быть заспавнены для персонажа
     local spawn_items = item_by_community[community]
@@ -117,37 +114,24 @@ end
 
 --' Функция спавнит необходимое число предметов
 function create_items(obj, section, number, rnd)
-    printf("create %s of %s", tostring(number), tostring(section))
+    --log_news("create %s of %s", tostring(number), tostring(section))
+	local level = level.name()
+	local position = obj:center()
     if ammo_sections[section] == true then
 		if math.random(100) <= rnd	then
-				
 			if number > 0 then
-				local position = vector():set(0,0,0)
-				position.x = obj:position().x + math.random(-30,30)/100
-				position.z = obj:position().z + math.random(-30,30)/100
-				position.y = obj:position().y + math.random(30,50)/100
-
-				se_respawn.create_ammo(section,	
-					    position,
-						obj:level_vertex_id(),	
-						obj:game_vertex_id(),
-						MAX_U16,
-						number)
+				spawn_ammo_to_level(section, position, level, number)
 			end
 		end
     else
         for i=1,number do
 			--' Проверяем вероятность появить каждый объект в отдельности
             if math.random(100) <=  rnd then
-				local position = vector():set(0,0,0)
-				position.x = obj:position().x + math.random(-30,30)/100
-				position.z = obj:position().z + math.random(-30,30)/100
-				position.y = obj:position().y + math.random(30,50)/100
-
-				alife():create(section,	
-					    position,
-						obj:level_vertex_id(),	
-						obj:game_vertex_id())
+				local sobj = spawn_to_level(section, position, level)
+				--//артефакти та трофеї з ящиків вважаємо взятими кимось до нас
+				if sobj:clsid() == clsid.artefact_s or sobj:clsid() == clsid.monster_part_s then
+					alife():object( sobj.id ).is_taken = true
+				end						
 			end
         end
     end    
@@ -198,15 +182,12 @@ end
 
 function create_obligatory_items(obj, section , count)
 	local level = level.name()
+	local position = obj:center()
 	for i = 1,count do
-				local position = vector():set(0,0,0)
-				position.x = obj:position().x + math.random(-30,30)/100
-				position.z = obj:position().z + math.random(-30,30)/100
-				position.y = obj:position().y + math.random(30,50)/100
-				local sobj = spawn_to_level(section, position, level)
-				--//артефакти та трофеї з ящиків вважаємо взятими кимось до нас
-				if sobj:clsid() == clsid.artefact_s or sobj:clsid() == clsid.monster_part_s then
-					alife():object( sobj.id ).is_taken = true
-				end
-			end
+		local sobj = spawn_to_level(section, position, level)
+		--//артефакти та трофеї з ящиків вважаємо взятими кимось до нас
+		if sobj:clsid() == clsid.artefact_s or sobj:clsid() == clsid.monster_part_s then
+			alife():object( sobj.id ).is_taken = true
+		end
+	end
 end
