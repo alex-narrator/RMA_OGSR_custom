@@ -6,6 +6,11 @@ class "MessageBoxWnd" (CUIScriptWnd)
 
 function MessageBoxWnd:__init(box_type) super()
 	self:InitWnd(box_type)
+	self:SetAutoDelete(true)
+end
+
+function MessageBoxWnd:__finalize()
+	--log_news("MessageBoxWnd:__finalize()")
 end
 
 function MessageBoxWnd:DetachWnd()
@@ -50,6 +55,11 @@ local msg_box_type = "message_box_accept_decline_user_note"
 
 function MessageBoxUserNoteWnd:__init() super()
 	self:InitWnd()
+	self:SetAutoDelete(true)
+end
+
+function MessageBoxUserNoteWnd:__finalize()
+	--log_news("MessageBoxUserNoteWnd:__finalize()")
 end
 
 function MessageBoxUserNoteWnd:DetachWnd()
@@ -120,6 +130,11 @@ local msg_box_type = "message_box_accept_decline_map_spot_text"
 
 function MessageBoxMapSpotTextWnd:__init() super()
 	self:InitWnd()
+	self:SetAutoDelete(true)
+end
+
+function MessageBoxMapSpotTextWnd:__finalize()
+	--log_news("MessageBoxMapSpotTextWnd:__finalize()")
 end
 
 function MessageBoxMapSpotTextWnd:DetachWnd()
@@ -182,6 +197,11 @@ local msg_box_type = "message_box_accept_decline_password"
 
 function MessageBoxPasswordWnd:__init() super()
 	self:InitWnd()
+	self:SetAutoDelete(true)
+end
+
+function MessageBoxPasswordWnd:__finalize()
+	--log_news("MessageBoxPasswordWnd:__finalize()")
 end
 
 function MessageBoxPasswordWnd:DetachWnd()
@@ -238,6 +258,11 @@ local msg_box_type = "message_box_find_person"
 
 function MessageBoxFindPersonWnd:__init() super()
 	self:InitWnd()
+	self:SetAutoDelete(true)
+end
+
+function MessageBoxFindPersonWnd:__finalize()
+	--log_news("MessageBoxFindPersonWnd:__finalize()")
 end
 
 function MessageBoxFindPersonWnd:DetachWnd()
@@ -292,6 +317,11 @@ local msg_box_type = "message_box_custom_error"
 
 function MessageBoxErrorWnd:__init() super()
 	self:InitWnd()
+	self:SetAutoDelete(true)
+end
+
+function MessageBoxErrorWnd:__finalize()
+	--log_news("MessageBoxErrorWnd:__finalize()")
 end
 
 function MessageBoxErrorWnd:DetachWnd()
@@ -332,6 +362,11 @@ local msg_box_type = "message_box_heal_limbs"
 function MessageBoxHealLimbsWnd:__init(healing_item) super()
 	self:InitWnd()
 	self.healing_item = healing_item
+	self:SetAutoDelete(true)
+end
+
+function MessageBoxHealLimbsWnd:__finalize()
+	--log_news("MessageBoxHealLimbsWnd:__finalize()")
 end
 
 function MessageBoxHealLimbsWnd:DetachWnd()

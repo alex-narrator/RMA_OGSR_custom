@@ -7,6 +7,11 @@ class "UIPdaTabOptions" (CUIScriptWnd)
 function UIPdaTabOptions:__init() super()
 	self:InitControls()
 	self:Subscribe()
+	--self:SetAutoDelete(true)
+end
+
+function UIPdaTabOptions:__finalize()
+	--log_news("UIPdaTabOptions:__finalize()")
 end
 
 function UIPdaTabOptions:Subscribe()

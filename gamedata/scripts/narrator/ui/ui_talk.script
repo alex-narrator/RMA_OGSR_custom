@@ -29,6 +29,11 @@ function TalkOverlay:__init(owner) super()
 	self.owner = owner
 	self:InitControls()
 	self:Subscribe()
+	self:SetAutoDelete(true)
+end
+
+function TalkOverlay:__finalize()
+	--log_news("TalkOverlay:__finalize()")
 end
 
 function TalkOverlay:Subscribe()

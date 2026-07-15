@@ -11,6 +11,11 @@ class "WarningIcons" (CUIScriptWnd)
 
 function WarningIcons:__init(xml, owner) super()
 	self:InitWnd(xml, owner)
+	self:SetAutoDelete(true)
+end
+
+function WarningIcons:__finalize()
+	--log_news("WarningIcons:__finalize()")
 end
 
 function WarningIcons:DetachWnd()

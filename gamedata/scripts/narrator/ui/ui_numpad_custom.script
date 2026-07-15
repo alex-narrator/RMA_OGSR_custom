@@ -1,9 +1,5 @@
--- File:		UI_NUMPAD.SCRIPT
--- Description:		Numpad for password input
--- Created:		23.02.2005
--- Author:		Serge Vynnychenko
---
--- Copyright 2004 GSC Game World
+-- -*- mode: lua; coding: windows-1251-dos -*-
+local OVERLAY_XML = "ui_numpad_wnd.xml"
 
 
 function main()
@@ -17,20 +13,21 @@ function numpad:__init(owner) super()
 	self.owner = owner
 	self:InitControls()
 	self:InitCallBacks()
+	self:SetAutoDelete(true)
 end
 
 function numpad:__finalize()
-
+	--log_news("numpad:__finalize()")
 end
 
 function numpad:InitControls()
 
 	self:Init(342,199,339,369)			  
     local xml = CScriptXmlInit()
-    xml:ParseFile("ui_numpad_wnd.xml")
+    xml:ParseFile(OVERLAY_XML)
 	
 	local t;
-     
+
 	xml:InitStatic("background", self)
 	t = xml:InitStatic("edit_box", self)
 	t:SetWindowName("edit_window")

@@ -30,6 +30,11 @@ function PDAOverlay:__init(owner) super()
 	self.owner = owner
 	self:InitControls()
 	self:Subscribe()
+	--self:SetAutoDelete(true)
+end
+
+function PDAOverlay:__finalize()
+	--log_news("PDAOverlay:__finalize()")
 end
 
 function PDAOverlay:Subscribe()

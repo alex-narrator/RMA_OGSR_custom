@@ -6,6 +6,11 @@ class "UIQuickSlots" (CUIScriptWnd)
 function UIQuickSlots:__init(xml, root, owner) super()
 	self:InitControls(xml, root, owner)
 	self:Subscribe()
+	self:SetAutoDelete(true)
+end
+
+function UIQuickSlots:__finalize()
+	--log_news("UIQuickSlots:__finalize()")
 end
 
 function UIQuickSlots:DetachWnd()

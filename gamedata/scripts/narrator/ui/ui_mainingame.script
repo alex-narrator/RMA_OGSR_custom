@@ -64,6 +64,11 @@ function MainIngameOverlay:__init(owner) super()
 	self.owner = owner
 	self:InitControls()
 	self:Subscribe()
+	self:SetAutoDelete(true)
+end
+
+function MainIngameOverlay:__finalize()
+	--log_news("MainIngameOverlay:__finalize()")
 end
 
 function MainIngameOverlay:Subscribe()
@@ -325,10 +330,10 @@ function MainIngameOverlay:InitControls()
 	self.task_remaining_time = xml:InitStatic(root..":task_remaining_time", self.active_task)
 	
 	--//slot selector
-	self.slot_selector = ui_slot_selector.SlotSelectorOverlay()
+	--self.slot_selector = ui_slot_selector.SlotSelectorOverlay()
 	
 	--//quick addon
-	self.quick_addon = ui_quick_addon.QuickAddonOverlay()	
+	--self.quick_addon = ui_quick_addon.QuickAddonOverlay()
 	
 	--//target tip
 	root = "target_tip"
@@ -884,11 +889,13 @@ end
 
 function MainIngameOverlay:OnKeyPress(key, game_action)
 	if game_action == key_bindings.kSCORES then
-		self.slot_selector:ShowHide()
+		--self.slot_selector:ShowHide()
+		ui_slot_selector.SlotSelectorOverlay()
 	end
 	
 	if game_action == key_bindings.kQUICK_ADDON then
-		self.quick_addon:ShowHide()
+		--self.quick_addon:ShowHide()
+		ui_quick_addon.QuickAddonOverlay()
 	end
 	
 	if game_action == key_bindings.kDROP then

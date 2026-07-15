@@ -21,13 +21,16 @@ function CraftOverlay:__init(craft_sect) super()
 	self.craft_sect = craft_sect
 	self:InitCraftInfo()
 	level.start_stop_menu(self, false)
+	self:SetAutoDelete(true)
+end
+
+function CraftOverlay:__finalize()
+	--log_news("CraftOverlay:__finalize()")
 end
 
 function CraftOverlay:Subscribe()
 	if not self.subscribed then
 		self.subscribed = {
-			-- {signal = "on_cell_item_select", 	self = self, fun = self.OnCellItemSelect},
-			-- {signal = "on_drop", 				self = self, fun = self.OnDrop},
 		}
 		local sm = ogsr_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do

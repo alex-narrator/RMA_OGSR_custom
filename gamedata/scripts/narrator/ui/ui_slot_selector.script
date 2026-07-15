@@ -12,7 +12,12 @@ class "SlotSelectorOverlay" (CUIScriptWnd)
 
 function SlotSelectorOverlay:__init() super()
 	self:InitControls()
-	self:Subscribe()
+	self:ShowHide()
+	self:SetAutoDelete(true)
+end
+
+function SlotSelectorOverlay:__finalize()
+	--log_news("SlotSelectorOverlay:__finalize()")
 end
 
 function SlotSelectorOverlay:Subscribe()
@@ -99,6 +104,9 @@ function SlotSelectorOverlay:Update()
 	if not actor_hands_free() or not actor:alive() then
 		self:ShowHide()
 	end
+	if not self.was_shown then
+		self.was_shown = true
+	end	
 end
 
 function SlotSelectorOverlay:UpdateSlots()
@@ -396,12 +404,15 @@ function SlotSelectorOverlay:OnShow()
 		act_item:zoom_out()
 	end
 	self:ProcessSlowMotion(true)
+	self:Subscribe()
 	sm:call("on_slot_selector_show")
 end
 
 function SlotSelectorOverlay:OnHide()
 	sm:call("on_slot_selector_hide")
 	self:ProcessSlowMotion(false)
+	self:Unsubscribe()
+	self:ClearCallbacks()	
 end
 
 function SlotSelectorOverlay:StopAnyMove()
@@ -424,6 +435,10 @@ function SlotSelectorOverlay:OnKeyboard(dik, keyboard_action)
 	end	
 	
 	if keyboard_action == ui_events.WINDOW_KEY_PRESSED then
+		if game_action == key_bindings.kSCORES and self.was_shown then
+			self:ShowHide()
+			return true
+		end	
 		if restricted_actions[game_action] then
 			return true
 		end

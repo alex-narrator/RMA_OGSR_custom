@@ -49,6 +49,11 @@ function UICellItem:__init(owner, item, cell_size, cell_pos, owner_list) super()
 	self.selected = false
 	self.interactive = true
 	self:InitControls(cell_pos or vector2())
+	self:SetAutoDelete(true)
+end
+
+function UICellItem:__finalize()
+	--log_news("UICellItem:__finalize()")
 end
 
 function UICellItem:DetachWnd()
@@ -810,6 +815,11 @@ function UICellItemSimple:__init(owner, section, cell_size) super()
 	self.cell_size = cell_size or ui_inv_utils.FitCellItemSize(owner, section)
 	self.interactive = true
 	self:InitControls()
+	self:SetAutoDelete(true)
+end
+
+function UICellItemSimple:__finalize()
+	--log_news("UICellItemSimple:__finalize()")
 end
 
 function UICellItemSimple:DetachWnd()

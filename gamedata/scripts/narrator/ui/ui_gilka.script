@@ -1,4 +1,4 @@
-local displayr_ui = nil
+local gilka_ui = nil
 local workIndicatorTimer = 0
 local updateTimer = 0
 local updateFreq = 500 -- in milliseconds
@@ -6,8 +6,8 @@ local led_turn_off_time = 0
 
 local OVERLAY_XML = "script_overlays\\ui_gilka.xml"
 
-class "ui_display" (CUIScriptWnd)
-function ui_display:__init(item) super()
+class "ui_gilka" (CUIScriptWnd)
+function ui_gilka:__init(item) super()
 	self:Show					(true)
 	self:Enable					(true)
 
@@ -50,13 +50,16 @@ function ui_display:__init(item) super()
 			self.detect_artefacts[af_sect] = true
 		end
 	end
+	
+	self:SetAutoDelete(true)
 end
 
-function ui_display:__finalize() 
-	displayr_ui = nil
+function ui_gilka:__finalize() 
+	gilka_ui = nil
+	--log_news("ui_gilka:__finalize()")
 end
 
-function ui_display:Update()
+function ui_gilka:Update()
 	
 	CUIScriptWnd.Update(self)
 	
@@ -150,7 +153,7 @@ function ui_display:Update()
 	self.m_seg4:InitTextureEx(seg4, "hud\\p3d")
 end
 
-function ui_display:FlashLed(dt)
+function ui_gilka:FlashLed(dt)
 	if not dt then
 		self.m_workIndicator:Show(false)
 		led_turn_off_time = 0
@@ -164,9 +167,9 @@ function ui_display:FlashLed(dt)
 end
 
 function get_UI(item)
-	if(displayr_ui==nil) then
-		displayr_ui = ui_display(item)
+	if(gilka_ui==nil) then
+		gilka_ui = ui_gilka(item)
 	end
 	
-	return displayr_ui
+	return gilka_ui
 end

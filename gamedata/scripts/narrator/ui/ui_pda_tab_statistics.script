@@ -4,6 +4,11 @@ local OVERLAY_XML = "script_overlays\\ui_pda_tab_statistics.xml"
 class "UIPdaTabStatistics" (CUIScriptWnd)
 function UIPdaTabStatistics:__init() super()
 	self:InitControls()
+	--self:SetAutoDelete(true)
+end
+
+function UIPdaTabStatistics:__finalize()
+	--log_news("UIPdaTabStatistics:__finalize()")
 end
 
 function UIPdaTabStatistics:InitControls()

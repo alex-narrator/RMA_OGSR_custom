@@ -1,7 +1,5 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
-	sm:subscribe({signal = "on_item_info_init",   		fun = this.add_custom_info})
-	--//
 	sm:subscribe({signal = "on_cell_item_focus", 		fun = this.on_focus})
 	sm:subscribe({signal = "on_quick_item_focus", 		fun = this.on_quick_focus})
 end
@@ -30,6 +28,11 @@ function UIItemInfo:__init(item, independent) super()
 	self:InitControls()
 	self:Subscribe()
 	self:SetShowTime()
+	self:SetAutoDelete(true)
+end
+
+function UIItemInfo:__finalize()
+	--log_news("UIItemInfo:__finalize()")
 end
 
 function UIItemInfo:Subscribe()
@@ -56,13 +59,13 @@ function UIItemInfo:Unsubscribe()
 end
 
 function UIItemInfo:DetachWnd()
-	self:ClearCallbacks()
-	self:Unsubscribe()
 	if self.independent then
 		level.start_stop_menu(self, false)
 	else	
 		self.owner:DetachChild(self)
 	end
+	self:ClearCallbacks()
+	self:Unsubscribe()
 end
 
 function UIItemInfo:InitControls()
@@ -132,7 +135,8 @@ function UIItemInfo:InitItemInfo()
 	end
 	
 	self.descr_list:Clear()
-	ogsr_signals.get_mgr():call("on_item_info_init", self.descr_list, item, self.xml)
+	--ogsr_signals.get_mgr():call("on_item_info_init", self.descr_list, item, self.xml)
+	self:AttachCustomInfo()
 	text = get_inv_descr(sect)
 	if text then
 		self.descr_text = CUIStatic()
@@ -209,75 +213,75 @@ function UIItemInfo:OnKeyboard(dik, keyboard_action)
 end
 ------------------------------------------ADDITIONAL WINDOWS-----------------------------------------------------------------------------------------------------------------
 
-function add_custom_info(UIDesc, obj, xml)
+function UIItemInfo:AttachCustomInfo()
 
 	local function create_divider(show)
 		if not show then
 		return end
-		local divider = xml:InitStatic("divider_line", UIDesc)
-		divider:SetWidth(UIDesc:GetDesiredChildWidth())		
+		local divider = self.xml:InitStatic("divider_line", self.descr_list)
+		divider:SetWidth(self.descr_list:GetDesiredChildWidth())		
 	end
 
-	create_divider(attach_condition_params(UIDesc, obj, xml))
+	create_divider(self:AttachConditionParams())
 	
-	if vest_plates.can_detach_plate(obj) then
-		create_divider(attach_plate_condition(UIDesc, obj, xml))
+	if vest_plates.can_detach_plate(self.item) then
+		create_divider(self:AttachPlateCondition())
 	end	
 	
-	create_divider(attach_effect_params(UIDesc, obj, xml))
+	create_divider(self:AttachEffectparams())
 	
-	create_divider(attach_protection_params(UIDesc, obj, xml))
+	create_divider(self:AttachProtectionParams())
 	
-	create_divider(attach_armor_params(UIDesc, obj, xml))
+	create_divider(self:AttachArmorParams())
 	
-	create_divider(attach_addon_params(UIDesc, obj, xml))
+	create_divider(self:AttachAddonParams())
 	
-	create_divider(attach_belt_params(UIDesc, obj, xml))
+	create_divider(self:AttachBeltParams())
 	
-	create_divider(attach_repair_params(UIDesc, obj, xml))
+	create_divider(self:AttachRepairParams())
 	
-	if obj:is_eatable_item() then
-		create_divider(attach_eatable_params(UIDesc, obj, xml))
-		create_divider(attach_booster_params(UIDesc, obj, xml))
-		create_divider(attach_anm_use_params(UIDesc, obj, xml))
+	if self.item:is_eatable_item() then
+		create_divider(self:AttachEatableParams())
+		create_divider(self:AttachBoosterParams())
+		create_divider(self:AttachAnmUseParams())
 	end
-	if is_power_device(obj) then
-		create_divider(attach_power_params(UIDesc, obj, xml))
+	if is_power_device(self.item) then
+		create_divider(self:AttachPowerParams())
 	end
-	--if obj:get_pda() then
-	if is_pda_hackable(obj) then
-		create_divider(attach_pda_owner_info(UIDesc, obj, xml))
+	--if self.item:get_pda() then
+	if is_pda_hackable(self.item) then
+		create_divider(self:AttachPDAOwnerInfo())
 	end	
-	if obj:is_weapon() then
-		if obj:is_knife() then
-			create_divider(atach_knife_params(UIDesc, obj, xml))
+	if self.item:is_weapon() then
+		if self.item:is_knife() then
+			create_divider(self:AttachKnifeParams())
 		else
-			create_divider(atach_wpn_params(UIDesc, obj, xml))
+			create_divider(self:AttachWpnParams())
 		end
 	end
-	if obj:is_weapon_magazined() then
-		create_divider(attach_loaded_ammo(UIDesc, obj, xml))
-		create_divider(attach_weapon_addons(UIDesc, obj, xml))
+	if self.item:is_weapon_magazined() then
+		create_divider(self:AttachLoadedAmmo())
+		create_divider(self:AttachWpnAddons())
 	end
-	if loadout.is_module(obj) then
-		create_divider(attach_loadout_slots(UIDesc, obj, xml))
+	if loadout.is_module(self.item) then
+		create_divider(self:AttachLoadoutSlots())
 	end
-	if obj:get_weapon_ammo() then
-		if obj:get_weapon_ammo():is_magazine() then
-			create_divider(attach_magazin_ammo(UIDesc, obj, xml))
+	if self.item:get_weapon_ammo() then
+		if self.item:get_weapon_ammo():is_magazine() then
+			create_divider(self:AttachMagazineAmmo())
 		else
-			create_divider(attach_ammo_params(UIDesc, obj, xml))
+			create_divider(self:AttachAmmoParams())
 		end
 	end
-	if is_plate_carrier(obj) then
-		create_divider(attach_armor_plates(UIDesc, obj, xml))
+	if is_plate_carrier(self.item) then
+		create_divider(self:AttachArmorPlates())
 	end
-	if loot_spawn_box.is_spawn_loot_box(obj) then
-		create_divider(attach_loot_spawn_box(UIDesc, obj, xml))
+	if loot_spawn_box.is_spawn_loot_box(self.item) then
+		create_divider(self:AttachLootSpawnBoxInfo())
 	end
 end
 
-function attach_header(tbl, text, params_list)
+function UIItemInfo:AttachHeader(tbl, text, params_list)
 	tbl.header = CUIStatic()
 	tbl.header:SetWidth(params_list:GetDesiredChildWidth())
 	tbl.header:SetTextComplexMode(true)
@@ -287,15 +291,15 @@ function attach_header(tbl, text, params_list)
 end
 
 ------------------------------------------ITEM CONDITION WND-----------------------------------------------------------------------------------------------------------------
-function attach_condition_params(UIDesc, obj, xml)
-	local condition = obj:condition()
+function UIItemInfo:AttachConditionParams()
+	local condition = self.item:condition()
 	
-	local show_cond = condition < 1 or read_if_exists(sys_ini, "bool", obj:section(), "use_condition", false)
+	local show_cond = condition < 1 or read_if_exists(sys_ini, "bool", self.item:section(), "use_condition", false)
 	if not show_cond then
 	return end
 	
-	local condition_params = xml:InitStatic("condition_params", UIDesc)
-	local condition_progress = xml:InitProgressBar("condition_params:condition_progress", condition_params)
+	local condition_params = self.xml:InitStatic("condition_params", self.descr_list)
+	local condition_progress = self.xml:InitProgressBar("condition_params:condition_progress", condition_params)
 	condition_progress:SetProgressPos(condition)
 	return true
 end
@@ -315,19 +319,19 @@ local effect_params = {
 	{st_name = "additional_weight", 		param_name = "ui_inv_weight"},
 }
 local effect_st = {}
-function attach_effect_params(UIDesc, item, xml)
-	local inv_item = item:get_inventory_item()
+function UIItemInfo:AttachEffectparams()
+	local inv_item = self.item:get_inventory_item()
 	local val, sn, text, color
 	local show = false
 	
 	effect_st = {}
-	local params_list = xml:InitScrollView("params_list", UIDesc)
-	attach_header(effect_st, "st_effects_header", params_list)
+	local params_list = self.xml:InitScrollView("params_list", self.descr_list)
+	self:AttachHeader(effect_st, "st_effects_header", params_list)
 
 	for k,v in ipairs(effect_params) do
 		val = inv_item:item_effect(k-1)
 		if val ~= 0 then
-			--log3("~attach_effect_params param %s | val %s", v.st_name, val)
+			--log3("~UIItemInfo:AttachEffectparams param %s | val %s", v.st_name, val)
 			if k <= 8 then
 				local for_rad = false--v.st_name == "radiation_restore_speed"
 				local _k = for_rad and 1 or 100
@@ -341,7 +345,7 @@ function attach_effect_params(UIDesc, item, xml)
 			 	sn = game.translate_string("st_percent")
 				val = val * 100
 			end
-			effect_st[k] = CUIStatic()--xml:InitStatic(v.st_name, params_list)
+			effect_st[k] = CUIStatic()--self.xml:InitStatic(v.st_name, params_list)
 			effect_st[k]:SetTextComplexMode(true)
 			effect_st[k]:SetWidth(params_list:GetDesiredChildWidth())
 			color = val > 0 and "%c[green]" or "%c[red]"
@@ -358,7 +362,7 @@ function attach_effect_params(UIDesc, item, xml)
 	--//power loss
 	val = inv_item.power_loss
 	if val ~= 0 then
-		if val < 0 and item:condition() > 0 or val > 0 then
+		if val < 0 and self.item:condition() > 0 or val > 0 then
 			val = val * 100
 			sn = game.translate_string("st_percent")
 			effect_st["power_loss"] = CUIStatic()
@@ -393,22 +397,22 @@ local protection_params = {
 	{st_name = "fire_wound_immunity", 		param_name = "ui_inv_fire_wound_protection"},
 }
 local protection_st = {}
-function attach_protection_params(UIDesc, item, xml)
-	local inv_item = item:get_inventory_item()
+function UIItemInfo:AttachProtectionParams()
+	local inv_item = self.item:get_inventory_item()
 	local val, sn, text, color
 	local show = false
 
 	protection_st = {}
-	local params_list = xml:InitScrollView("params_list", UIDesc)
-	attach_header(protection_st, "st_protection_header", params_list)
+	local params_list = self.xml:InitScrollView("params_list", self.descr_list)
+	self:AttachHeader(protection_st, "st_protection_header", params_list)
 
 	for k,v in ipairs(protection_params) do
 		val = inv_item:hit_type_protection(k-1)
 		if val ~= 0 then
 			sn = game.translate_string("st_percent")
-			--log3("~attach_protection_params param %s | val %s", v.st_name, val)
+			--log3("~self:AttachProtectionParams param %s | val %s", v.st_name, val)
 			val = val * 100
-			protection_st[k] = CUIStatic()--xml:InitStatic(v.st_name, params_list)
+			protection_st[k] = CUIStatic()--self.xml:InitStatic(v.st_name, params_list)
 			protection_st[k]:SetTextComplexMode(true)
 			protection_st[k]:SetWidth(params_list:GetDesiredChildWidth())
 			color = val > 0 and "%c[green]" or "%c[red]"
@@ -439,21 +443,21 @@ local eatable_params = {
 	{st_name = "somnolence", 	param_name = "ui_inv_somnolence"},
 }
 local eatable_st = {}
-function attach_eatable_params(UIDesc, item, xml)
-	local eatable = item:get_eatable_item()
+function UIItemInfo:AttachEatableParams()
+	local eatable = self.item:get_eatable_item()
 	local val, sn, text, color
 	local show = false
 
 	eatable_st = {}
-	local params_list = xml:InitScrollView("params_list", UIDesc)
-	attach_header(eatable_st, "st_influence_header", params_list)
+	local params_list = self.xml:InitScrollView("params_list", self.descr_list)
+	self:AttachHeader(eatable_st, "st_influence_header", params_list)
 
 	for k,v in ipairs(eatable_params) do
-		val = v.st_name == "somnolence" and somnolence.get_influence(item) or eatable:influence(k-1)
+		val = v.st_name == "somnolence" and somnolence.get_influence(self.item) or eatable:influence(k-1)
 		if val ~= 0 then
 			sn = game.translate_string("st_percent")
 			val = val * 100
-			eatable_st[k] = CUIStatic()--xml:InitStatic(v.st_name, params_list)
+			eatable_st[k] = CUIStatic()--self.xml:InitStatic(v.st_name, params_list)
 			eatable_st[k]:SetTextComplexMode(true)
 			eatable_st[k]:SetWidth(params_list:GetDesiredChildWidth())
 			color = val > 0 and "%c[green]" or "%c[red]"
@@ -501,19 +505,19 @@ local boost_params = {
 	{st_name = "boost_time", 			param_name = "ui_inv_boost_time"},
 }
 local boost_st = {}
-function attach_booster_params(UIDesc, item, xml)
-	local eatable = item:get_eatable_item()
-	local sect = item:section()
+function UIItemInfo:AttachBoosterParams()
+	local eatable = self.item:get_eatable_item()
+	local sect = self.item:section()
 	local val, sn, text, color
 	local show = false
 	
 	boost_st = {}
-	local params_list = xml:InitScrollView("params_list", UIDesc)
-	attach_header(boost_st, "st_boost_header", params_list)
+	local params_list = self.xml:InitScrollView("params_list", self.descr_list)
+	self:AttachHeader(boost_st, "st_boost_header", params_list)
 
 	for k,v in ipairs(boost_params) do
 		-- if v.st_name == "somnolence" then
-			-- val = somnolence.get_boost(item)
+			-- val = somnolence.get_boost(self.item)
 		-- elseif v.st_name == "painkiller" then
 			-- val = read_if_exists(sys_ini, "float", sect, "boost_pain", 0)
 		if v.st_name == "boost_time" then
@@ -521,7 +525,7 @@ function attach_booster_params(UIDesc, item, xml)
 		else
 			val = read_if_exists(sys_ini, "float", sect, BOOST_PARAMS[k], 0)--eatable:get_boost(k-1)
 		end
-		-- log3("item %s | boost val %s | boost type %s", item:name(), val, v.st_name)
+		-- log3("item %s | boost val %s | boost type %s", self.item:name(), val, v.st_name)
 		if val ~= 0 then
 			if v.st_name == "boost_time" then
 				sn = game.translate_string("st_time_minute")
@@ -566,8 +570,8 @@ function attach_booster_params(UIDesc, item, xml)
 	return show
 end
 
-function attach_anm_use_params(UIDesc, item, xml)
-	local hud_sect = get_hud_sect(item)
+function UIItemInfo:AttachAnmUseParams()
+	local hud_sect = get_hud_sect(self.item)
 	if not hud_sect then
 	return end
 	local anm_name = "anm_use"
@@ -576,7 +580,7 @@ function attach_anm_use_params(UIDesc, item, xml)
 	
 	local use_delay = read_if_exists(sys_ini, "float", hud_sect, "use_delay", anm_length * 0.001)
 	
-	local static = xml:InitStatic("anm_use_time", UIDesc)
+	local static = self.xml:InitStatic("anm_use_time", self.descr_list)
 	local text = string.format("%s %s %s%.1f %s", game.translate_string("st_list_mark"), game.translate_string("st_anm_use_time"), "%c[UI_orange]", use_delay, game.translate_string("st_time_second"))
 	static:SetText(text)
 	--static:AdjustHeightToText()
@@ -604,9 +608,9 @@ local armor_params = {
 	{bone = "bip01_l_toe0", 	param_name = "st_armor_toe"},
 }
 local armor_st = {}
-function attach_armor_params(UIDesc, item, xml)
-	local bones_protect_sect = item:get_inventory_item().bone_protection_sect
-	if not bones_protect_sect or item:condition() == 0 then
+function UIItemInfo:AttachArmorParams()
+	local bones_protect_sect = self.item:get_inventory_item().bone_protection_sect
+	if not bones_protect_sect or self.item:condition() == 0 then
 	return end
 	
 	local val, sn, text, tmp_tbl, bone_protect_str
@@ -615,8 +619,8 @@ function attach_armor_params(UIDesc, item, xml)
 	armor_st = {}
 	local armored_bones = {}
 	sn = game.translate_string("st_armor_class")
-	local params_list = xml:InitScrollView("params_list", UIDesc)
-	attach_header(armor_st, "st_armor_header", params_list)
+	local params_list = self.xml:InitScrollView("params_list", self.descr_list)
+	self:AttachHeader(armor_st, "st_armor_header", params_list)
 
 	for k,v in ipairs(armor_params) do
 		bone_protect_str = read_if_exists(sys_ini, "string", bones_protect_sect, v.bone, nil)
@@ -640,7 +644,7 @@ function attach_armor_params(UIDesc, item, xml)
 			text = text..armored_bone_names[i]..divider
 		end
 		--log3("~text %s", text)
-		armor_st[armor_class] = CUIStatic()--xml:InitStatic(v.st_name, params_list)
+		armor_st[armor_class] = CUIStatic()--self.xml:InitStatic(v.st_name, params_list)
 		armor_st[armor_class]:SetWidth(params_list:GetDesiredChildWidth())
 		armor_st[armor_class]:SetText(text)
 		armor_st[armor_class]:SetTextComplexMode(true)		
@@ -653,7 +657,7 @@ function attach_armor_params(UIDesc, item, xml)
 	--hit fraction
 	val = read_if_exists(sys_ini, "float", bones_protect_sect, "hit_fraction", 0.1)
 	if val > 0 then
-		armor_st["hit_fraction"] = CUIStatic()--xml:InitStatic("hit_fraction", params_list)
+		armor_st["hit_fraction"] = CUIStatic()--self.xml:InitStatic("hit_fraction", params_list)
 		armor_st["hit_fraction"]:SetWidth(params_list:GetDesiredChildWidth())
 		text = string.format("%s %s%.0f%s %s%s", game.translate_string("st_list_mark"),"%c[UI_orange]", val * 100, game.translate_string("st_percent"), "%c[default]", game.translate_string("st_armor_hit_fraction"))
 		armor_st["hit_fraction"]:SetText(text)
@@ -671,25 +675,25 @@ function attach_armor_params(UIDesc, item, xml)
 end
 
 ------------------------------------------BATTERY POWER WND-----------------------------------------------------------------------------------------------------------------
-function attach_power_params(UIDesc, obj, xml)
-	local bind_obj = obj:binded_object()
+function UIItemInfo:AttachPowerParams()
+	local bind_item = self.item:binded_object()
 
-	local power_params = xml:InitScrollView("power_params", UIDesc)--xml:InitStatic("power_params", UIDesc)
+	local power_params = self.xml:InitScrollView("power_params", self.descr_list)--self.xml:InitStatic("power_params", self.descr_list)
 	
-	if not read_if_exists(sys_ini, "bool", obj:section(), "condition_as_power", false) then
-		local cap_power = xml:InitStatic("power_params:cap_power", power_params)
-		cap_power:SetText(game.translate_string(read_if_exists(sys_ini, "string", obj:section(), "power_level_name", "st_power_level")))
+	if not read_if_exists(sys_ini, "bool", self.item:section(), "condition_as_power", false) then
+		local cap_power = self.xml:InitStatic("power_params:cap_power", power_params)
+		cap_power:SetText(game.translate_string(read_if_exists(sys_ini, "string", self.item:section(), "power_level_name", "st_power_level")))
 		cap_power:AdjustHeightToText()
 		
-		local power_progress = xml:InitProgressBar("power_params:progress_power", power_params)
-		local power_level = bind_obj:get_power_level()
+		local power_progress = self.xml:InitProgressBar("power_params:progress_power", power_params)
+		local power_level = bind_item:get_power_level()
 		power_progress:SetProgressPos(power_level)
 	end
 	
-	local cap_work_time = xml:InitStatic("power_params:cap_work_time", power_params)
-	local worktime_text = string.format("%s %s %s", game.translate_string("st_work_time"), bind_obj:get_work_time(), game.translate_string("st_time_hour"))
-	if bind_obj:power_source_detachable() then
-		worktime_text = worktime_text..string.format(" [%s]", get_inv_name(bind_obj:get_power_sect()))
+	local cap_work_time = self.xml:InitStatic("power_params:cap_work_time", power_params)
+	local worktime_text = string.format("%s %s %s", game.translate_string("st_work_time"), bind_item:get_work_time(), game.translate_string("st_time_hour"))
+	if bind_item:power_source_detachable() then
+		worktime_text = worktime_text..string.format(" [%s]", get_inv_name(bind_item:get_power_sect()))
 	end
 	cap_work_time:SetText(worktime_text)
 	cap_work_time:AdjustHeightToText()
@@ -700,96 +704,96 @@ function attach_power_params(UIDesc, obj, xml)
 end
 
 ------------------------------------------WEAPON PARAMS WND-----------------------------------------------------------------------------------------------------------------
-function atach_wpn_params(UIDesc, obj, xml)
-	if not read_if_exists(sys_ini, "bool", obj:section(), "show_wpn_properties", true) then
+function UIItemInfo:AttachWpnParams()
+	if not read_if_exists(sys_ini, "bool", self.item:section(), "show_wpn_properties", true) then
 	return end
 	
 	local name = "wpn_params"
-	local main = xml:InitStatic(name, UIDesc)
+	local main = self.xml:InitStatic(name, self.descr_list)
 	
-	local cap_dispersion 	= xml:InitStatic(name..":cap_dispersion", main)
-	local cap_damage 		= xml:InitStatic(name..":cap_damage", main)
-	local cap_speed 		= xml:InitStatic(name..":cap_speed", main)
-	local cap_rpm 			= xml:InitStatic(name..":cap_rpm", main)
-	local cap_range 		= xml:InitStatic(name..":cap_range", main)
-	local cap_reliability 	= xml:InitStatic(name..":cap_reliability", main)
+	local cap_dispersion 	= self.xml:InitStatic(name..":cap_dispersion", main)
+	local cap_damage 		= self.xml:InitStatic(name..":cap_damage", main)
+	local cap_speed 		= self.xml:InitStatic(name..":cap_speed", main)
+	local cap_rpm 			= self.xml:InitStatic(name..":cap_rpm", main)
+	local cap_range 		= self.xml:InitStatic(name..":cap_range", main)
+	local cap_reliability 	= self.xml:InitStatic(name..":cap_reliability", main)
 
-	local progress_dispersion 	= xml:InitProgressBar(name..":progress_dispersion", main)
-	local progress_damage 		= xml:InitProgressBar(name..":progress_damage", main)
-	local progress_speed 		= xml:InitProgressBar(name..":progress_speed", main)
-	local progress_rpm 			= xml:InitProgressBar(name..":progress_rpm", main)
-	local progress_range 		= xml:InitProgressBar(name..":progress_range", main)
-	local progress_reliability 	= xml:InitProgressBar(name..":progress_reliability", main)
+	local progress_dispersion 	= self.xml:InitProgressBar(name..":progress_dispersion", main)
+	local progress_damage 		= self.xml:InitProgressBar(name..":progress_damage", main)
+	local progress_speed 		= self.xml:InitProgressBar(name..":progress_speed", main)
+	local progress_rpm 			= self.xml:InitProgressBar(name..":progress_rpm", main)
+	local progress_range 		= self.xml:InitProgressBar(name..":progress_range", main)
+	local progress_reliability 	= self.xml:InitProgressBar(name..":progress_reliability", main)
 	
 	local params = ui_wpn_params
 	
-	local text = string.format("%s (%.2f)", cap_dispersion:GetText(), params.GetDispersion(obj))
+	local text = string.format("%s (%.2f)", cap_dispersion:GetText(), params.GetDispersion(self.item))
 	cap_dispersion:SetText(text)
-	text = string.format("%s (%.1f)", cap_damage:GetText(), params.GetDamage(obj))
+	text = string.format("%s (%.1f)", cap_damage:GetText(), params.GetDamage(self.item))
 	cap_damage:SetText(text)
-	text = string.format("%s (%.0f)", cap_speed:GetText(), params.GetSpeed(obj))
+	text = string.format("%s (%.0f)", cap_speed:GetText(), params.GetSpeed(self.item))
 	cap_speed:SetText(text)
-	text = string.format("%s (%.0f)", cap_rpm:GetText(), params.GetRPM(obj))
+	text = string.format("%s (%.0f)", cap_rpm:GetText(), params.GetRPM(self.item))
 	cap_rpm:SetText(text)	
-	text = string.format("%s (%.0f)", cap_range:GetText(), params.GetRange(obj))
+	text = string.format("%s (%.0f)", cap_range:GetText(), params.GetRange(self.item))
 	cap_range:SetText(text)	
-	text = string.format("%s (%.0f)", cap_reliability:GetText(), params.GetReliability(obj))
+	text = string.format("%s (%.0f)", cap_reliability:GetText(), params.GetReliability(self.item))
 	cap_reliability:SetText(text)		
 	
-	progress_dispersion:SetProgressPos(params.GetDispersion(obj))
-	progress_damage:SetProgressPos(params.GetDamage(obj))
-	progress_speed:SetProgressPos(params.GetSpeed(obj))
-	progress_rpm:SetProgressPos(params.GetRPM(obj))
-	progress_range:SetProgressPos(params.GetRange(obj))
-	progress_reliability:SetProgressPos(params.GetReliability(obj))
+	progress_dispersion:SetProgressPos(params.GetDispersion(self.item))
+	progress_damage:SetProgressPos(params.GetDamage(self.item))
+	progress_speed:SetProgressPos(params.GetSpeed(self.item))
+	progress_rpm:SetProgressPos(params.GetRPM(self.item))
+	progress_range:SetProgressPos(params.GetRange(self.item))
+	progress_reliability:SetProgressPos(params.GetReliability(self.item))
 	
 	return true
 end
 
 ------------------------------------------KNIFE PARAMS WND-----------------------------------------------------------------------------------------------------------------
-function atach_knife_params(UIDesc, obj, xml)
-	if not read_if_exists(sys_ini, "bool", obj:section(), "show_wpn_properties", true) then
+function UIItemInfo:AttachKnifeParams()
+	if not read_if_exists(sys_ini, "bool", self.item:section(), "show_wpn_properties", true) then
 	return end
 	
 	local name = "knife_params"
-	local main = xml:InitStatic(name, UIDesc)
+	local main = self.xml:InitStatic(name, self.descr_list)
 	
-	local cap_damage 		= xml:InitStatic(name..":cap_damage", main)
-	local cap_damage_2 		= xml:InitStatic(name..":cap_damage_2", main)
-	local cap_range 		= xml:InitStatic(name..":cap_range", main)
-	local cap_reliability 	= xml:InitStatic(name..":cap_reliability", main)
+	local cap_damage 		= self.xml:InitStatic(name..":cap_damage", main)
+	local cap_damage_2 		= self.xml:InitStatic(name..":cap_damage_2", main)
+	local cap_range 		= self.xml:InitStatic(name..":cap_range", main)
+	local cap_reliability 	= self.xml:InitStatic(name..":cap_reliability", main)
 
-	local progress_damage 		= xml:InitProgressBar(name..":progress_damage", main)
-	local progress_damage_2 	= xml:InitProgressBar(name..":progress_damage_2", main)
-	local progress_range 		= xml:InitProgressBar(name..":progress_range", main)
-	local progress_reliability 	= xml:InitProgressBar(name..":progress_reliability", main)
+	local progress_damage 		= self.xml:InitProgressBar(name..":progress_damage", main)
+	local progress_damage_2 	= self.xml:InitProgressBar(name..":progress_damage_2", main)
+	local progress_range 		= self.xml:InitProgressBar(name..":progress_range", main)
+	local progress_reliability 	= self.xml:InitProgressBar(name..":progress_reliability", main)
 	
 	local params = ui_wpn_params
 	
-	local text = string.format("%s (%.1f)", cap_damage:GetText(), params.GetDamage(obj))
+	local text = string.format("%s (%.1f)", cap_damage:GetText(), params.GetDamage(self.item))
 	cap_damage:SetText(text)
-	text = string.format("%s (%.1f)", cap_damage_2:GetText(), params.GetDamage2(obj))
+	text = string.format("%s (%.1f)", cap_damage_2:GetText(), params.GetDamage2(self.item))
 	cap_damage_2:SetText(text)	
-	text = string.format("%s (%.1f)", cap_range:GetText(), params.GetRange(obj))
+	text = string.format("%s (%.1f)", cap_range:GetText(), params.GetRange(self.item))
 	cap_range:SetText(text)	
-	text = string.format("%s (%.0f)", cap_reliability:GetText(), params.GetReliability(obj))
+	text = string.format("%s (%.0f)", cap_reliability:GetText(), params.GetReliability(self.item))
 	cap_reliability:SetText(text)		
 	
-	progress_damage:SetProgressPos(params.GetDamage(obj))
-	progress_damage_2:SetProgressPos(params.GetDamage(obj))
-	progress_range:SetProgressPos(params.GetRange(obj))
-	progress_reliability:SetProgressPos(params.GetReliability(obj))
+	progress_damage:SetProgressPos(params.GetDamage(self.item))
+	progress_damage_2:SetProgressPos(params.GetDamage(self.item))
+	progress_range:SetProgressPos(params.GetRange(self.item))
+	progress_reliability:SetProgressPos(params.GetReliability(self.item))
 	
 	return true
 end
 
 ------------------------------------------LOADED WEAPON AMMO WND-----------------------------------------------------------------------------------------------------------------
 local pos_x
-function attach_loaded_ammo(UIDesc, obj, xml)
-	local wpn = obj:get_weapon_m()
-	local show_ammo = obj:get_ammo_in_magazine() > 0
+function UIItemInfo:AttachLoadedAmmo()
+	local wpn = self.item:get_weapon_m()
+	local show_ammo = self.item:get_ammo_in_magazine() > 0
 	local show_mag = wpn:addon_attachable(addon_type.magazine) and wpn:is_addon_attached(addon_type.magazine)
-	local show_ammo2 = obj:get_ammo_in_magazine2() > 0
+	local show_ammo2 = self.item:get_ammo_in_magazine2() > 0
 	
 	if 
 		not show_ammo and
@@ -799,22 +803,22 @@ function attach_loaded_ammo(UIDesc, obj, xml)
 
 	pos_x = 0
 	
-	local main = xml:InitStatic("loaded_ammo", UIDesc)
+	local main = self.xml:InitStatic("loaded_ammo", self.descr_list)
 	
 	local ammo_s = {}
 	for i=1,3 do
-		ammo_s[i] = xml:InitStatic("loaded_ammo:ammo_icon", main)
+		ammo_s[i] = self.xml:InitStatic("loaded_ammo:ammo_icon", main)
 		ammo_s[i]:Show(false)
 	end
 
 	if show_ammo then
-		set_ammo_icon(ammo_s[1], get_cur_ammo_sect(obj))
+		set_ammo_icon(ammo_s[1], get_cur_ammo_sect(self.item))
 	end
 	if show_mag then
 		set_ammo_icon(ammo_s[2], wpn:get_addon_name(addon_type.magazine))
 	end
 	if show_ammo2 then
-		set_ammo_icon(ammo_s[3], get_cur_ammo2_sect(obj))
+		set_ammo_icon(ammo_s[3], get_cur_ammo2_sect(self.item))
 	end
 	
 	return true
@@ -830,13 +834,13 @@ end
 
 ------------------------------------------LOADED WEAPON AMMO WND-----------------------------------------------------------------------------------------------------------------
 
-function attach_magazin_ammo(UIDesc, obj, xml)
-	local ammo = obj:get_weapon_ammo()
+function UIItemInfo:AttachMagazineAmmo()
+	local ammo = self.item:get_weapon_ammo()
 	if ammo.box_curr == 0 then
 	return end
 	
-	local main = xml:InitStatic("loaded_ammo", UIDesc)
-	local ammo_icon = xml:InitStatic("loaded_ammo:ammo_icon", main)
+	local main = self.xml:InitStatic("loaded_ammo", self.descr_list)
+	local ammo_icon = self.xml:InitStatic("loaded_ammo:ammo_icon", main)
 	
 	pos_x = 0
 	
@@ -862,14 +866,14 @@ local addon_type = {
 	"grenade"
 }
 local addons_st = {}
-function attach_weapon_addons(UIDesc, obj, xml)
+function UIItemInfo:AttachWpnAddons()
 	if get_script_option_value("wpn_addon_ammo_wnd_separate") then
 	return end
 	
 	addons_st = {}
 
-	local params_list = xml:InitScrollView("params_list", UIDesc)
-	attach_header(addons_st, "st_compatible_addon", params_list)
+	local params_list = self.xml:InitScrollView("params_list", self.descr_list)
+	self:AttachHeader(addons_st, "st_compatible_addon", params_list)
 	
 	local addon_text_st = nil
 
@@ -880,10 +884,10 @@ function attach_weapon_addons(UIDesc, obj, xml)
 	local addons = {}
 
 	for i,addon in pairs(addon_type) do
-		addon_str = read_if_exists(sys_ini, "string", obj:section(), addon.."_name", nil)
-		addon_status = read_if_exists(sys_ini, "u32", obj:section(), addon.."_status", 0)
+		addon_str = read_if_exists(sys_ini, "string", self.item:section(), addon.."_name", nil)
+		addon_status = read_if_exists(sys_ini, "u32", self.item:section(), addon.."_status", 0)
 		if i > 8 then
-			addon_str = read_if_exists(sys_ini, "string", obj:section(), addon.."_class", nil)
+			addon_str = read_if_exists(sys_ini, "string", self.item:section(), addon.."_class", nil)
 			addon_status = addon_str and 2 or 0
 		end
 		if addon_str and addon_status == 2 then
@@ -921,15 +925,15 @@ local loadout_slots = {
 		"scope",
 		"silencer",
 	}
-function attach_loadout_slots(UIDesc, item, xml)
-	local slots_scroll_view = xml:InitScrollView("scroll_view_loadout", UIDesc)
-	local sect = item:section()
+function UIItemInfo:AttachLoadoutSlots()
+	local slots_scroll_view = self.xml:InitScrollView("scroll_view_loadout", self.descr_list)
+	local sect = self.item:section()
 	local count, icon, text
 	for k,v in ipairs(loadout_slots) do
 		count = read_if_exists(sys_ini, "u32", sect, v, 0)
 		--log3("~count %s", count)
 		if count > 0 then
-			icon = xml:InitStatic("scroll_view_loadout:"..v.."_icon", slots_scroll_view)
+			icon = self.xml:InitStatic("scroll_view_loadout:"..v.."_icon", slots_scroll_view)
 			text = string.format("+%s %s", count, game.translate_string("ui_st_"..v))
 			icon:SetText(text)
 		end
@@ -951,12 +955,12 @@ local ammo_params = {
 		{name = "buck_shot", 		unit = "", 						default = 1, is_int = true, invert = false},		
 		{name = "k_ap", 			unit = "st_armor_class", 		default = 0, is_int = true, invert = false},		
 	}
-function attach_ammo_params(UIDesc, item, xml)
+function UIItemInfo:AttachAmmoParams()
 	local show = false
-	local params_list = xml:InitScrollView("params_list", UIDesc)
-	attach_header(ammo_params, "st_ammo_header", params_list)
+	local params_list = self.xml:InitScrollView("params_list", self.descr_list)
+	self:AttachHeader(ammo_params, "st_ammo_header", params_list)
 
-	local sect = item:section()
+	local sect = self.item:section()
 	local val, static, text, color
 	for k,v in ipairs(ammo_params) do
 		val = read_if_exists(sys_ini, "float", sect, v.name, v.default)
@@ -994,12 +998,12 @@ local addon_params = {
 		{name = "condition_shot_dec_silencer", 	unit = "%", default = 0, invert = true},
 		{name = "zoom_rotate_time_k", 			unit = "%", default = 0, invert = false, multiplier = -1},
 	}
-function attach_addon_params(UIDesc, item, xml)
+function UIItemInfo:AttachAddonParams()
 	local show = false
-	local params_list = xml:InitScrollView("params_list", UIDesc)
-	attach_header(addon_params, "st_addon_header", params_list)
+	local params_list = self.xml:InitScrollView("params_list", self.descr_list)
+	self:AttachHeader(addon_params, "st_addon_header", params_list)
 	
-	local sect = item:section()
+	local sect = self.item:section()
 	local val, text, color
 	for k,v in ipairs(addon_params) do
 		val = read_if_exists(sys_ini, "float", sect, v.name, v.default)
@@ -1032,31 +1036,31 @@ function attach_addon_params(UIDesc, item, xml)
 end
 
 ------------------------------------------VEST ARMOR PLATE WND-----------------------------------------------------------------------------------------------------------------
-function attach_plate_condition(UIDesc, obj, xml)
-	local bind_obj = obj:binded_object()
+function UIItemInfo:AttachPlateCondition()
+	local bind_item = self.item:binded_object()
 	
-	local plate_params = xml:InitStatic("plate_params", UIDesc)
+	local plate_params = self.xml:InitStatic("plate_params", self.descr_list)
 	
-	local cap_plate = xml:InitStatic("plate_params:cap_plate", plate_params)
-	local text = string.format("%s:\\n%s", game.translate_string("st_attached_plate"), get_inv_name_short(bind_obj:get_plate_sect()))
+	local cap_plate = self.xml:InitStatic("plate_params:cap_plate", plate_params)
+	local text = string.format("%s:\\n%s", game.translate_string("st_attached_plate"), get_inv_name_short(bind_item:get_plate_sect()))
 	cap_plate:SetTextComplexMode(true)
 	cap_plate:SetText(text)
 	
-	local condition_progress = xml:InitProgressBar("plate_params:progress_condition", plate_params)
-	condition_progress:SetProgressPos(bind_obj:get_plate_condition())
+	local condition_progress = self.xml:InitProgressBar("plate_params:progress_condition", plate_params)
+	condition_progress:SetProgressPos(bind_item:get_plate_condition())
 	return true
 end
 
 ------------------------------------------COMPATIBLE ARMOR PLATES WND-----------------------------------------------------------------------------------------------------------------
 local plates = {}
-function attach_armor_plates(UIDesc, obj, xml)
-	if not obj:binded_object() then
+function UIItemInfo:AttachArmorPlates()
+	if not self.item:binded_object() then
 	return end
 
-	plates = obj:binded_object():get_plates()
+	plates = self.item:binded_object():get_plates()
 
-	local params_list = xml:InitScrollView("params_list", UIDesc)
-	attach_header(plates, "st_compatible_plate", params_list)
+	local params_list = self.xml:InitScrollView("params_list", self.descr_list)
+	self:AttachHeader(plates, "st_compatible_plate", params_list)
 
 	local text
 	for k,v in pairs(plates) do
@@ -1077,11 +1081,11 @@ end
 
 -----------------------------------------------------BELT SLOTS PARAMS-----------------------------------------------------------------------------------------------------------
 local belt_slots_st
-function attach_belt_params(UIDesc, item, xml)
-	local belt_size = read_if_exists(sys_ini, "u32", item:section(), "belt_size", 0)
+function UIItemInfo:AttachBeltParams()
+	local belt_size = read_if_exists(sys_ini, "u32", self.item:section(), "belt_size", 0)
 	if belt_size <= 0 then return end
 	
-	local params_list = xml:InitScrollView("params_list", UIDesc)
+	local params_list = self.xml:InitScrollView("params_list", self.descr_list)
 
 	belt_slots_st = CUIStatic()
 	belt_slots_st:SetTextComplexMode(true)
@@ -1098,22 +1102,18 @@ end
 
 -----------------------------------------------------PDA OWNER INFO------------------------------------------------------------------------------------------------------------------------
 local ui_owner_data = {}
-function attach_pda_owner_info(UIDesc, item, xml)
-	local se_obj = alife():object(item:id())
+function UIItemInfo:AttachPDAOwnerInfo()
+	local se_item = alife():object(self.item:id())
 	
-	local owner_data = se_obj.owner_data
+	local owner_data = se_item.owner_data
 	if not owner_data then
 	return end
 	
 	if owner_data.name == "" then
 	return end
 	
-	-- if is_actors_pda(item) then
-		-- pda.fill_owner_info(item:id())
-	-- end
-
-	local params_list = xml:InitScrollView("params_list", UIDesc)
-	attach_header(ui_owner_data, "st_pda_owner", params_list)
+	local params_list = self.xml:InitScrollView("params_list", self.descr_list)
+	self:AttachHeader(ui_owner_data, "st_pda_owner", params_list)
 
 	local color = "%c[UI_orange]"
 	
@@ -1147,13 +1147,13 @@ function attach_pda_owner_info(UIDesc, item, xml)
 	local lock_st = CUIStatic()
 	ui_owner_data.lock_st = lock_st
 	local lock_text = ""
-	if se_obj.lock_state == 0 then
+	if se_item.lock_state == 0 then
 		lock_text = "ui_st_unlocked"
 		color = "%c[green]"
-	elseif se_obj.lock_state == 1 then
+	elseif se_item.lock_state == 1 then
 		lock_text = "ui_st_locked"
 		color = "%c[UI_orange]"
-	elseif se_obj.lock_state == 2 then
+	elseif se_item.lock_state == 2 then
 		lock_text = "ui_st_dead_locked"
 		color = "%c[red]"
 	end
@@ -1178,13 +1178,13 @@ local repair_params = {
 		{name = "repair_type", 				prefix="", unit = "", default = "", _type = "string"},
 		{name = "repair_bonus", 			prefix="x", unit = "", default = 0, _type = "float"},
 	}
-function attach_repair_params(UIDesc, item, xml)
-	local sect = item:section()
+function UIItemInfo:AttachRepairParams()
+	local sect = self.item:section()
 	if read_if_exists(sys_ini, "float", sect, "service_condition_gain", 0) <= 0 and read_if_exists(sys_ini, "float", sect, "repair_bonus", 0) <= 0 then
 	return end
 	
-	local params_list = xml:InitScrollView("params_list", UIDesc)
-	attach_header(repair_params, "st_repair_header", params_list)
+	local params_list = self.xml:InitScrollView("params_list", self.descr_list)
+	self:AttachHeader(repair_params, "st_repair_header", params_list)
 	
 	for k,v in ipairs(repair_params) do
 		local val = read_if_exists(sys_ini, v._type, sect, v.name, v.default)
@@ -1209,16 +1209,16 @@ end
 
 -----------------------------------------------------LOOT SPAWN BOX PARAMS-----------------------------------------------------------------------------------------------------------
 local loot_spawn_box_st = {}
-function attach_loot_spawn_box(UIDesc, obj, xml)
-	local sect = obj:section()
+function UIItemInfo:AttachLootSpawnBoxInfo()
+	local sect = self.item:section()
 	local items_str = loot_spawn_box.get_spawn_items(sect)
 	if not items_str then
 	return end
 	
 	loot_spawn_box_st = {}	
 	
-	local params_list = xml:InitScrollView("params_list", UIDesc)
-	attach_header(loot_spawn_box_st, "st_loot_spawn_box_header", params_list)
+	local params_list = self.xml:InitScrollView("params_list", self.descr_list)
+	self:AttachHeader(loot_spawn_box_st, "st_loot_spawn_box_header", params_list)
 	
 	local spawn_items = parse_key_val_line(items_str, 1)
 	

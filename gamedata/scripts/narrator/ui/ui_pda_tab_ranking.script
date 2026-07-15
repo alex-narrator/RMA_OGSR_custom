@@ -4,6 +4,11 @@ local OVERLAY_XML = "script_overlays\\ui_pda_tab_ranking.xml"
 class "UIPdaTabRanking" (CUIScriptWnd)
 function UIPdaTabRanking:__init() super()
 	self:InitControls()
+	--self:SetAutoDelete(true)
+end
+
+function UIPdaTabRanking:__finalize()
+	--log_news("UIPdaTabRanking:__finalize()")
 end
 
 function UIPdaTabRanking:InitControls()

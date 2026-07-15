@@ -14,6 +14,11 @@ function SkipTimeOverlay:__init(button_type, action, ...) super()
 	self.action = action
 	self.args = {...}
 	self:InitControls(button_type)
+	self:SetAutoDelete(true)
+end
+
+function SkipTimeOverlay:__finalize()
+	--log_news("SkipTimeOverlay:__finalize()")
 end
 
 function SkipTimeOverlay:InitControls(button_type)

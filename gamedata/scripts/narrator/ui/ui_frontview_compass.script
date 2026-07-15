@@ -57,6 +57,11 @@ class "CompassOverlay" (CUIScriptWnd)
 function CompassOverlay:__init(owner) super()
 	self.owner = owner
 	self:InitControls()
+	self:SetAutoDelete(true)
+end
+
+function CompassOverlay:__finalize()
+	--log_news("CompassOverlay:__finalize()")
 end
 
 function CompassOverlay:DetachWnd()

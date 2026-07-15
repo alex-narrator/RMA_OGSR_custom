@@ -19,7 +19,12 @@ class "QuickAddonOverlay" (CUIScriptWnd)
 
 function QuickAddonOverlay:__init() super()
 	self:InitControls()
-	self:Subscribe()
+	self:ShowHide()
+	self:SetAutoDelete(true)
+end
+
+function QuickAddonOverlay:__finalize()
+	--log_news("QuickAddonOverlay:__finalize()")
 end
 
 function QuickAddonOverlay:Subscribe()
@@ -83,6 +88,9 @@ function QuickAddonOverlay:Update()
 	if not self:CanShow() then
 		self.target_item_id = nil
 		self:ShowHide()
+	end
+	if not self.was_shown then
+		self.was_shown = true
 	end
 end
 
@@ -314,21 +322,24 @@ function QuickAddonOverlay:ProcessSlowMotion(enable)
 end
 
 function QuickAddonOverlay:OnShow()
-	 self:UpdateCompatible()
+	self:UpdateCompatible()
 	if not self:CanShow() then
+		self:ShowHide()
 	return end
-	self:Subscribe()
 	local act_item = actor:active_item()
 	if act_item then		
 		act_item:zoom_out()
 	end	
 	self:ProcessSlowMotion(true)
+	self:Subscribe()
 	sm:call("on_quick_addon_show")
 end
 
 function QuickAddonOverlay:OnHide()
 	sm:call("on_quick_addon_hide")
 	self:ProcessSlowMotion(false)
+	self:Unsubscribe()
+	self:ClearCallbacks()
 end
 
 function QuickAddonOverlay:StopAnyMove()
@@ -348,9 +359,13 @@ function QuickAddonOverlay:OnKeyboard(dik, keyboard_action)
 	
 	if game_action == key_bindings.kQUIT then
 		self:OnHide()
-	end		
+	end
 	
 	if keyboard_action == ui_events.WINDOW_KEY_PRESSED then
+		if game_action == key_bindings.kQUICK_ADDON and self.was_shown then
+			self:ShowHide()
+			return true
+		end	
 		if restricted_actions[game_action] then
 			return true
 		end

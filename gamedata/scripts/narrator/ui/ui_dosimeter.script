@@ -27,10 +27,13 @@ function ui_dosimeter:__init(item) super()
 	self.ui_enabled 			= true
 	
 	self.item = item
+	
+	self:SetAutoDelete(true)
 end
 
 function ui_dosimeter:__finalize() 
 	dosimeter_ui = nil
+	--log_news("ui_dosimeter:__finalize()")
 end
 
 function ui_dosimeter:Update()

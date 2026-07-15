@@ -30,6 +30,11 @@ function UICellItemContainer:__init(xml, path, owner) super()
 	self.locked = false
 	self:InitControls()
 	self:Subscribe()
+	self:SetAutoDelete(true)
+end
+
+function UICellItemContainer:__finalize()
+	--log_news("UICellItemContainer:__finalize()")
 end
 
 function UICellItemContainer:DetachWnd()

@@ -30,6 +30,11 @@ class "UIPdaTabQuests" (CUIScriptWnd)
 function UIPdaTabQuests:__init() super()
 	self:InitControls()
 	self:Subscribe()
+	--self:SetAutoDelete(true)
+end
+
+function UIPdaTabQuests:__finalize()
+	--log_news("UIPdaTabQuests:__finalize()")
 end
 
 function UIPdaTabQuests:Subscribe()

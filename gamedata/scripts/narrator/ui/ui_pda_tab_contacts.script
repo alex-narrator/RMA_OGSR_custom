@@ -7,6 +7,11 @@ class "UIPdaTabContacts" (CUIScriptWnd)
 function UIPdaTabContacts:__init() super()
 	self:InitControls()
 	self:Subscribe()
+	--self:SetAutoDelete(true)
+end
+
+function UIPdaTabContacts:__finalize()
+	--log_news("UIPdaTabContacts:__finalize()")
 end
 
 function UIPdaTabContacts:Subscribe()
