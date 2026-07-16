@@ -2346,7 +2346,7 @@ function drop_item_to_angle(owner, item, angle)
 end
 
 function is_actor_looking_to_pos(pos, radius)
-	return level.is_ray_intersect_sphere(device().cam_pos, device().cam_dir, pos, radius) >= 0	
+	return level.is_ray_intersect_sphere(device().cam_pos, device().cam_dir, pos, radius) >= 0
 end
 
 function get_custom_logic_ini(obj)
@@ -2374,8 +2374,19 @@ function is_explosive_ammo(section)
 	return explosive_ammo_classes[sys_ini:r_string(section,"class")]
 end
 
-function is_quest_item(section)
+function is_quest_item_sect(section)
 	return read_if_exists(sys_ini, "string", section, "quest_item", false)
+end
+
+function is_quest_item(item)
+	local flags = item:get_inventory_item_flags()
+	return flags:test(inv_item_flags.FIsQuestItem)
+end
+
+function set_quest_item(item, val)
+	local flags = item:get_inventory_item_flags()
+	flags:set(inv_item_flags.FIsQuestItem, not not val)
+	item:set_inventory_item_flags(flags)
 end
 
 function get_lv_gv(level_name, pos)

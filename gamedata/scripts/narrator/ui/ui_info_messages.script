@@ -43,8 +43,4 @@ function info_on_action(key, game_action)
 		hud_add_info_message("actor_state", "cant_walk", 2)
 		actor_sounds.fatigue()
 	end
-	
-	if need_hands_action[game_action] and not actor_hands_free() then
-		hud_add_info_message("hud_info", "hands_not_free", 2)
-	end
 end

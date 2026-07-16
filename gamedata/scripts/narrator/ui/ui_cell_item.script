@@ -169,7 +169,7 @@ function UICellItem:InitControls(cell_pos)
 		end
 	end
 	--//quest item marker
-	if read_if_exists(sys_ini, "bool", sect, "quest_item", false) then
+	if is_quest_item(item) then
 		local icon_sect = read_if_exists(sys_ini, "string", sect, "quest_icon_sect", "quest_icon")
 		if icon_sect then
 			local offset_type = read_if_exists(sys_ini, "string", sect, "quest_icon_sect", "right_top")

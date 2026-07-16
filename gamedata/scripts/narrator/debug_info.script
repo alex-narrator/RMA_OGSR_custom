@@ -171,10 +171,7 @@ function item_action_text()
 	return "debug_action"
 end
 function item_action(item)
-	local wpn = item:get_weapon()
-	if wpn then
-		wpn.misfire = true
-	end
+	log_news("is_quest_item [%s]", is_quest_item(item))
 end
 
 class "p_timer"
