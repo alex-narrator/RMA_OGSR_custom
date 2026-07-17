@@ -27,10 +27,10 @@ function active_pda()
 	return not is_3d_pda() or actor:active_item() and actor:active_item():get_pda() and actor:active_item():is_zoomed()
 end
 
-function on_key_press(key, game_action)
+function on_key_press(key, game_action, skip_mir_check)
 	local curr_nvd = nvd.get_current_nvd()
 	if not nvd_action[game_action] or
-		level.main_input_receiver() or
+		(level.main_input_receiver() and not skip_mir_check) or
 		key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) or
 		active_pda() or
 		not curr_nvd

@@ -10,7 +10,7 @@ local torch_action = {
 local hud_effector_id = 5557
 local hud_anm = "camera_effects\\item_use\\two_handed_weapon_effect.anm"
 
-function on_key_press(key, game_action)
+function on_key_press(key, game_action, skip_mir_check)
 	local curr_torch = actor_get_torch()
 	if not curr_torch then
 	return end
@@ -19,7 +19,7 @@ function on_key_press(key, game_action)
 		actor_get_car() or
 		not actor_hands_free() or
 		SCRIPT_ANIM_PLAYING or
-		level.main_input_receiver()
+		(level.main_input_receiver() and not skip_mir_check)
 	then
 	return end
 	

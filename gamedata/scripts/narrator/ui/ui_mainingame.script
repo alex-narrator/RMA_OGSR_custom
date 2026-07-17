@@ -752,24 +752,27 @@ function MainIngameOverlay:OnHudStateSwitch(item, state, old_state)
 	end
 end
 
-function MainIngameOverlay:ShowActiveitemInfo(play_anim)
+function MainIngameOverlay:ShowActiveitemInfo(play_effects)
+	_G.SHOW_ACTIVE_ITEM_INFO = true
+	self.active_item.ammo_sect = nil
+	local ACTIVE_ITEM_INFO_TTL = get_script_option_value("active_item_info_ttl")
+	self.active_item_info_hide_time = time_global() + ACTIVE_ITEM_INFO_TTL * 1000
+	if not play_effects then
+	return end
+	
 	local act_item = actor:active_item()
 	local act_device = actor:active_device()
-	if play_anim and (not act_item and not act_device) then 
+	if not act_item and not act_device then 
 		outfit_anim.play_outfit("inspect")
 	end
-	if act_item and play_anim then
+	if act_item then
 		ammo_check_anim.try_play_anim(act_item)
 	end
-	local ACTIVE_ITEM_INFO_TTL = get_script_option_value("active_item_info_ttl")
 	if act_device and dosimeter.is_dosimeter(act_device) and act_device:is_power_on() then
 		dosimeter.show_actor_radiation()
 		local str = string.format("%s: %.2f %s ", game.translate_string("st_actor_radiation"), actor.radiation * 100, game.translate_string("st_percent"))--actor.radiation, game.translate_string("st_rad"))
 		hud_add_info_message("hud_info", str, ACTIVE_ITEM_INFO_TTL)
 	end
-	_G.SHOW_ACTIVE_ITEM_INFO = true
-	self.active_item.ammo_sect = nil
-	self.active_item_info_hide_time = time_global() + ACTIVE_ITEM_INFO_TTL * 1000
 end
 
 function MainIngameOverlay:UpdateCompass()

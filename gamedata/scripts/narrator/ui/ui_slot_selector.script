@@ -172,11 +172,11 @@ function SlotSelectorOverlay:OnSlotClick(slot_num)
 	-- end
 	if slot_num == TORCH_SLOT then
 		if nvd.get_current_nvd() and nvd.get_current_nvd():id() == slot_item:id() then
-			switch_nvd_anim.on_key_press(nil, key_bindings.kNIGHT_VISION)
+			switch_nvd_anim.on_key_press(nil, key_bindings.kNIGHT_VISION, true)
 			return
 		end
 		if actor_get_torch() and actor_get_torch():id() == slot_item:id() then
-			switch_torch_anim.on_key_press(nil, key_bindings.kTORCH)
+			switch_torch_anim.on_key_press(nil, key_bindings.kTORCH, true)
 			return
 		end
 	end
