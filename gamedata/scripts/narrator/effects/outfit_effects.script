@@ -24,6 +24,7 @@ function attach(sm)
 	sm:subscribe({signal = "on_slot",   		fun = this.on_slot})
 	sm:subscribe({signal = "on_save",   		fun = this.on_save})
 	sm:subscribe({signal = "on_load",   		fun = this.on_load})
+	sm:subscribe({signal = "on_first_update", 	fun = this.on_first_update})
 	sm:subscribe({signal = "on_death_actor",   	fun = this.on_death_actor})
 end
 
@@ -35,6 +36,14 @@ end
 
 function on_load(reader)
 	known_outfits = xr_vars.load_var("known_outfits", known_outfits)
+end
+
+function on_first_update()
+	local console = get_console()
+	if console:get_bool("r2_rain_drops_control") then
+		console:execute("r2_rain_drops_control off")
+		add_update_delayed_action(10, function() console:execute("r2_rain_drops_control on") end)
+	end
 end
 
 function allowed_item(obj)
@@ -129,16 +138,16 @@ function enable_effects(obj)
 	--//reflections
 	local visor_refl = read_if_exists(sys_ini, "bool", sect, "visor_refl", false)
 	bool_number = visor_refl and 1 or 0
-	local visor_refl_intens = read_if_exists(sys_ini, "float", sect, "visor_refl_intens", 0.4) --// 0 - 1	
-	local visor_refl_radius = read_if_exists(sys_ini, "float", sect, "visor_refl_radius", 0.4) --// 0.3 - 0.6
+	local visor_refl_intens = read_if_exists(sys_ini, "float", sect, "visor_refl_intens", 0.2) --// 0 - 1	
+	local visor_refl_radius = read_if_exists(sys_ini, "float", sect, "visor_refl_radius", 0.45) --// 0.3 - 0.6
 	console:execute("r2_visor_refl_control "..bool_number)
 	console:execute("r2_visor_refl_intensity "..visor_refl_intens)	
 	console:execute("r2_visor_refl_radius "..visor_refl_radius)
 	--//raindrops
 	local visor_rain_drops = read_if_exists(sys_ini, "bool", sect, "visor_rain_drops", false)
 	bool_number = visor_rain_drops and 1 or 0
-	local visor_rain_drops_intens = read_if_exists(sys_ini, "float", sect, "visor_rain_drops_intens", 0.3) * 0.0001 --// 0 - 0.0001
-	local visor_rain_drops_speed = read_if_exists(sys_ini, "float", sect, "visor_rain_drops_speed", 1.25) --/ 5 - 0.8
+	local visor_rain_drops_intens = read_if_exists(sys_ini, "float", sect, "visor_rain_drops_intens", 0.2) * 0.0001 --// 0 - 0.0001
+	local visor_rain_drops_speed = read_if_exists(sys_ini, "float", sect, "visor_rain_drops_speed", 1) --/ 5 - 0.8
 	console:execute("r2_rain_drops_control "..bool_number)
 	console:execute("r2_rain_drops_intensity "..visor_rain_drops_intens)	
 	console:execute("r2_rain_drops_speed "..visor_rain_drops_speed)

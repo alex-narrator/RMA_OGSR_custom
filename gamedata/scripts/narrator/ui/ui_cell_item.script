@@ -178,6 +178,16 @@ function UICellItem:InitControls(cell_pos)
 			self.quest_item_icon:SetLightAnim("ui_too_slow_blinking", true, true, false, true)
 		end
 	end
+	--//side quest item marker
+	if task_manager.item_for_quest(sect) then
+		local icon_sect = read_if_exists(sys_ini, "string", sect, "side_quest_icon_sect", "side_quest_icon")
+		if icon_sect then
+			local offset_type = read_if_exists(sys_ini, "string", sect, "side_quest_icon_sect", "right_top")
+			local scale = read_if_exists(sys_ini, "float", sect, "side_quest_icon_scale", 1)
+			self.side_quest_item_icon = self:CreateAttachedIcon(icon_sect, offset_type, scale)
+			self.side_quest_item_icon:SetLightAnim("ui_too_slow_blinking", true, true, false, true)
+		end
+	end	
 	--//item condition
 	if get_script_option_value("inv_item_condition") then
 		self.condition_progess_bar = xml:InitProgressBar("condition_progess_bar", self.icon)
@@ -884,6 +894,16 @@ function UICellItemSimple:InitControls()
 			self.quest_item_icon:SetLightAnim("ui_too_slow_blinking", true, true, false, true)
 		end
 	end
+	--//side quest item marker
+	if task_manager.item_for_quest(sect) then
+		local icon_sect = read_if_exists(sys_ini, "string", sect, "side_quest_icon_sect", "side_quest_icon")
+		if icon_sect then
+			local offset_type = read_if_exists(sys_ini, "string", sect, "side_quest_icon_sect", "right_top")
+			local scale = read_if_exists(sys_ini, "float", sect, "side_quest_icon_scale", 1)
+			self.side_quest_item_icon = self:CreateAttachedIcon(icon_sect, offset_type, scale)
+			self.side_quest_item_icon:SetLightAnim("ui_too_slow_blinking", true, true, false, true)
+		end
+	end	
 	--//custom text from config
 	local text = read_if_exists(sys_ini, "string", sect, "icon_text", nil)
 	if text then

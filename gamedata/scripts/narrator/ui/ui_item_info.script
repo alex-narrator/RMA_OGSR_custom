@@ -218,7 +218,7 @@ function UIItemInfo:AttachCustomInfo()
 	local function create_divider(show)
 		if not show then
 		return end
-		local divider = self.xml:InitStatic("divider_line", self.descr_list)
+		local divider = self.xml:InitStatic("divider", self.descr_list)
 		divider:SetWidth(self.descr_list:GetDesiredChildWidth())		
 	end
 
@@ -279,6 +279,7 @@ function UIItemInfo:AttachCustomInfo()
 	if loot_spawn_box.is_spawn_loot_box(self.item) then
 		create_divider(self:AttachLootSpawnBoxInfo())
 	end
+	create_divider(self:AttachQuestTargetInfo())
 end
 
 function UIItemInfo:AttachHeader(tbl, text, params_list)
@@ -1236,4 +1237,20 @@ function UIItemInfo:AttachLootSpawnBoxInfo()
 	end
 	params_list:SetHeight(params_list:GetPadSize().y)
 	return true
+end
+
+-------------------------------------------------QUEST TARGET INFO-----------------------------------------------------------------------------------------------------------------------
+function UIItemInfo:AttachQuestTargetInfo()
+	local sect = self.item:section()
+	local quest_name = task_manager.item_for_quest(sect) or read_if_exists(sys_ini, "string", sect, "item_for_quest", nil)
+	if quest_name then
+		local item_for_quest = self.xml:InitStatic("item_for_quest", self.descr_list)
+		item_for_quest:SetWidth(self.descr_list:GetDesiredChildWidth())
+		local text = string.format("%s:\\n%s", game.translate_string("st_item_for_quest"), game.translate_string(quest_name))
+		item_for_quest:SetTextComplexMode(true)
+		item_for_quest:SetText(text)
+		item_for_quest:AdjustHeightToText()
+		local info_icon = self.xml:InitStatic("item_for_quest:info_icon", item_for_quest)
+	end
+	return not not quest_name
 end

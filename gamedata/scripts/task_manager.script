@@ -1425,3 +1425,15 @@ end
 function give_remote_task(task_id)
 	action_give_task(actor, nil, nil, task_info[task_id].yes_phrase_id)
 end
+
+function item_for_quest(sect)
+	for k,v in pairs(active_task_by_type) do
+		local ti = task_info[v]
+		if ti and ti.target then
+			if ti.target == sect then
+				return ti.name
+			end
+		end
+	end
+	return false
+end

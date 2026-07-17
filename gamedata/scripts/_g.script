@@ -2931,10 +2931,10 @@ end
 function actor_can_see_item(obj, check_dist)
 	--log_news("check obj %s", obj:name())
 	local pos = device().cam_pos
-	local rq = level.ray_query(pos, obj:position():sub(pos):normalize(), check_dist, rq_target.rqtBoth, actor)
+	local rq = level.ray_query(pos, obj:center():sub(pos):normalize(), check_dist, rq_target.rqtBoth, actor)
 	local res = not not (rq.object and rq.object:id() == obj:id())
 	if not res then
-		rq = level.ray_query(pos, obj:center():sub(pos):normalize(), check_dist, rq_target.rqtBoth, actor)
+		rq = level.ray_query(pos, obj:position():sub(pos):normalize(), check_dist, rq_target.rqtBoth, actor)
 		res = not not (rq.object and rq.object:id() == obj:id())
 	end
 	--log_news("res %s", res)
