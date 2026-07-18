@@ -37,25 +37,43 @@ function tip_text(item)
 end
 
 function show_info(item)
-	local header = get_inv_name(item:section())..", "..game.translate_string("st_compatible_ammo_addon")..":"
-	local text = ""
+	local header = string.format("%s%s, %s:%s", "%c[UI_orange]", get_inv_name(item:section()), game.translate_string("st_compatible_ammo_addon"), "%c[default]")
+	local sect = item:section()
+	local text = header.." \\n \\n"
 	
-	local addon_str, addon_status
+	local function get_addon_str(i, sect)
+		local addon_type = addon_type[i]
+		if addon_type then
+			local addon_str = read_if_exists(sys_ini, "string", sect, addon_type.."_name", nil)
+			local addon_status = read_if_exists(sys_ini, "u32", sect, addon_type.."_status", 0)
+			if i > 7 then
+				addon_str = read_if_exists(sys_ini, "string", sect, addon_type.."_class", nil)
+				addon_status = addon_str and 2 or 0
+			end
+			if addon_str and addon_status == 2 then				
+				return addon_str
+			end		
+		end
+		return false
+	end
 	
 	for i,addon in pairs(addon_type) do
-		addon_str = read_if_exists(sys_ini, "string", item:section(), addon.."_name", nil)
-		addon_status = read_if_exists(sys_ini, "u32", item:section(), addon.."_status", 0)
-		if i > 8 then
-			addon_str = read_if_exists(sys_ini, "string", item:section(), addon.."_class", nil)
-			addon_status = addon_str and 2 or 0
-		end
-		if addon_str and addon_status == 2 then
+		local addon_str = get_addon_str(i, sect)
+		local addon_status = read_if_exists(sys_ini, "u32", sect, addon.."_status", 0)
+		if addon_str then
+			text = text..string.format("%s\\n", game.translate_string("st_"..addon.."_header_name"))
 			local addons = split_string(addon_str, ",")
 			for __,addon_sect in pairs(addons) do
 				text = text..string.format("%s %s\\n", game.translate_string("st_list_mark"), get_inv_name(addon_sect))
 			end
+			for _i=i+1, #addon_type do
+				if get_addon_str(_i, sect) then
+					text = text.." \\n"
+					break
+				end
+			end
 		end		
 	end
 	
-	ui_info_wnd.show_hide_wnd(text, header)
+	ui_floating_tip.UIFloatingTip(text, true, 200)
 end

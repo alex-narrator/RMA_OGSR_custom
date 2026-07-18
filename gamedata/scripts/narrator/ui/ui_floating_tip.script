@@ -1,0 +1,158 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+local OVERLAY_XML = "script_overlays\\ui_floating_tip.xml"
+
+------------------------------------------FLOATING TIP WINDOW-----------------------------------------------------------------------------------------------------------------
+
+class "UIFloatingTip" (CUIScriptWnd)
+function UIFloatingTip:__init(text, independent, custom_width) super()
+	self.owner = level.main_input_receiver()
+	self.independent = independent
+	self:InitControls(text, custom_width)
+	self:Subscribe()
+	self:SetShowTime()
+	self:SetAutoDelete(true)
+end
+
+function UIFloatingTip:__finalize()
+	--log_news("UIFloatingTip:__finalize()")
+end
+
+function UIFloatingTip:Subscribe()
+	if not self.subscribed then
+		self.subscribed = {
+			{signal = "on_tip_hide", self = self, fun = self.DetachWnd},
+		}
+		local sm = ogsr_signals.get_mgr()
+		for _, s in ipairs( self.subscribed ) do
+			sm:subscribe( s )
+		end
+	end
+end
+
+function UIFloatingTip:Unsubscribe()
+	if self.subscribed then
+		local sm = ogsr_signals.get_mgr()
+		for _, s in ipairs( self.subscribed ) do
+			sm:unsubscribe( s )
+		end
+		self.subscribed = false
+	end
+end
+
+function UIFloatingTip:DetachWnd()
+	if self.independent then
+		level.start_stop_menu(self, false)
+	else	
+		self.owner:DetachChild(self)
+	end
+	self:ClearCallbacks()
+	self:Unsubscribe()
+end
+
+function UIFloatingTip:InitControls(text, custom_width)
+	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
+	if self.independent then
+		level.start_stop_menu(self, false)
+	else
+		self.owner:AttachChild(self)
+		self:Show(true)
+	end
+
+	self.xml = CScriptXmlInit()
+	self.xml:ParseFile(OVERLAY_XML)
+	
+	self.background_contrast = self.xml:InitStatic("background_contrast", self)
+
+	local root = "background_frame"
+	self.background_frame = self.xml:InitFrame(root, self)
+	if custom_width then
+		self.background_frame:SetWidth(custom_width)
+	end
+	
+	self.xml:InitAutoStaticGroup("w:"..root..":auto_static", self.background_frame)
+	
+	local tmp_tbl, def_font, def_color = nil, "letterica16", "255, 255, 255, 255"
+	
+	tmp_tbl = split_string(self.xml:ReadAttrib(root, "offset", "0,0"), ",")
+	self.background_frame.offset = {x = tmp_tbl[1], y = tmp_tbl[2]}
+	
+	local horz_indent = self.xml:ReadAttrib(root, "horz_indent", 0)
+	local vert_indent = self.xml:ReadAttrib(root, "vert_indent", 0)	
+	
+	self.base_height = self.background_frame:GetHeight()
+	
+	root = root..":tip"
+	self.tip = self.xml:InitStatic(root, self.background_frame)
+	
+	self.tip:SetWidth(self.background_frame:GetWidth() - horz_indent * 2)
+	self.tip:SetText(text)
+	self.tip:AdjustHeightToText()
+	local new_height = self.tip:GetHeight() + 2 * vert_indent
+	if new_height > self.base_height then
+		self.background_frame:SetHeight(new_height)
+	end
+	self.background_contrast:SetHeight(new_height)
+	self.background_contrast:SetWidth(self.background_frame:GetWidth())
+	
+	local offset = ui_inv_utils.GetOffset("center", self.tip, self.background_frame)
+	self.tip:SetWndPos(offset.x, offset.y)
+	
+	self:ShowTip(false)
+	
+	if self.independent then
+		local offset = ui_inv_utils.GetOffset("center", self.background_frame, self)
+		self.background_frame:SetWndPos(offset.x, offset.y)
+		self.background_contrast:SetWndPos(offset.x, offset.y)
+	end	
+end
+
+
+function UIFloatingTip:SetShowTime()
+	if self.independent then
+		self:ShowTip(true)
+	else
+		self.show_time = time_global() + get_script_option_value("floating_show_delay") * 1000
+	end
+end
+
+function UIFloatingTip:ShowTip(show)
+	self.background_frame:Show(show)
+	self.background_contrast:Show(show)
+end
+
+function UIFloatingTip:UpdateWndPos()
+	if not self.background_frame:IsShown() or self.independent then
+	return end
+	
+	local pos = level.get_cursor_pos()
+	pos.x = pos.x + self.background_frame.offset.x
+	pos.y = pos.y + self.background_frame.offset.y
+	local wnd_size = {x = self.background_frame:GetWidth(), y = self.background_frame:GetHeight()}
+	local delta = {x = pos.x + wnd_size.x - UI_BASE_WIDTH, y = pos.y + wnd_size.y - UI_BASE_HEIGHT}
+    if delta.x > 0 then
+        pos.x = pos.x - delta.x
+	end		
+    if delta.y > 0 then
+        pos.y = pos.y - delta.y
+	end		
+	self.background_frame:SetWndPos(pos.x, pos.y)
+	self.background_contrast:SetWndPos(pos.x, pos.y)
+end
+
+function UIFloatingTip:Update()
+	CUIScriptWnd.Update(self)
+	if self.show_time and time_global() >= self.show_time then
+		self:ShowTip(true)
+		self.show_time = nil
+	end
+	self:UpdateWndPos()
+end
+
+function UIFloatingTip:OnKeyboard(dik, keyboard_action)
+	CUIScriptWnd.OnKeyboard(self, dik, keyboard_action)
+	if keyboard_action == ui_events.WINDOW_KEY_PRESSED then
+		self:DetachWnd()
+		return true
+	end
+	return false
+end

@@ -871,40 +871,72 @@ function UIItemInfo:AttachWpnAddons()
 	if get_script_option_value("wpn_addon_ammo_wnd_separate") then
 	return end
 	
+	local sect = self.item:section()
+	
 	addons_st = {}
 
 	local params_list = self.xml:InitScrollView("params_list", self.descr_list)
 	self:AttachHeader(addons_st, "st_compatible_addon", params_list)
 	
-	local addon_text_st = nil
-
+	local function add_white_space()
+		local white_space = CUIStatic()
+		white_space:SetText(" ")
+		white_space:AdjustHeightToText()
+		white_space:SetWidth(params_list:GetDesiredChildWidth())
+		params_list:AddWindow(white_space)
+	end
+	
+	local function get_addon_str(i, sect)
+		local addon_type = addon_type[i]
+		if addon_type then
+			local addon_str = read_if_exists(sys_ini, "string", sect, addon_type.."_name", nil)
+			local addon_status = read_if_exists(sys_ini, "u32", sect, addon_type.."_status", 0)
+			if i > 7 then
+				addon_str = read_if_exists(sys_ini, "string", sect, addon_type.."_class", nil)
+				addon_status = addon_str and 2 or 0
+			end
+			if addon_str and addon_status == 2 then				
+				return addon_str
+			end		
+		end
+		return false
+	end	
+	
+	add_white_space()
+	
 	local show = false
-	local addons_txt = ""
-	local addon_str = nil
-	local addon_status = 0
 	local addons = {}
 
 	for i,addon in pairs(addon_type) do
-		addon_str = read_if_exists(sys_ini, "string", self.item:section(), addon.."_name", nil)
-		addon_status = read_if_exists(sys_ini, "u32", self.item:section(), addon.."_status", 0)
-		if i > 8 then
-			addon_str = read_if_exists(sys_ini, "string", self.item:section(), addon.."_class", nil)
-			addon_status = addon_str and 2 or 0
-		end
-		if addon_str and addon_status == 2 then
+		local addon_str = get_addon_str(i, sect)
+		if addon_str then
+			local _st = CUIStatic()
+			_st:SetWidth(params_list:GetDesiredChildWidth())
+			local addons_txt = string.format("%s", game.translate_string("st_"..addon.."_header_name"))
+			_st:SetText(addons_txt)
+			_st:SetTextComplexMode(true)
+			_st:AdjustHeightToText()
+			params_list:AddWindow(_st)
+			addons_st[addon.."_header"] = _st
+			
 			addons = split_string(addon_str, ",")
 			for __,addon_sect in pairs(addons) do
 				addons_st[addon_sect] = CUIStatic()
 				local _st = addons_st[addon_sect]
 				_st:SetWidth(params_list:GetDesiredChildWidth())
-				addons_txt = string.format("%s %s", game.translate_string("st_list_mark"), get_inv_name(addon_sect))
+				local addons_txt = string.format("%s %s", game.translate_string("st_list_mark"), get_inv_name(addon_sect))
 				_st:SetText(addons_txt)
 				_st:SetTextComplexMode(true)
-				--_st:SetTextColor(params_list.text_color)
-				--_st:SetFont(GetFontCustom(params_list.font))
 				_st:AdjustHeightToText()
 				params_list:AddWindow(_st)
 				show = true
+			end
+			
+			for _i=i+1, #addon_type do
+				if get_addon_str(_i, sect) then
+					add_white_space()
+					break
+				end
 			end
 		end
 	end

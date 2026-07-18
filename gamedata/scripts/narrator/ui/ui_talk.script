@@ -1,6 +1,7 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 local overlay = nil
 local OVERLAY_XML = "script_overlays\\ui_talk_overlay.xml"
+local sm = ogsr_signals.get_mgr()
 
 function attach(sm)
 	sm:subscribe({signal = "on_spawn",   fun = this.create_window})
@@ -85,14 +86,30 @@ function TalkOverlay:InitControls()
 	self.char_info_back = xml:InitStatic("char_info_back_talk", self)
 	self.char_info_icon = xml:InitStatic("char_info_icon_talk", self.char_info_back)
 	self.char_info_icon_comm = xml:InitStatic("char_info_icon_comm_talk", self.char_info_back)
+	name = "char_info_icon_comm"
+	self:Register(self.char_info_icon_comm, name)	
+	self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnCommIconFocus(true) end, self)
+	self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnCommIconFocusLost() end, self)
 	self.char_info_icon_rank = xml:InitStatic("char_info_icon_rank_talk", self.char_info_back)
+	name = "char_info_icon_rank"
+	self:Register(self.char_info_icon_rank, name)	
+	self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnRankIconFocus(true) end, self)
+	self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnRankIconFocusLost() end, self)	
 	self.char_info_text = xml:InitStatic("char_info_text_talk", self.char_info_back)
 	
 	--//character info NPC
 	self.char_info_back_npc = xml:InitStatic("char_info_back_npc_talk", self)
 	self.char_info_icon_npc = xml:InitStatic("char_info_icon_npc_talk", self.char_info_back_npc)
 	self.char_info_icon_comm_npc = xml:InitStatic("char_info_icon_comm_npc_talk", self.char_info_back_npc)
+	name = "char_info_icon_comm_npc"
+	self:Register(self.char_info_icon_comm_npc, name)
+	self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnCommIconFocus(false) end, self)
+	self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnCommIconFocusLost() end, self)
 	self.char_info_icon_rank_npc = xml:InitStatic("char_info_icon_rank_npc_talk", self.char_info_back_npc)
+	name = "char_info_icon_rank_npc"
+	self:Register(self.char_info_icon_rank_npc, name)
+	self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnRankIconFocus(false) end, self)
+	self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnRankIconFocusLost() end, self)
 	self.char_info_text_npc = xml:InitStatic("char_info_text_npc_talk", self.char_info_back_npc)
 	
 	--//to trade button
@@ -194,6 +211,37 @@ end
 function TalkOverlay:ToRepair()
 	ui_actor_menu.ShowHideMenu("repair", level.get_second_talker())
 	self.owner:Show(false)	
+end
+
+function TalkOverlay:OnCommIconFocus(for_actor)
+	local obj = for_actor and actor or self.target
+	if not obj then
+	return end
+	local text = string.format("%s: %s", game.translate_string("ui_st_community"), game.translate_string(obj:character_community()))
+	self:SetTooltip(text, 100)
+end
+
+function TalkOverlay:OnCommIconFocusLost()
+	self:SetTooltip(nil)
+end
+
+function TalkOverlay:OnRankIconFocus(for_actor)
+	local obj = for_actor and actor or self.target
+	if not obj then
+	return end
+	local text = string.format("%s: %s", game.translate_string("ui_st_rank"), game.translate_string(ranks.get_obj_rank_name(obj)))
+	self:SetTooltip(text, 70)
+end
+
+function TalkOverlay:OnRankIconFocusLost()
+	self:SetTooltip(nil)
+end
+
+function TalkOverlay:SetTooltip(text, custom_width)
+	if not text then
+		sm:call("on_tip_hide")
+	return end
+	ui_floating_tip.UIFloatingTip(text, false, custom_width)
 end
 
 function TalkOverlay:Update()

@@ -8,7 +8,6 @@
 
 _G.actor_menu = nil
 local OVERLAY_XML = "script_overlays\\ui_actor_menu_overlay.xml"
-
 local sm = ogsr_signals.get_mgr()
 
 function attach(sm)
@@ -379,19 +378,6 @@ function ActorMenuOverlay:InitControls()
 		--self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnShowButtonFocusReceived(k) end)
 		--self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, function() self:OnShowButtonFocusLost(k) end)	
 	end
-	
-	--//floating tooltip
-	root = "tooltip_frame"
-	self.tooltip_frame = xml:InitFrame(root, self)
-	self.tooltip_frame:Show(false)
-	self.tooltip = xml:InitStatic(root..":tooltip", self.tooltip_frame)
-	local tmp_tbl = split_string(xml:ReadAttrib(root, "offset", "0,0"), ",")
-	self.tooltip_frame.offset = {x = tmp_tbl[1], y = tmp_tbl[2]}
-	self.tooltip_frame_base_height = self.tooltip_frame:GetHeight()
-	self.tooltip_frame.background_contrast = xml:InitStatic(root..":background_contrast", self)
-	self.tooltip_frame.background_contrast:SetWidth(self.tooltip_frame:GetWidth())
-	self.tooltip_frame.background_contrast:SetHeight(self.tooltip_frame:GetHeight())
-	self.tooltip_frame.background_contrast:Show(false)	
 	
 	--//use anim progress
 	root = "use_anim"
@@ -822,7 +808,7 @@ function ActorMenuOverlay:ConditionOnFocusReceived(cond_name)
 		cond_text = game.translate_string(string.format("%s%s%s%s%s","st_", cond_name, self.conditions[cond_name].condition(), pain, "_hint_text"))
 		--log3("~hint string: %s", cond_text)
 	end
-	local tip_text = string.format("%s\\n---------------------------------\\n%s\\n---------------------------------\\n%s", cond_descr, cond_restore_text, cond_text)	
+	local tip_text = string.format("%s\\n \\n%s\\n \\n%s", cond_descr, cond_restore_text, cond_text)	
 	self:SetTooltip(tip_text)
 end
 
@@ -839,7 +825,7 @@ function ActorMenuOverlay:OnWarningIconFocus(name, icon)
 		local pain_eff = body_health.get_pain_effect()
 		local pain = pain_eff == 0 and "" or pain_eff > 0 and "_more_pain" or "_less_pain"
 		local cond_text = game.translate_string(string.format("%s%s%s%s%s%s","st_", name, "_", condition, pain, "_hint_text"))		
-		local tip_text = string.format("%s\\n---------------------------------\\n%s", cond_descr, cond_text)
+		local tip_text = string.format("%s\\n \\n%s", cond_descr, cond_text)
 		self:SetTooltip(tip_text)		
 	end
 end
@@ -852,7 +838,7 @@ function ActorMenuOverlay:LoadoutSlotOnFocusReceived(slot_name)
 	self.loadout[slot_name].static:SetTextColor(self.loadout_color_equiped)
 	local type_descr = game.translate_string(slot_name)
 	local type_text = game.translate_string(string.format("%s%s%s","st_", slot_name, "_hint_text"))	
-	local tip_text = string.format("%s\\n---------------------------------\\n%s", type_descr, type_text)	
+	local tip_text = string.format("%s\\n \\n%s", type_descr, type_text)	
 	self:SetTooltip(tip_text)
 end
 
@@ -861,39 +847,11 @@ function ActorMenuOverlay:LoadoutSlotOnFocusLost(slot_name)
 	self:SetTooltip(nil)
 end
 
-function ActorMenuOverlay:SetTooltip(text)
-	self.tooltip_frame:Show(not not text)
-	self.tooltip_frame:SetHeight(self.tooltip_frame_base_height)
-	self.tooltip:SetHeight(0)
-	if text then
-		self.tooltip:SetText(text)
-		self.tooltip:AdjustHeightToText()
-		self:BringToTop(self.tooltip_frame)
-		if self.tooltip:GetHeight() > self.tooltip_frame_base_height - 10 then
-			self.tooltip_frame:SetHeight(self.tooltip:GetHeight() + 15)
-		end
-	end
-	self.tooltip_frame.background_contrast:SetHeight(self.tooltip_frame:GetHeight())
-	self.tooltip_frame.background_contrast:Show(not not text)
-end
-
-function ActorMenuOverlay:UpdateTooltip()
-	if not self.tooltip_frame:IsShown() then
+function ActorMenuOverlay:SetTooltip(text, custom_width)
+	if not text then
+		sm:call("on_tip_hide")
 	return end
-	
-	local pos = vector2():set(self:GetMousePosX(), self:GetMousePosY())
-	pos.x = pos.x + self.tooltip_frame.offset.x
-	pos.y = pos.y + self.tooltip_frame.offset.y
-	local wnd_size = {x = self.tooltip_frame:GetWidth(), y = self.tooltip_frame:GetHeight()}
-	local delta = {x = pos.x + wnd_size.x - UI_BASE_WIDTH, y = pos.y + wnd_size.y - UI_BASE_HEIGHT}
-    if delta.x > 0 then
-        pos.x = pos.x - delta.x
-	end		
-    if delta.y > 0 then
-        pos.y = pos.y - delta.y
-	end		
-	self.tooltip_frame:SetWndPos(pos.x, pos.y)
-	self.tooltip_frame.background_contrast:SetWndPos(pos.x, pos.y)
+	ui_floating_tip.UIFloatingTip(text, false, custom_width)
 end
 
 function ActorMenuOverlay:UpdateConditions()
@@ -1058,7 +1016,6 @@ function ActorMenuOverlay:Update()
 	self:UpdateEffectsInfo()
 	self:UpdateWeightText()
 	self:UpdateDateTimeText()
-	self:UpdateTooltip()
 	self:UpdateDragItem()
 	self:UpdateInvTip()
 	
@@ -1226,7 +1183,7 @@ function ActorMenuOverlay:OnCommIconFocus(for_actor)
 	if not obj then
 	return end
 	local text = string.format("%s: %s", game.translate_string("ui_st_community"), game.translate_string(obj:character_community()))
-	self:SetTooltip(text)
+	self:SetTooltip(text, 100)
 end
 
 function ActorMenuOverlay:OnCommIconFocusLost()
@@ -1238,7 +1195,7 @@ function ActorMenuOverlay:OnRankIconFocus(for_actor)
 	if not obj then
 	return end
 	local text = string.format("%s: %s", game.translate_string("ui_st_rank"), game.translate_string(ranks.get_obj_rank_name(obj)))
-	self:SetTooltip(text)
+	self:SetTooltip(text, 70)
 end
 
 function ActorMenuOverlay:OnRankIconFocusLost()
