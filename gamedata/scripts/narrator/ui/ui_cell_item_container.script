@@ -463,7 +463,7 @@ function UICellItemContainer:GetCellItems()
 end
 
 function UICellItemContainer:HoldScroll()
-	self.saved_scroll_pos = self.scroll:GetCurrentScrollPos()
+	self.saved_scroll_pos = self.scroll:GetCurrentScrollPos() or 0
 end
 
 function UICellItemContainer:ReleaseScroll()
