@@ -10,6 +10,10 @@ _G.actor_menu = nil
 local OVERLAY_XML = "script_overlays\\ui_actor_menu_overlay.xml"
 local sm = ogsr_signals.get_mgr()
 
+local green = GetARGB(255, 0, 255, 0)
+local red = GetARGB(255, 255, 0, 0)
+local orange = GetARGB(255, 238, 153, 26)
+
 function attach(sm)
 	sm:subscribe({signal = "on_spawn",   			fun = this.create_window})
 	sm:subscribe({signal = "on_destroy",   			fun = this.destroy_window})
@@ -282,36 +286,42 @@ function ActorMenuOverlay:InitControls()
 	self.effects_info = xml:InitStatic(name, self)
 	self.effects_info.scroll_view = xml:InitScrollView(name..":scroll_view", self.effects_info)
 	self.effects_info.effects = {
-		{param = "health_restore_speed", 		name = "ui_inv_health_boost"},
-		{param = "power_restore_speed", 		name = "ui_inv_power"},
-		{param = "max_power_restore_speed", 	name = "ui_inv_max_power"},
-		{param = "satiety_restore_speed", 		name = "ui_inv_satiety"},
-		{param = "radiation_restore_speed", 	name = "ui_inv_radiation"},
-		{param = "psy_health_restore_speed", 	name = "ui_inv_psy_health"},
-		{param = "alcohol_restore_speed", 		name = "ui_inv_alcohol"},
-		{param = "wounds_heal_speed", 			name = "ui_inv_wounds_heal"},
+		{param = "health_restore_speed", 		name = "ui_inv_health_boost", 				texture = "ui_hud_icon_health_warning"},
+		{param = "power_restore_speed", 		name = "ui_inv_power", 						texture = "ui_hud_icon_power"},
+		{param = "max_power_restore_speed", 	name = "ui_inv_max_power", 					texture = "ui_hud_icon_power"},
+		{param = "satiety_restore_speed", 		name = "ui_inv_satiety", 					texture = "ui_hud_icon_eat"},
+		{param = "radiation_restore_speed", 	name = "ui_inv_radiation", 					texture = "ui_hud_icon_radiation"},
+		{param = "psy_health_restore_speed", 	name = "ui_inv_psy_health", 				texture = "ui_hud_icon_psycho"},
+		{param = "alcohol_restore_speed", 		name = "ui_inv_alcohol", 					texture = "ui_hud_icon_alcohol"},
+		{param = "wounds_heal_speed", 			name = "ui_inv_wounds_heal", 				texture = "ui_hud_icon_drop"},
 		--//
-		{param = "additional_sprint", 			name = "ui_inv_sprint"},
-		{param = "additional_jump", 			name = "ui_inv_jump"},
-		{param = "additional_weight", 			name = "ui_inv_weight"},
+		{param = "additional_sprint", 			name = "ui_inv_sprint", 					texture = "ui_hud_icon_sprint"},
+		{param = "additional_jump", 			name = "ui_inv_jump", 						texture = "ui_hud_icon_jump"},
+		{param = "additional_weight", 			name = "ui_inv_weight", 					texture = "ui_hud_icon_overweight"},
 		--//
-		{param = "burn_immunity", 				name = "ui_inv_burn_protection"},
-		{param = "shock_immunity", 				name = "ui_inv_shock_protection"},
-		{param = "strike_immunity", 			name = "ui_inv_strike_protection"},
-		{param = "wound_immunity", 				name = "ui_inv_wound_protection"},
-		{param = "radiation_immunity", 			name = "ui_inv_radiation_protection"},
-		{param = "telepatic_immunity", 			name = "ui_inv_telepatic_protection"},
-		{param = "chemical_burn_immunity", 		name = "ui_inv_chemical_burn_protection"},
-		{param = "explosion_immunity", 			name = "ui_inv_explosion_protection"},
-		{param = "fire_wound_immunity", 		name = "ui_inv_fire_wound_protection"},
+		{param = "burn_immunity", 				name = "ui_inv_burn_protection", 			texture = "ui_hud_icon_burn_protection"},
+		{param = "shock_immunity", 				name = "ui_inv_shock_protection", 			texture = "ui_hud_icon_shock_protection"},
+		{param = "strike_immunity", 			name = "ui_inv_strike_protection", 			texture = "ui_hud_icon_strike_protection"},
+		{param = "wound_immunity", 				name = "ui_inv_wound_protection", 			texture = "ui_hud_icon_wound_protection"},
+		{param = "radiation_immunity", 			name = "ui_inv_radiation_protection", 		texture = "ui_hud_icon_radiation_protection"},
+		{param = "telepatic_immunity", 			name = "ui_inv_telepatic_protection", 		texture = "ui_hud_icon_telepatic_protection"},
+		{param = "chemical_burn_immunity", 		name = "ui_inv_chemical_burn_protection", 	texture = "ui_hud_icon_chemical_burn_protection"},
+		{param = "explosion_immunity", 			name = "ui_inv_explosion_protection", 		texture = "ui_hud_icon_explosion_protection"},
+		{param = "fire_wound_immunity", 		name = "ui_inv_fire_wound_protection", 		texture = "ui_hud_icon_fire_wound_protection"},
 		--//
-		{param = "boost_somnolence", 			name = "ui_inv_somnolence"},
-		{param = "boost_pain", 					name = "ui_inv_painkiller"},
-		{param = "power_loss", 					name = "st_power_loss"},	
+		{param = "boost_somnolence", 			name = "ui_inv_somnolence", 				texture = "ui_hud_icon_somnolence"},
+		{param = "boost_pain", 					name = "ui_inv_painkiller", 				texture = "ui_hud_icon_pain"},
+		{param = "power_loss", 					name = "st_power_loss", 					texture = "ui_hud_icon_power_loss"},	
 	}
+	name = name..":static_item"
 	for k,v in pairs (self.effects_info.effects) do
-		v.static = xml:InitStatic(name..":static_item", self.effects_info.scroll_view)
+		v.static = xml:InitStatic(name, self.effects_info.scroll_view)
 		v.static:SetAutoDelete(false)
+		v.icon = xml:InitStatic(name..":icon", v.static)
+		v.icon:InitTexture(v.texture or "")
+		v.val = xml:InitStatic(name..":val", v.static)
+		v.val_boost = xml:InitStatic(name..":val_boost", v.static)
+		v.boost_time = xml:InitStatic(name..":boost_time", v.static)
 	end
 	
 	--// quick slots
@@ -965,31 +975,40 @@ function ActorMenuOverlay:UpdateEffectsInfo()
 		
 		if not math.fsimilar(val, 0) or not math.fsimilar(val_boost, 0) then
 				
-			local color = val > 0 and "%c[green]" or "%c[red]"
-			local color_boost = val_boost > 0 and "%c[green]" or "%c[red]"
+			local color = val > 0 and green or red--"%c[green]" or "%c[red]"
+			local color_boost = val_boost > 0 and green or red--"%c[green]" or "%c[red]"
+			local total_color = val + val_boost > 0 and green or red
 		
 			if plus_are_bad[t.param] then
-				color = val > 0 and "%c[red]" or "%c[green]"
-				color_boost = val_boost > 0 and "%c[red]" or "%c[green]"
+				color = val > 0 and red or green--"%c[red]" or "%c[green]"
+				color_boost = val_boost > 0 and red or green--"%c[red]" or "%c[green]"
+				total_color = val + val_boost > 0 and red or green
 			end
 		
 			local name = game.translate_string(t.name)
 			
-			local fmt
+			--local fmt
 			
-			if val ~= 0 and val_boost ~= 0 then
-				fmt = "%s %s%+.1f%s %s%+.1f%s [%.f %s]"
-				text = string.format(fmt, name, color, val, sn, color_boost, val_boost, sn_boost, boost_time, sn_time)
-			elseif val ~= 0 then
-				fmt = "%s %s%+.1f%s"
-				text = string.format(fmt, name, color, val, sn)
-			elseif val_boost ~= 0 then
-				fmt = "%s %s%+.1f%s [%.f %s]"
-				text = string.format(fmt, name, color_boost, val_boost, sn_boost, boost_time, sn_time)
-			end
+			-- if val ~= 0 and val_boost ~= 0 then
+				-- fmt = "%s %s%+.1f%s %s%+.1f%s [%.f %s]"
+				-- text = string.format(fmt, name, color, val, sn, color_boost, val_boost, sn_boost, boost_time, sn_time)
+			-- elseif val ~= 0 then
+				-- fmt = "%s %s%+.1f%s"
+				-- text = string.format(fmt, name, color, val, sn)
+			-- elseif val_boost ~= 0 then
+				-- fmt = "%s %s%+.1f%s [%.f %s]"
+				-- text = string.format(fmt, name, color_boost, val_boost, sn_boost, boost_time, sn_time)
+			-- end
 		
-			t.static:SetText(text)
-			--t.static:AdjustHeightToText()
+			t.static:SetText(name)
+			t.val:SetText(val ~= 0 and string.format("%+.1f%s", val, sn) or "")
+			t.val:SetTextColor(color)
+			t.val_boost:SetText(val_boost ~= 0 and string.format("%+.1f%s", val_boost, sn_boost) or "")
+			t.val_boost:SetTextColor(color_boost)
+			t.boost_time:SetText(boost_time ~= 0 and string.format("[%.f %s]", boost_time, sn_time) or "")
+			t.boost_time:SetTextColor(color_boost)
+			t.icon:SetColor(total_color)
+			t.icon:SetColorA(200)
 			self.effects_info.scroll_view:AddWindow(t.static)
 		end
 	end
@@ -1135,20 +1154,15 @@ end
 
 function ActorMenuOverlay:OnNPCIconUpdate()
 	
-	--self.char_info_icon_npc:Show(self.target)
-	self.char_info_icon_comm_npc:Show(self.target and not self.target:get_inventory_box())
-	self.char_info_icon_rank_npc:Show(self.target and not self.target:get_inventory_box())
+	local show = self.target and not self.target:get_inventory_box()
+	self.char_info_icon_npc:Show(show)
+	self.char_info_icon_comm_npc:Show(show)
+	self.char_info_icon_rank_npc:Show(show)
 
-	if not self.target then
-		self.char_info_icon_npc:InitTexture("ui_icon_backpack")
-		return	
-	elseif self.target and self.target:get_inventory_box() then
-		self.char_info_icon_npc:InitTexture("ui_icon_chest")
-		return
-	end
+	if not show then
+	return end
 	
-	local npc_icon = self.target:get_character_icon()
-	local icon = npc_icon and npc_icon or read_if_exists(sys_ini, "string", self.target:section(), "icon", nil)
+	local icon = self.target:get_character_icon() or read_if_exists(sys_ini, "string", self.target:section(), "icon", nil)
 	self.char_info_icon_npc:Show(icon)
 	if not icon then
 	return end
@@ -1195,7 +1209,7 @@ function ActorMenuOverlay:OnRankIconFocus(for_actor)
 	if not obj then
 	return end
 	local text = string.format("%s: %s", game.translate_string("ui_st_rank"), game.translate_string(ranks.get_obj_rank_name(obj)))
-	self:SetTooltip(text, 70)
+	self:SetTooltip(text, 100)
 end
 
 function ActorMenuOverlay:OnRankIconFocusLost()
@@ -1291,12 +1305,7 @@ function ActorMenuOverlay:PerformTrade()
 	self:UpdatePrices()
 end
 
--- function ActorMenuOverlay:PerformRepair()
--- end
-
 function ActorMenuOverlay:SwitchToTalk()
-	--actor:switch_to_talk()
-	--self:Exit()
 	ShowHideMenu()
 	level.get_talk_wnd():Show(true)
 end
@@ -2107,8 +2116,6 @@ function ActorMenuOverlay:PerformRepair()
 	local cost = is_hack and self.repair:GetHackCost(item) or self.repair:GetRepairCost(item)
 	
 	dialogs.relocate_money(self.target, cost, "out")
-	--item:set_condition(1)
-	--cell_item:ForceUpdate()
 	
 	if not is_hack then
 		item:set_condition(1)

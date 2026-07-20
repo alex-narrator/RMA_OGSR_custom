@@ -1,0 +1,130 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+local DEBUG_WARNING_SHOW = false
+
+local sm = ogsr_signals.get_mgr()
+
+local green = GetARGB(255, 0, 255, 0)
+local red = GetARGB(255, 255, 0, 0)
+local orange = GetARGB(255, 238, 153, 26)
+
+local plus_are_bad = {
+	["radiation_restore_speed"] = true,
+	["alcohol_restore_speed"] = true,
+	["boost_somnolence"] = true,
+	["boost_pain"] = true,
+	["power_loss"] = true,
+}
+
+class "UIBoosterIcons" (CUIScriptWnd)
+
+function UIBoosterIcons:__init(xml, owner) super()
+	self.owner = owner
+	self.xml = xml
+	self:InitWnd()
+end
+
+function UIBoosterIcons:__finalize()
+	--log_news("UIBoosterIcons:__finalize()")
+end
+
+function UIBoosterIcons:DetachWnd()
+	self:ClearCallbacks()
+end
+
+function UIBoosterIcons:InitWnd(xml)
+	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
+	self.owner:AttachChild(self)
+	self:Show(true)
+	
+	local xml = self.xml
+	local root = "booster_icons"
+	
+	self.offset = xml:ReadAttrib(root, "offset", "center")
+	self.offset_indent = vector2():set(
+			xml:ReadAttribFlt(root, "offset_indent_x", 0),
+			xml:ReadAttribFlt(root, "offset_indent_y", 0)
+		)
+	
+	self.horz = xml:ReadAttribInt(root, "horz", 0) > 0 and true or false
+	
+	self.booster_icons = xml:InitStatic(root, self)
+	self.booster_icons.effects = {
+		{param = "health_restore_speed", 		name = "ui_inv_health_boost", 				texture = "ui_hud_icon_health_warning"},
+		{param = "power_restore_speed", 		name = "ui_inv_power", 						texture = "ui_hud_icon_power"},
+		{param = "max_power_restore_speed", 	name = "ui_inv_max_power", 					texture = "ui_hud_icon_power"},
+		{param = "satiety_restore_speed", 		name = "ui_inv_satiety", 					texture = "ui_hud_icon_eat"},
+		{param = "radiation_restore_speed", 	name = "ui_inv_radiation", 					texture = "ui_hud_icon_radiation"},
+		{param = "psy_health_restore_speed", 	name = "ui_inv_psy_health", 				texture = "ui_hud_icon_psycho"},
+		{param = "alcohol_restore_speed", 		name = "ui_inv_alcohol", 					texture = "ui_hud_icon_alcohol"},
+		{param = "wounds_heal_speed", 			name = "ui_inv_wounds_heal", 				texture = "ui_hud_icon_drop"},
+		--//
+		{param = "additional_sprint", 			name = "ui_inv_sprint", 					texture = "ui_hud_icon_sprint"},
+		{param = "additional_jump", 			name = "ui_inv_jump", 						texture = "ui_hud_icon_jump"},
+		{param = "additional_weight", 			name = "ui_inv_weight", 					texture = "ui_hud_icon_overweight"},
+		--//
+		{param = "burn_immunity", 				name = "ui_inv_burn_protection", 			texture = "ui_hud_icon_burn_protection"},
+		{param = "shock_immunity", 				name = "ui_inv_shock_protection", 			texture = "ui_hud_icon_shock_protection"},
+		{param = "strike_immunity", 			name = "ui_inv_strike_protection", 			texture = "ui_hud_icon_strike_protection"},
+		{param = "wound_immunity", 				name = "ui_inv_wound_protection", 			texture = "ui_hud_icon_wound_protection"},
+		{param = "radiation_immunity", 			name = "ui_inv_radiation_protection", 		texture = "ui_hud_icon_radiation_protection"},
+		{param = "telepatic_immunity", 			name = "ui_inv_telepatic_protection", 		texture = "ui_hud_icon_telepatic_protection"},
+		{param = "chemical_burn_immunity", 		name = "ui_inv_chemical_burn_protection", 	texture = "ui_hud_icon_chemical_burn_protection"},
+		{param = "explosion_immunity", 			name = "ui_inv_explosion_protection", 		texture = "ui_hud_icon_explosion_protection"},
+		{param = "fire_wound_immunity", 		name = "ui_inv_fire_wound_protection", 		texture = "ui_hud_icon_fire_wound_protection"},
+		--//
+		{param = "boost_somnolence", 			name = "ui_inv_somnolence", 				texture = "ui_hud_icon_somnolence"},
+		{param = "boost_pain", 					name = "ui_inv_painkiller", 				texture = "ui_hud_icon_pain"},
+		-- {param = "power_loss", 					name = "st_power_loss", 					texture = "ui_hud_icon_power_loss"},
+	}
+	root = root..":icon"
+	for k,v in pairs (self.booster_icons.effects) do
+		v.icon = xml:InitStatic(root, self.booster_icons)
+		v.icon:SetAutoDelete(false)
+		v.icon:InitTexture(v.texture or "")
+	end	
+end
+
+function UIBoosterIcons:Update()
+	CUIScriptWnd.Update(self)
+	self.booster_icons:DetachAll()
+	local active_boosters = {}
+	local sn_time = game.translate_string("st_time_minute")
+	for _i=1, table.size(self.booster_icons.effects) do
+		local i = _i-1
+		local t = self.booster_icons.effects[_i]
+		local val_boost = boosters.get_boosted_params(_i)
+		local boost_time = boosters.get_boosted_time(_i)
+		if not math.fsimilar(val_boost, 0) then
+			local color_boost = val_boost > 0 and green or red
+			if plus_are_bad[t.param] then
+				color_boost = val_boost > 0 and red or green
+			end
+			table.insert(active_boosters, {_i, boost_time, color_boost})
+		end
+	end
+	table.sort(active_boosters, function(a, b) return a[2] < b[2] end)
+	--log_news("active_boosters %s", active_boosters)
+	local pos = vector2()
+	local size = vector2()
+	for k, v in pairs(active_boosters) do
+		local icon = self.booster_icons.effects[v[1]].icon
+		self.booster_icons:AttachChild(icon)
+		icon:SetText(string.format("%.f %s", v[2], sn_time))
+		icon:SetColor(v[3])
+		icon:SetWndPos(pos.x, pos.y)
+		if self.horz then
+			pos.x = pos.x + icon:GetWidth()
+			size.x = pos.x
+			size.y = icon:GetHeight()
+		else
+			pos.y = pos.y + icon:GetHeight()
+			size.x = icon:GetWidth()
+			size.y = pos.y
+		end
+	end
+	self.booster_icons:SetWidth(size.x)
+	self.booster_icons:SetHeight(size.y)
+	local offset = ui_inv_utils.GetOffset(self.offset, self.booster_icons, self.owner)
+	offset:add(self.offset_indent)
+	self.booster_icons:SetWndPos(offset.x, offset.y)
+end

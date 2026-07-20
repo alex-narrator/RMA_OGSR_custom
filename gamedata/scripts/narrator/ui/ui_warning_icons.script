@@ -10,7 +10,9 @@ local sm = ogsr_signals.get_mgr()
 class "WarningIcons" (CUIScriptWnd)
 
 function WarningIcons:__init(xml, owner) super()
-	self:InitWnd(xml, owner)
+	self.owner = owner
+	self.xml = xml
+	self:InitWnd()
 	self:SetAutoDelete(true)
 end
 
@@ -22,13 +24,23 @@ function WarningIcons:DetachWnd()
 	self:ClearCallbacks()
 end
 
-function WarningIcons:InitWnd(xml, owner)
+function WarningIcons:InitWnd()
 	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
-	owner:AttachChild(self)
+	self.owner:AttachChild(self)
 	self:Show(true)
 	
-	self.warning_icons_back = xml:InitStatic("warning_icons_back", self)
-	self.warning_icons_horz = (xml:ReadAttribInt("warning_icons_back", "horz", 0) > 0) and true or false
+	local xml = self.xml
+	
+	local root = "warning_icons"
+	
+	self.warning_icons_back = xml:InitStatic(root, self)
+	self.horz = (xml:ReadAttribInt(root, "horz", 0) > 0) and true or false
+	self.offset = xml:ReadAttrib(root, "offset", "center")
+	self.offset_indent = vector2():set(
+		xml:ReadAttribFlt(root, "offset_indent_x", 0),
+		xml:ReadAttribFlt(root, "offset_indent_y", 0)
+	)
+	
 	self.warning_icons = {
 		--//actor conditions
 		-- { name = "bleeding", 		val = function() return actor:get_bleeding() end },
@@ -57,7 +69,8 @@ function WarningIcons:InitWnd(xml, owner)
 		{ name = "unlimited_ammo", 	val = function() return is_unlimited_ammo() end },		
 	}
 	for k,v in ipairs(self.warning_icons) do
-		v.icon = xml:InitStatic("warning_icons_back:"..v.name, self.warning_icons_back)
+		local name = root..":"..v.name
+		v.icon = xml:InitStatic(name, self.warning_icons_back)
 		v.icon:Show(false)
 		--v.threshold = split_string(xml:ReadAttrib("warning_icons_back:"..v.name, "threshold", nil), ",", true)
 		v.threshold = split_string(read_if_exists(sys_ini, "string", thresholds_sect, v.name, nil), ",", true)
@@ -67,21 +80,14 @@ function WarningIcons:InitWnd(xml, owner)
 		
 		self:Register(v.icon, v.name)
 		self:AddCallback(v.name, ui_events.STATIC_FOCUS_RECEIVED, function() self:OnFocusReceived(v.name, v.icon) end)
-		self:AddCallback(v.name, ui_events.STATIC_FOCUS_LOST, function() self:OnFocusLost(v.name, v.icon) end)
-		
-		if v.icon:GetHeight() > self.warning_icons_back:GetHeight() then
-			self.warning_icons_back:SetHeight(v.icon:GetHeight())
-		end
-		if v.icon:GetWidth() > self.warning_icons_back:GetWidth() then
-			self.warning_icons_back:SetWidth(v.icon:GetWidth())
-		end		
+		self:AddCallback(v.name, ui_events.STATIC_FOCUS_LOST, function() self:OnFocusLost(v.name, v.icon) end)	
 	end
 end
 
 function WarningIcons:Update()
 	CUIScriptWnd.Update(self)
-	
-	local pos = vector2():set(0,0)
+	local pos = vector2()
+	local back_size = vector2()
 	for k,v in ipairs(self.warning_icons) do
 		local val = v.val()
 		if DEBUG_WARNING_SHOW then
@@ -136,15 +142,22 @@ function WarningIcons:Update()
 		
 		if v.icon:IsShown() then
 			v.icon:SetWndPos(pos.x, pos.y)
-			if self.warning_icons_horz then
+			if self.horz then
 				pos.x = pos.x + v.icon:GetWidth()
-				self.warning_icons_back:SetWidth(pos.x)
+				back_size.x = pos.x
+				back_size.y = v.icon:GetHeight()
 			else
 				pos.y = pos.y + v.icon:GetHeight()
-				self.warning_icons_back:SetHeight(pos.y)
+				back_size.y = pos.y
+				back_size.x = v.icon:GetWidth()
 			end
 		end
-	end	
+	end
+	self.warning_icons_back:SetWidth(back_size.x)
+	self.warning_icons_back:SetHeight(back_size.y)
+	local offset = ui_inv_utils.GetOffset(self.offset, self.warning_icons_back, self.owner)
+	offset:add(self.offset_indent)
+	self.warning_icons_back:SetWndPos(offset.x, offset.y)	
 end
 
 function WarningIcons:OnFocusReceived(name, icon)
