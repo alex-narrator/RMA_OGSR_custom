@@ -56,7 +56,7 @@ function on_show(mode)
 	return end
 
 	block_non_move_action(true)
-	actor:hide_weapon(backpack.play_fast())
+	actor:hide_weapon(true)
 	OPEN_ANIM_STARTED = true
 	subscribe()
 	
@@ -93,7 +93,7 @@ function on_hide(mode)
 	add_time_delayed_action(
 		anim_length,
 		function()
-			actor:restore_weapon(backpack.play_fast())
+			actor:restore_weapon()
 			block_non_move_action(false)
 		end
 	)	

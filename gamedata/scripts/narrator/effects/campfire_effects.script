@@ -79,7 +79,7 @@ function on_campfire_use(campfire_usable, campfire_zone)
 			return need_force_stop_anim() or not is_actor_looking_to_pos(campfire_zone:center(), 1) or distance_between_safe(actor, campfire_zone) > CAMPFIRE_EFFECT_DIST
 		end
 		
-		actor:hide_weapon(HIDE_WPN_ANIM_FAST)
+		actor:hide_weapon()
 		block_non_move_action(true)
 		-- level.disable_input()
 		
@@ -103,7 +103,7 @@ function on_campfire_use(campfire_usable, campfire_zone)
 						function()
 							_G.SCRIPT_ANIM_PLAYING = false
 							sm:call("on_timed_action_stop")
-							actor:restore_weapon(HIDE_WPN_ANIM_FAST)
+							actor:restore_weapon()
 							block_non_move_action(false)
 							-- level.enable_input()
 							if need_force_stop() then
@@ -149,7 +149,6 @@ function on_campfire_use(campfire_usable, campfire_zone)
 	return end
 	
 	actor_use_campfire = campfire_zone
-	--actor:hide_weapon()
 	actor:activate_slot(NO_ACTIVE_SLOT)
 	if actor:active_device() then
 		actor:activate_slot(DETECTOR_SLOT)

@@ -9,7 +9,7 @@ function play(item)
 	if not hud_sect then
 	return end
 
-	actor:hide_weapon(HIDE_WPN_ANIM_FAST)
+	actor:hide_weapon(true)
 	
 	level.add_call(
 		function() 
@@ -63,7 +63,7 @@ function play(item)
 						anim_sound:stop()
 					end					
 					_G.SCRIPT_ANIM_PLAYING = false
-					actor:restore_weapon(HIDE_WPN_ANIM_FAST)
+					actor:restore_weapon()
 					local mode = actor_menu:GetMode()
 					if mode == "inventory" or mode == "carbody"	then
 						backpack.play_anim(3)

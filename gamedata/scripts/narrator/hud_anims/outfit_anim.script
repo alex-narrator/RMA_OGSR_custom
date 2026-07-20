@@ -11,7 +11,7 @@ function play_outfit(anim_type)
 	
 	local hud_sect = anim_types[anim_type]
 
-	actor:hide_weapon(HIDE_WPN_ANIM_FAST)
+	actor:hide_weapon(true)
 	
 	level.add_call(
 		function() 
@@ -28,7 +28,7 @@ function play_outfit(anim_type)
 				function()
 					block_non_move_action(false)
 					_G.SCRIPT_ANIM_PLAYING = false
-					actor:restore_weapon(HIDE_WPN_ANIM_FAST)
+					actor:restore_weapon()
 					local mode = actor_menu:GetMode()
 					if mode == "inventory" or mode == "carbody"	then
 						backpack.play_anim(3)
