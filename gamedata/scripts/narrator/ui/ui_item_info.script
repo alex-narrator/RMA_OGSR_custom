@@ -4,6 +4,24 @@ function attach(sm)
 	sm:subscribe({signal = "on_quick_item_focus", 		fun = this.on_quick_focus})
 end
 
+local green = GetARGB(255, 0, 255, 0)
+local red = GetARGB(255, 255, 0, 0)
+local orange = GetARGB(255, 238, 153, 26)
+
+local plus_are_bad = {
+	["radiation_restore_speed"] = true,
+	["alcohol_restore_speed"] = true,
+	["boost_somnolence"] = true,
+	["boost_pain"] = true,
+	["power_loss"] = true,
+}
+
+local plus_are_bad_eatable = {
+	["radiation"] = true,
+	["alcohol"] = true,
+	["somnolence"] = true,
+}
+
 local OVERLAY_XML = "script_overlays\\ui_item_info.xml"
 
 function on_focus(item)
@@ -307,22 +325,23 @@ end
 
 ------------------------------------------EFFECT PARAMS WND-----------------------------------------------------------------------------------------------------------------
 local effect_params = {
-	{st_name = "health_restore_speed", 		param_name = "ui_inv_health_boost"},
-	{st_name = "power_restore_speed", 		param_name = "ui_inv_power"},
-	{st_name = "max_power_restore_speed", 	param_name = "ui_inv_max_power"},
-	{st_name = "satiety_restore_speed", 	param_name = "ui_inv_satiety"},
-	{st_name = "radiation_restore_speed", 	param_name = "ui_inv_radiation"},
-	{st_name = "psy_health_restore_speed", 	param_name = "ui_inv_psy_health"},
-	{st_name = "alcohol_restore_speed", 	param_name = "ui_inv_alcohol"},
-	{st_name = "wounds_heal_speed", 		param_name = "ui_inv_wounds_heal"},
-	{st_name = "additional_sprint", 		param_name = "ui_inv_sprint"},
-	{st_name = "additional_jump", 			param_name = "ui_inv_jump"},
-	{st_name = "additional_weight", 		param_name = "ui_inv_weight"},
+	{param = "health_restore_speed", 		name = "ui_inv_health_boost", 		texture = "ui_hud_icon_health_warning"},
+	{param = "power_restore_speed", 		name = "ui_inv_power", 				texture = "ui_hud_icon_power"},
+	{param = "max_power_restore_speed", 	name = "ui_inv_max_power", 			texture = "ui_hud_icon_power"},
+	{param = "satiety_restore_speed", 		name = "ui_inv_satiety", 			texture = "ui_hud_icon_eat"},
+	{param = "radiation_restore_speed", 	name = "ui_inv_radiation", 			texture = "ui_hud_icon_radiation"},
+	{param = "psy_health_restore_speed", 	name = "ui_inv_psy_health", 		texture = "ui_hud_icon_psycho"},
+	{param = "alcohol_restore_speed", 		name = "ui_inv_alcohol", 			texture = "ui_hud_icon_alcohol"},
+	{param = "wounds_heal_speed", 			name = "ui_inv_wounds_heal", 		texture = "ui_hud_icon_drop"},
+	{param = "additional_sprint", 			name = "ui_inv_sprint", 			texture = "ui_hud_icon_sprint"},
+	{param = "additional_jump", 			name = "ui_inv_jump", 				texture = "ui_hud_icon_jump"},
+	{param = "additional_weight", 			name = "ui_inv_weight", 			texture = "ui_hud_icon_overweight"},
+	{param = "power_loss", 					name = "st_power_loss", 			texture = "ui_hud_icon_power_loss"},
 }
 local effect_st = {}
 function UIItemInfo:AttachEffectparams()
 	local inv_item = self.item:get_inventory_item()
-	local val, sn, text, color
+	local val, sn, color
 	local show = false
 	
 	effect_st = {}
@@ -330,11 +349,16 @@ function UIItemInfo:AttachEffectparams()
 	self:AttachHeader(effect_st, "st_effects_header", params_list)
 
 	for k,v in ipairs(effect_params) do
-		val = inv_item:item_effect(k-1)
+		val = v.param == "power_loss" and inv_item.power_loss or inv_item:item_effect(k-1)
+		if v.param == "power_loss" then
+			if not (val < 0 and self.item:condition() > 0 or val > 0) then
+				val = 0
+			end
+		end
 		if val ~= 0 then
-			--log3("~UIItemInfo:AttachEffectparams param %s | val %s", v.st_name, val)
+			--log3("~UIItemInfo:AttachEffectparams param %s | val %s", v.param, val)
 			if k <= 8 then
-				local for_rad = false--v.st_name == "radiation_restore_speed"
+				local for_rad = false--v.param == "radiation_restore_speed"
 				local _k = for_rad and 1 or 100
 				sn = game.translate_string(for_rad and "st_radiation_per_minute" or "st_percent_per_minute")
 				val = val * 60 * _k
@@ -346,38 +370,22 @@ function UIItemInfo:AttachEffectparams()
 			 	sn = game.translate_string("st_percent")
 				val = val * 100
 			end
-			effect_st[k] = CUIStatic()--self.xml:InitStatic(v.st_name, params_list)
-			effect_st[k]:SetTextComplexMode(true)
+			effect_st[k] = self.xml:InitStatic("effect_item", params_list)
 			effect_st[k]:SetWidth(params_list:GetDesiredChildWidth())
-			color = val > 0 and "%c[green]" or "%c[red]"
-			if v.st_name == "max_power_restore_speed" or v.st_name == "radiation_restore_speed" or v.st_name == "alcohol_restore_speed" then
-				color = val > 0 and "%c[red]" or "%c[green]"
+			effect_st[k].icon = self.xml:InitStatic("effect_item:icon", effect_st[k])
+			effect_st[k].icon:InitTexture(v.texture or "")
+			effect_st[k].val = self.xml:InitStatic("effect_item:val", effect_st[k])
+			color = val > 0 and green or red--"%c[green]" or "%c[red]"
+			if plus_are_bad[v.param] then
+				color = val > 0 and red or green--"%c[red]" or "%c[green]"
 			end
-			text = string.format("%s %s %s %+.1f %s", game.translate_string("st_list_mark"), game.translate_string(v.param_name), color, val, sn)
-			effect_st[k]:SetText(text)
-			effect_st[k]:AdjustHeightToText()
-			params_list:AddWindow(effect_st[k])
+			effect_st[k]:SetText(game.translate_string(v.name))
+			effect_st[k].val:SetText(string.format("%+.1f %s", val, sn))
+			effect_st[k].val:SetTextColor(color)
+			effect_st[k].icon:SetColor(color)
 			show = true
 		end
 	end
-	--//power loss
-	val = inv_item.power_loss
-	if val ~= 0 then
-		if val < 0 and self.item:condition() > 0 or val > 0 then
-			val = val * 100
-			sn = game.translate_string("st_percent")
-			effect_st["power_loss"] = CUIStatic()
-			effect_st["power_loss"]:SetTextComplexMode(true)
-			effect_st["power_loss"]:SetWidth(params_list:GetDesiredChildWidth())
-			color = val > 0 and "%c[red]" or "%c[green]"
-			text = string.format("%s %s %s %+.1f %s",game.translate_string("st_list_mark"),  game.translate_string("st_power_loss"), color, val, sn)
-			effect_st["power_loss"]:SetText(text)
-			effect_st["power_loss"]:AdjustHeightToText()
-			params_list:AddWindow(effect_st["power_loss"])
-			show = true
-		end
-	end
-	--
 	params_list:SetHeight(params_list:GetPadSize().y)
 	if not show then
 		params_list:Show(false)
@@ -387,20 +395,20 @@ end
 
 ------------------------------------------PROTECTION PARAMS WND-----------------------------------------------------------------------------------------------------------------
 local protection_params = {
-	{st_name = "burn_immunity", 			param_name = "ui_inv_burn_protection"},
-	{st_name = "shock_immunity", 			param_name = "ui_inv_shock_protection"},
-	{st_name = "strike_immunity", 			param_name = "ui_inv_strike_protection"},
-	{st_name = "wound_immunity", 			param_name = "ui_inv_wound_protection"},
-	{st_name = "radiation_immunity", 		param_name = "ui_inv_radiation_protection"},
-	{st_name = "telepatic_immunity", 		param_name = "ui_inv_telepatic_protection"},
-	{st_name = "chemical_burn_immunity", 	param_name = "ui_inv_chemical_burn_protection"},
-	{st_name = "explosion_immunity", 		param_name = "ui_inv_explosion_protection"},
-	{st_name = "fire_wound_immunity", 		param_name = "ui_inv_fire_wound_protection"},
+	{param = "burn_immunity", 			name = "ui_inv_burn_protection", 			texture = "ui_hud_icon_burn_protection"},
+	{param = "shock_immunity", 			name = "ui_inv_shock_protection", 			texture = "ui_hud_icon_shock_protection"},
+	{param = "strike_immunity", 		name = "ui_inv_strike_protection", 			texture = "ui_hud_icon_strike_protection"},
+	{param = "wound_immunity", 			name = "ui_inv_wound_protection", 			texture = "ui_hud_icon_wound_protection"},
+	{param = "radiation_immunity", 		name = "ui_inv_radiation_protection", 		texture = "ui_hud_icon_radiation_protection"},
+	{param = "telepatic_immunity", 		name = "ui_inv_telepatic_protection", 		texture = "ui_hud_icon_telepatic_protection"},
+	{param = "chemical_burn_immunity", 	name = "ui_inv_chemical_burn_protection", 	texture = "ui_hud_icon_chemical_burn_protection"},
+	{param = "explosion_immunity", 		name = "ui_inv_explosion_protection", 		texture = "ui_hud_icon_explosion_protection"},
+	{param = "fire_wound_immunity", 	name = "ui_inv_fire_wound_protection", 		texture = "ui_hud_icon_fire_wound_protection"},
 }
 local protection_st = {}
 function UIItemInfo:AttachProtectionParams()
 	local inv_item = self.item:get_inventory_item()
-	local val, sn, text, color
+	local val, sn, color
 	local show = false
 
 	protection_st = {}
@@ -411,16 +419,18 @@ function UIItemInfo:AttachProtectionParams()
 		val = inv_item:hit_type_protection(k-1)
 		if val ~= 0 then
 			sn = game.translate_string("st_percent")
-			--log3("~self:AttachProtectionParams param %s | val %s", v.st_name, val)
+			--log3("~self:AttachProtectionParams param %s | val %s", v.param, val)
 			val = val * 100
-			protection_st[k] = CUIStatic()--self.xml:InitStatic(v.st_name, params_list)
-			protection_st[k]:SetTextComplexMode(true)
+			protection_st[k] = self.xml:InitStatic("effect_item", params_list)
 			protection_st[k]:SetWidth(params_list:GetDesiredChildWidth())
-			color = val > 0 and "%c[green]" or "%c[red]"
-			text = string.format("%s %s %s %+.1f %s",game.translate_string("st_list_mark"),  game.translate_string(v.param_name), color, val, sn)
-			protection_st[k]:SetText(text)
-			protection_st[k]:AdjustHeightToText()
-			params_list:AddWindow(protection_st[k])
+			protection_st[k].icon = self.xml:InitStatic("effect_item:icon", protection_st[k])
+			protection_st[k].icon:InitTexture(v.texture or "")
+			protection_st[k].val = self.xml:InitStatic("effect_item:val", protection_st[k])			
+			color = val > 0 and green or red
+			protection_st[k]:SetText(game.translate_string(v.name))
+			protection_st[k].val:SetText(string.format("%+.1f %s", val, sn))
+			protection_st[k].val:SetTextColor(color)
+			protection_st[k].icon:SetColor(color)			
 			show = true
 		end
 	end
@@ -433,15 +443,15 @@ end
 
 ------------------------------------------EATABLE PARAMS WND-----------------------------------------------------------------------------------------------------------------
 local eatable_params = {
-	{st_name = "health", 		param_name = "ui_inv_health"},
-	{st_name = "power", 		param_name = "ui_inv_power"},
-	{st_name = "max_power", 	param_name = "ui_inv_max_power"},
-	{st_name = "satiety", 		param_name = "ui_inv_satiety"},
-	{st_name = "radiation", 	param_name = "ui_inv_radiation"},
-	{st_name = "psyhealth", 	param_name = "ui_inv_psy_health"},
-	{st_name = "alcohol", 		param_name = "ui_inv_alcohol"},
-	{st_name = "wounds_heal", 	param_name = "ui_inv_wounds_heal"},
-	{st_name = "somnolence", 	param_name = "ui_inv_somnolence"},
+	{param = "health", 		name = "ui_inv_health", 		texture = "ui_hud_icon_health_warning"},
+	{param = "power", 		name = "ui_inv_power", 			texture = "ui_hud_icon_power"},
+	{param = "max_power", 	name = "ui_inv_max_power", 		texture = "ui_hud_icon_power"},
+	{param = "satiety", 	name = "ui_inv_satiety", 		texture = "ui_hud_icon_eat"},
+	{param = "radiation", 	name = "ui_inv_radiation", 		texture = "ui_hud_icon_radiation"},
+	{param = "psyhealth", 	name = "ui_inv_psy_health", 	texture = "ui_hud_icon_psycho"},
+	{param = "alcohol", 	name = "ui_inv_alcohol", 		texture = "ui_hud_icon_alcohol"},
+	{param = "wounds_heal", name = "ui_inv_wounds_heal", 	texture = "ui_hud_icon_drop"},
+	{param = "somnolence", 	name = "ui_inv_somnolence", 	texture = "ui_hud_icon_somnolence"},
 }
 local eatable_st = {}
 function UIItemInfo:AttachEatableParams()
@@ -454,21 +464,23 @@ function UIItemInfo:AttachEatableParams()
 	self:AttachHeader(eatable_st, "st_influence_header", params_list)
 
 	for k,v in ipairs(eatable_params) do
-		val = v.st_name == "somnolence" and somnolence.get_influence(self.item) or eatable:influence(k-1)
+		val = v.param == "somnolence" and somnolence.get_influence(self.item) or eatable:influence(k-1)
 		if val ~= 0 then
 			sn = game.translate_string("st_percent")
 			val = val * 100
-			eatable_st[k] = CUIStatic()--self.xml:InitStatic(v.st_name, params_list)
-			eatable_st[k]:SetTextComplexMode(true)
+			eatable_st[k] = self.xml:InitStatic("effect_item", params_list)
 			eatable_st[k]:SetWidth(params_list:GetDesiredChildWidth())
-			color = val > 0 and "%c[green]" or "%c[red]"
-			if v.st_name == "alcohol" or v.st_name == "radiation" or v.st_name == "somnolence" then
-				color = val > 0 and "%c[red]" or "%c[green]"
+			eatable_st[k].icon = self.xml:InitStatic("effect_item:icon", eatable_st[k])
+			eatable_st[k].icon:InitTexture(v.texture or "")
+			eatable_st[k].val = self.xml:InitStatic("effect_item:val", eatable_st[k])			
+			color = val > 0 and green or red
+			if plus_are_bad_eatable[v.param] then
+				color = val > 0 and red or green
 			end
-			text = string.format("%s %s %s %+.1f %s",game.translate_string("st_list_mark"),  game.translate_string(v.param_name), color, val, sn)
-			eatable_st[k]:SetText(text)
-			eatable_st[k]:AdjustHeightToText()
-			params_list:AddWindow(eatable_st[k])
+			eatable_st[k]:SetText(game.translate_string(v.name))
+			eatable_st[k].val:SetText(string.format("%+.1f %s", val, sn))
+			eatable_st[k].val:SetTextColor(color)
+			eatable_st[k].icon:SetColor(color)
 			show = true
 		end
 	end
@@ -481,29 +493,32 @@ end
 
 ------------------------------------------BOOSTER PARAMS WND-----------------------------------------------------------------------------------------------------------------
 local boost_params = {
-	{st_name = "health", 				param_name = "ui_inv_health_boost"},
-	{st_name = "power", 				param_name = "ui_inv_power"},
-	{st_name = "max_power", 			param_name = "ui_inv_max_power"},
-	{st_name = "satiety", 				param_name = "ui_inv_satiety"},
-	{st_name = "radiation", 			param_name = "ui_inv_radiation"},
-	{st_name = "psyhealth", 			param_name = "ui_inv_psy_health"},
-	{st_name = "alcohol", 				param_name = "ui_inv_alcohol"},
-	{st_name = "wounds_heal", 			param_name = "ui_inv_wounds_heal"},
-	{st_name = "sprint", 				param_name = "ui_inv_sprint"},
-	{st_name = "jump", 					param_name = "ui_inv_jump"},
-	{st_name = "max_weight", 			param_name = "ui_inv_weight"},
-	{st_name = "burn_boost", 			param_name = "ui_inv_burn_protection"},
-	{st_name = "shock_boost", 			param_name = "ui_inv_shock_protection"},
-	{st_name = "strike_boost", 			param_name = "ui_inv_strike_protection"},
-	{st_name = "wound_boost", 			param_name = "ui_inv_wound_protection"},
-	{st_name = "radiation_boost", 		param_name = "ui_inv_radiation_protection"},
-	{st_name = "telepatic_boost", 		param_name = "ui_inv_telepatic_protection"},
-	{st_name = "chemical_burn_boost", 	param_name = "ui_inv_chemical_burn_protection"},
-	{st_name = "explosion_boost", 		param_name = "ui_inv_explosion_protection"},
-	{st_name = "fire_wound_boost", 		param_name = "ui_inv_fire_wound_protection"},
-	{st_name = "somnolence", 			param_name = "ui_inv_somnolence"},
-	{st_name = "painkiller", 			param_name = "ui_inv_painkiller"},
-	{st_name = "boost_time", 			param_name = "ui_inv_boost_time"},
+	{param = "health_restore_speed", 		name = "ui_inv_health_boost", 				texture = "ui_hud_icon_health_warning"},
+	{param = "power_restore_speed", 		name = "ui_inv_power", 						texture = "ui_hud_icon_power"},
+	{param = "max_power_restore_speed", 	name = "ui_inv_max_power", 					texture = "ui_hud_icon_power"},
+	{param = "satiety_restore_speed", 		name = "ui_inv_satiety", 					texture = "ui_hud_icon_eat"},
+	{param = "radiation_restore_speed", 	name = "ui_inv_radiation", 					texture = "ui_hud_icon_radiation"},
+	{param = "psy_health_restore_speed", 	name = "ui_inv_psy_health", 				texture = "ui_hud_icon_psycho"},
+	{param = "alcohol_restore_speed", 		name = "ui_inv_alcohol", 					texture = "ui_hud_icon_alcohol"},
+	{param = "wounds_heal_speed", 			name = "ui_inv_wounds_heal", 				texture = "ui_hud_icon_drop"},
+	--//
+	{param = "additional_sprint", 			name = "ui_inv_sprint", 					texture = "ui_hud_icon_sprint"},
+	{param = "additional_jump", 			name = "ui_inv_jump", 						texture = "ui_hud_icon_jump"},
+	{param = "additional_weight", 			name = "ui_inv_weight", 					texture = "ui_hud_icon_overweight"},
+	--//
+	{param = "burn_immunity", 				name = "ui_inv_burn_protection", 			texture = "ui_hud_icon_burn_protection"},
+	{param = "shock_immunity", 				name = "ui_inv_shock_protection", 			texture = "ui_hud_icon_shock_protection"},
+	{param = "strike_immunity", 			name = "ui_inv_strike_protection", 			texture = "ui_hud_icon_strike_protection"},
+	{param = "wound_immunity", 				name = "ui_inv_wound_protection", 			texture = "ui_hud_icon_wound_protection"},
+	{param = "radiation_immunity", 			name = "ui_inv_radiation_protection", 		texture = "ui_hud_icon_radiation_protection"},
+	{param = "telepatic_immunity", 			name = "ui_inv_telepatic_protection", 		texture = "ui_hud_icon_telepatic_protection"},
+	{param = "chemical_burn_immunity", 		name = "ui_inv_chemical_burn_protection", 	texture = "ui_hud_icon_chemical_burn_protection"},
+	{param = "explosion_immunity", 			name = "ui_inv_explosion_protection", 		texture = "ui_hud_icon_explosion_protection"},
+	{param = "fire_wound_immunity", 		name = "ui_inv_fire_wound_protection", 		texture = "ui_hud_icon_fire_wound_protection"},
+	--//
+	{param = "boost_somnolence", 			name = "ui_inv_somnolence", 				texture = "ui_hud_icon_somnolence"},
+	{param = "boost_pain", 					name = "ui_inv_painkiller", 				texture = "ui_hud_icon_pain"},	
+	{param = "boost_time", 					name = "ui_inv_boost_time", 				texture = "time_limited_task_icon"},
 }
 local boost_st = {}
 function UIItemInfo:AttachBoosterParams()
@@ -517,22 +532,18 @@ function UIItemInfo:AttachBoosterParams()
 	self:AttachHeader(boost_st, "st_boost_header", params_list)
 
 	for k,v in ipairs(boost_params) do
-		-- if v.st_name == "somnolence" then
-			-- val = somnolence.get_boost(self.item)
-		-- elseif v.st_name == "painkiller" then
-			-- val = read_if_exists(sys_ini, "float", sect, "boost_pain", 0)
-		if v.st_name == "boost_time" then
+		if v.param == "boost_time" then
 			val = read_if_exists(sys_ini, "float", sect, "boost_time", 0)
 		else
-			val = read_if_exists(sys_ini, "float", sect, BOOST_PARAMS[k], 0)--eatable:get_boost(k-1)
+			val = read_if_exists(sys_ini, "float", sect, BOOST_PARAMS[k], 0)
 		end
-		-- log3("item %s | boost val %s | boost type %s", self.item:name(), val, v.st_name)
+		-- log3("item %s | boost val %s | boost type %s", self.item:name(), val, v.param)
 		if val ~= 0 then
-			if v.st_name == "boost_time" then
+			if v.param == "boost_time" then
 				sn = game.translate_string("st_time_minute")
-			elseif k <= 8 or v.st_name == "somnolence" then
-				--log3("~name %s | val %s", v.st_name, val)
-				local for_rad = false--v.st_name == "radiation_boost"
+			elseif k <= 8 or v.param == "boost_somnolence" then
+				--log3("~name %s | val %s", v.param, val)
+				local for_rad = false--v.param == "radiation_boost"
 				local _k = for_rad and 1 or 100
 				sn = game.translate_string(for_rad and "st_radiation_per_minute" or "st_percent_per_minute")
 				val = val * 60 * _k
@@ -544,23 +555,21 @@ function UIItemInfo:AttachBoosterParams()
 				sn = game.translate_string("st_percent")
 				val = val * 100
 			end
-			boost_st[k] = CUIStatic()
-			boost_st[k]:SetTextComplexMode(true)
+			boost_st[k] = self.xml:InitStatic("effect_item", params_list)
 			boost_st[k]:SetWidth(params_list:GetDesiredChildWidth())
-			color = val > 0 and "%c[green]" or "%c[red]"
-			if v.st_name == "alcohol" or v.st_name == "radiation" or v.st_name == "somnolence" or v.st_name == "painkiller" then
-				color = val > 0 and "%c[red]" or "%c[green]"
-			elseif v.st_name == "boost_time" then
-				color = "%c[UI_orange]"
+			boost_st[k].icon = self.xml:InitStatic("effect_item:icon", boost_st[k])
+			boost_st[k].icon:InitTexture(v.texture or "")
+			boost_st[k].val = self.xml:InitStatic("effect_item:val", boost_st[k])
+			color = val > 0 and green or red
+			if plus_are_bad[v.param] then
+				color = val > 0 and red or green
+			elseif v.param == "boost_time" then
+				color = orange
 			end
-			if v.st_name == "boost_time" then
-				text = string.format("%s %s %s %.f %s",game.translate_string("st_list_mark"), game.translate_string(v.param_name), color, val, sn)
-			else
-				text = string.format("%s %s %s %+.1f %s",game.translate_string("st_list_mark"), game.translate_string(v.param_name), color, val, sn)
-			end
-			boost_st[k]:SetText(text)
-			boost_st[k]:AdjustHeightToText()
-			params_list:AddWindow(boost_st[k])
+			boost_st[k]:SetText(game.translate_string(v.name))
+			boost_st[k].val:SetText(v.param == "boost_time" and string.format("[%.f %s]", val, sn) or string.format("%+.1f %s", val, sn))
+			boost_st[k].val:SetTextColor(color)
+			boost_st[k].icon:SetColor(color)
 			show = true
 		end
 	end
@@ -581,32 +590,41 @@ function UIItemInfo:AttachAnmUseParams()
 	
 	local use_delay = read_if_exists(sys_ini, "float", hud_sect, "use_delay", anm_length * 0.001)
 	
-	local static = self.xml:InitStatic("anm_use_time", self.descr_list)
-	local text = string.format("%s %s %s%.1f %s", game.translate_string("st_list_mark"), game.translate_string("st_anm_use_time"), "%c[UI_orange]", use_delay, game.translate_string("st_time_second"))
-	static:SetText(text)
-	--static:AdjustHeightToText()
-	static:AdjustWidthToText()
+	-- local static = self.xml:InitStatic("anm_use_time", self.descr_list)
+	-- local text = string.format("%s %s %s%.1f %s", game.translate_string("st_list_mark"), game.translate_string("st_anm_use_time"), "%c[UI_orange]", use_delay, game.translate_string("st_time_second"))
+	-- static:SetText(text)
+	-- --static:AdjustHeightToText()
+	-- static:AdjustWidthToText()
+	local static = self.xml:InitStatic("effect_item", self.descr_list)
+	static:SetWidth(self.descr_list:GetDesiredChildWidth())
+	static.icon = self.xml:InitStatic("effect_item:icon", static)
+	static.icon:InitTexture("time_limited_task_icon")
+	static.val = self.xml:InitStatic("effect_item:val", static)
+	static:SetText(game.translate_string("st_anm_use_time"))
+	static.val:SetText(string.format("[%.f %s]", use_delay, game.translate_string("st_time_second")))
+	static.val:SetTextColor(orange)
+	static.icon:SetColor(orange)	
 	return true
 end
 
 ------------------------------------------ARMOR WND-------------------------------------------------------------------------------------------------------------------
 local armor_params = {
-	{bone = "bip01_head", 		param_name = "st_armor_head"},
-	{bone = "jaw_1", 			param_name = "st_armor_jav"},
-	{bone = "eye_left", 		param_name = "st_armor_eye"},
-	{bone = "bip01_neck", 		param_name = "st_armor_neck"},
-	{bone = "bip01_l_clavicle", param_name = "st_armor_clavicle"},
-	{bone = "bip01_spine2", 	param_name = "st_armor_spine2"},
-	{bone = "bip01_spine1", 	param_name = "st_armor_spine1"},
-	{bone = "bip01_spine", 		param_name = "st_armor_spine"},
-	{bone = "bip01_pelvis", 	param_name = "st_armor_pelvis"},
-	{bone = "bip01_l_upperarm", param_name = "st_armor_upperarm"},
-	{bone = "bip01_l_forearm", 	param_name = "st_armor_forearm"},
-	{bone = "bip01_l_hand", 	param_name = "st_armor_hand"},
-	{bone = "bip01_l_thigh", 	param_name = "st_armor_thigh"},
-	{bone = "bip01_l_calf", 	param_name = "st_armor_calf"},
-	{bone = "bip01_l_foot", 	param_name = "st_armor_foot"},
-	{bone = "bip01_l_toe0", 	param_name = "st_armor_toe"},
+	{bone = "bip01_head", 		name = "st_armor_head"},
+	{bone = "jaw_1", 			name = "st_armor_jav"},
+	{bone = "eye_left", 		name = "st_armor_eye"},
+	{bone = "bip01_neck", 		name = "st_armor_neck"},
+	{bone = "bip01_l_clavicle", name = "st_armor_clavicle"},
+	{bone = "bip01_spine2", 	name = "st_armor_spine2"},
+	{bone = "bip01_spine1", 	name = "st_armor_spine1"},
+	{bone = "bip01_spine", 		name = "st_armor_spine"},
+	{bone = "bip01_pelvis", 	name = "st_armor_pelvis"},
+	{bone = "bip01_l_upperarm", name = "st_armor_upperarm"},
+	{bone = "bip01_l_forearm", 	name = "st_armor_forearm"},
+	{bone = "bip01_l_hand", 	name = "st_armor_hand"},
+	{bone = "bip01_l_thigh", 	name = "st_armor_thigh"},
+	{bone = "bip01_l_calf", 	name = "st_armor_calf"},
+	{bone = "bip01_l_foot", 	name = "st_armor_foot"},
+	{bone = "bip01_l_toe0", 	name = "st_armor_toe"},
 }
 local armor_st = {}
 function UIItemInfo:AttachArmorParams()
@@ -632,7 +650,7 @@ function UIItemInfo:AttachArmorParams()
 				if not armored_bones[val] then
 					armored_bones[val] = {}
 				end
-				table.insert(armored_bones[val], game.translate_string(v.param_name))
+				table.insert(armored_bones[val], game.translate_string(v.name))
 			end
 		end
 	end

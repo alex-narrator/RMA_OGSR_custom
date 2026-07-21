@@ -36,6 +36,9 @@ function recharge(obj, drop_on_obj)
 		snd:play(actor, 0, sound_object.s2d)
 	end
 	sm:call("on_timed_action_start", drop_on_obj, snd and snd:length() or 0)
+	actor:hide_weapon()
+	block_non_move_action(true)
+	local menu_was_shown = actor_menu:IsShown()
 	local recharge_effector = read_if_exists(sys_ini, "string", battery_sect, "use_effector", nil)
 	if recharge_effector then
 		level.remove_complex_effector(recharge_effector_id)
@@ -43,6 +46,10 @@ function recharge(obj, drop_on_obj)
 	end
 	level.add_call(
 		function()
+			if menu_was_shown and not actor_menu:IsShown() then
+				game.stop_hud_motion()
+				menu_was_shown = false
+			end
 			return not snd or not snd:playing() or need_force_stop_anim()
 		end,
 		function()
@@ -62,6 +69,8 @@ function recharge(obj, drop_on_obj)
 					cell_item:ForceUpdate()
 				end
 			end
+			block_non_move_action(false)
+			actor:restore_weapon()
 			sm:call("on_timed_action_stop")
 		end
 	)
@@ -85,8 +94,15 @@ function detach_power_source(obj)
 		snd:play(actor, 0, sound_object.s2d)
 	end
 	sm:call("on_timed_action_start", obj, snd and snd:length() or 0)
+	actor:hide_weapon()
+	block_non_move_action(true)
+	local menu_was_shown = actor_menu:IsShown()
 	level.add_call(
 		function()
+			if menu_was_shown and not actor_menu:IsShown() then
+				game.stop_hud_motion()
+				menu_was_shown = false
+			end
 			return not snd or not snd:playing() or need_force_stop_anim()
 		end,
 		function()
@@ -101,6 +117,8 @@ function detach_power_source(obj)
 					cell_item:ForceUpdate()
 				end			
 			end
+			block_non_move_action(false)
+			actor:restore_weapon()
 			sm:call("on_timed_action_stop")
 		end
 	)	
