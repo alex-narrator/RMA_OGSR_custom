@@ -53,7 +53,7 @@ function play(item)
 						block_non_move_action(false)
 						level.remove_complex_effector(hud_effector_id)
 						_G.SCRIPT_ANIM_PLAYING = false
-						actor:restore_weapon()
+						actor:restore_weapon(true)
 						sm:call("on_timed_action_stop")
 					end,
 					function()
@@ -142,7 +142,7 @@ function stop_anim()
 			block_non_move_action(false)
 			_G.SCRIPT_ANIM_PLAYING = false
 			
-			actor:hide_weapon()
+			actor:hide_weapon(true)
 			
 			local mode = actor_menu:GetMode()
 			if mode == "inventory" or mode == "carbody"	then					

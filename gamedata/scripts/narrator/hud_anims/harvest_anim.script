@@ -128,7 +128,7 @@ function play_harvest(monster)
 						stop_blood_fx()
 						_G.SCRIPT_ANIM_PLAYING = false
 						level.enable_input()
-						actor:restore_weapon()							
+						actor:restore_weapon(true)							
 					else
 						game.play_hud_motion(2, meat_hud, "anm_show", true, 1, true)
 						level.add_cam_effector(effects["loot"].effect, effects["loot"].id, false, "")
@@ -150,7 +150,7 @@ function play_harvest(monster)
 								_G.SCRIPT_ANIM_PLAYING = false
 								--backpack.force_crouch(false)
 								level.enable_input()
-								actor:restore_weapon()						
+								actor:restore_weapon(true)						
 							end,
 							function()
 								return need_force_stop_anim()

@@ -63,7 +63,7 @@ function play(item)
 						anim_sound:stop()
 					end					
 					_G.SCRIPT_ANIM_PLAYING = false
-					actor:restore_weapon()
+					actor:restore_weapon(true)
 					local mode = actor_menu:GetMode()
 					if mode == "inventory" or mode == "carbody"	then
 						backpack.play_anim(3)

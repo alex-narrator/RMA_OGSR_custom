@@ -28,7 +28,7 @@ function play_outfit(anim_type)
 				function()
 					block_non_move_action(false)
 					_G.SCRIPT_ANIM_PLAYING = false
-					actor:restore_weapon()
+					actor:restore_weapon(true)
 					local mode = actor_menu:GetMode()
 					if mode == "inventory" or mode == "carbody"	then
 						backpack.play_anim(3)
@@ -88,7 +88,7 @@ function play_gasmask(item, is_on)
 				function()
 					block_non_move_action(false)
 					_G.SCRIPT_ANIM_PLAYING = false
-					actor:restore_weapon()
+					actor:restore_weapon(true)
 					local mode = actor_menu:GetMode()
 					if mode == "inventory" or mode == "carbody" then
 						backpack.play_anim(3)
