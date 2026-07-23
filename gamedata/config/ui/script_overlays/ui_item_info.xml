@@ -4,7 +4,7 @@
 		<texture>ui_inv_back_black</texture>
 	</background_contrast>
 	
-	<background_frame x="0" y="0" width="238" height="45" offset="14,18">
+	<background_frame x="0" y="0" width="0" height="0" offset="14,18">
 		<texture>ui_cb_listbox</texture>
 		<!-- <texture>ui_square_frame</texture> -->
 		<!-- <texture>ui_plane_frame</texture> -->
@@ -12,38 +12,39 @@
 		<!-- <texture>ui_icons_PDA_tooltips</texture> -->
 		<!-- <texture>ui_icons_PDA_dialog</texture> -->
 		
-		<static_name x="5" y="5" width="235" height="20" stretch="1">
-			<text font="letterica18" r="238" g="155" b="23" complex_mode="1" align="c" vert_align="t"/>		
-		</static_name>
-
-		<static_weight x="5" y="25" width="30" height="20" stretch="1">
-			<text font="letterica16" r="238" g="155" b="23" align="l" vert_align="c"/>
-		</static_weight>
+		<item_name x="0" y="0" width="0" height="0" stretch="1">
+			<text font="letterica18" r="238" g="155" b="23" complex_mode="1" align="c" vert_align="c"/>		
+		</item_name>
 		
-		<static_cost x="50" y="25" width="30" height="20" stretch="1">
+		<weight_cost x="0" y="0" width="0" height="16" stretch="1">
 			<text font="letterica16" r="238" g="155" b="23" align="l" vert_align="c"/>
-		</static_cost>
+			<weight x="0" y="0" width="12" height="16" stretch="1">
+				<texture>ui_hud_icon_overweight</texture>
+				<text x="12" y="2" font="arial_21" r="238" g="155" b="23" align="l" vert_align="c"/>
+			</weight>
+			<cost x="198" y="0" width="12" height="16" stretch="1">
+				<texture>ui_hud_icon_wallet</texture>
+				<text x="-12" y="2" font="arial_21" r="238" g="155" b="23" align="r" vert_align="c"/>
+			</cost>			
+		</weight_cost>		
 		
 		<!-- <auto_static x="5" y="40" width="225" height="1" stretch="1"> -->
 			<!-- <texture a="25">inv_progress_long</texture> -->
 		<!-- </auto_static> -->
 
-		<descr_list x="5" y="45" width="235" height="130" always_show_scroll="0" left_ident="10" bottom_indent="5" vert_interval="2">
+		<description x="0" y="0" width="0" height="0" complex_mode="1">
 			<text font="letterica16" r="240" g="217" b="182"/>
-			<!-- <descr_text text_color="255,238,153,26" font="letterica18"/> -->
-		</descr_list>
-		
-		<info_list x="5" y="30" width="235" height="130" always_show_scroll="0" left_ident="10" bottom_indent="5" vert_interval="2">
-			<text font="letterica16" r="240" g="217" b="182"/>
-			<!-- <descr_text text_color="255,238,153,26" font="letterica18"/> -->
-		</info_list>		
+		</description>
+
+		<info_list x="0" y="0" width="215" height="130" always_show_scroll="0" left_ident="3" right_ident="3" top_indent="3" bottom_indent="0" vert_interval="1"/>
 	</background_frame>
 	
 	<divider x="0" y="0" width="238" height="2.5" stretch="1">
 		<texture>ui\ui_pda_horizontal_line</texture>
 	</divider>
 	
-	<list_item></list_item>
+	<list_item complex_mode="1">
+	</list_item>
 	
 	<item_for_quest>
 		<text x="20" font="letterica16" r="240" g="217" b="182"/>
@@ -52,8 +53,12 @@
 		</info_icon>
 	</item_for_quest>
 	
-    <condition_params x="0" y="0" width="235" height="10" always_show_scroll="0" left_ident="10" bottom_indent="0">
-		<condition_progress x="0" y="0" width="90" height="8" horz="1" min="0" max="1" pos="1">
+    <condition_params x="0" y="0" width="235" height="16">
+		<text x="0" font="letterica16" complex_mode="1" align="l" vert_align="c"></text>
+		<icon x="0" y="0" width="12" height="16" stretch="1">
+			<texture>ui_hud_icon_repair</texture>
+		</icon>
+		<condition_progress x="13" y="4" width="90" height="8" horz="1" min="0" max="1" pos="1">
 			<min_color r="255" g="0" b="0"/>
 			<middle_color r="255" g="255" b="0"/>
 			<max_color r="0" g="255" b="0"/>
@@ -65,37 +70,13 @@
 			</background>      
 		</condition_progress>
 	</condition_params>
-
-	<params_list x="5" y="0" width="235" height="0" always_show_scroll="0" left_ident="10" bottom_indent="2">
-	</params_list>
 	
-	<effect_item x="0" y="0" width="364" height="16" stretch="1">
-		<text x="15" font="letterica16" complex_mode="1" align="l" vert_align="c"/>
-		<!-- <texture a="50">ui_inv_back_green</texture> -->
-		<icon x="0" y="0" width="12" height="16" stretch="1"/>
-		<val x="85" y="0" width="50" height="16" stretch="1">
-			<text x="0" font="letterica16" complex_mode="1" align="l" vert_align="c"/>
-		</val>
-	</effect_item>	
-	
-	<anm_use_time x="5" y="0" height="12" complex_mode="1">
-		<text text_color="255,238,153,26" valign="c"/>
-	</anm_use_time>
-	
-    <loaded_ammo x="0" y="0" width="157" height="50">
-		<ammo_icon x="0" y="5" width="30" height="40" stretch="1">
-			<text font="letterica16" x="20" y="3"/>
-		</ammo_icon>
-	</loaded_ammo>	
-
-    <power_params x="0" y="0" width="235" height="0" always_show_scroll="0" left_ident="10" bottom_indent="0">
-		<cap_power x="0" y="0" width="121" height="10">
-			<text font="letterica16" r="124" g="119" b="115"/>
-		</cap_power>	
-		<cap_work_time x="0" y="30" width="121" height="10">
-			<text font="letterica16" r="124" g="119" b="115"/>
-		</cap_work_time>	
-		<progress_power x="0" y="17" width="90" height="10" horz="1" min="0" max="1">
+    <power_params x="0" y="0" width="235" height="30">
+		<text x="0" font="letterica16" complex_mode="1" align="l" vert_align="t"></text>
+		<icon x="0" y="0" width="12" height="16" stretch="1">
+			<texture>ui_hud_icon_battery</texture>
+		</icon>		
+		<progress_power x="12" y="4" width="90" height="10" horz="1" min="0" max="1">
 			<min_color r="255" g="0" b="0"/>
 			<middle_color r="255" g="255" b="0"/>
 			<max_color r="0" g="255" b="0"/>
@@ -106,29 +87,78 @@
 				<texture a="100" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_16</texture>
 			</background>
 		</progress_power>
+		<work_time x="0" y="17" width="121" height="10">
+			<text font="letterica16" r="124" g="119" b="115"/>
+		</work_time>		
 	</power_params>
 
-    <wpn_params x="0" y="0" width="157" height="100">
-		<cap_damage x="0" y="5" width="121" height="8">
-			<text font="letterica16" r="124" g="119" b="115">ui_inv_damage</text>
+	<header width="364" height="16">
+		<text font="letterica16" color="UI_orange"/>
+	</header>
+	
+	<params_list x="0" y="0" width="0" height="0" always_show_scroll="0" left_ident="0" bottom_indent="0" vert_interval="1">
+	</params_list>
+	
+	<param_item x="0" y="0" width="235" height="16" stretch="1">
+		<text x="15" font="letterica16" complex_mode="1" align="l" vert_align="c"/>
+		<!-- <texture a="50">ui_inv_back_green</texture> -->
+		<icon x="0" y="0" width="12" height="16" stretch="1">
+			<text x="0" font="letterica16" complex_mode="1" align="c" vert_align="c"/>
+		</icon>
+		<name x="15" y="0" width="75" height="16" stretch="1">
+			<text x="0" font="letterica16" complex_mode="1" align="l" vert_align="c"/>
+		</name>		
+		<val x="90" y="0" width="50" height="16" stretch="1">
+			<text x="0" font="letterica16" complex_mode="1" align="l" vert_align="c"/>
+		</val>		
+	</param_item>	
+	
+    <loaded_ammo x="0" y="0" width="235" height="50">
+		<ammo_icon x="0" y="5" width="30" height="40" stretch="1">
+			<text font="letterica16" x="20" y="3"/>
+		</ammo_icon>
+	</loaded_ammo>
+
+    <wpn_params x="0" y="0" width="235" height="62">
+		<cap_damage x="0" y="0" width="50" height="10">
+			<text font="letterica16" r="124" g="119" b="115" vert_align="c">ui_inv_damage</text>
 		</cap_damage>	
-		<cap_dispersion x="0" y="36" width="121" height="8">
-			<text font="letterica16" r="124" g="119" b="115">ui_inv_dispersion</text>
+		<cap_dispersion x="0" y="10" width="50" height="10">
+			<text font="letterica16" r="124" g="119" b="115" vert_align="c">ui_inv_dispersion</text>
 		</cap_dispersion>
-		<cap_range x="0" y="67" width="121" height="8">
-			<text font="letterica16" r="124" g="119" b="115">ui_inv_range</text>
+		<cap_range x="0" y="20" width="50" height="10">
+			<text font="letterica16" r="124" g="119" b="115" vert_align="c">ui_inv_range</text>
 		</cap_range>		
-		<cap_rpm x="118" y="5" width="121" height="8">
-			<text font="letterica16" r="124" g="119" b="115">ui_inv_rate_of_fire</text>
+		<cap_rpm x="0" y="30" width="50" height="10">
+			<text font="letterica16" r="124" g="119" b="115" vert_align="c">ui_inv_rate_of_fire</text>
 		</cap_rpm>
-		<cap_speed x="118" y="36" width="121" height="8">
-			<text font="letterica16" r="124" g="119" b="115">ui_inv_speed</text>
+		<cap_speed x="0" y="40" width="50" height="10">
+			<text font="letterica16" r="124" g="119" b="115" vert_align="c">ui_inv_speed</text>
 		</cap_speed>		
-		<cap_reliability x="118" y="67" width="121" height="8">
-			<text font="letterica16" r="124" g="119" b="115">ui_inv_reliability</text>
-		</cap_reliability>		
+		<cap_reliability x="0" y="50" width="50" height="10" >
+			<text font="letterica16" r="124" g="119" b="115" vert_align="c">ui_inv_reliability</text>
+		</cap_reliability>
 		
-		<progress_damage x="0" y="21" width="90" height="8" horz="1" min="0" max="3" pos="0">
+		<val_damage x="50" y="0" width="50" height="10">
+			<text font="letterica16" r="124" g="119" b="115" vert_align="c" align="r"></text>
+		</val_damage>	
+		<val_dispersion x="50" y="10" width="50" height="10">
+			<text font="letterica16" r="124" g="119" b="115" vert_align="c" align="r"></text>
+		</val_dispersion>
+		<val_range x="50" y="20" width="50" height="10">
+			<text font="letterica16" r="124" g="119" b="115" vert_align="c" align="r"></text>
+		</val_range>		
+		<val_rpm x="50" y="30" width="50" height="10">
+			<text font="letterica16" r="124" g="119" b="115" vert_align="c" align="r"></text>
+		</val_rpm>
+		<val_speed x="50" y="40" width="50" height="10">
+			<text font="letterica16" r="124" g="119" b="115" vert_align="c" align="r"></text>
+		</val_speed>		
+		<val_reliability x="50" y="50" width="50" height="10" >
+			<text font="letterica16" r="124" g="119" b="115" vert_align="c" align="r"></text>
+		</val_reliability>		
+		
+		<progress_damage x="105" y="0" width="100" height="10" horz="1" min="0" max="3" pos="0">
 			<progress>
 				<texture a="255" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_alfa_line_16</texture>
 			</progress>
@@ -136,7 +166,7 @@
 				<texture a="100" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_16</texture>
 			</background>
 		</progress_damage>		
-		<progress_dispersion x="0" y="52" width="90" height="8" horz="1" min="0" max="10" pos="0">
+		<progress_dispersion x="105" y="10" width="100" height="10" horz="1" min="0" max="10" pos="0">
 			<progress>
 				<texture a="255" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_alfa_line_16</texture>
 			</progress>
@@ -144,7 +174,7 @@
 				<texture a="100" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_16</texture>
 			</background>
 		</progress_dispersion>
-		<progress_range x="0" y="83" width="90" height="8" horz="1" min="0" max="1000" pos="0">
+		<progress_range x="105" y="20" width="100" height="10" horz="1" min="0" max="1000" pos="0">
 			<progress>
 				<texture a="255" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_alfa_line_16</texture>
 			</progress>
@@ -152,7 +182,7 @@
 				<texture a="100" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_16</texture>
 			</background>
 		</progress_range>
-		<progress_rpm x="119" y="21" width="90" height="8" horz="1" min="0" max="1000" pos="0">
+		<progress_rpm x="105" y="30" width="100" height="10" horz="1" min="0" max="1000" pos="0">
 			<progress>
 				<texture a="255" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_alfa_line_16</texture>
 			</progress>
@@ -160,7 +190,7 @@
 				<texture a="100" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_16</texture>
 			</background>
 		</progress_rpm>		
-		<progress_speed x="119" y="52" width="90" height="8" horz="1" min="0" max="1000" pos="0">
+		<progress_speed x="105" y="40" width="100" height="10" horz="1" min="0" max="1000" pos="0">
 			<progress>
 				<texture a="255" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_alfa_line_16</texture>
 			</progress>
@@ -168,7 +198,7 @@
 				<texture a="100" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_16</texture>
 			</background>
 		</progress_speed>
-		<progress_reliability x="119" y="83" width="90" height="8" horz="1" min="0" max="10000" pos="0">
+		<progress_reliability x="105" y="50" width="100" height="10" horz="1" min="0" max="10000" pos="0">
 			<progress>
 				<texture a="255" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_alfa_line_16</texture>
 			</progress>
@@ -178,21 +208,34 @@
 		</progress_reliability>		
 	</wpn_params>
 
-    <knife_params x="0" y="0" width="157" height="70">
-		<cap_damage x="0" y="5" width="121" height="8">
-			<text font="letterica16" r="124" g="119" b="115">ui_inv_damage</text>
+    <knife_params x="0" y="0" width="235" height="42">
+		<cap_damage x="0" y="0" width="50" height="10">
+			<text font="letterica16" r="124" g="119" b="115" vert_align="c">ui_inv_damage</text>
 		</cap_damage>		
-		<cap_damage_2 x="0" y="36" width="121" height="8">
-			<text font="letterica16" r="124" g="119" b="115">ui_inv_damage_2</text>
+		<cap_damage_2 x="0" y="10" width="50" height="10">
+			<text font="letterica16" r="124" g="119" b="115" vert_align="c">ui_inv_damage_2</text>
 		</cap_damage_2>
-		<cap_range x="118" y="5" width="121" height="8">
-			<text font="letterica16" r="124" g="119" b="115">ui_inv_range</text>
+		<cap_range x="0" y="20" width="50" height="10">
+			<text font="letterica16" r="124" g="119" b="115" vert_align="c">ui_inv_range</text>
 		</cap_range>
-		<cap_reliability x="118" y="36" width="121" height="8">
-			<text font="letterica16" r="124" g="119" b="115">ui_inv_reliability</text>
+		<cap_reliability x="0" y="30" width="50" height="10">
+			<text font="letterica16" r="124" g="119" b="115" vert_align="c">ui_inv_reliability</text>
 		</cap_reliability>
 		
-		<progress_damage x="0" y="21" width="90" height="8" horz="1" min="0" max="2" pos="0">
+		<val_damage x="50" y="0" width="50" height="10">
+			<text font="letterica16" r="124" g="119" b="115" vert_align="c" align="r"></text>
+		</val_damage>		
+		<val_damage_2 x="50" y="10" width="50" height="10">
+			<text font="letterica16" r="124" g="119" b="115" vert_align="c" align="r"></text>
+		</val_damage_2>
+		<val_range x="50" y="20" width="50" height="10">
+			<text font="letterica16" r="124" g="119" b="115" vert_align="c" align="r"></text>
+		</val_range>
+		<val_reliability x="50" y="30" width="50" height="10">
+			<text font="letterica16" r="124" g="119" b="115" vert_align="c" align="r"></text>
+		</val_reliability>
+		
+		<progress_damage x="105" y="0" width="100" height="10" horz="1" min="0" max="2" pos="0">
 			<progress>
 				<texture a="255" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_alfa_line_16</texture>
 			</progress>
@@ -200,7 +243,7 @@
 				<texture a="100" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_16</texture>
 			</background>
 		</progress_damage>		
-		<progress_damage_2 x="0" y="52" width="90" height="8" horz="1" min="0" max="2" pos="0">
+		<progress_damage_2 x="105" y="10" width="100" height="10" horz="1" min="0" max="2" pos="0">
 			<progress>
 				<texture a="255" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_alfa_line_16</texture>
 			</progress>
@@ -208,7 +251,7 @@
 				<texture a="100" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_16</texture>
 			</background>
 		</progress_damage_2>
-		<progress_range x="119" y="21" width="90" height="8" horz="1" min="0" max="2" pos="0">
+		<progress_range x="105" y="20" width="100" height="10" horz="1" min="0" max="2" pos="0">
 			<progress>
 				<texture a="255" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_alfa_line_16</texture>
 			</progress>
@@ -216,7 +259,7 @@
 				<texture a="100" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_16</texture>
 			</background>
 		</progress_range>		
-		<progress_reliability x="119" y="52" width="90" height="8" horz="1" min="0" max="1000" pos="0">
+		<progress_reliability x="105" y="30" width="100" height="10" horz="1" min="0" max="1000" pos="0">
 			<progress>
 				<texture a="255" r="255" g="255" b="255">ui_inGame2_hint_wnd_bar_alfa_line_16</texture>
 			</progress>
@@ -226,44 +269,8 @@
 		</progress_reliability>
 	</knife_params>
 
-	<scroll_view_loadout x="0" y="0" width="157" height="20" complex_mode="1" always_show_scroll="0" vert_interval="1" bottom_indent="2">
-		<text font="letterica16" color="UI_orange" align="l" vert_align="c">st_loadout_header</text>
-		<pistol_ammo_icon x="0" y="0" width="13" height="14" stretch="1">
-			<texture>ui_pistol_ammo</texture>
-			<text x="15" align="l" vert_align="c"></text>
-		</pistol_ammo_icon>
-		<rifle_ammo_icon x="0" y="0" width="13" height="14" stretch="1">
-			<texture>ui_rifle_ammo</texture>
-			<text x="15" align="l" vert_align="c"></text>
-		</rifle_ammo_icon>
-		<shotgun_ammo_icon x="0" y="0" width="13" height="14" stretch="1">
-			<texture>ui_shotgun_ammo</texture>
-			<text x="15" align="l" vert_align="c"></text>
-		</shotgun_ammo_icon>
-		<heavy_ammo_icon x="0" y="0" width="13" height="14" stretch="1">
-			<texture>ui_heavy_ammo</texture>
-			<text x="15" align="l" vert_align="c"></text>
-		</heavy_ammo_icon>
-		<grenade_icon x="0" y="-1" width="13" height="15" stretch="1">
-			<texture>ui_grenade</texture>
-			<text x="15" align="l" vert_align="c"></text>
-		</grenade_icon>
-		<medicine_icon x="0" y="0" width="13" height="14" stretch="1">
-			<texture>ui_inv_icon_health_restore_speed</texture>
-			<text x="15" align="l" vert_align="c"></text>
-		</medicine_icon>
-		<scope_icon x="0" y="0" width="13" height="14" stretch="1">
-			<texture>ui_scope</texture>
-			<text x="15" align="l" vert_align="c"></text>
-		</scope_icon>
-		<silencer_icon x="0" y="0" width="13" height="14" stretch="1">
-			<texture>ui_silencer</texture>
-			<text x="15" align="l" vert_align="c"></text>
-		</silencer_icon>		
-	</scroll_view_loadout>
-
-    <plate_params x="0" y="0" width="200" height="40">
-		<cap_plate x="0" y="0" width="200" height="8">
+    <plate_params x="0" y="0" width="235" height="40">
+		<cap_plate x="0" y="0" width="235" height="8">
 			<text font="letterica16" r="124" g="119" b="115"/>
 		</cap_plate>	
 		<progress_condition x="0" y="30" width="90" height="8" horz="1" min="0" max="1">

@@ -13,6 +13,7 @@ local sm = ogsr_signals.get_mgr()
 local green = GetARGB(255, 0, 255, 0)
 local red = GetARGB(255, 255, 0, 0)
 local orange = GetARGB(255, 238, 153, 26)
+local default = GetARGB(255, 255, 255, 255)
 
 function attach(sm)
 	sm:subscribe({signal = "on_spawn",   			fun = this.create_window})
@@ -337,15 +338,6 @@ function ActorMenuOverlay:InitControls()
 	
 	self.loadout_back = xml:InitStatic("loadout_back", self)
 	prefix = "loadout_back:"
-	-- name = "loadout_back"
-	-- self:Register(self.loadout_back, name)
-	-- self:AddCallback(name, ui_events.STATIC_FOCUS_RECEIVED, self.LoadoutBackOnFocusReceived)
-	-- self:AddCallback(name, ui_events.STATIC_FOCUS_LOST, self.LoadoutBackOnFocusLost)
-	
-	-- self.clear_loadout = xml:Init3tButton(prefix.."clear_loadout_button", self.loadout_back)
-	-- name = "clear_loadout"
-	-- self:Register(self.clear_loadout, name)
-	-- self:AddCallback(name, ui_events.BUTTON_CLICKED, self.ClearLoadout, self)
 
 	self.loadout = loadout.slots_table()
 	for k,v in pairs(self.loadout) do
@@ -353,7 +345,7 @@ function ActorMenuOverlay:InitControls()
 		v.static = xml:InitStatic(prefix..k.."_static", self.loadout_back)
 		v.static:SetTextColor(self.loadout_color_default)
 		v.icon = xml:InitStatic(prefix..k.."_icon", v.static)
-		--v.icon:SetColor(self.loadout_color_default)
+		v.icon:SetColor(self.loadout_color_default)
 		self:Register(v.static, k)
 		self:AddCallback(k, ui_events.STATIC_FOCUS_RECEIVED, function() self:LoadoutSlotOnFocusReceived(k) end)
 		self:AddCallback(k, ui_events.STATIC_FOCUS_LOST, function() self:LoadoutSlotOnFocusLost(k) end)		
@@ -562,7 +554,7 @@ function ActorMenuOverlay:OnCellItemFocus(obj, cell_item)
 					color = self.loadout_color_highlight
 				end
 				v.static:SetTextColor(color)
-				--v.icon:SetColor(color)
+				v.icon:SetColor(color)
 			end
 		end
 	end
@@ -603,7 +595,7 @@ end
 function ActorMenuOverlay:OnCellItemFocusLost(obj, cell_item)
 	for k,v in pairs(self.loadout) do
 		v.static:SetTextColor(self.loadout_color_default)
-		--v.icon:SetColor(self.loadout_color_default)
+		v.icon:SetColor(self.loadout_color_default)
 	end
 	
 	--//dragdrop
@@ -846,6 +838,7 @@ end
 
 function ActorMenuOverlay:LoadoutSlotOnFocusReceived(slot_name)
 	self.loadout[slot_name].static:SetTextColor(self.loadout_color_equiped)
+	self.loadout[slot_name].icon:SetColor(self.loadout_color_equiped)
 	local type_descr = game.translate_string(slot_name)
 	local type_text = game.translate_string(string.format("%s%s%s","st_", slot_name, "_hint_text"))	
 	local tip_text = string.format("%s\\n \\n%s", type_descr, type_text)	
@@ -854,6 +847,7 @@ end
 
 function ActorMenuOverlay:LoadoutSlotOnFocusLost(slot_name)
 	self.loadout[slot_name].static:SetTextColor(self.loadout_color_default)
+	self.loadout[slot_name].icon:SetColor(self.loadout_color_default)
 	self:SetTooltip(nil)
 end
 

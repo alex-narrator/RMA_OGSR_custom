@@ -104,8 +104,8 @@ function MainIngameOverlay:Subscribe()
 			
 			{signal = "on_throw_grenade", self = self, fun = self.OnThrowGrenade},
 			
-			{signal = "on_actor_weapon_fire_mode_change", self = self, fun = self.ShowActiveitemInfo},
-			{signal = "on_actor_weapon_grenade_mode_change", self = self, fun = self.ShowActiveitemInfo},
+			{signal = "on_actor_weapon_fire_mode_change", self = self, fun = self.ShowActiveitemInfoSilent},
+			{signal = "on_actor_weapon_grenade_mode_change", self = self, fun = self.ShowActiveitemInfoSilent},
 		}
 		local sm = ogsr_signals.get_mgr()
 		for _, s in ipairs( self.subscribed ) do
@@ -753,6 +753,10 @@ function MainIngameOverlay:OnHudStateSwitch(item, state, old_state)
 		
 		self:ShowActiveitemInfo()
 	end
+end
+
+function MainIngameOverlay:ShowActiveitemInfoSilent()
+	self:ShowActiveitemInfo()
 end
 
 function MainIngameOverlay:ShowActiveitemInfo(play_effects)

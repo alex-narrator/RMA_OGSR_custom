@@ -7,6 +7,7 @@ end
 local green = GetARGB(255, 0, 255, 0)
 local red = GetARGB(255, 255, 0, 0)
 local orange = GetARGB(255, 238, 153, 26)
+local default = GetARGB(255, 255, 255, 255)
 
 local plus_are_bad = {
 	["radiation_restore_speed"] = true,
@@ -112,18 +113,9 @@ function UIItemInfo:InitControls()
 	tmp_tbl = split_string(self.xml:ReadAttrib(root, "offset", "0,0"), ",")
 	self.background_frame.offset = {x = tmp_tbl[1], y = tmp_tbl[2]}
 	
-	self.base_height = self.background_frame:GetHeight()
-	
-	self.name_st = self.xml:InitStatic(root..":static_name", self.background_frame)
-	self.weight_st = self.xml:InitStatic(root..":static_weight", self.background_frame)
-	self.cost_st = self.xml:InitStatic(root..":static_cost", self.background_frame)
-	self.cost_st.base_color = self.cost_st:GetTextColor()
-	
-	root = root..":descr_list"
-	self.descr_list = self.xml:InitScrollView(root, self.background_frame)
-	self.descr_list.font = self.xml:ReadAttrib(root, "font", def_font)
-	tmp_tbl = split_string(self.xml:ReadAttrib(root, "text_color", def_color), ",")
-	self.descr_list.text_color = GetARGB(tmp_tbl[1], tmp_tbl[2], tmp_tbl[3], tmp_tbl[4])
+	root = root..":info_list"
+	self.info_list = self.xml:InitScrollView(root, self.background_frame)
+	self.dcw = self.info_list:GetDesiredChildWidth()
 end
 
 function UIItemInfo:InitItemInfo()
@@ -132,44 +124,47 @@ function UIItemInfo:InitItemInfo()
 	return end
 	
 	self.background_frame:Show(true)
+	self.info_list:Clear()
 	local sect = item:section()
-	local text = get_inv_name(sect)
-	self.name_st:SetText(text)
-	self.name_st:SetWidth(self.descr_list:GetDesiredChildWidth())
-	text = string.format("%3.2f %s", item:weight(), game.translate_string("st_kg"))
-	self.weight_st:SetText(text)
 	
+	local root = "background_frame"
+	local item_name = self.xml:InitStatic(root..":item_name", self.info_list)
+	item_name:SetWidth(self.dcw)
+	item_name:SetText(get_inv_name(sect))
+	item_name:AdjustHeightToText()
+	
+	local weight_cost = self.xml:InitStatic(root..":weight_cost", self.info_list)
+	weight_cost:SetWidth(self.dcw)
+	
+	local weight = self.xml:InitStatic(root..":weight_cost:weight", weight_cost)
+	weight:SetText(string.format("%3.2f %s", item:weight(), game.translate_string("st_kg")))
+	-- weight:AdjustHeightToText()
+
 	local trade_partner = level.get_second_talker()
-	local cost = trade_manager.get_trade_cost(item)
-	self.cost_st:Show(trade_partner and cost > 0)
-	text = string.format("%d %s", cost, game.translate_string("ui_st_money_regional"))
-	self.cost_st:SetText(text)
-	if self.cost_st:IsShown() then
-		if ((parent_is_actor(item) and trade_partner:money() < cost) or (not parent_is_actor(item) and actor:money() < cost)) then
-			self.cost_st:SetTextColor(GetARGB(255, 255, 0, 0))
-		else
-			self.cost_st:SetTextColor(self.cost_st.base_color)
-		end
+	local item_cost = trade_manager.get_trade_cost(item)
+	if trade_partner and item_cost > 0 then
+		local cost = self.xml:InitStatic(root..":weight_cost:cost", weight_cost)
+		cost:SetText(string.format("%d %s", item_cost, game.translate_string("ui_st_money_regional")))
+		-- cost:AdjustHeightToText()
+		if ((parent_is_actor(item) and trade_partner:money() < item_cost) or (not parent_is_actor(item) and actor:money() < item_cost)) then
+			cost:SetTextColor(red)
+		end		
 	end
 	
-	self.descr_list:Clear()
-	--ogsr_signals.get_mgr():call("on_item_info_init", self.descr_list, item, self.xml)
+	self:AttachDivider()
+	
 	self:AttachCustomInfo()
+	
 	text = get_inv_descr(sect)
 	if text then
-		self.descr_text = CUIStatic()
-		self.descr_text:SetWidth(self.descr_list:GetDesiredChildWidth())
-		self.descr_text:SetText(text)
-		self.descr_text:SetTextComplexMode(true)
-		self.descr_text:SetTextColor(self.descr_list.text_color)
-		self.descr_text:SetFont(GetFontCustom(self.descr_list.font))
-		--self.descr_text:AdjustHeightToText()
-		
-		self.descr_text:AdjustHeightToText()
-		self.descr_list:AddWindow(self.descr_text)
+		local static = self.xml:InitStatic(root..":description", self.info_list)
+		static:SetWidth(self.dcw)
+		static:SetText(text)
+		static:AdjustHeightToText()
 	end
-	self.descr_list:SetHeight(self.descr_list:GetPadSize().y)
-	self.background_frame:SetHeight(self.base_height + self.descr_list:GetHeight())
+	self.info_list:SetHeight(self.info_list:GetPadSize().y + self.info_list:GetVertIndent())
+	self.background_frame:SetWidth(self.info_list:GetWidth())
+	self.background_frame:SetHeight(self.info_list:GetHeight())
 	
 	self.background_contrast:Show(true)
 	local rect = Frect()
@@ -183,6 +178,9 @@ function UIItemInfo:InitItemInfo()
 		self.background_frame:SetWndPos(offset.x, offset.y)
 		self.background_contrast:SetWndPos(offset.x, offset.y)
 	end
+	
+	self.info_list:SetScrollPos(0)
+	self.info_list:ForceScrollPos()
 end
 
 function UIItemInfo:SetShowTime()
@@ -219,6 +217,8 @@ function UIItemInfo:Update()
 		self.show_time = nil
 	end
 	self:UpdateWndPos()
+	self.info_list:SetScrollPos(0)
+	self.info_list:ForceScrollPos()
 end
 
 function UIItemInfo:OnKeyboard(dik, keyboard_action)
@@ -231,13 +231,46 @@ function UIItemInfo:OnKeyboard(dik, keyboard_action)
 end
 ------------------------------------------ADDITIONAL WINDOWS-----------------------------------------------------------------------------------------------------------------
 
+function UIItemInfo:AttachDivider()
+	local divider = self.xml:InitStatic("divider", self.info_list)
+	divider:SetWidth(self.dcw)
+	return divider
+end
+
+function UIItemInfo:AttachParamsList()
+	local params_list = self.xml:InitScrollView("params_list", self.info_list)
+	params_list:SetWidth(self.dcw)
+	return params_list
+end
+
+function UIItemInfo:AdjustParamsList(params_list)
+	params_list:SetHeight(params_list:GetPadSize().y + params_list:GetVertIndent())
+	params_list:SetScrollPos(0)
+	params_list:ForceScrollPos()
+end
+
+function UIItemInfo:AttachHeader(text, params_list)
+	local header = self.xml:InitStatic("header", params_list)
+	header:SetWidth(params_list:GetDesiredChildWidth())
+	header:SetText(game.translate_string(text))
+	header:AdjustHeightToText()
+end
+
+function UIItemInfo:AttachParamItem(parent_list)
+	local static = self.xml:InitStatic("param_item", parent_list)
+	static:SetWidth(parent_list:GetDesiredChildWidth())
+	static.icon = self.xml:InitStatic("param_item:icon", static)
+	static.val = self.xml:InitStatic("param_item:val", static)
+	static.name = self.xml:InitStatic("param_item:name", static)
+	return static
+end
+
 function UIItemInfo:AttachCustomInfo()
 
 	local function create_divider(show)
 		if not show then
 		return end
-		local divider = self.xml:InitStatic("divider", self.descr_list)
-		divider:SetWidth(self.descr_list:GetDesiredChildWidth())		
+		self:AttachDivider()
 	end
 
 	create_divider(self:AttachConditionParams())
@@ -300,15 +333,6 @@ function UIItemInfo:AttachCustomInfo()
 	create_divider(self:AttachQuestTargetInfo())
 end
 
-function UIItemInfo:AttachHeader(tbl, text, params_list)
-	tbl.header = CUIStatic()
-	tbl.header:SetWidth(params_list:GetDesiredChildWidth())
-	tbl.header:SetTextComplexMode(true)
-	tbl.header:SetText(string.format("%s%s", "%c[UI_orange]", game.translate_string(text)))
-	tbl.header:AdjustHeightToText()
-	params_list:AddWindow(tbl.header)
-end
-
 ------------------------------------------ITEM CONDITION WND-----------------------------------------------------------------------------------------------------------------
 function UIItemInfo:AttachConditionParams()
 	local condition = self.item:condition()
@@ -317,7 +341,9 @@ function UIItemInfo:AttachConditionParams()
 	if not show_cond then
 	return end
 	
-	local condition_params = self.xml:InitStatic("condition_params", self.descr_list)
+	local condition_params = self.xml:InitStatic("condition_params", self.info_list)
+	condition_params:SetWidth(self.dcw)
+	local condition_icon = self.xml:InitStatic("condition_params:icon", condition_params)
 	local condition_progress = self.xml:InitProgressBar("condition_params:condition_progress", condition_params)
 	condition_progress:SetProgressPos(condition)
 	return true
@@ -338,15 +364,13 @@ local effect_params = {
 	{param = "additional_weight", 			name = "ui_inv_weight", 			texture = "ui_hud_icon_overweight"},
 	{param = "power_loss", 					name = "st_power_loss", 			texture = "ui_hud_icon_power_loss"},
 }
-local effect_st = {}
 function UIItemInfo:AttachEffectparams()
 	local inv_item = self.item:get_inventory_item()
 	local val, sn, color
 	local show = false
 	
-	effect_st = {}
-	local params_list = self.xml:InitScrollView("params_list", self.descr_list)
-	self:AttachHeader(effect_st, "st_effects_header", params_list)
+	local params_list = self:AttachParamsList()
+	self:AttachHeader("st_effects_header", params_list)
 
 	for k,v in ipairs(effect_params) do
 		val = v.param == "power_loss" and inv_item.power_loss or inv_item:item_effect(k-1)
@@ -370,23 +394,20 @@ function UIItemInfo:AttachEffectparams()
 			 	sn = game.translate_string("st_percent")
 				val = val * 100
 			end
-			effect_st[k] = self.xml:InitStatic("effect_item", params_list)
-			effect_st[k]:SetWidth(params_list:GetDesiredChildWidth())
-			effect_st[k].icon = self.xml:InitStatic("effect_item:icon", effect_st[k])
-			effect_st[k].icon:InitTexture(v.texture or "")
-			effect_st[k].val = self.xml:InitStatic("effect_item:val", effect_st[k])
-			color = val > 0 and green or red--"%c[green]" or "%c[red]"
+			local static = self:AttachParamItem(params_list)
+			static.icon:InitTexture(v.texture or "")
+			color = val > 0 and green or red
 			if plus_are_bad[v.param] then
-				color = val > 0 and red or green--"%c[red]" or "%c[green]"
+				color = val > 0 and red or green
 			end
-			effect_st[k]:SetText(game.translate_string(v.name))
-			effect_st[k].val:SetText(string.format("%+.1f %s", val, sn))
-			effect_st[k].val:SetTextColor(color)
-			effect_st[k].icon:SetColor(color)
+			static:SetText(game.translate_string(v.name))
+			static.val:SetText(string.format("%+.1f %s", val, sn))
+			static.val:SetTextColor(color)
+			static.icon:SetColor(color)
 			show = true
 		end
 	end
-	params_list:SetHeight(params_list:GetPadSize().y)
+	self:AdjustParamsList(params_list)
 	if not show then
 		params_list:Show(false)
 	end
@@ -405,15 +426,13 @@ local protection_params = {
 	{param = "explosion_immunity", 		name = "ui_inv_explosion_protection", 		texture = "ui_hud_icon_explosion_protection"},
 	{param = "fire_wound_immunity", 	name = "ui_inv_fire_wound_protection", 		texture = "ui_hud_icon_fire_wound_protection"},
 }
-local protection_st = {}
 function UIItemInfo:AttachProtectionParams()
 	local inv_item = self.item:get_inventory_item()
 	local val, sn, color
 	local show = false
 
-	protection_st = {}
-	local params_list = self.xml:InitScrollView("params_list", self.descr_list)
-	self:AttachHeader(protection_st, "st_protection_header", params_list)
+	local params_list = self:AttachParamsList()
+	self:AttachHeader("st_protection_header", params_list)
 
 	for k,v in ipairs(protection_params) do
 		val = inv_item:hit_type_protection(k-1)
@@ -421,20 +440,17 @@ function UIItemInfo:AttachProtectionParams()
 			sn = game.translate_string("st_percent")
 			--log3("~self:AttachProtectionParams param %s | val %s", v.param, val)
 			val = val * 100
-			protection_st[k] = self.xml:InitStatic("effect_item", params_list)
-			protection_st[k]:SetWidth(params_list:GetDesiredChildWidth())
-			protection_st[k].icon = self.xml:InitStatic("effect_item:icon", protection_st[k])
-			protection_st[k].icon:InitTexture(v.texture or "")
-			protection_st[k].val = self.xml:InitStatic("effect_item:val", protection_st[k])			
+			local static = self:AttachParamItem(params_list)
+			static.icon:InitTexture(v.texture or "")
 			color = val > 0 and green or red
-			protection_st[k]:SetText(game.translate_string(v.name))
-			protection_st[k].val:SetText(string.format("%+.1f %s", val, sn))
-			protection_st[k].val:SetTextColor(color)
-			protection_st[k].icon:SetColor(color)			
+			static:SetText(game.translate_string(v.name))
+			static.val:SetText(string.format("%+.1f %s", val, sn))
+			static.val:SetTextColor(color)
+			static.icon:SetColor(color)			
 			show = true
 		end
 	end
-	params_list:SetHeight(params_list:GetPadSize().y)
+	self:AdjustParamsList(params_list)
 	if not show then
 		params_list:Show(false)
 	end
@@ -453,38 +469,33 @@ local eatable_params = {
 	{param = "wounds_heal", name = "ui_inv_wounds_heal", 	texture = "ui_hud_icon_drop"},
 	{param = "somnolence", 	name = "ui_inv_somnolence", 	texture = "ui_hud_icon_somnolence"},
 }
-local eatable_st = {}
 function UIItemInfo:AttachEatableParams()
 	local eatable = self.item:get_eatable_item()
 	local val, sn, text, color
 	local show = false
 
-	eatable_st = {}
-	local params_list = self.xml:InitScrollView("params_list", self.descr_list)
-	self:AttachHeader(eatable_st, "st_influence_header", params_list)
+	local params_list = self:AttachParamsList()
+	self:AttachHeader("st_influence_header", params_list)
 
 	for k,v in ipairs(eatable_params) do
 		val = v.param == "somnolence" and somnolence.get_influence(self.item) or eatable:influence(k-1)
 		if val ~= 0 then
 			sn = game.translate_string("st_percent")
 			val = val * 100
-			eatable_st[k] = self.xml:InitStatic("effect_item", params_list)
-			eatable_st[k]:SetWidth(params_list:GetDesiredChildWidth())
-			eatable_st[k].icon = self.xml:InitStatic("effect_item:icon", eatable_st[k])
-			eatable_st[k].icon:InitTexture(v.texture or "")
-			eatable_st[k].val = self.xml:InitStatic("effect_item:val", eatable_st[k])			
+			local static = self:AttachParamItem(params_list)
+			static.icon:InitTexture(v.texture or "")
 			color = val > 0 and green or red
 			if plus_are_bad_eatable[v.param] then
 				color = val > 0 and red or green
 			end
-			eatable_st[k]:SetText(game.translate_string(v.name))
-			eatable_st[k].val:SetText(string.format("%+.1f %s", val, sn))
-			eatable_st[k].val:SetTextColor(color)
-			eatable_st[k].icon:SetColor(color)
+			static:SetText(game.translate_string(v.name))
+			static.val:SetText(string.format("%+.1f %s", val, sn))
+			static.val:SetTextColor(color)
+			static.icon:SetColor(color)
 			show = true
 		end
 	end
-	params_list:SetHeight(params_list:GetPadSize().y)
+	self:AdjustParamsList(params_list)
 	if not show then
 		params_list:Show(false)
 	end
@@ -520,16 +531,14 @@ local boost_params = {
 	{param = "boost_pain", 					name = "ui_inv_painkiller", 				texture = "ui_hud_icon_pain"},	
 	{param = "boost_time", 					name = "ui_inv_boost_time", 				texture = "time_limited_task_icon"},
 }
-local boost_st = {}
 function UIItemInfo:AttachBoosterParams()
 	local eatable = self.item:get_eatable_item()
 	local sect = self.item:section()
 	local val, sn, text, color
 	local show = false
 	
-	boost_st = {}
-	local params_list = self.xml:InitScrollView("params_list", self.descr_list)
-	self:AttachHeader(boost_st, "st_boost_header", params_list)
+	local params_list = self:AttachParamsList()
+	self:AttachHeader("st_boost_header", params_list)
 
 	for k,v in ipairs(boost_params) do
 		if v.param == "boost_time" then
@@ -555,25 +564,23 @@ function UIItemInfo:AttachBoosterParams()
 				sn = game.translate_string("st_percent")
 				val = val * 100
 			end
-			boost_st[k] = self.xml:InitStatic("effect_item", params_list)
-			boost_st[k]:SetWidth(params_list:GetDesiredChildWidth())
-			boost_st[k].icon = self.xml:InitStatic("effect_item:icon", boost_st[k])
-			boost_st[k].icon:InitTexture(v.texture or "")
-			boost_st[k].val = self.xml:InitStatic("effect_item:val", boost_st[k])
+			local static = self:AttachParamItem(params_list)
+			static.icon = self.xml:InitStatic("param_item:icon", static)
+			static.icon:InitTexture(v.texture or "")
 			color = val > 0 and green or red
 			if plus_are_bad[v.param] then
 				color = val > 0 and red or green
 			elseif v.param == "boost_time" then
 				color = orange
 			end
-			boost_st[k]:SetText(game.translate_string(v.name))
-			boost_st[k].val:SetText(v.param == "boost_time" and string.format("[%.f %s]", val, sn) or string.format("%+.1f %s", val, sn))
-			boost_st[k].val:SetTextColor(color)
-			boost_st[k].icon:SetColor(color)
+			static:SetText(game.translate_string(v.name))
+			static.val:SetText(v.param == "boost_time" and string.format("[%.f %s]", val, sn) or string.format("%+.1f %s", val, sn))
+			static.val:SetTextColor(color)
+			static.icon:SetColor(color)
 			show = true
 		end
 	end
-	params_list:SetHeight(params_list:GetPadSize().y)
+	self:AdjustParamsList(params_list)
 	if not show then
 		params_list:Show(false)
 	end
@@ -590,16 +597,8 @@ function UIItemInfo:AttachAnmUseParams()
 	
 	local use_delay = read_if_exists(sys_ini, "float", hud_sect, "use_delay", anm_length * 0.001)
 	
-	-- local static = self.xml:InitStatic("anm_use_time", self.descr_list)
-	-- local text = string.format("%s %s %s%.1f %s", game.translate_string("st_list_mark"), game.translate_string("st_anm_use_time"), "%c[UI_orange]", use_delay, game.translate_string("st_time_second"))
-	-- static:SetText(text)
-	-- --static:AdjustHeightToText()
-	-- static:AdjustWidthToText()
-	local static = self.xml:InitStatic("effect_item", self.descr_list)
-	static:SetWidth(self.descr_list:GetDesiredChildWidth())
-	static.icon = self.xml:InitStatic("effect_item:icon", static)
+	local static = self:AttachParamItem(self.info_list)
 	static.icon:InitTexture("time_limited_task_icon")
-	static.val = self.xml:InitStatic("effect_item:val", static)
 	static:SetText(game.translate_string("st_anm_use_time"))
 	static.val:SetText(string.format("[%.f %s]", use_delay, game.translate_string("st_time_second")))
 	static.val:SetTextColor(orange)
@@ -626,26 +625,23 @@ local armor_params = {
 	{bone = "bip01_l_foot", 	name = "st_armor_foot"},
 	{bone = "bip01_l_toe0", 	name = "st_armor_toe"},
 }
-local armor_st = {}
 function UIItemInfo:AttachArmorParams()
 	local bones_protect_sect = self.item:get_inventory_item().bone_protection_sect
 	if not bones_protect_sect or self.item:condition() == 0 then
 	return end
 	
-	local val, sn, text, tmp_tbl, bone_protect_str
 	local show = false
 	
-	armor_st = {}
 	local armored_bones = {}
-	sn = game.translate_string("st_armor_class")
-	local params_list = self.xml:InitScrollView("params_list", self.descr_list)
-	self:AttachHeader(armor_st, "st_armor_header", params_list)
-
+	local sn = game.translate_string("st_armor_class")
+	local params_list = self:AttachParamsList()
+	self:AttachHeader("st_armor_header", params_list)
+	
 	for k,v in ipairs(armor_params) do
-		bone_protect_str = read_if_exists(sys_ini, "string", bones_protect_sect, v.bone, nil)
+		local bone_protect_str = read_if_exists(sys_ini, "string", bones_protect_sect, v.bone, nil)
 		if bone_protect_str then
-			tmp_tbl = split_string(bone_protect_str, ",")
-			val = tonumber(tmp_tbl[2])
+			local tmp_tbl = split_string(bone_protect_str, ",")
+			local val = tonumber(tmp_tbl[2])
 			if val > 0 then
 				if not armored_bones[val] then
 					armored_bones[val] = {}
@@ -657,36 +653,41 @@ function UIItemInfo:AttachArmorParams()
 	
 	local divider
 	for armor_class, armored_bone_names in pairs(armored_bones) do
-		text = string.format("%s %s%.0f %s: %s", game.translate_string("st_list_mark"),"%c[UI_orange]", armor_class, sn, "%c[default]")
+		local text = ""--string.format("%s %s%.0f %s: %s", game.translate_string("st_list_mark"),"%c[UI_orange]", armor_class, sn, "%c[default]")
 		for i=1, table.size(armored_bone_names) do
 			divider = armored_bone_names[i+1] and ", " or ""
 			text = text..armored_bone_names[i]..divider
 		end
 		--log3("~text %s", text)
-		armor_st[armor_class] = CUIStatic()--self.xml:InitStatic(v.st_name, params_list)
-		armor_st[armor_class]:SetWidth(params_list:GetDesiredChildWidth())
-		armor_st[armor_class]:SetText(text)
-		armor_st[armor_class]:SetTextComplexMode(true)		
-		--armor_st[armor_class]:SetFont(GetFontCustom(font))
-		armor_st[armor_class]:AdjustHeightToText()
-		params_list:AddWindow(armor_st[armor_class])
+		local static = self:AttachParamItem(params_list)
+		static.icon:InitTexture("ui_hud_icon_fire_wound_protection")
+		static.icon:SetColor(green)
+		-- static.icon:SetText(armor_class)
+		static.name:SetText(text)
+		static.name:AdjustHeightToText()
+		if static.name:GetHeight() > static:GetHeight() then
+			static:SetHeight(static.name:GetHeight())
+		else
+			static.name:SetHeight(static:GetHeight())
+		end
+		static.val:SetText(string.format("%.0f %s", armor_class, sn))
+		static.val:SetTextColor(green)
 		show = true		
 	end
 	
 	--hit fraction
-	val = read_if_exists(sys_ini, "float", bones_protect_sect, "hit_fraction", 0.1)
+	local val = read_if_exists(sys_ini, "float", bones_protect_sect, "hit_fraction", 0.1)
 	if val > 0 then
-		armor_st["hit_fraction"] = CUIStatic()--self.xml:InitStatic("hit_fraction", params_list)
-		armor_st["hit_fraction"]:SetWidth(params_list:GetDesiredChildWidth())
-		text = string.format("%s %s%.0f%s %s%s", game.translate_string("st_list_mark"),"%c[UI_orange]", val * 100, game.translate_string("st_percent"), "%c[default]", game.translate_string("st_armor_hit_fraction"))
-		armor_st["hit_fraction"]:SetText(text)
-		armor_st["hit_fraction"]:SetTextComplexMode(true)	
-		--armor_st["hit_fraction"]:SetFont(GetFontCustom(font))
-		armor_st["hit_fraction"]:AdjustHeightToText()
-		params_list:AddWindow(armor_st["hit_fraction"])
+		--local text = string.format("%s %s%.0f%s %s%s", game.translate_string("st_list_mark"),"%c[UI_orange]", val * 100, game.translate_string("st_percent"), "%c[default]", game.translate_string("st_armor_hit_fraction"))
+		local static = self:AttachParamItem(params_list)
+		static.icon:InitTexture("ui_hud_icon_fire_wound_protection")
+		static.icon:SetColor(orange)
+		static:SetText(game.translate_string("st_armor_hit_fraction"))
+		static.val:SetText(string.format("%.0f %s", val * 100, game.translate_string("st_percent")))
+		static.val:SetTextColor(orange)
 	end
 	--
-	params_list:SetHeight(params_list:GetPadSize().y)
+	self:AdjustParamsList(params_list)
 	if not show then
 		params_list:Show(false)
 	end
@@ -697,111 +698,79 @@ end
 function UIItemInfo:AttachPowerParams()
 	local bind_item = self.item:binded_object()
 
-	local power_params = self.xml:InitScrollView("power_params", self.descr_list)--self.xml:InitStatic("power_params", self.descr_list)
+	local power_params = self.xml:InitStatic("power_params", self.info_list)
+	power_params:SetWidth(self.dcw)
 	
-	if not read_if_exists(sys_ini, "bool", self.item:section(), "condition_as_power", false) then
-		local cap_power = self.xml:InitStatic("power_params:cap_power", power_params)
-		cap_power:SetText(game.translate_string(read_if_exists(sys_ini, "string", self.item:section(), "power_level_name", "st_power_level")))
-		cap_power:AdjustHeightToText()
-		
-		local power_progress = self.xml:InitProgressBar("power_params:progress_power", power_params)
-		local power_level = bind_item:get_power_level()
-		power_progress:SetProgressPos(power_level)
-	end
+	--power_params:SetText(game.translate_string(read_if_exists(sys_ini, "string", self.item:section(), "power_level_name", "st_power_level")))
+
+	local power_progress = self.xml:InitProgressBar("power_params:progress_power", power_params)
 	
-	local cap_work_time = self.xml:InitStatic("power_params:cap_work_time", power_params)
+	local power_icon = self.xml:InitStatic("power_params:icon", power_params)
+	
+	local power_level = bind_item:get_power_level()
+	power_progress:SetProgressPos(power_level)
+	
+	local work_time = self.xml:InitStatic("power_params:work_time", power_params)
 	local worktime_text = string.format("%s %s %s", game.translate_string("st_work_time"), bind_item:get_work_time(), game.translate_string("st_time_hour"))
 	if bind_item:power_source_detachable() then
 		worktime_text = worktime_text..string.format(" [%s]", get_inv_name(bind_item:get_power_sect()))
 	end
-	cap_work_time:SetText(worktime_text)
-	cap_work_time:AdjustHeightToText()
-	
-	power_params:SetHeight(power_params:GetPadSize().y)
+	work_time:SetText(worktime_text)
+	work_time:AdjustHeightToText()
 	
 	return true
 end
 
 ------------------------------------------WEAPON PARAMS WND-----------------------------------------------------------------------------------------------------------------
+local weapon_params = {
+	["dispersion"] 	= { fmt = "%.2f", func = function(item) return ui_wpn_params.GetDispersion(item) end, },
+	["damage"] 		= { fmt = "%.1f", func = function(item) return ui_wpn_params.GetDamage(item) end, },
+	["speed"] 		= { fmt = "%.0f", func = function(item) return ui_wpn_params.GetSpeed(item) end, },
+	["rpm"] 		= { fmt = "%.0f", func = function(item) return ui_wpn_params.GetRPM(item) end, },
+	["range"] 		= { fmt = "%.0f", func = function(item) return ui_wpn_params.GetRange(item) end, },
+	["reliability"] = { fmt = "%.0f", func = function(item) return ui_wpn_params.GetReliability(item) end, },
+}
 function UIItemInfo:AttachWpnParams()
 	if not read_if_exists(sys_ini, "bool", self.item:section(), "show_wpn_properties", true) then
 	return end
 	
 	local name = "wpn_params"
-	local main = self.xml:InitStatic(name, self.descr_list)
+	local main = self.xml:InitStatic(name, self.info_list)
 	
-	local cap_dispersion 	= self.xml:InitStatic(name..":cap_dispersion", main)
-	local cap_damage 		= self.xml:InitStatic(name..":cap_damage", main)
-	local cap_speed 		= self.xml:InitStatic(name..":cap_speed", main)
-	local cap_rpm 			= self.xml:InitStatic(name..":cap_rpm", main)
-	local cap_range 		= self.xml:InitStatic(name..":cap_range", main)
-	local cap_reliability 	= self.xml:InitStatic(name..":cap_reliability", main)
-
-	local progress_dispersion 	= self.xml:InitProgressBar(name..":progress_dispersion", main)
-	local progress_damage 		= self.xml:InitProgressBar(name..":progress_damage", main)
-	local progress_speed 		= self.xml:InitProgressBar(name..":progress_speed", main)
-	local progress_rpm 			= self.xml:InitProgressBar(name..":progress_rpm", main)
-	local progress_range 		= self.xml:InitProgressBar(name..":progress_range", main)
-	local progress_reliability 	= self.xml:InitProgressBar(name..":progress_reliability", main)
-	
-	local params = ui_wpn_params
-	
-	local text = string.format("%s (%.2f)", cap_dispersion:GetText(), params.GetDispersion(self.item))
-	cap_dispersion:SetText(text)
-	text = string.format("%s (%.1f)", cap_damage:GetText(), params.GetDamage(self.item))
-	cap_damage:SetText(text)
-	text = string.format("%s (%.0f)", cap_speed:GetText(), params.GetSpeed(self.item))
-	cap_speed:SetText(text)
-	text = string.format("%s (%.0f)", cap_rpm:GetText(), params.GetRPM(self.item))
-	cap_rpm:SetText(text)	
-	text = string.format("%s (%.0f)", cap_range:GetText(), params.GetRange(self.item))
-	cap_range:SetText(text)	
-	text = string.format("%s (%.0f)", cap_reliability:GetText(), params.GetReliability(self.item))
-	cap_reliability:SetText(text)		
-	
-	progress_dispersion:SetProgressPos(params.GetDispersion(self.item))
-	progress_damage:SetProgressPos(params.GetDamage(self.item))
-	progress_speed:SetProgressPos(params.GetSpeed(self.item))
-	progress_rpm:SetProgressPos(params.GetRPM(self.item))
-	progress_range:SetProgressPos(params.GetRange(self.item))
-	progress_reliability:SetProgressPos(params.GetReliability(self.item))
+	for k,v in pairs(weapon_params) do
+		local cap = self.xml:InitStatic(name..":cap_"..k, main)
+		local val = self.xml:InitStatic(name..":val_"..k, main)
+		local progress = self.xml:InitProgressBar(name..":progress_"..k, main)
+		local value = v.func(self.item)
+		val:SetText(string.format(v.fmt, value))
+		progress:SetProgressPos(value)
+	end
 	
 	return true
 end
 
 ------------------------------------------KNIFE PARAMS WND-----------------------------------------------------------------------------------------------------------------
+local knife_params = {
+	["damage"] 		= { fmt = "%.1f", func = function(item) return ui_wpn_params.GetDamage(item) end, },
+	["damage_2"] 	= { fmt = "%.1f", func = function(item) return ui_wpn_params.GetDamage2(item) end, },
+	["range"] 		= { fmt = "%.0f", func = function(item) return ui_wpn_params.GetRange(item) end, },
+	["reliability"] = { fmt = "%.0f", func = function(item) return ui_wpn_params.GetReliability(item) end, },
+}
 function UIItemInfo:AttachKnifeParams()
 	if not read_if_exists(sys_ini, "bool", self.item:section(), "show_wpn_properties", true) then
 	return end
 	
 	local name = "knife_params"
-	local main = self.xml:InitStatic(name, self.descr_list)
+	local main = self.xml:InitStatic(name, self.info_list)
 	
-	local cap_damage 		= self.xml:InitStatic(name..":cap_damage", main)
-	local cap_damage_2 		= self.xml:InitStatic(name..":cap_damage_2", main)
-	local cap_range 		= self.xml:InitStatic(name..":cap_range", main)
-	local cap_reliability 	= self.xml:InitStatic(name..":cap_reliability", main)
-
-	local progress_damage 		= self.xml:InitProgressBar(name..":progress_damage", main)
-	local progress_damage_2 	= self.xml:InitProgressBar(name..":progress_damage_2", main)
-	local progress_range 		= self.xml:InitProgressBar(name..":progress_range", main)
-	local progress_reliability 	= self.xml:InitProgressBar(name..":progress_reliability", main)
-	
-	local params = ui_wpn_params
-	
-	local text = string.format("%s (%.1f)", cap_damage:GetText(), params.GetDamage(self.item))
-	cap_damage:SetText(text)
-	text = string.format("%s (%.1f)", cap_damage_2:GetText(), params.GetDamage2(self.item))
-	cap_damage_2:SetText(text)	
-	text = string.format("%s (%.1f)", cap_range:GetText(), params.GetRange(self.item))
-	cap_range:SetText(text)	
-	text = string.format("%s (%.0f)", cap_reliability:GetText(), params.GetReliability(self.item))
-	cap_reliability:SetText(text)		
-	
-	progress_damage:SetProgressPos(params.GetDamage(self.item))
-	progress_damage_2:SetProgressPos(params.GetDamage(self.item))
-	progress_range:SetProgressPos(params.GetRange(self.item))
-	progress_reliability:SetProgressPos(params.GetReliability(self.item))
+	for k,v in pairs(knife_params) do
+		local cap = self.xml:InitStatic(name..":cap_"..k, main)
+		local val = self.xml:InitStatic(name..":val_"..k, main)
+		local progress = self.xml:InitProgressBar(name..":progress_"..k, main)
+		local value = v.func(self.item)
+		val:SetText(string.format(v.fmt, value))
+		progress:SetProgressPos(value)
+	end
 	
 	return true
 end
@@ -822,7 +791,7 @@ function UIItemInfo:AttachLoadedAmmo()
 
 	pos_x = 0
 	
-	local main = self.xml:InitStatic("loaded_ammo", self.descr_list)
+	local main = self.xml:InitStatic("loaded_ammo", self.info_list)
 	
 	local ammo_s = {}
 	for i=1,3 do
@@ -858,7 +827,7 @@ function UIItemInfo:AttachMagazineAmmo()
 	if ammo.box_curr == 0 then
 	return end
 	
-	local main = self.xml:InitStatic("loaded_ammo", self.descr_list)
+	local main = self.xml:InitStatic("loaded_ammo", self.info_list)
 	local ammo_icon = self.xml:InitStatic("loaded_ammo:ammo_icon", main)
 	
 	pos_x = 0
@@ -884,17 +853,14 @@ local addon_type = {
 	"ammo",
 	"grenade"
 }
-local addons_st = {}
 function UIItemInfo:AttachWpnAddons()
 	if get_script_option_value("wpn_addon_ammo_wnd_separate") then
 	return end
 	
 	local sect = self.item:section()
-	
-	addons_st = {}
 
-	local params_list = self.xml:InitScrollView("params_list", self.descr_list)
-	self:AttachHeader(addons_st, "st_compatible_addon", params_list)
+	local params_list = self:AttachParamsList()
+	self:AttachHeader("st_compatible_ammo_addon", params_list)
 	
 	local function add_white_space()
 		local white_space = CUIStatic()
@@ -928,25 +894,17 @@ function UIItemInfo:AttachWpnAddons()
 	for i,addon in pairs(addon_type) do
 		local addon_str = get_addon_str(i, sect)
 		if addon_str then
-			local _st = CUIStatic()
-			_st:SetWidth(params_list:GetDesiredChildWidth())
-			local addons_txt = string.format("%s", game.translate_string("st_"..addon.."_header_name"))
-			_st:SetText(addons_txt)
-			_st:SetTextComplexMode(true)
-			_st:AdjustHeightToText()
-			params_list:AddWindow(_st)
-			addons_st[addon.."_header"] = _st
+			local static = self.xml:InitStatic("list_item", params_list)
+			static:SetWidth(params_list:GetDesiredChildWidth())
+			static:SetText(string.format("%s", game.translate_string("st_"..addon.."_header_name")))
+			static:AdjustHeightToText()
 			
 			addons = split_string(addon_str, ",")
 			for __,addon_sect in pairs(addons) do
-				addons_st[addon_sect] = CUIStatic()
-				local _st = addons_st[addon_sect]
-				_st:SetWidth(params_list:GetDesiredChildWidth())
-				local addons_txt = string.format("%s %s", game.translate_string("st_list_mark"), get_inv_name(addon_sect))
-				_st:SetText(addons_txt)
-				_st:SetTextComplexMode(true)
-				_st:AdjustHeightToText()
-				params_list:AddWindow(_st)
+				local static = self.xml:InitStatic("list_item", params_list)
+				static:SetWidth(params_list:GetDesiredChildWidth())
+				static:SetText(string.format("%s %s", game.translate_string("st_list_mark"), get_inv_name(addon_sect)))
+				static:AdjustHeightToText()
 				show = true
 			end
 			
@@ -958,7 +916,7 @@ function UIItemInfo:AttachWpnAddons()
 			end
 		end
 	end
-	params_list:SetHeight(params_list:GetPadSize().y)
+	self:AdjustParamsList(params_list)
 	if not show then
 		params_list:Show(false)
 	end
@@ -967,29 +925,30 @@ end
 
 ------------------------------------------ADDITIONAL LOADOUT SLOTS WND-----------------------------------------------------------------------------------------------------------------
 local loadout_slots = {
-		"pistol_ammo",
-		"rifle_ammo",
-		"shotgun_ammo",
-		"heavy_ammo",
-		"grenade",
-		"medicine",
-		"scope",
-		"silencer",
+		{param = "pistol_ammo", 	name = "ui_st_pistol_ammo", 	texture = "ui_hud_icon_pistol_ammo"},
+		{param = "rifle_ammo", 		name = "ui_st_rifle_ammo", 		texture = "ui_hud_icon_rifle_ammo"},
+		{param = "shotgun_ammo", 	name = "ui_st_shotgun_ammo", 	texture = "ui_hud_icon_shotgun_ammo"},
+		{param = "heavy_ammo", 		name = "ui_st_heavy_ammo", 		texture = "ui_hud_icon_heavy_ammo"},
+		{param = "grenade", 		name = "ui_st_grenade", 		texture = "ui_hud_icon_grenade"},
+		{param = "medicine", 		name = "ui_st_medicine", 		texture = "ui_hud_icon_medicine"},
 	}
 function UIItemInfo:AttachLoadoutSlots()
-	local slots_scroll_view = self.xml:InitScrollView("scroll_view_loadout", self.descr_list)
+	local params_list = self:AttachParamsList()
 	local sect = self.item:section()
 	local count, icon, text
 	for k,v in ipairs(loadout_slots) do
-		count = read_if_exists(sys_ini, "u32", sect, v, 0)
+		count = read_if_exists(sys_ini, "u32", sect, v.param, 0)
 		--log3("~count %s", count)
 		if count > 0 then
-			icon = self.xml:InitStatic("scroll_view_loadout:"..v.."_icon", slots_scroll_view)
-			text = string.format("+%s %s", count, game.translate_string("ui_st_"..v))
-			icon:SetText(text)
+			local static = self:AttachParamItem(params_list)
+			static.icon:InitTexture(v.texture)
+			static.icon:SetColor(green)
+			static:SetText(game.translate_string(v.name))
+			static.val:SetText(count)
+			static.val:SetTextColor(green)			
 		end
 	end
-	slots_scroll_view:SetHeight(slots_scroll_view:GetPadSize().y)
+	self:AdjustParamsList(params_list)
 	return true
 end
 
@@ -1008,32 +967,34 @@ local ammo_params = {
 	}
 function UIItemInfo:AttachAmmoParams()
 	local show = false
-	local params_list = self.xml:InitScrollView("params_list", self.descr_list)
-	self:AttachHeader(ammo_params, "st_ammo_header", params_list)
+	local params_list = self:AttachParamsList()
+	self:AttachHeader("st_ammo_header", params_list)
 
 	local sect = self.item:section()
-	local val, static, text, color
 	for k,v in ipairs(ammo_params) do
-		val = read_if_exists(sys_ini, "float", sect, v.name, v.default)
+		local val = read_if_exists(sys_ini, "float", sect, v.name, v.default)
 		if val ~= v.default then
-			v.static = CUIStatic()
-			v.static:SetTextComplexMode(true)
-			v.static:SetWidth(params_list:GetDesiredChildWidth())			
 			if v.unit == "%" then
 				val = val * 100
 			end
-			color = (v.unit ~= "%") and "%c[default]" or val > 0 and "%c[green]" or "%c[red]"
+			local color = (v.unit ~= "%") and orange or val > 0 and green or red
 			if v.invert then
-				color = val > 0 and "%c[red]" or "%c[green]"
+				color = val > 0 and red or green
 			end
-			text = string.format(v.is_int and "%s %s %s%.0f %s" or v.name == "k_pierce" and "%s %s %s%.1f %s" or "%s %s %s%+.1f %s", game.translate_string("st_list_mark"), game.translate_string("ui_st_"..v.name), color, val, game.translate_string(v.unit))
-			v.static:SetText(text)
-			v.static:AdjustHeightToText()
+			local text = string.format(v.is_int and "%.0f %s" or v.name == "k_pierce" and "%.1f %s" or "%+.1f %s", val, game.translate_string(v.unit))
+			
+			local static = self:AttachParamItem(params_list)
+			static.icon:InitTexture(v.texture or "")
+			static.icon:SetColor(green)
+			static:SetText(game.translate_string("ui_st_"..v.name))
+			static:SetTextPos(0,0)
+			static.val:SetText(text)
+			static.val:SetTextColor(color)
+			
 			show = true
-			params_list:AddWindow(v.static)
 		end
 	end
-	params_list:SetHeight(params_list:GetPadSize().y)
+	self:AdjustParamsList(params_list)
 	if not show then
 		params_list:Show(false)
 	end
@@ -1051,35 +1012,37 @@ local addon_params = {
 	}
 function UIItemInfo:AttachAddonParams()
 	local show = false
-	local params_list = self.xml:InitScrollView("params_list", self.descr_list)
-	self:AttachHeader(addon_params, "st_addon_header", params_list)
+	local params_list = self:AttachParamsList()
+	self:AttachHeader("st_addon_header", params_list)
 	
 	local sect = self.item:section()
-	local val, text, color
 	for k,v in ipairs(addon_params) do
-		val = read_if_exists(sys_ini, "float", sect, v.name, v.default)
+		local val = read_if_exists(sys_ini, "float", sect, v.name, v.default)
 		if val ~= v.default then
-			v.static = CUIStatic()
-			v.static:SetTextComplexMode(true)
-			v.static:SetWidth(params_list:GetDesiredChildWidth())
 			if v.unit == "%" then
 				val = val * 100
 			end
 			if v.multiplier then
 				val = val * v.multiplier
 			end
-			color = (val > 0 ) and "%c[green]" or "%c[red]"
+			local color = (val > 0 ) and green or red
 			if v.invert then
-				color = val > 0 and "%c[red]" or "%c[green]"
+				color = val > 0 and red or green
 			end			
-			text = string.format(v.is_int and "%s %s %s%.0f %s" or "%s %s %s%+.1f %s", game.translate_string("st_list_mark"), game.translate_string("ui_st_"..v.name), color, val, game.translate_string(v.unit))
-			v.static:SetText(text)
-			v.static:AdjustHeightToText()
+			local text = string.format(v.is_int and "%.0f %s" or "%+.1f %s", val, game.translate_string(v.unit))
+			
+			local static = self:AttachParamItem(params_list)
+			static.icon:InitTexture(v.texture or "")
+			static.icon:SetColor(green)
+			static:SetText(game.translate_string("ui_st_"..v.name))
+			static:SetTextPos(0,0)
+			static.val:SetText(text)
+			static.val:SetTextColor(color)
+			
 			show = true
-			params_list:AddWindow(v.static)
 		end
 	end
-	params_list:SetHeight(params_list:GetPadSize().y)
+	self:AdjustParamsList(params_list)
 	if not show then
 		params_list:Show(false)
 	end
@@ -1090,7 +1053,7 @@ end
 function UIItemInfo:AttachPlateCondition()
 	local bind_item = self.item:binded_object()
 	
-	local plate_params = self.xml:InitStatic("plate_params", self.descr_list)
+	local plate_params = self.xml:InitStatic("plate_params", self.info_list)
 	
 	local cap_plate = self.xml:InitStatic("plate_params:cap_plate", plate_params)
 	local text = string.format("%s:\\n%s", game.translate_string("st_attached_plate"), get_inv_name_short(bind_item:get_plate_sect()))
@@ -1110,23 +1073,18 @@ function UIItemInfo:AttachArmorPlates()
 
 	plates = self.item:binded_object():get_plates()
 
-	local params_list = self.xml:InitScrollView("params_list", self.descr_list)
-	self:AttachHeader(plates, "st_compatible_plate", params_list)
+	local params_list = self:AttachParamsList()
+	self:AttachHeader("st_compatible_plate", params_list)
 
 	local text
 	for k,v in pairs(plates) do
-		v.st = CUIStatic()
-		local _st = v.st
-		_st:SetWidth(params_list:GetDesiredChildWidth())
+		local static = self.xml:InitStatic("list_item", params_list)
+		static:SetWidth(params_list:GetDesiredChildWidth())
 		text = string.format("%s %s", game.translate_string("st_list_mark"), get_inv_name(v.section))
-		_st:SetText(text)
-		_st:SetTextComplexMode(true)
-		-- _st:SetTextColor(params_list.text_color)
-		-- _st:SetFont(GetFontCustom(params_list.font))
-		_st:AdjustHeightToText()
-		params_list:AddWindow(_st)
+		static:SetText(text)
+		static:AdjustHeightToText()
 	end
-	params_list:SetHeight(params_list:GetPadSize().y)
+	self:AdjustParamsList(params_list)
 	return true
 end
 
@@ -1136,23 +1094,21 @@ function UIItemInfo:AttachBeltParams()
 	local belt_size = read_if_exists(sys_ini, "u32", self.item:section(), "belt_size", 0)
 	if belt_size <= 0 then return end
 	
-	local params_list = self.xml:InitScrollView("params_list", self.descr_list)
-
-	belt_slots_st = CUIStatic()
-	belt_slots_st:SetTextComplexMode(true)
-	belt_slots_st:SetWidth(params_list:GetDesiredChildWidth())
-	local color = "%c[UI_orange]"
-	local text = string.format("%s %s %s%s", game.translate_string("st_list_mark"), game.translate_string("ui_st_belt_slots"), color, belt_size)
-	belt_slots_st:SetText(text)
-	belt_slots_st:AdjustHeightToText()
-	params_list:AddWindow(belt_slots_st)
-	params_list:SetHeight(params_list:GetPadSize().y)
+	local params_list = self:AttachParamsList()
+	local static = self:AttachParamItem(params_list)
+	static:SetWidth(params_list:GetDesiredChildWidth())
+	static.icon:InitTexture("ui_hud_icon_pocket")
+	static.icon:SetColor(green)
+	static.val = self.xml:InitStatic("param_item:val", static)
+	static.val:SetText(belt_size)
+	static.val:SetTextColor(green)
+	static:SetText(game.translate_string("ui_st_belt_slots"))
+	self:AdjustParamsList(params_list)
 	return true
 end
 
 
 -----------------------------------------------------PDA OWNER INFO------------------------------------------------------------------------------------------------------------------------
-local ui_owner_data = {}
 function UIItemInfo:AttachPDAOwnerInfo()
 	local se_item = alife():object(self.item:id())
 	
@@ -1163,79 +1119,63 @@ function UIItemInfo:AttachPDAOwnerInfo()
 	if owner_data.name == "" then
 	return end
 	
-	local params_list = self.xml:InitScrollView("params_list", self.descr_list)
-	self:AttachHeader(ui_owner_data, "st_pda_owner", params_list)
+	local params_list = self:AttachParamsList()
+	self:AttachHeader("st_pda_owner", params_list)
 
-	local color = "%c[UI_orange]"
+	local color = orange
 	
-	local name_st = CUIStatic()
-	ui_owner_data.name_st = name_st
-	name_st:SetTextComplexMode(true)
-	name_st:SetWidth(params_list:GetDesiredChildWidth())
-	local text = string.format("%s %s: %s%s", game.translate_string("st_list_mark"), game.translate_string("ui_st_name"), color, game.translate_string(owner_data.name))
-	name_st:SetText(text)
-	name_st:AdjustHeightToText()
-	params_list:AddWindow(name_st)
+	local static = self:AttachParamItem(params_list)
+	static:SetWidth(params_list:GetDesiredChildWidth())
+	static:SetText(game.translate_string(owner_data.name))
+	static.icon:InitTexture("ui_hud_icon_personal_id")
+	static.icon:SetColor(color)
 	
-	local comm_st = CUIStatic()
-	ui_owner_data.comm_st = comm_st
-	comm_st:SetTextComplexMode(true)
-	comm_st:SetWidth(params_list:GetDesiredChildWidth())
-	text = string.format("%s %s: %s%s", game.translate_string("st_list_mark"), game.translate_string("ui_st_community"), color, game.translate_string(owner_data.comm))
-	comm_st:SetText(text)
-	comm_st:AdjustHeightToText()
-	params_list:AddWindow(comm_st)
+	local static = self:AttachParamItem(params_list)
+	static:SetText(game.translate_string(owner_data.comm))
+	static.icon:InitTexture(community.get_icon_sect(owner_data.comm))
 	
-	local rank_st = CUIStatic()
-	ui_owner_data.rank_st = rank_st
-	rank_st:SetTextComplexMode(true)
-	rank_st:SetWidth(params_list:GetDesiredChildWidth())
-	text = string.format("%s %s: %s%s", game.translate_string("st_list_mark"), game.translate_string("ui_st_rank"), color, game.translate_string(ranks.get_val_rank_name(owner_data.rank)))
-	rank_st:SetText(text)
-	rank_st:AdjustHeightToText()
-	params_list:AddWindow(rank_st)
+	local static = self:AttachParamItem(params_list)
+	static:SetText(game.translate_string(ranks.get_val_rank_name(owner_data.rank)))
+	static.icon:InitTexture(ranks.get_icon_sect(owner_data.rank))
 	
-	local lock_st = CUIStatic()
-	ui_owner_data.lock_st = lock_st
+	local static = self:AttachParamItem(params_list)
 	local lock_text = ""
 	if se_item.lock_state == 0 then
 		lock_text = "ui_st_unlocked"
-		color = "%c[green]"
+		color = green
 	elseif se_item.lock_state == 1 then
 		lock_text = "ui_st_locked"
-		color = "%c[UI_orange]"
+		color = orange
 	elseif se_item.lock_state == 2 then
 		lock_text = "ui_st_dead_locked"
-		color = "%c[red]"
+		color = red
 	end
-	lock_st:SetTextComplexMode(true)
-	lock_st:SetWidth(params_list:GetDesiredChildWidth())
-	text = string.format("%s %s: %s%s", game.translate_string("st_list_mark"), game.translate_string("ui_st_lock_state"), color, game.translate_string(lock_text))
-	lock_st:SetText(text)
-	lock_st:AdjustHeightToText()
-	params_list:AddWindow(lock_st)	
+	static:SetText(game.translate_string(lock_text))
+	static:SetTextColor(color)
+	static.icon:InitTexture("ui_hud_icon_lock")
+	static.icon:SetColor(color)
 	
-	params_list:SetHeight(params_list:GetPadSize().y)
+	self:AdjustParamsList(params_list)
 	return true
 end
 
 -----------------------------------------------------REPAIR PARAMS-----------------------------------------------------------------------------------------------------------
 local repair_params = {
 		--//service
-		{name = "service_type", 			prefix="", unit = "", default = "", _type = "string"},
-		{name = "service_cond_threshold", 		prefix="", unit = "%", default = 0, _type = "float"},
-		{name = "service_condition_gain", 	prefix="", unit = "%", default = 0, _type = "float"},
+		{name = "service_type", 			prefix="", unit = "", 	default = "", 	_type = "string"},
+		{name = "service_cond_threshold", 	prefix="", unit = "%", 	default = 0, 	_type = "float"},
+		{name = "service_condition_gain", 	prefix="", unit = "%", 	default = 0, 	_type = "float"},
 		--//repair
-		{name = "repair_type", 				prefix="", unit = "", default = "", _type = "string"},
-		{name = "repair_bonus", 			prefix="x", unit = "", default = 0, _type = "float"},
+		{name = "repair_type", 				prefix="", unit = "", 	default = "", 	_type = "string"},
+		{name = "repair_bonus", 			prefix="x", unit = "", 	default = 0, 	_type = "float"},
 	}
 function UIItemInfo:AttachRepairParams()
 	local sect = self.item:section()
 	if read_if_exists(sys_ini, "float", sect, "service_condition_gain", 0) <= 0 and read_if_exists(sys_ini, "float", sect, "repair_bonus", 0) <= 0 then
 	return end
 	
-	local params_list = self.xml:InitScrollView("params_list", self.descr_list)
-	self:AttachHeader(repair_params, "st_repair_header", params_list)
+	local params_list = self:AttachParamsList()
+	self:AttachHeader("st_repair_header", params_list)
 	
 	for k,v in ipairs(repair_params) do
 		local val = read_if_exists(sys_ini, v._type, sect, v.name, v.default)
@@ -1244,48 +1184,39 @@ function UIItemInfo:AttachRepairParams()
 			if v.unit == "%" then
 				val = val * 100
 			end
-			v.static = CUIStatic()
-			v.static:SetTextComplexMode(true)
-			v.static:SetWidth(params_list:GetDesiredChildWidth())
-			local color = "%c[UI_orange]"
-			local text = string.format("%s %s: %s%s%s%s", game.translate_string("st_list_mark"), game.translate_string("st_"..v.name), color, v.prefix, val, v.unit)
-			v.static:SetText(text)
-			v.static:AdjustHeightToText()
-			params_list:AddWindow(v.static)
-			params_list:SetHeight(params_list:GetPadSize().y)
+			local color = orange
+			local text = string.format("%s%s%s", v.prefix, val, v.unit)
+			local static = self:AttachParamItem(params_list)
+			static:SetText(game.translate_string("st_"..v.name))
+			static:SetTextPos(0, 0)
+			static.val:SetText(text)
+			static.val:SetWidth(100)
+			static.val:SetTextColor(color)
 		end
 	end
+	self:AdjustParamsList(params_list)
 	return true
 end
 
 -----------------------------------------------------LOOT SPAWN BOX PARAMS-----------------------------------------------------------------------------------------------------------
-local loot_spawn_box_st = {}
 function UIItemInfo:AttachLootSpawnBoxInfo()
 	local sect = self.item:section()
 	local items_str = loot_spawn_box.get_spawn_items(sect)
 	if not items_str then
 	return end
 	
-	loot_spawn_box_st = {}	
-	
-	local params_list = self.xml:InitScrollView("params_list", self.descr_list)
-	self:AttachHeader(loot_spawn_box_st, "st_loot_spawn_box_header", params_list)
+	local params_list = self:AttachParamsList()
+	self:AttachHeader("st_loot_spawn_box_header", params_list)
 	
 	local spawn_items = parse_key_val_line(items_str, 1)
 	
 	for section,count in pairs(spawn_items) do
-		local static = CUIStatic()
-		static = CUIStatic()
-		static:SetTextComplexMode(true)
-		static:SetWidth(params_list:GetDesiredChildWidth())
-		local text = string.format("%s%s %s", game.translate_string("st_list_mark"), get_inv_name(section), count > 1 and "x"..count or "")
+		local text = count > 1 and string.format("x%s %s", count, get_inv_name(section)) or get_inv_name(section)
+		local static = self:AttachParamItem(params_list)
+		static:SetTextPos(0, 0)
 		static:SetText(text)
-		static:AdjustHeightToText()
-		
-		loot_spawn_box_st[section] = static
-		params_list:AddWindow(static)
 	end
-	params_list:SetHeight(params_list:GetPadSize().y)
+	self:AdjustParamsList(params_list)
 	return true
 end
 
@@ -1294,8 +1225,8 @@ function UIItemInfo:AttachQuestTargetInfo()
 	local sect = self.item:section()
 	local quest_name = task_manager.item_for_quest(sect) or read_if_exists(sys_ini, "string", sect, "item_for_quest", nil)
 	if quest_name then
-		local item_for_quest = self.xml:InitStatic("item_for_quest", self.descr_list)
-		item_for_quest:SetWidth(self.descr_list:GetDesiredChildWidth())
+		local item_for_quest = self.xml:InitStatic("item_for_quest", self.info_list)
+		item_for_quest:SetWidth(self.dcw)
 		local text = string.format("%s:\\n%s", game.translate_string("st_item_for_quest"), game.translate_string(quest_name))
 		item_for_quest:SetTextComplexMode(true)
 		item_for_quest:SetText(text)
