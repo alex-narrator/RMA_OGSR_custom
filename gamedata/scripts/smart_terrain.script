@@ -557,6 +557,13 @@ function se_smart_terrain:enabled(obj)
 --		printf("[smart_terrain %s] DISABLED obj=%s (self.disabled)", self:name(), obj:name())
 		return false
 	end
+	
+	--//актора в смарти не т€гнемо!
+	--//таке може бути €кщо призначити актору угрупованн€, €ке дозволено дл€ смарт≥в
+	--//в ориг≥нали схоже затикалос€ окремим акторським угрупованн€м
+	if obj:id() == 0 then
+		log_news("%s:enabled - always [false] for actor", script_name())
+	return false end
 	--------
 	self:register_if_needed()
 	self:initialize_if_needed()
