@@ -95,7 +95,7 @@ function create_scope_static(weapon)
 		static_parallax = CUIStatic()
 		local diameter = read_if_exists(sys_ini, "float", scope_tex_sect, "scope_texture_parallax_diameter", 700)
 		static_parallax:Init(0, 0, diameter * get_current_kx(), diameter)
-		local offset = ui_inv_utils.GetOffset("center", static_parallax, main_wnd)
+		local offset = ui_utils.GetOffset("center", static_parallax, main_wnd)
 		static_parallax:SetWndPos(offset.x, offset.y)
 		static_parallax:InitTexture(PARALLAX_DEBUG and "ui_inv_back_green" or parallax_texture_name)
 		static_parallax:SetStretchTexture(true)
@@ -214,7 +214,7 @@ function on_update(dt)
 	k = parallax_offset.y > 0 and 1 or -1
 	parallax_offset.y = parallax_offset.y - dt * k
 	parallax_offset.y = math.clamp(parallax_offset.y, 0, parallax_params.max_shift * k)
-	local offset = ui_inv_utils.GetOffset("center", parallax_static, main_wnd)
+	local offset = ui_utils.GetOffset("center", parallax_static, main_wnd)
 	parallax_static:SetWndPos(offset.x + parallax_offset.x, offset.y + parallax_offset.y)
 	--log3("~parallax_offset x: %s, y: %s", parallax_offset.x, parallax_offset.y)
 end

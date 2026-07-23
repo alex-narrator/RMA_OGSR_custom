@@ -364,3 +364,13 @@ function get_addon_offset(i, addon_sect, weapon_sect)
 	local y = read_if_exists(sys_ini, "float", weapon_sect, addon_sect.."_y", read_if_exists(sys_ini, "float", weapon_sect, addon_name[i].."_y", 0))
 	return vector2():set(x,y)
 end
+
+function get_color_by_val(val, _min, _max)
+	_min = _min or 0
+	_max = _max or 1
+	local _v = (val - _min) / (_max - _min)
+	local R = math.clamp(_v * 2, 0, 1) * 255
+	local G = math.clamp(2 - _v * 2, 0, 1) * 255
+	local color = GetARGB(255, R, G, 0)
+	return color
+end

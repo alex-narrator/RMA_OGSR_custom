@@ -28,9 +28,9 @@ function get_val_color(val)
 	return color
 end
 
-local addon_names = ui_inv_utils.get_addon_names()
-local get_addon_offset = ui_inv_utils.get_addon_offset
-local GetOffset = ui_inv_utils.GetOffset
+local addon_names = ui_utils.get_addon_names()
+local get_addon_offset = ui_utils.get_addon_offset
+local GetOffset = ui_utils.GetOffset
 
 local sm = ogsr_signals.get_mgr()
 
@@ -44,7 +44,7 @@ function UICellItem:__init(owner, item, cell_size, cell_pos, owner_list) super()
 	self.item_id = item:id()
 	self.sect = item:section()
 	self.icon_params = CIconParams(self.sect)
-	self.cell_size = cell_size or ui_inv_utils.FitCellItemSize(owner, self.sect)
+	self.cell_size = cell_size or ui_utils.FitCellItemSize(owner, self.sect)
 	self.childs = {}
 	self.selected = false
 	self.interactive = true
@@ -677,7 +677,7 @@ function UICellItem:AddChild(item)
 	if self.item_id == item:id() then
 	return false end
 	local _item = level.object_by_id(self.item_id)
-	if ui_inv_utils.similar_item(_item, item) then
+	if ui_utils.similar_item(_item, item) then
 		if not self:IsChild(item) then
 			self.childs[item:id()] = true
 			self:OnIconShow()
@@ -757,7 +757,7 @@ function UICellItem:ForceUpdate()
 	local item = level.object_by_id(self.item_id)	
 	for child_id,v in pairs(self.childs) do
 		local _item = level.object_by_id(child_id)
-		if _item and not ui_inv_utils.similar_item(item, _item) then
+		if _item and not ui_utils.similar_item(item, _item) then
 			self:RemoveChild(_item)
 			if self.owner_list then
 				self.owner_list:AddItem(_item)
@@ -822,7 +822,7 @@ function UICellItemSimple:__init(owner, section, cell_size) super()
 	--//статик до якого атачимо іконки
 	self.owner = owner
 	self.sect = section
-	self.cell_size = cell_size or ui_inv_utils.FitCellItemSize(owner, section)
+	self.cell_size = cell_size or ui_utils.FitCellItemSize(owner, section)
 	self.interactive = true
 	self:InitControls()
 	self:SetAutoDelete(true)

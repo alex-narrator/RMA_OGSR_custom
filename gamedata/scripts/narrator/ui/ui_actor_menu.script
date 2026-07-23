@@ -1414,7 +1414,7 @@ function ActorMenuOverlay:ReinitLists(show_type)
 	local mode = self:GetMode()	
 	
 	local function show_item(item)
-		return not get_inv_item_hidden(item) and (not show_type or show_type == ui_inv_utils.get_type(item) or ui_inv_utils.get_type(item) == 0) and (mode ~= "trade" or trade_manager.tradable(item)) and (mode ~= "repair" or (self.repair:RepairAllowed(item) or self.repair:HackAllowed(item)))
+		return not get_inv_item_hidden(item) and (not show_type or show_type == ui_utils.get_type(item) or ui_utils.get_type(item) == 0) and (mode ~= "trade" or trade_manager.tradable(item)) and (mode ~= "repair" or (self.repair:RepairAllowed(item) or self.repair:HackAllowed(item)))
 	end
 	
 	local slot_items, ruck_items, belt_items, loadout_items = {}, {}, {}, {}
@@ -1458,7 +1458,7 @@ function ActorMenuOverlay:ReinitLists(show_type)
 			end
 		end		
 		self.target:iterate_inventory(fill_target_list, nil)
-		table.sort(target_items, ui_inv_utils.sort_by_size_type)
+		table.sort(target_items, ui_utils.sort_by_size_type)
 		for k, item in pairs(target_items) do
 			add_to_container(item, self.target_list)
 		end
@@ -1483,17 +1483,17 @@ function ActorMenuOverlay:ReinitLists(show_type)
 		add_to_container(item, self.slot_list[item:get_slot()])
 	end
 	
-	table.sort(belt_items, ui_inv_utils.sort_by_size)
+	table.sort(belt_items, ui_utils.sort_by_size)
 	for k, item in pairs(belt_items) do
 		add_to_container(item, self.belt_list)
 	end
 	
-	table.sort(loadout_items, ui_inv_utils.sort_by_size)
+	table.sort(loadout_items, ui_utils.sort_by_size)
 	for k, item in pairs(loadout_items) do
 		add_to_container(item, self.loadout_list)
 	end
 
-	table.sort(ruck_items, ui_inv_utils.sort_by_size_type)
+	table.sort(ruck_items, ui_utils.sort_by_size_type)
 	for k, item in pairs(ruck_items) do
 		add_to_container(item, self.ruck_list)
 	end
@@ -2072,7 +2072,7 @@ function ActorMenuOverlay:UpdateRepair(cell_item)
 	local icon_sect = read_if_exists(sys_ini, "string", item:section(), "repair_icon_sect", item:section())
 	local icon = ui_cell_item.UICellItemSimple(self.repair_item_back, icon_sect)
 	icon:SetInteractive(false)
-	local offset = ui_inv_utils.GetOffset("center", icon, self.repair_item_back)
+	local offset = ui_utils.GetOffset("center", icon, self.repair_item_back)
 	icon:SetWndPos(offset.x, offset.y)
 	
 	local has_money = self.repair:HasMoneyToRepair(item)

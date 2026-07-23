@@ -107,7 +107,7 @@ function UIQuickSlots:DrawSlotIcon(slot_num)
 	if show_icon then
 		s.icon:DetachAll()
 		local icon = ui_cell_item.UICellItemSimple(s.icon, sect)
-		local offset = ui_inv_utils.GetOffset("center", icon, s.icon)
+		local offset = ui_utils.GetOffset("center", icon, s.icon)
 		icon:SetWndPos(offset.x, offset.y)
 		if count > 0 then
 			icon:ResetCellItemColorA()

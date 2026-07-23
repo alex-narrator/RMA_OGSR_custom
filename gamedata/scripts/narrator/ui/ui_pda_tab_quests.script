@@ -302,7 +302,7 @@ function UIPdaTabQuests:OnLButtonDown(id, idx)
 			image:SetWidth(size.x)
 			image:SetHeight(size.y)
 			article_image:SetHeight(image:GetHeight())
-			local offset = ui_inv_utils.GetOffset("center", image, article_image)
+			local offset = ui_utils.GetOffset("center", image, article_image)
 			image:SetWndPos(offset.x, offset.y)
 		end	
 		local article_text = self.xml:InitStatic(list_item_path..":article_text", self.right_scroll_view)

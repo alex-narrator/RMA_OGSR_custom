@@ -164,7 +164,7 @@ function MainIngameOverlay:InitControls()
 	self.hitmarker:Init(0, 0, UI_BASE_HEIGHT * scale, UI_BASE_HEIGHT * scale)
 	self.hitmarker:SetStretchTexture(true)
 	self:AttachChild(self.hitmarker)
-	local offset = ui_inv_utils.GetOffset("center", self.hitmarker, self)
+	local offset = ui_utils.GetOffset("center", self.hitmarker, self)
 	self.hitmarker:SetWndPos(offset.x, offset.y)
 	self.hitmarker.texture = xml:ReadAttrib("hitmarker", "hit_mark_texture", "")
 	self.hitmarker.hit_types = split_string(xml:ReadAttrib("hitmarker", "hit_types", ""), ",", false, true)
@@ -176,7 +176,7 @@ function MainIngameOverlay:InitControls()
 	self.grenade_marker:Init(0, 0, UI_BASE_HEIGHT * scale, UI_BASE_HEIGHT * scale)
 	self.grenade_marker:SetStretchTexture(true)
 	self:AttachChild(self.grenade_marker)
-	local offset = ui_inv_utils.GetOffset("center", self.grenade_marker, self)
+	local offset = ui_utils.GetOffset("center", self.grenade_marker, self)
 	self.grenade_marker:SetWndPos(offset.x, offset.y)
 	self.grenade_marker.texture = xml:ReadAttrib("grenade_marker", "grenade_mark_texture", "")
 	self.grenade_marker.distance = xml:ReadAttribFlt("grenade_marker", "distance", 10)
@@ -278,10 +278,10 @@ function MainIngameOverlay:InitControls()
 	--//missile throw progressshape
 	root = "throw_progress"
 	self.missile_throw = xml:InitProgressShape(root, self)
-	local offset = ui_inv_utils.GetOffset("center", self.missile_throw, self.owner)
+	local offset = ui_utils.GetOffset("center", self.missile_throw, self.owner)
 	self.missile_throw:SetWndPos(offset.x, offset.y)
 	self.missile_text = xml:InitStatic("throw_text", self)
-	local offset = ui_inv_utils.GetOffset("center", self.missile_text, self.owner)
+	local offset = ui_utils.GetOffset("center", self.missile_text, self.owner)
 	self.missile_text:SetWndPos(offset.x, offset.y)
 	
 	--//projectile trajectory
@@ -350,7 +350,7 @@ function MainIngameOverlay:InitControls()
 	local size = xml:ReadAttribInt(root, "size", 30)
 	self.tip_cursor:SetWidth(size * get_current_kx())
 	self.tip_cursor:SetHeight(size)
-	local offset = ui_inv_utils.GetOffset("center", self.tip_cursor, self.owner)
+	local offset = ui_utils.GetOffset("center", self.tip_cursor, self.owner)
 	self.tip_cursor:SetWndPos(offset.x, offset.y)
 	
 	--//flashing icon
@@ -368,7 +368,7 @@ function MainIngameOverlay:InitControls()
 	root = "use_anim"
 	self.use_anim = xml:InitStatic(root, self)
 	self.use_anim.progress = xml:InitProgressShape(root..":progress", self.use_anim)
-	local offset = ui_inv_utils.GetOffset("center", self.use_anim, self.owner)
+	local offset = ui_utils.GetOffset("center", self.use_anim, self.owner)
 	self.use_anim:SetWndPos(offset.x, offset.y)
 	self.use_anim:Show(false)
 	
@@ -540,14 +540,14 @@ function MainIngameOverlay:UpdatePanelItems()
 			table.insert(items, item)
 		end
 	end
-	table.sort(items,ui_inv_utils.sort_by_quick_slot_num)
+	table.sort(items,ui_utils.sort_by_quick_slot_num)
 	self.equiped_panel:DetachAll()
 	self.equiped_panel.cell_items = {}
 	local function add_similar(item)
 		if not self.equiped_panel.group_similar then
 		return false end
 		for id, cell_item in pairs(self.equiped_panel.cell_items) do
-			if ui_inv_utils.similar_item(cell_item:GetItem(), item) then
+			if ui_utils.similar_item(cell_item:GetItem(), item) then
 				cell_item:AddChild(item)
 				return true
 			end
@@ -586,7 +586,7 @@ function MainIngameOverlay:UpdatePanelItems()
 				quick_key:SetText(text)
 				quick_key:AdjustHeightToText()
 				quick_key:AdjustWidthToText()
-				local offset = ui_inv_utils.GetOffset(self.equiped_panel.quick_key_offset, quick_key, cell_item)
+				local offset = ui_utils.GetOffset(self.equiped_panel.quick_key_offset, quick_key, cell_item)
 				quick_key:SetWndPos(offset.x, offset.y)
 				cell_item.quick_key = quick_key				
 			end
@@ -594,7 +594,7 @@ function MainIngameOverlay:UpdatePanelItems()
 	end
 	self.equiped_panel:SetHeight(final_size.y)
 	self.equiped_panel:SetWidth(final_size.x)
-	local offset = ui_inv_utils.GetOffset(self.equiped_panel.offset_type, self.equiped_panel, self.owner)
+	local offset = ui_utils.GetOffset(self.equiped_panel.offset_type, self.equiped_panel, self.owner)
 	local оfset_shift = self.equiped_panel.offset_shift
 	self.equiped_panel:SetWndPos(offset.x + оfset_shift.x, offset.y + оfset_shift.y)
 end
@@ -658,7 +658,7 @@ function MainIngameOverlay:UpdateActiveItem()
 	local ammo_sect = self.active_item.ammo_sect or get_cur_ammo_sect(act_item)
 
 	local ammo_icon = ui_cell_item.UICellItemSimple(self.active_item.icon, ammo_sect)
-	local offset = ui_inv_utils.GetOffset("center", ammo_icon, self.active_item.icon)
+	local offset = ui_utils.GetOffset("center", ammo_icon, self.active_item.icon)
 	ammo_icon:SetWndPos(offset.x, offset.y)
 	
 	local switch_mode = not not self.active_item.ammo_sect
@@ -860,7 +860,7 @@ function MainIngameOverlay:UpdateTargetTip()
 		self.target_tip:SetWidth(self.target_tip:GetWidth() + self.target_tip.border)
 		self.target_tip:SetHeight(self.target_tip:GetHeight() + self.target_tip.border)
 		
-		local offset = ui_inv_utils.GetOffset(self.target_tip.offset, self.target_tip, self.owner)
+		local offset = ui_utils.GetOffset(self.target_tip.offset, self.target_tip, self.owner)
 		if self.target_tip.show_on_object then
 			local point = get_target_tip_point(tgt)
 			local pos = tgt and point_on_screen.point_projection(point) or nil
@@ -1157,7 +1157,7 @@ function MainIngameOverlay:DrawCrosshair(dispertion, forced)
 	self.crosshair:SetWndPos(ui_pos.x - self.crosshair:GetWidth() / 2, ui_pos.y - self.crosshair:GetHeight() / 2)
 	
 	for k, v in pairs(self.crosshair_parts) do
-		local offset = ui_inv_utils.GetOffset(v.offset_type, v.static, self.crosshair)
+		local offset = ui_utils.GetOffset(v.offset_type, v.static, self.crosshair)
 		v.static:SetWndPos(offset.x, offset.y)
 	end
 end

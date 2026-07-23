@@ -64,7 +64,7 @@ function CraftOverlay:InitControls()
 	local name, prefix
 
 	self.craft_back = xml:InitStatic("craft_back", self)
-	local offset = ui_inv_utils.GetOffset("center", self.craft_back, self)
+	local offset = ui_utils.GetOffset("center", self.craft_back, self)
 	self.craft_back:SetWndPos(offset.x, offset.y)
 	
 	prefix = "craft_back"
@@ -212,7 +212,7 @@ function CraftOverlay:ShowReceiptInfo()
 	local sect = receipt.result
 	local icon = ui_cell_item.UICellItemSimple(self.craft_result, sect)
 	icon:SetInteractive(false)
-	local offset = ui_inv_utils.GetOffset("center", icon, self.craft_result)
+	local offset = ui_utils.GetOffset("center", icon, self.craft_result)
 	icon:SetWndPos(offset.x, offset.y)
 	if not can_craft then
 		icon:SetCellItemColor(color_unavailable)
@@ -246,7 +246,7 @@ function CraftOverlay:ShowReceiptInfo()
 		receipt_info_text = receipt_info_text.."\\n"..color..get_inv_name(sect).." "..count.."/"..has_count
 	end
 	static_back:SetWidth(x-indent)
-	local offset = ui_inv_utils.GetOffset("center", static_back, self.craft_components)
+	local offset = ui_utils.GetOffset("center", static_back, self.craft_components)
 	static_back:SetWndPos(offset.x, offset.y)
 	self.craft_components:AttachChild(static_back)
 	if receipt.craft_time then

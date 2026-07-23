@@ -119,7 +119,7 @@ end
 
 function set_item_visibility(inv_owner, show_mode)
 	if not inv_owner then return end
-	local item_type = ui_inv_utils.get_type
+	local item_type = ui_utils.get_type
 	function perform_action(dummy, item)
 		if show_mode == 0 or (item_type(item) == show_mode or item_type(item) == 0) then
 			set_item_inv_visible(item)
@@ -145,7 +145,7 @@ function take_all(inv_owner)
 	end	
 	inv_owner:iterate_inventory(perform_action, nil)
 	
-	table.sort(items, ui_inv_utils.sort_by_size_type)
+	table.sort(items, ui_utils.sort_by_size_type)
 	for k, item in pairs(items) do
 		inv_owner:transfer_item(item, actor)
 	end	
@@ -162,7 +162,7 @@ function move_all_ruck(inv_owner, get_items)
 	end	
 	actor:iterate_ruck(perform_action, nil)
 	
-	table.sort(items, ui_inv_utils.sort_by_size_type)
+	table.sort(items, ui_utils.sort_by_size_type)
 	
 	if get_items then
 		return items

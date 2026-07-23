@@ -71,7 +71,7 @@ function QuickAddonOverlay:InitControls()
 	
 	name = "close"
 	self.close = xml:InitStatic("central:"..name, self.central)
-	local offset = ui_inv_utils.GetOffset("center", self.close, self.central)
+	local offset = ui_utils.GetOffset("center", self.close, self.central)
 	self.close:SetWndPos(offset.x, offset.y)
 	
 	self.tip = xml:InitStatic("tip", self)
@@ -144,7 +144,7 @@ function QuickAddonOverlay:CheckAddons(check_item, addon_type)
 		
 		prev_static = table_end and table_end.back or self.central
 		
-		local offset = ui_inv_utils.GetOffset(addon_params[addon_type].offset, item_back, prev_static, self.items_indent)
+		local offset = ui_utils.GetOffset(addon_params[addon_type].offset, item_back, prev_static, self.items_indent)
 		pos.x = pos.x + offset.x
 		pos.y = pos.y + offset.y
 		
@@ -157,7 +157,7 @@ function QuickAddonOverlay:CheckAddons(check_item, addon_type)
 		self.back:AttachChild(item_back)
 		
 		local icon = ui_cell_item.UICellItemSimple(item_back, addon_sect)
-		local offset = ui_inv_utils.GetOffset("center", icon, item_back)
+		local offset = ui_utils.GetOffset("center", icon, item_back)
 		icon:SetWndPos(offset.x, offset.y)
 		icon:ResizeForCentered(item_back)
 		
@@ -175,7 +175,7 @@ function QuickAddonOverlay:CheckAddons(check_item, addon_type)
 		for k,addon_sect in pairs(addons_list) do
 			local item = actor:object(addon_sect)
 			if item and read_if_exists(sys_ini, "bool", addon_sect, "quick_attach", true) then
-				ui_inv_utils.try_add_to_list(item, items, true)
+				ui_utils.try_add_to_list(item, items, true)
 			end
 		end		
 	end
@@ -200,7 +200,7 @@ function QuickAddonOverlay:CheckAddons(check_item, addon_type)
 			
 			prev_static = table_end and table_end.back or self.central
 			
-			local offset = ui_inv_utils.GetOffset(addon_params[addon_type].offset, item_back, prev_static, self.items_indent)
+			local offset = ui_utils.GetOffset(addon_params[addon_type].offset, item_back, prev_static, self.items_indent)
 			pos.x = pos.x + offset.x
 			pos.y = pos.y + offset.y
 			item_back:SetWndPos(pos.x, pos.y)
@@ -213,7 +213,7 @@ function QuickAddonOverlay:CheckAddons(check_item, addon_type)
 
 			local icon = ui_cell_item.UICellItem(item_back, item)
 			icon:ResizeForCentered(item_back)
-			local offset = ui_inv_utils.GetOffset("center", icon, item_back)
+			local offset = ui_utils.GetOffset("center", icon, item_back)
 			icon:SetWndPos(offset.x, offset.y)
 			
 			self:Register(item_back, name)
@@ -245,7 +245,7 @@ function QuickAddonOverlay:SetTip(text)
 	self.tip:AdjustHeightToText()
 	self.tip:AdjustWidthToText()
 	local pos = self.central:GetWndPos()
-	local offset = ui_inv_utils.GetOffset("center_down_out", self.tip, self.central, self.items_indent)
+	local offset = ui_utils.GetOffset("center_down_out", self.tip, self.central, self.items_indent)
 	self.tip:SetWndPos(pos.x + offset.x - (self.tip:GetWidth() * 0.5 - self.central:GetWidth() * 0.5), pos.y + offset.y)
 	self:BringToTop(self.tip)
 	self.tip:Show(true)
@@ -380,7 +380,7 @@ function QuickAddonOverlay:AddAttachAddonIcon(icon)
 	SetCellIcon(attach_addon_icon, params)
 	attach_addon_icon:SetWidth(icon:GetWidth())
 	attach_addon_icon:SetHeight(icon:GetHeight())
-	local offset = ui_inv_utils.GetOffset("left_top", attach_addon_icon, icon)
+	local offset = ui_utils.GetOffset("left_top", attach_addon_icon, icon)
 	attach_addon_icon:SetWndPos(offset.x, offset.y)
 	icon:AttachChild(attach_addon_icon)
 	return attach_addon_icon
@@ -392,7 +392,7 @@ function QuickAddonOverlay:AddDettachAddonIcon(icon)
 	SetCellIcon(detach_addon_icon, params)
 	detach_addon_icon:SetWidth(icon:GetWidth())
 	detach_addon_icon:SetHeight(icon:GetHeight())
-	local offset = ui_inv_utils.GetOffset("left_top", detach_addon_icon, icon)
+	local offset = ui_utils.GetOffset("left_top", detach_addon_icon, icon)
 	detach_addon_icon:SetWndPos(offset.x, offset.y)
 	detach_addon_icon:SetWindowName("detach_addon_icon")
 	icon:AttachChild(detach_addon_icon)

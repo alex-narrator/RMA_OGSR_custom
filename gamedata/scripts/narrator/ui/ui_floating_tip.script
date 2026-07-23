@@ -94,13 +94,13 @@ function UIFloatingTip:InitControls(text, custom_width)
 	self.background_contrast:SetHeight(new_height)
 	self.background_contrast:SetWidth(self.background_frame:GetWidth())
 	
-	local offset = ui_inv_utils.GetOffset("center", self.tip, self.background_frame)
+	local offset = ui_utils.GetOffset("center", self.tip, self.background_frame)
 	self.tip:SetWndPos(offset.x, offset.y)
 	
 	self:ShowTip(false)
 	
 	if self.independent then
-		local offset = ui_inv_utils.GetOffset("center", self.background_frame, self)
+		local offset = ui_utils.GetOffset("center", self.background_frame, self)
 		self.background_frame:SetWndPos(offset.x, offset.y)
 		self.background_contrast:SetWndPos(offset.x, offset.y)
 	end	

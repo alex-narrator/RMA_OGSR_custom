@@ -101,12 +101,12 @@ function WarningIcons:Update()
 						v.icon:InitTexture(actual_icon)
 						self.limbs_injure_icon = actual_icon
 					end
-					local color = GetARGB(100, 238, 153, 26)
+					local color = GetARGB(255, 238, 153, 26)
 					local pain_eff = body_health.get_pain_effect()
 					if pain_eff > 0 then
-						color = GetARGB(100, 255, 0, 0)
+						color = GetARGB(255, 255, 0, 0)
 					elseif pain_eff < 0 then
-						color = GetARGB(100, 0, 255, 0)
+						color = GetARGB(255, 0, 255, 0)
 					end
 					v.icon:SetColor(color)
 				end
@@ -131,10 +131,7 @@ function WarningIcons:Update()
 				else
 					_max = v.smooth_max or def_smooth_max
 				end
-				local _v = (val - _min) / (_max - _min)
-				local R = math.clamp(_v * 2, 0, 1) * 255
-				local G = math.clamp(2 - _v * 2, 0, 1) * 255
-				local color = GetARGB(255, R, G, 0)
+				local color = ui_utils.get_color_by_val(val, _min, _max)
 				v.icon:SetColor(color)
 				v.icon:Show(true)
 			end
@@ -155,7 +152,7 @@ function WarningIcons:Update()
 	end
 	self.warning_icons_back:SetWidth(back_size.x)
 	self.warning_icons_back:SetHeight(back_size.y)
-	local offset = ui_inv_utils.GetOffset(self.offset, self.warning_icons_back, self.owner)
+	local offset = ui_utils.GetOffset(self.offset, self.warning_icons_back, self.owner)
 	offset:add(self.offset_indent)
 	self.warning_icons_back:SetWndPos(offset.x, offset.y)	
 end

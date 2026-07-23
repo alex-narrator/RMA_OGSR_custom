@@ -55,7 +55,7 @@ function SlotSelectorOverlay:InitControls()
 	xml:InitAutoStaticGroup(root..":auto_static", self.back)
 	
 	self.offset = xml:ReadAttrib(root, "offset", "center")
-	local pos = ui_inv_utils.GetOffset(self.offset, self.back, self)
+	local pos = ui_utils.GetOffset(self.offset, self.back, self)
 	self.back:SetWndPos(pos.x, pos.y)
 	
 	self.service_back = CUIStatic()
@@ -84,7 +84,7 @@ function SlotSelectorOverlay:InitControls()
 		local back = CUIStatic()
 		local size = vector2():set(static:GetWidth(), static:GetHeight())
 		back:Init(0, 0, size.x, size.y)
-		local offset = ui_inv_utils.GetOffset("center", back, static)
+		local offset = ui_utils.GetOffset("center", back, static)
 		back:SetWndPos(offset.x, offset.y)
 		self.slots[i].static.back = back
 		static:AttachChild(back)
@@ -124,7 +124,7 @@ function SlotSelectorOverlay:UpdateSlots()
 		if item then
 			local icon = ui_cell_item.UICellItem(v.static.back, item)
 			icon:ResizeForCentered(v.static.back)
-			local offset = ui_inv_utils.GetOffset("center", icon, v.static.back)
+			local offset = ui_utils.GetOffset("center", icon, v.static.back)
 			icon:SetWndPos(offset.x, offset.y)
 		end
 	end
@@ -241,14 +241,14 @@ function SlotSelectorOverlay:ShowCompatible(slot_num)
 			back:SetStretchTexture(true)
 			local table_end = self.compatible_items[#self.compatible_items]
 			prev_static = table_end and table_end.static or slot_static			
-			local offset = ui_inv_utils.GetOffset("center_down_out", back, prev_static, self.slot_icon_indent)
+			local offset = ui_utils.GetOffset("center_down_out", back, prev_static, self.slot_icon_indent)
 			pos.x = pos.x + offset.x
 			pos.y = pos.y + offset.y
 			back:SetWndPos(pos.x, pos.y)
 
 			local icon = ui_cell_item.UICellItem(back, item)
 			icon:ResizeForCentered(back)
-			local offset = ui_inv_utils.GetOffset("center", icon, back)
+			local offset = ui_utils.GetOffset("center", icon, back)
 			icon:SetWndPos(offset.x, offset.y)
 			
 			table.insert(self.compatible_items, {back = back})
@@ -267,7 +267,7 @@ function SlotSelectorOverlay:ShowCompatible(slot_num)
 	local items = {}
 	for id,v in pairs(loadout.get_loaded_items()) do
 		local item = level.object_by_id(id)
-		ui_inv_utils.try_add_to_list(item, items, true)
+		ui_utils.try_add_to_list(item, items, true)
 	end
 	for k,v in pairs(items) do
 		local item = v.item
@@ -297,14 +297,14 @@ function SlotSelectorOverlay:ShowCompatible(slot_num)
 			back:SetStretchTexture(true)
 			local table_end = self.compatible_items[#self.compatible_items]
 			prev_static = table_end and table_end.static or slot_static			
-			local offset = ui_inv_utils.GetOffset("center_down_out", back, prev_static, self.slot_icon_indent)
+			local offset = ui_utils.GetOffset("center_down_out", back, prev_static, self.slot_icon_indent)
 			pos.x = pos.x + offset.x
 			pos.y = pos.y + offset.y
 			back:SetWndPos(pos.x, pos.y)			
 
 			local icon = ui_cell_item.UICellItem(back, item)
 			icon:ResizeForCentered(back)
-			local offset = ui_inv_utils.GetOffset("center", icon, back)
+			local offset = ui_utils.GetOffset("center", icon, back)
 			icon:SetWndPos(offset.x, offset.y)
 			
 			table.insert(self.compatible_items, {back = back})

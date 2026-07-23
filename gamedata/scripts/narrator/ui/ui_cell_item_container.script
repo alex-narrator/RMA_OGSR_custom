@@ -325,7 +325,7 @@ end
 
 function UICellItemContainer:FindSimilar(item)
 	for cell_item,v in pairs(self.cell_items) do
-		if ui_inv_utils.similar_item(cell_item:GetItem(), item) then
+		if ui_utils.similar_item(cell_item:GetItem(), item) then
 			return cell_item
 		end
 	end
@@ -353,7 +353,7 @@ function UICellItemContainer:FindFreeCell(item, check_only)
 	if w > self.cols then
 	return false end
 
-	self.curr_type = ui_inv_utils.get_type(item)
+	self.curr_type = ui_utils.get_type(item)
 	if self.curr_type ~= self.last_type then
 		self.last_type = self.curr_type
 		self.last_type_row = self.end_row + 1
@@ -423,7 +423,7 @@ function UICellItemContainer:ColorizeCompatible(item)
 	for cell_item,v in pairs(self.cell_items) do
 		cell_item:ClearColorize()
 		self:ColorizeCellRestricted(cell_item)
-		if ui_inv_utils.need_highlight(item, cell_item:GetItem()) then
+		if ui_utils.need_highlight(item, cell_item:GetItem()) then
 			cell_item:ColorizeCompatible()
 		end
 	end

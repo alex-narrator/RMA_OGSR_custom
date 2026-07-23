@@ -34,7 +34,7 @@ function UIDebugMenu:InitControls()
 	
 	self.background = xml:InitStatic("background", self)
 	
-	local offset = ui_inv_utils.GetOffset("center", self.background, self)
+	local offset = ui_utils.GetOffset("center", self.background, self)
 	self.background:SetWndPos(offset.x, offset.y)
 	
 	local prefix, name = "", ""
@@ -290,7 +290,7 @@ function UIDebugMenu:OnSpawnItemClick(section, i)
 	
 	self.spawn_items_icon:DetachAll()
 	local icon = ui_cell_item.UICellItemSimple(self.spawn_items_icon, section)
-	local offset = ui_inv_utils.GetOffset("center", icon, self.spawn_items_icon)
+	local offset = ui_utils.GetOffset("center", icon, self.spawn_items_icon)
 	icon:SetWndPos(offset.x, offset.y)	
 end
 

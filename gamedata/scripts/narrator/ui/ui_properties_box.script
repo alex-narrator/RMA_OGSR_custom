@@ -80,7 +80,7 @@ function UIPropertiesBox:Activate()
 			if v.icon.color then
 				icon:SetColor(v.icon.color)
 			end
-			ui_inv_utils.FitStaticToSize(v.list_item, icon)
+			ui_utils.FitStaticToSize(v.list_item, icon)
 			v.list_item:SetWidth(v.list_item:GetWidth() + icon:GetWidth() + v.list_item:GetTextX())
 			v.list_item:AttachChild(icon)			
 			v.list_item.icon = icon
@@ -103,7 +103,7 @@ function UIPropertiesBox:Activate()
 	for k, v in ipairs(self.actions) do
 		v.list_item:SetWidth(dcw)
 		if v.list_item.icon then
-			local offset = ui_inv_utils.GetOffset("right_center", v.list_item.icon, v.list_item)
+			local offset = ui_utils.GetOffset("right_center", v.list_item.icon, v.list_item)
 			v.list_item.icon:SetWndPos(offset.x - v.list_item:GetTextX(), offset.y)
 		end
 	end

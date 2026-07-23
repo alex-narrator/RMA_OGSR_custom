@@ -32,7 +32,7 @@ function SkipTimeOverlay:InitControls(button_type)
 	local name
 	--//background
 	self.back = xml:InitStatic("background", self)
-	local offset = ui_inv_utils.GetOffset("center", self.back, level.main_input_receiver() or get_main_window())
+	local offset = ui_utils.GetOffset("center", self.back, level.main_input_receiver() or get_main_window())
 	self.back:SetWndPos(offset.x, offset.y)
 	xml:InitAutoStaticGroup("background:auto_static", self.back)
 

@@ -84,7 +84,7 @@ function RepairOverlay:InitControls()
 	local name, prefix
 
 	self.repair_back = xml:InitStatic("repair_back", self)
-	local offset = ui_inv_utils.GetOffset("center", self.repair_back, self)
+	local offset = ui_utils.GetOffset("center", self.repair_back, self)
 	self.repair_back:SetWndPos(offset.x, offset.y)
 	
 	prefix = "repair_back"
@@ -168,8 +168,8 @@ function RepairOverlay:InitItemsList()
 		end
 	end
 	actor:iterate_inventory(fill_list, nil)
-	table.sort(self.donors, ui_inv_utils.sort_by_size_type)
-	table.sort(self.tools, ui_inv_utils.sort_by_size_type)
+	table.sort(self.donors, ui_utils.sort_by_size_type)
+	table.sort(self.tools, ui_utils.sort_by_size_type)
 	for k, item in pairs(self.donors) do
 		self.repair_donors:AddItem(item)
 	end
@@ -258,7 +258,7 @@ function RepairOverlay:AttachItemIcon(item, parent_wnd)
 	local icon_sect = read_if_exists(sys_ini, "string", item:section(), "repair_icon_sect", item:section())
 	local item_static = ui_cell_item.UICellItemSimple(parent_wnd, icon_sect)
 	item_static:SetInteractive(false)
-	local offset = ui_inv_utils.GetOffset("center", item_static, parent_wnd)
+	local offset = ui_utils.GetOffset("center", item_static, parent_wnd)
 	item_static:SetWndPos(offset.x, offset.y)
 end
 

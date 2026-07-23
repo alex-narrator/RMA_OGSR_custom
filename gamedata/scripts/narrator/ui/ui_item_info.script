@@ -174,7 +174,7 @@ function UIItemInfo:InitItemInfo()
 	self.background_contrast:SetHeight(rect.y2)
 	
 	if self.independent then
-		local offset = ui_inv_utils.GetOffset("center", self.background_frame, self)
+		local offset = ui_utils.GetOffset("center", self.background_frame, self)
 		self.background_frame:SetWndPos(offset.x, offset.y)
 		self.background_contrast:SetWndPos(offset.x, offset.y)
 	end
@@ -344,6 +344,7 @@ function UIItemInfo:AttachConditionParams()
 	local condition_params = self.xml:InitStatic("condition_params", self.info_list)
 	condition_params:SetWidth(self.dcw)
 	local condition_icon = self.xml:InitStatic("condition_params:icon", condition_params)
+	condition_icon:SetColor(ui_utils.get_color_by_val(condition, 1, 0))
 	local condition_progress = self.xml:InitProgressBar("condition_params:condition_progress", condition_params)
 	condition_progress:SetProgressPos(condition)
 	return true
@@ -705,10 +706,11 @@ function UIItemInfo:AttachPowerParams()
 
 	local power_progress = self.xml:InitProgressBar("power_params:progress_power", power_params)
 	
-	local power_icon = self.xml:InitStatic("power_params:icon", power_params)
-	
 	local power_level = bind_item:get_power_level()
 	power_progress:SetProgressPos(power_level)
+	
+	local power_icon = self.xml:InitStatic("power_params:icon", power_params)
+	power_icon:SetColor(ui_utils.get_color_by_val(power_level, 1, 0))	
 	
 	local work_time = self.xml:InitStatic("power_params:work_time", power_params)
 	local worktime_text = string.format("%s %s %s", game.translate_string("st_work_time"), bind_item:get_work_time(), game.translate_string("st_time_hour"))
