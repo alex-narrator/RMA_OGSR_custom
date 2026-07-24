@@ -1289,13 +1289,18 @@ function MainIngameOverlay:UpdateProjectileTrajectory()
 	end	
 end
 
-function MainIngameOverlay:SetTimedActionProgress(item, action_time)
+function MainIngameOverlay:SetTimedActionProgress(item, action_time, section)
 	if not item then
 		self.use_anim:Show(false)
 		hud_remove_info_message("hud_info")
 	else
 		hud_add_info_message("hud_info", game.translate_string("st_key_to_stop_anim"), action_time * 0.001)
 		self.use_anim:Show(true)
+		
+		local item_icon = ui_cell_item.UICellItemSimple(self.use_anim, section or item:section())
+		local offset = ui_utils.GetOffset("center", item_icon, self.use_anim)
+		item_icon:SetWndPos(offset.x, offset.y)
+		--self.use_anim:BringToBottom(item_icon)
 		
 		local end_time = time_global() + action_time
 		level.add_call(
@@ -1304,6 +1309,7 @@ function MainIngameOverlay:SetTimedActionProgress(item, action_time)
 				val = 1 - val
 				self.use_anim.progress:SetPos(val)
 				self.use_anim.progress:Show(val < 1)
+				item_icon:Show(val < 1)
 				return val >= 1 or not self.use_anim:IsShown()
 			end,
 			function()

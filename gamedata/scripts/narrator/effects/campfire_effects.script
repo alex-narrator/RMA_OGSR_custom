@@ -94,7 +94,7 @@ function on_campfire_use(campfire_usable, campfire_zone)
 				end,
 				function()
 					local anm_length = game.play_hud_motion(2, hud_sect, "anm_use", false, 1, true)
-					sm:call("on_timed_action_start", campfire_zone, anm_length)
+					sm:call("on_timed_action_start", matches, anm_length)
 					_G.SCRIPT_ANIM_PLAYING = true
 					local sound = play_hud_sound(hud_sect)
 					play_hud_effector(hud_sect)
@@ -124,7 +124,7 @@ function on_campfire_use(campfire_usable, campfire_zone)
 			local sound = xr_sound.get_safe_sound_object(read_if_exists(sys_ini, "string", matches:section(), "use_sound", nil))
 			if sound then
 				sound:play(actor, 0, sound_object.s2d)
-				sm:call("on_timed_action_start", campfire_zone, sound:length())
+				sm:call("on_timed_action_start", matches, sound:length())
 			end
 			level.add_call(
 				function()

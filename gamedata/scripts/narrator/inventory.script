@@ -309,7 +309,7 @@ function item_detach_addon(item, addon_sect)
 			local snd_name = read_if_exists(sys_ini, "string", addon_sect, "detach_addon_sound", "interface\\inv_detach_addon")
 			local snd = xr_sound.get_safe_sound_object(snd_name)
 			snd:play(actor, 0, sound_object.s2d)
-			sm:call("on_timed_action_start", item, snd:length())
+			sm:call("on_timed_action_start", item, snd:length(), addon_sect)
 			level.add_call(
 				function()
 					if menu_was_shown and not actor_menu:IsShown() then
@@ -360,7 +360,7 @@ function item_attach_addon(item, addon_item, detach_sect)
 				local snd_attach_name = read_if_exists(sys_ini, "string", addon_item:section(), "attach_addon_sound", "interface\\inv_attach_addon")
 				local snd_attach = xr_sound.get_safe_sound_object(snd_attach_name)			
 				
-				sm:call("on_timed_action_start", item, snd_detach:length() + snd_attach:length())
+				sm:call("on_timed_action_start", item, snd_detach:length() + snd_attach:length(), addon_item:section())
 				level.add_call(
 					function()
 						if menu_was_shown and not actor_menu:IsShown() then
@@ -423,7 +423,7 @@ function item_attach_addon(item, addon_item, detach_sect)
 				local snd_name = read_if_exists(sys_ini, "string", addon_item:section(), "attach_addon_sound", "interface\\inv_attach_addon")
 				local snd = xr_sound.get_safe_sound_object(snd_name)
 				snd:play(actor, 0, sound_object.s2d)
-				sm:call("on_timed_action_start", item, snd:length())
+				sm:call("on_timed_action_start", item, snd:length(), addon_item:section())
 				level.add_call(
 					function()
 						if menu_was_shown and not actor_menu:IsShown() then

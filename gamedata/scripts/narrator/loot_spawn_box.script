@@ -40,11 +40,18 @@ function spawn_loot(item)
 		snd:play(actor, 0, sound_object.s2d)
 	end
 	
+	actor:hide_weapon()
 	block_non_move_action(true)
 	sm:call("on_timed_action_start", item, snd and snd:length() or 0)
 	
+	local menu_was_shown = actor_menu:IsShown()
+	
 	level.add_call(
 		function()
+			if menu_was_shown and not actor_menu:IsShown() then
+				game.stop_hud_motion()
+				menu_was_shown = false
+			end
 			return not snd or not snd:playing() or need_force_stop_anim()
 		end,
 		function()
@@ -65,6 +72,7 @@ function spawn_loot(item)
 			end
 			
 			block_non_move_action(false)
+			actor:restore_weapon()
 			sm:call("on_timed_action_stop")
 		end
 	)
