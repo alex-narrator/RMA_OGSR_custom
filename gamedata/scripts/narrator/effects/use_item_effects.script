@@ -23,23 +23,23 @@ function is_use_enabled(item)
 		return false
 	end
 	
-	if not read_if_exists(sys_ini, "bool", sect, "helmet_use", true) then
-		local check_item = actor:item_in_slot(6)
-		local check_sect = check_item and check_item:section()
-		if check_item and read_if_exists(sys_ini, "bool", check_sect, "block_eat", false) then
-			--news_manager.item_tip(check_item, "outfit_block_eat")
-			hud_add_info_message("actor_state", string.format("%s %s", get_inv_name(check_sect), game.translate_string("st_cant_eat_outfit")))
-			return false
-		end
+	-- if not read_if_exists(sys_ini, "bool", sect, "helmet_use", true) then
+		-- local check_item = actor:item_in_slot(6)
+		-- local check_sect = check_item and check_item:section()
+		-- if check_item and read_if_exists(sys_ini, "bool", check_sect, "block_eat", false) then
+			-- --news_manager.item_tip(check_item, "outfit_block_eat")
+			-- hud_add_info_message("actor_state", string.format("%s %s", get_inv_name(check_sect), game.translate_string("st_cant_eat_outfit")))
+			-- return false
+		-- end
 	
-		check_item = actor:item_in_slot(11)
-		check_sect = check_item and check_item:section()
-		if check_item and read_if_exists(sys_ini, "bool", check_sect, "block_eat", false) then
-			--news_manager.item_tip(check_item, "outfit_block_eat")
-			hud_add_info_message("actor_state", string.format("%s %s", get_inv_name(check_sect), game.translate_string("st_cant_eat_outfit")))
-			return false
-		end
-	end
+		-- check_item = actor:item_in_slot(11)
+		-- check_sect = check_item and check_item:section()
+		-- if check_item and read_if_exists(sys_ini, "bool", check_sect, "block_eat", false) then
+			-- --news_manager.item_tip(check_item, "outfit_block_eat")
+			-- hud_add_info_message("actor_state", string.format("%s %s", get_inv_name(check_sect), game.translate_string("st_cant_eat_outfit")))
+			-- return false
+		-- end
+	-- end
 	
 	if read_if_exists(sys_ini, "bool", sect, "heal_injuries", false) then
 		if body_health.get_injured_limb() == "none" then

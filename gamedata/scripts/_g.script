@@ -2090,11 +2090,8 @@ end
 --//інфоповідомлення на худі, у рушійному стилі
 function hud_add_info_message(static_id, text, ttl)
 	ttl = ttl or 3
-	if actor_menu:IsShown() then
-		actor_menu:SetInvTip(text, ttl)
-	else
-		main_window:AddInfoMessage(static_id, text, ttl)
-	end
+	actor_menu:SetInvTip(text, ttl)
+	main_window:AddInfoMessage(static_id, text, ttl)
 end
 function hud_remove_info_message(static_id)
 	main_window:RemoveInfoMessage(static_id)
