@@ -214,6 +214,8 @@ function MainIngameOverlay:InitControls()
 	for k,v in pairs(self.conditions_circles) do
 		v.back = xml:InitStatic(k, self)
 		v.icon = xml:InitStatic(k..":icon", v.back)
+		local offset = ui_utils.GetOffset("center", v.icon, v.back)
+		v.icon:SetWndPos(offset.x, offset.y)
 		v.progress_shape = xml:InitProgressShape(k..":progress_shape", v.back)
 		v.show_val = xml:ReadAttribFlt(k, "show_val", 1)
 	end
@@ -371,6 +373,12 @@ function MainIngameOverlay:InitControls()
 	local offset = ui_utils.GetOffset("center", self.use_anim, self.owner)
 	self.use_anim:SetWndPos(offset.x, offset.y)
 	self.use_anim:Show(false)
+	local scale = xml:ReadAttribFlt(root, "icon_scale", 1)
+	self.use_anim.icon = CUIStatic()
+	self.use_anim:AttachChild(self.use_anim.icon)
+	self.use_anim.icon:Init(0,0, self.use_anim:GetWidth() * scale, self.use_anim:GetHeight() * scale)
+	offset = ui_utils.GetOffset("center", self.use_anim.icon, self.use_anim)
+	self.use_anim.icon:SetWndPos(offset.x, offset.y)
 	
 	--//crosshair
 	root = "crosshair"
@@ -1292,13 +1300,14 @@ end
 function MainIngameOverlay:SetTimedActionProgress(item, action_time, section)
 	if not item then
 		self.use_anim:Show(false)
+		self.use_anim.icon:DetachAll()
 		hud_remove_info_message("hud_info")
 	else
 		hud_add_info_message("hud_info", game.translate_string("st_key_to_stop_anim"), action_time * 0.001)
 		self.use_anim:Show(true)
 		
-		local item_icon = ui_cell_item.UICellItemSimple(self.use_anim, section or item:section())
-		local offset = ui_utils.GetOffset("center", item_icon, self.use_anim)
+		local item_icon = ui_cell_item.UICellItemSimple(self.use_anim.icon, section or item:section())
+		local offset = ui_utils.GetOffset("center", item_icon, self.use_anim.icon)
 		item_icon:SetWndPos(offset.x, offset.y)
 		--self.use_anim:BringToBottom(item_icon)
 		
@@ -1309,7 +1318,7 @@ function MainIngameOverlay:SetTimedActionProgress(item, action_time, section)
 				val = 1 - val
 				self.use_anim.progress:SetPos(val)
 				self.use_anim.progress:Show(val < 1)
-				item_icon:Show(val < 1)
+				self.use_anim.icon:Show(val < 1)
 				return val >= 1 or not self.use_anim:IsShown()
 			end,
 			function()
