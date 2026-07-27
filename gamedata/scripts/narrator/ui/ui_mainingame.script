@@ -1309,7 +1309,6 @@ function MainIngameOverlay:SetTimedActionProgress(item, action_time, section)
 		local item_icon = ui_cell_item.UICellItemSimple(self.use_anim.icon, section or item:section())
 		local offset = ui_utils.GetOffset("center", item_icon, self.use_anim.icon)
 		item_icon:SetWndPos(offset.x, offset.y)
-		--self.use_anim:BringToBottom(item_icon)
 		
 		local end_time = time_global() + action_time
 		level.add_call(

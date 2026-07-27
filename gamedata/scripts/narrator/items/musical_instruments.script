@@ -24,11 +24,11 @@ local sm = ogsr_signals.get_mgr()
 local sound = false
 local instrument = false
 
-function play(item)
+function play(instrument_type, item)
 	actor:hide_weapon(true)
 	block_non_move_action(true)
 	
-	instrument = item
+	instrument = instrument_type
 	local data = instruments[instrument]
 	
 	level.add_call(
@@ -74,6 +74,12 @@ function stop_music()
 	sound:stop()
 	sound = false
 	local data = instruments[instrument]
+	if not data then
+		game.stop_hud_motion()
+		_G.SCRIPT_ANIM_PLAYING = false
+		restore_control()
+		instrument = false	
+	return end
 	game.play_hud_motion(2, data.hud, "anm_draw", false, data.draw_anm_speed or 1, true)
 	add_time_delayed_action(data.draw_anm_delay or 1,
 		function()
@@ -103,7 +109,7 @@ end
 function play_instrument(item)
 	for k,v in pairs(instruments) do
 		if string.find(item:section(), k) then
-			play(k)
+			play(k, item)
 			return
 		end
 	end	

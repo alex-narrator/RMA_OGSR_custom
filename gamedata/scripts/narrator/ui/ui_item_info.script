@@ -1164,13 +1164,19 @@ end
 -----------------------------------------------------REPAIR PARAMS-----------------------------------------------------------------------------------------------------------
 local repair_params = {
 		--//service
-		{name = "service_type", 			prefix="", unit = "", 	default = "", 	_type = "string"},
-		{name = "service_cond_threshold", 	prefix="", unit = "%", 	default = 0, 	_type = "float"},
-		{name = "service_condition_gain", 	prefix="", unit = "%", 	default = 0, 	_type = "float"},
+		{name = "service_type", 			prefix="", unit = "", 	default = "", 	_type = "string", color = orange},
+		{name = "service_cond_threshold", 	prefix="", unit = "%", 	default = 0, 	_type = "float", color = orange, texture = "ui_hud_icon_repair"},
+		{name = "service_condition_gain", 	prefix="", unit = "%", 	default = 0, 	_type = "float", color = green, texture = "ui_hud_icon_repair"},
 		--//repair
-		{name = "repair_type", 				prefix="", unit = "", 	default = "", 	_type = "string"},
-		{name = "repair_bonus", 			prefix="x", unit = "", 	default = 0, 	_type = "float"},
+		{name = "repair_type", 				prefix="", unit = "", 	default = "", 	_type = "string", color = orange},
+		{name = "repair_bonus", 			prefix="x", unit = "", 	default = 0, 	_type = "float", color = green, texture = "ui_hud_icon_repair"},
 	}
+local texture_by_type = {
+	["knife"] = "ui_hud_icon_knife",
+	["weapon"] = "ui_hud_icon_firearm",
+	["outfit"] = "ui_hud_icon_armor",
+	["helmet"] = "ui_hud_icon_gasmask",
+}
 function UIItemInfo:AttachRepairParams()
 	local sect = self.item:section()
 	if read_if_exists(sys_ini, "float", sect, "service_condition_gain", 0) <= 0 and read_if_exists(sys_ini, "float", sect, "repair_bonus", 0) <= 0 then
@@ -1181,19 +1187,31 @@ function UIItemInfo:AttachRepairParams()
 	
 	for k,v in ipairs(repair_params) do
 		local val = read_if_exists(sys_ini, v._type, sect, v.name, v.default)
+		local _val = val
 		if val ~= v.default then
 			val = v._type == "string" and game.translate_string("st_repair_"..val) or math.round(val, 2)
 			if v.unit == "%" then
 				val = val * 100
 			end
-			local color = orange
+			local color = v.color or orange
 			local text = string.format("%s%s%s", v.prefix, val, v.unit)
 			local static = self:AttachParamItem(params_list)
 			static:SetText(game.translate_string("st_"..v.name))
-			static:SetTextPos(0, 0)
+			--static:SetTextPos(0, 0)
 			static.val:SetText(text)
 			static.val:SetWidth(100)
 			static.val:SetTextColor(color)
+			local texture = v.texture or ""
+			if string.find(v.name, "type") then
+				for kk,vv in pairs(texture_by_type) do
+					if string.find(_val, kk) then
+						texture = vv
+						break
+					end
+				end
+			end
+			static.icon:InitTexture(texture)
+			static.icon:SetColor(color)
 		end
 	end
 	self:AdjustParamsList(params_list)
