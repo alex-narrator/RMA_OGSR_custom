@@ -305,7 +305,8 @@ function action_give_task(actor, npc, p1, p2)
 	local objective = SGameTaskObjective(task,1)
 	objective:set_description(task_desc.name)
 	
-	local _text = string.format("%s\\n%s\\n%s", game.translate_string(task_desc.text), GetRewardText(task_desc), GetPenaltyText(task_desc))
+	--local _text = string.format("%s\\n%s\\n%s", game.translate_string(task_desc.text), GetRewardText(task_desc), GetPenaltyText(task_desc))
+	local _text = string.format("%s", game.translate_string(task_desc.text))
 	
 	if task_desc.type == "eliminate_lager" then
 		objective:set_map_hint(_text)
