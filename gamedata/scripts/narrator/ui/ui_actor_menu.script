@@ -285,16 +285,20 @@ function ActorMenuOverlay:InitControls()
 	
 	name = "effects_info"
 	self.effects_info = xml:InitStatic(name, self)
+	self.effects_info.show_natural = xml:InitCheck(name..":show_natural", self.effects_info)
+	self:Register(self.effects_info.show_natural, name)
+	self:AddCallback(name, ui_events.BUTTON_CLICKED, function() self:OnShownaturalRSClick() end, self)
+	self:OnShownaturalRSClick()
 	self.effects_info.scroll_view = xml:InitScrollView(name..":scroll_view", self.effects_info)
 	self.effects_info.effects = {
-		{param = "health_restore_speed", 		name = "ui_inv_health_boost", 				texture = "ui_hud_icon_health_warning"},
-		{param = "power_restore_speed", 		name = "ui_inv_power", 						texture = "ui_hud_icon_power"},
+		{param = "health_restore_speed", 		name = "ui_inv_health_boost", 				texture = "ui_hud_icon_health_warning", 	restore_speed = function() return actor_cond.health_restore_v end,},
+		{param = "power_restore_speed", 		name = "ui_inv_power", 						texture = "ui_hud_icon_power", 				restore_speed = function() return actor_cond.power_v end,},
 		{param = "max_power_restore_speed", 	name = "ui_inv_max_power", 					texture = "ui_hud_icon_power"},
-		{param = "satiety_restore_speed", 		name = "ui_inv_satiety", 					texture = "ui_hud_icon_eat"},
-		{param = "radiation_restore_speed", 	name = "ui_inv_radiation", 					texture = "ui_hud_icon_radiation"},
-		{param = "psy_health_restore_speed", 	name = "ui_inv_psy_health", 				texture = "ui_hud_icon_psycho"},
-		{param = "alcohol_restore_speed", 		name = "ui_inv_alcohol", 					texture = "ui_hud_icon_alcohol"},
-		{param = "wounds_heal_speed", 			name = "ui_inv_wounds_heal", 				texture = "ui_hud_icon_drop"},
+		{param = "satiety_restore_speed", 		name = "ui_inv_satiety", 					texture = "ui_hud_icon_eat", 				restore_speed = function() return -actor_cond.satiety_v end,},
+		{param = "radiation_restore_speed", 	name = "ui_inv_radiation", 					texture = "ui_hud_icon_radiation", 			restore_speed = function() return -actor_cond.radiation_v end,},
+		{param = "psy_health_restore_speed", 	name = "ui_inv_psy_health", 				texture = "ui_hud_icon_psycho", 			restore_speed = function() return actor_cond.psy_health_v end,},
+		{param = "alcohol_restore_speed", 		name = "ui_inv_alcohol", 					texture = "ui_hud_icon_alcohol", 			restore_speed = function() return actor_cond.alcohol_v end,},
+		{param = "wounds_heal_speed", 			name = "ui_inv_wounds_heal", 				texture = "ui_hud_icon_drop", 				restore_speed = function() return actor_cond.wound_incarnation_v end,},
 		--//
 		{param = "additional_sprint", 			name = "ui_inv_sprint", 					texture = "ui_hud_icon_sprint"},
 		{param = "additional_jump", 			name = "ui_inv_jump", 						texture = "ui_hud_icon_jump"},
@@ -310,7 +314,7 @@ function ActorMenuOverlay:InitControls()
 		{param = "explosion_immunity", 			name = "ui_inv_explosion_protection", 		texture = "ui_hud_icon_explosion_protection"},
 		{param = "fire_wound_immunity", 		name = "ui_inv_fire_wound_protection", 		texture = "ui_hud_icon_fire_wound_protection"},
 		--//
-		{param = "boost_somnolence", 			name = "ui_inv_somnolence", 				texture = "ui_hud_icon_somnolence"},
+		{param = "boost_somnolence", 			name = "ui_inv_somnolence", 				texture = "ui_hud_icon_somnolence", 		restore_speed = function() return somnolence.get_v() end,},
 		{param = "boost_pain", 					name = "ui_inv_painkiller", 				texture = "ui_hud_icon_pain"},
 		{param = "power_loss", 					name = "st_power_loss", 					texture = "ui_hud_icon_power_loss"},	
 	}
@@ -788,10 +792,10 @@ end
 function ActorMenuOverlay:ConditionOnFocusReceived(cond_name)
 	self.conditions[cond_name].percent:Show(true)
 	self.conditions[cond_name].icon:SetColor(self.loadout_color_equiped)
-	local cond_descr = game.translate_string(string.format("%s%s%s","st_", cond_name, "hint"))
+	local cond_descr = game.translate_string(string.format("%s%s%s","st_", cond_name, "hint")).."\\n \\n"
 	local cond_restore_text = ""
 	local restore_speed = self.conditions[cond_name].restore_speed and self.conditions[cond_name].restore_speed() or nil
-	if restore_speed then
+	if restore_speed and not self.effects_info.show_natural_rs then
 		local for_rad = false--cond_name == "radiation_"
 		local _k = for_rad and 1 or 100
 		local round = for_rad and 3 or 1
@@ -802,6 +806,7 @@ function ActorMenuOverlay:ConditionOnFocusReceived(cond_name)
 			restore_speed = math.round(restore_speed*_k, round)
 			cond_restore_text = string.format("%s: %s %s", game.translate_string("st_"..cond_name.."restore_hint"), restore_speed, game.translate_string(for_rad and "st_radiation_per_hour" or "st_percent_per_hour"))
 		end
+		cond_restore_text = cond_restore_text.."\\n \\n"
 	end
 	local cond_text = game.translate_string(string.format("%s%s%s","st_", cond_name, "hint_text"))
 	if cond_name == "injure_" then
@@ -810,7 +815,7 @@ function ActorMenuOverlay:ConditionOnFocusReceived(cond_name)
 		cond_text = game.translate_string(string.format("%s%s%s%s%s","st_", cond_name, self.conditions[cond_name].condition(), pain, "_hint_text"))
 		--log3("~hint string: %s", cond_text)
 	end
-	local tip_text = string.format("%s\\n \\n%s\\n \\n%s", cond_descr, cond_restore_text, cond_text)	
+	local tip_text = string.format("%s%s%s", cond_descr, cond_restore_text, cond_text)	
 	self:SetTooltip(tip_text)
 end
 
@@ -903,6 +908,10 @@ function ActorMenuOverlay:UpdateEffectsInfo()
 		local i = _i-1
 		
 		local t = self.effects_info.effects[_i]
+		
+		if self.effects_info.show_natural_rs and t.restore_speed then
+			val = t.restore_speed()
+		end
 		
 		if t.param == "power_loss" then
 			local item
@@ -1006,6 +1015,11 @@ function ActorMenuOverlay:UpdateEffectsInfo()
 			self.effects_info.scroll_view:AddWindow(t.static)
 		end
 	end
+end
+
+function ActorMenuOverlay:OnShownaturalRSClick()
+	self.effects_info.show_natural_rs = not self.effects_info.show_natural_rs
+	self.effects_info.show_natural:SetCheck(self.effects_info.show_natural_rs)
 end
 
 function ActorMenuOverlay:UpdateInvTip()
