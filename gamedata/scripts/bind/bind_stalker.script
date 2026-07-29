@@ -126,6 +126,9 @@ function actor_binder:net_destroy()
 	self.object:set_callback(callback.map_location_clicked, nil)
 	self.object:set_callback(callback.on_level_map_db_click, nil)
 	
+	self.object:set_callback(callback.map_location_focus, nil)
+	self.object:set_callback(callback.map_location_focus_lost, nil)
+	
 	self.object:set_callback(callback.on_pda_contact_add, nil)
 	self.object:set_callback(callback.on_pda_contact_remove, nil)
 
@@ -205,6 +208,9 @@ function actor_binder:reinit()
 	
 	self.object:set_callback(callback.map_location_clicked, self.map_location_clicked, self)
 	self.object:set_callback(callback.on_level_map_db_click, self.on_level_map_db_click, self)
+
+	self.object:set_callback(callback.map_location_focus, self.map_location_focus, self)
+	self.object:set_callback(callback.map_location_focus_lost, self.map_location_focus_lost, self)
 	--
 	self.object:set_callback(callback.on_pda_contact_add, self.on_pda_contact_add, self)
 	self.object:set_callback(callback.on_pda_contact_remove, self.on_pda_contact_remove, self)
@@ -627,8 +633,16 @@ function actor_binder:on_throw_grenade(fake_granade)
 	self.sm:call("on_throw_grenade_actor", actor, fake_granade)
 end
 
-function actor_binder:map_location_clicked(obj_id, spot_type, level_name, position, is_user_spot)
-	self.sm:call("on_map_spot_clicked", obj_id, spot_type, level_name, position, is_user_spot)
+function actor_binder:map_location_clicked(obj_id, spot_type, level_name, position, is_user_spot, hint)
+	self.sm:call("on_map_spot_clicked", obj_id, spot_type, level_name, position, is_user_spot, hint)
+end
+
+function actor_binder:map_location_focus(obj_id, spot_type, level_name, position, is_user_spot, hint)
+	self.sm:call("on_map_spot_focus", obj_id, spot_type, level_name, position, is_user_spot, hint)
+end
+
+function actor_binder:map_location_focus_lost(obj_id, spot_type, level_name, position, is_user_spot, hint)
+	self.sm:call("on_map_spot_focus_lost", obj_id, spot_type, level_name, position, is_user_spot, hint)
 end
 
 function actor_binder:on_level_map_db_click(map_position, level_name, real_position)
