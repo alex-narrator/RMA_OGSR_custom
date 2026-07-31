@@ -1164,11 +1164,11 @@ end
 -----------------------------------------------------REPAIR PARAMS-----------------------------------------------------------------------------------------------------------
 local repair_params = {
 		--//service
-		{name = "service_type", 			prefix="", unit = "", 	default = "", 	_type = "string", color = orange},
-		{name = "service_cond_threshold", 	prefix="", unit = "%", 	default = 0, 	_type = "float", color = orange, texture = "ui_hud_icon_repair"},
-		{name = "service_condition_gain", 	prefix="", unit = "%", 	default = 0, 	_type = "float", color = green, texture = "ui_hud_icon_repair"},
+		-- {name = "service_type", 			prefix="", unit = "", 	default = "", 	_type = "string", color = orange},
+		{name = "repair_cond_threshold", 	prefix="", unit = "%", 	default = 0, 	_type = "float", color = orange, texture = "ui_hud_icon_repair"},
+		{name = "repair_condition_gain", 	prefix="", unit = "%", 	default = 0, 	_type = "float", color = green, texture = "ui_hud_icon_repair"},
 		--//repair
-		{name = "repair_type", 				prefix="", unit = "", 	default = "", 	_type = "string", color = orange},
+		--{name = "repair_type", 				prefix="", unit = "", 	default = "", 	_type = "string", color = orange},
 		{name = "repair_bonus", 			prefix="x", unit = "", 	default = 0, 	_type = "float", color = green, texture = "ui_hud_icon_repair"},
 	}
 local texture_by_type = {
@@ -1179,7 +1179,7 @@ local texture_by_type = {
 }
 function UIItemInfo:AttachRepairParams()
 	local sect = self.item:section()
-	if read_if_exists(sys_ini, "float", sect, "service_condition_gain", 0) <= 0 and read_if_exists(sys_ini, "float", sect, "repair_bonus", 0) <= 0 then
+	if read_if_exists(sys_ini, "float", sect, "repair_condition_gain", 0) <= 0 and read_if_exists(sys_ini, "float", sect, "repair_bonus", 0) <= 0 then
 	return end
 	
 	local params_list = self:AttachParamsList()
