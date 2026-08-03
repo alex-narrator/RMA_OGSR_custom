@@ -3,11 +3,15 @@ function attach(sm)
 	sm:subscribe({signal = "on_mouse_wheel", 		fun = this.on_mouse_wheel})
 	sm:subscribe({signal = "on_key_press", 			fun = this.on_key_press})
 	sm:subscribe({signal = "on_hud_state_switch", 	fun = this.on_state_switch})
+	sm:subscribe({signal = "on_hud_item_zoom_in", 	fun = this.on_hud_item_zoom_in})
+	sm:subscribe({signal = "on_hud_item_zoom_out", 	fun = this.on_hud_item_zoom_out})
 end
 
 -- local LOOKOUT_ANGLE_STEP = 5
 -- local MIN_ANGLE = 30
 -- local MAX_ANGLE = 60
+
+local auto_lookout_dist = 1.5
 
 local PH_BOX_ID_STEP = 2
 
@@ -87,5 +91,73 @@ function on_state_switch(item, state, old_state)
 	return end
 	if not IsMoveState(move_state.mcLookout) then
 	return end
+	SetMoveState(move_state.mcLookout, false)
+end
+
+-- local test_particles = {
+	-- ["cam_pos"] = particles_object([[_samples_particles_\gt_glow_large_bright_white]]),
+	-- ["rotation_pos"] = particles_object([[_samples_particles_\gt_glow_large_bright_blue]]),
+	-- ["pos_left"] = particles_object([[_samples_particles_\gt_glow_large_bright_red]]),
+	-- ["pos_right"] = particles_object([[_samples_particles_\gt_glow_large_bright_green]]),
+-- }
+function on_hud_item_zoom_in(item)
+	-- for k,v in pairs(test_particles) do
+		-- v:stop()
+	-- end
+	if not get_script_option_value("auto_lookout") then
+	return end
+	if IsMoveState(move_state.mcLookout) then
+	return end
+	local pos = device().cam_pos
+	--test_particles["cam_pos"]:play_at_pos(pos)
+	local dir = device().cam_dir
+	--//forward parallel to ground
+	local forward = vector():set(dir):normalize()
+	forward.y = 0
+	if forward:magnitude() < 0.001 then
+		--log_news("looking up")
+	return end
+	
+	local rq = level.ray_query(pos, forward, auto_lookout_dist, rq_target.rqtBoth, actor)
+	if not rq.result then
+		--log_news("forward has no obstacle")
+	return end
+
+	local lookout_angle = actor_obj.lookout_angle
+
+	local rotation_pos = vector():set(pos)
+	rotation_pos.y = rotation_pos.y - (pos.y - actor:position().y) * 0.25
+	-- test_particles["rotation_pos"]:play_at_pos(rotation_pos)
+	
+	local rotation_vector = pos:sub(rotation_pos)
+	local rotation_length = rotation_vector:magnitude()
+	--log_news("rotation_length [%s]", rotation_length)
+	
+	local rotation_left = rodrigues_rotate(rotation_vector, forward, lookout_angle)
+	local pos_left = vector():mad(rotation_pos, rotation_left:normalize(), rotation_length)
+	--test_particles["pos_left"]:play_at_pos(pos_left)
+	rq = level.ray_query(pos_left, forward, auto_lookout_dist, rq_target.rqtBoth, actor)
+	if not rq.result then
+		--log_news("left has no obstacle")
+		auto_lookout = true
+		SetMoveState(move_state.mcLLookout, true)
+	return end
+	
+	local rotation_right = rodrigues_rotate(rotation_vector, forward, -lookout_angle)
+	local pos_right = vector():mad(rotation_pos, rotation_right:normalize(), rotation_length)
+	--test_particles["pos_right"]:play_at_pos(pos_right)
+	rq = level.ray_query(pos_right, forward, auto_lookout_dist, rq_target.rqtBoth, actor)
+	if not rq.result then
+		--log_news("right has no obstacle")
+		auto_lookout = true
+		SetMoveState(move_state.mcRLookout, true)
+	return end
+end
+
+function on_hud_item_zoom_out(item)
+	if not auto_lookout then
+	return end
+	--log_news("disable auto_lookout")
+	auto_lookout = false
 	SetMoveState(move_state.mcLookout, false)
 end

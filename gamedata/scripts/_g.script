@@ -1081,10 +1081,32 @@ end
 //Вращает вектор вокруг оси y против часовой стрелки
 
 function vector_rotate_y (v, angle)
-    angle = angle * 0.017453292519943295769236907684886
+    angle = math.rad(angle)
     local c = math.cos (angle)
     local s = math.sin (angle)
     return vector ():set (v.x * c - v.z * s, v.y, v.x * s + v.z * c)
+end
+
+-- Rotates vector 'v' around axis 'k' by angle 'theta' (in radians)
+function rodrigues_rotate(v, k, theta)
+	local theta_rad = math.rad(theta)
+    local k_norm = vector():set(k):normalize()
+    local cos_t = math.cos(theta_rad)
+    local sin_t = math.sin(theta_rad)
+    
+    -- v * cos(theta)
+    local term1 = vector():set(v):mul(cos_t)
+    
+    -- k x v * sin(theta)
+    local cross_kv = vector():crossproduct(k_norm, v)
+    local term2 = cross_kv:mul(sin_t)
+    
+    -- k * (k . v) * (1 - cos(theta))
+    local dot_kv = k_norm:dotproduct(v)
+    local term3 = vector():set(k_norm):mul(dot_kv * (1 - cos_t))
+    
+    -- Result = (v * cos(theta)) + (k x v * sin(theta)) + k * (k . v) * (1 - cos(theta))
+    return vector():set(term1):add(term2):add(term3)
 end
 
 -- очистка таблицы
