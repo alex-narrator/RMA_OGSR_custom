@@ -202,12 +202,12 @@ spot_angle      = 50									; spot angle            <in gradus>
 $spawn					= "devices\nvg"
 $prefetch 				= 32
 class					= TORCH_S
-visual					= dynamics\nvg\nvg
+visual					= dynamics\devices\dev_binoculars\dev_binoculars_army
 slot					= 9
 
 position				= 0.35,0.25,0.0
 attach_angle_offset		= 0.050, -0.057, 1.600
-attach_position_offset	= 0.195, -0.000, 0.100
+attach_position_offset	= 0.0495004, -0, 0.1;0.195, -0.000, 0.100
 attach_bone_name		= bip01_head
 auto_attach				= false
 
@@ -218,8 +218,6 @@ snd_nvd_on 				= device\night_vision\nv_start
 snd_nvd_off 			= device\night_vision\nv_off
 snd_nvd_operate 		= device\night_vision\nvg_loop
 
-nv_hud 					= nvg_binocular_hud
-
 nv_mode 				= 1
 nv_step 				= 0.5
 
@@ -227,13 +225,13 @@ hv_fade_distance 		= 13, 20, 0, 0
 hv_blurring 			= 1, 1, 1.1, 1.1
 hv_steps 				= -0.5, 0, 0, 1
 
-[device_nvd_mono]:device_base,nvd_base
+[nvd_gen_1]:device_base,nvd_base
 cost					= 138000
 
-inv_name				= st_device_nvd_mono_name
-inv_name_short			= st_device_nvd_mono_short
-description				= st_device_nvd_mono_descr
-;icon_text				= st_device_nvd_mono_text
+inv_name				= st_nvd_gen_1_name
+inv_name_short			= st_nvd_gen_1_short
+description				= st_nvd_gen_1_descr
+;icon_text				= st_nvd_gen_1_text
 
 inv_weight				= .680
 
@@ -250,25 +248,24 @@ nv_radius 				= 0.5
 nv_tube_num 			= 1
 nv_noise 				= 0.1
 
-repair_icon_sect 		= nvd_mono_repair
+nv_hud 					= nvd_gen_1_hud
 
-[device_nvd_bino]:device_base,nvd_base
+repair_icon_sect 		= nvd_gen_1_repair
+
+[nvd_gen_2]:device_base,nvd_base
 cost					= 291000
 
-inv_name				= st_device_nvd_bino_name
-inv_name_short			= st_device_nvd_bino_short
-description				= st_device_nvd_bino_descr
-;icon_text				= st_device_nvd_bino_text
+inv_name				= st_nvd_gen_2_name
+inv_name_short			= st_nvd_gen_2_short
+description				= st_nvd_gen_2_descr
+;icon_text				= st_nvd_gen_2_text
 
 inv_weight				= .545
 
 inv_grid_x         		= 2
 inv_grid_y         		= 4
 
-;night_vision_texture 	= hud_mask\nightvision\hud_nvg_gen1;wpn\wpn_crosshair;wpn\wpn_night
-;night_vision_effector 	= effector_nightvision ;postprocess_night
-
-nv_color 				= 0.2, 0.3, 0.2
+nv_color 				= 0.2, 0.2, 0.3
 nv_gain 				= 2
 nv_vignette_size 		= 0.1
 nv_radius 				= 0.5
@@ -277,7 +274,35 @@ nv_noise 				= 0.05
 
 nv_hud_info_offset 		= 350, 650
 
-repair_icon_sect 		= nvd_bino_repair
+nv_hud 					= nvd_gen_2_hud
+
+repair_icon_sect 		= nvd_gen_2_repair
+
+[nvd_gen_3]:device_base,nvd_base
+cost					= 950000
+
+inv_name				= st_nvd_gen_3_name
+inv_name_short			= st_nvd_gen_3_short
+description				= st_nvd_gen_3_descr
+;icon_text				= st_nvd_gen_3_text
+
+inv_weight				= .765
+
+inv_grid_x         		= 3
+inv_grid_y         		= 4
+
+nv_color 				= 0.2, 0.2, 0.2
+nv_gain 				= 2
+nv_vignette_size 		= 0.05
+nv_radius 				= 0.45
+nv_tube_num 			= 4
+nv_noise 				= 0.025
+
+nv_hud_info_offset 		= 300, 650
+
+nv_hud 					= nvd_gen_3_hud
+
+repair_icon_sect 		= nvd_gen_3_repair
 
 ;;--==========================< TACTICAL TORCH >=============================
 [device_tactical_torch]:device_base
