@@ -6,11 +6,12 @@ end
 local ezi = false
 local base_k = false
 local zoom_factor = 1
+local aimed_weapon
 local subscribed = false
 
 local DEBUG_DISABLE = false
 
-local ZOOM_SOMNOLENCE_K = read_if_exists(sys_ini, "float", "actor_condition", "somnolence_zoom_effector_k", 10)
+local ZOOM_SOMNOLENCE_K = read_if_exists(sys_ini, "float", "actor_condition", "somnolence_zoom_effector_k", 1)
 local CROUCH_K = 0.25
 
 function get_zoom_effector_k()
@@ -24,6 +25,7 @@ end
 
 function on_zoom_in(weapon)
 	zoom_factor = weapon:get_zoom_factor()
+	aimed_weapon = weapon
 	--log_news("zoom_factor on zoom [%s]", zoom_factor)
 	if not subscribed then
 		subscribed = {
@@ -48,6 +50,7 @@ function on_zoom_out(weapon)
 	ezi = false
 	base_k = false
 	zoom_factor = 1
+	aimed_weapon = false
 end
 
 function on_update(delta)
@@ -56,8 +59,9 @@ function on_update(delta)
 		if not ezi then
 		return end
 		base_k = ezi.zoom_aim_disp_k
+		--log_news("base_k [%s]", base_k)
 	end
 	--log_news("get_zoom_effector_k [%s]", get_zoom_effector_k())
 	ezi.zoom_aim_disp_k = base_k * get_zoom_effector_k()
-	ezi.pause_effect = DEBUG_DISABLE or weapon_hardhold.is_hard_hold() or not ui_scope_texture.has_scope_static()
+	ezi.pause_effect = DEBUG_DISABLE or weapon_hardhold.is_hard_hold() or (aimed_weapon and aimed_weapon:is_item_hud_shown())--ui_scope_texture.has_scope_static()
 end
