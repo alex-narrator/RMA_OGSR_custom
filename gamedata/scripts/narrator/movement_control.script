@@ -15,6 +15,22 @@ local auto_lookout_dist = 1.5
 
 local PH_BOX_ID_STEP = 2
 
+local cam_height_factor = read_if_exists(sys_ini, "float", "actor", "camera_height_factor", 0.86)
+
+local ph_box = {}
+for i=0, 4 do
+	local ph_box_center = read_if_exists(sys_ini, "vector", "actor", "ph_box"..i.."_center", nil)
+	local ph_box_size = read_if_exists(sys_ini, "vector", "actor", "ph_box"..i.."_size", nil)
+	if ph_box_center and ph_box_size then
+		local _min = vector():set(ph_box_center)
+		local _max = vector():set(ph_box_center)
+		_min:sub(ph_box_size)
+		_max:add(ph_box_size)
+		local box_size = vector():sub(_max, _min)
+		ph_box[i] = box_size
+	end
+end
+
 function get_ph_box_min_max_id()
 	if actor_obj:is_actor_creep() and not actor_obj:is_actor_creeping() then
 		return 2, 4
@@ -99,6 +115,7 @@ end
 	-- ["rotation_pos"] = particles_object([[_samples_particles_\gt_glow_large_bright_blue]]),
 	-- ["pos_left"] = particles_object([[_samples_particles_\gt_glow_large_bright_red]]),
 	-- ["pos_right"] = particles_object([[_samples_particles_\gt_glow_large_bright_green]]),
+	-- ["pos_up"] = particles_object([[_samples_particles_\gt_glow_large_bright_cyan]]),
 -- }
 function on_hud_item_zoom_in(item)
 	-- for k,v in pairs(test_particles) do
@@ -109,11 +126,12 @@ function on_hud_item_zoom_in(item)
 	if IsMoveState(move_state.mcLookout) then
 	return end
 	local pos = device().cam_pos
+	--log_news("pos.y [%s]", pos.y)
 	--test_particles["cam_pos"]:play_at_pos(pos)
 	local dir = device().cam_dir
 	--//forward parallel to ground
 	local forward = vector():set(dir):normalize()
-	forward.y = 0
+	--forward.y = 0
 	if forward:magnitude() < 0.001 then
 		--log_news("looking up")
 	return end
@@ -123,11 +141,31 @@ function on_hud_item_zoom_in(item)
 		--log_news("forward has no obstacle")
 	return end
 
+	local cur_box_id = actor_obj.ph_box_id
+	--log_news("cur_box_id [%s]", cur_box_id)
+	if cur_box_id == 1 or cur_box_id == 2 then
+		up_box_id = cur_box_id + 2
+		local up_box = ph_box[up_box_id]
+		if up_box then
+			local pos_up = vector():set(pos)
+			pos_up.y = actor:position().y + cam_height_factor * up_box.y
+			--log_news("pos_up.y [%s]", pos_up.y)
+			--test_particles["pos_up"]:play_at_pos(pos_up)
+			rq = level.ray_query(pos_up, forward, auto_lookout_dist, rq_target.rqtBoth, actor)
+			if not rq.result then
+				--log_news("up has no obstacle")
+				auto_lookout = true
+				actor_obj.ph_box_id = up_box_id
+			return end
+		end
+	end
+
 	local lookout_angle = actor_obj.lookout_angle
 
 	local rotation_pos = vector():set(pos)
 	rotation_pos.y = rotation_pos.y - (pos.y - actor:position().y) * 0.25
-	-- test_particles["rotation_pos"]:play_at_pos(rotation_pos)
+	--log_news("rotation_pos.y [%s]", rotation_pos.y)
+	--test_particles["rotation_pos"]:play_at_pos(rotation_pos)
 	
 	local rotation_vector = pos:sub(rotation_pos)
 	local rotation_length = rotation_vector:magnitude()
@@ -160,4 +198,11 @@ function on_hud_item_zoom_out(item)
 	--log_news("disable auto_lookout")
 	auto_lookout = false
 	SetMoveState(move_state.mcLookout, false)
+	if up_box_id then
+		local cur_box_id = actor_obj.ph_box_id
+		if cur_box_id == up_box_id and not IsMoveState(move_state.mcAnyMove) then
+			actor_obj.ph_box_id = up_box_id - 2
+		end
+		up_box_id = false
+	end
 end
