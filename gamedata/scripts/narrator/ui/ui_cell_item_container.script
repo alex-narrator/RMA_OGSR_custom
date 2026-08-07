@@ -175,7 +175,7 @@ function UICellItemContainer:Reinit()
 		self:Grow()
 	end	
 	self:AdjustContainerHeight()
-	self.scroll:ForceScrollPos()	
+	self.scroll:ForceScrollPos()
 end
 
 function UICellItemContainer:Update()
@@ -236,7 +236,7 @@ end
 function UICellItemContainer:Highlight(enable)
 	if self.locked then
 	return end
-	--log3("~highlight %s for list %s", enable, self.ID)
+	--log_news("~highlight %s for list %s", enable, self.ID)
 	self.back:Show(enable and not self.show_grid)
 	self.grid_back:InitTexture(enable and grid_texture_highlight or grid_texture)
 	if enable then
@@ -248,7 +248,9 @@ function UICellItemContainer:Highlight(enable)
 end
 
 function UICellItemContainer:SetLocked(locked)
-	self.back:Show(not locked and not self.show_grid)
+	if self.back:IsShown() then
+		self.back:Show(not locked and not self.show_grid)
+	end
 	self.grid_back:InitTexture(locked and grid_texture_locked or grid_texture)
 	self.locked = locked
 end
