@@ -9,6 +9,11 @@ function on_drag_drop(obj, drop_on_obj)
 	if obj:id() == drop_on_obj:id() then
 	return end
 	
+	local sect = obj:section()
+	local drop_on_sect = drop_on_obj:section()
+	
+	local actor_menu_mode = actor_menu:GetMode()
+	
 	local function update_cell_items()
 		local ci = actor_menu:GetCellItem(obj)
 		if ci then
@@ -22,7 +27,7 @@ function on_drag_drop(obj, drop_on_obj)
 	
 	--//драгдроп на предмет в слоті актора
 	if parent_is_actor(obj) and actor:is_in_slot(drop_on_obj) then
-		local slots = read_if_exists(sys_ini, "string", obj:section(), "slot", nil)
+		local slots = read_if_exists(sys_ini, "string", sect, "slot", nil)
 		if slots then
 			slots = split_string(slots, ",", true)
 			for k,i in pairs(slots) do
@@ -37,9 +42,9 @@ function on_drag_drop(obj, drop_on_obj)
 	end
 	--//драгдроп на предмет на поясі
 	if parent_is_actor(obj) and actor:is_on_belt(drop_on_obj) then
-		if read_if_exists(sys_ini, "bool", obj:section(), "belt", false) then
-			local params_obj = CIconParams(obj:section())
-			local params_drop_on_obj = CIconParams(drop_on_obj:section())
+		if read_if_exists(sys_ini, "bool", sect, "belt", false) then
+			local params_obj = CIconParams(sect)
+			local params_drop_on_obj = CIconParams(drop_on_sect)
 			if params_obj.grid_width <= params_drop_on_obj.grid_width then
 				actor:move_to_ruck(drop_on_obj)
 				actor:move_to_belt(obj)
@@ -51,7 +56,7 @@ function on_drag_drop(obj, drop_on_obj)
 	if not drop_on_obj:get_weapon() or actor:is_in_slot(drop_on_obj) then
 		if drop_on_obj:is_direct_reload(obj) then
 			if drop_on_obj:get_weapon_ammo() then
-				local snd_name = read_if_exists(sys_ini, "string", drop_on_obj:section(), "load_sound", nil)
+				local snd_name = read_if_exists(sys_ini, "string", drop_on_sect, "load_sound", nil)
 				if snd_name then
 					xr_sound.get_safe_sound_object(snd_name):play_no_feedback(actor, sound_object.s2d, 0, vector(), 1.0)
 				end				
@@ -62,6 +67,20 @@ function on_drag_drop(obj, drop_on_obj)
 	local can_attach_addon = inventory.item_can_attach_addon(drop_on_obj, obj)
 	if can_attach_addon then
 		inventory.item_attach_addon(drop_on_obj, obj, can_attach_addon)
+	end
+	
+	if ui_repair.can_repair(drop_on_obj) and (actor_menu_mode ~= "trade" or (parent_is_actor(obj) and parent_is_actor(drop_on_obj))) then
+		local repair_items = read_if_exists(sys_ini, "string", drop_on_sect, "repair_items", nil)
+		if repair_items then
+			repair_items = split_string(repair_items, ",")
+			for k,v in pairs (repair_items) do
+				if v == sect then
+					if drop_on_obj:condition() >= read_if_exists(sys_ini, "float", sect, "repair_cond_threshold", 0) then
+						ui_repair.create_overlay(drop_on_obj)
+					end
+				end
+			end
+		end
 	end
 	
 	update_cell_items()
