@@ -3,7 +3,7 @@ local OVERLAY_XML = "script_overlays\\ui_mainingame_overlay.xml"
 local subscribed = false
 local DYNAMIC_SHOW = true
 local DEBUG_WARNING_SHOW = false
-local USE_LUMINOCITY = false --read_if_exists(sys_ini, "bool", "features", "use_luminicity")
+local USE_LUMINOCITY = false --read_if_exists(sys_ini, "bool", "features", "use_luminocity")
 
 local MOTION_TEXTURE_PREFIX = "ui_hud_soldier_"
 local MOTION_TEXTURE_POSTFIX = "_warning"
@@ -194,8 +194,8 @@ function MainIngameOverlay:InitControls()
 		-- ["health"] 		= { condition = function() return actor.health end },
 		-- ["power"] 		= { condition = function() return actor.power end },
 		-- ["stamina"] 	= { condition = function() return actor_obj:is_zoom_aiming_mode() and stamina.get_val() or 1 end },
-		["visibility"] 	= { condition = function() return visibility() end },
-		["noise"] 		= { condition = function() return actor:get_holder() and 4 or actor_obj.sound_noise end },
+		-- ["visibility"] 	= { condition = function() return visibility() end },
+		-- ["noise"] 		= { condition = function() return actor:get_holder() and 4 or actor_obj.sound_noise end },
 	}
 	for k,v in pairs(self.conditions) do
 		v.back = xml:InitStatic(k, self)
@@ -221,14 +221,12 @@ function MainIngameOverlay:InitControls()
 	end
 	
 	self.conditions_icons = {
-		-- ["noise_icon"] 		= { condition = function() return actor_obj.sound_noise end},
-		-- ["visibility_icon"] = { condition = function() return visibility() end},
+		["noise_icon"] 		= { condition = function() return actor_obj.sound_noise end},
+		["visibility_icon"] = { condition = function() return visibility() end},
 	}
 	for k,v in pairs(self.conditions_icons) do
 		v.icon = xml:InitStatic(k, self)
-		v.thresholds = split_string(xml:ReadAttrib(k, "thresholds", "0, 0.01, 0.5, 1"), ",", true)
-		v.texture_name = xml:ReadAttrib(k, "texture_name", k)
-		v.show_val = xml:ReadAttribFlt(k, "show_val", 0)
+		v.max = xml:ReadAttribFlt(k, "max_val", 1)
 	end	
 	
 	--//motion icon
@@ -439,13 +437,13 @@ function MainIngameOverlay:UpdateConditions()
 	end
 	
 	for k,v in pairs(self.conditions_icons) do
-		local idx = 1
-		for kk,vv in ipairs(v.thresholds) do
-			if v.condition() >= vv then
-				idx = kk
-			end
-		end
-		v.icon:InitTexture(v.texture_name..idx)
+		local val = v.condition()
+		local color = ui_utils.get_color_by_val(val, 0, v.max)
+		local alpha = val / v.max
+		alpha = math.clamp(alpha * 255, 0, 255)
+		v.icon:SetColor(color)
+		v.icon:SetColorA(alpha)
+		--log3("icon [%s] val [%s] alpha [%s]", k, val, alpha)
 	end
 	
 	self:UpdateBloodOverlay()
