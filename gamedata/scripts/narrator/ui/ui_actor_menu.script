@@ -1152,31 +1152,36 @@ function ActorMenuOverlay:OnShowButtonFocusLost(show_type)
 end
 
 function ActorMenuOverlay:OnActorIconUpdate(icon)
-	if not icon then
-		icon = actor:get_character_icon()
-	end
-	self.char_info_icon:InitTexture(icon)
+	self.char_info_icon:InitTexture(icon or actor:get_character_icon())
 	self.char_info_icon_comm:InitTexture(community.get_icon_sect(actor:character_community()))
 	self.char_info_icon_rank:InitTexture(ranks.get_icon_sect(actor))
 end
 
 function ActorMenuOverlay:OnNPCIconUpdate()
+	self.char_info_icon_npc:DetachAll()
+	local target_is_character = self.target and not self.target:get_inventory_box()
+	local icon_texture = target_is_character and (self.target:get_character_icon() or read_if_exists(sys_ini, "string", self.target:section(), "icon", nil)) or ""
+	self.char_info_icon_npc:InitTexture(icon_texture or "")
+	self.char_info_icon_comm_npc:InitTexture(target_is_character and community.get_icon_sect(self.target:character_community()) or "")
+	self.char_info_icon_rank_npc:InitTexture(target_is_character and ranks.get_icon_sect(self.target) or "")
 	
-	local show = self.target and not self.target:get_inventory_box()
-	self.char_info_icon_npc:Show(show)
-	self.char_info_icon_comm_npc:Show(show)
-	self.char_info_icon_rank_npc:Show(show)
-
-	if not show then
-	return end
-	
-	local icon = self.target:get_character_icon() or read_if_exists(sys_ini, "string", self.target:section(), "icon", nil)
-	self.char_info_icon_npc:Show(icon)
-	if not icon then
-	return end
-	self.char_info_icon_npc:InitTexture(icon)
-	self.char_info_icon_comm_npc:InitTexture(community.get_icon_sect(self.target:character_community()))
-	self.char_info_icon_rank_npc:InitTexture(ranks.get_icon_sect(self.target))
+	if not target_is_character then
+		if self.target and self.target:get_container() then
+			local icon = ui_cell_item.UICellItemSimple(self.char_info_icon_npc, self.target:section())
+			local offset = ui_utils.GetOffset("right_top", icon, self.char_info_icon_npc)
+			icon:SetWndPos(offset.x, offset.y)
+		else
+			local icon = CUIStatic()
+			icon:SetStretchTexture(true)
+			icon:InitTexture(self.target and "ui_hud_icon_chest" or "ui_hud_icon_backpack")
+			local rect = icon:GetOriginalRect()
+			icon:Init(0, 0, get_current_kx() * rect.x2, rect.y2)
+			ui_utils.FitStaticToSize(self.char_info_icon_npc, icon)
+			local offset = ui_utils.GetOffset("right_top", icon, self.char_info_icon_npc)
+			icon:SetWndPos(offset.x, offset.y)
+			self.char_info_icon_npc:AttachChild(icon)
+		end
+	end
 end
 
 function ActorMenuOverlay:SetCharacterText()

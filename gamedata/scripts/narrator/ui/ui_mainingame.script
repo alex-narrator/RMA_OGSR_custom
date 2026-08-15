@@ -214,8 +214,11 @@ function MainIngameOverlay:InitControls()
 	for k,v in pairs(self.conditions_circles) do
 		v.back = xml:InitStatic(k, self)
 		v.icon = xml:InitStatic(k..":icon", v.back)
-		local offset = ui_utils.GetOffset("center", v.icon, v.back)
-		v.icon:SetWndPos(offset.x, offset.y)
+		local icon_pos = v.icon:GetWndPos()
+		if icon_pos.x == 0 and icon_pos.y == 0 then
+			local offset = ui_utils.GetOffset("center", v.icon, v.back)
+			v.icon:SetWndPos(offset.x, offset.y)
+		end
 		v.progress_shape = xml:InitProgressShape(k..":progress_shape", v.back)
 		v.show_val = xml:ReadAttribFlt(k, "show_val", 1)
 	end
@@ -235,20 +238,6 @@ function MainIngameOverlay:InitControls()
 	self.motion_icon.icon = xml:InitStatic(root..":icon", self.motion_icon)
 	self.current_motion_texture = false
 	
-	local tmp_tbl, def_font, def_color = nil, "letterica16", "255, 255, 255, 255"
-	--// booster panel
-	-- root = "booster_panel"
-	-- self.booster_panel = xml:InitStatic(root, self)
-	-- local cell_size = xml:ReadAttribFlt(root, "cell_size", CELL_H)
-	-- self.booster_panel.cell_size = { w = math.round(cell_size * get_current_kx()), h = math.round(cell_size) }	
-	-- self.booster_panel.indent = xml:ReadAttribFlt(root, "indent", 0)
-	-- self.booster_panel.vertical = xml:ReadAttribInt(root, "vertical", 0) > 0 and true or false
-	-- self.booster_panel.font = xml:ReadAttrib(root, "font", def_font)
-	-- tmp_tbl = split_string(xml:ReadAttrib(root, "text_color", def_color), ",")
-	-- self.booster_panel.text_color = GetARGB(tmp_tbl[1], tmp_tbl[2], tmp_tbl[3], tmp_tbl[4])
-	-- tmp_tbl = split_string(xml:ReadAttrib(root, "text_offset", "0,0"), ",")
-	-- self.booster_panel.text_offset = {x = tmp_tbl[1], y = tmp_tbl[2]}
-	-- self.booster_panel.align_center = xml:ReadAttribInt(root, "center", 0) > 0 and true or false
 	--//equiped panel
 	root = "equiped_panel"
 	self.equiped_panel = xml:InitStatic(root, self)
@@ -258,7 +247,7 @@ function MainIngameOverlay:InitControls()
 	self.equiped_panel.indent = xml:ReadAttribFlt(root, "indent", 0)
 	self.equiped_panel.vertical = xml:ReadAttribInt(root, "vertical", 0) > 0 and true or false
 	self.equiped_panel.offset_type = xml:ReadAttrib(root, "offset", "center")
-	tmp_tbl = split_string(xml:ReadAttrib(root, "offset_shift", "0,0"), ",")
+	local tmp_tbl = split_string(xml:ReadAttrib(root, "offset_shift", "0,0"), ",")
 	self.equiped_panel.offset_shift = {x = tmp_tbl[1], y = tmp_tbl[2]}
 	self.equiped_panel.quick_key_offset = xml:ReadAttrib(root..":quick_key", "offset", "left_down")
 	self.equiped_panel.cell_items = {}
