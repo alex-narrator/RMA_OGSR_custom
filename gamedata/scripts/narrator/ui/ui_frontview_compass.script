@@ -19,6 +19,7 @@ local directions = {
 	[225] = "SW",
 	[270] = "W",
 	[315] = "NW",
+	[360] = "N",
 }
 
 local map_spot_to_texture = {
@@ -85,9 +86,15 @@ function CompassOverlay:InitControls()
 	compass_params.selected_marker_size = split_string(xml:ReadAttrib("compass_front_view", "selected_mark_size", "8,10"), ",", true)
 	compass_params.level_changer_mark_size = split_string(xml:ReadAttrib("compass_front_view", "level_changer_mark_size", "8,10"), ",", true)
 	compass_params.other_marker_size = split_string(xml:ReadAttrib("compass_front_view", "other_mark_size", "8,10"), ",", true)
-	compass_params.scale_texture_w = xml:ReadAttribInt("compass_front_view", "scale_texture_w", 2400)
+	
+	compass_params.scale_texture_w = xml:ReadAttribInt("compass_front_view", "scale_texture_w", 1024)
 	compass_params.scale_texture_h = xml:ReadAttribInt("compass_front_view", "scale_texture_h", 100)
-	compass_params.x_to_angle_k = xml:ReadAttribInt("compass_front_view", "x_to_angle_k", 10)
+	compass_params.scale_texture_fov = xml:ReadAttribInt("compass_front_view", "scale_texture_fov", 240)
+	compass_params.degree_width = compass_params.scale_texture_w / compass_params.scale_texture_fov
+	log_news("compass_params.degree_width [%s]", compass_params.degree_width)
+	compass_params.use_actual_fov = xml:ReadAttribInt("compass_front_view", "use_actual_fov", 0) > 0 and true or false
+	compass_params.scale_texture_start_x = xml:ReadAttribInt("compass_front_view", "scale_texture_start_x", 0)
+	
 	compass_params.vertical_mark_add = xml:ReadAttribInt("compass_front_view", "vertical_mark_add", 16)
 	compass_params.hide_point_off_bound = xml:ReadAttribInt("compass_front_view", "hide_point_off_bound", 1) > 0 and true or false
 	compass_params.hide_quest_point_off_bound = xml:ReadAttribInt("compass_front_view", "hide_quest_point_off_bound", 1) > 0 and true or false
@@ -102,14 +109,16 @@ function CompassOverlay:Update()
 	CUIScriptWnd.Update(self)
 
 	local h = device().cam_dir:getH()
+	local fov = device().fov
 	--//front view compass
 	local params = self.compass_modern.params
     local angle = math.deg(-h)
 	angle = angle < 0 and angle + 360 or angle
-    local x = angle * params.x_to_angle_k 	--//Frect x1
-    local y = 0 							--//Frect y1
-    local width = params.scale_texture_w 	--//Frect x2
-    local height = params.scale_texture_h 	--//Frect y2
+	local x_shift = params.use_actual_fov and (params.scale_texture_fov - fov) * 0.5 or 0
+    local x = (angle + x_shift) * params.degree_width + params.scale_texture_start_x				--//Frect x1
+    local y = 0 																					--//Frect y1
+    local width = params.use_actual_fov and fov * params.degree_width or params.scale_texture_w 	--//Frect x2
+    local height = params.scale_texture_h 															--//Frect y2
     self.compass_modern_scale:SetOriginalRect(x, y, width, height)
 	self:ShowFrontViewMarks()
 	
@@ -128,6 +137,7 @@ function CompassOverlay:ShowFrontViewMarks()
 	--self.screen_debug:DetachAll()
 	if not self.compass_modern:IsShown() then
 	return end
+	local scale_size = vector2():set(self.compass_modern_scale:GetWidth(), self.compass_modern_scale:GetHeight())
 	local params = self.compass_modern.params
 	local pda = actor_get_pda()
 	local pda_radius = pda and read_if_exists(sys_ini, "float", pda:section(), "radius", 50) or 50
@@ -157,7 +167,7 @@ function CompassOverlay:ShowFrontViewMarks()
 					end
 				end				
 			end
-			local pos = point_on_screen.compass_ui_projection(obj_pos, self.compass_modern_scale:GetWidth(), self.compass_modern_scale:GetHeight() + params.vertical_mark_add, params.hide_quest_point_off_bound)
+			local pos = point_on_screen.compass_ui_projection(obj_pos, scale_size.x, scale_size.y + params.vertical_mark_add, params.hide_quest_point_off_bound)
 			if pos then
 				--target map spot
 				for spot, texture in pairs(map_spot_to_texture) do
@@ -171,7 +181,8 @@ function CompassOverlay:ShowFrontViewMarks()
 							pos = pos,
 							dist = dist,
 							texture = texture,
-							size = size
+							size = size,
+							prior = 0
 						}
 						if spot == "general_wounded_location" then
 							marker_data.color = relation_color[2]
@@ -190,7 +201,8 @@ function CompassOverlay:ShowFrontViewMarks()
 					pos = pos,
 					dist = dist,
 					texture = map_spot_to_texture["quest_pointer"],
-					size = size
+					size = size,
+					prior = 0
 				}
 				table.insert(compass_targets, marker_data)
 			end
@@ -199,7 +211,7 @@ function CompassOverlay:ShowFrontViewMarks()
 	--//nearest objects
 	function perform_action(obj)
 		if obj:clsid() == clsid.level_changer and obj:id() ~= lc_target_id then
-			local pos = point_on_screen.compass_ui_projection(obj:center(), self.compass_modern_scale:GetWidth(), self.compass_modern_scale:GetHeight() + params.vertical_mark_add, params.hide_point_off_bound)
+			local pos = point_on_screen.compass_ui_projection(obj:center(), scale_size.x, scale_size.y + params.vertical_mark_add, params.hide_point_off_bound)
 			if pos then
 				local marker_data = {
 					pos = pos,
@@ -207,23 +219,23 @@ function CompassOverlay:ShowFrontViewMarks()
 					color = level_changer_color,
 					texture = map_spot_to_texture["level_changer"],
 					size = params.level_changer_mark_size,
+					prior = 0
 				}
 				table.insert(compass_targets, marker_data)
 			end
 		end
 		if (obj:is_stalker() or obj:is_trader()) and obj:id() ~= tgt_id then
-			local pos = point_on_screen.compass_ui_projection(obj:center(), self.compass_modern_scale:GetWidth(), self.compass_modern_scale:GetHeight() + params.vertical_mark_add, params.hide_point_off_bound)
+			local pos = point_on_screen.compass_ui_projection(obj:center(), scale_size.x, scale_size.y + params.vertical_mark_add, params.hide_point_off_bound)
 			if pos then
+				local alive = obj:alive()
+				local is_enemy = obj:is_relation_enemy(actor)
 				local marker_data = {
 					pos = pos,
 					dist = distance_between(actor, obj),
-					color = relation_color[obj:relation(actor)],
+					color = alive and relation_color[obj:relation(actor)] or dead_color,
+					prior = alive and (is_enemy and 2 or 1) or 0,
 				}
-				if not obj:alive() then
-					marker_data.color = dead_color
-					--marker_data.texture = "ui_PDA_checker_t"
-				end
-				local hidden = (obj:is_relation_enemy(actor) and obj:alive() and not actor:see(obj)) or not alife():object(obj:id()):visible_for_map()
+				local hidden = (is_enemy and obj:alive() and not actor:see(obj)) or not alife():object(obj:id()):visible_for_map()
 				if not hidden then
 					table.insert(compass_targets, marker_data)
 				end
@@ -231,13 +243,14 @@ function CompassOverlay:ShowFrontViewMarks()
 		end
 		for spot, texture in pairs(map_spot_to_texture) do
 			if level.map_has_object_spot(obj:id(), spot) and obj:id() ~= tgt_id then
-				local pos = point_on_screen.compass_ui_projection(obj:center(), self.compass_modern_scale:GetWidth(), self.compass_modern_scale:GetHeight() + params.vertical_mark_add, params.hide_point_off_bound)
+				local pos = point_on_screen.compass_ui_projection(obj:center(), scale_size.x, scale_size.y + params.vertical_mark_add, params.hide_point_off_bound)
 				if pos then
 					local marker_data = {
 						pos = pos,
 						dist = distance_between(actor, obj),
 						texture = texture,
 						size = params.other_marker_size,
+						prior = 0
 					}
 					if spot == "general_wounded_location" then
 						marker_data.color = relation_color[2]
@@ -248,10 +261,19 @@ function CompassOverlay:ShowFrontViewMarks()
 		end
 	end
 	level.iterate_nearest(actor:position(), pda_radius, perform_action)
-	table.sort( compass_targets, function(a,b) return a.dist > b.dist end )
+	
+	local function target_sort(a, b)
+		if a.prior ~= b.prior then
+			return a.prior < b.prior
+		end
+		return a.dist > b.dist
+	end
+	table.sort( compass_targets, target_sort )
+	
 	local marker_size = params.marker_size
 	for k, v in ipairs(compass_targets) do
 		local obj_point = CUIStatic()
+		obj_point:SetAutoDelete(true)
 		self.compass_modern_scale:AttachChild(obj_point)
 		--self.screen_debug:AttachChild(obj_point)
 		obj_point:SetStretchTexture(true)
