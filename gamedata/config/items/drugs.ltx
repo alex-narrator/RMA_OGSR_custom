@@ -2,531 +2,481 @@
 ;;	MEDICAL
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [drugs_base]:identity_immunities,quick_item
-GroupControlSection	= spawn_group
-$prefetch 		= 32
+GroupControlSection			= spawn_group
+$prefetch 					= 32
 
-class				= II_MEDKI
-cform				= skeleton
+class						= II_MEDKI
+cform						= skeleton
 
-inv_weight			= 0.01
+inv_weight					= 0.01
 
-default_to_ruck 	= true
-; belt = true
-; vest = true
-use_condition 		= true
+default_to_ruck 			= true
 
-inv_grid_width		= 1
-inv_grid_height		= 1
-inv_grid_x         	= 0
-inv_grid_y         	= 0
-icon_group 			= consumable
+use_condition 				= true
 
-;radiation_accum_factor = 0.1
-;radiation_accum_limit = 1
+animation_slot				= 4
 
-selected_tip 		= st_tip_eatable
+eat_portions_num 			= 1
+
+inv_grid_width				= 1
+inv_grid_height				= 1
+inv_grid_x         			= 0
+inv_grid_y         			= 0
+icon_group 					= consumable
+
+selected_tip 				= st_tip_eatable
 
 [antirad]:drugs_base
-$spawn 				= "food and drugs\antirad"
+$spawn 						= "food and drugs\antirad"
 
-class				= II_ANTIR
-visual          	= equipments\item_antirad
+class						= II_ANTIR
+visual          			= equipments\item_antirad
 
-inv_name			= st_antirad_name
-inv_name_short		= st_antirad_short
-description			= st_antirad_descr
+inv_name					= st_antirad_name
+inv_name_short				= st_antirad_short
+description					= st_antirad_descr
 
-inv_grid_x         	= 0
-inv_grid_y         	= 4
-cost				= 500
-; eatable item
-eat_portions_num 	= 1
+inv_grid_x         			= 0
+inv_grid_y         			= 4
+cost						= 500
 
-boost_radiation_protection = 0.5
-boost_power 		= -0.001666666667
-boost_time 			= 30
-; food item
-animation_slot		= 4
+boost_radiation_protection 	= 0.5
+boost_power 				= -0.001666666667
+boost_time 					= 30
+
 ;hud item
-hud 				= antirad_hud
+hud 						= antirad_hud
 
 [medkit]:drugs_base
-$spawn 				= "food and drugs\medkit"
+$spawn 						= "food and drugs\medkit"
 
-visual				= dynamics\weapons\wpn_eat\world_models\aptechki\aptechka_basic_world
+visual						= dynamics\weapons\wpn_eat\world_models\aptechki\aptechka_basic_world
 
-inv_name			= st_medkit_name
-inv_name_short		= st_medkit_short
-description			= st_medkit_descr
+inv_name					= st_medkit_name
+inv_name_short				= st_medkit_short
+description					= st_medkit_descr
 
-;icon_text 			= st_medkit_short
+inv_weight					= 0.1
 
-inv_weight			= 0.1	;0.2
-
-inv_grid_x			= 0
-inv_grid_y			= 2
-cost				= 300
+inv_grid_x					= 0
+inv_grid_y					= 2
+cost						= 300
 
 ; eatable item
-eat_portions_num	= 1
-eat_health			= 0.1
-eat_wounds_heal		= 0.1
+; eat_health					= 0.1
+; eat_wounds_heal				= 0.1
 
-boost_pain 			= -0.2
-boost_health 		= 0.0008333333333
-boost_somnolence 	= 0.0005
-boost_time 			= 10
-
-; food item
-animation_slot		= 4
+boost_pain 					= -0.2
+boost_health 				= 0.0008333333333
+boost_somnolence 			= 0.0005
+boost_time 					= 10
 
 ;boost_effector = effector_nightvision_good
 
 ;hud item
-;hud 				= medkit_hud
-hud 				= medkit_injector_hud
+;hud 						= medkit_hud
+hud 						= medkit_injector_hud
 
 [medkit_army]:drugs_base
-$spawn 				= "food and drugs\medkit_army"
+$spawn 						= "food and drugs\medkit_army"
 
-visual				= dynamics\weapons\wpn_eat\world_models\aptechki\aptechka_army_world
+visual						= dynamics\weapons\wpn_eat\world_models\aptechki\aptechka_army_world
 
-inv_name			= st_medkit_army_name
-inv_name_short		= st_medkit_army_short
-description			= st_medkit_army_descr
+inv_name					= st_medkit_army_name
+inv_name_short				= st_medkit_army_short
+description					= st_medkit_army_descr
 
-;icon_text 			= st_medkit_army_short
+inv_weight					= 0.1
 
-inv_weight			= 0.1	;0.2
-
-inv_grid_x			= 1
-inv_grid_y			= 2
-cost				= 500
+inv_grid_x					= 1
+inv_grid_y					= 2
+cost						= 500
 
 ; eatable item
-eat_power			= 0.25
-eat_wounds_heal		= 0.3
-eat_health			= 0.2
-eat_portions_num	= 1
-boost_health 		= 0.001666666667
-boost_pain 			= -0.8
-boost_somnolence 	= 0.0001666666667
-boost_wounds_heal 	= 0.005
-boost_time 			= 15
-; food item
-animation_slot		= 4
+; eat_power					= 0.25
+; eat_wounds_heal				= 0.3
+; eat_health					= 0.2
+
+boost_health 				= 0.001666666667
+boost_pain 					= -0.8
+boost_somnolence 			= 0.0001666666667
+boost_wounds_heal 			= 0.005
+boost_power 				= 0.001666666667
+boost_time 					= 15
 ;hud item
-;hud 				= medkit_army_hud
-hud 				= medkit_injector_army_hud
+;hud 						= medkit_army_hud
+hud 						= medkit_injector_army_hud
 
 [medkit_scientic]:drugs_base
-$spawn 				= "food and drugs\medkit_scientic"
+$spawn 						= "food and drugs\medkit_scientic"
 
-visual				= dynamics\weapons\wpn_eat\world_models\aptechki\aptechka_scientific_world
+visual						= dynamics\weapons\wpn_eat\world_models\aptechki\aptechka_scientific_world
 
-inv_name			= st_medkit_science_name
-inv_name_short		= st_medkit_science_short
-description			= st_medkit_science_descr
+inv_name					= st_medkit_science_name
+inv_name_short				= st_medkit_science_short
+description					= st_medkit_science_descr
 
-;icon_text 			= st_medkit_science_short
+inv_weight					= 0.1
 
-inv_weight			= 0.1	;0.2
-
-inv_grid_x			= 2
-inv_grid_y			= 2
-cost				= 750
+inv_grid_x					= 2
+inv_grid_y					= 2
+cost						= 750
 
 ; eatable item
-eat_wounds_heal		= 0.3
-eat_health			= 0.15
+; eat_wounds_heal				= 0.3
+; eat_health					= 0.15
 
-eat_portions_num	= 1
-boost_health 		= 0.001666666667
-boost_radiation 	= -0.0001666666667
-boost_pain 			= -0.5
-boost_wounds_heal 	= 0.005
-boost_somnolence 	= 0.0008333333333
-boost_time 			= 15
-; food item
-animation_slot		= 4
+boost_health 				= 0.001666666667
+boost_radiation 			= -0.0001666666667
+boost_pain 					= -0.5
+boost_wounds_heal 			= 0.005
+boost_somnolence 			= 0.0008333333333
+boost_time 					= 15
 ;hud item
-;hud 				= medkit_scientic_hud
-hud 				= medkit_injector_scientic_hud
+;hud 						= medkit_scientic_hud
+hud 						= medkit_injector_scientic_hud
 
 [bandage]:drugs_base
-$spawn 				= "food and drugs\bandage"
+$spawn 						= "food and drugs\bandage"
 
-class				= II_BANDG
-visual				= dynamics\weapons\wpn_eat\world_models\bints\bint_basic_world;equipments\item_bandage
+class						= II_BANDG
+visual						= dynamics\weapons\wpn_eat\world_models\bints\bint_basic_world;equipments\item_bandage
 
-inv_name			= st_bandage_name
-inv_name_short		= st_bandage_short
-description			= st_bandage_descr
+inv_name					= st_bandage_name
+inv_name_short				= st_bandage_short
+description					= st_bandage_descr
 
-;icon_text 			= st_bandage_short
-
-inv_grid_x			= 0
-inv_grid_y			= 3
-cost				= 50
+inv_grid_x					= 0
+inv_grid_y					= 3
+cost						= 50
 ; eatable item
-eat_wounds_heal 	= 0.25
-eat_portions_num 	= 1
-; food item
-animation_slot		= 4
+eat_wounds_heal 			= 0.25
 ;hud item
-hud 				= bandage_hud;bandage_packed_hud
+;hud 						= bandage_packed_hud
+hud 						= bandage_hud
 
 [tourniquet_esmarch]:drugs_base
-$spawn 				= "food and drugs\tourniquet_esmarch"
+$spawn 						= "food and drugs\tourniquet_esmarch"
 
-class				= II_BANDG
-visual				= efp\itm_tourniquete
+class						= II_BANDG
+visual						= efp\itm_tourniquete
 
-inv_name			= st_tourniquet_esmarch_name
-inv_name_short		= st_tourniquet_esmarch_short
-description			= st_tourniquet_esmarch_descr
+inv_name					= st_tourniquet_esmarch_name
+inv_name_short				= st_tourniquet_esmarch_short
+description					= st_tourniquet_esmarch_descr
 
-;icon_text 			= st_tourniquet_esmarch_short
+inv_weight					= 0.03
 
-inv_weight			= 0.03
-
-inv_grid_x			= 2
-inv_grid_y			= 3
-cost				= 100
+inv_grid_x					= 2
+inv_grid_y					= 3
+cost						= 100
 ; eatable item
-eat_wounds_heal 	= 0.5
-eat_portions_num 	= 1
-; food item
-animation_slot		= 4
+eat_wounds_heal 			= 0.5
 ;hud item
-hud 				= tourniquet_esmarch_hud
+hud 						= tourniquet_esmarch_hud
 
 [tourniquet_cat]:drugs_base
-$spawn 				= "food and drugs\tourniquet_cat"
+$spawn 						= "food and drugs\tourniquet_cat"
 
-class				= II_BANDG
-visual				= efp\itm_tourniquete
+class						= II_BANDG
+visual						= efp\itm_tourniquete
 
-inv_name			= st_tourniquet_cat_name
-inv_name_short		= st_tourniquet_cat_short
-description			= st_tourniquet_cat_descr
+inv_name					= st_tourniquet_cat_name
+inv_name_short				= st_tourniquet_cat_short
+description					= st_tourniquet_cat_descr
 
-;icon_text 			= st_tourniquet_cat_short
+inv_weight					= 0.08
 
-inv_weight			= 0.08
-
-inv_grid_x			= 9
-inv_grid_y			= 3
-cost				= 1500
+inv_grid_x					= 9
+inv_grid_y					= 3
+cost						= 1500
 ; eatable item
-eat_wounds_heal 	= 1
-eat_portions_num 	= 1
-; food item
-animation_slot		= 4
+eat_wounds_heal 			= 1
 ;hud item
-hud 				= tourniquet_esmarch_hud
+hud 						= tourniquet_esmarch_hud
 
 [afak]:drugs_base
-$spawn 				= "food and drugs\afak"
-visual				= dynamics\eft_medical\eft_afak\eft_afak
+$spawn 						= "food and drugs\afak"
+visual						= dynamics\eft_medical\eft_afak\eft_afak
 
-inv_name			= st_afak_name
-inv_name_short		= st_afak_short
-description			= st_afak_descr
+inv_name					= st_afak_name
+inv_name_short				= st_afak_short
+description					= st_afak_descr
 
-inv_weight			= 0.8
+inv_weight					= 0.8
 
-;icon_text 			= st_afak_short
-
-inv_grid_x			= 9
-inv_grid_y			= 6
-cost				= 3500
+inv_grid_x					= 9
+inv_grid_y					= 6
+cost						= 3500
 ; eatable item
-eat_wounds_heal 	= 1
-eat_health 			= 0.5
-eat_portions_num 	= 3
-; food item
-animation_slot		= 4
+eat_wounds_heal 			= 1
+eat_health 					= 0.5
+eat_portions_num 			= 3
 ;hud item
-hud 				= afak_hud
+hud 						= afak_hud
 
 [medkit_salewa]:drugs_base
-$spawn 				= "food and drugs\salewa"
-visual				= dynamics\eft_medical\eft_salewa_inj\eft_salewa_inj
+$spawn 						= "food and drugs\salewa"
+visual						= dynamics\eft_medical\eft_salewa_inj\eft_salewa_inj
 
-inv_name			= st_medkit_salewa_name
-inv_name_short		= st_medkit_salewa_short
-description			= st_medkit_salewa_descr
+inv_name					= st_medkit_salewa_name
+inv_name_short				= st_medkit_salewa_short
+description					= st_medkit_salewa_descr
 
-inv_weight			= 0.25
+inv_weight					= 0.25
 
-;icon_text 			= st_afak_short
-
-inv_grid_x			= 4
-inv_grid_y			= 9
-cost				= 350
+inv_grid_x					= 4
+inv_grid_y					= 9
+cost						= 350
 ; eatable item
-eat_wounds_heal 	= 0.3
-eat_health 			= 0.2
-eat_portions_num 	= 3
-; food item
-animation_slot		= 4
+eat_wounds_heal 			= 0.3
+eat_health 					= 0.2
+eat_portions_num 			= 3
 ;hud item
-hud 				= salewa_inj_hud
+hud 						= salewa_inj_hud
 
 [surgery_kit_surv12]:drugs_base
-$spawn 				= "food and drugs\surgery_kit_surv12"
-visual				= efp\itm_surv12
+$spawn 						= "food and drugs\surgery_kit_surv12"
+visual						= efp\itm_surv12
 
-inv_name			= st_surgery_kit_surv12_name
-inv_name_short		= st_surgery_kit_surv12_short
-description			= st_surgery_kit_surv12_descr
+inv_name					= st_surgery_kit_surv12_name
+inv_name_short				= st_surgery_kit_surv12_short
+description					= st_surgery_kit_surv12_descr
 
-inv_weight			= 1.2
+inv_weight					= 1.2
 
-;icon_text 			= st_surgery_kit_surv12_short
-
-inv_grid_width     	= 2
-inv_grid_x			= 0
-inv_grid_y			= 8
-cost				= 5000
+inv_grid_width     			= 2
+inv_grid_x					= 0
+inv_grid_y					= 8
+cost						= 5000
 ; eatable item
-eat_wounds_heal 	= 1
-eat_health 			= 0.5
-eat_portions_num 	= 5
-; food item
-animation_slot		= 4
+eat_wounds_heal 			= 1
+eat_health 					= 0.5
+eat_portions_num 			= 5
 ;hud item
-hud 				= surgery_kit_surv12_hud
+hud 						= surgery_kit_surv12_hud
 
 [surgery_kit_cms]:drugs_base
-$spawn 				= "food and drugs\surgery_kit_cms"
-visual				= efp\itm_surgical_kit
+$spawn 						= "food and drugs\surgery_kit_cms"
+visual						= efp\itm_surgical_kit
 
-inv_name			= st_surgery_kit_cms_name
-inv_name_short		= st_surgery_kit_cms_short
-description			= st_surgery_kit_cms_descr
+inv_name					= st_surgery_kit_cms_name
+inv_name_short				= st_surgery_kit_cms_short
+description					= st_surgery_kit_cms_descr
 
-inv_weight			= 0.25
+inv_weight					= 0.25
 
-inv_grid_x			= 0
-inv_grid_y			= 9
-cost				= 2100
+inv_grid_x					= 0
+inv_grid_y					= 9
+cost						= 2100
 ; eatable item
-eat_wounds_heal 	= 0.75
-eat_health 			= 0.3
-eat_portions_num 	= 2
-; food item
-animation_slot		= 4
+eat_wounds_heal 			= 0.75
+eat_health 					= 0.3
+eat_portions_num 			= 2
 ;hud item
-hud 				= surgery_kit_cms_hud
+hud 						= surgery_kit_cms_hud
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;boosters from COP;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 [drug_booster]:drugs_base
-$spawn 				= "food and drugs\drug_booster"
-visual				= dynamics\equipments\medical\drug_booster
+$spawn 						= "food and drugs\drug_booster"
+visual						= dynamics\equipments\medical\drug_booster
 
-inv_name			= st_drug_booster_name
-inv_name_short		= st_drug_booster_short
-description			= st_drug_booster_descr
+inv_name					= st_drug_booster_name
+inv_name_short				= st_drug_booster_short
+description					= st_drug_booster_descr
 
-inv_weight			= 0.3
+inv_weight					= 0.3
 
-inv_grid_x			= 4
-inv_grid_y			= 0
-cost				= 250
+inv_grid_x					= 4
+inv_grid_y					= 0
+cost						= 250
 
-boost_time			= 30
-boost_weight		= 0.5
+boost_time					= 30
+boost_weight				= 0.5
 
-hud 				= booster_hud
+hud 						= booster_hud
 
-inv_operate_snd_type = bottle
+inv_operate_snd_type 		= bottle
 
 [drug_coagulant]:drugs_base
-$spawn 				= "food and drugs\drug_coagulant"
-visual				= dynamics\equipments\medical\drug_coagulant
-inv_name			= st_drug_coagulant_name
-inv_name_short		= st_drug_coagulant_short
-description			= st_drug_coagulant_descr
+$spawn 						= "food and drugs\drug_coagulant"
+visual						= dynamics\equipments\medical\drug_coagulant
+inv_name					= st_drug_coagulant_name
+inv_name_short				= st_drug_coagulant_short
+description					= st_drug_coagulant_descr
 
-inv_grid_x         	= 6
-inv_grid_y         	= 4
-cost				= 250
+inv_grid_x         			= 6
+inv_grid_y         			= 4
+cost						= 250
 
-boost_time			= 30
-boost_wounds_heal	= 0.003333333333
-boost_power 		= -0.0008333333333
+boost_time					= 30
+boost_wounds_heal			= 0.003333333333
+boost_power 				= -0.0008333333333
 
-hud 				= coagulant_hud
+hud 						= coagulant_hud
 
-inv_operate_snd_type = pills
+inv_operate_snd_type 		= pills
 
 [drug_psy_blockade]:drugs_base
-$spawn 				= "food and drugs\drug_psy_blockade"
-visual				= dynamics\equipments\medical\drug_psy_blockade
-inv_name			= st_drug_psy_blockade_name
-inv_name_short		= st_drug_psy_blockade_short
-description			= st_drug_psy_blockade_descr
+$spawn 						= "food and drugs\drug_psy_blockade"
+visual						= dynamics\equipments\medical\drug_psy_blockade
+inv_name					= st_drug_psy_blockade_name
+inv_name_short				= st_drug_psy_blockade_short
+description					= st_drug_psy_blockade_descr
 
-inv_grid_x         	= 7
-inv_grid_y         	= 4
-cost				= 800
+inv_grid_x         			= 7
+inv_grid_y         			= 4
+cost						= 800
 
-boost_time			= 30
+boost_time					= 30
 boost_telepatic_protection 	= 0.5
 
-hud 				= psy_blockade_hud
+hud 						= psy_blockade_hud
 
-inv_operate_snd_type = pills
+inv_operate_snd_type 		= pills
 
 [drug_antidot]:drugs_base
-$spawn 				= "food and drugs\drug_antidot"
-visual				= dynamics\equipments\medical\drug_antidot
-inv_name			= st_drug_antidot_name
-inv_name_short		= st_drug_antidot_short
-description			= st_drug_antidot_descr
+$spawn 						= "food and drugs\drug_antidot"
+visual						= dynamics\equipments\medical\drug_antidot
+inv_name					= st_drug_antidot_name
+inv_name_short				= st_drug_antidot_short
+description					= st_drug_antidot_descr
 
-inv_grid_x         	= 8
-inv_grid_y         	= 4
-cost				= 670
+inv_grid_x         			= 8
+inv_grid_y         			= 4
+cost						= 670
 
-boost_time			= 30
+boost_time					= 30
 boost_chemical_burn_protection 	= 0.4
-boost_radiation_protection 		= 0.4
+boost_radiation_protection 	= 0.4
 
-hud 				= antidot_hud
+hud 						= antidot_hud
 
-inv_operate_snd_type = pills
+inv_operate_snd_type 		= pills
 
 [drug_radioprotector]:drugs_base
-$spawn 				= "food and drugs\drug_radioprotector"
-visual				= dynamics\equipments\medical\drug_radioprotector
-inv_name			= st_drug_radioprotector_name
-inv_name_short		= st_drug_radioprotector_short
-description			= st_drug_radioprotector_descr
+$spawn 						= "food and drugs\drug_radioprotector"
+visual						= dynamics\equipments\medical\drug_radioprotector
+inv_name					= st_drug_radioprotector_name
+inv_name_short				= st_drug_radioprotector_short
+description					= st_drug_radioprotector_descr
 
-inv_grid_x         	= 3
-inv_grid_y         	= 4
+inv_grid_x         			= 3
+inv_grid_y         			= 4
 
-cost				= 950
+cost						= 950
 
-boost_time			= 60.0
+boost_time					= 60.0
 
-boost_radiation_protection = 0.8
-boost_power 		= -0.0008333333333
-boost_time 			= 30
+boost_radiation_protection 	= 0.8
+boost_power 				= -0.0008333333333
+boost_time 					= 30
 
-hud 				= radioprotector_hud
+hud 						= radioprotector_hud
 
-inv_operate_snd_type = pills
+inv_operate_snd_type 		= pills
 
 [drug_anabiotic]:drugs_base
-$spawn 				= "food and drugs\drug_anabiotic"
-visual				= dynamics\equipments\medical\drug_anabiotic
-inv_name			= st_drug_anabiotic_name
-inv_name_short		= st_drug_anabiotic_short
-description			= st_drug_anabiotic_descr
+$spawn 						= "food and drugs\drug_anabiotic"
+visual						= dynamics\equipments\medical\drug_anabiotic
+inv_name					= st_drug_anabiotic_name
+inv_name_short				= st_drug_anabiotic_short
+description					= st_drug_anabiotic_descr
 
-inv_grid_x         	= 9
-inv_grid_y         	= 4
-cost				= 1000
+inv_grid_x         			= 9
+inv_grid_y         			= 4
+cost						= 1000
 
-hud 				= antibiotic_hud
+hud 						= antibiotic_hud
 
 [drug_adrenalin]:drugs_base
-$spawn 				= "food and drugs\drug_anabiotic"
-visual				= efp\itm_stim_adrenaline
-inv_name			= st_drug_adrenalin_name
-inv_name_short		= st_drug_adrenalin_short
-description			= st_drug_adrenalin_descr
+$spawn 						= "food and drugs\drug_anabiotic"
+visual						= efp\itm_stim_adrenaline
+inv_name					= st_drug_adrenalin_name
+inv_name_short				= st_drug_adrenalin_short
+description					= st_drug_adrenalin_descr
 
-inv_grid_x         	= 4
-inv_grid_y         	= 6
-cost				= 2000
+inv_grid_x         			= 4
+inv_grid_y         			= 6
+cost						= 2000
 
-eat_health			= 0.2
-eat_power			= 1.0
-eat_somnolence 		= -0.2
+eat_health					= 0.2
+eat_power					= 1.0
+eat_somnolence 				= -0.2
 
-boost_somnolence 	= -0.001666666667
-boost_pain 			= -0.2
-boost_power 		= 0.003333333333
-boost_wounds_heal 	= 0.005
-boost_sprint 		= 0.2
-boost_jump 			= 0.2
-boost_weight 		= 0.2
+boost_somnolence 			= -0.001666666667
+boost_pain 					= -0.2
+boost_power 				= 0.003333333333
+boost_wounds_heal 			= 0.005
+boost_sprint 				= 0.2
+boost_jump 					= 0.2
+boost_weight 				= 0.2
 
-boost_time			= 10
+boost_time					= 10
 
-hud 				= pen_injector_red_hud
-use_effector 		= adrenalin_use
-use_sound 			= affects\heartbeat
+hud 						= pen_injector_red_hud
+use_effector 				= adrenalin_use
+use_sound 					= affects\heartbeat
 
 [drug_morphine]:drugs_base
-$spawn 				= "food and drugs\drug_anabiotic"
-visual				= efp\itm_stim_morphine
-inv_name			= st_drug_morphine_name
-inv_name_short		= st_drug_morphine_short
-description			= st_drug_morphine_descr
+$spawn 						= "food and drugs\drug_anabiotic"
+visual						= efp\itm_stim_morphine
+inv_name					= st_drug_morphine_name
+inv_name_short				= st_drug_morphine_short
+description					= st_drug_morphine_descr
 
-inv_grid_x         	= 5
-inv_grid_y         	= 6
-cost				= 1500
+inv_grid_x         			= 5
+inv_grid_y         			= 6
+cost						= 1500
 
-boost_pain 			= -1
-boost_satiety 		= -0.00008333333333
-boost_power 		= -0.0005
+boost_pain 					= -1
+boost_satiety 				= -0.00008333333333
+boost_power 				= -0.0005
 
-boost_time			= 60
+boost_time					= 60
 
-hud 				= pen_injector_blue_hud
-;use_effector 		= morphine_use
-boost_effector 		= morphine_effect
-use_sound 			= actor\breath_1
+hud 						= pen_injector_blue_hud
+;use_effector 				= morphine_use
+boost_effector 				= morphine_effect
+use_sound 					= actor\breath_1
 
 [splint]:drugs_base
-;class 				= II_ATTCH
-visual				= efp\itm_splint
+visual						= efp\itm_splint
 
-inv_name			= st_splint_name
-inv_name_short		= st_splint_short
-description 		= st_splint_descr
+inv_name					= st_splint_name
+inv_name_short				= st_splint_short
+description 				= st_splint_descr
 
-inv_weight			= 0.1
+inv_weight					= 0.1
 
-inv_grid_width     	= 1
-inv_grid_height    	= 1
-inv_grid_x         	= 8
-inv_grid_y         	= 6
+inv_grid_width     			= 1
+inv_grid_height    			= 1
+inv_grid_x         			= 8
+inv_grid_y         			= 6
 
-cost				= 250
+cost						= 250
 
-; quick_slot 			= false
+heal_injuries 				= true
 
-; loadout_type 		= 
-
-heal_injuries 		= true
-
-hud 				= splint_hud
-; use_effector 		= bandage_use
-; use_sound 			= interface\item_usage\inv_medkitzipper
+hud 						= splint_hud
+; use_effector 				= bandage_use
+; use_sound 				= interface\item_usage\inv_medkitzipper
 
 [splint_alu]:splint
-visual				= efp\itm_alusplint
+visual						= efp\itm_alusplint
 
-inv_name			= st_splint_alu_name
-inv_name_short		= st_splint_alu_short
-description 		= st_splint_alu_descr
+inv_name					= st_splint_alu_name
+inv_name_short				= st_splint_alu_short
+description 				= st_splint_alu_descr
 
-inv_weight			= 0.16
+inv_weight					= 0.16
 
-cost				= 400
+cost						= 400
 
-inv_grid_x         	= 7
+inv_grid_x         			= 7
 
-eat_portions_num 	= 4
+eat_portions_num 			= 4
 
-hud 				= alusplint_hud
+hud 						= alusplint_hud

@@ -194,7 +194,7 @@ function MainIngameOverlay:InitControls()
 		-- ["health"] 		= { condition = function() return actor.health end },
 		-- ["power"] 		= { condition = function() return actor.power end },
 		-- ["stamina"] 	= { condition = function() return actor_obj:is_zoom_aiming_mode() and stamina.get_val() or 1 end },
-		-- ["visibility"] 	= { condition = function() return visibility() end },
+		["visibility"] 	= { condition = function() return visibility() end },
 		-- ["noise"] 		= { condition = function() return actor:get_holder() and 4 or actor_obj.sound_noise end },
 	}
 	for k,v in pairs(self.conditions) do
@@ -225,7 +225,7 @@ function MainIngameOverlay:InitControls()
 	
 	self.conditions_icons = {
 		["noise_icon"] 		= { condition = function() return actor_obj.sound_noise end},
-		["visibility_icon"] = { condition = function() return visibility() end},
+		-- ["visibility_icon"] = { condition = function() return visibility() end},
 	}
 	for k,v in pairs(self.conditions_icons) do
 		v.icon = xml:InitStatic(k, self)
@@ -474,16 +474,21 @@ end
 function MainIngameOverlay:UpdateMotionIcon()
 	--self.motion_icon:Show(not actor:get_holder())
 	local state = "normal"
-	if actor_obj:is_actor_climb() or actor_obj:is_actor_climbing() then
+	--if actor_obj:is_actor_climb() or actor_obj:is_actor_climbing() then
+	if IsMoveState(move_state.mcClimb) then
 		state = "climb"
-	elseif actor_obj:is_actor_crouch() or actor_obj:is_actor_crouching() then
-		state = "crouch"
-	elseif actor_obj:is_actor_creep() or actor_obj:is_actor_creeping() then
+	--elseif actor_obj:is_actor_creep() or actor_obj:is_actor_creeping() then
+	elseif IsMoveState(move_state.mcCrouch) and IsMoveState(move_state.mcAccel) then
 		state = "creep"
-	elseif actor_obj:is_actor_sprinting() then
+	--elseif actor_obj:is_actor_crouch() or actor_obj:is_actor_crouching() then
+	elseif IsMoveState(move_state.mcCrouch) then
+		state = "crouch"
+	--elseif actor_obj:is_actor_sprinting() then
+	elseif IsMoveState(move_state.mcSprint) then
 		state = "sprint"		
-	elseif (actor_obj:is_actor_moving() and not actor_obj:is_actor_running()) or actor_obj:is_zoom_aiming_mode() then
-		state = "run"
+	--elseif (actor_obj:is_actor_moving() and not actor_obj:is_actor_running()) or actor_obj:is_zoom_aiming_mode() then
+	elseif IsMoveState(move_state.mcAccel) or IsMoveState(move_state.mcLookout) or actor_obj:is_zoom_aiming_mode() then
+		state = "stalk"
 	end
 	local texture = MOTION_TEXTURE_PREFIX..state
 	if self.current_motion_texture ~= texture then
@@ -1094,7 +1099,7 @@ function MainIngameOverlay:UpdateCrosshair(forced)
 		self.crosshair:Show(false)
 	return end
 	
-	if actor_obj:is_actor_sprinting() then
+	if IsMoveState(move_state.mcSprint) then
 		self.crosshair:Show(false)
 	return end	
 	

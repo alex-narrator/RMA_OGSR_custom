@@ -78,31 +78,36 @@ function CompassOverlay:InitControls()
 	
 	local xml = CScriptXmlInit()
 	xml:ParseFile(OVERLAY_XML)
-
+	
+	local root = "compass_front_view"
 	--//modern front view compass
-	self.compass_modern = xml:InitStatic("compass_front_view", self)
+	self.compass_modern = xml:InitStatic(root, self)	
 	local compass_params = {}
-	compass_params.marker_size = split_string(xml:ReadAttrib("compass_front_view", "mark_size", "8,10"), ",", true)
-	compass_params.selected_marker_size = split_string(xml:ReadAttrib("compass_front_view", "selected_mark_size", "8,10"), ",", true)
-	compass_params.level_changer_mark_size = split_string(xml:ReadAttrib("compass_front_view", "level_changer_mark_size", "8,10"), ",", true)
-	compass_params.other_marker_size = split_string(xml:ReadAttrib("compass_front_view", "other_mark_size", "8,10"), ",", true)
 	
-	compass_params.scale_texture_w = xml:ReadAttribInt("compass_front_view", "scale_texture_w", 1024)
-	compass_params.scale_texture_h = xml:ReadAttribInt("compass_front_view", "scale_texture_h", 100)
-	compass_params.scale_texture_fov = xml:ReadAttribInt("compass_front_view", "scale_texture_fov", 240)
+	compass_params.marker_scale = xml:ReadAttribFlt(root, "mark_scale", 1)
+	compass_params.selected_marker_scale = xml:ReadAttribFlt(root, "selected_mark_scale", 1)
+	compass_params.level_changer_mark_scale = xml:ReadAttribFlt(root, "level_changer_mark_scale", 1)
+	compass_params.other_marker_scale = xml:ReadAttribFlt(root, "other_mark_scale", 1)
+	
+	compass_params.scale_texture_w = xml:ReadAttribFlt(root, "scale_texture_w", 1024)
+	compass_params.scale_texture_h = xml:ReadAttribFlt(root, "scale_texture_h", 100)
+	compass_params.scale_texture_fov = xml:ReadAttribFlt(root, "scale_texture_fov", 240)
 	compass_params.degree_width = compass_params.scale_texture_w / compass_params.scale_texture_fov
-	log_news("compass_params.degree_width [%s]", compass_params.degree_width)
-	compass_params.use_actual_fov = xml:ReadAttribInt("compass_front_view", "use_actual_fov", 0) > 0 and true or false
-	compass_params.scale_texture_start_x = xml:ReadAttribInt("compass_front_view", "scale_texture_start_x", 0)
+	--log_news("compass_params.degree_width [%s]", compass_params.degree_width)
+	compass_params.use_actual_fov = xml:ReadAttribFlt(root, "use_actual_fov", 0) > 0 and true or false
+	compass_params.scale_texture_start_x = xml:ReadAttribFlt(root, "scale_texture_start_x", 0)
 	
-	compass_params.vertical_mark_add = xml:ReadAttribInt("compass_front_view", "vertical_mark_add", 16)
-	compass_params.hide_point_off_bound = xml:ReadAttribInt("compass_front_view", "hide_point_off_bound", 1) > 0 and true or false
-	compass_params.hide_quest_point_off_bound = xml:ReadAttribInt("compass_front_view", "hide_quest_point_off_bound", 1) > 0 and true or false
-	compass_params.distance_mark_scale = xml:ReadAttribInt("compass_front_view", "distance_mark_scale", 0) > 0 and true or false
+	compass_params.vertical_mark_add = xml:ReadAttribFlt(root, "vertical_mark_add", 16)
+	compass_params.hide_point_off_bound = xml:ReadAttribInt(root, "hide_point_off_bound", 1) > 0 and true or false
+	compass_params.hide_quest_point_off_bound = xml:ReadAttribInt(root, "hide_quest_point_off_bound", 1) > 0 and true or false
+	compass_params.distance_mark_scale = xml:ReadAttribInt(root, "distance_mark_scale", 0) > 0 and true or false
 	self.compass_modern.params = compass_params
-    self.compass_modern_scale = xml:InitStatic("compass_front_view:scale", self.compass_modern)
-    self.compass_modern_line = xml:InitStatic("compass_front_view:line", self.compass_modern)
-	self.compass_modern_line_2 = xml:InitStatic("compass_front_view:line_2", self.compass_modern)
+    self.compass_modern_scale = xml:InitStatic(root..":scale", self.compass_modern)
+    self.compass_modern_line = xml:InitStatic(root..":line", self.compass_modern)
+	self.compass_modern_line_2 = xml:InitStatic(root..":line_2", self.compass_modern)
+	
+	self.compass_modern_line_vertical_l = xml:InitStatic(root..":line_vertical_l", self.compass_modern)
+	self.compass_modern_line_vertical_r = xml:InitStatic(root..":line_vertical_r", self.compass_modern)
 end
 
 function CompassOverlay:Update()
@@ -172,16 +177,15 @@ function CompassOverlay:ShowFrontViewMarks()
 				--target map spot
 				for spot, texture in pairs(map_spot_to_texture) do
 					if level.map_has_object_spot(tgt_id, spot) then
-						local size = table.copy(params.other_marker_size)
+						local scale = params.other_marker_scale
 						local dist_k = params.distance_mark_scale and pda_radius / dist or 1
 						dist_k = math.clamp(dist_k, 0.5, 1)
-						size[1] = size[1] * dist_k
-						size[2] = size[2] * dist_k
+						scale = scale * dist_k
 						local marker_data = {
 							pos = pos,
 							dist = dist,
 							texture = texture,
-							size = size,
+							scale = scale,
 							prior = 0
 						}
 						if spot == "general_wounded_location" then
@@ -192,16 +196,15 @@ function CompassOverlay:ShowFrontViewMarks()
 					end
 				end
 				--additional selected map spot			
-				local size = table.copy(params.selected_marker_size)
+				local scale = params.selected_marker_scale
 				local dist_k = params.distance_mark_scale and pda_radius / dist or 1
 				dist_k = math.clamp(dist_k, 0.5, 1)
-				size[1] = size[1] * dist_k
-				size[2] = size[2] * dist_k
+				scale = scale * dist_k
 				local marker_data = {
 					pos = pos,
 					dist = dist,
 					texture = map_spot_to_texture["quest_pointer"],
-					size = size,
+					scale = scale,
 					prior = 0
 				}
 				table.insert(compass_targets, marker_data)
@@ -218,7 +221,7 @@ function CompassOverlay:ShowFrontViewMarks()
 					dist = distance_between(actor, obj),
 					color = level_changer_color,
 					texture = map_spot_to_texture["level_changer"],
-					size = params.level_changer_mark_size,
+					scale = params.level_changer_mark_scale,
 					prior = 0
 				}
 				table.insert(compass_targets, marker_data)
@@ -249,7 +252,7 @@ function CompassOverlay:ShowFrontViewMarks()
 						pos = pos,
 						dist = distance_between(actor, obj),
 						texture = texture,
-						size = params.other_marker_size,
+						scale = params.other_marker_scale,
 						prior = 0
 					}
 					if spot == "general_wounded_location" then
@@ -270,16 +273,20 @@ function CompassOverlay:ShowFrontViewMarks()
 	end
 	table.sort( compass_targets, target_sort )
 	
-	local marker_size = params.marker_size
+	local marker_scale = params.marker_scale
 	for k, v in ipairs(compass_targets) do
 		local obj_point = CUIStatic()
 		obj_point:SetAutoDelete(true)
 		self.compass_modern_scale:AttachChild(obj_point)
 		--self.screen_debug:AttachChild(obj_point)
 		obj_point:SetStretchTexture(true)
-		obj_point:InitTexture(v.texture or "ui_minimap_point")
-		obj_point:SetWidth(v.size and v.size[1] or marker_size[1])
-		obj_point:SetHeight(v.size and v.size[2] or marker_size[2])
+		local texture = v.texture or "ui_minimap_point"
+		obj_point:InitTexture(texture)
+		local rect = obj_point:GetOriginalRect()
+		local size = vector2():set(rect.x2 - rect.x1, rect.y2 - rect.y1)
+		local scale = v.scale or marker_scale
+		obj_point:SetWidth(size.x * scale * get_current_kx())
+		obj_point:SetHeight(size.y * scale)
 		if v.color then
 			obj_point:SetColor(v.color)
 		end

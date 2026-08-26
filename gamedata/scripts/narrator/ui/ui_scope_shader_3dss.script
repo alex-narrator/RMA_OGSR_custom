@@ -260,7 +260,7 @@ function on_zoom_out(weapon)
 				zrt = 0
 			end			
 			set_dof_params(0, 0, dof_aim_intensity*zrt, 0)
-			return zrt == 0 or zrt == 1
+			return zrt == 0 or (zrt == 1 and weapon:is_zoomed())
 		end,
 		function()
 		end		

@@ -104,12 +104,14 @@ function injure_hit(hit_power)
 	return end
 	local h = hit()
 	h.draftsman = actor 
-	h.type = hit.wound
-	h.direction = vector():set(0,0,0) 
-	h.power = res_hit
+	h.hit_type = hit.wound
+	h.direction = device().cam_dir:mul(-1)
+	h.power = 0--res_hit
 	--log3("~res_hit %s", res_hit)
 	h.impulse = 0.0
 	actor:hit(h)
+	-- actor_conditions.on_actor_before_hit(actor, h)
+	actor.health = -res_hit
 end
 
 function get_injured_limb()
