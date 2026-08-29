@@ -24,8 +24,8 @@ function opt_video:InitControls(x, y, w, h, xml, handler)
 	local track_gamma = xml:InitTrackBar("tab_video:track_gamma", self)
 
 	--xml:InitStatic("tab_video:cap_fullscreen", self)
-	--local btn = xml:InitCheck("tab_video:check_fullscreen", self)
-	--handler:Register(btn, "check_fullscreen")
+	local btn = xml:InitCheck("tab_video:check_fullscreen", self)
+	handler:Register(btn, "check_fullscreen")
 
 	--xml:InitStatic("tab_video:cap_always_active", self) --Вот это надо инитить раньше list_fps_lock, чтобы этот статик не перекрывал выпадающий список.
 	xml:InitCheck("tab_video:check_always_active", self)
