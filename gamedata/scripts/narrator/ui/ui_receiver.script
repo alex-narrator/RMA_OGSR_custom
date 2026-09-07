@@ -60,7 +60,7 @@ function UI3D_RF:Update()
 	
 	CUIScriptWnd.Update(self)
 	
-	if is_power_device(self.item) then
+	if is_power_device(self.item) and self.item:binded_object() then
 		local power_lvl = self.item:binded_object():get_power_level()
 		if power_lvl > 0 and not self.ui_enabled then
 			self.ui_enabled = true

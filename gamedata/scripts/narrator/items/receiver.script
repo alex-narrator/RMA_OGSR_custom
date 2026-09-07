@@ -179,7 +179,7 @@ end
 
 function enable(item, prev_place)
 	if receiver_sect[item:section()] and (actor:is_in_slot(item) or actor:is_on_belt(item)) then
-		if not is_power_device(item) or item:binded_object():get_power_level() > 0 then	
+		if not is_power_device(item) or (item:binded_object() and item:binded_object():get_power_level() > 0) then	
 			receiver = item
 			receiver:switch_power(true)
 			

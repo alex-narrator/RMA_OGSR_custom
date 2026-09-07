@@ -187,7 +187,9 @@ function similar_item(item1, item2)
 	end
 	
 	if is_power_device(item1) and is_power_device(item2) then
-		similar = similar and fsim(item1:binded_object():get_power_level(), item2:binded_object():get_power_level(), cmp)
+		if item1:binded_object() and item2:binded_object() then
+			similar = similar and fsim(item1:binded_object():get_power_level(), item2:binded_object():get_power_level(), cmp)
+		end
 	end
 	
 	--if item1:get_pda() and item2:get_pda() then

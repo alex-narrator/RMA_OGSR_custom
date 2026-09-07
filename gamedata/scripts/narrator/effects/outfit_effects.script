@@ -4,6 +4,7 @@ local brake_sound = xr_sound.get_safe_sound_object([[material\glass\glass_fall01
 local breath_val, breath_angle, subscribed
 
 local breath_speed, breath_max, breath_k = 0.1, 1, 1
+local breath_noise_alpha = 1
 
 local dec_breath, show_minimap = false, false
 
@@ -152,8 +153,10 @@ function enable_effects(obj)
 	console:execute("r2_rain_drops_intensity "..visor_rain_drops_intens)	
 	console:execute("r2_rain_drops_speed "..visor_rain_drops_speed)
 	
+	shader_set_custom_param("raindrop_restart", 0, 0)
+	
 	if read_if_exists(sys_ini, "bool", sect, "visor_breath", false) then
-		breath_max = read_if_exists(sys_ini, "float", sect, "visor_breath_size", 0.6)
+		breath_max = read_if_exists(sys_ini, "float", sect, "visor_breath_size", 0.5)
 		switch_breath(true)
 	end
 	
@@ -195,7 +198,8 @@ function disable_shader_effects()
 	console:execute("r2_rain_drops_control 0")
 	console:execute("r2_visor_refl_control 0")
 	console:execute("r2_mask_control 0")
-	console:execute("breath_size 0")
+	shader_set_custom_param("breath_size", 0, 0, 0)
+	shader_set_custom_param("raindrop_restart", 0, 0)
 end
 
 function switch_breath(val)

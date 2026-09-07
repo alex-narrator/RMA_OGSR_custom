@@ -12,7 +12,7 @@ function try_recharge(obj, drop_on_obj)
 end
 
 function can_recharge(obj, drop_on_obj)
-	return parent_is_actor(obj) and is_power_device(drop_on_obj) and drop_on_obj:binded_object():can_attach(obj)
+	return parent_is_actor(obj) and is_power_device(drop_on_obj) and (drop_on_obj:binded_object() and drop_on_obj:binded_object():can_attach(obj))
 end
 
 function show_recharge_wnd(obj, drop_on_obj)
@@ -85,7 +85,7 @@ function detach_power_source_tip(obj)
 	return string.format("%s %s", game.translate_string("st_detach"), get_inv_name_short(obj:binded_object():get_power_sect()))
 end
 function can_detach_power_source(obj)
-	return is_power_device(obj) and obj:binded_object():can_detach_power_source() and action_allowed(obj)
+	return is_power_device(obj) and obj:binded_object() and obj:binded_object():can_detach_power_source() and action_allowed(obj)
 end
 function detach_power_source(obj)
 	local recharge_sound = read_if_exists(sys_ini, "string", obj:section(), "recharge_sound", "interface\\inv_detach_addon")

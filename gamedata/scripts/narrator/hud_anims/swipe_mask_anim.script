@@ -7,6 +7,8 @@ local console = get_console()
 local hud_sect = "swipe_mask_hud"
 local hud_anm = "camera_effects\\item_use\\two_handed_weapon_effect.anm"
 local hud_effector_id = 5556
+local smear_dec = 0.01
+local smear_max = 2
 
 function on_key_press(key, game_action)
 	local mir = level.main_input_receiver()
@@ -53,6 +55,17 @@ function on_key_press(key, game_action)
 		read_if_exists(sys_ini, "float", hud_sect, "use_delay", 1.5),
 		function()
 			console:execute("r2_rain_drops_control off")
+			local smear_texture_idx = math.random(1,4)
+			shader_set_custom_param("raindrop_restart", smear_max, smear_texture_idx)
+			level.add_call(
+				function()
+					local smear = math.clamp(shader_get_custom_param("raindrop_restart") - smear_dec, 0, smear_max)
+					shader_set_custom_param("raindrop_restart", smear, smear_texture_idx)
+					return shader_get_custom_param("raindrop_restart") <= 0
+				end,
+				function()
+				end
+			)
 		end
 	)
 		

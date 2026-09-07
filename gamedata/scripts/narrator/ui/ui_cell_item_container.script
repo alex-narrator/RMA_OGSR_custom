@@ -143,7 +143,7 @@ function UICellItemContainer:InitControls()
 	self.grid_back:SetHeight(grid_size.y)
 	self.grid_back:SetWndPos(pos.x, pos.y)
 	self.grid_back:SetOriginalRect(0, 0, self.cols * TEXTURE_CELL_SIZE, self.rows * TEXTURE_CELL_SIZE)
-	self.grid_back:Show(self.show_grid)
+	--self.grid_back:Show(self.show_grid)
 	
 	local name = self.ID.."service_back"
 	self:Register(self.service_back, name)
@@ -252,6 +252,7 @@ function UICellItemContainer:SetLocked(locked)
 		self.back:Show(not locked and not self.show_grid)
 	end
 	self.grid_back:InitTexture(locked and grid_texture_locked or grid_texture)
+	self.grid_back:Show(locked or self.show_grid)
 	self.locked = locked
 end
 

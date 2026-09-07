@@ -53,7 +53,7 @@ function get_light_sect_second(item)
 end
 
 function can_switch(item)
-	return not is_power_device(item) or item:binded_object():get_power_level() > 0
+	return not is_power_device(item) or (item:binded_object() and item:binded_object():get_power_level() > 0)
 end
 
 function set_light_params(item)
@@ -73,7 +73,7 @@ function set_light_params(item)
 end
 
 function update_brightness(item)
-	if not is_power_device(item) then
+	if not is_power_device(item) or not item:binded_object() then
 	return end
 	local brightness = item:binded_object():get_power_level()
 	local light_sect = read_if_exists(sys_ini, "string", item:section(), "light_definition", nil)

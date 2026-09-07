@@ -93,7 +93,7 @@ function get_nvd_params(sect)
 end
 
 function can_switch(item)
-	return (not is_power_device(item) or item:binded_object():get_power_level() > 0) and item:condition() > 0
+	return (not is_power_device(item) or (item:binded_object() and item:binded_object():get_power_level() > 0)) and item:condition() > 0
 end
 
 function can_switch_intensity(item)

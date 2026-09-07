@@ -124,7 +124,7 @@ function PDAOverlay:Update()
 	self.btn_off:Show(has_pda_power)
 	self.date_time:Show(has_pda_power)
 
-	local power = is_power_device(pda) and pda:binded_object():get_power_level() or 1
+	local power = (is_power_device(pda) and pda:binded_object()) and pda:binded_object():get_power_level() or 1
 	local text = string.format("%.0f%s", power * 100, "%")	
 	self.power_static:SetText(text)
 	self.power_progress:SetProgressPos(power)

@@ -23,9 +23,10 @@ Texture2D s_mask_nm_9;
 Texture2D s_mask_nm_10;
 
 // Vignette masks
-Texture2D s_mask_v_1;
-Texture2D s_mask_v_2;
-Texture2D s_mask_v_3;
+Texture2D s_mask_smear_1;
+Texture2D s_mask_smear_2;
+Texture2D s_mask_smear_3;
+Texture2D s_mask_smear_4;
 
 // Breath noise texture
 Texture2D s_breath_noise;
@@ -38,6 +39,8 @@ uniform float4 mask_control;
 
 uniform float2 breath_size;
 uniform float2 breath_idx;
+
+uniform float4 raindrop_restart;
 
 uniform float3 gasmask_inertia;
 uniform float3 device_inertia;

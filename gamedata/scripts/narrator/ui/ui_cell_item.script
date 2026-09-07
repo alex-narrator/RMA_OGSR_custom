@@ -523,7 +523,7 @@ end
 function UICellItem:UpdateConditionProgress(item)
 	if not self.condition_progess_bar then
 	return end
-	local power_device = is_power_device(item)
+	local power_device = is_power_device(item) and item:binded_object()
 	local show = item:condition() < 1 or power_device
 	self.condition_progess_bar:Show(show)
 	if not show then 

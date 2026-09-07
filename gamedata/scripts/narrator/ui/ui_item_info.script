@@ -296,7 +296,7 @@ function UIItemInfo:AttachCustomInfo()
 		create_divider(self:AttachBoosterParams())
 		create_divider(self:AttachAnmUseParams())
 	end
-	if is_power_device(self.item) then
+	if is_power_device(self.item) and self.item:binded_object() then
 		create_divider(self:AttachPowerParams())
 	end
 	--if self.item:get_pda() then
