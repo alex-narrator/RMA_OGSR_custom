@@ -171,7 +171,8 @@ function item_action_text()
 	return "debug_action"
 end
 function item_action(item)
-	log_news("is_quest_item [%s]", is_quest_item(item))
+	--log_news("is_quest_item [%s]", is_quest_item(item))
+	actor:attach_hud_item(item)
 end
 
 class "p_timer"

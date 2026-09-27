@@ -1,0 +1,89 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+function attach(sm)
+	sm:subscribe({signal = "on_key_press",  fun = this.on_key_press})
+	sm:subscribe({signal = "on_key_release",  fun = this.on_key_release})
+	sm:subscribe({signal = "on_slot", 		fun = this.on_slot})
+	sm:subscribe({signal = "on_drop", 		fun = this.on_non_slot})
+	sm:subscribe({signal = "on_ruck", 		fun = this.on_non_slot})
+end
+
+local current_watch = nil
+
+function on_slot(obj, prev_place)
+	if obj:get_slot() ~= ARTEFACT_SLOT then
+	return end
+	local attach_hud_sect = read_if_exists(sys_ini, "string", obj:section(), "hands_attach_hud", nil)
+	if not attach_hud_sect then
+	return end
+	local attach_name = read_if_exists(sys_ini, "string", attach_hud_sect, "attach_name", nil)
+	if not attach_name then
+	return end
+	local attachment = game.add_hud_hands_attachment(attach_name, attach_hud_sect)
+	local backlight_color = read_if_exists(sys_ini, "vector", attach_hud_sect, "backlight_color", vector())
+	shader_set_custom_param("watch_backlight_color", 0, 0, 0, 0)
+	local glow_color = read_if_exists(sys_ini, "vector", attach_hud_sect, "glow_color", vector())
+	shader_set_custom_param("watch_glow_color", glow_color.x, glow_color.y, glow_color.z, 0)
+	
+	current_watch = {
+		name = attach_name,
+		attachment = attachment,
+		color = backlight_color,
+		glow = glow_color,
+	}
+end
+
+function on_non_slot(obj, prev_place)
+	if prev_place ~= inv_place.slot then
+	return end
+	if obj:get_slot() ~= ARTEFACT_SLOT then
+	return end
+	if not current_watch then
+	return end
+	local attach_hud_sect = read_if_exists(sys_ini, "string", obj:section(), "hands_attach_hud", nil)
+	if not attach_hud_sect then
+	return end
+	local attach_name = read_if_exists(sys_ini, "string", attach_hud_sect, "attach_name", nil)
+	if not attach_name then
+	return end	
+	game.remove_hud_hands_attachment(attach_name)
+	current_watch = nil
+	shader_set_custom_param("watch_backlight_color", 0, 0, 0, 0)
+	shader_set_custom_param("watch_glow_color", 0, 0, 0, 0)
+	ui_watch.clear_ui()
+end
+
+function on_key_press(key, game_action)
+	if level.main_input_receiver() or
+		not actor_hands_free() or
+		game_action ~= key_bindings.kWPN_7 then
+	return end
+	if not current_watch then
+	return end
+	if anim_playing then
+	return end
+	
+	if not actor:active_item() and not actor:active_device() then
+		actor:activate_slot(BOLT_SLOT)
+	end
+	
+	game.play_hud_motion(1, "wristwatch_check", "anm_use", true)
+	anim_playing = true
+	
+	local color = current_watch.color
+	shader_set_custom_param("watch_backlight_color", color.x, color.y, color.z, 0)
+end
+
+function on_key_release(key, game_action)
+	if level.main_input_receiver() or 
+		game_action ~= key_bindings.kWPN_7 then
+	return end
+	if not current_watch then
+	return end
+	if not anim_playing then
+	return end
+	
+	anim_playing = false
+	
+	shader_set_custom_param("watch_backlight_color", 0, 0, 0, 0)
+	game.stop_hud_motion()
+end

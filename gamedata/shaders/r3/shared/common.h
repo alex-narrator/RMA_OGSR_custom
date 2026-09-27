@@ -61,6 +61,8 @@ cbuffer static_globals
     uniform float4 parallax;
     uniform float4 rain_params; // x = raindensity, y = wetness
     uniform float4 screen_res; // Screen resolution (x-Width,y-Height, zw - 1/resolution)
+	uniform float4 render_res; // Physical scene resolution (xy) and reciprocal (zw)
+    uniform float4 display_res; // Display/post-process resolution (xy) and reciprocal (zw)
 
     uniform float4 pp_img_corrections;
     uniform float4 pp_img_cg;
@@ -89,6 +91,24 @@ float2 calc_xz_wave(float2 dir2D, float frac)
     float2 ctrl_A = float2(0.f, 0.f);
     float2 ctrl_B = float2(dir2D.x, dir2D.y);
     return lerp(ctrl_A, ctrl_B, frac); //! This calculates tree wave. No changes made
+}
+
+// Функція повороту UV-координат навколо центра (0.5, 0.5)
+float2 rotateUV(float2 uv, float angle)
+{
+    float s = sin(angle);
+    float c = cos(angle);
+    
+    // Зсуваємо центр у 0,0
+    uv -= 0.5; 
+    
+    // Обертаємо за матрицею повороту
+    float2 rotated;
+    rotated.x = uv.x * c - uv.y * s;
+    rotated.y = uv.x * s + uv.y * c;
+    
+    // Повертаємо центр назад
+    return rotated + 0.5;
 }
 
 #define SKY_EPS float(0.001)

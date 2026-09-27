@@ -1,0 +1,30 @@
+#include "common.h"
+
+uniform float4 clock_time_angle;
+
+struct v2p
+{
+    float2 tc0 : TEXCOORD0; // base
+    float4 c0 : COLOR0; // sun
+};
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// Pixel
+float4 main(v2p I) : SV_Target
+{
+    // Кут повороту передається з Lua-скрипта (очікується в радіанах)
+    float angle = clock_time_angle.x; 
+
+    // Отримуємо нові зміщені координати
+    float2 rotated_uv = rotateUV(I.tc0, angle);
+
+    // Робимо вибірку текстури за новими координатами
+    float4 t_base = s_base.Sample(smp_base, rotated_uv);
+	
+	t_base.rgb *= I.c0.rgb;
+	
+	//clip(t_base.a - 0.5f);
+
+    // out
+    return float4(t_base.r, t_base.g, t_base.b, t_base.a * I.c0.a);
+}

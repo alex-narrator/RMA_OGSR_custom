@@ -1,0 +1,27 @@
+#include "common.h"
+
+uniform float4 watch_glow_color;
+
+struct v2p
+{
+    float2 tc0 : TEXCOORD0; // base
+    // float2 tc1: TEXCOORD1; // lmap
+    float4 c0 : COLOR0; // sun
+};
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// Pixel
+float4 main(v2p I) : SV_Target
+{
+    // float4 t_base = tex2D (s_base,I.tc0);
+    float4 t_base = s_base.Sample(smp_base, I.tc0);
+
+	t_base.r *= watch_glow_color.x;
+	t_base.g *= watch_glow_color.y;
+	t_base.b *= watch_glow_color.z;
+	
+	clip(t_base.a - (0.01f / 255.0f));
+
+    // out
+    return float4(t_base.r, t_base.g, t_base.b, t_base.a * I.c0.a);
+}

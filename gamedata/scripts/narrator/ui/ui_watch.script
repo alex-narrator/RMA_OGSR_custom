@@ -1,0 +1,969 @@
+local OVERLAY_XML = "script_overlays\\ui_watch.xml"
+
+local time_hour_rad = math.pi / 6
+local time_minute_rad = math.pi / 30
+
+function get_selected_target_pos_dist()
+	local objective = gametask.active_objective()
+	if not objective then
+	return false end
+	local tgt_id = objective and objective:get_object_id() or nil
+	if not tgt_id then
+	return false end
+	local dist = main_window.minimap:GetActivePointDist()
+	local sim = alife()
+	local sobj = sim:object(tgt_id)
+	if not sobj then
+	return false end
+	local obj_pos = nil
+	if sobj.level_id == sim:level_id() then
+		local cobj = level.object_by_id(tgt_id)
+		obj_pos = cobj and cobj:center() or sobj.position
+	else
+		for id, _ in pairs(db.level_changers) do
+			local lc = level.object_by_id(id)
+			if lc then
+				local dist_to_lc = distance_between(actor, lc)
+				if dist and math.fsimilar(dist, dist_to_lc, 1) then
+					obj_pos = lc:center()
+					break
+				end
+			end
+		end				
+	end
+	if obj_pos and  math.fsimilar(dist, 0) then
+		dist = actor:position():distance_to(obj_pos)
+	end
+	return obj_pos, dist
+end
+
+function get_selected_target_heading(tgt_pos)
+	local cam_h = device().cam_dir:getH()
+	local tgt_dir = tgt_pos:sub(device().cam_pos)
+	local tgt_h = tgt_dir:normalize():getH()
+	local heading = -cam_h + tgt_h
+	return heading
+end
+
+class "UIMontana" (CUIScriptWnd)
+function UIMontana:__init(attachment) super()
+	self:Show(true)
+	self:Enable(true)
+
+	local xml = CScriptXmlInit()
+	self.xml = xml
+	xml:ParseFile(OVERLAY_XML)
+	local root = "display_montana"
+	xml:InitWindow(root, 0, self)
+
+	root = root..":work_area"
+	self.work_area = xml:InitStatic(root, self)
+	
+	local time_root = root..":time"
+	self.time = xml:InitStatic(time_root, self.work_area)
+	self.hour_1 = xml:InitStatic(time_root..":hour_1", self.time)
+	self.hour_2 = xml:InitStatic(time_root..":hour_2", self.time)
+	self.minute_1 = xml:InitStatic(time_root..":minute_1", self.time)
+	self.minute_2 = xml:InitStatic(time_root..":minute_2", self.time)
+	self.work_1 = xml:InitStatic(time_root..":work_1", self.time)
+	self.work_2 = xml:InitStatic(time_root..":work_2", self.time)
+
+	local date_root = root..":date"
+	self.date = xml:InitStatic(date_root, self.work_area)
+	self.day_1 = xml:InitStatic(date_root..":day_1", self.date)
+	self.day_2 = xml:InitStatic(date_root..":day_2", self.date)
+	self.date_sep_1 = xml:InitStatic(date_root..":date_sep_1", self.date)
+	self.month_1 = xml:InitStatic(date_root..":month_1", self.date)
+	self.month_2 = xml:InitStatic(date_root..":month_2", self.date)
+	self.date_sep_2 = xml:InitStatic(date_root..":date_sep_2", self.date)
+	self.year_1 = xml:InitStatic(date_root..":year_1", self.date)
+	self.year_2 = xml:InitStatic(date_root..":year_2", self.date)
+	
+	self.attachment = attachment
+	
+	self.indicator_time = 0
+	self.indicator_switch_delay = 500
+	
+	self:SetAutoDelete(true)
+end
+
+function UIMontana:__finalize() 
+end
+
+function UIMontana:Update()
+	CUIScriptWnd.Update(self)
+	
+	local tg = time_global()
+	
+	if (tg > self.indicator_time + self.indicator_switch_delay) then
+		self.indicator_time = tg
+		self.work_1:Show(not self.work_1:IsShown())
+		self.work_2:Show(not self.work_2:IsShown())
+	end	
+	
+	local hours = level.get_time_hours()
+	local minutes = level.get_time_minutes()
+
+	--log_news("hours [%s] minutes [%s]", hours, minutes)
+	local hour_1, hour_2, minute_1, minute_2 = "old_digit_0", "old_digit_0", "old_digit_0", "old_digit_0"
+	
+	if hours < 10 then
+		hour_2 = string.format("old_digit_%s", tostring(hours):sub(1, 1))
+	else
+		hour_1 = string.format("old_digit_%s", tostring(hours):sub(1, 1))
+		hour_2 = string.format("old_digit_%s", tostring(hours):sub(2, 2))	
+	end
+
+	if minutes < 10 then
+		minute_2 = string.format("old_digit_%s", tostring(minutes):sub(1, 1))
+	else
+		minute_1 = string.format("old_digit_%s", tostring(minutes):sub(1, 1))
+		minute_2 = string.format("old_digit_%s", tostring(minutes):sub(2, 2))	
+	end
+	
+	self.hour_1:InitTextureEx(hour_1, "hud\\p3d")
+	self.hour_2:InitTextureEx(hour_2, "hud\\p3d")
+	self.minute_1:InitTextureEx(minute_1, "hud\\p3d")
+	self.minute_2:InitTextureEx(minute_2, "hud\\p3d")
+	
+	local _time = game.get_game_time()
+	local date_str = _time:dateToString(game.CTime.DateToDay)
+	local day_1, day_2, month_1, month_2, year_1, year_2
+	day_1 = string.format("old_digit_%s", date_str:sub(1, 1))
+	day_2 = string.format("old_digit_%s", date_str:sub(2, 2))
+	month_1 = string.format("old_digit_%s", date_str:sub(4, 4))
+	month_2 = string.format("old_digit_%s", date_str:sub(5, 5))
+	year_1 = string.format("old_digit_%s", date_str:sub(9, 9))
+	year_2 = string.format("old_digit_%s", date_str:sub(10, 10))
+	
+	self.day_1:InitTextureEx(day_1, "hud\\p3d")
+	self.day_2:InitTextureEx(day_2, "hud\\p3d")
+	self.month_1:InitTextureEx(month_1, "hud\\p3d")
+	self.month_2:InitTextureEx(month_2, "hud\\p3d")
+	self.year_1:InitTextureEx(year_1, "hud\\p3d")
+	self.year_2:InitTextureEx(year_2, "hud\\p3d")
+end
+
+---///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class "UIFenix" (CUIScriptWnd)
+function UIFenix:__init(attachment) super()
+	self:Show(true)
+	self:Enable(true)
+
+	local xml = CScriptXmlInit()
+	self.xml = xml
+	xml:ParseFile(OVERLAY_XML)
+	local root = "display_fenix"
+	xml:InitWindow(root, 0, self)
+	
+	root = root..":work_area"
+	self.work_area = xml:InitStatic(root, self)
+	
+	local time_root = root..":time"
+	self.time = xml:InitStatic(time_root, self.work_area)
+	self.hour_1 = xml:InitStatic(time_root..":hour_1", self.time)
+	self.hour_2 = xml:InitStatic(time_root..":hour_2", self.time)
+	self.minute_1 = xml:InitStatic(time_root..":minute_1", self.time)
+	self.minute_2 = xml:InitStatic(time_root..":minute_2", self.time)
+	self.work = xml:InitStatic(time_root..":work", self.time)
+
+	local date_root = root..":date"
+	self.date = xml:InitStatic(date_root, self.work_area)
+	self.day_1 = xml:InitStatic(date_root..":day_1", self.date)
+	self.day_2 = xml:InitStatic(date_root..":day_2", self.date)
+	self.date_sep_1 = xml:InitStatic(date_root..":date_sep_1", self.date)	
+	self.month_1 = xml:InitStatic(date_root..":month_1", self.date)
+	self.month_2 = xml:InitStatic(date_root..":month_2", self.date)
+	self.date_sep_2 = xml:InitStatic(date_root..":date_sep_2", self.date)
+	self.year_1 = xml:InitStatic(date_root..":year_1", self.date)
+	self.year_2 = xml:InitStatic(date_root..":year_2", self.date)
+
+	local target_root = root..":target"
+	self.target = xml:InitStatic(target_root, self.work_area)
+	self.dist_1 = xml:InitStatic(target_root..":dist_1", self.target)
+	self.dist_2 = xml:InitStatic(target_root..":dist_2", self.target)
+	self.dist_3 = xml:InitStatic(target_root..":dist_3", self.target)
+	self.dist_m = xml:InitStatic(target_root..":dist_m", self.target)	
+	self.pointer = xml:InitStatic(target_root..":pointer", self.target)
+	
+	self.new_message = xml:InitStatic(root..":new_message", self.work_area)
+	
+	self.attachment = attachment
+	
+	self.indicator_time = 0
+	self.indicator_switch_delay = 500
+	
+	self:SetAutoDelete(true)
+end
+
+function UIFenix:__finalize() 
+end
+
+function UIFenix:Update()
+	CUIScriptWnd.Update(self)
+	
+	local tg = time_global()
+	
+	if (tg > self.indicator_time + self.indicator_switch_delay) then
+		self.indicator_time = tg
+		self.work:Show(not self.work:IsShown())
+	end	
+	
+	local hours = level.get_time_hours()
+	local minutes = level.get_time_minutes()
+
+	--log_news("hours [%s] minutes [%s]", hours, minutes)
+	local hour_1, hour_2, minute_1, minute_2 = "letter_digit_0", "letter_digit_0", "letter_digit_0", "letter_digit_0"
+	
+	if hours < 10 then
+		hour_2 = string.format("letter_digit_%s", tostring(hours):sub(1, 1))
+	else
+		hour_1 = string.format("letter_digit_%s", tostring(hours):sub(1, 1))
+		hour_2 = string.format("letter_digit_%s", tostring(hours):sub(2, 2))	
+	end
+
+	if minutes < 10 then
+		minute_2 = string.format("letter_digit_%s", tostring(minutes):sub(1, 1))
+	else
+		minute_1 = string.format("letter_digit_%s", tostring(minutes):sub(1, 1))
+		minute_2 = string.format("letter_digit_%s", tostring(minutes):sub(2, 2))	
+	end
+	
+	self.hour_1:InitTextureEx(hour_1, "hud\\p3d")
+	self.hour_2:InitTextureEx(hour_2, "hud\\p3d")
+	self.minute_1:InitTextureEx(minute_1, "hud\\p3d")
+	self.minute_2:InitTextureEx(minute_2, "hud\\p3d")
+	
+	local _time = game.get_game_time()
+	local date_str = _time:dateToString(game.CTime.DateToDay)
+	local day_1, day_2, month_1, month_2, year_1, year_2
+	day_1 = string.format("letter_digit_%s", date_str:sub(1, 1))
+	day_2 = string.format("letter_digit_%s", date_str:sub(2, 2))
+	month_1 = string.format("letter_digit_%s", date_str:sub(4, 4))
+	month_2 = string.format("letter_digit_%s", date_str:sub(5, 5))
+	year_1 = string.format("letter_digit_%s", date_str:sub(9, 9))
+	year_2 = string.format("letter_digit_%s", date_str:sub(10, 10))	
+	
+	self.day_1:InitTextureEx(day_1, "hud\\p3d")
+	self.day_2:InitTextureEx(day_2, "hud\\p3d")
+	self.month_1:InitTextureEx(month_1, "hud\\p3d")
+	self.month_2:InitTextureEx(month_2, "hud\\p3d")
+	self.year_1:InitTextureEx(year_1, "hud\\p3d")
+	self.year_2:InitTextureEx(year_2, "hud\\p3d")
+	
+	local pos, dist = get_selected_target_pos_dist()
+	local show_target = actor_get_pda() and actor_get_pda():is_power_on() and pos
+	self.target:Show(show_target)
+	if show_target then
+		local heading = get_selected_target_heading(pos)
+		self.pointer:SetHeading(heading)
+		
+		local dist_1, dist_2, dist_3 = "letter_digit_0", "letter_digit_0", "letter_digit_0"
+		dist = math.clamp(dist, 0, 999)
+		if dist < 10 then
+			dist_3 = string.format("letter_digit_%s", tostring(dist):sub(1, 1))
+		elseif dist < 100 then
+			dist_2 = string.format("letter_digit_%s", tostring(dist):sub(1, 1))
+			dist_3 = string.format("letter_digit_%s", tostring(dist):sub(2, 2))
+		else
+			dist_1 = string.format("letter_digit_%s", tostring(dist):sub(1, 1))
+			dist_2 = string.format("letter_digit_%s", tostring(dist):sub(2, 2))
+			dist_3 = string.format("letter_digit_%s", tostring(dist):sub(3, 3))		
+		end
+		self.dist_1:InitTextureEx(dist_1, "hud\\p3d")
+		self.dist_2:InitTextureEx(dist_2, "hud\\p3d")
+		self.dist_3:InitTextureEx(dist_3, "hud\\p3d")		
+	end
+	
+	self.new_message:Show(main_window.flashing_icon:IsShown())
+end
+
+---///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class "UITactix" (CUIScriptWnd)
+function UITactix:__init(attachment) super()
+	self:Show(true)
+	self:Enable(true)
+
+	local xml = CScriptXmlInit()
+	self.xml = xml
+	xml:ParseFile(OVERLAY_XML)
+	local root = "display_tactix"
+	xml:InitWindow(root, 0, self)
+	
+	root = root..":work_area"
+	self.work_area = xml:InitStatic(root, self)
+	
+	-- self.compass = xml:InitStatic(root..":compass", self.work_area)
+	-- self.compass_size = vector2():set(self.compass:GetWidth(), self.compass:GetHeight())
+	
+	local time_root = root..":time"
+	self.time = xml:InitStatic(time_root, self.work_area)
+	self.hour_1 = xml:InitStatic(time_root..":hour_1", self.time)
+	self.hour_2 = xml:InitStatic(time_root..":hour_2", self.time)
+	self.minute_1 = xml:InitStatic(time_root..":minute_1", self.time)
+	self.minute_2 = xml:InitStatic(time_root..":minute_2", self.time)
+	self.work = xml:InitStatic(time_root..":work", self.time)
+
+	local date_root = root..":date"
+	self.date = xml:InitStatic(date_root, self.work_area)
+	self.day_1 = xml:InitStatic(date_root..":day_1", self.date)
+	self.day_2 = xml:InitStatic(date_root..":day_2", self.date)
+	self.date_sep_1 = xml:InitStatic(date_root..":date_sep_1", self.date)	
+	self.month_1 = xml:InitStatic(date_root..":month_1", self.date)
+	self.month_2 = xml:InitStatic(date_root..":month_2", self.date)
+	self.date_sep_2 = xml:InitStatic(date_root..":date_sep_2", self.date)
+	self.year_1 = xml:InitStatic(date_root..":year_1", self.date)
+	self.year_2 = xml:InitStatic(date_root..":year_2", self.date)
+
+	local target_root = root..":target"
+	self.target = xml:InitStatic(target_root, self.work_area)
+	self.dist_1 = xml:InitStatic(target_root..":dist_1", self.target)
+	self.dist_2 = xml:InitStatic(target_root..":dist_2", self.target)
+	self.dist_3 = xml:InitStatic(target_root..":dist_3", self.target)
+	self.dist_m = xml:InitStatic(target_root..":dist_m", self.target)
+
+	local azimuth_root = root..":azimuth"
+	self.azimuth = xml:InitStatic(azimuth_root, self.work_area)
+	self.angle_1 = xml:InitStatic(azimuth_root..":angle_1", self.azimuth)
+	self.angle_2 = xml:InitStatic(azimuth_root..":angle_2", self.azimuth)
+	self.angle_3 = xml:InitStatic(azimuth_root..":angle_3", self.azimuth)
+	self.angle_o = xml:InitStatic(azimuth_root..":angle_o", self.azimuth)
+	
+	self.new_message = xml:InitStatic(root..":new_message", self.work_area)
+	
+	self.attachment = attachment
+	
+	self.compass_color = read_if_exists(sys_ini, "vector", attachment:section(), "compass_color", vector():set(1, 1, 1))
+	shader_set_custom_param("watch_compass_params", 0, self.compass_color.x, self.compass_color.y, self.compass_color.z)
+
+	self.pointer_color = read_if_exists(sys_ini, "vector", attachment:section(), "pointer_color", vector():set(1, 1, 1))
+	shader_set_custom_param("watch_pointer_params", 0, self.pointer_color.x, self.pointer_color.y, self.pointer_color.z)	
+	
+	self.indicator_time = 0
+	self.indicator_switch_delay = 500
+	
+	self:SetAutoDelete(true)
+end
+
+function UITactix:__finalize() 
+end
+
+function UITactix:Update()
+	CUIScriptWnd.Update(self)
+	
+	local tg = time_global()
+	
+	if (tg > self.indicator_time + self.indicator_switch_delay) then
+		self.indicator_time = tg
+		self.work:Show(not self.work:IsShown())
+	end	
+	
+	local hours = level.get_time_hours()
+	local minutes = level.get_time_minutes()
+
+	--log_news("hours [%s] minutes [%s]", hours, minutes)
+	local hour_1, hour_2, minute_1, minute_2 = "letter_digit_0", "letter_digit_0", "letter_digit_0", "letter_digit_0"
+	
+	if hours < 10 then
+		hour_2 = string.format("letter_digit_%s", tostring(hours):sub(1, 1))
+	else
+		hour_1 = string.format("letter_digit_%s", tostring(hours):sub(1, 1))
+		hour_2 = string.format("letter_digit_%s", tostring(hours):sub(2, 2))	
+	end
+
+	if minutes < 10 then
+		minute_2 = string.format("letter_digit_%s", tostring(minutes):sub(1, 1))
+	else
+		minute_1 = string.format("letter_digit_%s", tostring(minutes):sub(1, 1))
+		minute_2 = string.format("letter_digit_%s", tostring(minutes):sub(2, 2))	
+	end
+	
+	self.hour_1:InitTextureEx(hour_1, "hud\\p3d")
+	self.hour_2:InitTextureEx(hour_2, "hud\\p3d")
+	self.minute_1:InitTextureEx(minute_1, "hud\\p3d")
+	self.minute_2:InitTextureEx(minute_2, "hud\\p3d")
+	
+	local _time = game.get_game_time()
+	local date_str = _time:dateToString(game.CTime.DateToDay)
+	local day_1, day_2, month_1, month_2, year_1, year_2
+	day_1 = string.format("letter_digit_%s", date_str:sub(1, 1))
+	day_2 = string.format("letter_digit_%s", date_str:sub(2, 2))
+	month_1 = string.format("letter_digit_%s", date_str:sub(4, 4))
+	month_2 = string.format("letter_digit_%s", date_str:sub(5, 5))
+	year_1 = string.format("letter_digit_%s", date_str:sub(9, 9))
+	year_2 = string.format("letter_digit_%s", date_str:sub(10, 10))	
+	
+	self.day_1:InitTextureEx(day_1, "hud\\p3d")
+	self.day_2:InitTextureEx(day_2, "hud\\p3d")
+	self.month_1:InitTextureEx(month_1, "hud\\p3d")
+	self.month_2:InitTextureEx(month_2, "hud\\p3d")
+	self.year_1:InitTextureEx(year_1, "hud\\p3d")
+	self.year_2:InitTextureEx(year_2, "hud\\p3d")
+	
+	local pos, dist = get_selected_target_pos_dist()
+	local show_target = actor_get_pda() and actor_get_pda():is_power_on() and pos
+	self.target:Show(show_target)
+	self.azimuth:Show(not show_target)
+	
+	local pointer_params = shader_get_custom_param_vector("watch_pointer_params")
+	local pointer_color = show_target and self.pointer_color or vector()
+	pointer_params.y = pointer_color.x
+	pointer_params.z = pointer_color.y
+	pointer_params.w = pointer_color.z
+	
+	local h = device().cam_dir:getH()
+	local compas_params = shader_get_custom_param_vector("watch_compass_params")
+	compas_params.x = -h
+	shader_set_custom_param_vector("watch_compass_params", compas_params)	
+	
+	if show_target then
+		local heading = get_selected_target_heading(pos)
+		
+		pointer_params.x = heading
+		
+		local dist_1, dist_2, dist_3 = "letter_digit_0", "letter_digit_0", "letter_digit_0"
+		dist = math.clamp(dist, 0, 999)
+		if dist < 10 then
+			dist_3 = string.format("letter_digit_%s", tostring(dist):sub(1, 1))
+		elseif dist < 100 then
+			dist_2 = string.format("letter_digit_%s", tostring(dist):sub(1, 1))
+			dist_3 = string.format("letter_digit_%s", tostring(dist):sub(2, 2))
+		else
+			dist_1 = string.format("letter_digit_%s", tostring(dist):sub(1, 1))
+			dist_2 = string.format("letter_digit_%s", tostring(dist):sub(2, 2))
+			dist_3 = string.format("letter_digit_%s", tostring(dist):sub(3, 3))		
+		end
+		self.dist_1:InitTextureEx(dist_1, "hud\\p3d")
+		self.dist_2:InitTextureEx(dist_2, "hud\\p3d")
+		self.dist_3:InitTextureEx(dist_3, "hud\\p3d")
+	else
+		local angle = math.deg(-h)
+		angle = angle < 0 and angle + 360 or angle
+		angle = math.round(angle)
+
+		local angle_1, angle_2, angle_3 = "letter_digit_0", "letter_digit_0", "letter_digit_0"
+		if angle < 10 then
+			angle_3 = string.format("letter_digit_%s", tostring(angle):sub(1, 1))
+		elseif angle < 100 then
+			angle_2 = string.format("letter_digit_%s", tostring(angle):sub(1, 1))
+			angle_3 = string.format("letter_digit_%s", tostring(angle):sub(2, 2))
+		else
+			angle_1 = string.format("letter_digit_%s", tostring(angle):sub(1, 1))
+			angle_2 = string.format("letter_digit_%s", tostring(angle):sub(2, 2))
+			angle_3 = string.format("letter_digit_%s", tostring(angle):sub(3, 3))		
+		end
+		self.angle_1:InitTextureEx(angle_1, "hud\\p3d")
+		self.angle_2:InitTextureEx(angle_2, "hud\\p3d")
+		self.angle_3:InitTextureEx(angle_3, "hud\\p3d")		
+	end
+	shader_set_custom_param_vector("watch_pointer_params", pointer_params)
+	
+	self.new_message:Show(main_window.flashing_icon:IsShown())
+end
+
+---///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class "UISuunto" (CUIScriptWnd)
+function UISuunto:__init(attachment) super()
+	self:Show(true)
+	self:Enable(true)
+
+	local xml = CScriptXmlInit()
+	self.xml = xml
+	xml:ParseFile(OVERLAY_XML)
+	local root = "display_suunto"
+	xml:InitWindow(root, 0, self)
+	
+	root = root..":work_area"
+	self.work_area = xml:InitStatic(root, self)
+	
+	-- self.compass = xml:InitStatic(root..":compass", self.work_area)
+	-- self.compass_size = vector2():set(self.compass:GetWidth(), self.compass:GetHeight())
+	
+	local time_root = root..":time"
+	self.time = xml:InitStatic(time_root, self.work_area)
+	self.hour_1 = xml:InitStatic(time_root..":hour_1", self.time)
+	self.hour_2 = xml:InitStatic(time_root..":hour_2", self.time)
+	self.minute_1 = xml:InitStatic(time_root..":minute_1", self.time)
+	self.minute_2 = xml:InitStatic(time_root..":minute_2", self.time)
+	self.work = xml:InitStatic(time_root..":work", self.time)
+
+	local date_root = root..":date"
+	self.date = xml:InitStatic(date_root, self.work_area)
+	self.day_1 = xml:InitStatic(date_root..":day_1", self.date)
+	self.day_2 = xml:InitStatic(date_root..":day_2", self.date)
+	self.date_sep_1 = xml:InitStatic(date_root..":date_sep_1", self.date)	
+	self.month_1 = xml:InitStatic(date_root..":month_1", self.date)
+	self.month_2 = xml:InitStatic(date_root..":month_2", self.date)
+	self.date_sep_2 = xml:InitStatic(date_root..":date_sep_2", self.date)
+	self.year_1 = xml:InitStatic(date_root..":year_1", self.date)
+	self.year_2 = xml:InitStatic(date_root..":year_2", self.date)
+
+	local target_root = root..":target"
+	self.target = xml:InitStatic(target_root, self.work_area)
+	self.dist_1 = xml:InitStatic(target_root..":dist_1", self.target)
+	self.dist_2 = xml:InitStatic(target_root..":dist_2", self.target)
+	self.dist_3 = xml:InitStatic(target_root..":dist_3", self.target)
+	self.dist_m = xml:InitStatic(target_root..":dist_m", self.target)
+
+	local azimuth_root = root..":azimuth"
+	self.azimuth = xml:InitStatic(azimuth_root, self.work_area)
+	self.angle_1 = xml:InitStatic(azimuth_root..":angle_1", self.azimuth)
+	self.angle_2 = xml:InitStatic(azimuth_root..":angle_2", self.azimuth)
+	self.angle_3 = xml:InitStatic(azimuth_root..":angle_3", self.azimuth)
+	self.angle_o = xml:InitStatic(azimuth_root..":angle_o", self.azimuth)
+	
+	self.new_message = xml:InitStatic(root..":new_message", self.work_area)
+	
+	self.attachment = attachment
+	
+	self.compass_color = read_if_exists(sys_ini, "vector", attachment:section(), "compass_color", vector():set(1, 1, 1))
+	shader_set_custom_param("watch_compass_params", 0, self.compass_color.x, self.compass_color.y, self.compass_color.z)
+
+	self.pointer_color = read_if_exists(sys_ini, "vector", attachment:section(), "pointer_color", vector():set(1, 1, 1))
+	shader_set_custom_param("watch_pointer_params", 0, self.pointer_color.x, self.pointer_color.y, self.pointer_color.z)	
+	
+	self.indicator_time = 0
+	self.indicator_switch_delay = 500
+	
+	self:SetAutoDelete(true)
+end
+
+function UISuunto:__finalize()
+end
+
+function UISuunto:Update()
+	CUIScriptWnd.Update(self)
+	
+	local tg = time_global()
+	
+	if (tg > self.indicator_time + self.indicator_switch_delay) then
+		self.indicator_time = tg
+		self.work:Show(not self.work:IsShown())
+	end	
+	
+	local hours = level.get_time_hours()
+	local minutes = level.get_time_minutes()
+
+	--log_news("hours [%s] minutes [%s]", hours, minutes)
+	local hour_1, hour_2, minute_1, minute_2 = "letter_digit_0", "letter_digit_0", "letter_digit_0", "letter_digit_0"
+	
+	if hours < 10 then
+		hour_2 = string.format("letter_digit_%s", tostring(hours):sub(1, 1))
+	else
+		hour_1 = string.format("letter_digit_%s", tostring(hours):sub(1, 1))
+		hour_2 = string.format("letter_digit_%s", tostring(hours):sub(2, 2))	
+	end
+
+	if minutes < 10 then
+		minute_2 = string.format("letter_digit_%s", tostring(minutes):sub(1, 1))
+	else
+		minute_1 = string.format("letter_digit_%s", tostring(minutes):sub(1, 1))
+		minute_2 = string.format("letter_digit_%s", tostring(minutes):sub(2, 2))	
+	end
+	
+	self.hour_1:InitTextureEx(hour_1, "hud\\p3d")
+	self.hour_2:InitTextureEx(hour_2, "hud\\p3d")
+	self.minute_1:InitTextureEx(minute_1, "hud\\p3d")
+	self.minute_2:InitTextureEx(minute_2, "hud\\p3d")
+	
+	local _time = game.get_game_time()
+	local date_str = _time:dateToString(game.CTime.DateToDay)
+	local day_1, day_2, month_1, month_2, year_1, year_2
+	day_1 = string.format("letter_digit_%s", date_str:sub(1, 1))
+	day_2 = string.format("letter_digit_%s", date_str:sub(2, 2))
+	month_1 = string.format("letter_digit_%s", date_str:sub(4, 4))
+	month_2 = string.format("letter_digit_%s", date_str:sub(5, 5))
+	year_1 = string.format("letter_digit_%s", date_str:sub(9, 9))
+	year_2 = string.format("letter_digit_%s", date_str:sub(10, 10))	
+	
+	self.day_1:InitTextureEx(day_1, "hud\\p3d")
+	self.day_2:InitTextureEx(day_2, "hud\\p3d")
+	self.month_1:InitTextureEx(month_1, "hud\\p3d")
+	self.month_2:InitTextureEx(month_2, "hud\\p3d")
+	self.year_1:InitTextureEx(year_1, "hud\\p3d")
+	self.year_2:InitTextureEx(year_2, "hud\\p3d")
+	
+	local pos, dist = get_selected_target_pos_dist()
+	local show_target = actor_get_pda() and actor_get_pda():is_power_on() and pos
+	self.target:Show(show_target)
+	self.azimuth:Show(not show_target)
+	
+	local pointer_params = shader_get_custom_param_vector("watch_pointer_params")
+	local pointer_color = show_target and self.pointer_color or vector()
+	pointer_params.y = pointer_color.x
+	pointer_params.z = pointer_color.y
+	pointer_params.w = pointer_color.z
+	
+	local h = device().cam_dir:getH()
+	local compas_params = shader_get_custom_param_vector("watch_compass_params")
+	compas_params.x = -h
+	shader_set_custom_param_vector("watch_compass_params", compas_params)	
+	
+	if show_target then
+		local heading = get_selected_target_heading(pos)
+		
+		pointer_params.x = heading
+		
+		local dist_1, dist_2, dist_3 = "letter_digit_0", "letter_digit_0", "letter_digit_0"
+		dist = math.clamp(dist, 0, 999)
+		if dist < 10 then
+			dist_3 = string.format("letter_digit_%s", tostring(dist):sub(1, 1))
+		elseif dist < 100 then
+			dist_2 = string.format("letter_digit_%s", tostring(dist):sub(1, 1))
+			dist_3 = string.format("letter_digit_%s", tostring(dist):sub(2, 2))
+		else
+			dist_1 = string.format("letter_digit_%s", tostring(dist):sub(1, 1))
+			dist_2 = string.format("letter_digit_%s", tostring(dist):sub(2, 2))
+			dist_3 = string.format("letter_digit_%s", tostring(dist):sub(3, 3))		
+		end
+		self.dist_1:InitTextureEx(dist_1, "hud\\p3d")
+		self.dist_2:InitTextureEx(dist_2, "hud\\p3d")
+		self.dist_3:InitTextureEx(dist_3, "hud\\p3d")
+	else
+		local angle = math.deg(-h)
+		angle = angle < 0 and angle + 360 or angle
+		angle = math.round(angle)
+
+		local angle_1, angle_2, angle_3 = "letter_digit_0", "letter_digit_0", "letter_digit_0"
+		if angle < 10 then
+			angle_3 = string.format("letter_digit_%s", tostring(angle):sub(1, 1))
+		elseif angle < 100 then
+			angle_2 = string.format("letter_digit_%s", tostring(angle):sub(1, 1))
+			angle_3 = string.format("letter_digit_%s", tostring(angle):sub(2, 2))
+		else
+			angle_1 = string.format("letter_digit_%s", tostring(angle):sub(1, 1))
+			angle_2 = string.format("letter_digit_%s", tostring(angle):sub(2, 2))
+			angle_3 = string.format("letter_digit_%s", tostring(angle):sub(3, 3))		
+		end
+		self.angle_1:InitTextureEx(angle_1, "hud\\p3d")
+		self.angle_2:InitTextureEx(angle_2, "hud\\p3d")
+		self.angle_3:InitTextureEx(angle_3, "hud\\p3d")		
+	end
+	shader_set_custom_param_vector("watch_pointer_params", pointer_params)
+	
+	self.new_message:Show(main_window.flashing_icon:IsShown())
+end
+
+---///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class "UILuminox" (CUIScriptWnd)
+function UILuminox:__init(attachment) super()
+	self:Show(true)
+	self:Enable(true)
+
+	local xml = CScriptXmlInit()
+	self.xml = xml
+	xml:ParseFile(OVERLAY_XML)
+	local root = "display_luminox"
+	xml:InitWindow(root, 0, self)
+	
+	root = root..":work_area"
+	self.work_area = xml:InitStatic(root, self)
+	
+	local date_root = root..":date"
+	self.date = xml:InitStatic(date_root, self.work_area)
+	self.day_1 = xml:InitStatic(date_root..":day_1", self.date)
+	self.day_2 = xml:InitStatic(date_root..":day_2", self.date)
+	
+	self:SetAutoDelete(true)
+end
+
+function UILuminox:__finalize() 
+end
+
+function UILuminox:Update()
+	CUIScriptWnd.Update(self)
+	
+	local hours = level.get_time_hours()
+	local minutes = level.get_time_minutes()
+
+	local hour_angle = -(hours + minutes / 60) * time_hour_rad
+	local minute_angle = -minutes * time_minute_rad
+
+	shader_set_custom_param("clock_time_angle", hour_angle, minute_angle)
+	
+	local h = device().cam_dir:getH()
+	shader_set_custom_param("watch_compass_params", -h, 0, 0, 0)
+	
+	local _time = game.get_game_time()
+	local date_str = _time:dateToString(game.CTime.DateToDay)
+	local day_1, day_2
+	day_1 = string.format("small_digit_%s", date_str:sub(1, 1))
+	day_2 = string.format("small_digit_%s", date_str:sub(2, 2))
+	
+	self.day_1:InitTextureEx(day_1, "hud\\p3d")
+	self.day_2:InitTextureEx(day_2, "hud\\p3d")
+end
+
+---///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class "UIRolex" (CUIScriptWnd)
+function UIRolex:__init(attachment) super()
+	self:Show(true)
+	self:Enable(true)
+
+	local xml = CScriptXmlInit()
+	self.xml = xml
+	xml:ParseFile(OVERLAY_XML)
+	local root = "display_rolex_gmt_master"
+	xml:InitWindow(root, 0, self)
+	
+	root = root..":work_area"
+	self.work_area = xml:InitStatic(root, self)
+	
+	local date_root = root..":date"
+	self.date = xml:InitStatic(date_root, self.work_area)
+	self.day_1 = xml:InitStatic(date_root..":day_1", self.date)
+	self.day_2 = xml:InitStatic(date_root..":day_2", self.date)	
+	
+	self:SetAutoDelete(true)
+end
+
+function UIRolex:__finalize() 
+end
+
+function UIRolex:Update()
+	CUIScriptWnd.Update(self)
+	
+	local hours = level.get_time_hours()
+	local minutes = level.get_time_minutes()
+
+	local hour_angle = -(hours + minutes / 60) * time_hour_rad
+	local minute_angle = -minutes * time_minute_rad
+
+	shader_set_custom_param("clock_time_angle", hour_angle, minute_angle)
+	
+	local _time = game.get_game_time()
+	local date_str = _time:dateToString(game.CTime.DateToDay)
+	local day_1, day_2
+	day_1 = string.format("small_digit_%s", date_str:sub(1, 1))
+	day_2 = string.format("small_digit_%s", date_str:sub(2, 2))
+	
+	self.day_1:InitTextureEx(day_1, "hud\\p3d")
+	self.day_2:InitTextureEx(day_2, "hud\\p3d")	
+end
+
+---///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class "UITraserAutomatic" (CUIScriptWnd)
+function UITraserAutomatic:__init(attachment) super()
+	self:Show(true)
+	self:Enable(true)
+
+	local xml = CScriptXmlInit()
+	self.xml = xml
+	xml:ParseFile(OVERLAY_XML)
+	local root = "display_traser_automatic"
+	xml:InitWindow(root, 0, self)
+	
+	root = root..":work_area"
+	self.work_area = xml:InitStatic(root, self)
+	
+	local date_root = root..":date"
+	self.date = xml:InitStatic(date_root, self.work_area)
+	self.day_1 = xml:InitStatic(date_root..":day_1", self.date)
+	self.day_2 = xml:InitStatic(date_root..":day_2", self.date)		
+	
+	self:SetAutoDelete(true)
+end
+
+function UITraserAutomatic:__finalize()
+end
+
+function UITraserAutomatic:Update()
+	CUIScriptWnd.Update(self)
+	
+	local hours = level.get_time_hours()
+	local minutes = level.get_time_minutes()
+
+	local hour_angle = -(hours + minutes / 60) * time_hour_rad
+	local minute_angle = -minutes * time_minute_rad
+
+	shader_set_custom_param("clock_time_angle", hour_angle, minute_angle)
+	
+	local _time = game.get_game_time()
+	local date_str = _time:dateToString(game.CTime.DateToDay)
+	local day_1, day_2
+	day_1 = string.format("small_digit_%s", date_str:sub(1, 1))
+	day_2 = string.format("small_digit_%s", date_str:sub(2, 2))
+	
+	self.day_1:InitTextureEx(day_1, "hud\\p3d")
+	self.day_2:InitTextureEx(day_2, "hud\\p3d")	
+end
+
+---///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class "UITraserP66" (CUIScriptWnd)
+function UITraserP66:__init(attachment) super()
+	self:Show(true)
+	self:Enable(true)
+
+	local xml = CScriptXmlInit()
+	self.xml = xml
+	xml:ParseFile(OVERLAY_XML)
+	local root = "display_traser_p66"
+	xml:InitWindow(root, 0, self)
+	
+	root = root..":work_area"
+	self.work_area = xml:InitStatic(root, self)
+	
+	local date_root = root..":date"
+	self.date = xml:InitStatic(date_root, self.work_area)
+	self.day_1 = xml:InitStatic(date_root..":day_1", self.date)
+	self.day_2 = xml:InitStatic(date_root..":day_2", self.date)	
+	
+	self:SetAutoDelete(true)
+end
+
+function UITraserP66:__finalize()
+end
+
+function UITraserP66:Update()
+	CUIScriptWnd.Update(self)
+	
+	local hours = level.get_time_hours()
+	local minutes = level.get_time_minutes()
+
+	local hour_angle = -(hours + minutes / 60) * time_hour_rad
+	local minute_angle = -minutes * time_minute_rad
+
+	shader_set_custom_param("clock_time_angle", hour_angle, minute_angle)
+	
+	local _time = game.get_game_time()
+	local date_str = _time:dateToString(game.CTime.DateToDay)
+	local day_1, day_2
+	day_1 = string.format("small_digit_%s", date_str:sub(1, 1))
+	day_2 = string.format("small_digit_%s", date_str:sub(2, 2))
+	
+	self.day_1:InitTextureEx(day_1, "hud\\p3d")
+	self.day_2:InitTextureEx(day_2, "hud\\p3d")	
+end
+
+---///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class "UINorthEdge" (CUIScriptWnd)
+function UINorthEdge:__init(attachment) super()
+	self:Show(true)
+	self:Enable(true)
+
+	local xml = CScriptXmlInit()
+	self.xml = xml
+	xml:ParseFile(OVERLAY_XML)
+	local root = "display_north_edge"
+	xml:InitWindow(root, 0, self)
+	
+	root = root..":work_area"
+	self.work_area = xml:InitStatic(root, self)
+	
+	local time_root = root..":time"
+	self.time = xml:InitStatic(time_root, self.work_area)
+	self.hour_1 = xml:InitStatic(time_root..":hour_1", self.time)
+	self.hour_2 = xml:InitStatic(time_root..":hour_2", self.time)
+	self.minute_1 = xml:InitStatic(time_root..":minute_1", self.time)
+	self.minute_2 = xml:InitStatic(time_root..":minute_2", self.time)
+	self.work = xml:InitStatic(time_root..":work", self.time)
+
+	local date_root = root..":date"
+	self.date = xml:InitStatic(date_root, self.work_area)
+	self.day_1 = xml:InitStatic(date_root..":day_1", self.date)
+	self.day_2 = xml:InitStatic(date_root..":day_2", self.date)
+	self.month_1 = xml:InitStatic(date_root..":month_1", self.date)
+	self.month_2 = xml:InitStatic(date_root..":month_2", self.date)
+	
+	self.indicator_time = 0
+	self.indicator_switch_delay = 500	
+	
+	self:SetAutoDelete(true)
+end
+
+function UINorthEdge:__finalize()
+end
+
+function UINorthEdge:Update()
+	CUIScriptWnd.Update(self)
+	
+	local tg = time_global()
+	
+	if (tg > self.indicator_time + self.indicator_switch_delay) then
+		self.indicator_time = tg
+		self.work:Show(not self.work:IsShown())
+	end	
+	
+	local hours = level.get_time_hours()
+	local minutes = level.get_time_minutes()
+
+	local hour_angle = -(hours + minutes / 60) * time_hour_rad
+	local minute_angle = -minutes * time_minute_rad
+
+	shader_set_custom_param("clock_time_angle", hour_angle, minute_angle)
+	
+	local hours = level.get_time_hours()
+	local minutes = level.get_time_minutes()
+
+	--log_news("hours [%s] minutes [%s]", hours, minutes)
+	local hour_1, hour_2, minute_1, minute_2 = "letter_digit_0", "letter_digit_0", "letter_digit_0", "letter_digit_0"
+	
+	if hours < 10 then
+		hour_2 = string.format("letter_digit_%s", tostring(hours):sub(1, 1))
+	else
+		hour_1 = string.format("letter_digit_%s", tostring(hours):sub(1, 1))
+		hour_2 = string.format("letter_digit_%s", tostring(hours):sub(2, 2))	
+	end
+
+	if minutes < 10 then
+		minute_2 = string.format("letter_digit_%s", tostring(minutes):sub(1, 1))
+	else
+		minute_1 = string.format("letter_digit_%s", tostring(minutes):sub(1, 1))
+		minute_2 = string.format("letter_digit_%s", tostring(minutes):sub(2, 2))	
+	end
+	
+	self.hour_1:InitTextureEx(hour_1, "hud\\p3d")
+	self.hour_2:InitTextureEx(hour_2, "hud\\p3d")
+	self.minute_1:InitTextureEx(minute_1, "hud\\p3d")
+	self.minute_2:InitTextureEx(minute_2, "hud\\p3d")
+	
+	local _time = game.get_game_time()
+	local date_str = _time:dateToString(game.CTime.DateToDay)
+	local day_1, day_2, month_1, month_2
+	day_1 = string.format("letter_digit_%s", date_str:sub(1, 1))
+	day_2 = string.format("letter_digit_%s", date_str:sub(2, 2))
+	month_1 = string.format("letter_digit_%s", date_str:sub(4, 4))
+	month_2 = string.format("letter_digit_%s", date_str:sub(5, 5))
+	
+	self.day_1:InitTextureEx(day_1, "hud\\p3d")
+	self.day_2:InitTextureEx(day_2, "hud\\p3d")
+	self.month_1:InitTextureEx(month_1, "hud\\p3d")
+	self.month_2:InitTextureEx(month_2, "hud\\p3d")
+end
+
+---///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+local watch_overlays = {
+	["watch_montana_hud"] 			= UIMontana,
+	["watch_garmin_fenix_hud"] 		= UIFenix,
+	["watch_garmin_tactix_hud"] 	= UITactix,
+	["watch_suunto_core_hud"] 		= UISuunto,
+	["watch_luminox_recon_hud"] 	= UILuminox,
+	["watch_rolex_gmt_master_hud"] 	= UIRolex,
+	["watch_traser_automatic_hud"] 	= UITraserAutomatic,
+	["watch_traser_p66_hud"] 		= UITraserP66,
+	["watch_north_edge_hud"] 		= UINorthEdge,
+}
+
+function get_ui(attachment)
+	clear_ui()
+	if not attachment then
+	return end
+	local overlay = watch_overlays[attachment:section()]
+	if overlay then
+		watch_overlay = overlay(attachment)
+	end
+	return watch_overlay
+end
+
+function clear_ui()
+	watch_overlay = nil
+end
