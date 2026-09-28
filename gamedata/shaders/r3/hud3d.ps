@@ -3,10 +3,12 @@
 struct ui_vert_out
 {
     float2 tc0 : TEXCOORD0;
+	float4 c0 : COLOR0; // Це колір та альфа, які йдуть з XML / рушія
 };
 
 float4 main(ui_vert_out I) : SV_Target
 {
     float4 r = s_base.Sample(smp_base, I.tc0);
+	r *= I.c0;
     return r;
 }
