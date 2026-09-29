@@ -5,6 +5,8 @@ function attach(sm)
 	sm:subscribe({signal = "on_slot", 		fun = this.on_slot})
 	sm:subscribe({signal = "on_drop", 		fun = this.on_non_slot})
 	sm:subscribe({signal = "on_ruck", 		fun = this.on_non_slot})
+	sm:subscribe({signal = "on_hud_state_switch", 	fun = this.on_state_switch})
+	sm:subscribe({signal = "on_actor_weapon_zoom_in",   fun = this.on_zoom_in})
 end
 
 local current_watch = nil
@@ -62,10 +64,34 @@ function on_key_press(key, game_action)
 	if anim_playing then
 	return end
 	
-	if not actor:active_item() and not actor:active_device() then
-		actor:activate_slot(BOLT_SLOT)
-	end
+	local act_item = actor:active_item()
 	
+	if act_item and act_item:is_zoomed() then
+		act_item:zoom_out()
+		level.add_call(
+			function()
+				return not wpn_IsRotatingFromZoom(act_item)--actor:active_item():is_zoomed()
+			end,
+			function()
+				play_watch_anim()
+			end
+		)			
+	elseif not act_item and not actor:active_device() then
+		actor:activate_slot(BOLT_SLOT)
+		level.add_call(
+			function()
+				return actor:active_item()
+			end,
+			function()
+				play_watch_anim()
+			end
+		)
+	else
+		play_watch_anim()
+	end
+end
+
+function play_watch_anim()
 	game.play_hud_motion(1, "wristwatch_check", "anm_use", true)
 	anim_playing = true
 	
@@ -73,17 +99,27 @@ function on_key_press(key, game_action)
 	shader_set_custom_param("watch_backlight_color", color.x, color.y, color.z, 0)
 end
 
-function on_key_release(key, game_action)
-	if level.main_input_receiver() or 
-		game_action ~= key_bindings.kWPN_7 then
-	return end
+function stop_watch_anim()
 	if not current_watch then
 	return end
 	if not anim_playing then
 	return end
-	
 	anim_playing = false
-	
 	shader_set_custom_param("watch_backlight_color", 0, 0, 0, 0)
 	game.stop_hud_motion()
+end
+
+function on_key_release(key, game_action)
+	if level.main_input_receiver() or 
+		game_action ~= key_bindings.kWPN_7 then
+	return end
+	stop_watch_anim()
+end
+
+function on_state_switch(item, state, old_state)
+	stop_watch_anim()
+end
+
+function on_zoom_in(item)
+	stop_watch_anim()
 end

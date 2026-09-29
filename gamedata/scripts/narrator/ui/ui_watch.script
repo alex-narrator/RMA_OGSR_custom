@@ -523,7 +523,9 @@ function UISuunto:__init(attachment) super()
 	shader_set_custom_param("watch_compass_params", 0, self.compass_color.x, self.compass_color.y, self.compass_color.z)
 
 	self.pointer_color = read_if_exists(sys_ini, "vector", attachment:section(), "pointer_color", vector():set(1, 1, 1))
-	shader_set_custom_param("watch_pointer_params", 0, self.pointer_color.x, self.pointer_color.y, self.pointer_color.z)	
+	shader_set_custom_param("watch_pointer_params", 0, self.pointer_color.x, self.pointer_color.y, self.pointer_color.z)
+	
+	-- self.progress_shape = xml:InitProgressShape(root..":progress_shape", self.work_area)
 	
 	self.indicator_time = 0
 	self.indicator_switch_delay = 500
@@ -645,6 +647,8 @@ function UISuunto:Update()
 	shader_set_custom_param_vector("watch_pointer_params", pointer_params)
 	
 	self.new_message:Show(main_window.flashing_icon:IsShown())
+	
+	-- self.progress_shape:SetPos(actor.health)
 end
 
 ---///////////////////////////////////////////////////////////////////////////////////////////////////////
