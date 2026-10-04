@@ -84,6 +84,7 @@ function MainIngameOverlay:Subscribe()
 			{signal = "on_hud_state_switch", self = self, fun = self.OnHudStateSwitch},
 			{signal = "on_key_press", self = self, fun = self.OnKeyPress},
 			{signal = "on_key_release", self = self, fun = self.OnKeyRelease},
+			{signal = "on_mouse_wheel", self = self, fun = self.OnMouseWheel},
 			--//
 			{signal = "on_article", self = self, fun = self.ShowFlashingIcon},
 			{signal = "on_task", self = self, fun = self.ShowFlashingIcon},
@@ -125,7 +126,7 @@ function MainIngameOverlay:Unsubscribe()
 end
 
 function MainIngameOverlay:DetachWnd()
-	self.minimap_back:DetachChild(self.compass)
+	--self.minimap_back:DetachChild(self.compass)
 	self:Unsubscribe()
 	self:ClearCallbacks()
 	self.owner:DetachChild(self)
@@ -296,14 +297,29 @@ function MainIngameOverlay:InitControls()
 	self.warning_icons = ui_warning_icons.WarningIcons(xml, self)
 	
 	--//classic top view compass
-	root = "minimap"
-	self.minimap = self.owner:GetStatic(root)
-	self.minimap_back = self.owner:GetStatic(root..":background")
 	root = "compass_top_view"
-	self.compass = xml:InitStatic(root, self.minimap_back)
+	self.compass = xml:InitStatic(root, self)
+	self.minimap_back = xml:InitStatic(root..":minimap_back", self.compass)
+	self.minimap = CUIMiniMap()
+	self.minimap_back:AttachChild(self.minimap)
+	self.minimap:EnableHeading(true) --//оце важливо зробити ДО Init()
+	local minimap_root = root..":minimap_back:minimap"
+	self.minimap:SetRounded(xml:ReadAttribInt(minimap_root, "rounded", "0") > 0)
+	self.minimap:SetSegmentsCount(xml:ReadAttribInt(minimap_root, "segments_count", "20"))
+	--self.minimap:SetLocked(false)
+	self.minimap:Init()
+	self.minimap.min_zoom = xml:ReadAttribFlt(minimap_root, "min_zoom", "1")
+	self.minimap.max_zoom = xml:ReadAttribFlt(minimap_root, "max_zoom", "4")
+	self.minimap.def_zoom = xml:ReadAttribFlt(minimap_root, "def_zoom", "1")
+	self.minimap.zoom_step = xml:ReadAttribFlt(minimap_root, "zoom_step", "1")
+	self.minimap.cur_zoom = self.minimap.def_zoom
+	self.minimap:Zoom(self.minimap.cur_zoom)
+	self.minimap.alpha = xml:ReadAttribInt(minimap_root, "alpha", "127")
+	self.minimap:SetColorA(self.minimap.alpha)
 	self.compass_arrow = xml:InitStatic(root..":arrow", self.compass)
 	self.dist_text = xml:InitStatic(root..":dist_text", self.compass)
 	self.time_text = xml:InitStatic(root..":time_text", self.compass)
+	self.compass.def_pos = self.compass:GetWndPos()
 	
 	--//modern front view compass
 	self.front_view_compass = ui_frontview_compass.CompassOverlay(self)
@@ -789,7 +805,25 @@ function MainIngameOverlay:UpdateCompass()
 	-- local show_compass = get_script_option_value("front_view_compass")
 	-- local show_on_demand = get_script_option_value("compass_on_demand")
 	
-	self.owner.show_zone_map = pda_workable and SHOW_GEAR_INFO--not show_compass and (not show_on_demand or SHOW_GEAR_INFO)
+	local show_zone_map = pda_workable and SHOW_GEAR_INFO--not show_compass and (not show_on_demand or SHOW_GEAR_INFO)
+	
+	--self.compass:Show(show_zone_map)
+	if show_zone_map then
+		if self.compass:GetWndPos().x ~= self.compass.def_pos.x then
+			self.compass:SetWndPos(self.compass.def_pos.x, self.compass.def_pos.y)
+			self.minimap:Init()
+			self.minimap:Zoom(self.minimap.cur_zoom)
+			self.minimap:SetColorA(self.minimap.alpha)
+		end
+	else
+		if self.compass:GetWndPos().x ~= self.compass.def_pos.x - 1000 then
+			self.compass:SetWndPos(self.compass.def_pos.x - 1000, self.compass.def_pos.y)
+			self.minimap:Init()
+		end
+	end
+	
+	if not show_zone_map then
+	return end
 	
 	local dist = self.minimap:GetActivePointDist()
 	local dist_show = dist >= 0.5
@@ -800,6 +834,8 @@ function MainIngameOverlay:UpdateCompass()
 	local h = device().cam_dir:getH()
 	
 	--///top view compass
+	self.minimap:SetHeading(-h)
+	self.minimap:SetActivePoint(device().cam_pos)	
 	self.compass_arrow:SetHeading(-h)
 	local target_dist_text = ""
 	if dist_show then
@@ -852,10 +888,10 @@ function MainIngameOverlay:UpdateTargetTip()
 				text = game.translate_string(name)
 			end
 		end
-		text = string.format("%s \\n%s", text, game.translate_string(tip))
+		text = string.format("%s\\n%s", text, game.translate_string(tip))
 		self.target_tip:SetText(text)
 		self.target_tip:AdjustWidthToText()
-		self.target_tip:AdjustHeightToText()	
+		self.target_tip:AdjustHeightToText()
 		
 		self.target_tip:SetWidth(self.target_tip:GetWidth() + self.target_tip.border)
 		self.target_tip:SetHeight(self.target_tip:GetHeight() + self.target_tip.border)
@@ -948,6 +984,16 @@ function MainIngameOverlay:OnKeyRelease(key, game_action)
 	-- if game_action == key_bindings.kSCORES or key == DIK_keys.DIK_ESCAPE then
 		-- self:ShowActiveTask(false)
 	-- end
+end
+
+function MainIngameOverlay:OnMouseWheel(forward)
+	if not key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) then
+	return end
+	--if not self.compass:IsShown() then
+	if self.compass:GetWndPos().x ~= self.compass.def_pos.x then
+	return end
+	self.minimap.cur_zoom = math.clamp(self.minimap.cur_zoom + (self.minimap.zoom_step * (forward and 1 or -1)), self.minimap.min_zoom, self.minimap.max_zoom)
+	self.minimap:Zoom(self.minimap.cur_zoom)
 end
 
 function MainIngameOverlay:UpdateActiveItemInfo()

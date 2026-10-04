@@ -43,6 +43,8 @@ end
 
 function on_mouse_wheel(forward)
 	-- if not (IsMoveState(move_state.mcLookout) or IsMoveState(move_state.mcCrouch)) then
+	if key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) then
+	return end	
 	if not IsMoveState(move_state.mcCrouch) then
 	return end
 	local active_item = actor:active_item()
