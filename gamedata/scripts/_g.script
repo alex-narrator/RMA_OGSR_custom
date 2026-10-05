@@ -2732,6 +2732,7 @@ function forward_game_time(days, hours, minutes)
 	--//рахуємо цілу частину та залишок від ділення
 	local iter_count, remainder = math.floor(total_minutes / time_quant_minutes), math.fmod(total_minutes, time_quant_minutes)
 	--log_news("~iter_count %s, remainder %s", iter_count, remainder)
+	local start_time = game.get_game_time()
 	--//промотаємо час на фіксовані проміжки
 	for i = 1, iter_count do
 		--advance_game_time(time_quant_minutes * 60)
@@ -2742,6 +2743,10 @@ function forward_game_time(days, hours, minutes)
 		--advance_game_time(remainder * 60)
 		change_game_time(0, 0, remainder)
 	end
+	local diff_sec = game.get_game_time():diffSec(start_time)
+	local sm = ogsr_signals.get_mgr()
+	--log_news("time changed on [%s] seconds / [%s] minutes / [%s] hours", diff_sec, diff_sec / 60, diff_sec / 3600)
+	sm:call("on_after_time_change", diff_sec)
 end
 
 function wait_game_time (days, hours, minutes, on_start_f, on_stop_f, forced_stop_f)
