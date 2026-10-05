@@ -273,7 +273,7 @@ function UIFenix:Update()
 		end
 		self.dist_1:InitTextureEx(dist_1, "hud\\p3d")
 		self.dist_2:InitTextureEx(dist_2, "hud\\p3d")
-		self.dist_3:InitTextureEx(dist_3, "hud\\p3d")		
+		self.dist_3:InitTextureEx(dist_3, "hud\\p3d")
 	end
 	
 	self.new_message:Show(main_window.flashing_icon:IsShown())
@@ -294,9 +294,6 @@ function UITactix:__init(attachment) super()
 	
 	root = root..":work_area"
 	self.work_area = xml:InitStatic(root, self)
-	
-	-- self.compass = xml:InitStatic(root..":compass", self.work_area)
-	-- self.compass_size = vector2():set(self.compass:GetWidth(), self.compass:GetHeight())
 	
 	local time_root = root..":time"
 	self.time = xml:InitStatic(time_root, self.work_area)
@@ -323,6 +320,7 @@ function UITactix:__init(attachment) super()
 	self.dist_2 = xml:InitStatic(target_root..":dist_2", self.target)
 	self.dist_3 = xml:InitStatic(target_root..":dist_3", self.target)
 	self.dist_m = xml:InitStatic(target_root..":dist_m", self.target)
+	self.pointer = xml:InitStatic(target_root..":pointer", self.target)
 
 	local azimuth_root = root..":azimuth"
 	self.azimuth = xml:InitStatic(azimuth_root, self.work_area)
@@ -331,15 +329,11 @@ function UITactix:__init(attachment) super()
 	self.angle_3 = xml:InitStatic(azimuth_root..":angle_3", self.azimuth)
 	self.angle_o = xml:InitStatic(azimuth_root..":angle_o", self.azimuth)
 	
+	self.compass = xml:InitStatic(root..":compass", self.work_area)
+	
 	self.new_message = xml:InitStatic(root..":new_message", self.work_area)
 	
 	self.attachment = attachment
-	
-	self.compass_color = read_if_exists(sys_ini, "vector", attachment:section(), "compass_color", vector():set(1, 1, 1))
-	shader_set_custom_param("watch_compass_params", 0, self.compass_color.x, self.compass_color.y, self.compass_color.z)
-
-	self.pointer_color = read_if_exists(sys_ini, "vector", attachment:section(), "pointer_color", vector():set(1, 1, 1))
-	shader_set_custom_param("watch_pointer_params", 0, self.pointer_color.x, self.pointer_color.y, self.pointer_color.z)	
 	
 	self.indicator_time = 0
 	self.indicator_switch_delay = 500
@@ -407,21 +401,12 @@ function UITactix:Update()
 	self.target:Show(show_target)
 	self.azimuth:Show(not show_target)
 	
-	local pointer_params = shader_get_custom_param_vector("watch_pointer_params")
-	local pointer_color = show_target and self.pointer_color or vector()
-	pointer_params.y = pointer_color.x
-	pointer_params.z = pointer_color.y
-	pointer_params.w = pointer_color.z
-	
 	local h = device().cam_dir:getH()
-	local compas_params = shader_get_custom_param_vector("watch_compass_params")
-	compas_params.x = -h
-	shader_set_custom_param_vector("watch_compass_params", compas_params)	
+	self.compass:SetHeading(-h)
 	
 	if show_target then
 		local heading = get_selected_target_heading(pos)
-		
-		pointer_params.x = heading
+		self.pointer:SetHeading(heading)
 		
 		local dist_1, dist_2, dist_3 = "letter_digit_0", "letter_digit_0", "letter_digit_0"
 		dist = math.clamp(dist, 0, 999)
@@ -458,7 +443,6 @@ function UITactix:Update()
 		self.angle_2:InitTextureEx(angle_2, "hud\\p3d")
 		self.angle_3:InitTextureEx(angle_3, "hud\\p3d")		
 	end
-	shader_set_custom_param_vector("watch_pointer_params", pointer_params)
 	
 	self.new_message:Show(main_window.flashing_icon:IsShown())
 end
@@ -507,6 +491,7 @@ function UISuunto:__init(attachment) super()
 	self.dist_2 = xml:InitStatic(target_root..":dist_2", self.target)
 	self.dist_3 = xml:InitStatic(target_root..":dist_3", self.target)
 	self.dist_m = xml:InitStatic(target_root..":dist_m", self.target)
+	self.pointer = xml:InitStatic(target_root..":pointer", self.target)
 
 	local azimuth_root = root..":azimuth"
 	self.azimuth = xml:InitStatic(azimuth_root, self.work_area)
@@ -515,15 +500,11 @@ function UISuunto:__init(attachment) super()
 	self.angle_3 = xml:InitStatic(azimuth_root..":angle_3", self.azimuth)
 	self.angle_o = xml:InitStatic(azimuth_root..":angle_o", self.azimuth)
 	
+	self.compass = xml:InitStatic(root..":compass", self.work_area)
+	
 	self.new_message = xml:InitStatic(root..":new_message", self.work_area)
 	
 	self.attachment = attachment
-	
-	self.compass_color = read_if_exists(sys_ini, "vector", attachment:section(), "compass_color", vector():set(1, 1, 1))
-	shader_set_custom_param("watch_compass_params", 0, self.compass_color.x, self.compass_color.y, self.compass_color.z)
-
-	self.pointer_color = read_if_exists(sys_ini, "vector", attachment:section(), "pointer_color", vector():set(1, 1, 1))
-	shader_set_custom_param("watch_pointer_params", 0, self.pointer_color.x, self.pointer_color.y, self.pointer_color.z)
 	
 	-- self.progress_shape = xml:InitProgressShape(root..":progress_shape", self.work_area)
 	
@@ -593,21 +574,12 @@ function UISuunto:Update()
 	self.target:Show(show_target)
 	self.azimuth:Show(not show_target)
 	
-	local pointer_params = shader_get_custom_param_vector("watch_pointer_params")
-	local pointer_color = show_target and self.pointer_color or vector()
-	pointer_params.y = pointer_color.x
-	pointer_params.z = pointer_color.y
-	pointer_params.w = pointer_color.z
-	
 	local h = device().cam_dir:getH()
-	local compas_params = shader_get_custom_param_vector("watch_compass_params")
-	compas_params.x = -h
-	shader_set_custom_param_vector("watch_compass_params", compas_params)	
+	self.compass:SetHeading(-h)
 	
 	if show_target then
 		local heading = get_selected_target_heading(pos)
-		
-		pointer_params.x = heading
+		self.pointer:SetHeading(heading)
 		
 		local dist_1, dist_2, dist_3 = "letter_digit_0", "letter_digit_0", "letter_digit_0"
 		dist = math.clamp(dist, 0, 999)
@@ -644,7 +616,6 @@ function UISuunto:Update()
 		self.angle_2:InitTextureEx(angle_2, "hud\\p3d")
 		self.angle_3:InitTextureEx(angle_3, "hud\\p3d")		
 	end
-	shader_set_custom_param_vector("watch_pointer_params", pointer_params)
 	
 	self.new_message:Show(main_window.flashing_icon:IsShown())
 	
@@ -817,7 +788,7 @@ function UITraserP66:__init(attachment) super()
 	local date_root = root..":date"
 	self.date = xml:InitStatic(date_root, self.work_area)
 	self.day_1 = xml:InitStatic(date_root..":day_1", self.date)
-	self.day_2 = xml:InitStatic(date_root..":day_2", self.date)	
+	self.day_2 = xml:InitStatic(date_root..":day_2", self.date)
 	
 	self:SetAutoDelete(true)
 end
@@ -843,7 +814,7 @@ function UITraserP66:Update()
 	day_2 = string.format("small_digit_%s", date_str:sub(2, 2))
 	
 	self.day_1:InitTextureEx(day_1, "hud\\p3d")
-	self.day_2:InitTextureEx(day_2, "hud\\p3d")	
+	self.day_2:InitTextureEx(day_2, "hud\\p3d")
 end
 
 ---///////////////////////////////////////////////////////////////////////////////////////////////////////
