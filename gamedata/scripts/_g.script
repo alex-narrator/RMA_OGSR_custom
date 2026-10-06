@@ -2463,6 +2463,18 @@ function get_any_gvid_by_level(level_name)
 	return gv_ids[level_name][1]
 end
 
+local function get_level_name_by_gv(gv_id)
+	if not gv_ids then
+		fill_vertex_data()
+	end
+    for level_name, gv_list in pairs(gv_ids) do
+        if gv_id >= gv_list[1] and gv_id <= gv_list[#gv_list] then
+            return level_name
+        end
+    end
+    return nil
+end
+
 --//ñïàâí ïî êîîğäèíàòàì òà ³ìåí³ ğ³âíÿ
 --//Ò²ËÜÊÈ äëÿ îá'ºêò³â ÿêèì ÍÅ ÏÎÒĞ²ÁÍÀ ïğèâ'ÿçêà äî À²-ñ³òêè
 function spawn_to_level(section, spawn_pos, level_name, spawn_dir)

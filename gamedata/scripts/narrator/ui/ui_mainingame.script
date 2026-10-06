@@ -888,10 +888,10 @@ function MainIngameOverlay:UpdateTargetTip()
 				text = game.translate_string(name)
 			end
 		end
-		text = string.format("%s\\n%s", text, game.translate_string(tip))
+		text = text ~= "" and string.format("%s\\n%s", text, game.translate_string(tip)) or game.translate_string(tip)
 		self.target_tip:SetText(text)
+		self.target_tip:AdjustHeightToText()		
 		self.target_tip:AdjustWidthToText()
-		self.target_tip:AdjustHeightToText()
 		
 		self.target_tip:SetWidth(self.target_tip:GetWidth() + self.target_tip.border)
 		self.target_tip:SetHeight(self.target_tip:GetHeight() + self.target_tip.border)
