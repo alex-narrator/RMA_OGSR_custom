@@ -189,7 +189,8 @@ function MainIngameOverlay:InitControls()
 	
 	root = "blood_overlay"
 	self.blood_overlay = xml:InitStatic(root, self)
-	self.blood_overlay.fade_time = xml:ReadAttribFlt(root, "fade_time", 0)
+	self.blood_overlay.fade_time_min = xml:ReadAttribFlt(root, "fade_time_min", 0)
+	self.blood_overlay.fade_time_max = xml:ReadAttribFlt(root, "fade_time_max", 0)
 	
 	self.conditions = {
 		-- ["health"] 		= { condition = function() return actor.health end },
@@ -455,13 +456,16 @@ function MainIngameOverlay:UpdateConditions()
 end
 
 function MainIngameOverlay:UpdateBloodOverlay()
-	local max_alpha = 1 - actor.health
+	local health = actor.health
+	local max_alpha = 1 - health
 	local target_val = max_alpha
-	if self.blood_overlay.fade_time > 0 then
+	local ft_min, ft_max = self.blood_overlay.fade_time_min, self.blood_overlay.fade_time_max
+	if ft_min > 0 then
 		if self.blood_cur_alpha == nil then
 			self.blood_cur_alpha = 0
-		end	
-		local change_part = target_val / self.blood_overlay.fade_time * level.get_time_factor()
+		end
+		local target_ft = ft_min + health ^ 2 * (ft_max - ft_min)
+		local change_part = target_val / target_ft * level.get_time_factor()
 		local conds = actor_obj.condition
 		local f_dt = conds:fdelta_time() * 0.01
 		--log3("~f_dt %s", f_dt)
@@ -889,29 +893,30 @@ function MainIngameOverlay:UpdateTargetTip()
 			end
 		end
 		text = text ~= "" and string.format("%s\\n%s", text, game.translate_string(tip)) or game.translate_string(tip)
+		
 		self.target_tip:SetText(text)
-		self.target_tip:AdjustHeightToText()		
-		self.target_tip:AdjustWidthToText()
+		self.target_tip:Show(text ~= "")
 		
-		self.target_tip:SetWidth(self.target_tip:GetWidth() + self.target_tip.border)
-		self.target_tip:SetHeight(self.target_tip:GetHeight() + self.target_tip.border)
+		if self.target_tip:IsShown() then
+			self.target_tip:AdjustHeightToText()		
+			self.target_tip:AdjustWidthToText()
 		
-		local offset = ui_utils.GetOffset(self.target_tip.offset, self.target_tip, self.owner)
-		if self.target_tip.show_on_object then
-			local point = get_target_tip_point(tgt)
-			local pos = tgt and point_on_screen.point_projection(point) or nil
-			if pos then
-				offset.x = pos.x - self.target_tip:GetWidth() * 0.5
-				offset.y = pos.y - self.target_tip:GetHeight() * 0.5
+			self.target_tip:SetWidth(self.target_tip:GetWidth() + self.target_tip.border)
+			self.target_tip:SetHeight(self.target_tip:GetHeight() + self.target_tip.border)
+		
+			local offset = ui_utils.GetOffset(self.target_tip.offset, self.target_tip, self.owner)
+			if self.target_tip.show_on_object then
+				local point = get_target_tip_point(tgt)
+				local pos = tgt and point_on_screen.point_projection(point) or nil
+				if pos then
+					offset.x = pos.x - self.target_tip:GetWidth() * 0.5
+					offset.y = pos.y - self.target_tip:GetHeight() * 0.5
+				end
 			end
+			offset.x = offset.x + self.target_tip.offset_shift[1]
+			offset.y = offset.y + self.target_tip.offset_shift[2]
+			self.target_tip:SetWndPos(offset.x, offset.y)
 		end
-		offset.x = offset.x + self.target_tip.offset_shift[1]
-		offset.y = offset.y + self.target_tip.offset_shift[2]
-		self.target_tip:SetWndPos(offset.x, offset.y)
-		--hud_add_info_message("quick_info", game.translate_string(tip))
-	else
-		self.target_tip:SetText("")
-		--hud_remove_info_message("quick_info")
 	end
 	--self.tip_cursor:Show(tip and tip ~= "" and not get_console():get_bool("hud_crosshair"))
 	local is_zoom = actor_obj:is_zoom_aiming_mode()

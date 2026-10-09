@@ -28,6 +28,7 @@ function on_spawn()
 		["enc_pda_npc"] 							= {signal = "on_take", fun = this.pda_hack},
 		["enc_detectors"] 							= {signal = "on_take", fun = this.detector},
 		["tutorial_receiver"] 						= {signal = "on_take", fun = this.receiver},
+		["enc_watches"] 							= {signal = "on_take", fun = this.watch},
 		["encyclopedy_tutorial_weapon_aim"] 		= {signal = "on_take", fun = this.aim},
 		["encyclopedy_tutorial_weapon_ammo"] 		= {signal = "on_take", fun = this.ammo},
 		["encyclopedy_tutorial_weapon_magazine"] 	= {signal = "on_take", fun = this.magazine},
@@ -92,11 +93,20 @@ function detector(item)
 	end
 end
 
-function receiver(item)
-	if item:section() == "detector_receiver_cop" then
-		actor:give_info_portion("enc_receiver")
+function watch(item)
+	if item:get_detector() or item:section() == "detector_geiger_cop" then
+		actor:give_info_portion("enc_detectors")
 		if newbie_mode() then
-			level.add_call(function() return not level.main_input_receiver() end, function() game.start_tutorial("tutorial_receiver") end)
+			level.add_call(function() return not level.main_input_receiver() end, function() game.start_tutorial("tutorial_detectors") end)
+		end		
+	end
+end
+
+function receiver(item)
+	if string.find(item:section(), "watch_") then
+		actor:give_info_portion("enc_watches")
+		if newbie_mode() then
+			level.add_call(function() return not level.main_input_receiver() end, function() game.start_tutorial("tutorial_watches") end)
 		end				
 	end
 end
