@@ -274,16 +274,16 @@ function get_type(item)
 	if item:is_outfit() or item:is_helmet() or loadout.is_module(item) or item:get_container() or string.find(item:section(), "pouch") or string.find(item:section(), "plate_") then
 		return 3
 	end
-	if item:is_eatable_item() or read_if_exists(sys_ini, "bool", item:section(), "heal_injuries", false) then
-		return 4
+	if item:is_eatable_item() then --or read_if_exists(sys_ini, "bool", item:section(), "heal_injuries", false) then
+		return item:is_food_item() and 5 or 4
 	end
 	if item:is_artefact() or string.find(item:section(), "mutant_") then
-		return 5
-	end
-	if item:is_torch() or item:get_pda() or item:get_detector() or is_power_device(item) or string.find(item:section(), "pda") or string.find(item:section(), "battery") then
 		return 6
 	end
-	return 7
+	if item:get_device() or item:is_torch() or item:get_pda() or item:get_detector() or is_power_device(item) or string.find(item:section(), "pda") or string.find(item:section(), "battery") then
+		return 7
+	end
+	return 8
 end
 
 function sort_by_type(a, b)

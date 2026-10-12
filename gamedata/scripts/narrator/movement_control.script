@@ -127,6 +127,8 @@ function on_hud_item_zoom_in(item)
 	return end
 	if IsMoveState(move_state.mcLookout) then
 	return end
+	if not item:get_weapon() then
+	return end
 	local pos = device().cam_pos
 	--log_news("pos.y [%s]", pos.y)
 	--test_particles["cam_pos"]:play_at_pos(pos)

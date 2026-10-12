@@ -233,13 +233,13 @@
 			<texture>ui_hud_icon_stamina</texture>
 		</stamina>		
 		<godmode x="0" y="0" width="18" height="24" stretch="1">
-			<texture>ui_hud_icon_godmode</texture>
+			<texture r="0" g="255" b="0">ui_hud_icon_godmode</texture>
 		</godmode>
 		<unlimited_ammo x="0" y="0" width="18" height="24" stretch="1">
-			<texture>ui_hud_icon_unlimited_ammo</texture>
+			<texture r="0" g="255" b="0">ui_hud_icon_unlimited_ammo</texture>
 		</unlimited_ammo>		
 		<safehouse x="0" y="0" width="18" height="24" stretch="1">
-			<texture>ui_hud_icon_sleep</texture>
+			<texture r="0" g="255" b="0">ui_hud_icon_sleep</texture>
 		</safehouse>
 		<limbs_injure x="0" y="0" width="18" height="24" stretch="1">
 			<texture>ui_hud_trauma_leg_hand</texture>
@@ -329,56 +329,62 @@
 	</loadout_back>
 	
 	<!-- sort buttons -->
-	<show_buttons_back x="412" y="715" width="200" height="30" stretch="1" complex_mode="1">
+	<show_buttons_back x="424.5" y="720" width="175" height="20" stretch="1" complex_mode="1">
 		<!-- <texture a="175">sort_button_back</texture> -->
 		<!-- <texture a="175">ui_inv_back_gray</texture> -->
 		
-		<show_all_button x="0" y="0" width="25" height="25" stretch="1" complex_mode="1" hint="st_hint_show_all" accel="k1">
-			<texture>ui_inGame2_btn_sort_all</texture>
-			<static width="25" height="25" complex_mode="1">
-				<text x="0" y="8" align="c" vert_align="b" color="UI_orange">[1]</text>
+		<show_all_button x="0" y="0" width="15" height="20" stretch="1" complex_mode="1" hint="st_hint_show_all" accel="k1">
+			<texture a="50">ui_btn_all</texture>
+			<static width="15" height="20" complex_mode="1">
+				<text x="0" y="10" align="c" vert_align="b" color="UI_orange"  font="medium">[1]</text>
 			</static>
 		</show_all_button>
-		<show_weapon_button x="25" y="0" width="25" height="25" stretch="1" complex_mode="1" hint="st_hint_show_weapon" accel="k2">
-			<texture>ui_inGame2_btn_sort_weapon</texture>
-			<static width="25" height="25" complex_mode="1">
-				<text x="0" y="8" align="c" vert_align="b" color="UI_orange">[2]</text>
+		<show_weapon_button x="20" y="0" width="15" height="20" stretch="1" complex_mode="1" hint="st_hint_show_weapon" accel="k2">
+			<texture>ui_btn_weapon</texture>
+			<static width="15" height="20" complex_mode="1">
+				<text x="0" y="10" align="c" vert_align="b" color="UI_orange" font="medium">[2]</text>
 			</static>
 		</show_weapon_button>
-		<show_ammo_button x="50" y="0" width="25" height="25" stretch="1" complex_mode="1" hint="st_hint_show_ammo" accel="k3">
-			<texture>ui_inGame2_btn_sort_ammo</texture>
-			<static width="25" height="25" complex_mode="1">
-				<text x="0" y="8" align="c" vert_align="b" color="UI_orange">[3]</text>
+		<show_ammo_button x="40" y="0" width="15" height="20" stretch="1" complex_mode="1" hint="st_hint_show_ammo" accel="k3">
+			<texture>ui_btn_ammo</texture>
+			<static width="15" height="20" complex_mode="1">
+				<text x="0" y="10" align="c" vert_align="b" color="UI_orange" font="medium">[3]</text>
 			</static>
 		</show_ammo_button>
-		<show_outfit_button x="75" y="0" width="25" height="25" stretch="1" complex_mode="1" hint="st_hint_show_outfit" accel="k4">
-			<texture>ui_inGame2_btn_sort_outfit</texture>
-			<static width="25" height="25" complex_mode="1">
-				<text x="0" y="8" align="c" vert_align="b" color="UI_orange">[4]</text>
+		<show_outfit_button x="60" y="0" width="15" height="20" stretch="1" complex_mode="1" hint="st_hint_show_outfit" accel="k4">
+			<texture>ui_btn_outfit</texture>
+			<static width="15" height="20" complex_mode="1">
+				<text x="0" y="10" align="c" vert_align="b" color="UI_orange" font="medium">[4]</text>
 			</static>
 		</show_outfit_button>
-		<show_eatable_button x="100" y="0" width="25" height="25" stretch="1" complex_mode="1" hint="st_hint_show_eatable" accel="k5">
-			<texture>ui_inGame2_btn_sort_consumable</texture>
-			<static width="25" height="25" complex_mode="1">
-				<text x="0" y="8" align="c" vert_align="b" color="UI_orange">[5]</text>
+		<show_medicine_button x="80" y="0" width="15" height="20" stretch="1" complex_mode="1" hint="st_hint_show_medicine" accel="k5">
+			<texture>ui_btn_medicine</texture>
+			<static width="15" height="20" complex_mode="1">
+				<text x="0" y="10" align="c" vert_align="b" color="UI_orange" font="medium">[5]</text>
 			</static>
-		</show_eatable_button>
-		<show_artefact_button x="125" y="0" width="25" height="25" stretch="1" complex_mode="1" hint="st_hint_show_artefact" accel="k6">
-			<texture>ui_inGame2_btn_sort_arty</texture>
-			<static width="25" height="25" complex_mode="1">
-				<text x="0" y="8" align="c" vert_align="b" color="UI_orange">[6]</text>
+		</show_medicine_button>
+		<show_food_button x="100" y="0" width="15" height="20" stretch="1" complex_mode="1" hint="st_hint_show_food" accel="k6">
+			<texture>ui_btn_food</texture>
+			<static width="15" height="20" complex_mode="1">
+				<text x="0" y="10" align="c" vert_align="b" color="UI_orange" font="medium">[6]</text>
+			</static>
+		</show_food_button>		
+		<show_artefact_button x="120" y="0" width="15" height="20" stretch="1" complex_mode="1" hint="st_hint_show_artefact" accel="k7">
+			<texture>ui_btn_artefact</texture>
+			<static width="15" height="20" complex_mode="1">
+				<text x="0" y="10" align="c" vert_align="b" color="UI_orange" font="medium">[7]</text>
 			</static>
 		</show_artefact_button>	
-		<show_device_button x="150" y="0" width="25" height="25" stretch="1" complex_mode="1" hint="st_hint_show_device" accel="k7">
-			<texture>ui_inGame2_btn_sort_utility</texture>
-			<static width="25" height="25" complex_mode="1">
-				<text x="0" y="8" align="c" vert_align="b" color="UI_orange">[7]</text>
+		<show_device_button x="140" y="0" width="15" height="20" stretch="1" complex_mode="1" hint="st_hint_show_device" accel="k8">
+			<texture>ui_btn_device</texture>
+			<static width="15" height="20" complex_mode="1">
+				<text x="0" y="10" align="c" vert_align="b" color="UI_orange" font="medium">[8]</text>
 			</static>
 		</show_device_button>
-		<show_misc_button x="175" y="0" width="25" height="25" stretch="1" complex_mode="1" hint="st_hint_show_misc" accel="k8">
-			<texture>ui_inGame2_btn_sort_misc</texture>
-			<static width="25" height="25" complex_mode="1">
-				<text x="0" y="8" align="c" vert_align="b" color="UI_orange">[8]</text>
+		<show_misc_button x="160" y="0" width="15" height="20" stretch="1" complex_mode="1" hint="st_hint_show_misc" accel="k9">
+			<texture>ui_btn_misc</texture>
+			<static width="15" height="20" complex_mode="1">
+				<text x="0" y="10" align="c" vert_align="b" color="UI_orange" font="medium">[9]</text>
 			</static>
 		</show_misc_button>		
 		
