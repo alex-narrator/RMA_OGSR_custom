@@ -109,7 +109,7 @@ function give_equipment_set()
 	if not eq_set then
 	return end
 	
-	quick_slots.clear_all()
+	-- quick_slots.clear_all()
 	
 	local class, count
 	for k,v in pairs(eq_set) do
@@ -136,9 +136,9 @@ function try_place(id, obj)
 			if loadout.can_add(obj) then
 				loadout.add(obj)
 			end
-			if quick_slots.can_set(obj) then
-				quick_slots.set(obj)
-			end
+			-- if quick_slots.can_set(obj) then
+				-- quick_slots.set(obj)
+			-- end
 		end
 	)
 end

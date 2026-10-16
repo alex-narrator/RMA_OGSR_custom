@@ -1,0 +1,81 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<w>
+	<background x="0" y="0" width="500" height="500" stretch="1" menu_time_factor="0.5">
+		<!-- <texture a="150">ui_quick_wheel</texture> -->
+		
+		<!-- <auto_static x="0" y="0" width="265" height="95" stretch="1"> -->
+			<!-- <texture a="100">ui_inv_back_gray</texture> -->
+		<!-- </auto_static> -->
+		<modes_list show_modes="slots,consumables,ammos,devices,addons" start_angle="210" angle_step="-15" show_dist="250"/>
+		<slots_list show_slots="0,1,2,3,4,5,8,9"/>
+
+		<!-- modes buttons -->
+		<slots x="310" y="230" width="45" height="60" stretch="1" complex_mode="1">
+			<texture a="150">ui_action_wheel_item</texture>
+			<text x="-30" y="0" align="c" vert_align="c" color="UI_orange" font="letterica18">[1]</text>
+			<button x="7.5" y="10" width="30" height="40" stretch="1" complex_mode="1" hint="st_hint_show_slots" accel="k1">
+				<texture>ui_btn_switch_slots</texture>
+			</button>
+		</slots>
+		<consumables x="290" y="290" width="45" height="60" stretch="1" complex_mode="1">
+			<texture a="150">ui_action_wheel_item</texture>
+			<text x="-30" y="0" align="c" vert_align="c" color="UI_orange" font="letterica18">[2]</text>
+			<button x="7.5" y="10" width="30" height="40" stretch="1" complex_mode="1" hint="st_hint_show_consumables" accel="k2">
+				<texture>ui_btn_switch_consumables</texture>
+			</button>
+		</consumables>
+		<ammos x="280" y="355" width="45" height="60" stretch="1" complex_mode="1">
+			<texture a="150">ui_action_wheel_item</texture>
+			<text x="-30" y="0" align="c" vert_align="c" color="UI_orange" font="letterica18">[3]</text>
+			<button x="7.5" y="10" width="30" height="40" stretch="1" complex_mode="1" hint="st_hint_show_ammos" accel="k3">
+				<texture>ui_btn_switch_ammo</texture>
+			</button>
+		</ammos>
+		<devices x="290" y="420" width="45" height="60" stretch="1" complex_mode="1">
+			<texture a="150">ui_action_wheel_item</texture>
+			<text x="-30" y="0" align="c" vert_align="c" color="UI_orange" font="letterica18">[4]</text>
+			<button x="7.5" y="10" width="30" height="40" stretch="1" complex_mode="1" hint="st_hint_show_devices" accel="k4">
+				<texture>ui_btn_switch_devices</texture>
+			</button>
+		</devices>
+		<addons x="310" y="480" width="45" height="60" stretch="1" complex_mode="1" 
+			attach_addon_texture="new_task_icon" 
+			detach_addon_texture="fail_task_icon" 
+			attach_addon_scale="0.25" 
+			detach_addon_scale="0.25" 
+			attach_addon_dist="125" 
+			detach_addon_dist="125"
+			attach_addon_color="150,0,255,0"
+			detach_addon_color="150,255,0,0"
+		>
+			<texture a="150">ui_action_wheel_item</texture>
+			<text x="-30" y="0" align="c" vert_align="c" color="UI_orange" font="letterica18">[5]</text>
+			<button x="7.5" y="10" width="30" height="40" stretch="1" complex_mode="1" hint="st_hint_show_addons" accel="k5">
+				<texture>ui_btn_switch_addons</texture>
+			</button>
+		</addons>
+		<!-- modes buttons end-->
+
+		<wheel x="0" y="0" width="288" height="384" stretch="1" 
+			show_dist="158" 
+			start_angle="-90" 
+			cell_size="30" 
+			back_size="48.75,65" 
+			scale_item_size="4" 
+			back_texture="ui_action_wheel_item" 
+			color_def="150,255,255,255" 
+			color_act="250,238,153,26"
+		>
+			<texture a="200">ui_action_wheel</texture>			
+		</wheel>
+		
+		<pointer x="0" y="0" width="275" height="275" stretch="1" heading="1">
+			<texture color="UI_orange">ui_hud_hit_mark_3</texture>
+		</pointer>
+		
+		<center_tip width="90" height="120" stretch="1">
+			<texture a="150">ui_action_wheel_item</texture>
+			<text x="0" y="0" font="letterica18" color="UI_orange" align="c" vert_align="c" complex_mode="1"/>
+		</center_tip>
+	</background>
+</w>

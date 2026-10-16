@@ -362,8 +362,8 @@ end
 
 function UICellItem:Update()
 	CUIScriptWnd.Update(self)
-	if not self.interactive then
-	return end
+	-- if not self.interactive then
+	-- return end
 	local item = level.object_by_id(self.item_id)
 	if not item then return end
 	-- local slot_list = (actor:is_in_slot(item) and self.owner_list and self.owner_list:IsCentered()) and self.owner_list.service_back or nil

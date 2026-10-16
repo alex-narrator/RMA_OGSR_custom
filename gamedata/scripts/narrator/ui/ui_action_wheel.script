@@ -1,0 +1,873 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+local OVERLAY_XML = "script_overlays\\ui_action_wheel_overlay.xml"
+
+local subscribed = false
+local sm = ogsr_signals.get_mgr()
+
+local overlay
+
+function ShowHideWnd(mode)
+	if not overlay then
+		overlay = ActionWheelOverlay()
+		overlay:ShowHide(mode)
+	else
+		overlay:ShowHide()
+	end
+end
+
+class "ActionWheelOverlay" (CUIScriptWnd)
+
+function ActionWheelOverlay:__init() super()
+	self:InitControls()
+	self:SetAutoDelete(true)
+end
+
+function ActionWheelOverlay:__finalize()
+	--log_news("ActionWheelOverlay:__finalize()")
+end
+
+function ActionWheelOverlay:Subscribe()
+	if not self.subscribed then
+		self.subscribed = {
+			-- {signal = "on_quick_item_focus", self = self, fun = self.OnQuickFocusReceived},
+			-- {signal = "on_quick_item_focus_lost", self = self, fun = self.OnQuickFocusLost},
+			-- {signal = "on_quick_item_click", self = self, fun = self.OnQuickClick},
+		}
+		for _, s in ipairs( self.subscribed ) do
+			sm:subscribe( s )
+		end
+	end
+end
+
+function ActionWheelOverlay:Unsubscribe()
+	if self.subscribed then
+		for _, s in ipairs( self.subscribed ) do
+			sm:unsubscribe( s )
+		end
+		self.subscribed = false
+	end
+end
+
+function ActionWheelOverlay:InitControls()
+	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
+	
+	local xml = CScriptXmlInit()
+	xml:ParseFile(OVERLAY_XML)
+	
+	local name
+	--//background
+	local root = "background"
+	self.back = xml:InitStatic(root, self)
+	xml:InitAutoStaticGroup(root..":auto_static", self.back)
+	
+	local offset = xml:ReadAttrib(root, "offset", "center")
+	local pos = ui_utils.GetOffset(offset, self.back, self)
+	self.back:SetWndPos(pos.x, pos.y)
+	
+	self.menu_time_factor = xml:ReadAttribFlt(root, "menu_time_factor", 1)
+	
+	local modes_list_root = root..":modes_list"
+	self.modes_list = split_string(xml:ReadAttrib(modes_list_root, "show_modes", ""), ",", false, true)
+	self.modes_data = {}
+	self.modes_data.list = split_string(xml:ReadAttrib(modes_list_root, "show_modes", ""), ",")
+	self.modes_data.show_dist = xml:ReadAttribFlt(modes_list_root, "show_dist", 0)
+	if self.modes_data.show_dist > 0 then
+		self.modes_data.start_angle = math.rad(xml:ReadAttribFlt(modes_list_root, "start_angle", 0))
+		self.modes_data.angle_step = math.rad(xml:ReadAttribFlt(modes_list_root, "angle_step", 20))
+	end
+	
+	self.key_accels = {}
+	
+	for k,v in pairs(self.modes_list) do
+		v = {}
+		self.modes_list[k] = v
+		local buttons_root = root..":"..k
+		v.back = xml:InitStatic(buttons_root, self.back)
+		v.button = xml:InitCheck(buttons_root..":button", v.back)
+		v.accel = xml:ReadAttrib(buttons_root..":button", "accel", nil)
+		if v.accel then
+			v.button:SetAccelerator(keyname_to_dik(v.accel), 0)
+			self.key_accels[v.button:GetAccelerator(0)] = true
+		end
+		name = k
+		self:Register(v.button, name)
+		self:AddCallback(name, ui_events.BUTTON_CLICKED, function() self:OnModeButtonClick(k) end, self)
+		
+		if k == "addons" then
+			v.attach_addon_texture = xml:ReadAttrib(buttons_root, "attach_addon_texture", "")
+			v.detach_addon_texture = xml:ReadAttrib(buttons_root, "detach_addon_texture", "")
+			v.attach_addon_scale = xml:ReadAttribFlt(buttons_root, "attach_addon_scale", 1)
+			v.detach_addon_scale = xml:ReadAttribFlt(buttons_root, "detach_addon_scale", 1)
+			v.attach_addon_dist = xml:ReadAttribFlt(buttons_root, "attach_addon_dist", 250)
+			v.detach_addon_dist = xml:ReadAttribFlt(buttons_root, "detach_addon_dist", 250)
+			local color = split_string(xml:ReadAttrib(buttons_root, "attach_addon_color", "50,0,255,0"), ",", true)
+			v.attach_addon_color = GetARGB(color[1], color[2], color[3], color[4])
+			color = split_string(xml:ReadAttrib(buttons_root, "detach_addon_color", "50,255,0,0"), ",", true)
+			v.detach_addon_color = GetARGB(color[1], color[2], color[3], color[4])			
+		end
+	end
+	
+	local wheel_root = root..":wheel"
+	self.wheel = xml:InitStatic(wheel_root, self.back)
+	local offset = xml:ReadAttrib(wheel_root, "offset", "center")
+	local pos = ui_utils.GetOffset(offset, self.wheel, self.back)
+	self.wheel:SetWndPos(pos.x, pos.y)	
+	local name = "wheel"
+	self:Register(self.wheel, name)
+	self:AddCallback(name, ui_events.WINDOW_LBUTTON_DOWN, function() self:OnWheelClick() end, self)
+	
+	local wp = {}
+	wp.show_dist = xml:ReadAttribFlt(wheel_root, "show_dist", 250)
+	local back_size = split_string(xml:ReadAttrib(wheel_root, "back_size", "37.5,50"), ",", true)
+	wp.back_size = vector2():set(back_size[1], back_size[2])
+	wp.start_angle = math.rad(xml:ReadAttribFlt(wheel_root, "start_angle", -90))
+	local cell_size = xml:ReadAttribFlt(wheel_root, "cell_size", 50)
+	wp.cell_size = {
+		w = cell_size * get_current_kx(),
+		h = cell_size,
+	}
+	wp.scale_item_size = xml:ReadAttribInt(wheel_root, "scale_item_size", 0)
+	wp.back_texture = xml:ReadAttrib(wheel_root, "back_texture", "")
+	wp.center = vector2():set(self.wheel:GetWidth() * 0.5, self.wheel:GetHeight() * 0.5)
+	local color = split_string(xml:ReadAttrib(wheel_root, "color_def", "255,255,255,255"), ",", true)
+	wp.color_def = GetARGB(color[1], color[2], color[3], color[4])
+	color = split_string(xml:ReadAttrib(wheel_root, "color_act", "255,255,255,255"), ",", true)
+	wp.color_act = GetARGB(color[1], color[2], color[3], color[4])	
+	self.wheel_params = wp
+	
+	if self.modes_data.show_dist > 0 then
+		local wp = self.wheel_params
+		local wheel_pos = self.wheel:GetWndPos()
+		local wheel_center = vector2():set(wheel_pos.x + self.wheel:GetWidth() * 0.5, wheel_pos.y + self.wheel:GetHeight() * 0.5)
+		for k,v in pairs(self.modes_data.list) do
+			local i = k-1
+			local icon = self.modes_list[v].back
+			local angle = self.modes_data.start_angle + i * self.modes_data.angle_step
+			local pos = vector2():set(
+				wheel_center.x + self.modes_data.show_dist * math.cos(angle) * get_current_kx(), 
+				wheel_center.y + self.modes_data.show_dist * math.sin(angle)
+			)
+			local offset = vector2():set(pos.x - icon:GetWidth() * 0.5, pos.y - icon:GetHeight() * 0.5)
+			icon:SetWndPos(offset.x, offset.y)
+		end
+	end
+
+	self.slot_list = split_string(xml:ReadAttrib(root..":slots_list", "show_slots", ""), ",", true)
+	
+	self.addon_types = {}
+	for k,v in pairs(ADDON_TYPES) do
+		self.addon_types[k-1] = v
+	end
+	
+	self.pointer = xml:InitStatic(root..":pointer", self.back)
+	local offset = ui_utils.GetOffset("center", self.pointer, self.wheel)
+	local wheel_pos = self.wheel:GetWndPos()
+	offset.x = offset.x + wheel_pos.x
+	offset.y = offset.y + wheel_pos.y
+	self.pointer:SetWndPos(offset.x, offset.y)
+	
+	self.center_tip = xml:InitStatic(root..":center_tip", self.back)
+	local offset = xml:ReadAttrib(root..":center_tip", "offset", "center")
+	local pos = ui_utils.GetOffset(offset, self.center_tip, self.back)
+	self.center_tip:SetWndPos(pos.x, pos.y)	
+	self.center_tip:Show(false)
+end
+
+function ActionWheelOverlay:Update()
+	CUIScriptWnd.Update(self)
+	if not actor_hands_free() or not actor:alive() then
+		self:ShowHide()
+	end
+	if not self.was_shown then
+		self.was_shown = true
+	end
+	
+	local wp = self.wheel_params
+	
+	local cursor_pos = vector2():set(self.wheel:GetMousePosX(), self.wheel:GetMousePosY())
+	local delta = cursor_pos:sub(wp.center)
+	delta.x = delta.x / get_current_kx()
+	local angle_rad = math.atan2(delta.y, delta.x) - wp.start_angle
+	self.pointer:SetHeading(-angle_rad)
+	
+	if wp.item_count and wp.item_count > 0 then
+		local full_angle = angle_rad
+		if full_angle < 0 then
+			full_angle = full_angle + math.pi * 2
+		end
+		local active_index = math.floor((full_angle + (wp.angle_step / 2)) / wp.angle_step) % wp.item_count
+		
+		if not wp.active_index or wp.active_index ~= active_index then
+			wp.active_index = active_index
+			self:OnActiveIndexChange(active_index)
+		end
+	end	
+end
+
+function ActionWheelOverlay:UpdateItems()
+	if level.is_removing_objects() then
+	return end
+	
+	self.wheel:DetachAll()
+	
+	self.center_tip:Show(false)
+	
+	self.items = {}
+	
+	if not self.modes_list[self.mode] then
+		log_news("!mode [%s] is not described for action wheel, described modes: %s", self.mode, self.modes_list)
+		self:OnHide()
+	end
+	
+	local wp = self.wheel_params
+	
+	if self.mode == "slots" then
+		self:AddSlots()
+	end
+	if self.mode == "consumables" then
+		self:AddConsumables()
+	end	
+	if self.mode == "ammos" then
+		local idx = 0
+		local active_item = actor:active_item()
+		if active_item and (active_item:is_grenade() or active_item:get_weapon_m()) then
+			if active_item:is_grenade() then
+				self:AddGrenades()
+			else
+				self:AddAmmoTypes()
+			end
+		end
+	end
+	if self.mode == "devices" then
+		self:AddDevices()
+	end
+	if self.mode == "addons" then
+		self:AddAddons()
+	end	
+	
+	wp.item_count = table.size(self.items)
+	wp.angle_step = math.pi * 2 / wp.item_count
+	
+	for i,v in pairs(self.items) do
+		local icon = v[1]
+		
+		local angle = wp.start_angle + i * wp.angle_step
+		local pos = vector2():set(
+			wp.center.x + wp.show_dist * math.cos(angle) * get_current_kx(), 
+			wp.center.y + wp.show_dist * math.sin(angle)
+		)
+		
+		local offset = vector2():set(pos.x - icon:GetWidth() * 0.5, pos.y - icon:GetHeight() * 0.5)
+		icon:SetWndPos(offset.x, offset.y)
+		icon.angle = angle
+	end
+end
+
+function ActionWheelOverlay:AddWheelitem(item_or_sect)
+	local wp = self.wheel_params
+	local back = CUIStatic()
+	back:Init(0, 0, wp.back_size.x, wp.back_size.y)
+	back:SetColor(wp.back_color_def)
+	self.wheel:AttachChild(back)
+	local cell_size = wp.cell_size.w > 0 and table.copy(wp.cell_size) or nil
+	local is_section = type(item_or_sect) == "string"
+	if cell_size and wp.scale_item_size > 0 then
+		local sect = is_section and item_or_sect or item_or_sect:section()
+		local params = CIconParams(sect)
+		local scale_x, scale_y = 1, 1
+		if params.grid_width > wp.scale_item_size then
+			scale_x = wp.scale_item_size / params.grid_width
+		end
+		if params.grid_height > wp.scale_item_size then
+			scale_y = wp.scale_item_size / params.grid_height
+		end
+		local scale = math.min(scale_x, scale_y)
+		--log_news("item [%s] scale [%s]", sect, scale)
+		if scale < 1 then
+			cell_size.w = cell_size.w * scale
+			cell_size.h = cell_size.h * scale
+		end
+	end
+	local icon = is_section and ui_cell_item.UICellItemSimple(back, item_or_sect, cell_size) or ui_cell_item.UICellItem(back, item_or_sect, cell_size)
+	icon:SetInteractive(false)
+	back:InitTexture(wp.back_texture)
+	back:SetStretchTexture(true)
+	local offset = ui_utils.GetOffset("center", icon, back)
+	icon:SetWndPos(offset.x, offset.y)
+	return back, icon
+end
+
+function ActionWheelOverlay:OnActiveIndexChange(idx)
+	local wp = self.wheel_params
+	for i,v in pairs(self.items) do
+		v[1]:SetColor(i == idx and wp.color_act or wp.color_def)
+	end
+	if not self.items[idx] then
+	return end
+	if self.mode == "slots" then
+		local slot_num = self.items[idx][2]
+		if slot_num then
+			self:SetSlotItemTip(slot_num)
+			return
+		end	
+	end
+	if self.mode == "consumables" then
+		local id = self.items[idx][2]
+		if id then
+			self:SetConsumableTip(id)
+			return
+		end
+	end
+	if self.mode == "ammos" then
+		local act_item = actor:active_item()
+		if act_item and (act_item:is_grenade() or act_item:get_weapon_m()) then
+			if act_item:is_grenade() then
+				local id = self.items[idx][2]
+				if id then
+					self:SetGrenadeTip(id)
+					return
+				end			
+			else
+				local id = self.items[idx][2]
+				if id then
+					self:SetAmmoTip(id)
+					return
+				end			
+			end
+		end
+	end	
+	if self.mode == "devices" then
+		local id = self.items[idx][2]
+		if id then
+			self:SetDeviceTip(id)
+			return
+		end	
+	end
+	if self.mode == "addons" then
+		local id = self.items[idx][2]
+		if id then
+			self:SetAddonTip(id)
+			return
+		end	
+	end	
+end
+
+function ActionWheelOverlay:OnWheelClick()
+	local idx = self.wheel_params.active_index
+	if not idx or not self.items[idx] then
+	return end
+	
+	if self.mode == "slots" then
+		local slot_num = self.items[idx][2]
+		if slot_num then
+			self:OnSlotClick(slot_num)
+			return
+		end
+	end
+	if self.mode == "consumables" then
+		local id = self.items[idx][2]
+		if id then
+			self:OnConsumableClick(id)
+			return
+		end
+	end
+	if self.mode == "ammos" then
+		local act_item = actor:active_item()
+		if act_item and (act_item:is_grenade() or act_item:get_weapon_m()) then
+			if act_item:is_grenade() then
+				local id = self.items[idx][2]
+				if id then
+					self:OnGrenadeClick(id)
+					return
+				end
+			else
+				local id = self.items[idx][2]
+				if id then
+					self:OnAmmoClick(id)
+					return
+				end			
+			end
+		end
+	end	
+	if self.mode == "devices" then
+		local id = self.items[idx][2]
+		if id then
+			self:OnDeviceClick(id)
+			return
+		end
+	end
+	if self.mode == "addons" then
+		local id = self.items[idx][2]
+		if id then
+			self:OnAddonClick(id)
+			return
+		end
+	end	
+end
+
+function ActionWheelOverlay:OnModeButtonClick(mode)
+	-- log_news("mode [%s] clicked", mode)
+	if self.mode and self.mode == mode then
+	return end
+	self.mode = mode
+	for k,v in pairs(self.modes_list) do
+		v.button:SetCheck(k == self.mode)
+	end
+	self:UpdateItems()
+	self:OnActiveIndexChange(0)
+end
+
+function ActionWheelOverlay:AddSlots()
+	local idx = 0
+	for _,i in pairs(self.slot_list) do
+		local item = actor:item_in_slot(i)
+		if item then
+			local back = self:AddWheelitem(item)
+			self.items[idx] = {back, i}
+			idx = idx + 1
+		end
+	end
+end
+
+function ActionWheelOverlay:AddConsumables()
+	local items = {}
+	for id,v in pairs(loadout.get_loaded_items()) do
+		local item = level.object_by_id(id)
+		if item and item:is_eatable_item() then
+			local sect = item:section()
+			if not items[sect] then
+				items[sect] = {}
+			end
+			local start_portions_num = read_if_exists(sys_ini, "u32", sect, "eat_portions_num", 1)
+			local criteria = start_portions_num > 1 and item:get_eatable_item().eat_portions_num or item:condition()
+			table.insert(items[sect], {item, criteria})
+		end
+	end
+	--log_news("items [%s]", items)
+	local idx = 0
+	for sect,v in pairs(items) do
+		table.sort(v, function(a, b) return a[2] < b[2] end)
+		local item = v[1][1]
+		local back = self:AddWheelitem(item)
+		self.items[idx] = {back, item:id()}
+		idx = idx + 1
+	end
+end
+
+function ActionWheelOverlay:AddAmmoTypes()
+	local active_item = actor:active_item()
+	if not active_item then
+	return end
+	local ammo_types = active_item:get_gl_mode() and get_ammo2_sects(active_item) or get_ammo_sects(active_item)
+	if not ammo_types then
+	return end
+
+	--local current_ammo_sect = get_cur_ammo_sect(active_item)
+	
+	local function get_ammo_type_i(sect)
+		for k,v in pairs(ammo_types) do
+			if v == sect then
+				return k - 1
+			end
+		end
+	end
+	local idx = 0
+	
+	if is_unlimited_ammo() then
+		for k,v in pairs(ammo_types) do
+			-- if v ~= current_ammo_sect then
+				local ammo_type = k - 1
+				local back = self:AddWheelitem(v)
+				self.items[idx] = {back, ammo_type}
+				idx = idx + 1
+			-- end
+		end
+	else
+		local added_types = {}
+		for id,v in pairs(loadout.get_loaded_items()) do
+			local item = level.object_by_id(id)
+			if item and item:is_ammo() then
+				local sect = item:section()
+				local ammo_type = get_ammo_type_i(sect)
+				if ammo_type --[[and current_ammo_sect ~= sect]] and not added_types[ammo_type] then
+					local back = self:AddWheelitem(sect)
+					self.items[idx] = {back, ammo_type}
+					idx = idx + 1
+					added_types[ammo_type] = true
+				end
+			end
+		end	
+	end
+end
+
+function ActionWheelOverlay:AddGrenades()
+	local active_item = actor:active_item()
+	local active_sect = active_item:section()
+	local added_sects = {}
+	local idx = 0
+	for id,v in pairs(loadout.get_loaded_items()) do
+		local item = level.object_by_id(id)
+		if item and item:is_grenade() then
+			local sect = item:section()
+			if sect ~= active_sect and not added_sects[sect] then
+				local back = self:AddWheelitem(item)
+				self.items[idx] = {back, id}
+				idx = idx + 1
+				added_sects[sect] = true
+			end
+		end
+	end
+end
+
+function ActionWheelOverlay:AddDevices()
+	local idx = 0
+	local function perform_action(dummy, item)
+		if item and item:get_device() then
+			local can_set = false
+			local slots = item:get_inventory_item().slots
+			for k,v in pairs(slots) do
+				if v == DETECTOR_SLOT then
+					can_set = true
+					break
+				end
+			end
+			if can_set then
+				local id = item:id()
+				local back = self:AddWheelitem(item)
+				self.items[idx] = {back, id}
+				idx = idx + 1
+			end
+		end
+	end
+	actor:iterate_belt(perform_action, nil)
+end
+
+function ActionWheelOverlay:AddAddons()
+	local active_item = actor:active_item()
+	if not active_item then 
+	return end
+	local wpn = active_item:get_weapon_m()
+	if not wpn then
+	return end
+	local idx = 0
+	for addon_type,type_name in pairs(self.addon_types) do
+		--//detach addon
+		if wpn:is_addon_attached(addon_type) and wpn:addon_attachable(addon_type) and read_if_exists(sys_ini, "bool", wpn:get_addon_name(addon_type), "quick_attach", true) then
+			local sect = wpn:get_addon_name(addon_type)
+			local back, icon = self:AddWheelitem(sect)
+			self.items[idx] = {back, sect}
+			--//на апдейт пізніше тому що іконка отримає правильну позицію на колесі нижче по коду
+			add_update_delayed_action(1,
+				function() self:AddDettachAddonIcon(back) end
+			)
+			idx = idx + 1
+		end
+		--//attach addon
+		local items = {}
+		local addons = read_if_exists(sys_ini, "string", active_item:section(), type_name.."_name", nil)
+		local addons_list = split_string(addons, ",")
+		if addons_list and wpn:addon_attachable(addon_type) then
+			for k,addon_sect in pairs(addons_list) do
+				local item = actor:object(addon_sect)
+				if item and read_if_exists(sys_ini, "bool", addon_sect, "quick_attach", true) then
+					ui_utils.try_add_to_list(item, items, true)
+				end
+			end		
+		end
+		for k,v in pairs(items) do
+			local item = v.item
+			local id = item:id()
+			local can_set = item:section() ~= wpn:get_addon_name(addon_type) or not wpn:is_addon_attached(addon_type)
+			if can_set then
+				local back, icon = self:AddWheelitem(item)
+				self.items[idx] = {back, id}
+				--//на апдейт пізніше тому що іконка отримає правильну позицію на колесі нижче по коду
+				add_update_delayed_action(1,
+					function() self:AddAttachAddonIcon(back) end
+				)				
+				idx = idx + 1
+			end
+		end
+	end
+end
+
+function ActionWheelOverlay:OnSlotClick(slot_num)
+	local slot_item = actor:item_in_slot(slot_num)
+	if slot_num == HELMET_SLOT then
+		gasmask.wear_mask(slot_item)
+		self:UpdateItems()
+		return
+	end
+	-- if slot_num == BACKPACK_SLOT and backpack.try_drop() then
+		-- --add_update_delayed_action(1, function() self:UpdateItems() end)	
+		-- return
+	-- end
+	if slot_num == TORCH_SLOT then
+		if nvd.get_current_nvd() and nvd.get_current_nvd():id() == slot_item:id() then
+			switch_nvd_anim.on_key_press(nil, key_bindings.kNIGHT_VISION, true)
+			return
+		end
+		if actor_get_torch() and actor_get_torch():id() == slot_item:id() then
+			switch_torch_anim.on_key_press(nil, key_bindings.kTORCH, true)
+			return
+		end
+	end
+	local slot = (actor:active_slot() ~= slot_num) and slot_num or NO_ACTIVE_SLOT
+	actor:activate_slot(slot, false)
+end
+
+function ActionWheelOverlay:SetSlotItemTip(slot_num)
+	local item = actor:item_in_slot(slot_num)
+	if not item then
+	return end
+	
+	self.center_tip:Show(true)
+	local action = (slot_num == actor:active_slot()) and "ui_st_hide" or "ui_st_show"
+	if slot_num == TORCH_SLOT then
+		action = "ui_st_switch"
+	end
+	if slot_num == DETECTOR_SLOT then
+		action = actor:active_device() and "ui_st_hide" or "ui_st_show"
+	end
+	action = game.translate_string(action)
+	local name = get_inv_name_short(item:section())
+	local text = string.format("%s\\n%s", action, name)
+	self.center_tip:SetText(text)
+end
+
+function ActionWheelOverlay:OnConsumableClick(id)
+	local item = level.object_by_id(id)
+	if item and item:is_eatable_item() then
+		script_actions.eat(item)
+		--log_news("used item [%s] id [%s]", item:name(), item:id())
+	end
+end
+
+function ActionWheelOverlay:SetConsumableTip(id)
+	local item = level.object_by_id(id)
+	if not item then
+	return end
+	self.center_tip:Show(true)
+	local action = game.translate_string(script_actions.eat_item_tip(item))
+	local cut_chars = " ["
+	action = action:sub(1, action:find(cut_chars, 1, true) - 1)
+	local name = get_inv_name_short(item:section())
+	local text = string.format("%s\\n%s", action, name)
+	self.center_tip:SetText(text)
+end
+
+function ActionWheelOverlay:OnDeviceClick(id)
+	local item = level.object_by_id(id)
+	if not item then
+	return end
+	local slot_item = actor:item_in_slot(DETECTOR_SLOT)
+	if slot_item then
+		actor:move_to_ruck(slot_item)
+	end
+	actor:move_to_slot(item)
+	actor:activate_slot(DETECTOR_SLOT, false)
+	if slot_item then
+		actor:move_to_belt(slot_item)
+	end
+end
+
+function ActionWheelOverlay:SetDeviceTip(id)
+	local item = level.object_by_id(id)
+	if not item then
+	return end
+	self.center_tip:Show(true)
+	local action = game.translate_string("ui_st_show")
+	local name = get_inv_name_short(item:section())
+	local text = string.format("%s\\n%s", action, name)
+	self.center_tip:SetText(text)	
+end
+
+function ActionWheelOverlay:OnGrenadeClick(id)
+	local item = level.object_by_id(id)
+	if not item then
+	return end
+	local slot_item = actor:item_in_slot(GRENADE_SLOT)
+	actor:move_to_ruck(slot_item)
+	actor:move_to_slot(item)
+	actor:activate_slot(GRENADE_SLOT, false)
+	sm:call("on_grenade_type_switch", slot_item, item)
+end
+
+function ActionWheelOverlay:SetGrenadeTip(id)
+	local item = level.object_by_id(id)
+	if not item then
+	return end
+	self.center_tip:Show(true)
+	local action = game.translate_string("ui_st_show")
+	local name = get_inv_name_short(item:section())
+	local text = string.format("%s\\n%s", action, name)
+	self.center_tip:SetText(text)	
+end
+
+function ActionWheelOverlay:OnAmmoClick(i)
+	local active_item = actor:active_item()
+	if not active_item then
+	return end
+	local act_wpn = active_item:get_weapon_m()
+	if not act_wpn then
+	return end
+	act_wpn.next_ammo_type = i
+	self:ShowHide()
+end
+
+function ActionWheelOverlay:SetAddonTip(id)
+	local active_item = actor:active_item()
+	if not active_item or not active_item:get_weapon_m() then
+	return end
+	self.center_tip:Show(true)
+	local is_sect = type(id) == "string"
+	local action = is_sect and game.translate_string("ui_st_detach") or game.translate_string("ui_st_attach")
+	local sect = is_sect and id or level.object_by_id(id):section()
+	local name = get_inv_name_short(sect)
+	local text = string.format("%s\\n%s", action, name)
+	self.center_tip:SetText(text)	
+end
+
+function ActionWheelOverlay:OnAddonClick(id)
+	local active_item = actor:active_item()
+	if not active_item then
+	return end
+	local act_wpn = active_item:get_weapon_m()
+	if not act_wpn then
+	return end
+	if type(id) == "string" then
+		inventory.item_detach_addon(active_item, id)
+	else
+		local addon = level.object_by_id(id)
+		inventory.item_attach_addon(active_item, addon, inventory.item_can_attach_addon(active_item, addon))
+	end
+end
+
+function ActionWheelOverlay:SetAmmoTip(i)
+	local active_item = actor:active_item()
+	if not active_item or not active_item:get_weapon_m() then
+	return end
+	local ammo_types = active_item:get_gl_mode() and get_ammo2_sects(active_item) or get_ammo_sects(active_item)
+	if not ammo_types then
+	return end
+	self.center_tip:Show(true)
+	local action = game.translate_string("ui_st_reload")
+	local name = get_inv_name_short(ammo_types[i + 1])
+	local text = string.format("%s\\n%s", action, name)
+	self.center_tip:SetText(text)	
+end
+
+function ActionWheelOverlay:AddAttachAddonIcon(icon)
+	local attach_icon = CUIStatic()
+	local data = self.modes_list[self.mode]
+	attach_icon:InitTexture(data.attach_addon_texture)
+	attach_icon:SetStretchTexture(true)
+	attach_icon:SetColor(data.attach_addon_color)
+	attach_icon:SetWidth(icon:GetWidth() * data.attach_addon_scale)
+	attach_icon:SetHeight(icon:GetHeight() * data.attach_addon_scale)
+	
+	local wp = self.wheel_params
+	local angle = icon.angle
+	local pos = vector2():set(
+		wp.center.x + data.attach_addon_dist * math.cos(angle) * get_current_kx(), 
+		wp.center.y + data.attach_addon_dist * math.sin(angle)
+	)
+	local offset = vector2():set(pos.x - attach_icon:GetWidth() * 0.5, pos.y - attach_icon:GetHeight() * 0.5)
+	attach_icon:SetWndPos(offset.x, offset.y)
+	
+	self.wheel:AttachChild(attach_icon)
+	return attach_icon
+end
+
+function ActionWheelOverlay:AddDettachAddonIcon(icon)
+	local detach_icon = CUIStatic()
+	local data = self.modes_list[self.mode]
+	detach_icon:InitTexture(data.detach_addon_texture)
+	detach_icon:SetStretchTexture(true)
+	detach_icon:SetColor(data.detach_addon_color)
+	detach_icon:SetWidth(icon:GetWidth() * data.detach_addon_scale)
+	detach_icon:SetHeight(icon:GetHeight() * data.detach_addon_scale)
+	
+	local wp = self.wheel_params
+	local angle = icon.angle
+	local pos = vector2():set(
+		wp.center.x + data.detach_addon_dist * math.cos(angle) * get_current_kx(), 
+		wp.center.y + data.detach_addon_dist * math.sin(angle)
+	)
+	local offset = vector2():set(pos.x - detach_icon:GetWidth() * 0.5, pos.y - detach_icon:GetHeight() * 0.5)
+	detach_icon:SetWndPos(offset.x, offset.y)
+	
+	self.wheel:AttachChild(detach_icon)
+	--icon:BringToBottom(detach_icon)
+	return detach_icon
+end
+
+function ActionWheelOverlay:ShowHide(mode)
+	if not level.main_input_receiver() or self:IsShown() then
+		level.start_stop_menu(self)
+		if self:IsShown() then
+			self:OnShow(mode)
+		else
+			self:OnHide()
+		end
+	end
+end
+
+function ActionWheelOverlay:ProcessSlowMotion(enable)
+	local console = get_console()
+	local timefactor = enable and self.menu_time_factor or 1
+	console:execute("time_factor "..timefactor)
+end
+
+function ActionWheelOverlay:OnShow(mode)
+	-- self:UpdateItems()
+	self:OnModeButtonClick(mode)
+	local cursor_pos = vector2():set(UI_BASE_WIDTH * 0.5, UI_BASE_HEIGHT * 0.5)
+	level.set_cursor_pos(cursor_pos)
+	local act_item = actor:active_item()
+	if act_item then		
+		act_item:zoom_out()
+	end
+	self:ProcessSlowMotion(true)
+	self:Subscribe()
+	sm:call("on_slot_selector_wheel_show")
+end
+
+function ActionWheelOverlay:OnHide()
+	sm:call("on_slot_selector_wheel_hide")
+	self:ProcessSlowMotion(false)
+	self:Unsubscribe()
+	overlay = nil
+end
+
+function ActionWheelOverlay:StopAnyMove()
+	CUIScriptWnd.StopAnyMove(self)
+	return false
+end
+
+local restricted_actions = {
+	[key_bindings.kWPN_FIRE] = true,
+	[key_bindings.kWPN_ZOOM] = true,
+}
+
+function ActionWheelOverlay:OnKeyboard(dik, keyboard_action)
+	CUIScriptWnd.OnKeyboard(self, dik, keyboard_action)
+	
+	local game_action = dik_to_bind(dik)
+	
+	if dik_to_bind(dik) == key_bindings.kQUIT then
+		self:OnHide()
+	end	
+	
+	if keyboard_action == ui_events.WINDOW_KEY_PRESSED then
+		if game_action == key_bindings.kSCORES and self.was_shown then
+			self:ShowHide()
+			return true
+		end	
+		if restricted_actions[game_action] then
+			return true
+		end
+	end
+
+	return self.key_accels[dik]
+end

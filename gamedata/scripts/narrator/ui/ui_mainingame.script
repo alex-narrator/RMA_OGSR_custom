@@ -95,6 +95,9 @@ function MainIngameOverlay:Subscribe()
 			{signal = "on_slot_selector_show", self = self, fun = self.ShowActiveTask},
 			{signal = "on_slot_selector_hide", self = self, fun = self.HideActiveTask},
 			
+			{signal = "on_slot_selector_wheel_show", self = self, fun = self.ShowActiveTask},
+			{signal = "on_slot_selector_wheel_hide", self = self, fun = self.HideActiveTask},			
+			
 			{signal = "on_custom_options_save", self = self, fun = self.OnCustomOptionsSave},
 			
 			{signal = "on_timed_action_start", self = self, fun = self.SetTimedActionProgress},
@@ -171,6 +174,8 @@ function MainIngameOverlay:InitControls()
 	self.hitmarker.hit_types = split_string(xml:ReadAttrib("hitmarker", "hit_types", ""), ",", false, true)
 	self.hitmarker.ttl = xml:ReadAttribFlt("hitmarker", "ttl", 3)
 	self.hitmarker.alpha = xml:ReadAttribFlt("hitmarker", "alpha", 255)
+	local color = split_string(xml:ReadAttrib("hitmarker", "color", "255,255,255"), ",", true)
+	self.hitmarker.color = GetARGB(self.hitmarker.alpha, color[1], color[2], color[3])
 	
 	self.grenade_marker = CUIStatic()
 	local scale = xml:ReadAttribFlt("grenade_marker", "scale", 1)
@@ -519,7 +524,7 @@ function MainIngameOverlay:UpdateMotionIcon()
 end
 
 function MainIngameOverlay:TryUpdatePanelItems(item, prev_place)
-	if prev_place == inv_place.belt or quick_slots.is_in_quick_slot(item) then 
+	if prev_place == inv_place.belt --[[or quick_slots.is_in_quick_slot(item)]] then 
 		self:SetPanelItemsNeedUpdate()
 	end
 end
@@ -560,7 +565,8 @@ function MainIngameOverlay:UpdatePanelItems()
 			table.insert(items, item)
 		end
 	end
-	table.sort(items,ui_utils.sort_by_quick_slot_num)
+	-- table.sort(items,ui_utils.sort_by_quick_slot_num)
+	table.sort(items,ui_utils.sort_by_size_type)
 	self.equiped_panel:DetachAll()
 	self.equiped_panel.cell_items = {}
 	local function add_similar(item)
@@ -599,17 +605,17 @@ function MainIngameOverlay:UpdatePanelItems()
 					final_size.y = height
 				end
 			end
-			local quick_num = quick_slots.get_slot_num(item)
-			if quick_num then
-				local text = game.translate_string("ui_quick_slot_"..quick_num)
-				local quick_key = self.xml:InitStatic("equiped_panel:quick_key", cell_item)
-				quick_key:SetText(text)
-				quick_key:AdjustHeightToText()
-				quick_key:AdjustWidthToText()
-				local offset = ui_utils.GetOffset(self.equiped_panel.quick_key_offset, quick_key, cell_item)
-				quick_key:SetWndPos(offset.x, offset.y)
-				cell_item.quick_key = quick_key				
-			end
+			-- local quick_num = quick_slots.get_slot_num(item)
+			-- if quick_num then
+				-- local text = game.translate_string("ui_quick_slot_"..quick_num)
+				-- local quick_key = self.xml:InitStatic("equiped_panel:quick_key", cell_item)
+				-- quick_key:SetText(text)
+				-- quick_key:AdjustHeightToText()
+				-- quick_key:AdjustWidthToText()
+				-- local offset = ui_utils.GetOffset(self.equiped_panel.quick_key_offset, quick_key, cell_item)
+				-- quick_key:SetWndPos(offset.x, offset.y)
+				-- cell_item.quick_key = quick_key				
+			-- end
 		end
 	end
 	self.equiped_panel:SetHeight(final_size.y)
@@ -941,13 +947,14 @@ end
 function MainIngameOverlay:OnKeyPress(key, game_action)
 	if game_action == key_bindings.kSCORES then
 		--self.slot_selector:ShowHide()
-		ui_slot_selector.SlotSelectorOverlay()
+		--ui_slot_selector.ShowHideWnd()
+		ui_action_wheel.ShowHideWnd("slots")
 	end
 	
-	if game_action == key_bindings.kQUICK_ADDON then
-		--self.quick_addon:ShowHide()
-		ui_quick_addon.QuickAddonOverlay()
-	end
+	-- if game_action == key_bindings.kQUICK_ADDON then
+		-- --self.quick_addon:ShowHide()
+		-- ui_quick_addon.QuickAddonOverlay()
+	-- end
 	
 	if game_action == key_bindings.kDROP then
 		local act_item = actor:active_item()
@@ -1420,7 +1427,7 @@ function MainIngameOverlay:SetHitMarker(object, hit)
 	static:EnableHeading(true)
 	static:SetHeading(heading)
 	static:InitTexture(self.hitmarker.texture)
-	static:SetColorA(self.hitmarker.alpha)
+	static:SetColor(self.hitmarker.color)
 	self.hitmarker:AttachChild(static)
 	
 	local action_time = self.hitmarker.ttl * 1000

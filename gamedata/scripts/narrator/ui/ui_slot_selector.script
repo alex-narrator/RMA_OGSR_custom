@@ -8,11 +8,22 @@ local color_default = GetARGB(0, 255, 255, 255)
 local color_focused = GetARGB(255, 255, 255, 0)
 local color_defaul_compat = GetARGB(255, 255, 255, 255)
 
+local overlay
+
+function ShowHideWnd()
+	if not overlay then
+		overlay = SlotSelectorOverlay()
+		overlay:ShowHide()
+	else
+		overlay:ShowHide()
+	end
+end
+
 class "SlotSelectorOverlay" (CUIScriptWnd)
 
 function SlotSelectorOverlay:__init() super()
 	self:InitControls()
-	self:ShowHide()
+	self:Subscribe()
 	self:SetAutoDelete(true)
 end
 
@@ -412,7 +423,7 @@ function SlotSelectorOverlay:OnHide()
 	sm:call("on_slot_selector_hide")
 	self:ProcessSlowMotion(false)
 	self:Unsubscribe()
-	self:ClearCallbacks()	
+	overlay = nil
 end
 
 function SlotSelectorOverlay:StopAnyMove()

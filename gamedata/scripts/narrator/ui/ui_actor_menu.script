@@ -137,7 +137,7 @@ function ActorMenuOverlay:Subscribe()
 			{signal = "on_use", self = self, fun = self.OnUse},
 			{signal = "on_place_item_to_box", self = self, fun = self.OnItemToPartner},
 			
-			{signal = "on_quick_item_db_click", self = self, fun = self.OnQUickItemDbClick},
+			-- {signal = "on_quick_item_db_click", self = self, fun = self.OnQUickItemDbClick},
 			
 			{signal = "on_ruck_npc", self = self, fun = self.OnItemToPartner},
 			{signal = "on_slot_npc", self = self, fun = self.OnItemToPartner},
@@ -174,7 +174,7 @@ function ActorMenuOverlay:Unsubscribe()
 end
 
 function ActorMenuOverlay:DetachWnd()
-	quick_slots.set_selected(nil)
+	--quick_slots.set_selected(nil)
 	--self:Unsubscribe()
 	self:ClearCallbacks()
 end
@@ -330,7 +330,7 @@ function ActorMenuOverlay:InitControls()
 	end
 	
 	--// quick slots
-	self.quick_slots = ui_quick_slots.UIQuickSlots(xml, "quick_slots", self)
+	--self.quick_slots = ui_quick_slots.UIQuickSlots(xml, "quick_slots", self)
 	
 	--//loadout
 	--//loadout colors
@@ -779,9 +779,9 @@ function ActorMenuOverlay:OnContainerFocusLost(container)
 	self.cell_container_focused = nil
 end
 
-function ActorMenuOverlay:OnQUickItemDbClick(slot_num, sect, item)
-	quick_slots.set_item("", slot_num)
-end
+-- function ActorMenuOverlay:OnQUickItemDbClick(slot_num, sect, item)
+	-- quick_slots.set_item("", slot_num)
+-- end
 
 function ActorMenuOverlay:UpdateLoadout()
 	for k,v in pairs(self.loadout) do
@@ -1737,12 +1737,12 @@ function ActorMenuOverlay:OnMaxBeltSet(max_belt)
 	end
 end
 
-local quick_action = {
-	[key_bindings.kQUICK_SLOT_0] = true,
-	[key_bindings.kQUICK_SLOT_1] = true,
-	[key_bindings.kQUICK_SLOT_2] = true,
-	[key_bindings.kQUICK_SLOT_3] = true,
-}
+-- local quick_action = {
+	-- [key_bindings.kQUICK_SLOT_0] = true,
+	-- [key_bindings.kQUICK_SLOT_1] = true,
+	-- [key_bindings.kQUICK_SLOT_2] = true,
+	-- [key_bindings.kQUICK_SLOT_3] = true,
+-- }
 
 function ActorMenuOverlay:OnKeyboard(dik, keyboard_action)
 	CUIScriptWnd.OnKeyboard(self, dik, keyboard_action)
@@ -1794,16 +1794,16 @@ function ActorMenuOverlay:OnKeyboard(dik, keyboard_action)
 				self:Exit()
 				return true
 			end			
-		elseif quick_action[game_action] then
-			if self.cell_item_selected then
-				local item = self.cell_item_selected:GetAnyItem()
-				local item_sect = item:section()
-				if read_if_exists(sys_ini, "bool", item_sect, "quick_slot", false) then
-					local slot_num = game_action - key_bindings.kQUICK_SLOT_0
-					quick_slots.set_item(item_sect, slot_num)
-					return true
-				end
-			end
+		-- elseif quick_action[game_action] then
+			-- if self.cell_item_selected then
+				-- local item = self.cell_item_selected:GetAnyItem()
+				-- local item_sect = item:section()
+				-- if read_if_exists(sys_ini, "bool", item_sect, "quick_slot", false) then
+					-- local slot_num = game_action - key_bindings.kQUICK_SLOT_0
+					-- quick_slots.set_item(item_sect, slot_num)
+					-- return true
+				-- end
+			-- end
 		elseif dik == DIK_keys.DIK_X then
 			if self.cell_item_selected then
 				local item = self.cell_item_selected:GetAnyItem()
@@ -1853,7 +1853,7 @@ function ActorMenuOverlay:ShowPropertiesBox(item, cell_item)
 	--//deploy rc explosive
 	ui_cell_item_utils.add_deploy_rc_explosive(pbox, item)
 	--//set quick slot
-	ui_cell_item_utils.add_set_quick_slot(pbox, item)
+	-- ui_cell_item_utils.add_set_quick_slot(pbox, item)
 	--//to loadout
 	ui_cell_item_utils.add_to_loadout(pbox, item)
 	--//from loadout
@@ -2043,9 +2043,9 @@ function ActorMenuOverlay:SetInvTip(input, ttl)
 		local text = ""
 		if self:GetMode() == "inventory" and item then
 			text = game.translate_string(read_if_exists(sys_ini, "string", item:section(), "selected_tip", ""))
-			if read_if_exists(sys_ini, "bool", item:section(), "quick_slot", false) then
-				text = text.."\\n"..game.translate_string("st_tip_quick_slot")
-			end
+			-- if read_if_exists(sys_ini, "bool", item:section(), "quick_slot", false) then
+				-- text = text.."\\n"..game.translate_string("st_tip_quick_slot")
+			-- end
 			if service_kit.can_disassemble(item) then
 				text = text.."\\n"..game.translate_string("st_tip_disassembly")
 			end
