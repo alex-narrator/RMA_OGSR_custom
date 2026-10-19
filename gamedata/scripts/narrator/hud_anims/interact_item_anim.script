@@ -141,12 +141,20 @@ function play()
 	
 	block_non_move_action(true)
 	
-	if actor:active_item() then
-		actor:active_item():zoom_out()
+	local act_item = actor:active_item()
+	
+	if act_item then
+		act_item:zoom_out()
 	end
 	
-	game.play_hud_anm(hud_anm, 0, 1.5, 0.5, false)
-	game.play_hud_motion(1, hud_sect, "anm_use", false, 1, false)
+	local intens
+	if act_item and act_item:get_weapon_m() then
+		intens = act_item:is_pistol() and 0.5 or 1
+	end
+	if intens then
+		game.play_hud_anm(hud_anm, 0, 1.25, intens, false)
+	end
+	game.play_hud_motion(1, hud_sect, "anm_use", true, 1, true)
 	_G.SCRIPT_ANIM_PLAYING = true
 	local eff_name = read_if_exists(sys_ini, "string", hud_sect, "hud_effector", nil)
 	if eff_name then

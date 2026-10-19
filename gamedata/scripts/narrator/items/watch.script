@@ -1,13 +1,47 @@
 -- -*- mode: lua; coding: windows-1251-dos -*-
 function attach(sm)
 	sm:subscribe({signal = "on_key_press",  fun = this.on_key_press})
-	sm:subscribe({signal = "on_key_release",  fun = this.on_key_release})
+	-- sm:subscribe({signal = "on_key_release",  fun = this.on_key_release})
 	sm:subscribe({signal = "on_slot", 		fun = this.on_slot})
 	sm:subscribe({signal = "on_drop", 		fun = this.on_non_slot})
 	sm:subscribe({signal = "on_ruck", 		fun = this.on_non_slot})
 	sm:subscribe({signal = "on_hud_state_switch", 	fun = this.on_state_switch})
 	sm:subscribe({signal = "on_actor_weapon_zoom_in",   fun = this.on_zoom_in})
 end
+
+local anim_hud_sect = "wristwatch_check_wd"
+
+local anim_name = {
+	["show"] = "anm_show",
+	["hide"] = "anm_hide",
+	["idle"] = "anm_idle",
+}
+
+local hud_anims = {
+	["show"] = "camera_effects\\watch\\cam_leer_watch_in.anm",
+	["hide"] = "camera_effects\\watch\\cam_leer_watch_out.anm",
+	["idle"] = "camera_effects\\watch\\cam_leer_watch_idle.anm",
+}
+
+local postfix = {
+	["detector_geiger_cop"] = "dosimeter",
+	["detector_diy_cop"] = "dosimeter",
+	["detector_receiver_cop"] = "radio",
+	["detector_simple_cop"] = "echo",
+	["detector_advanced_cop"] = "bear",
+	["detector_elite_cop"] = "veles",
+	["detector_bio_cop"] = "veles",
+	["device_tactical_torch"] = "flashlight",
+	["device_flashlight"] = "flashlight",
+}
+
+function get_anim_data(anim_type, sect)
+	local add = postfix[sect] and "_"..postfix[sect] or ""
+	return anim_hud_sect..add, anim_name[anim_type]
+end
+
+local hide_device = false
+local mix_anim = true
 
 local current_watch = nil
 
@@ -55,48 +89,70 @@ function on_non_slot(obj, prev_place)
 end
 
 function on_key_press(key, game_action)
+	if anim_playing then
+		stop_watch_anim()
+	return end
 	if level.main_input_receiver() or
-		not actor_hands_free() or
+		(not actor_hands_free() and not anim_playing) or
 		game_action ~= key_bindings.kWPN_7 then
 	return end
 	if not current_watch then
 	return end
 	if anim_playing then
-	return end
-	
-	local act_item = actor:active_item()
-	
-	if act_item and act_item:is_zoomed() then
-		act_item:zoom_out()
-		level.add_call(
-			function()
-				return not wpn_IsRotatingFromZoom(act_item)--actor:active_item():is_zoomed()
-			end,
-			function()
-				play_watch_anim()
-			end
-		)			
-	elseif not act_item and not actor:active_device() then
-		actor:activate_slot(BOLT_SLOT)
-		level.add_call(
-			function()
-				return actor:active_item()
-			end,
-			function()
-				play_watch_anim()
-			end
-		)
+		stop_watch_anim()
 	else
-		play_watch_anim()
+		start_watch_anim()
 	end
 end
 
-function play_watch_anim()
-	game.play_hud_motion(1, "wristwatch_check", "anm_use", true)
-	anim_playing = true
-	
+function play_show_anim(device_sect)
+	local _type = "show"
+	level.add_cam_effector(hud_anims[_type], 6666666, false, "")
+	local sect, name = get_anim_data(_type, device_sect)
+	local anm_length = game.play_hud_motion(1, sect, name, mix_anim, 1, hide_device)
+	add_time_delayed_action(
+		anm_length * 0.001 * 0.95,
+		function()
+			if anim_playing then
+				play_idle_anim()
+			end
+		end,
+		function()
+			return not anim_playing
+		end
+	)
+end
+
+function play_idle_anim(device_sect)
+	local _type = "idle"
+	local sect, name = get_anim_data(_type, device_sect)
+	game.play_hud_motion(1, sect, name, mix_anim, 1, hide_device)
 	local color = current_watch.color
-	shader_set_custom_param("watch_backlight_color", color.x, color.y, color.z, 0)
+	shader_set_custom_param("watch_backlight_color", color.x, color.y, color.z, 0)	
+end
+
+function play_hide_anim(device_sect)
+	local _type = "hide"
+	level.add_cam_effector(hud_anims[_type], 6666666, false, "")
+	local sect, name = get_anim_data(_type, device_sect)
+	local anm_length = game.play_hud_motion(1, sect, name, mix_anim, 1, hide_device)
+	shader_set_custom_param("watch_backlight_color", 0, 0, 0, 0)
+end
+
+function start_watch_anim()
+	local act_item = actor:active_item()
+	local act_device = actor:active_device()
+	local device_sect = act_device and act_device:section()
+	if act_item or act_device then
+		if act_item then
+			act_item:zoom_out()
+		end
+		play_idle_anim(device_sect)
+	else
+		play_show_anim(device_sect)
+	end
+	anim_playing = true
+	play_sound()
 end
 
 function stop_watch_anim()
@@ -106,7 +162,19 @@ function stop_watch_anim()
 	return end
 	anim_playing = false
 	shader_set_custom_param("watch_backlight_color", 0, 0, 0, 0)
-	game.stop_hud_motion()
+	if actor:active_item() or actor:active_device() then
+		game.stop_hud_motion()
+	else
+		local device_sect = actor:active_device() and actor:active_device():section() or nil
+		play_hide_anim(device_sect)
+	end
+	play_sound()
+end
+
+function play_sound()
+	local sound = xr_sound.get_safe_sound_object("interface\\item_usage\\pickup")
+	sound:play(actor, 0, sound_object.s2d)
+	sound.volume = 0.5
 end
 
 function on_key_release(key, game_action)
