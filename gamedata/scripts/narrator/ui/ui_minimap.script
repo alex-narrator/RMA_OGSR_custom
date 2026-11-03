@@ -1,0 +1,482 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+local no_map_texture = "ui\\ui_nomap2"
+local no_map_rect = "-10000,-10000,10000,10000"
+local def_texture_size = vector2():set(1024, 1024)
+local size_3d_k = 0.00025
+
+local sm = ogsr_signals.get_mgr()
+
+local relation_color = {
+	[0] = GetARGB(255, 50, 255, 0),
+	[1] = GetARGB(255, 255, 200, 0),
+	[2] = GetARGB(255, 255, 0, 0),
+}
+local dead_color = GetARGB(255, 168, 168, 168)
+
+local level_changer_color = GetARGB(255, 10, 250, 250)
+
+local map_spot_to_texture = {
+	["default"] 					= {"ui_minimap_point", 0.35},
+	["crlc_big"] 					= {"ui_icons_newPDA_SmallBlue", 0.35},
+	["crlc_mdl"] 					= {"ui_icons_newPDA_SmallBlue", 0.35},
+	["crlc_small"] 					= {"ui_icons_newPDA_SmallBlue", 0.35},
+	["blue_location"] 				= {"ui_icons_mapPDA_persBig_e", 0.35},
+	["green_location"] 				= {"ui_icons_mapPDA_persBig_h", 0.35},
+	["red_location"] 				= {"ui_icons_mapPDA_mark_t", 0.35},
+	["quest_pointer"] 				= {"ui_map_selected", 0.3},
+	["eliminate_lager_location"] 	= {"ui_mapQuest_camp_destroy", 0.35},
+	["eliminate_lair_location"] 	= {"ui_mapQuest_lair_destroy", 0.35},
+	["defend_lager_location"] 		= {"ui_mapQuest_camp_defend", 0.35},
+	["artefact_location"] 			= {"ui_mapQuest_artefact", 0.35},
+	["kill_stalker_location"] 		= {"ui_mapQuest_stalker_destroy", 0.35},
+	["monster_part_location"] 		= {"ui_mapQuest_monster_find", 0.35},
+	["find_item_location"] 			= {"ui_mapQuest_item", 0.35},
+	["general_wounded_location"] 	= {"exclamation_mark", 0.35},
+	["treasure"] 					= {"ui_mapQuest_gold", 0.4},
+	["spot_trader_cop"] 			= {"ui_inGame2_PDA_icon_Stalker_Trader", 0.5},
+	["spot_stalker_cop"] 			= {"ui_inGame2_PDA_icon_Stalker_VIP", 0.5},
+	["spot_mechanic_cop"] 			= {"ui_inGame2_PDA_icon_Stalker_machanik", 0.5},
+	["spot_medic_cop"] 				= {"ui_inGame2_PDA_icon_Stalker_Medic", 0.5},
+	["spot_guide_cop"] 				= {"ui_inGame2_PDA_icon_Stalker_guide", 0.5},
+	["spot_storebox_cop"] 			= {"ui_inGame2_PDA_icon_Actor_Box", 0.5},
+	["spot_place_to_rest_cop"] 		= {"ui_inGame2_PDA_icon_Place_to_rest", 0.5},
+	["spot_treasure_cop"] 			= {"ui_inGame2_PDA_icon_secret", 0.5},
+	["spot_primary_cop"] 			= {"ui_inGame2_PDA_icon_Primary_mission", 0.5},
+	["spot_secondary_cop"] 			= {"ui_inGame2_PDA_icon_Secondary_mission", 0.5},
+	["personal_location"] 			= {"ui_icons_newPDA_markPersonal", 0.35},
+	["level_changer"] 				= {"ui_pda2_exit_point", 0.5},
+	["level_changer_up"] 			= {"ui_pda2_exit_point", 0.5, 1},
+	["level_changer_up_right"] 		= {"ui_pda2_exit_point", 0.5, -45},
+	["level_changer_right"] 		= {"ui_pda2_exit_point", 0.5, -90},
+	["level_changer_right_down"] 	= {"ui_pda2_exit_point", 0.5, -135},
+	["level_changer_down"] 			= {"ui_pda2_exit_point", 0.5, 180},
+	["level_changer_down_left"] 	= {"ui_pda2_exit_point", 0.5, 135},
+	["level_changer_left"] 			= {"ui_pda2_exit_point", 0.5, 90},
+	["level_changer_left_up"] 		= {"ui_pda2_exit_point", 0.5, 45},
+	["level_changer_up_down"] 		= {"ui_pda2_two_way_point", 0.5, 1},
+	["level_changer_left_right"] 	= {"ui_pda2_two_way_point", 0.5, 90},
+}
+
+class "UIMiniMap" (CUIScriptWnd)
+
+function UIMiniMap:__init(xml, owner, path, is_3d) super()
+	self.owner = owner
+	self.zoom = 1
+	self.is_3d = is_3d
+	self:InitLevelMap()
+	self:InitWnd(xml, owner, path)
+	self:SetAutoDelete(true)
+end
+
+function UIMiniMap:__finalize()
+	--log_news("UIMiniMap:__finalize()")
+end
+
+function UIMiniMap:DetachWnd()
+	self:ClearCallbacks()
+end
+
+function UIMiniMap:InitLevelMap()
+	local level_name = level.name()
+	ASSERT(game_ini:section_exist(level_name), "UIMiniMap: section for level [%s] not found in game_maps_single.ltx", level_name or "NIL")
+	local rect = split_string(read_if_exists(game_ini, "string", level_name, "bound_rect", no_map_rect), ",", true)
+	self.bound_rect = {}
+	self.bound_rect.l = rect[1]
+	self.bound_rect.b = rect[2]
+	self.bound_rect.r = rect[3]
+	self.bound_rect.t = rect[4]
+	self.bound_rect.width = self.bound_rect.r - self.bound_rect.l
+	self.bound_rect.height = self.bound_rect.t - self.bound_rect.b
+	self.map_texture = read_if_exists(game_ini, "string", level_name, "texture", no_map_texture)
+	self.texture_size = read_if_exists(game_ini, "vector2", level_name, "texture_size", def_texture_size)
+	-- log_news("map texture [%s] bound_rect w [%s] h [%s]", self.map_texture, self.bound_rectvwidth, self.bound_rect.height)
+end
+
+function UIMiniMap:InitWnd(xml, owner, path)
+	self:Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT)
+	owner:AttachChild(self)
+	self:Show(true)
+	
+	local root = path and path..":minimap" or "minimap"
+	
+	self.minimap_back = xml:InitStatic(root, self)
+	xml:InitAutoStaticGroup(root..":auto_static", self.minimap_back)
+	
+	--//map background
+	self.map = xml:InitStatic(root..":map", self.minimap_back)
+	self.map:ClipperOn()
+
+	local rounded = self.map:IsRounded()
+	
+	--//map texture
+	self.map_area = CUIStatic()
+	self.map_area:EnableHeading(true)
+	self.map_area:SetStretchTexture(true)
+	if self.is_3d then
+		self.map_area:InitTextureEx(self.map_texture, "hud\\p3d")
+	else
+		self.map_area:InitTexture(self.map_texture)		
+	end
+	self.map:AttachChild(self.map_area)
+	local size = rounded and math.min(self.map:GetWidth(), self.map:GetHeight()) or math.max(self.map:GetWidth(), self.map:GetHeight())
+	if rounded then
+		self.map_area:SetRounded(true)
+		self.map_area:SetSegmentsCount(self.map:GetSegmentsCount())
+	elseif not self.is_3d then
+		size = size * math.sqrt(2) / get_current_kx()
+	end
+	-- log_news("size [%s], width [%s], height [%s]", size, self.map:GetWidth(), self.map:GetHeight())
+	self.map_area:Init(0, 0, size, size)
+	self.map_area.size = size
+	local offset = ui_utils.GetOffset("center", self.map_area, self.map)
+	self.map_area:SetWndPos(offset.x, offset.y)
+	
+	-- log_news("minimap size width [%s] height [%s]", self.map_area:GetWidth(), self.map_area:GetHeight())
+	
+	self.map_area.alpha = xml:ReadAttribFlt(root..":map", "map_a", 255)
+	self.map_area:SetColorA(self.map_area.alpha)
+	
+	--//фактор масштабування для заданої ширини вікна
+	local scale_factor = self.map_area:GetHeight() / self.map:GetHeight()
+	--//ширина в реальних метрах для зуму 1х (задаємо через радіус)
+	self.zoom_1x_radius = xml:ReadAttribFlt(root..":map", "zoom_1x_radius", 50)
+	local zoom_1x_width = self.zoom_1x_radius * 2
+	self.map_size = zoom_1x_width * scale_factor
+	
+	local zoom_params = {}
+	zoom_params.cur_zoom = xml:ReadAttribFlt(root..":map", "def_zoom", 1)
+	zoom_params.min_zoom = xml:ReadAttribFlt(root..":map", "min_zoom", 1)
+	zoom_params.max_zoom = xml:ReadAttribFlt(root..":map", "max_zoom", 1)
+	zoom_params.zoom_step = xml:ReadAttribFlt(root..":map", "zoom_step", 1)
+	self.zoom_params = zoom_params
+	self:SetZoom(zoom_params.cur_zoom)
+	
+	self.center = xml:InitStatic(root..":center", self.map)
+	local offset = ui_utils.GetOffset("center", self.center, self.map)
+	self.center:SetWndPos(offset.x, offset.y)
+	
+	self.compass = xml:InitStatic(root..":compass", self.minimap_back)
+	self.compass:EnableHeading(true)
+	local offset = ui_utils.GetOffset("center", self.compass, self.map)
+	offset:add(self.map:GetWndPos())
+	self.compass:SetWndPos(offset.x, offset.y)
+	
+	self.pointer = xml:InitStatic(root..":pointer", self.minimap_back)
+	self.pointer:EnableHeading(true)
+	local offset = ui_utils.GetOffset("center", self.pointer, self.map)
+	offset:add(self.map:GetWndPos())
+	self.pointer:SetWndPos(offset.x, offset.y)	
+end
+
+function UIMiniMap:Update()
+	CUIScriptWnd.Update(self)
+    self.actor_pos = actor:position()
+	self.h = device().cam_dir:getH()
+	self:UpdateMap()
+	self:UpdateSpots()
+	self:UpdatePointer()
+end
+
+function UIMiniMap:UpdateMap()
+	local texture_size = self.texture_size
+    -- Співвідношення: скільки пікселів припадає на 1 метр ігрового світу
+	local ppm = vector2():set(texture_size.x / self.bound_rect.width, texture_size.y / self.bound_rect.height)
+	
+	local actor_pos = vector2():set(self.actor_pos.x, self.actor_pos.z)
+	actor_pos.x = math.clamp(actor_pos.x, self.bound_rect.l, self.bound_rect.r)
+	actor_pos.y = math.clamp(actor_pos.y, self.bound_rect.b, self.bound_rect.t)
+	
+    -- 1. Розрахунок позиції актора у відсотках від загального розміру карти (0.0 - 1.0)
+	local rel_pos = vector2():set((actor_pos.x - self.bound_rect.l) / self.bound_rect.width, (self.bound_rect.t - actor_pos.y) / self.bound_rect.height)
+	-- log_news("map_pos %s %s", map_pos.x, map_pos.y)
+	
+    -- 2. Переводимо координату гравця в пікселі на оригінальній текстурі
+	local map_pos = vector2():set(rel_pos.x * texture_size.x, rel_pos.y * texture_size.y)
+	
+    -- 3. Визначаємо, який розмір "кадру" в пікселях нам потрібно вирізати
+	local rect_w = self.map_size / self.zoom
+	
+    -- Переводимо діаметр огляду (в метрах) у розмір рамки в пікселях текстури
+	local rect_size = ppm:mul(rect_w)
+	
+    -- 4. Рахуємо координати лівого верхнього кута рамки (звідки починати вирізати)
+	local rect_pos = vector2():set(map_pos.x - (rect_size.x * 0.5), map_pos.y - (rect_size.y * 0.5))
+	
+    -- Обмежуємо рамку, щоб вона не виходила за межі текстури
+    -- rect_pos.x = math.clamp(rect_pos.x, 0, texture_size.x - rect_size.x)
+    -- rect_pos.y = math.clamp(rect_pos.y, 0, texture_size.y - rect_size.y)
+	
+	self.map_area:SetOriginalRect(rect_pos.x, rect_pos.y, rect_size.x, rect_size.y)
+	self.map_area:SetHeading(-self.h)
+	self.compass:SetHeading(-self.h)
+end
+
+function UIMiniMap:UpdateSpots()
+	self.map_area:DetachAll()
+	local map_targets = {}
+	
+	local pda = actor_get_pda()
+	if not pda then
+	return end
+	local pda_radius = read_if_exists(sys_ini, "float", pda:section(), "radius", 50)
+	
+	--//selected target
+	local tgt_id = ui_map_utils.get_show_target_id()
+	if tgt_id then
+		local tgt_pos, tgt_dist = ui_map_utils.get_selected_target_pos_dist()
+		if tgt_pos then
+			local add_selected_mark = false
+			for spot, data in pairs(map_spot_to_texture) do
+				if level.map_has_object_spot(tgt_id, spot) then
+					local marker_data = {
+						pos = tgt_pos,
+						dist = tgt_dist,
+						texture = data[1],
+						scale = data[2],
+						heading = data[3],
+						prior = 0,
+						selected_target = true
+					}
+					if spot == "general_wounded_location" then
+						marker_data.color = relation_color[2]
+					end
+					if string.find(spot, "level_changer") then
+						marker_data.color = level_changer_color
+					end
+					table.insert(map_targets, marker_data)
+					add_selected_mark = true
+				end
+			end
+			-- if not add_selected_mark then
+				-- local obj = level.object_by_id(tgt_id)
+				-- if obj and obj:clsid() == clsid.level_changer then
+					-- local data = map_spot_to_texture["level_changer"]
+					-- local marker_data = {
+						-- pos = tgt_pos,
+						-- dist = tgt_dist,
+						-- color = level_changer_color,
+						-- texture = data[1],
+						-- scale = data[2],
+						-- heading = data[3],
+						-- prior = 0,
+						-- selected_target = true
+					-- }
+					-- table.insert(map_targets, marker_data)					
+					-- add_selected_mark = true
+				-- end
+			-- end
+			if add_selected_mark then
+				--additional selected map spot
+				local data = map_spot_to_texture["quest_pointer"]
+				local marker_data = {
+					pos = tgt_pos,
+					dist = tgt_dist,
+					texture = data[1],
+					scale = data[2],
+					heading = data[3],
+					prior = 0,
+					selected_mark = true
+				}
+				table.insert(map_targets, marker_data)
+			end
+		end
+	end
+	
+	--//nearest objects
+	function perform_action(obj)
+		-- if obj:clsid() == clsid.level_changer and obj:id() ~= tgt_id then
+			-- local pos = obj:position()
+			-- local data = map_spot_to_texture["level_changer"]
+			-- local marker_data = {
+				-- pos = pos,
+				-- dist = distance_between(actor, obj),
+				-- color = level_changer_color,
+				-- texture = data[1],
+				-- scale = data[2],
+				-- heading = data[3],
+				-- prior = 0
+			-- }
+			-- table.insert(map_targets, marker_data)
+		-- end
+		if (obj:is_stalker() or obj:is_trader()) and obj:id() ~= tgt_id then
+			local pos = obj:position()
+			local alive = obj:alive()
+			local is_enemy = obj:is_relation_enemy(actor)
+			local marker_data = {
+				pos = pos,
+				dist = distance_between(actor, obj),
+				color = alive and relation_color[obj:relation(actor)] or dead_color,
+				prior = alive and (is_enemy and 2 or 1) or 0,
+			}
+			local hidden = (is_enemy and obj:alive() and not actor:see(obj)) or not alife():object(obj:id()):visible_for_map()
+			if not hidden then
+				table.insert(map_targets, marker_data)
+			end
+		end
+		for spot, data in pairs(map_spot_to_texture) do
+			if level.map_has_object_spot(obj:id(), spot) and obj:id() ~= tgt_id then
+				local pos = obj:position()
+				local marker_data = {
+					pos = pos,
+					dist = distance_between(actor, obj),
+					texture = data[1],
+					scale = data[2],
+					heading = data[3],
+					prior = 0
+				}
+				if spot == "general_wounded_location" then
+					marker_data.color = relation_color[2]
+				end
+				if string.find(spot, "level_changer") then
+					marker_data.color = level_changer_color
+				end				
+				table.insert(map_targets, marker_data)
+			end
+		end
+	end
+	level.iterate_nearest(self.actor_pos, pda_radius, perform_action)
+	
+	local function target_sort(a, b)
+		if a.prior ~= b.prior then
+			return a.prior < b.prior
+		end
+		return a.dist > b.dist
+	end
+	table.sort( map_targets, target_sort )
+
+	self.selected_target_inbound = false
+
+	for k, v in ipairs(map_targets) do
+		local def_data = map_spot_to_texture["default"]
+		local texture = v.texture or def_data[1]
+		local rect = GetTextureRect(texture)
+		local size = vector2():set(rect.x2 - rect.x1, rect.y2 - rect.y1)
+		local scale = v.scale or def_data[2]
+		size:mul(scale)
+		if self.is_3d then
+			size:mul(size_3d_k)
+		end
+		local heading = v.heading or def_data[3]
+		if not heading and not self.is_3d then
+			size.x = size.x * get_current_kx()
+		end
+		local spot_r = math.max(size.x, size.y) * 0.5
+		local ui_pos, in_bound = self:GetMapPos(v.pos, spot_r)
+		if in_bound or (v.selected_mark and self.selected_target_inbound) then
+			if v.selected_target then
+				self.selected_target_inbound = true
+			end
+			local obj_point = CUIStatic()
+			obj_point:SetAutoDelete(true)
+			obj_point:SetStretchTexture(true)
+			self.map_area:AttachChild(obj_point)
+			if self.is_3d then
+				obj_point:InitTextureEx(texture, "hud\\p3d")
+			else
+				obj_point:InitTexture(texture)
+			end
+			obj_point:SetWidth(size.x)
+			obj_point:SetHeight(size.y)
+			if v.color then
+				obj_point:SetColor(v.color)
+			end
+			obj_point:SetWndPos(ui_pos.x - size.x * 0.5, ui_pos.y - size.y * 0.5)
+			if heading then
+				obj_point:EnableHeading(true)
+				obj_point:SetHeading(-self.h + math.rad(heading))
+			end
+		end
+	end
+end
+
+function UIMiniMap:UpdatePointer()
+	self.pointer:Show(false)
+	if self.selected_target_inbound then
+	return end
+	local pos, dist = ui_map_utils.get_selected_target_pos_dist()
+	if not pos then
+	return end
+	if not actor_get_pda() or not actor_get_pda():is_power_on() then
+	return end
+	self.pointer:Show(true)
+	local heading = ui_map_utils.get_selected_target_heading(pos)
+	self.pointer:SetHeading(heading)	
+end
+
+function UIMiniMap:GetMapPos(obj_pos, spot_radius)
+	spot_radius = spot_radius or 0
+	
+	-- 2. Масштаб: скільки пікселів UI припадає на 1 метр у світі
+	local ppm = self.map_area.size / self.map_size * self.zoom
+
+	-- 3. Отримуємо відносну позицію об'єкта щодо актора (в метрах)
+	-- Інвертуємо Z (в іграх Z йде вгору, а на екрані Y йде вниз)
+	local dx = obj_pos.x - self.actor_pos.x
+	local dz = obj_pos.z - self.actor_pos.z 
+
+	-- 4. Обертаємо вектор відповідно до напрямку камери гравця
+	local cos_h = math.cos(-self.h)
+	local sin_h = math.sin(-self.h)
+
+	-- Класична матриця повороту 2D вектора
+	local rotated_x = dx * cos_h - dz * sin_h
+	local rotated_y = dx * sin_h + dz * cos_h
+	-- rotated_x = rotated_x * get_current_kx()
+
+	-- 5. Переводимо зміщення в чисті пікселі UI (без kx, щоб радіус був симетричним)
+	local offset_x = rotated_x * ppm
+	local offset_y = rotated_y * ppm
+
+	-- Радіус обмеження
+	-- Беремо по найменшій стороні вікна
+	local map_radius = self.map_area.size * 0.5
+
+	local clamp_radius = map_radius - spot_radius
+
+	local in_bound = true
+	-- 6. Логіка прилипання залежно від форми мапи
+	if self.map:IsRounded() then
+		-- КРУГЛА МАПА: Обмеження за вектором (колом)
+		local current_dist = math.sqrt(offset_x * offset_x + offset_y * offset_y)
+		if current_dist > clamp_radius then
+			offset_x = (offset_x / current_dist) * clamp_radius
+			offset_y = (offset_y / current_dist) * clamp_radius
+			in_bound = false
+		end
+	else
+		-- КВАДРАТНА МАПА: Обмеження за межами квадрата (AABB проекція)
+		if math.abs(offset_x) > clamp_radius or math.abs(offset_y) > clamp_radius then
+			-- Знаходимо коефіцієнт стискання для виходу на найближчу грань квадрата
+			local scale = math.min(clamp_radius / math.abs(offset_x), clamp_radius / math.abs(offset_y))
+			offset_x = offset_x * scale
+			offset_y = offset_y * scale
+			in_bound = false
+		end
+	end		
+
+	-- 7. Домножуємо на kx ТІЛЬКИ фінальну екранну координату X після всіх обмежень
+	if not self.is_3d then
+		offset_x = offset_x * get_current_kx()
+	end
+    
+	local ui_x = map_radius + offset_x
+	local ui_y = map_radius - offset_y -- мінус, бо в UI вісь Y йде вниз
+
+	return vector2():set(ui_x, ui_y), in_bound
+end
+
+function UIMiniMap:SetZoom(zoom)
+	self.zoom = zoom
+end
+
+function UIMiniMap:IncZoom()
+	local zp = self.zoom_params
+	zp.cur_zoom = math.clamp(zp.cur_zoom + zp.zoom_step, zp.min_zoom, zp.max_zoom)
+	self:SetZoom(zp.cur_zoom)
+end
+
+function UIMiniMap:DecZoom()
+	local zp = self.zoom_params
+	zp.cur_zoom = math.clamp(zp.cur_zoom - zp.zoom_step, zp.min_zoom, zp.max_zoom)
+	self:SetZoom(zp.cur_zoom)
+end

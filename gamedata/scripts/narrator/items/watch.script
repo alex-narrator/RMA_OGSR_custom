@@ -6,8 +6,12 @@ function attach(sm)
 	sm:subscribe({signal = "on_drop", 		fun = this.on_non_slot})
 	sm:subscribe({signal = "on_ruck", 		fun = this.on_non_slot})
 	sm:subscribe({signal = "on_hud_state_switch", 	fun = this.on_state_switch})
-	sm:subscribe({signal = "on_actor_weapon_zoom_in",   fun = this.on_zoom_in})
+	sm:subscribe({signal = "on_hud_item_zoom_in",   fun = this.on_zoom_in})
+	sm:subscribe({signal = "on_save", 			fun = this.on_save})
+	sm:subscribe({signal = "on_load", 			fun = this.on_load})	
 end
+
+local current_watch_modes = {}
 
 local anim_hud_sect = "wristwatch_check_wd"
 
@@ -48,6 +52,7 @@ local current_watch = nil
 function on_slot(obj, prev_place)
 	if obj:get_slot() ~= ARTEFACT_SLOT then
 	return end
+	local sect = obj:section()
 	local attach_hud_sect = read_if_exists(sys_ini, "string", obj:section(), "hands_attach_hud", nil)
 	if not attach_hud_sect then
 	return end
@@ -65,7 +70,12 @@ function on_slot(obj, prev_place)
 		attachment = attachment,
 		color = backlight_color,
 		glow = glow_color,
+		section = sect,
 	}
+	
+	if get_modes(sect) then
+		set_current_mode(sect, get_current_mode(sect))
+	end
 end
 
 function on_non_slot(obj, prev_place)
@@ -89,20 +99,25 @@ function on_non_slot(obj, prev_place)
 end
 
 function on_key_press(key, game_action)
-	if anim_playing then
-		stop_watch_anim()
+	if not actor:alive() then
 	return end
-	if level.main_input_receiver() or
-		(not actor_hands_free() and not anim_playing) or
-		game_action ~= key_bindings.kWPN_7 then
+	if game_action == key_bindings.kADDITIONAL_ACTION then
 	return end
-	if not current_watch then
-	return end
-	if anim_playing then
-		stop_watch_anim()
-	else
-		start_watch_anim()
+	if current_watch and get_modes(current_watch.section) then
+		if key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) and game_action == key_bindings.kWPN_7 then
+			switch_mode(current_watch.section)
+		return end
 	end
+	if anim_playing then
+		stop_watch_anim()
+	return end
+	if game_action ~= key_bindings.kWPN_7 or
+		not current_watch or
+		level.main_input_receiver() or
+		game_action ~= key_bindings.kWPN_7 or
+		not actor_hands_free()
+	then return end
+	start_watch_anim()
 end
 
 function play_show_anim(device_sect)
@@ -190,4 +205,48 @@ end
 
 function on_zoom_in(item)
 	stop_watch_anim()
+end
+
+function get_modes(sect)
+	return read_if_exists(sys_ini, "u32", sect, "modes", nil)
+end
+
+function get_current_mode(sect)
+	if not current_watch_modes[sect] then
+		current_watch_modes[sect] = 1
+	end
+	return current_watch_modes[sect]
+end
+
+function set_current_mode(sect, val)
+	local max_mode = get_modes(sect)
+	if not max_mode then
+	return end
+	current_watch_modes[sect] = val
+	local ui = ui_watch.get_current_ui(current_watch.attachment)
+	if ui and ui.OnModeSwitch then
+		ui:OnModeSwitch(val, max_mode)
+	end
+end
+
+function switch_mode(sect)
+	local max_mode = get_modes(sect)
+	if not max_mode then
+	return end
+	local current_mode = get_current_mode(sect) or 1
+	--log_news("current_mode [%s]", current_mode or "none")
+	local next_mode = current_mode + 1
+	if next_mode > max_mode then
+		next_mode = 1
+	end
+	--log_news("next_mode [%s]", next_mode or "none")
+	set_current_mode(sect, next_mode)
+end
+
+function on_save()
+	xr_vars.save_var("current_watch_modes", current_watch_modes)
+end
+
+function on_load()
+	current_watch_modes = xr_vars.load_var("current_watch_modes", current_watch_modes)
 end

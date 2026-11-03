@@ -10,6 +10,8 @@ local dead_color = GetARGB(255, 168, 168, 168)
 
 local level_changer_color = GetARGB(255, 10, 250, 250)
 
+local default_spot_scale = 0.5
+
 local directions = {
 	[0] = "N",
 	[45] = "NE",
@@ -23,34 +25,44 @@ local directions = {
 }
 
 local map_spot_to_texture = {
-	["crlc_big"] = "ui_icons_newPDA_SmallBlue",
-	["crlc_mdl"] = "ui_icons_newPDA_SmallBlue",
-	["crlc_small"] = "ui_icons_newPDA_SmallBlue",
-	["blue_location"] = "ui_icons_mapPDA_persBig_e",
-	["green_location"] = "ui_icons_mapPDA_persBig_h",
-	["red_location"] = "ui_icons_mapPDA_mark_t",	
-	["quest_pointer"] = "ui_map_selected",
-	["eliminate_lager_location"] = "ui_mapQuest_camp_destroy",
-	["eliminate_lair_location"] = "ui_mapQuest_lair_destroy",
-	["defend_lager_location"] = "ui_mapQuest_camp_defend",
-	["artefact_location"] = "ui_mapQuest_artefact",
-	["kill_stalker_location"] = "ui_mapQuest_stalker_destroy",
-	["monster_part_location"] = "ui_mapQuest_monster_find",
-	["find_item_location"] = "ui_mapQuest_item",
-	["general_wounded_location"] = "exclamation_mark",
-	["treasure"] = "ui_mapQuest_gold",
-	["spot_trader_cop"] = "ui_inGame2_PDA_icon_Stalker_Trader",
-	["spot_stalker_cop"] = "ui_inGame2_PDA_icon_Stalker_VIP",
-	["spot_mechanic_cop"] = "ui_inGame2_PDA_icon_Stalker_machanik",
-	["spot_medic_cop"] = "ui_inGame2_PDA_icon_Stalker_Medic",
-	["spot_guide_cop"] = "ui_inGame2_PDA_icon_Stalker_guide",
-	["spot_storebox_cop"] = "ui_inGame2_PDA_icon_Actor_Box",
-	["spot_place_to_rest_cop"] = "ui_inGame2_PDA_icon_Place_to_rest",
-	["spot_treasure_cop"] = "ui_inGame2_PDA_icon_secret",
-	["spot_primary_cop"] = "ui_inGame2_PDA_icon_Primary_mission",
-	["spot_secondary_cop"] = "ui_inGame2_PDA_icon_Secondary_mission",
-	["personal_location"] = "ui_icons_newPDA_markPersonal",
-	["level_changer"] = "ui_pda2_exit_point",
+	["crlc_big"] 					= {"ui_icons_newPDA_SmallBlue", 0.5},
+	["crlc_mdl"] 					= {"ui_icons_newPDA_SmallBlue", 0.5},
+	["crlc_small"] 					= {"ui_icons_newPDA_SmallBlue", 0.5},
+	["blue_location"] 				= {"ui_icons_mapPDA_persBig_e", 0.5},
+	["green_location"] 				= {"ui_icons_mapPDA_persBig_h", 0.5},
+	["red_location"] 				= {"ui_icons_mapPDA_mark_t", 0.5},
+	["quest_pointer"] 				= {"ui_map_selected", 0.4},
+	["eliminate_lager_location"] 	= {"ui_mapQuest_camp_destroy", 0.5},
+	["eliminate_lair_location"] 	= {"ui_mapQuest_lair_destroy", 0.5},
+	["defend_lager_location"] 		= {"ui_mapQuest_camp_defend", 0.5},
+	["artefact_location"] 			= {"ui_mapQuest_artefact", 0.5},
+	["kill_stalker_location"] 		= {"ui_mapQuest_stalker_destroy", 0.5},
+	["monster_part_location"] 		= {"ui_mapQuest_monster_find", 0.5},
+	["find_item_location"] 			= {"ui_mapQuest_item", 0.5},
+	["general_wounded_location"] 	= {"exclamation_mark", 0.5},
+	["treasure"] 					= {"ui_mapQuest_gold", 0.5},
+	["spot_trader_cop"] 			= {"ui_inGame2_PDA_icon_Stalker_Trader", 0.7},
+	["spot_stalker_cop"] 			= {"ui_inGame2_PDA_icon_Stalker_VIP", 0.7},
+	["spot_mechanic_cop"] 			= {"ui_inGame2_PDA_icon_Stalker_machanik", 0.7},
+	["spot_medic_cop"] 				= {"ui_inGame2_PDA_icon_Stalker_Medic", 0.7},
+	["spot_guide_cop"] 				= {"ui_inGame2_PDA_icon_Stalker_guide", 0.7},
+	["spot_storebox_cop"] 			= {"ui_inGame2_PDA_icon_Actor_Box", 0.7},
+	["spot_place_to_rest_cop"] 		= {"ui_inGame2_PDA_icon_Place_to_rest", 0.7},
+	["spot_treasure_cop"] 			= {"ui_inGame2_PDA_icon_secret", 0.7},
+	["spot_primary_cop"] 			= {"ui_inGame2_PDA_icon_Primary_mission", 0.7},
+	["spot_secondary_cop"] 			= {"ui_inGame2_PDA_icon_Secondary_mission", 0.7},
+	["personal_location"] 			= {"ui_icons_newPDA_markPersonal", 0.5},
+	["level_changer"] 				= {"ui_pda2_exit_point", 0.7},
+	["level_changer_up"] 			= {"ui_pda2_exit_point", 0.7},
+	["level_changer_up_right"] 		= {"ui_pda2_exit_point", 0.7},
+	["level_changer_right"] 		= {"ui_pda2_exit_point", 0.7},
+	["level_changer_right_down"] 	= {"ui_pda2_exit_point", 0.7},
+	["level_changer_down"] 			= {"ui_pda2_exit_point", 0.7},
+	["level_changer_down_left"] 	= {"ui_pda2_exit_point", 0.7},
+	["level_changer_left"] 			= {"ui_pda2_exit_point", 0.7},
+	["level_changer_left_up"] 		= {"ui_pda2_exit_point", 0.7},
+	["level_changer_up_down"] 		= {"ui_pda2_two_way_point", 0.7},
+	["level_changer_left_right"] 	= {"ui_pda2_two_way_point", 0.7},
 }
 
 class "CompassOverlay" (CUIScriptWnd)
@@ -84,11 +96,6 @@ function CompassOverlay:InitControls()
 	self.compass_modern = xml:InitStatic(root, self)	
 	local compass_params = {}
 	
-	compass_params.marker_scale = xml:ReadAttribFlt(root, "mark_scale", 1)
-	compass_params.selected_marker_scale = xml:ReadAttribFlt(root, "selected_mark_scale", 1)
-	compass_params.level_changer_mark_scale = xml:ReadAttribFlt(root, "level_changer_mark_scale", 1)
-	compass_params.other_marker_scale = xml:ReadAttribFlt(root, "other_mark_scale", 1)
-	
 	compass_params.scale_texture_w = xml:ReadAttribFlt(root, "scale_texture_w", 1024)
 	compass_params.scale_texture_h = xml:ReadAttribFlt(root, "scale_texture_h", 100)
 	compass_params.scale_texture_fov = xml:ReadAttribFlt(root, "scale_texture_fov", 240)
@@ -100,7 +107,10 @@ function CompassOverlay:InitControls()
 	compass_params.vertical_mark_add = xml:ReadAttribFlt(root, "vertical_mark_add", 16)
 	compass_params.hide_point_off_bound = xml:ReadAttribInt(root, "hide_point_off_bound", 1) > 0 and true or false
 	compass_params.hide_quest_point_off_bound = xml:ReadAttribInt(root, "hide_quest_point_off_bound", 1) > 0 and true or false
-	compass_params.distance_mark_scale = xml:ReadAttribInt(root, "distance_mark_scale", 0) > 0 and true or false
+	
+	compass_params.default_spot_texture = xml:ReadAttrib(root, "default_spot_texture", "ui_minimap_point")
+	compass_params.default_spot_scale = xml:ReadAttribFlt(root, "default_spot_scale", 0.5)
+	
 	self.compass_modern.params = compass_params
     self.compass_modern_scale = xml:InitStatic(root..":scale", self.compass_modern)
     self.compass_modern_line = xml:InitStatic(root..":line", self.compass_modern)
@@ -125,18 +135,17 @@ function CompassOverlay:Update()
     local width = params.use_actual_fov and fov * params.degree_width or params.scale_texture_w 	--//Frect x2
     local height = params.scale_texture_h 															--//Frect y2
     self.compass_modern_scale:SetOriginalRect(x, y, width, height)
-	self:ShowFrontViewMarks()
 	
-	local dist = main_window.minimap:GetActivePointDist()
-	local dist_show = dist >= 0.5
-	local text = dist_show and string.format("%.f %s", dist, game.translate_string("st_m")) or ""
+	local tgt_pos, tgt_dist = ui_map_utils.get_selected_target_pos_dist()	
+	local text = tgt_dist and string.format("%.f %s", tgt_dist, game.translate_string("st_m")) or ""
 	self.compass_modern_line:SetText(text)
 	local show_angle = math.round(angle)
 	text = string.format("[%s]", directions[show_angle] or show_angle)
 	self.compass_modern_line_2:SetText(text)
+	self:ShowFrontViewMarks(tgt_pos, tgt_dist)
 end
 
-function CompassOverlay:ShowFrontViewMarks()
+function CompassOverlay:ShowFrontViewMarks(tgt_pos, tgt_dist)
 	local compass_targets = {}
 	self.compass_modern_scale:DetachAll()
 	--self.screen_debug:DetachAll()
@@ -146,87 +155,77 @@ function CompassOverlay:ShowFrontViewMarks()
 	local params = self.compass_modern.params
 	local pda = actor_get_pda()
 	local pda_radius = pda and read_if_exists(sys_ini, "float", pda:section(), "radius", 50) or 50
-	local objective = gametask.active_objective()
-	local tgt_id = objective and objective:get_object_id() or nil
-	--//selected quest target
-	local lc_target_id = false
-	if objective then
-		local dist = main_window.minimap:GetActivePointDist()
-		local sim = alife()
-		local sobj = sim:object(tgt_id)
-		local obj_pos = nil
-		if sobj then
-			if sobj.level_id == sim:level_id() then
-				local cobj = level.object_by_id(tgt_id)
-				obj_pos = cobj and cobj:center() or sobj.position
-			else
-				for id, _ in pairs(db.level_changers) do
-					local lc = level.object_by_id(id)
-					if lc then
-						local dist_to_lc = distance_between(actor, lc)
-						if dist and math.fsimilar(dist, dist_to_lc, 1) then
-							obj_pos = lc:center()
-							lc_target_id = id
-							break
-						end
-					end
-				end				
-			end
-			local pos = point_on_screen.compass_ui_projection(obj_pos, scale_size.x, scale_size.y + params.vertical_mark_add, params.hide_quest_point_off_bound)
-			if pos then
-				--target map spot
-				for spot, texture in pairs(map_spot_to_texture) do
-					if level.map_has_object_spot(tgt_id, spot) then
-						local scale = params.other_marker_scale
-						local dist_k = params.distance_mark_scale and pda_radius / dist or 1
-						dist_k = math.clamp(dist_k, 0.5, 1)
-						scale = scale * dist_k
-						local marker_data = {
-							pos = pos,
-							dist = dist,
-							texture = texture,
-							scale = scale,
-							prior = 0
-						}
-						if spot == "general_wounded_location" then
-							marker_data.color = relation_color[2]
-						end
-						table.insert(compass_targets, marker_data)
-						break						
-					end
-				end
-				--additional selected map spot			
-				local scale = params.selected_marker_scale
-				local dist_k = params.distance_mark_scale and pda_radius / dist or 1
-				dist_k = math.clamp(dist_k, 0.5, 1)
-				scale = scale * dist_k
+	
+	--//selected target
+	if tgt_pos then
+		local tgt_id = ui_map_utils.get_show_target_id()
+		local pos = point_on_screen.compass_ui_projection(tgt_pos, scale_size.x, scale_size.y + params.vertical_mark_add, params.hide_quest_point_off_bound)
+		local add_selected_mark = false
+		for spot, data in pairs(map_spot_to_texture) do
+			if level.map_has_object_spot(tgt_id, spot) then
 				local marker_data = {
 					pos = pos,
-					dist = dist,
-					texture = map_spot_to_texture["quest_pointer"],
-					scale = scale,
-					prior = 0
+					dist = tgt_dist,
+					texture = data[1],
+					scale = data[2],
+					prior = 0,
 				}
+				if spot == "general_wounded_location" then
+					marker_data.color = relation_color[2]
+				end
+				if string.find(spot, "level_changer") then
+					marker_data.color = level_changer_color
+				end				
 				table.insert(compass_targets, marker_data)
+				add_selected_mark = true
 			end
 		end
-	end	
+		-- if not add_selected_mark then
+			-- local obj = level.object_by_id(tgt_id)
+			-- if obj and obj:clsid() == clsid.level_changer then
+				-- local data = map_spot_to_texture["level_changer"]
+				-- local marker_data = {
+					-- pos = pos,
+					-- dist = tgt_dist,
+					-- color = level_changer_color,
+					-- texture = data[1],
+					-- scale = data[2],
+					-- prior = 0,
+				-- }
+				-- table.insert(compass_targets, marker_data)					
+				-- add_selected_mark = true
+			-- end
+		-- end
+		if add_selected_mark then
+			--additional selected map spot
+			local data = map_spot_to_texture["quest_pointer"]
+			local marker_data = {
+				pos = pos,
+				dist = tgt_dist,
+				texture = data[1],
+				scale = data[2],
+				prior = 0,
+			}
+			table.insert(compass_targets, marker_data)			
+		end
+	end
 	--//nearest objects
 	function perform_action(obj)
-		if obj:clsid() == clsid.level_changer and obj:id() ~= lc_target_id then
-			local pos = point_on_screen.compass_ui_projection(obj:center(), scale_size.x, scale_size.y + params.vertical_mark_add, params.hide_point_off_bound)
-			if pos then
-				local marker_data = {
-					pos = pos,
-					dist = distance_between(actor, obj),
-					color = level_changer_color,
-					texture = map_spot_to_texture["level_changer"],
-					scale = params.level_changer_mark_scale,
-					prior = 0
-				}
-				table.insert(compass_targets, marker_data)
-			end
-		end
+		-- if obj:clsid() == clsid.level_changer and obj:id() ~= lc_target_id then
+			-- local pos = point_on_screen.compass_ui_projection(obj:center(), scale_size.x, scale_size.y + params.vertical_mark_add, params.hide_point_off_bound)
+			-- if pos then
+				-- local data = map_spot_to_texture["level_changer"]
+				-- local marker_data = {
+					-- pos = pos,
+					-- dist = distance_between(actor, obj),
+					-- color = level_changer_color,
+					-- texture = data[1],
+					-- scale = data[2],
+					-- prior = 0
+				-- }
+				-- table.insert(compass_targets, marker_data)
+			-- end
+		-- end
 		if (obj:is_stalker() or obj:is_trader()) and obj:id() ~= tgt_id then
 			local pos = point_on_screen.compass_ui_projection(obj:center(), scale_size.x, scale_size.y + params.vertical_mark_add, params.hide_point_off_bound)
 			if pos then
@@ -244,20 +243,23 @@ function CompassOverlay:ShowFrontViewMarks()
 				end
 			end
 		end
-		for spot, texture in pairs(map_spot_to_texture) do
+		for spot, data in pairs(map_spot_to_texture) do
 			if level.map_has_object_spot(obj:id(), spot) and obj:id() ~= tgt_id then
 				local pos = point_on_screen.compass_ui_projection(obj:center(), scale_size.x, scale_size.y + params.vertical_mark_add, params.hide_point_off_bound)
 				if pos then
 					local marker_data = {
 						pos = pos,
 						dist = distance_between(actor, obj),
-						texture = texture,
-						scale = params.other_marker_scale,
+						texture = data[1],
+						scale = data[2],
 						prior = 0
 					}
 					if spot == "general_wounded_location" then
 						marker_data.color = relation_color[2]
 					end
+					if string.find(spot, "level_changer") then
+						marker_data.color = level_changer_color
+					end					
 					table.insert(compass_targets, marker_data)
 				end
 			end
@@ -273,23 +275,23 @@ function CompassOverlay:ShowFrontViewMarks()
 	end
 	table.sort( compass_targets, target_sort )
 	
-	local marker_scale = params.marker_scale
 	for k, v in ipairs(compass_targets) do
 		local obj_point = CUIStatic()
 		obj_point:SetAutoDelete(true)
 		self.compass_modern_scale:AttachChild(obj_point)
-		--self.screen_debug:AttachChild(obj_point)
 		obj_point:SetStretchTexture(true)
-		local texture = v.texture or "ui_minimap_point"
+		local texture = v.texture or params.default_spot_texture
 		obj_point:InitTexture(texture)
 		local rect = obj_point:GetOriginalRect()
 		local size = vector2():set(rect.x2 - rect.x1, rect.y2 - rect.y1)
-		local scale = v.scale or marker_scale
-		obj_point:SetWidth(size.x * scale * get_current_kx())
-		obj_point:SetHeight(size.y * scale)
+		local scale = v.scale or params.default_spot_scale
+		size:mul(scale)
+		size.x = size.x * get_current_kx()
+		obj_point:SetWidth(size.x)
+		obj_point:SetHeight(size.y)
 		if v.color then
 			obj_point:SetColor(v.color)
 		end
-		obj_point:SetWndPos(v.pos.x - obj_point:GetWidth() / 2, v.pos.y - obj_point:GetHeight() / 2)
+		obj_point:SetWndPos(v.pos.x - size.x * 0.5, v.pos.y - size.y * 0.5)
 	end
 end

@@ -1,111 +1,7 @@
 local OVERLAY_XML = "script_overlays\\ui_watch.xml"
 
-local sim = alife()
-
 local time_hour_rad = math.pi / 6
 local time_minute_rad = math.pi / 30
-
-function get_next_changer_to_target(tgt_id)
-	local sobj = sim:object(tgt_id)
-	local target_level = sim:level_name(sobj.level_id)
-	local current_level = level.name()
-	local changers_list = db.level_changers
-
-    -- Черга для BFS: зберігає поточну локацію та ID першого переходу, який до неї привів
-    local queue = {}
-    -- Таблиця відвіданих локацій, щоб уникнути зациклення
-    local visited = {}
-
-    -- Ініціалізуємо чергу прямими переходами з поточної локації
-    for lc_id, levels_names in pairs(changers_list) do
-		local level_from = levels_names[1]
-		local level_to = levels_names[2]
-        if level_from == current_level then
-            -- Якщо перехід веде одразу на ціль, повертаємо його ID
-            if level_to == target_level then
-                return lc_id
-            end
-            table.insert(queue, {
-                current_loc = level_to,
-                first_step_id = lc_id
-            })
-            visited[level_to] = true
-        end
-    end
-
-    visited[current_level] = true
-    
-    -- Головний цикл BFS
-    local head = 1
-    while head <= #queue do
-        local current_node = queue[head]
-        head = head + 1
-        
-        local loc = current_node.current_loc
-        local first_step = current_node.first_step_id
-        
-        -- Перебираємо всі можливі переходи з цієї точки далі
-        for lc_id, levels_names in pairs(changers_list) do
-			local level_from = levels_names[1]
-			local level_to = levels_names[2]		
-            if level_from == loc then
-                local next_loc = level_to
-                
-                -- Якщо знайшли цільову локацію, повертаємо ID першого кроку
-                if next_loc == target_level then
-                    return first_step
-                end
-                
-                -- Якщо на цій локації ще не були, додаємо в чергу
-                if not visited[next_loc] then
-                    visited[next_loc] = true
-                    table.insert(queue, {
-                        current_loc = next_loc,
-                        first_step_id = first_step -- Прокидаємо ID найпершого чейнджера далі
-                    })
-                end
-            end
-        end
-    end
-
-    -- Шлях не знайдено (локації не зв'язані)
-    return nil
-end
-
-function get_show_target_id()
-	local objective = gametask.active_objective()
-	if not objective then
-	return false end
-	local tgt_id = objective:get_object_id()
-	if not tgt_id then
-	return false end
-	local sobj = sim:object(tgt_id)
-	if not sobj then
-	return false end
-	if sobj.level_id == sim:level_id() then
-		return tgt_id
-	else
-		return get_next_changer_to_target(tgt_id)
-	end	
-end
-
-function get_selected_target_pos_dist()
-	local tgt_id = get_show_target_id()
-	if not tgt_id then
-	return false end
-	local sobj = sim:object(tgt_id)
-	local pos = sobj.position
-	local dist = actor:position():distance_to(pos)
-	return pos, dist
-end
-
-function get_selected_target_heading(tgt_pos)
-	local cam_h = device().cam_dir:getH()
-	local tgt_dir = tgt_pos:sub(device().cam_pos)
-	local tgt_h = tgt_dir:normalize():getH()
-	local heading = -cam_h + tgt_h
-	return heading
-end
 
 class "UIMontana" (CUIScriptWnd)
 function UIMontana:__init(attachment) super()
@@ -118,11 +14,11 @@ function UIMontana:__init(attachment) super()
 	local root = "display_montana"
 	xml:InitWindow(root, 0, self)
 
-	root = root..":work_area"
-	self.work_area = xml:InitStatic(root, self)
+	root = root..":display"
+	self.display = xml:InitStatic(root, self)
 	
 	local time_root = root..":time"
-	self.time = xml:InitStatic(time_root, self.work_area)
+	self.time = xml:InitStatic(time_root, self.display)
 	self.hour_1 = xml:InitStatic(time_root..":hour_1", self.time)
 	self.hour_2 = xml:InitStatic(time_root..":hour_2", self.time)
 	self.minute_1 = xml:InitStatic(time_root..":minute_1", self.time)
@@ -131,7 +27,7 @@ function UIMontana:__init(attachment) super()
 	self.work_2 = xml:InitStatic(time_root..":work_2", self.time)
 
 	local date_root = root..":date"
-	self.date = xml:InitStatic(date_root, self.work_area)
+	self.date = xml:InitStatic(date_root, self.display)
 	self.day_1 = xml:InitStatic(date_root..":day_1", self.date)
 	self.day_2 = xml:InitStatic(date_root..":day_2", self.date)
 	self.date_sep_1 = xml:InitStatic(date_root..":date_sep_1", self.date)
@@ -219,11 +115,11 @@ function UIFenix:__init(attachment) super()
 	local root = "display_fenix"
 	xml:InitWindow(root, 0, self)
 	
-	root = root..":work_area"
-	self.work_area = xml:InitStatic(root, self)
+	root = root..":display"
+	self.display = xml:InitStatic(root, self)
 	
 	local time_root = root..":time"
-	self.time = xml:InitStatic(time_root, self.work_area)
+	self.time = xml:InitStatic(time_root, self.display)
 	self.hour_1 = xml:InitStatic(time_root..":hour_1", self.time)
 	self.hour_2 = xml:InitStatic(time_root..":hour_2", self.time)
 	self.minute_1 = xml:InitStatic(time_root..":minute_1", self.time)
@@ -231,7 +127,7 @@ function UIFenix:__init(attachment) super()
 	self.work = xml:InitStatic(time_root..":work", self.time)
 
 	local date_root = root..":date"
-	self.date = xml:InitStatic(date_root, self.work_area)
+	self.date = xml:InitStatic(date_root, self.display)
 	self.day_1 = xml:InitStatic(date_root..":day_1", self.date)
 	self.day_2 = xml:InitStatic(date_root..":day_2", self.date)
 	self.date_sep_1 = xml:InitStatic(date_root..":date_sep_1", self.date)	
@@ -242,14 +138,14 @@ function UIFenix:__init(attachment) super()
 	self.year_2 = xml:InitStatic(date_root..":year_2", self.date)
 
 	local target_root = root..":target"
-	self.target = xml:InitStatic(target_root, self.work_area)
+	self.target = xml:InitStatic(target_root, self.display)
 	self.dist_1 = xml:InitStatic(target_root..":dist_1", self.target)
 	self.dist_2 = xml:InitStatic(target_root..":dist_2", self.target)
 	self.dist_3 = xml:InitStatic(target_root..":dist_3", self.target)
 	self.dist_m = xml:InitStatic(target_root..":dist_m", self.target)	
 	self.pointer = xml:InitStatic(target_root..":pointer", self.target)
 	
-	self.new_message = xml:InitStatic(root..":new_message", self.work_area)
+	self.new_message = xml:InitStatic(root..":new_message", self.display)
 	
 	self.attachment = attachment
 	
@@ -314,11 +210,11 @@ function UIFenix:Update()
 	self.year_1:InitTextureEx(year_1, "hud\\p3d")
 	self.year_2:InitTextureEx(year_2, "hud\\p3d")
 	
-	local pos, dist = get_selected_target_pos_dist()
+	local pos, dist = ui_map_utils.get_selected_target_pos_dist()
 	local show_target = actor_get_pda() and actor_get_pda():is_power_on() and pos
 	self.target:Show(show_target)
 	if show_target then
-		local heading = get_selected_target_heading(pos)
+		local heading = ui_map_utils.get_selected_target_heading(pos)
 		self.pointer:SetHeading(heading)
 		
 		local dist_1, dist_2, dist_3 = "letter_digit_0", "letter_digit_0", "letter_digit_0"
@@ -354,11 +250,11 @@ function UITactix:__init(attachment) super()
 	local root = "display_tactix"
 	xml:InitWindow(root, 0, self)
 	
-	root = root..":work_area"
-	self.work_area = xml:InitStatic(root, self)
+	root = root..":display"
+	self.display = xml:InitStatic(root, self)
 	
 	local time_root = root..":time"
-	self.time = xml:InitStatic(time_root, self.work_area)
+	self.time = xml:InitStatic(time_root, self.display)
 	self.hour_1 = xml:InitStatic(time_root..":hour_1", self.time)
 	self.hour_2 = xml:InitStatic(time_root..":hour_2", self.time)
 	self.minute_1 = xml:InitStatic(time_root..":minute_1", self.time)
@@ -366,7 +262,7 @@ function UITactix:__init(attachment) super()
 	self.work = xml:InitStatic(time_root..":work", self.time)
 
 	local date_root = root..":date"
-	self.date = xml:InitStatic(date_root, self.work_area)
+	self.date = xml:InitStatic(date_root, self.display)
 	self.day_1 = xml:InitStatic(date_root..":day_1", self.date)
 	self.day_2 = xml:InitStatic(date_root..":day_2", self.date)
 	self.date_sep_1 = xml:InitStatic(date_root..":date_sep_1", self.date)	
@@ -377,7 +273,7 @@ function UITactix:__init(attachment) super()
 	self.year_2 = xml:InitStatic(date_root..":year_2", self.date)
 
 	local target_root = root..":target"
-	self.target = xml:InitStatic(target_root, self.work_area)
+	self.target = xml:InitStatic(target_root, self.display)
 	self.dist_1 = xml:InitStatic(target_root..":dist_1", self.target)
 	self.dist_2 = xml:InitStatic(target_root..":dist_2", self.target)
 	self.dist_3 = xml:InitStatic(target_root..":dist_3", self.target)
@@ -385,15 +281,15 @@ function UITactix:__init(attachment) super()
 	self.pointer = xml:InitStatic(target_root..":pointer", self.target)
 
 	local azimuth_root = root..":azimuth"
-	self.azimuth = xml:InitStatic(azimuth_root, self.work_area)
+	self.azimuth = xml:InitStatic(azimuth_root, self.display)
 	self.angle_1 = xml:InitStatic(azimuth_root..":angle_1", self.azimuth)
 	self.angle_2 = xml:InitStatic(azimuth_root..":angle_2", self.azimuth)
 	self.angle_3 = xml:InitStatic(azimuth_root..":angle_3", self.azimuth)
 	self.angle_o = xml:InitStatic(azimuth_root..":angle_o", self.azimuth)
 	
-	self.compass = xml:InitStatic(root..":compass", self.work_area)
+	self.compass = xml:InitStatic(root..":compass", self.display)
 	
-	self.new_message = xml:InitStatic(root..":new_message", self.work_area)
+	self.new_message = xml:InitStatic(root..":new_message", self.display)
 	
 	self.attachment = attachment
 	
@@ -458,7 +354,7 @@ function UITactix:Update()
 	self.year_1:InitTextureEx(year_1, "hud\\p3d")
 	self.year_2:InitTextureEx(year_2, "hud\\p3d")
 	
-	local pos, dist = get_selected_target_pos_dist()
+	local pos, dist = ui_map_utils.get_selected_target_pos_dist()
 	local show_target = actor_get_pda() and actor_get_pda():is_power_on() and pos
 	self.target:Show(show_target)
 	self.azimuth:Show(not show_target)
@@ -467,7 +363,7 @@ function UITactix:Update()
 	self.compass:SetHeading(-h)
 	
 	if show_target then
-		local heading = get_selected_target_heading(pos)
+		local heading = ui_map_utils.get_selected_target_heading(pos)
 		self.pointer:SetHeading(heading)
 		
 		local dist_1, dist_2, dist_3 = "letter_digit_0", "letter_digit_0", "letter_digit_0"
@@ -513,6 +409,39 @@ end
 
 class "UISuunto" (CUIScriptWnd)
 function UISuunto:__init(attachment) super()
+	self.attachment = attachment
+	self:InitControls()
+	self:Subscribe()
+	self:SetAutoDelete(true)
+end
+
+function UISuunto:__finalize()
+	self:Unsubscribe()
+end
+
+function UISuunto:Subscribe()
+	if not self.subscribed then
+		self.subscribed = {
+			{signal = "on_mouse_wheel", self = self, fun = self.OnMouseWheel},
+		}
+		local sm = ogsr_signals.get_mgr()
+		for _, s in ipairs( self.subscribed ) do
+			sm:subscribe( s )
+		end
+	end
+end
+
+function UISuunto:Unsubscribe()
+	if self.subscribed then
+		local sm = ogsr_signals.get_mgr()
+		for _, s in ipairs( self.subscribed ) do
+			sm:unsubscribe( s )
+		end
+		self.subscribed = false
+	end
+end
+
+function UISuunto:InitControls()
 	self:Show(true)
 	self:Enable(true)
 
@@ -522,22 +451,23 @@ function UISuunto:__init(attachment) super()
 	local root = "display_suunto"
 	xml:InitWindow(root, 0, self)
 	
-	root = root..":work_area"
-	self.work_area = xml:InitStatic(root, self)
+	self.displays = {}
 	
-	-- self.compass = xml:InitStatic(root..":compass", self.work_area)
-	-- self.compass_size = vector2():set(self.compass:GetWidth(), self.compass:GetHeight())
+	--//time display
+	local display_root = root..":display_time"
+	self.display_time = xml:InitStatic(root, self)
+	table.insert(self.displays, self.display_time)
 	
-	local time_root = root..":time"
-	self.time = xml:InitStatic(time_root, self.work_area)
+	local time_root = display_root..":time"
+	self.time = xml:InitStatic(time_root, self.display_time)
 	self.hour_1 = xml:InitStatic(time_root..":hour_1", self.time)
 	self.hour_2 = xml:InitStatic(time_root..":hour_2", self.time)
 	self.minute_1 = xml:InitStatic(time_root..":minute_1", self.time)
 	self.minute_2 = xml:InitStatic(time_root..":minute_2", self.time)
 	self.work = xml:InitStatic(time_root..":work", self.time)
 
-	local date_root = root..":date"
-	self.date = xml:InitStatic(date_root, self.work_area)
+	local date_root = display_root..":date"
+	self.date = xml:InitStatic(date_root, self.display_time)
 	self.day_1 = xml:InitStatic(date_root..":day_1", self.date)
 	self.day_2 = xml:InitStatic(date_root..":day_2", self.date)
 	self.date_sep_1 = xml:InitStatic(date_root..":date_sep_1", self.date)	
@@ -546,41 +476,136 @@ function UISuunto:__init(attachment) super()
 	self.date_sep_2 = xml:InitStatic(date_root..":date_sep_2", self.date)
 	self.year_1 = xml:InitStatic(date_root..":year_1", self.date)
 	self.year_2 = xml:InitStatic(date_root..":year_2", self.date)
+	
+	self.new_message = xml:InitStatic(display_root..":new_message", self.display_time)
+	
+	self.indicator_time = 0
+	self.indicator_switch_delay = 500
+	
+	--//condition bars display
+	local display_root = root..":display_conditions"
+	self.display_conditions = xml:InitStatic(root, self)
+	table.insert(self.displays, self.display_conditions)
+	
+	local health_root = display_root..":progress_health"
+	self.progress_health = xml:InitProgressShape(health_root, self.display_conditions)
+	
+	local power_root = display_root..":progress_power"
+	self.progress_power = xml:InitProgressShape(power_root, self.display_conditions)
 
-	local target_root = root..":target"
-	self.target = xml:InitStatic(target_root, self.work_area)
+	local bleeding_root = display_root..":bleeding"
+	self.bleeding = xml:InitStatic(bleeding_root, self.display_conditions)
+	
+	self.bleeding_indicator_time = 0
+	self.bleeding_indicator_switch_delay = xml:ReadAttribFlt(bleeding_root, "blink_delay", "0")	
+	
+	--//navigation display
+	local display_root = root..":display_navigation"
+	self.display_navigation = xml:InitStatic(root, self)
+	table.insert(self.displays, self.display_navigation)
+	self.minimap = ui_minimap.UIMiniMap(self.xml, self.display_navigation, display_root, true)
+
+	--//compass display
+	local display_root = root..":display_compass"
+	self.display_compass = xml:InitStatic(root, self)
+	
+	local target_root = display_root..":target"
+	self.target = xml:InitStatic(target_root, self.display_compass)
 	self.dist_1 = xml:InitStatic(target_root..":dist_1", self.target)
 	self.dist_2 = xml:InitStatic(target_root..":dist_2", self.target)
 	self.dist_3 = xml:InitStatic(target_root..":dist_3", self.target)
 	self.dist_m = xml:InitStatic(target_root..":dist_m", self.target)
 	self.pointer = xml:InitStatic(target_root..":pointer", self.target)
 
-	local azimuth_root = root..":azimuth"
-	self.azimuth = xml:InitStatic(azimuth_root, self.work_area)
+	local azimuth_root = display_root..":azimuth"
+	self.azimuth = xml:InitStatic(azimuth_root, self.display_compass)
 	self.angle_1 = xml:InitStatic(azimuth_root..":angle_1", self.azimuth)
 	self.angle_2 = xml:InitStatic(azimuth_root..":angle_2", self.azimuth)
 	self.angle_3 = xml:InitStatic(azimuth_root..":angle_3", self.azimuth)
 	self.angle_o = xml:InitStatic(azimuth_root..":angle_o", self.azimuth)
 	
-	self.compass = xml:InitStatic(root..":compass", self.work_area)
-	
-	self.new_message = xml:InitStatic(root..":new_message", self.work_area)
-	
-	self.attachment = attachment
-	
-	-- self.progress_shape = xml:InitProgressShape(root..":progress_shape", self.work_area)
-	
-	self.indicator_time = 0
-	self.indicator_switch_delay = 500
-	
-	self:SetAutoDelete(true)
-end
-
-function UISuunto:__finalize()
+	self.compass = xml:InitStatic(display_root..":compass", self.display_compass)
 end
 
 function UISuunto:Update()
 	CUIScriptWnd.Update(self)
+	self:UpdateCompass()	
+	self:UpdateTime()
+	self:UpdateConditions()
+	self:UpdateNavigation()
+end
+
+function UISuunto:OnMouseWheel(forward)
+	if not key_state(bind_to_dik(key_bindings.kADDITIONAL_ACTION)) then
+	return end
+	if self.minimap:IsShown() then
+		if forward then
+			self.minimap:IncZoom()
+		else
+			self.minimap:DecZoom()
+		end
+	end
+end
+
+function UISuunto:UpdateCompass()
+	self.display_compass:Show(self.display_time:IsShown())
+	if not self.display_compass:IsShown() then
+	return end
+	
+	local pos, dist = ui_map_utils.get_selected_target_pos_dist()
+	local show_target = actor_get_pda() and actor_get_pda():is_power_on() and pos
+	self.target:Show(show_target)
+	self.azimuth:Show(not show_target)
+	
+	local h = device().cam_dir:getH()
+	self.compass:SetHeading(-h)
+	
+	-- self.static_test:SetHeading(-h)
+	
+	if show_target then
+		local heading = ui_map_utils.get_selected_target_heading(pos)
+		self.pointer:SetHeading(heading)
+		
+		local dist_1, dist_2, dist_3 = "letter_digit_0", "letter_digit_0", "letter_digit_0"
+		dist = math.clamp(dist, 0, 999)
+		if dist < 10 then
+			dist_3 = string.format("letter_digit_%s", tostring(dist):sub(1, 1))
+		elseif dist < 100 then
+			dist_2 = string.format("letter_digit_%s", tostring(dist):sub(1, 1))
+			dist_3 = string.format("letter_digit_%s", tostring(dist):sub(2, 2))
+		else
+			dist_1 = string.format("letter_digit_%s", tostring(dist):sub(1, 1))
+			dist_2 = string.format("letter_digit_%s", tostring(dist):sub(2, 2))
+			dist_3 = string.format("letter_digit_%s", tostring(dist):sub(3, 3))		
+		end
+		self.dist_1:InitTextureEx(dist_1, "hud\\p3d")
+		self.dist_2:InitTextureEx(dist_2, "hud\\p3d")
+		self.dist_3:InitTextureEx(dist_3, "hud\\p3d")
+	else
+		local angle = math.deg(-h)
+		angle = angle < 0 and angle + 360 or angle
+		angle = math.round(angle)
+
+		local angle_1, angle_2, angle_3 = "letter_digit_0", "letter_digit_0", "letter_digit_0"
+		if angle < 10 then
+			angle_3 = string.format("letter_digit_%s", tostring(angle):sub(1, 1))
+		elseif angle < 100 then
+			angle_2 = string.format("letter_digit_%s", tostring(angle):sub(1, 1))
+			angle_3 = string.format("letter_digit_%s", tostring(angle):sub(2, 2))
+		else
+			angle_1 = string.format("letter_digit_%s", tostring(angle):sub(1, 1))
+			angle_2 = string.format("letter_digit_%s", tostring(angle):sub(2, 2))
+			angle_3 = string.format("letter_digit_%s", tostring(angle):sub(3, 3))		
+		end
+		self.angle_1:InitTextureEx(angle_1, "hud\\p3d")
+		self.angle_2:InitTextureEx(angle_2, "hud\\p3d")
+		self.angle_3:InitTextureEx(angle_3, "hud\\p3d")		
+	end
+end
+
+function UISuunto:UpdateTime()
+	if not self.display_time:IsShown() then
+	return end
 	
 	local tg = time_global()
 	
@@ -631,57 +656,55 @@ function UISuunto:Update()
 	self.year_1:InitTextureEx(year_1, "hud\\p3d")
 	self.year_2:InitTextureEx(year_2, "hud\\p3d")
 	
-	local pos, dist = get_selected_target_pos_dist()
-	local show_target = actor_get_pda() and actor_get_pda():is_power_on() and pos
-	self.target:Show(show_target)
-	self.azimuth:Show(not show_target)
-	
-	local h = device().cam_dir:getH()
-	self.compass:SetHeading(-h)
-	
-	if show_target then
-		local heading = get_selected_target_heading(pos)
-		self.pointer:SetHeading(heading)
-		
-		local dist_1, dist_2, dist_3 = "letter_digit_0", "letter_digit_0", "letter_digit_0"
-		dist = math.clamp(dist, 0, 999)
-		if dist < 10 then
-			dist_3 = string.format("letter_digit_%s", tostring(dist):sub(1, 1))
-		elseif dist < 100 then
-			dist_2 = string.format("letter_digit_%s", tostring(dist):sub(1, 1))
-			dist_3 = string.format("letter_digit_%s", tostring(dist):sub(2, 2))
-		else
-			dist_1 = string.format("letter_digit_%s", tostring(dist):sub(1, 1))
-			dist_2 = string.format("letter_digit_%s", tostring(dist):sub(2, 2))
-			dist_3 = string.format("letter_digit_%s", tostring(dist):sub(3, 3))		
-		end
-		self.dist_1:InitTextureEx(dist_1, "hud\\p3d")
-		self.dist_2:InitTextureEx(dist_2, "hud\\p3d")
-		self.dist_3:InitTextureEx(dist_3, "hud\\p3d")
-	else
-		local angle = math.deg(-h)
-		angle = angle < 0 and angle + 360 or angle
-		angle = math.round(angle)
+	self.new_message:Show(main_window.flashing_icon:IsShown())	
+end
 
-		local angle_1, angle_2, angle_3 = "letter_digit_0", "letter_digit_0", "letter_digit_0"
-		if angle < 10 then
-			angle_3 = string.format("letter_digit_%s", tostring(angle):sub(1, 1))
-		elseif angle < 100 then
-			angle_2 = string.format("letter_digit_%s", tostring(angle):sub(1, 1))
-			angle_3 = string.format("letter_digit_%s", tostring(angle):sub(2, 2))
+function UISuunto:UpdateConditions()
+	if not self.display_conditions:IsShown() then
+	return end
+	self.progress_health:SetPos(actor.health)
+	self.progress_power:SetPos(actor.power)
+	local bleeding = actor:get_bleeding()
+	if bleeding > 0 then
+		if self.bleeding_indicator_switch_delay > 0 then
+			local delay = self.bleeding_indicator_switch_delay / bleeding
+			local tg = time_global()
+			if (tg > self.bleeding_indicator_time + delay) then
+				self.bleeding_indicator_time = tg
+				self.bleeding:Show(not self.bleeding:IsShown())
+				if self.bleeding:IsShown() then
+					local bleed_color = ui_utils.get_color_by_val(actor:get_bleeding(), 0, 1)
+					self.bleeding:SetColor(bleed_color)
+				end
+			end
 		else
-			angle_1 = string.format("letter_digit_%s", tostring(angle):sub(1, 1))
-			angle_2 = string.format("letter_digit_%s", tostring(angle):sub(2, 2))
-			angle_3 = string.format("letter_digit_%s", tostring(angle):sub(3, 3))		
+			if self.bleeding:IsShown() then
+				local bleed_color = ui_utils.get_color_by_val(actor:get_bleeding(), 0, 1)
+				self.bleeding:SetColor(bleed_color)
+			end		
 		end
-		self.angle_1:InitTextureEx(angle_1, "hud\\p3d")
-		self.angle_2:InitTextureEx(angle_2, "hud\\p3d")
-		self.angle_3:InitTextureEx(angle_3, "hud\\p3d")		
+	else
+		self.bleeding:Show(false)
 	end
-	
-	self.new_message:Show(main_window.flashing_icon:IsShown())
-	
-	-- self.progress_shape:SetPos(actor.health)
+end
+
+function UISuunto:UpdateNavigation()
+	if not self.display_navigation:IsShown() then
+	return end
+	local h = device().cam_dir:getH()
+end
+
+function UISuunto:OnModeSwitch(mode, max_mode)
+	if mode and max_mode then
+		for i=1, max_mode do
+			if self.displays then
+				local display = self.displays[i]
+				if display then
+					display:Show(i == mode)
+				end
+			end
+		end
+	end
 end
 
 ---///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -697,11 +720,11 @@ function UILuminox:__init(attachment) super()
 	local root = "display_luminox"
 	xml:InitWindow(root, 0, self)
 	
-	root = root..":work_area"
-	self.work_area = xml:InitStatic(root, self)
+	root = root..":display"
+	self.display = xml:InitStatic(root, self)
 	
 	local date_root = root..":date"
-	self.date = xml:InitStatic(date_root, self.work_area)
+	self.date = xml:InitStatic(date_root, self.display)
 	self.day_1 = xml:InitStatic(date_root..":day_1", self.date)
 	self.day_2 = xml:InitStatic(date_root..":day_2", self.date)
 	
@@ -748,11 +771,11 @@ function UIRolex:__init(attachment) super()
 	local root = "display_rolex_gmt_master"
 	xml:InitWindow(root, 0, self)
 	
-	root = root..":work_area"
-	self.work_area = xml:InitStatic(root, self)
+	root = root..":display"
+	self.display = xml:InitStatic(root, self)
 	
 	local date_root = root..":date"
-	self.date = xml:InitStatic(date_root, self.work_area)
+	self.date = xml:InitStatic(date_root, self.display)
 	self.day_1 = xml:InitStatic(date_root..":day_1", self.date)
 	self.day_2 = xml:InitStatic(date_root..":day_2", self.date)	
 	
@@ -796,11 +819,11 @@ function UITraserAutomatic:__init(attachment) super()
 	local root = "display_traser_automatic"
 	xml:InitWindow(root, 0, self)
 	
-	root = root..":work_area"
-	self.work_area = xml:InitStatic(root, self)
+	root = root..":display"
+	self.display = xml:InitStatic(root, self)
 	
 	local date_root = root..":date"
-	self.date = xml:InitStatic(date_root, self.work_area)
+	self.date = xml:InitStatic(date_root, self.display)
 	self.day_1 = xml:InitStatic(date_root..":day_1", self.date)
 	self.day_2 = xml:InitStatic(date_root..":day_2", self.date)		
 	
@@ -844,24 +867,13 @@ function UITraserP66:__init(attachment) super()
 	local root = "display_traser_p66"
 	xml:InitWindow(root, 0, self)
 	
-	root = root..":work_area"
-	self.work_area = xml:InitStatic(root, self)
+	root = root..":display"
+	self.display = xml:InitStatic(root, self)
 	
 	local date_root = root..":date"
-	self.date = xml:InitStatic(date_root, self.work_area)
+	self.date = xml:InitStatic(date_root, self.display)
 	self.day_1 = xml:InitStatic(date_root..":day_1", self.date)
 	self.day_2 = xml:InitStatic(date_root..":day_2", self.date)
-
-	local minimap_root = root..":minimap_back"
-	self.minimap_back = xml:InitStatic(minimap_root, self.work_area)
-	self.minimap = CUIMiniMap()
-	self.minimap_back:AttachChild(self.minimap)
-	self.minimap:EnableHeading(true) --//оце важливо зробити ДО Init()
-	local minimap_root = root..":minimap_back:minimap"
-	self.minimap:SetRounded(xml:ReadAttribInt(minimap_root, "rounded", "1") > 0)
-	self.minimap:SetSegmentsCount(xml:ReadAttribInt(minimap_root, "segments_count", "32"))
-	self.minimap:InitEx("hud\\p3d")
-	self.minimap:SetColorA(255)
 	
 	self:SetAutoDelete(true)
 end
@@ -888,10 +900,6 @@ function UITraserP66:Update()
 	
 	self.day_1:InitTextureEx(day_1, "hud\\p3d")
 	self.day_2:InitTextureEx(day_2, "hud\\p3d")
-	
-	local h = device().cam_dir:getH()
-	self.minimap:SetHeading(-h)
-	self.minimap:SetActivePoint(device().cam_pos)	
 end
 
 ---///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -907,11 +915,11 @@ function UINorthEdge:__init(attachment) super()
 	local root = "display_north_edge"
 	xml:InitWindow(root, 0, self)
 	
-	root = root..":work_area"
-	self.work_area = xml:InitStatic(root, self)
+	root = root..":display"
+	self.display = xml:InitStatic(root, self)
 	
 	local time_root = root..":time"
-	self.time = xml:InitStatic(time_root, self.work_area)
+	self.time = xml:InitStatic(time_root, self.display)
 	self.hour_1 = xml:InitStatic(time_root..":hour_1", self.time)
 	self.hour_2 = xml:InitStatic(time_root..":hour_2", self.time)
 	self.minute_1 = xml:InitStatic(time_root..":minute_1", self.time)
@@ -919,7 +927,7 @@ function UINorthEdge:__init(attachment) super()
 	self.work = xml:InitStatic(time_root..":work", self.time)
 
 	local date_root = root..":date"
-	self.date = xml:InitStatic(date_root, self.work_area)
+	self.date = xml:InitStatic(date_root, self.display)
 	self.day_1 = xml:InitStatic(date_root..":day_1", self.date)
 	self.day_2 = xml:InitStatic(date_root..":day_2", self.date)
 	self.month_1 = xml:InitStatic(date_root..":month_1", self.date)
@@ -1018,4 +1026,8 @@ end
 
 function clear_ui()
 	watch_overlay = nil
+end
+
+function get_current_ui()
+	return watch_overlay
 end

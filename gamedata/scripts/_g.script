@@ -1841,6 +1841,8 @@ function read_if_exists(ltx, val_type, section, val_name, default)
 			return ltx:r_s32(section,val_name)			
 		elseif val_type == "vector" then
 			return ltx:r_vector(section,val_name)
+		elseif val_type == "vector2" then
+			return ltx:r_vector2(section,val_name)			
 		elseif val_type == "vector4" then
 			return ltx:r_vector4(section,val_name)
 		elseif val_type == "fcolor" then
@@ -1882,6 +1884,9 @@ function write_to_cfg(ltx, val_type, section, val_name, value)
 	elseif val_type == "vector" then
 		ltx:w_vector(section,val_name,value)
 		return
+	elseif val_type == "vector2" then
+		ltx:w_vector2(section,val_name,value)
+		return		
 	elseif val_type == "vector4" then
 		ltx:w_vector4(section,val_name,value)
 		return
@@ -2127,10 +2132,14 @@ function split_string(inputstr, sep, tonum, tokeys)
 	end
 	local t={}
 	for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
-		if tokeys then
-			t[tonum and tonumber(str) or string.trim(str)] = true
-		else
-			table.insert(t, tonum and tonumber(str) or str)
+		local cleared_str = string.trim(str)
+		if cleared_str ~= "" then
+			local val = tonum and tonumber(cleared_str) or cleared_str
+			if tokeys then
+				t[val] = true
+			else
+				table.insert(t, val)
+			end			
 		end
 	end
 	return t

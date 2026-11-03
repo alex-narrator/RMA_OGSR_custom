@@ -1,0 +1,104 @@
+-- -*- mode: lua; coding: windows-1251-dos -*-
+local sim = alife()
+
+function get_next_changer_to_target(tgt_id)
+	local sobj = sim:object(tgt_id)
+	local target_level = sim:level_name(sobj.level_id)
+	local current_level = level.name()
+	local changers_list = db.level_changers
+
+    -- Черга для BFS: зберігає поточну локацію та ID першого переходу, який до неї привів
+    local queue = {}
+    -- Таблиця відвіданих локацій, щоб уникнути зациклення
+    local visited = {}
+
+    -- Ініціалізуємо чергу прямими переходами з поточної локації
+    for lc_id, levels_names in pairs(changers_list) do
+		local level_from = levels_names[1]
+		local level_to = levels_names[2]
+        if level_from == current_level then
+            -- Якщо перехід веде одразу на ціль, повертаємо його ID
+            if level_to == target_level then
+                return lc_id
+            end
+            table.insert(queue, {
+                current_loc = level_to,
+                first_step_id = lc_id
+            })
+            visited[level_to] = true
+        end
+    end
+
+    visited[current_level] = true
+    
+    -- Головний цикл BFS
+    local head = 1
+    while head <= #queue do
+        local current_node = queue[head]
+        head = head + 1
+        
+        local loc = current_node.current_loc
+        local first_step = current_node.first_step_id
+        
+        -- Перебираємо всі можливі переходи з цієї точки далі
+        for lc_id, levels_names in pairs(changers_list) do
+			local level_from = levels_names[1]
+			local level_to = levels_names[2]		
+            if level_from == loc then
+                local next_loc = level_to
+                
+                -- Якщо знайшли цільову локацію, повертаємо ID першого кроку
+                if next_loc == target_level then
+                    return first_step
+                end
+                
+                -- Якщо на цій локації ще не були, додаємо в чергу
+                if not visited[next_loc] then
+                    visited[next_loc] = true
+                    table.insert(queue, {
+                        current_loc = next_loc,
+                        first_step_id = first_step -- Прокидаємо ID найпершого чейнджера далі
+                    })
+                end
+            end
+        end
+    end
+
+    -- Шлях не знайдено (локації не зв'язані)
+    return nil
+end
+
+function get_show_target_id()
+	local objective = gametask.active_objective()
+	if not objective then
+	return false end
+	local tgt_id = objective:get_object_id()
+	if not tgt_id then
+	return false end
+	local sobj = sim:object(tgt_id)
+	if not sobj then
+	return false end
+	if sobj.level_id == sim:level_id() then
+		return tgt_id
+	else
+		return get_next_changer_to_target(tgt_id)
+	end	
+end
+
+function get_selected_target_pos_dist()
+	local tgt_id = get_show_target_id()
+	if not tgt_id then
+	return false end
+	local sobj = sim:object(tgt_id)
+	local pos = sobj.position
+	local dist = actor:position():distance_to(pos)
+	return pos, dist
+end
+
+function get_selected_target_heading(tgt_pos)
+	local cam_h = device().cam_dir:getH()
+	local tgt_dir = tgt_pos:sub(device().cam_pos)
+	local tgt_h = tgt_dir:normalize():getH()
+	local heading = -cam_h + tgt_h
+	return heading
+end

@@ -1,19 +1,6 @@
 <w>
 	<display_montana>
-		<work_area>
-			<!-- <time x="0.01" y="0.0225"> -->
-				<!-- <hour_1	x="0" y="0" width="0.00375" height="0.01" stretch="1"/> -->
-				<!-- <hour_2	x="0.004" y="0" width="0.00375" height="0.01" stretch="1"/> -->
-				<!-- <minute_1 x="0.009" y="0" width="0.00375" height="0.01" stretch="1"/> -->
-				<!-- <minute_2 x="0.013" y="0" width="0.00375" height="0.01" stretch="1"/> -->
-				
-				<!-- <work_1 x="0.018" y="0.0032" width="0.00075" height="0.001" stretch="1"> -->
-					<!-- <texture shader="hud\p3d">black_dot</texture> -->
-				<!-- </work_1> -->
-				<!-- <work_2 x="0.018" y="0.0062" width="0.00075" height="0.001" stretch="1"> -->
-					<!-- <texture shader="hud\p3d">black_dot</texture> -->
-				<!-- </work_2>	 -->
-			<!-- </time> -->
+		<display>
 			<time x="0.012" y="0.025">
 				<hour_1	x="0" y="0" width="0.002625" height="0.007" stretch="1"/>
 				<hour_2	x="0.003" y="0" width="0.002625" height="0.007" stretch="1"/>
@@ -42,11 +29,11 @@
 				<year_1 x="0.006" y="0" width="0.001" height="0.002" stretch="1"/>
 				<year_2 x="0.007" y="0" width="0.001" height="0.002" stretch="1"/>				
 			</date>		
-		</work_area>
+		</display>
 	</display_montana>
 	
 	<display_fenix>
-		<work_area>
+		<display>
 			<time x="0.01" y="0.025">
 				<hour_1	x="0" y="0" width="0.00375" height="0.007" stretch="1"/>
 				<hour_2	x="0.004" y="0" width="0.00375" height="0.007" stretch="1"/>
@@ -89,11 +76,11 @@
 			<new_message x="0.0165" y="0.037" width="0.004" height="0.0025" stretch="1" light_anim="ui_too_slow_blinking">
 				<texture shader="hud\p3d">ui_mail</texture>
 			</new_message>			
-		</work_area>
+		</display>
 	</display_fenix>
 	
 	<display_tactix>
-		<work_area>
+		<display>
 			<time x="0.01" y="0.024">
 				<hour_1	x="0" y="0" width="0.00375" height="0.007" stretch="1"/>
 				<hour_2	x="0.004" y="0" width="0.00375" height="0.007" stretch="1"/>
@@ -129,7 +116,7 @@
 				</dist_m>
 				
 				<pointer x="-0.009" y="-0.0051" width="0.025" height="0.025" stretch="1" heading="1">
-					<texture shader="hud\p3d" r="255" g="128" b="0">ui\items\wristwatch\ui_pointer</texture>
+					<texture shader="hud\p3d" r="255" g="128" b="0">ui_pointer</texture>
 				</pointer>				
 			</target>
 			
@@ -143,17 +130,17 @@
 			</azimuth>
 
 			<compass x="0.006" y="0.016" width="0.0248" height="0.0248" stretch="1" heading="1">
-				<texture shader="hud\p3d">ui\items\wristwatch\ui_compass_marks</texture>
+				<texture shader="hud\p3d">ui_compass_marks</texture>
 			</compass>			
 			
 			<new_message x="0.017" y="0.0355" width="0.003" height="0.002" stretch="1" light_anim="ui_too_slow_blinking">
 				<texture shader="hud\p3d">ui_mail</texture>
 			</new_message>
-		</work_area>
+		</display>
 	</display_tactix>
 	
 	<display_suunto>
-		<work_area>
+		<display_time>
 			<time x="0.01" y="0.023">
 				<hour_1	x="0" y="0" width="0.00375" height="0.007" stretch="1"/>
 				<hour_2	x="0.004" y="0" width="0.00375" height="0.007" stretch="1"/>
@@ -178,8 +165,53 @@
 				</date_sep_2>
 				<year_1 x="0.009" y="0" width="0.0015" height="0.002" stretch="1"/>
 				<year_2 x="0.0105" y="0" width="0.0015" height="0.002" stretch="1"/>				
-			</date>
+			</date>			
 			
+			<new_message x="0.0165" y="0.0345" width="0.004" height="0.0025" stretch="1" light_anim="ui_too_slow_blinking">
+				<texture shader="hud\p3d">ui_mail</texture>
+			</new_message>
+		</display_time>
+		
+		<display_conditions>
+			<progress_health x="0.00265" y="0.012" width="0.031" height="0.031" sector_count="100" clockwise="0">
+				<front x="0" y="0" width="0.031" height="0.031">
+					<texture shader="hud\p3d" a="200" r="255" g="0" b="0">ui_hud_circle_white_thin_hires</texture>			
+				</front>
+				<back x="0" y="0" width="0.031" height="0.031" stretch="1">
+					<texture shader="hud\p3d" a="25" r="255" g="0" b="0">ui_hud_circle_white_thin_hires</texture>
+				</back>		
+			</progress_health>
+			<progress_power x="0.0047" y="0.0138" width="0.027" height="0.027" sector_count="100" clockwise="0">
+				<front x="0" y="0" width="0.027" height="0.027">
+					<texture shader="hud\p3d" a="200" r="0" g="150" b="255">ui_hud_circle_white_thin_hires</texture>			
+				</front>
+				<back x="0" y="0" width="0.027" height="0.027" stretch="1">
+					<texture shader="hud\p3d" a="25" r="0" g="150" b="255">ui_hud_circle_white_thin_hires</texture>
+				</back>		
+			</progress_power>
+			<bleeding x="0.01" y="0.019" width="0.015" height="0.015" stretch="1" blink_delay="200">
+				<texture shader="hud\p3d">ui_hud_icon_drop_hires</texture>
+			</bleeding>
+		</display_conditions>
+		
+		<display_navigation>
+			<minimap x="0.00265" y="0.01175" width="0.0315" height="0.0315" stretch="1">
+				<map x="0" y="0" width="0.0315" height="0.0315" stretch="1" rounded="1" segments_count="48" def_zoom="1" min_zoom="0.5" max_zoom="1.5" zoom_step="0.5" map_a="255">
+					<texture shader="hud\p3d">ui_inv_back_black</texture>
+				</map>
+				<center width="0.001" height="0.001" stretch="1">
+					<texture r="255" g="128" b="0" shader="hud\p3d">ui_minimap_point</texture>
+				</center>
+				<compass width="0.0315" height="0.0315" stretch="1">
+					<texture shader="hud\p3d">ui_compass_marks</texture>
+				</compass>
+				<pointer width="0.0315" height="0.0315" stretch="1">
+					<texture r="255" g="128" b="0" shader="hud\p3d">ui_pointer</texture>
+				</pointer>
+			</minimap>
+		</display_navigation>
+		
+		<display_compass>
 			<target x="0.015" y="0.02">
 				<dist_1	x="0" y="0" width="0.0015" height="0.002" stretch="1"/>
 				<dist_2	x="0.0015" y="0" width="0.0015" height="0.002" stretch="1"/>
@@ -188,80 +220,66 @@
 					<texture shader="hud\p3d">symbol_m</texture>
 				</dist_m>
 				
-				<pointer x="-0.0125" y="-0.0082" width="0.031" height="0.031" stretch="1" heading="1">
-					<texture shader="hud\p3d" r="255" g="128" b="0">ui\items\wristwatch\ui_pointer</texture>
+				<pointer x="-0.01225" y="-0.008225" width="0.0315" height="0.0315" stretch="1" heading="1">
+					<texture shader="hud\p3d" r="255" g="128" b="0">ui_pointer</texture>
 				</pointer>				
 			</target>
 			
 			<azimuth x="0.016" y="0.02">
-				<angle_1	x="0" y="0" width="0.0015" height="0.002" stretch="1"/>
-				<angle_2	x="0.0015" y="0" width="0.0015" height="0.002" stretch="1"/>
+				<angle_1 x="0" y="0" width="0.0015" height="0.002" stretch="1"/>
+				<angle_2 x="0.0015" y="0" width="0.0015" height="0.002" stretch="1"/>
 				<angle_3 x="0.003" y="0" width="0.0015" height="0.002" stretch="1"/>
 				<angle_o x="0.0045" y="-0.0002" width="0.00125" height="0.0014" stretch="1">
 					<texture shader="hud\p3d">symbol_o</texture>
 				</angle_o>
 			</azimuth>
 
-			<compass x="0.00265" y="0.012" width="0.031" height="0.031" stretch="1" heading="1">
-				<texture shader="hud\p3d">ui\items\wristwatch\ui_compass_marks</texture>
-			</compass>			
-			
-			<new_message x="0.0165" y="0.0345" width="0.004" height="0.0025" stretch="1" light_anim="ui_too_slow_blinking">
-				<texture shader="hud\p3d">ui_mail</texture>
-			</new_message>
-		</work_area>
+			<compass x="0.00265" y="0.01175" width="0.0315" height="0.0315" stretch="1" heading="1">
+				<texture shader="hud\p3d">ui_compass_marks</texture>
+			</compass>
+		</display_compass>
 	</display_suunto>
 	
 	<display_luminox>
-		<work_area>
+		<display>
 			<date x="0" y="0">
 				<day_1	x="0" y="0" width="0.001" height="0.0018" stretch="1"/>
 				<day_2	x="0.001" y="0" width="0.001" height="0.0018" stretch="1"/>
 			</date>			
-		</work_area>
+		</display>
 	</display_luminox>
 	
 	<display_rolex_gmt_master>
-		<work_area>
+		<display>
 			<date x="0" y="0">
 				<day_1	x="0" y="0" width="0.001" height="0.0018" stretch="1"/>
 				<day_2	x="0.001" y="0" width="0.001" height="0.0018" stretch="1"/>
 			</date>		
-		</work_area>
+		</display>
 	</display_rolex_gmt_master>
 	
 	<display_traser_automatic>
-		<work_area>
+		<display>
 			<date x="0" y="0">
 				<day_1	x="0" y="0" width="0.001" height="0.0018" stretch="1"/>
 				<day_2	x="0.001" y="0" width="0.001" height="0.0018" stretch="1"/>
 			</date>		
-		</work_area>
+		</display>
 	</display_traser_automatic>
 	
 	<display_traser_p66>
-		<work_area>
+		<display>
 			<date x="0" y="0">
 				<day_1	x="0" y="0" width="0.001" height="0.0018" stretch="1"/>
 				<day_2	x="0.001" y="0" width="0.001" height="0.0018" stretch="1"/>
 			</date>
 			
 			<minimap_back x="-0.0065" y="-0.0045" width="0.01" height="0.01"/>
-		</work_area>
+		</display>
 	</display_traser_p66>
 	
 	<display_north_edge>
-		<work_area>
-			<!-- <time x="0.005" y="0.0105"> -->
-				<!-- <hour_1	x="0" y="0" width="0.0015" height="0.002" stretch="1"/> -->
-				<!-- <hour_2	x="0.0015" y="0" width="0.0015" height="0.002" stretch="1"/> -->
-				<!-- <minute_1 x="0.0045" y="0" width="0.0015" height="0.002" stretch="1"/> -->
-				<!-- <minute_2 x="0.006" y="0" width="0.0015" height="0.002" stretch="1"/> -->
-
-				<!-- <work x="0.003" y="0" width="0.0015" height="0.002" stretch="1"> -->
-					<!-- <texture shader="hud\p3d">symbol_:</texture> -->
-				<!-- </work>			 -->
-			<!-- </time> -->
+		<display>
 			<time x="0.004" y="0.0105">
 				<hour_1	x="0" y="0" width="0.002" height="0.002" stretch="1"/>
 				<hour_2	x="0.002" y="0" width="0.002" height="0.002" stretch="1"/>
@@ -280,6 +298,6 @@
 				<month_1 x="0.0035" y="0" width="0.0013" height="0.0015" stretch="1"/>
 				<month_2 x="0.0048" y="0" width="0.0013" height="0.0015" stretch="1"/>			
 			</date>
-		</work_area>
+		</display>
 	</display_north_edge>	
 </w>

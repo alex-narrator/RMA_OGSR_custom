@@ -193,7 +193,7 @@
 	<!-- </noise>		 -->
 	
 	<!-- horizontal from center - under modern compass -->
-	<visibility x="412" y="23" width="200" height="4" show_val="3">
+	<visibility x="412" y="1" width="200" height="4" show_val="3">
 		<static width="200" height="4" stretch="1"/>
 		<progress_bar width="200" height="4" mode="from_center" min="0" max="1" pos="0">
 			<min_color r="0" g="255" b="0"/>
@@ -371,25 +371,23 @@
 		</stat_mgun>		
 	</warning_icons>
 	
-	<compass_top_view x="0" y="0" width="120" height="160" stretch="1">
-		<!-- <texture>ui_inGame2_Radar_compass_alt</texture> -->
-		<texture>ui_inGame2_Radar_main_window_alt</texture>
-		<minimap_back x="-1" y="19" width="122" height="122" heading="1" stretch="1">
-			<!-- <texture>ui_inGame2_Radar_main_window_alt</texture> -->
-			<minimap rounded="1" segments_count="48" alpha="255" min_zoom="0.25" max_zoom="2" def_zoom="0.5" zoom_step="0.25"/>
-		</minimap_back>
-		<arrow x="-1" y="19" width="122" height="122" heading="1" stretch="1">
-			<!-- <texture>ui\ui_hud_map_arrow</texture> -->
-			<texture>ui_inGame2_Radar_compass_alt</texture>
-		</arrow>
-		<dist_text x="46" y="3" width="26" height="12" stretch="1">
-			<texture a="200">ui_square_grey</texture>
-			<text y="1" align="c" v_align="c" font="letterica16" color="ui_clr_1"/>
-		</dist_text>
-		<time_text x="13" y="17" width="22" height="12" stretch="1">
-			<text align="c" v_align="c" font="letterica18" color="ui_clr_1"/>
-		</time_text>		
-	</compass_top_view>
+	<minimap x="-5" y="10" width="120" height="120" stretch="1">
+		<auto_static width="120" height="120" rounded="1" segments_count="48" stretch="1">
+			<texture>ui_action_wheel_item</texture>
+		</auto_static>
+		<map x="5" y="5" width="110" height="110" stretch="1" rounded="1" segments_count="48" def_zoom="1" min_zoom="0.5" max_zoom="1.5" zoom_step="0.5" map_a="250">
+			<texture>ui_inv_back_black</texture>
+		</map>
+		<center width="3" height="4" stretch="1">
+			<texture r="0" g="255" b="255">ui_minimap_point</texture>
+		</center>
+		<compass width="130" height="130" stretch="1">
+			<texture>ui_compass</texture>
+		</compass>
+		<pointer width="130" height="130" stretch="1">
+			<texture r="0" g="255" b="255">ui_pointer_medium</texture>
+		</pointer>		
+	</minimap>
 	
 	<!-- <active_task x="724" y="0" width="300" height="50" stretch="1"> -->
 	<active_task x="362" y="45" width="300" height="55" stretch="1">

@@ -32,6 +32,7 @@ local script_options = {
 	["projectile_trajectory"] 		= { true, 	"bool" },
 	["grenade_trajectory"] 			= { true, 	"bool" },
 	["bolt_trajectory"] 			= { true, 	"bool" },
+	["minimap_mode"] 				= { 1, 		"u32" },
 	["actions_break_sprint"] 		= { false, 	"bool" },
 	["play_pda_2d_anim"] 			= { true, 	"bool" },
 	["permanent_death"] 			= { false, 	"bool" },
@@ -50,7 +51,13 @@ local options_tokens = {
 		"ht_on_target_tip",
 		"ht_no_crosshair",
 		"ht_always",
-	},	
+	},
+	["minimap_mode"] = {
+		"mm_none",
+		"mm_minimap",
+		"mm_compass",
+		"mm_both",
+	},
 }
 
 function init_options()
